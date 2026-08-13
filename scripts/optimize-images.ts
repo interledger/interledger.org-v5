@@ -3,12 +3,18 @@ import fs from 'node:fs'
 import path from 'node:path'
 import sharp from 'sharp'
 import {
+  AVIF_QUALITY,
+  DEPLOYED_IMAGE_SOURCES_CATALOG_RELATIVE_PATH,
   IMAGE_URL_PATHS,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH,
   TARGET_WIDTHS,
+  WEBP_QUALITY,
+  hasOptimizableRasterExtension,
   pathToSegments,
+  type DeployedImageSourcesCatalog,
   type OptimizedImageManifest
 } from '@/utils/main/imagePaths'
+import { isImageCdnEnabled } from '@/utils/main/imageCdn'
 import {
   isImageOverSizeLimit,
   imageSizeLimitError
@@ -25,22 +31,18 @@ const RUNTIME_MANIFEST_PATH = path.join(
   PROJECT_ROOT,
   OPTIMIZED_IMAGE_MANIFEST_RELATIVE_PATH
 )
+const RUNTIME_IMAGE_SOURCES_CATALOG_PATH = path.join(
+  PROJECT_ROOT,
+  DEPLOYED_IMAGE_SOURCES_CATALOG_RELATIVE_PATH
+)
 
 const CONCURRENCY = 4
 
-// Higher than sharp's WebP default (80): blog/body images were looking soft when
-// the browser had to fall back to a small variant (INTORG-934).
-const WEBP_QUALITY = 90
-// AVIF at q85 with 4:4:4 chroma stays visually close to WebP q90 while usually
-// smaller, with cleaner dark gradients (less banding than 4:2:0).
-// Browsers that support AVIF pick it via <source type="image/avif"> ordering.
-const AVIF_QUALITY = 85
+// WEBP_QUALITY and AVIF_QUALITY now live in @/utils/main/imagePaths so the
+// Netlify Image CDN URL builder encodes at the same settings as this script.
 // Bump when quality, target widths, or output naming changes so the content-hash
 // cache does not skip regeneration of already-processed sources.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
-// GIFs are excluded: sharp doesn't support multi-frame WebP, so animated GIFs
-// would become static. They're passed through as-is by OptimizedImage.
-const RASTER_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif'])
 
 interface SourceConfig {
   dir: string
@@ -58,10 +60,6 @@ const SOURCES: SourceConfig[] = [
   }
 ]
 
-function isRaster(file: string): boolean {
-  return RASTER_EXTENSIONS.has(path.extname(file).toLowerCase())
-}
-
 function collectFiles(dir: string, exclude: string[]): string[] {
   if (!fs.existsSync(dir)) return []
   const results: string[] = []
@@ -70,7 +68,7 @@ function collectFiles(dir: string, exclude: string[]): string[] {
     if (entry.isDirectory()) {
       if (exclude.some((e) => full.startsWith(e))) continue
       results.push(...collectFiles(full, exclude))
-    } else if (isRaster(full)) {
+    } else if (hasOptimizableRasterExtension(full)) {
       results.push(full)
     }
   }
@@ -136,6 +134,36 @@ function saveRuntimeManifest(): void {
   fs.writeFileSync(
     RUNTIME_MANIFEST_PATH,
     `${JSON.stringify(manifest, null, 2)}\n`
+  )
+}
+
+/**
+ * Bundled into the SSR function via import.meta.glob in images.ts. In CDN mode
+ * the encoder is skipped, so this is getOptimizedImage()'s only signal that a
+ * source actually ships in this deploy. Covers both committed /img assets and
+ * git-synced /uploads originals, so a referenced-but-missing file (a renamed
+ * hero, an upload not yet synced from the firewalled CMS) degrades to a plain
+ * <img> instead of a 404ing <picture> source. Paths are the site-relative
+ * source URLs, taken from the already-scanned batches.
+ */
+function saveDeployedImageSourcesCatalog(
+  batches: Array<{ dir: string; outputPrefix: string; files: string[] }>
+): void {
+  const sources = batches
+    .flatMap((batch) =>
+      batch.files.map(
+        (file) =>
+          `/${path.relative(PUBLIC_DIR, file).split(path.sep).join('/')}`
+      )
+    )
+    .sort()
+  const catalog: DeployedImageSourcesCatalog = { version: 1, sources }
+  fs.mkdirSync(path.dirname(RUNTIME_IMAGE_SOURCES_CATALOG_PATH), {
+    recursive: true
+  })
+  fs.writeFileSync(
+    RUNTIME_IMAGE_SOURCES_CATALOG_PATH,
+    `${JSON.stringify(catalog, null, 2)}\n`
   )
 }
 
@@ -210,15 +238,6 @@ async function processImage(
 
 async function main(): Promise<void> {
   const startTime = Date.now()
-  console.log('Optimizing images...\n')
-
-  const manifest = loadManifest()
-  // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
-  const updatedManifest: Record<string, string> = {}
-
-  let totalCreated = 0
-  let totalSkipped = 0
-  let totalFiles = 0
 
   const sourceBatches: Array<{
     dir: string
@@ -256,6 +275,34 @@ async function main(): Promise<void> {
         .join('\n')}`
     )
   }
+
+  // The Netlify Image CDN transforms on demand, so pre-generating variants here
+  // would be ~17 minutes of build time producing files nothing references.
+  // getOptimizedImage() switches to /.netlify/images on the same signal, and
+  // the runtime catalog falls back to its committed stub when absent. Oversize
+  // checks above still run in this mode so CI keeps enforcing image limits.
+  if (isImageCdnEnabled()) {
+    // The catalog still ships: it gates the CDN branch for every source so a
+    // path missing from this deploy degrades to a plain <img> rather than a
+    // 404ing <picture> source. Cheap (paths only, no encoding).
+    saveDeployedImageSourcesCatalog(sourceBatches)
+    console.log(
+      'Netlify Image CDN is enabled — skipping image optimization.\n' +
+        'Images are transformed on demand at /.netlify/images.\n' +
+        'Set IMAGE_CDN=off to force build-time encoding.'
+    )
+    return
+  }
+
+  console.log('Optimizing images...\n')
+
+  const manifest = loadManifest()
+  // Rebuilt from scratch each run — entries for deleted source files are dropped automatically.
+  const updatedManifest: Record<string, string> = {}
+
+  let totalCreated = 0
+  let totalSkipped = 0
+  let totalFiles = 0
 
   for (const { dir, outputPrefix, files } of sourceBatches) {
     const results = await withConcurrency(

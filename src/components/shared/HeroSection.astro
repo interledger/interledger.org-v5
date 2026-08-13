@@ -44,7 +44,11 @@ const resolvedCtas = ctas.filter(
     >
       {title}
     </h1>
-    {description && <p class="mb-2xl text-[1.125rem]">{description}</p>}
+    {
+      description && (
+        <p class="mb-2xl text-[1.125rem] whitespace-pre-line">{description}</p>
+      )
+    }
     {
       resolvedCtas.length > 0 && (
         <div class="flex flex-wrap gap-xl mt-xl">

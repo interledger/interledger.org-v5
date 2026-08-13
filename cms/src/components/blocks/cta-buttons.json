@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_blocks_cta_buttons",
+  "info": {
+    "displayName": "CTA Buttons",
+    "icon": "cursor",
+    "description": "One call-to-action button, or two side by side. On mobile they stack and go full width."
+  },
+  "options": {},
+  "attributes": {
+    "buttons": {
+      "type": "component",
+      "component": "shared.cta-button",
+      "repeatable": true,
+      "required": true,
+      "min": 1,
+      "max": 2,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

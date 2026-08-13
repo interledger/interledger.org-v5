@@ -48,6 +48,7 @@ import './faqHandler'
 import './reportSectionHandler'
 import './eventCardHandler'
 import './ctaLinkHandler'
+import './ctaButtonsHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 

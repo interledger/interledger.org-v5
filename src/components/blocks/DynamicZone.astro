@@ -28,6 +28,7 @@ import Faq from './Faq.astro'
 import EventCard from './EventCard.astro'
 import Quote from './Quote.astro'
 import CtaLink from './CtaLink.astro'
+import CtaButtons from './CtaButtons.astro'
 
 interface Block {
   __component: string
@@ -62,7 +63,8 @@ const componentMap: Record<string, any> = {
   'blocks.faq': Faq,
   'blocks.event-card': EventCard,
   'blocks.quote': Quote,
-  'shared.cta-link': CtaLink
+  'shared.cta-link': CtaLink,
+  'blocks.cta-buttons': CtaButtons
 }
 
 const resolvedBlocks = blocks
@@ -73,15 +75,32 @@ const resolvedBlocks = blocks
       console.warn(`Unknown component type: ${block.__component}`)
       return null
     }
-    return { Component, props: block }
+    return { Component, props: block, uid: block.__component }
   })
   .filter((item): item is NonNullable<typeof item> => item !== null)
+
+// Blocks are separated by `mt-4xl` on every item after the first, which is
+// exactly what the previous `gap-4xl` on the flex container produced. It is
+// written per item so a block can opt out and own its spacing instead.
+//
+// A block only belongs here if it renders in both the Strapi preview (this
+// file) and in an exported MDX page. In MDX there is no wrapper, so the
+// component's own margin is the only spacing it gets. Leaving the wrapper
+// margin in place as well would make the same block sit further down in the
+// preview than on the live page.
+const OWNS_ITS_SPACING = new Set(['blocks.cta-buttons'])
+const BLOCK_GAP = 'mt-4xl'
 ---
 
-<div class="flex flex-col gap-4xl">
+<div class="flex flex-col">
   {
-    resolvedBlocks.map(({ Component, props }) => (
-      <div class="w-full">
+    resolvedBlocks.map(({ Component, props, uid }, index) => (
+      <div
+        class:list={[
+          'w-full',
+          index > 0 && !OWNS_ITS_SPACING.has(uid) && BLOCK_GAP
+        ]}
+      >
         <Component {...props} />
       </div>
     ))

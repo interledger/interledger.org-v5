@@ -1,6 +1,11 @@
 ---
 import { buttonVariants } from './buttonVariants'
-import { twMerge, useTranslations, buildUmamiAttrs } from '@/utils'
+import {
+  twMerge,
+  useTranslations,
+  buildUmamiAttrs,
+  resolveDownloadName
+} from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
 
 type ButtonOpts = NonNullable<Parameters<typeof buttonVariants>[0]>
@@ -68,20 +73,10 @@ const targetAttrs = external
 // the link.
 const resolvedHref = ariaDisabled ? undefined : href
 
-// Prefer a filename from the path when present (e.g. /docs/guide.pdf → guide.pdf).
-// Empty string still enables the download attribute with the URL's default name.
-const downloadAttr = (() => {
-  if (!isDocument || !resolvedHref) return undefined
-  try {
-    const path = resolvedHref.startsWith('http')
-      ? new URL(resolvedHref).pathname
-      : (resolvedHref.split('?')[0] ?? resolvedHref)
-    const base = path.split('/').filter(Boolean).pop()
-    return base && base.includes('.') ? base : ''
-  } catch {
-    return ''
-  }
-})()
+// The filename derivation moved into the CTA helper so the card overlays get
+// the same attribute this button does (Jonathan, #483).
+const downloadAttr =
+  isDocument && resolvedHref ? resolveDownloadName(resolvedHref) : undefined
 
 const ariaLabel =
   typeof rest['aria-label'] === 'string' ? rest['aria-label'] : ''

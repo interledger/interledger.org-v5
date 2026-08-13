@@ -976,6 +976,7 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.cta-strip',
   'blocks.carousel',
   'blocks.faq',
+  'blocks.cta-buttons',
   'blocks.event-card',
   'blocks.quote'
 ] as const

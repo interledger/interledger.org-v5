@@ -750,6 +750,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]
@@ -1090,6 +1091,7 @@ export interface ApiHackathonPageHackathonPage
         'blocks.cta-strip',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]
@@ -1503,6 +1505,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.card-grid',
         'blocks.carousel',
         'blocks.faq',
+        'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote'
       ]

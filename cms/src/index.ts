@@ -22,6 +22,7 @@ import {
   validateCardGridVariantsForContentType,
   mergeValidationErrors,
   toValidationError,
+  normalizeRelativeLinksInDocumentData,
   LOCALES,
   shouldSkipMdxExport
 } from './utils'
@@ -40,6 +41,7 @@ import {
   IMAGE_EXTENSIONS,
   MAX_IMAGE_SIZE_LABEL
 } from './utils/uploadLimits'
+import { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './utils/seedMedia'
 import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
@@ -262,6 +264,12 @@ interface DbQueryApi {
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
 }
+interface KoaContext {
+  request: { headers: Record<string, string | string[] | undefined> }
+  status: number
+  body: unknown
+}
+
 interface StrapiInstance {
   documents: ((uid: string) => StrapiDocumentService) & {
     use: (middleware: DocumentValidationMiddleware) => void
@@ -281,6 +289,11 @@ interface StrapiInstance {
   }
   config: { get: (key: string, defaultValue?: unknown) => unknown }
   plugin: (name: string) => StrapiPlugin | undefined
+  server: {
+    router: {
+      post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void
+    }
+  }
   service: (uid: string) => unknown
 }
 
@@ -611,33 +624,6 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 }
 
-// Media types seeded from disk. Kept in sync with `shouldGitSyncUpload` above:
-// anything git-committed and served from the repo (images, video, PDF) must
-// also be seedable, or an MDX reference to it resolves to no media record and
-// the sync hard-fails (INTORG-876). Larger media storage is tracked in
-// INTORG-902.
-const MIME_BY_EXT: Record<string, string> = {
-  // Images
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.png': 'image/png',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.avif': 'image/avif',
-  '.tiff': 'image/tiff',
-  // Video (matches the VideoEmbed externalUrl regex extensions)
-  '.mp4': 'video/mp4',
-  '.webm': 'video/webm',
-  '.ogg': 'video/ogg',
-  '.ogv': 'video/ogg',
-  '.mov': 'video/quicktime',
-  // Documents
-  '.pdf': 'application/pdf'
-}
-
-const SEEDABLE_EXTENSIONS = new Set(Object.keys(MIME_BY_EXT))
-
 /**
  * Directories under `public/` to scan for seedable media.
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
@@ -650,11 +636,11 @@ const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
-async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
+async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<number> {
   const query = strapi.db?.query('plugin::upload.file')
   if (!query) {
     strapi.log.warn('⚠️  DB query API unavailable — skipping upload seeding')
-    return
+    return 0
   }
 
   const publicDir = strapi.dirs.static.public
@@ -686,7 +672,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
         continue
       }
       const sizeKB = Number((stat.size / 1024).toFixed(2))
-      const mime = MIME_BY_EXT[ext] ?? 'application/octet-stream'
+      const mime = SEED_MIME_BY_EXT[ext] ?? 'application/octet-stream'
 
       await query.create({
         data: {
@@ -710,6 +696,7 @@ async function seedUploadsFromDisk(strapi: StrapiInstance): Promise<void> {
   if (seeded > 0) {
     strapi.log.info(`✅ Seeded ${seeded} upload record(s) from disk`)
   }
+  return seeded
 }
 
 interface AdminApiTokenService {
@@ -1064,6 +1051,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       text: 'Button Text',
       external: 'External Link'
     },
+    'shared.cta-button': {
+      link: 'Link',
+      text: 'Button Text',
+      style: 'Style',
+      external: 'External Link',
+      document: 'Document Download'
+    },
+    'blocks.cta-buttons': {
+      buttons: 'Buttons'
+    },
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',
@@ -1379,10 +1376,44 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'shared.cta-button': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      style:
+        'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+    },
+    'blocks.cta-buttons': {
+      buttons:
+        'One button, or two side by side. On mobile they stack and both go full width.'
+    },
+    'shared.cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+    },
+    'shared.primary-cta-link': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+    },
+    'navigation.menu-item': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'navigation.menu-group': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.card': {
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.card-link': {
+      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.grant-faq-section': {
+      ctaLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.card-grid': {
       ariaLabel:
@@ -1442,6 +1473,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Required. Column heading, e.g. "Apply".',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
+    },
+    'blocks.cta-strip': {
+      primaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      secondaryButtonLink:
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    'blocks.quote': {
+      authorLink:
+        'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     }
   }
 
@@ -1825,6 +1866,18 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'external', size: 4 }]
     ],
+    'shared.cta-button': [
+      [
+        { name: 'text', size: 6 },
+        { name: 'link', size: 6 }
+      ],
+      [
+        { name: 'style', size: 4 },
+        { name: 'external', size: 4 },
+        { name: 'document', size: 4 }
+      ]
+    ],
+    'blocks.cta-buttons': [[{ name: 'buttons', size: 12 }]],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
@@ -1899,7 +1952,10 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
   const componentMainFields: Record<string, string> = {
     'blocks.agenda-item': 'time',
-    'blocks.report-text': 'textType'
+    'blocks.report-text': 'textType',
+    // Collapsed repeatable rows show the button label rather than a generic
+    // "CTA Button", so an editor can see both buttons without expanding them.
+    'shared.cta-button': 'text'
   }
 
   const contentTypeService = plugin.service('content-types') as
@@ -1969,12 +2025,45 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
+    // restarting Strapi. Auth is STRAPI_API_TOKEN (same as other sync scripts)
+    // because this route bypasses Strapi's standard auth middleware.
+    strapi.server.router.post('/api/seed-media', async (ctx) => {
+      const bearer = String(ctx.request.headers['authorization'] ?? '').replace(
+        'Bearer ',
+        ''
+      )
+      if (!bearer || bearer !== process.env.STRAPI_API_TOKEN) {
+        ctx.status = 401
+        ctx.body = { error: 'Unauthorized' }
+        return
+      }
+      const seeded = await seedUploadsFromDisk(strapi)
+      ctx.body = { seeded }
+    })
+
+    // Nav content types already normalize their own href fields via
+    // normalizeNavigationInput below — excluded here to avoid two
+    // normalizers touching the same fields.
+    const NAV_UIDS = new Set([
+      'api::foundation-navigation.foundation-navigation',
+      'api::summit-navigation.summit-navigation',
+      'api::hackathon-navigation.hackathon-navigation'
+    ])
+
     // Validate paragraph content on save — reject nested JSX before it reaches
     // the DB. Registered as a document-service middleware (see
     // registerDocumentValidation below for why) so it covers every content
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
+        // Auto-correct relative-link slashes (add a leading slash to
+        // href-like fields that are missing one, strip one from path-segment
+        // fields that shouldn't have one) before any validation below runs.
+        if (!NAV_UIDS.has(ctx.uid)) {
+          normalizeRelativeLinksInDocumentData(ctx.params.data)
+        }
+
         // Drop inactive card-grid variant arrays before schema/business
         // validation so empty Title/Resource/Info/Navigation fields that
         // aren't the selected variant never fail the save. Sanitize can
@@ -2096,11 +2185,6 @@ export default {
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB
-    const NAV_UIDS = new Set([
-      'api::foundation-navigation.foundation-navigation',
-      'api::summit-navigation.summit-navigation',
-      'api::hackathon-navigation.hackathon-navigation'
-    ])
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
         if (NAV_UIDS.has(ctx.uid) && ctx.params.data) {

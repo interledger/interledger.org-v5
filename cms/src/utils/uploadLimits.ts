@@ -18,9 +18,9 @@ export const MAX_MEDIA_BYTES = 5 * 1024 * 1024
 export const MAX_MEDIA_SIZE_LABEL = '5 MB'
 
 /**
- * Image subset of the seedable media extensions (see MIME_BY_EXT in
- * cms/src/index.ts) — the single source of truth for "is this an image" so
- * the 2 MB limit is never applied to non-image media (PDFs, video).
+ * Image subset of seedable media (see SEED_MIME_BY_EXT in seedMedia.ts) —
+ * the source of truth for "is this an image" so the 2 MB limit is never
+ * applied to non-image media (PDFs, video).
  */
 export const IMAGE_EXTENSIONS = new Set([
   '.jpg',
