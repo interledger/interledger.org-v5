@@ -17,8 +17,27 @@ const alignmentClass =
       ? 'text-right'
       : ''
 
+// A CTA that directly follows a paragraph belongs to that paragraph, so the
+// two sit closer together than two independent blocks do: 24px up to desktop
+// and 32px from there (Radu, 2026-08-12). The gap under the CTA stays the
+// standard 120px, which CtaLink supplies itself.
+//
+// `:has(+ .cta-link)` lets the paragraph react to what follows it, so neither
+// the editor nor the MDX author has to mark the pair up. Written as a literal
+// string because the Tailwind v4 scanner reads the source text.
+//
+// The last-child rule is load-bearing, not tidying. This wrapper has no
+// padding or border, so the bottom margin of its final paragraph collapses
+// out of it and the larger of the two margins wins. That inner margin is 32px,
+// which silently swallowed the 24px below desktop. Zero it and the wrapper's
+// own margin decides the gap.
+const CTA_PAIR_SPACING =
+  '[&:has(+.cta-link)]:mb-xl desktop:[&:has(+.cta-link)]:mb-2xl [&:has(+.cta-link)>*:last-child]:mb-0'
+
 const hasContent = content != null && content !== ''
-const className = [alignmentClass, 'mb-6xl'].filter(Boolean).join(' ')
+const className = [alignmentClass, 'mb-6xl', CTA_PAIR_SPACING]
+  .filter(Boolean)
+  .join(' ')
 const htmlContent = hasContent
   ? await parseMarkdown(content, {
       page: umamiContext,
