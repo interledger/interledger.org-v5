@@ -47,3 +47,6 @@ src/generated/deployed-image-sources-catalog.json
 # source of truth for the values mirrored from these files.
 /ILF website*.json
 /Interledger Global UI color palette*.json
+
+# Vitest coverage reports
+coverage/

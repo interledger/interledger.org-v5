@@ -3,6 +3,7 @@
 node_modules
 public
 dist
+coverage
 **/*.min.css
 **/*.min.js
 cms/.strapi/**
