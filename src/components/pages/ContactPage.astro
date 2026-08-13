@@ -169,6 +169,7 @@ const optionClasses = [
                       aria-haspopup="listbox"
                       aria-expanded="false"
                       aria-controls="topic-listbox"
+                      aria-describedby="topic-selected"
                     >
                       {t('contact.topic')}
                       <Icon
@@ -182,6 +183,7 @@ const optionClasses = [
                       class={dropdownClasses}
                       role="listbox"
                       tabindex="-1"
+                      aria-labelledby="topic-summary"
                     >
                       {
                         topics.map((topic) => (
@@ -201,7 +203,12 @@ const optionClasses = [
                       }
                     </ul>
                   </details>
-                  <span id="topic-selected" class="text-primary">
+                  <!-- Current selection (also announced via summary aria-describedby) -->
+                  <span
+                    id="topic-selected"
+                    class="text-primary"
+                    aria-live="polite"
+                  >
                     {t('contact.topic.placeholder')}
                   </span>
                 </div>
