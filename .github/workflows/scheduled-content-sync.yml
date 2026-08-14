@@ -1,0 +1,165 @@
+name: Scheduled Strapi Rebuild & Content Sync
+# Rebuilds the Strapi CMS (only if /cms changed since the last run) and then syncs content,
+# navigation, and media from this repo into Strapi, once a day for both staging and playground.
+# This replaces the old per-commit pipeline: rebuilding/syncing on every push meant an editor
+# with a page open in the Strapi admin could hit save errors mid-session, because sync:all
+# rewrites component IDs on every entry it touches even though the parent documentId stays
+# stable, and production-mode Strapi has no way to detect that and refresh (unlike
+# `pnpm run develop` locally, which does). Batching both steps to once a day makes that far
+# less likely.
+# GitHub Actions schedules run in UTC; South Africa Standard Time has no daylight saving, so
+# 08:00 SAST is always 06:00 UTC.
+on:
+  schedule:
+    - cron: '0 6 * * *' # 08:00 SAST
+  workflow_dispatch: # manual on-demand run — always rebuilds, then syncs
+
+jobs:
+  rebuild-and-sync:
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [staging, playground]
+    concurrency:
+      # A manual dispatch racing the schedule (or two dispatches) must not overlap on the same
+      # VM — both stop/rebuild/restart the same systemd service.
+      group: scheduled-content-sync-${{ matrix.branch }}
+      cancel-in-progress: false
+    runs-on: strapi-vm
+    environment: ${{ matrix.branch == 'playground' && 'strapi-playground' || 'strapi-staging' }}
+    env:
+      DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
+      STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
+      STRAPI_URL: ${{ vars.ENV_STRAPI_URL }}
+      STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_API_TOKEN }}
+      SYNC_FORCE: ${{ vars.ENV_SYNC_FORCE }}
+      DEPLOY_BRANCH: ${{ matrix.branch }}
+
+    steps:
+      - name: Rebuild Strapi (if needed) and sync content
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_PATH:-}" ]; then
+            echo "Error: ENV_DEPLOY_PATH is not set for this environment."
+            exit 1
+          fi
+
+          if [ -z "${STRAPI_SERVICE_NAME:-}" ]; then
+            echo "Error: ENV_STRAPI_SERVICE_NAME is not set for this environment."
+            exit 1
+          fi
+
+          if [ -z "${STRAPI_URL:-}" ]; then
+            echo "Error: ENV_STRAPI_URL is not set for this environment."
+            exit 1
+          fi
+
+          if [ -z "${STRAPI_API_TOKEN:-}" ]; then
+            echo "Error: ENV_STRAPI_API_TOKEN is not set for this environment."
+            exit 1
+          fi
+
+          if [ ! -d "$DEPLOY_PATH" ]; then
+            echo "Error: Deploy path does not exist: $DEPLOY_PATH"
+            exit 1
+          fi
+
+          source ~/.bashrc
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] || { echo "nvm not installed at $NVM_DIR"; exit 1; }
+          . "$NVM_DIR/nvm.sh"
+          nvm install --no-progress 24
+          nvm use 24
+          PNPM_VERSION=10.27.0
+          corepack enable
+          corepack prepare pnpm@$PNPM_VERSION --activate
+          pnpm --version
+          test "$(pnpm --version)" = "$PNPM_VERSION"
+
+          # Add pnpm to PATH (not loaded from .bashrc in GitHub Actions)
+          export PNPM_HOME="/home/strapi/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          cd "$DEPLOY_PATH"
+
+          OLD_SHA="$(git rev-parse HEAD)"
+
+          git fetch origin "$DEPLOY_BRANCH"
+          git checkout "$DEPLOY_BRANCH"
+          git pull --ff-only
+
+          # Defensive check: fail if git index contains unresolved conflicts
+          if [ -n "$(git ls-files -u)" ]; then
+            echo "Unresolved git conflicts detected after pull"
+            exit 1
+          fi
+
+          NEW_SHA="$(git rev-parse HEAD)"
+
+          # workflow_dispatch always rebuilds, even with no new commits, so a manual run can
+          # recover from a bad prior deploy without waiting for a new cms/ commit.
+          if [ "${GITHUB_EVENT_NAME:-}" = "workflow_dispatch" ] || \
+             [ -n "$(git diff --name-only "$OLD_SHA" "$NEW_SHA" -- cms/)" ]; then
+            echo "cms/ changed since the last run — rebuilding Strapi."
+
+            # Stop the service while we rebuild
+            sudo systemctl stop "$STRAPI_SERVICE_NAME"
+
+            # Nuclear option to ensure no old dependencies or build artifacts interfere with the new build after merging changes
+            rm -rf cms/node_modules
+            rm -rf cms/dist
+            rm -rf node_modules
+            pnpm install
+            cd cms
+            pnpm install
+
+            cd "$DEPLOY_PATH"
+            # Rebuild with more memory to avoid OOM errors during build
+            NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
+            cd "$DEPLOY_PATH/cms"
+            NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+
+            cd "$DEPLOY_PATH"
+            sudo systemctl start "$STRAPI_SERVICE_NAME"
+            sleep 5
+            sudo systemctl status "$STRAPI_SERVICE_NAME"
+          else
+            echo "No cms/ changes since the last run — skipping rebuild."
+          fi
+
+          echo "Syncing content, media, and navigation to Strapi..."
+          cd "$DEPLOY_PATH/cms"
+
+          if [ "${SYNC_FORCE:-false}" = "true" ]; then
+            pnpm run sync:all --force
+          else
+            pnpm run sync:all
+          fi
+
+  notify-slack:
+    runs-on: ubuntu-latest
+    needs: rebuild-and-sync
+    if: ${{ always() && failure() }}
+    steps:
+      - name: Notify Slack on failure
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "frontend-team",
+              "text": "❌ Scheduled Strapi rebuild/sync failed in *${{ github.repository }}*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Scheduled Strapi Rebuild/Sync Failed*\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }

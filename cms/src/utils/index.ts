@@ -77,6 +77,7 @@ export {
   validateGrantPagePrimaryCta,
   validateGrantInfoCards,
   validateReportDate,
+  validateReportContent,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -112,9 +113,29 @@ export {
   type CardGridCard
 } from './cardGrid'
 export {
+  CTA_BUTTON_STYLES,
+  MIN_CTA_BUTTONS,
+  MAX_CTA_BUTTONS,
+  isCtaButtonStyle,
+  hasConflictingCtaFlags,
+  validateCtaButtonCount,
+  validateCtaButtonStyles,
+  validateCtaButtonComposition,
+  type CtaButtonStyle,
+  type CtaButtonEntry,
+  type CtaButtonsRuleError
+} from './ctaButtons'
+export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+
+// Report text types (serializers, sync handlers)
+export {
+  REPORT_TEXT_TYPES,
+  isReportTextType,
+  type ReportTextType
+} from './reportText'
 
 // Block serialization (dynamic-zone content -> MDX)
 export { serializeContent, validateContentBlocks } from '../serializers/blocks'

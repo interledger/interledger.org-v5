@@ -5,6 +5,7 @@
 import { toMarkdown } from 'mdast-util-to-markdown'
 import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
 import type { Root, RootContent } from 'mdast'
+import { unescapeMdxBraces } from '../../src/serializers/shared'
 
 /**
  * Serialize mdast children to a trimmed markdown string.
@@ -19,4 +20,45 @@ export function childrenToMarkdown(children: RootContent[]): string {
     extensions: [mdxJsxToMarkdown()],
     bullet: '-'
   }).trim()
+}
+
+/** Minimal source-text context a handler needs to prefer raw slicing. */
+export interface SourceTextContext {
+  sourceText?: string
+  sourceTextWasProvided?: boolean
+}
+
+/**
+ * Extract markdown content from JSX children, preferring a raw source slice
+ * over AST re-serialization. `childrenToMarkdown` escapes anything that
+ * merely looks like markdown syntax (e.g. a literal `[^1]` becomes `\[^1]`),
+ * so slicing the source bytes avoids corrupting text that was never
+ * ambiguous. Falls back to `childrenToMarkdown` when no source text is
+ * available (e.g. tests that omit it).
+ *
+ * The raw slice still carries the `\{`/`\}` escape escMdxBraces added on
+ * export, so it's unescaped before returning — otherwise it compounds on
+ * every export -> import -> export cycle.
+ */
+export function extractChildrenContent(
+  children: RootContent[] | undefined,
+  ctx: SourceTextContext
+): string | undefined {
+  if (!children || children.length === 0) return undefined
+
+  if (ctx.sourceText && ctx.sourceTextWasProvided !== false) {
+    const first = children[0]
+    const last = children[children.length - 1]
+    if (
+      first.position?.start.offset != null &&
+      last.position?.end.offset != null
+    ) {
+      const raw = ctx.sourceText
+        .slice(first.position.start.offset, last.position.end.offset)
+        .trim()
+      if (raw) return unescapeMdxBraces(raw)
+    }
+  }
+
+  return childrenToMarkdown(children)
 }

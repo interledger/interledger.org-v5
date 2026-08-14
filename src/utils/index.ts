@@ -126,6 +126,13 @@ export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
 export { getHeroSectionStyle } from './main/heroSectionStyle'
+export {
+  resolveCtaLink,
+  resolveDownloadName,
+  type CtaIconName,
+  type CtaLinkInput,
+  type ResolvedCtaLink
+} from './main/cta'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'

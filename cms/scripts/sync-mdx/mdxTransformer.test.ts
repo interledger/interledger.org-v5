@@ -2376,7 +2376,7 @@ describe('buildReportPayload', () => {
     })
   })
 
-  describe('content parsing', () => {
+  describe('content parsing without parserCtx', () => {
     it('includes MDX body as paragraph content', async () => {
       const mdx = createMdxFile({
         pathSlug: 'policy-and-advocacy/role-stablecoins',
@@ -2401,6 +2401,98 @@ describe('buildReportPayload', () => {
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
       expect(payload).not.toHaveProperty('content')
+    })
+  })
+
+  // Real syncs always supply a parserCtx (see config.ts's reports
+  // buildPayload), which routes the MDX body through the JSX component
+  // handlers instead of the bare-paragraph fallback above.
+  describe('content parsing with parserCtx', () => {
+    it('parses a ReportSection block with a single Paragraph content block', async () => {
+      await import('./reportSectionHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: [
+          '<ReportSection>',
+          '',
+          '## Introduction',
+          '',
+          '<ReportText type="Paragraph">',
+          '',
+          'The full report body.',
+          '',
+          '</ReportText>',
+          '</ReportSection>'
+        ].join('\n')
+      })
+
+      const payload = await buildReportPayload(
+        reportFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.report-section',
+          heading: 'Introduction',
+          reportText: [
+            { textType: 'Paragraph', textContent: 'The full report body.' }
+          ]
+        }
+      ])
+    })
+
+    it('parses a ReportSection block mixing Paragraph and Disclaimer content', async () => {
+      await import('./reportSectionHandler')
+      const parserCtx = { locale: 'en' }
+
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter,
+        content: [
+          '<ReportSection>',
+          '',
+          '## Overview',
+          '',
+          '<ReportText type="Paragraph">',
+          '',
+          'The full report body.',
+          '',
+          '</ReportText>',
+          '<ReportText type="Disclaimer">',
+          '',
+          'For informational purposes only.',
+          '',
+          '</ReportText>',
+          '</ReportSection>'
+        ].join('\n')
+      })
+
+      const payload = await buildReportPayload(
+        reportFrontmatterSchema,
+        mdx,
+        null,
+        parserCtx
+      )
+
+      expect((payload as Record<string, unknown>).content).toEqual([
+        {
+          __component: 'blocks.report-section',
+          heading: 'Overview',
+          reportText: [
+            { textType: 'Paragraph', textContent: 'The full report body.' },
+            {
+              textType: 'Disclaimer',
+              textDisclaimer: 'For informational purposes only.'
+            }
+          ]
+        }
+      ])
     })
   })
 })

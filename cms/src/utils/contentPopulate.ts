@@ -94,6 +94,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.faq': {
     populate: { items: true }
   },
+  'blocks.cta-buttons': {
+    populate: { buttons: true }
+  },
   'blocks.event-card': {
     populate: {
       when: true,
@@ -128,10 +131,10 @@ export const PROFILE_PAGE_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for report content field (paragraph blocks only). */
+/** Populate config for report content field (report-section blocks). */
 export const REPORT_CONTENT_POPULATE = {
   on: {
-    'blocks.paragraph': {}
+    'blocks.report-section': { populate: { reportText: true } }
   }
 } as const
 
@@ -165,6 +168,9 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.faq': {
       populate: { items: true }
+    },
+    'blocks.cta-buttons': {
+      populate: { buttons: true }
     },
     'blocks.event-card': {
       populate: {
