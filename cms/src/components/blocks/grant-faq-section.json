@@ -17,7 +17,6 @@
     },
     "subtitle": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -35,7 +34,6 @@
     },
     "ctaText": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -44,7 +42,6 @@
     },
     "ctaLink": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true

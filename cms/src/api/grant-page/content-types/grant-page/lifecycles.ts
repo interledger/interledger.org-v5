@@ -139,12 +139,25 @@ export function generateGrantPageMDX(
       ? {
           faqSection: {
             title: faqSection.title ?? '',
-            subtitle: faqSection.subtitle ?? '',
             description: faqSection.description ?? '',
-            ctaText: faqSection.ctaText ?? '',
-            ctaLink: faqSection.ctaLink ?? '',
-            ...(faqSection.ctaExternal ? { ctaExternal: true } : {}),
-            ...(faqSection.ctaDocument ? { ctaDocument: true } : {}),
+            ...(faqSection.subtitle?.trim()
+              ? { subtitle: faqSection.subtitle.trim() }
+              : {}),
+            // Both halves or neither, matching the serializer and renderer.
+            // Compare and write the trimmed values: `validateGrantPageFaqSection`
+            // and the renderer both treat whitespace as empty, so a truthiness
+            // test would export `"   "` into MDX and then drop it on render.
+            //
+            // The flags sit inside the same guard: a dropped button must not
+            // leave a document flag behind in the frontmatter.
+            ...(faqSection.ctaText?.trim() && faqSection.ctaLink?.trim()
+              ? {
+                  ctaText: faqSection.ctaText.trim(),
+                  ctaLink: faqSection.ctaLink.trim(),
+                  ...(faqSection.ctaExternal ? { ctaExternal: true } : {}),
+                  ...(faqSection.ctaDocument ? { ctaDocument: true } : {})
+                }
+              : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
               answer: i.answer ?? ''
