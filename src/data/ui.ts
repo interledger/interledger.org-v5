@@ -167,7 +167,7 @@ export const ui = {
     'contact.description': 'Get in touch with the Interledger Foundation.',
     'contact.support_heading': 'Get in touch',
     'contact.support_description':
-      "Have a question about our grants, technology, or work? Fill in the form and we'll get back to you as soon as possible.",
+      "If you want to integrate our technology, or you have any questions, partnership proposals, or ideas you'd like to share, or have a media enquiry, get in touch.",
     'contact.form_heading': 'Contact form',
     'contact.name': 'Name',
     'contact.name.placeholder': 'Enter your preferred name',
@@ -421,7 +421,7 @@ export const ui = {
     'contact.description': 'Comunícate con la Fundación Interledger.',
     'contact.support_heading': 'Comunícate con nosotros',
     'contact.support_description':
-      '¿Tienes alguna pregunta sobre nuestras subvenciones, tecnología o trabajo? Completa el formulario y te responderemos lo antes posible.',
+      'Si deseas integrar nuestra tecnología, tienes preguntas, propuestas de colaboración o ideas que compartir, o tienes una consulta de prensa, comunícate con nosotros.',
     'contact.form_heading': 'Formulario de contacto',
     'contact.name': 'Nombre',
     'contact.name.placeholder': 'Ingresa tu nombre preferido',
