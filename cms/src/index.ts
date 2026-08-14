@@ -1009,7 +1009,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      media: 'Background Image (Desktop) — landscape, 1920 x 1080 px recommended',
+      media:
+        'Background Image (Desktop) — landscape, 1920 x 1080 px recommended',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
     },
