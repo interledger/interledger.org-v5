@@ -1009,7 +1009,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.hero': {
       title: 'Hero Title',
       description: 'Hero Description',
-      media: 'Background Image (Desktop)',
+      media: 'Background Image (Desktop) — landscape, ~4000×2500px (renders at 1920px wide)',
       backgroundImageMobile: 'Background Image (Mobile)',
       hero_call_to_action: 'Call-to-action Button'
     },
@@ -1280,9 +1280,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.hero': {
       media:
-        'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: ~4000×2500px, under 2MB, AVIF format.',
+        'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: landscape, ~4000×2500px, under 2MB, AVIF format (renders at 1920px wide).',
       backgroundImageMobile:
-        'Optional mobile hero image. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
+        'Optional mobile hero image, landscape orientation. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
     },
     'shared.report-date': {
       lastUpdated:
