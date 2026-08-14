@@ -1750,6 +1750,17 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
 
+  // These layouts REPLACE whatever Strapi generated, they do not merge with it.
+  // Any field missing from the list below is missing from the edit form, even
+  // though it exists on the component and the API returns it.
+  //
+  // So adding a field to a component schema is only half the job: add it here
+  // too, or an editor never sees it. `document` on `shared.cta-link` and the
+  // four flags on `blocks.cta-strip` were both invisible for exactly this
+  // reason (INTORG-938).
+  //
+  // Components without an entry here are safe: Strapi appends new fields to
+  // its own generated layout.
   const componentLayouts: Record<string, EditLayoutField[][]> = {
     'navigation.menu-item': [
       [
@@ -1883,8 +1894,16 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'primaryButtonLink', size: 6 }
       ],
       [
+        { name: 'primaryButtonExternal', size: 6 },
+        { name: 'primaryButtonDocument', size: 6 }
+      ],
+      [
         { name: 'secondaryButtonText', size: 6 },
         { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonExternal', size: 6 },
+        { name: 'secondaryButtonDocument', size: 6 }
       ]
     ],
     'shared.hero': [
@@ -1900,7 +1919,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'text', size: 4 },
         { name: 'style', size: 4 }
       ],
-      [{ name: 'external', size: 4 }]
+      [
+        { name: 'external', size: 4 },
+        { name: 'document', size: 4 }
+      ]
     ],
     'shared.cta-button': [
       [
