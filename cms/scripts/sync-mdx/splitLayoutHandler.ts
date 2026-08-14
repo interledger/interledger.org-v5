@@ -5,7 +5,8 @@
  * - <SplitLayout imagePosition="left|right" displayRatio="1:1|1:2|2:1"
  *     imageSrc="..."
  *     videoUrl="..." quote="..." quoteSource="..."
- *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}>
+ *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}
+ *     ctaDocument={true}>
  *   children (markdown body for the content column)
  *   </SplitLayout>
  *
@@ -80,6 +81,7 @@ async function handleSplitLayout(
     const ctaLink = getStringAttr(node, 'ctaLink')
     const ctaStyle = getStringAttr(node, 'ctaStyle')
     const ctaExternal = getBooleanAttr(node, 'ctaExternal')
+    const ctaDocument = getBooleanAttr(node, 'ctaDocument')
 
     const content =
       node.children.length > 0 ? childrenToMarkdown(node.children) : undefined
@@ -145,7 +147,8 @@ async function handleSplitLayout(
         text: ctaText,
         link: ctaLink,
         ...(ctaStyle ? { style: ctaStyle } : {}),
-        ...(ctaExternal ? { external: true } : {})
+        ...(ctaExternal ? { external: true } : {}),
+        ...(ctaDocument ? { document: true } : {})
       }
     }
 

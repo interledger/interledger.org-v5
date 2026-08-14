@@ -228,6 +228,7 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
     link: string
     style?: string
     external?: boolean
+    document?: boolean
   }
 }
 

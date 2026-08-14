@@ -158,6 +158,35 @@ describe('split-layout serializer', () => {
     expect(result).toContain('ctaLink="https://example.com"')
   })
 
+  it('serializes the CTA external and document flags', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      content: 'Text body.',
+      cta: {
+        text: 'Application pack',
+        link: '/uploads/pack.pdf',
+        external: true,
+        document: true
+      }
+    })
+
+    expect(result).toContain('ctaExternal={true}')
+    expect(result).toContain('ctaDocument={true}')
+  })
+
+  it('omits the CTA external and document flags when they are unset', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      content: 'Text body.',
+      cta: { text: 'Apply now', link: '/apply' }
+    })
+
+    expect(result).not.toContain('ctaExternal=')
+    expect(result).not.toContain('ctaDocument=')
+  })
+
   it('throws when an image layout has no image at all', () => {
     expect(() =>
       serialize({ layoutType: 'image-text', content: 'Text body.' })

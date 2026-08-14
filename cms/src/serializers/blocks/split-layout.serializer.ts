@@ -10,6 +10,7 @@ interface SplitLayoutCta {
   link?: string
   style?: string
   external?: boolean
+  document?: boolean
 }
 
 type SplitLayoutType =
@@ -110,6 +111,9 @@ export function serialize(block: {
     }
     if (cta.external) {
       attrs.push(`ctaExternal={true}`)
+    }
+    if (cta.document) {
+      attrs.push(`ctaDocument={true}`)
     }
   }
 
