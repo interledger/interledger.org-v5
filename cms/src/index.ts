@@ -1278,12 +1278,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       categoryValue:
         'You can select multiple categories — click "+ Add an entry" for each category'
     },
-    'shared.hero': {
-      media:
-        'Desktop hero image, used in a scrolling parallax panel — upload larger than the display size so it can pan without pixelating. Recommended: landscape, ~4000×2500px, under 2MB, AVIF format (renders at 1920px wide).',
-      backgroundImageMobile:
-        'Optional mobile hero image, landscape orientation. Recommended size: 768×480px. Falls back to desktop image when absent. Set alternative text on this media file when the mobile crop or content differs from desktop.'
-    },
     'shared.report-date': {
       lastUpdated:
         'Only fill in when the report has had a meaningful editorial update (revised text, new sections, or corrected facts).'
