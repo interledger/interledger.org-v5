@@ -136,8 +136,12 @@ export interface CtaStripBlock extends StrapiBlockBase {
   description?: string
   primaryButtonText: string
   primaryButtonLink: string
+  primaryButtonExternal?: boolean
+  primaryButtonDocument?: boolean
   secondaryButtonText?: string
   secondaryButtonLink?: string
+  secondaryButtonExternal?: boolean
+  secondaryButtonDocument?: boolean
 }
 
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */

@@ -47,6 +47,8 @@ interface FaqSection {
   description?: string
   ctaText?: string
   ctaLink?: string
+  ctaExternal?: boolean
+  ctaDocument?: boolean
   items?: FaqItem[]
 }
 
@@ -141,6 +143,8 @@ export function generateGrantPageMDX(
             description: faqSection.description ?? '',
             ctaText: faqSection.ctaText ?? '',
             ctaLink: faqSection.ctaLink ?? '',
+            ...(faqSection.ctaExternal ? { ctaExternal: true } : {}),
+            ...(faqSection.ctaDocument ? { ctaDocument: true } : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
               answer: i.answer ?? ''

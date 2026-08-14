@@ -51,6 +51,26 @@
         }
       }
     },
+    "ctaExternal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Open the link in a new tab (shows the external icon).",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "ctaDocument": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat the link as a downloadable document (shows download icon).",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "items": {
       "type": "component",
       "repeatable": true,

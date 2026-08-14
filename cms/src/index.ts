@@ -1117,6 +1117,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description',
       ctaText: 'Button Text',
       ctaLink: 'Button Link',
+      ctaExternal: 'External Link',
+      ctaDocument: 'Document Download',
       items: 'FAQ Items'
     },
     'blocks.grant-faq-item': {
@@ -1224,8 +1226,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
       primaryButtonLink: 'Primary Button URL',
+      primaryButtonExternal: 'Primary External Link',
+      primaryButtonDocument: 'Primary Document Download',
       secondaryButtonText: 'Secondary Button Text',
-      secondaryButtonLink: 'Secondary Button URL'
+      secondaryButtonLink: 'Secondary Button URL',
+      secondaryButtonExternal: 'Secondary External Link',
+      secondaryButtonDocument: 'Secondary Document Download'
     },
     'blocks.image-row': {
       heading: 'Heading',
@@ -1431,7 +1437,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.grant-faq-section': {
       ctaLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      ctaExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      ctaDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.card-grid': {
       ariaLabel:
@@ -1495,8 +1505,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.cta-strip': {
       primaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      primaryButtonExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      primaryButtonDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       secondaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      secondaryButtonExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      secondaryButtonDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.quote': {
       authorLink:

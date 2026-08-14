@@ -117,4 +117,42 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
     expect(blocks[0]).not.toHaveProperty('secondaryButtonText')
     expect(blocks[0]).not.toHaveProperty('secondaryButtonLink')
   })
+
+  it('round-trips the external and document flags on both buttons', async () => {
+    const original = {
+      heading: 'Apply now',
+      primaryButtonText: 'Read the guide',
+      primaryButtonLink: '/uploads/img/original/guide.pdf',
+      primaryButtonDocument: true,
+      secondaryButtonText: 'Partner site',
+      secondaryButtonLink: 'https://example.com',
+      secondaryButtonExternal: true
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+  })
+
+  it('drops the secondary flags when the secondary button is dropped', async () => {
+    // Text without a link is not a button, so its flags must not survive
+    // either. Otherwise Strapi holds a document flag for a link that is gone.
+    const mdx = serialize({
+      primaryButtonText: 'Apply',
+      primaryButtonLink: '/apply',
+      secondaryButtonText: 'Orphan',
+      secondaryButtonDocument: true
+    })
+
+    expect(mdx).not.toContain('secondaryButtonDocument')
+
+    const blocks = await parseMdxToBlocks(mdx, enCtx)
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.cta-strip',
+        primaryButtonText: 'Apply',
+        primaryButtonLink: '/apply'
+      }
+    ])
+  })
 })

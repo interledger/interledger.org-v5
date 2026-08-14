@@ -359,6 +359,49 @@ describe('validateGrantInfoCards', () => {
   })
 })
 
+describe('validateCtaStrip flags', () => {
+  const base = {
+    primaryButtonText: 'Apply',
+    primaryButtonLink: '/apply'
+  }
+
+  it('accepts a document flag on its own', () => {
+    expect(
+      validateCtaStrip({ ctaStrip: { ...base, primaryButtonDocument: true } })
+    ).toBeUndefined()
+  })
+
+  it('rejects external and document on the primary button', () => {
+    const err = validateCtaStrip({
+      ctaStrip: {
+        ...base,
+        primaryButtonExternal: true,
+        primaryButtonDocument: true
+      }
+    })
+    expect(err?.details.errors[0].path).toEqual([
+      'ctaStrip',
+      'primaryButtonDocument'
+    ])
+  })
+
+  it('rejects external and document on the secondary button', () => {
+    const err = validateCtaStrip({
+      ctaStrip: {
+        ...base,
+        secondaryButtonText: 'More',
+        secondaryButtonLink: '/more',
+        secondaryButtonExternal: true,
+        secondaryButtonDocument: true
+      }
+    })
+    expect(err?.details.errors[0].path).toEqual([
+      'ctaStrip',
+      'secondaryButtonDocument'
+    ])
+  })
+})
+
 describe('validateGrantPagePrimaryCta', () => {
   it('returns undefined when primaryCta is absent', () => {
     expect(validateGrantPagePrimaryCta({})).toBeUndefined()

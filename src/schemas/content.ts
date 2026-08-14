@@ -123,8 +123,12 @@ const grantCtaStripSchema = z
     description: z.string().optional(),
     buttonText: z.string(),
     buttonLink: z.string(),
+    buttonExternal: z.boolean().optional(),
+    buttonDocument: z.boolean().optional(),
     secondaryButtonText: z.string().optional(),
-    secondaryButtonLink: z.string().optional()
+    secondaryButtonLink: z.string().optional(),
+    secondaryButtonExternal: z.boolean().optional(),
+    secondaryButtonDocument: z.boolean().optional()
   })
   // The secondary CTA is an all-or-nothing pair everywhere else: the MDX
   // handler, the serializer, the renderer and the Strapi validator all need
@@ -171,6 +175,8 @@ const grantFaqSectionSchema = z.object({
   description: z.string().min(1, 'description is required'),
   ctaText: z.string().min(1, 'ctaText is required'),
   ctaLink: z.string().min(1, 'ctaLink is required'),
+  ctaExternal: z.boolean().optional(),
+  ctaDocument: z.boolean().optional(),
   items: z.array(grantFaqItemSchema).min(2)
 })
 
@@ -311,11 +317,15 @@ const podcastCtaStripSchema = z.object({
   description: z.string(),
   buttonText: z.string(),
   buttonLink: z.string(),
+  buttonExternal: z.boolean().optional(),
+  buttonDocument: z.boolean().optional(),
   // #481 removed these along with `color`, correctly at the time: the
   // component had no secondary CTA then. INTORG-908 puts one back, and the
   // podcast page uses `blocks.cta-strip`, so it can carry one again.
   secondaryButtonText: z.string().optional(),
-  secondaryButtonLink: z.string().optional()
+  secondaryButtonLink: z.string().optional(),
+  secondaryButtonExternal: z.boolean().optional(),
+  secondaryButtonDocument: z.boolean().optional()
 })
 
 const podcastTitleCardSchema = z.object({

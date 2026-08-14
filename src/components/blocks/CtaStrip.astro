@@ -10,10 +10,18 @@ interface Props {
   primaryButtonText: string
   /** Required primary CTA href (Strapi + MDX). */
   primaryButtonLink: string
+  /** Opens the primary link in a new tab and shows the external icon. */
+  primaryButtonExternal?: boolean
+  /** Marks the primary link a download and shows the download icon. */
+  primaryButtonDocument?: boolean
   /** Optional secondary CTA label. Needs its link to render. */
   secondaryButtonText?: string
   /** Optional secondary CTA href. Needs its label to render. */
   secondaryButtonLink?: string
+  /** Opens the secondary link in a new tab and shows the external icon. */
+  secondaryButtonExternal?: boolean
+  /** Marks the secondary link a download and shows the download icon. */
+  secondaryButtonDocument?: boolean
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -23,27 +31,36 @@ const {
   description,
   primaryButtonText,
   primaryButtonLink,
+  primaryButtonExternal,
+  primaryButtonDocument,
   secondaryButtonText,
   secondaryButtonLink,
+  secondaryButtonExternal,
+  secondaryButtonDocument,
   umamiContext
 } = Astro.props
 
 const { routeLocale } = Astro.locals
 
-// Icon by link kind (INTORG-938). The strip stores plain hrefs, with no
-// external or document flag, so the kind comes from the href alone.
+// Icon by link kind (INTORG-938). Both buttons carry their own external and
+// document flags, so an editor can mark either one a download.
 //
 // The primary keeps its arrow on an internal link and the secondary keeps
 // nothing, which is what each renders today. Arrow-on-internal is scoped to
 // components an editor picks, and the strip is page furniture (Sarah,
-// 2026-08-10). Only the external case changes, from an arrow to the correct
-// glyph.
+// 2026-08-09 on INTORG-907). Only the external and document cases change.
 const resolvedPrimary = resolveCtaLink({
   url: primaryButtonLink,
+  external: primaryButtonExternal,
+  document: primaryButtonDocument,
   internalIcon: 'arrow-right'
 })
 const resolvedSecondary = secondaryButtonLink
-  ? resolveCtaLink({ url: secondaryButtonLink })
+  ? resolveCtaLink({
+      url: secondaryButtonLink,
+      external: secondaryButtonExternal,
+      document: secondaryButtonDocument
+    })
   : null
 
 // Analytics: `section: 'cta'` marks these as CTA clicks; the action segment is
@@ -149,6 +166,7 @@ const hasSecondary = Boolean(
             href={resolvedPrimary.href}
             variant="primary"
             external={resolvedPrimary.external}
+            document={resolvedPrimary.document}
             class="w-full"
             {...buildUmamiAttrs({
               ...umamiBase,
@@ -165,6 +183,7 @@ const hasSecondary = Boolean(
               href={resolvedSecondary.href}
               variant="secondary"
               external={resolvedSecondary.external}
+              document={resolvedSecondary.document}
               class="cta-strip-secondary w-full"
               {...buildUmamiAttrs({
                 ...umamiBase,

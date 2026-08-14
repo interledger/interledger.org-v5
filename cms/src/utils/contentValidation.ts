@@ -129,8 +129,16 @@ export function validateGrantPageFaqSection(
   const faq = (body as Record<string, unknown>)?.faqSection
   if (!faq || typeof faq !== 'object') return undefined
 
-  const { title, subtitle, description, ctaText, ctaLink, items } =
-    faq as Record<string, unknown>
+  const {
+    title,
+    subtitle,
+    description,
+    ctaText,
+    ctaLink,
+    ctaExternal,
+    ctaDocument,
+    items
+  } = faq as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
   if (!title || typeof title !== 'string' || (title as string).trim() === '') {
@@ -177,6 +185,18 @@ export function validateGrantPageFaqSection(
     fieldErrors.push({
       message: 'FAQ Section: Button Link is required',
       path: ['faqSection', 'ctaLink']
+    })
+  }
+  if (
+    hasConflictingCtaFlags({
+      external: Boolean(ctaExternal),
+      document: Boolean(ctaDocument)
+    })
+  ) {
+    fieldErrors.push({
+      message:
+        'FAQ Section: Pick either External Link or Document Download, not both',
+      path: ['faqSection', 'ctaDocument']
     })
   }
   if (!Array.isArray(items) || items.length < 2) {
@@ -360,8 +380,12 @@ export function validateCtaStrip(
   const {
     primaryButtonText,
     primaryButtonLink,
+    primaryButtonExternal,
+    primaryButtonDocument,
     secondaryButtonText,
-    secondaryButtonLink
+    secondaryButtonLink,
+    secondaryButtonExternal,
+    secondaryButtonDocument
   } = ctaStrip as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
@@ -404,6 +428,34 @@ export function validateCtaStrip(
         'CTA Strip: Secondary Button Text is required when Secondary Button Link is set',
       path: ['ctaStrip', 'secondaryButtonText']
     })
+  }
+
+  // Each button carries its own pair of flags, so check them separately and
+  // point at the button that is wrong.
+  for (const [label, field, flags] of [
+    [
+      'Primary',
+      'primaryButtonDocument',
+      {
+        external: Boolean(primaryButtonExternal),
+        document: Boolean(primaryButtonDocument)
+      }
+    ],
+    [
+      'Secondary',
+      'secondaryButtonDocument',
+      {
+        external: Boolean(secondaryButtonExternal),
+        document: Boolean(secondaryButtonDocument)
+      }
+    ]
+  ] as const) {
+    if (hasConflictingCtaFlags(flags)) {
+      fieldErrors.push({
+        message: `CTA Strip: ${label} button cannot be both External Link and Document Download`,
+        path: ['ctaStrip', field]
+      })
+    }
   }
 
   return combineFieldErrors(fieldErrors)
