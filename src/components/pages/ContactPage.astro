@@ -25,14 +25,14 @@ const topics = [
 const inputClasses =
   'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors'
 
-const labelClasses = 'font-semibold text-body-sm-standard text-neutral-900'
+const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 
-const helperClasses = 'mb-0 text-body-sm-standard text-neutral-500'
+const helperClasses = 'mb-0 text-caption text-neutral-75'
 
 const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
 
 const summaryClasses = [
-  'list-none flex gap-xs items-center cursor-pointer',
+  'list-none flex gap-xs items-center cursor-pointer font-thin',
   'p-xs rounded-lg border border-transparent',
   'group-open:text-neutral-100 group-open:[&_svg]:-rotate-90',
   '[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out',
@@ -66,17 +66,18 @@ const optionClasses = [
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
 
+      <h1 class="text-h1 text-neutral-900 mb-2xl">
+        {t('contact.title')}
+      </h1>
+
       <div
-        class="grid gap-3xl tablet:grid-cols-2 tablet:gap-5xl desktop:grid-cols-[2fr_3fr]"
+        class="grid gap-0 desktop:grid-cols-[2fr_3fr] desktop:gap-5xl"
       >
         <div>
-          <h1 class="text-h1 text-neutral-900 mb-2xl">
-            {t('contact.title')}
-          </h1>
           <h3 class="text-h3-lg text-neutral-900 mb-lg">
             {t('contact.support_heading')}
           </h3>
-          <p class="text-body-md-standard text-neutral-600">
+          <p class="mb-xl desktop:mb-0 text-body-md-standard text-neutral-600">
             {t('contact.support_description')}
           </p>
         </div>
@@ -228,9 +229,6 @@ const optionClasses = [
                   maxlength="3000"
                   class={`${inputClasses} resize-y`}
                   aria-describedby="message-help"></textarea>
-                <p id="message-help" class={helperClasses}>
-                  {t('contact.message.placeholder')}
-                </p>
               </div>
 
               <div class="flex flex-col gap-s">

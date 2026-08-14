@@ -181,7 +181,6 @@ export const ui = {
     'contact.topic.technology': 'Technology',
     'contact.topic.other': 'Other',
     'contact.message': 'Your message',
-    'contact.message.placeholder': 'Share as much detail as you can',
     'contact.submit': 'Send message',
     'contact.submitting': 'Sending…',
     'contact.success_message': 'Message sent!',
