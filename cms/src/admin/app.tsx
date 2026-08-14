@@ -166,10 +166,22 @@ const markdownPresetNoH1: Preset = {
           keepHtml?: (tag: string) => void
           _html2markdown?: { parse: (html: string) => string }
         }
-        processor.keepHtml?.('br')
+
+        if (typeof processor.keepHtml === 'function') {
+          processor.keepHtml('br')
+        } else {
+          warnOnceAboutBrokenGfmShape(
+            'processor.keepHtml is missing — <br> line breaks (Shift+Enter, and merged table-cell paragraphs) will no longer survive the markdown round-trip.'
+          )
+        }
 
         const html2markdown = processor._html2markdown
-        if (!html2markdown || typeof html2markdown.parse !== 'function') return
+        if (!html2markdown || typeof html2markdown.parse !== 'function') {
+          warnOnceAboutBrokenGfmShape(
+            'processor._html2markdown.parse is missing — multi-paragraph table cells will flatten with no separator again.'
+          )
+          return
+        }
 
         const originalParse = html2markdown.parse.bind(html2markdown)
         html2markdown.parse = (html: string) =>
@@ -177,6 +189,18 @@ const markdownPresetNoH1: Preset = {
       }
     ]
   }
+}
+
+// `_html2markdown`/`keepHtml` are undocumented CKEditor internals — a version
+// bump could rename or drop them with no type error, silently disabling the
+// fixes above. Deduped by message so a break logs once, not per editor field.
+const warnedGfmShapeMessages = new Set<string>()
+function warnOnceAboutBrokenGfmShape(message: string) {
+  if (warnedGfmShapeMessages.has(message)) return
+  warnedGfmShapeMessages.add(message)
+  console.error(
+    `[CKEditor] ${message} This likely means a ckeditor5/strapi-plugin-ckeditor upgrade changed the GFM data processor's internal shape — update preserveTableCellLineBreaks in cms/src/admin/app.tsx.`
+  )
 }
 
 function mergeMultiParagraphTableCells(html: string): string {
