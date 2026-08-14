@@ -118,7 +118,9 @@ function stripInlineCode(text: string): string {
  * Validate the optional faqSection component on a grant page.
  *
  * When `faqSection` is absent the section is simply not rendered — that is valid.
- * When it is present all scalar fields are required and `items` must have at least 2 entries.
+ * When it is present, `title` and `description` are required and `items` must
+ * have at least 2 entries; `subtitle` is optional; `ctaText`/`ctaLink` are
+ * optional but all-or-nothing (like ctaStrip's secondary button).
  *
  * Returns a `ValidationError` combining every failing field, `undefined` on success.
  */
@@ -128,24 +130,16 @@ export function validateGrantPageFaqSection(
   const faq = (body as Record<string, unknown>)?.faqSection
   if (!faq || typeof faq !== 'object') return undefined
 
-  const { title, subtitle, description, ctaText, ctaLink, items } =
-    faq as Record<string, unknown>
+  const { title, description, ctaText, ctaLink, items } = faq as Record<
+    string,
+    unknown
+  >
   const fieldErrors: FieldError[] = []
 
   if (!title || typeof title !== 'string' || (title as string).trim() === '') {
     fieldErrors.push({
       message: 'FAQ Section: Title is required',
       path: ['faqSection', 'title']
-    })
-  }
-  if (
-    !subtitle ||
-    typeof subtitle !== 'string' ||
-    (subtitle as string).trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'FAQ Section: Subtitle is required',
-      path: ['faqSection', 'subtitle']
     })
   }
   if (
@@ -158,26 +152,24 @@ export function validateGrantPageFaqSection(
       path: ['faqSection', 'description']
     })
   }
-  if (
-    !ctaText ||
-    typeof ctaText !== 'string' ||
-    (ctaText as string).trim() === ''
-  ) {
+
+  // The CTA is optional, but half of one is not: a label with no href is dead
+  // and an href with no label is unreadable, so flag the gap rather than
+  // silently dropping the button at render time (same rule as ctaStrip's
+  // secondary button in validateCtaStrip).
+  if (isNonEmptyString(ctaText) && !isNonEmptyString(ctaLink)) {
     fieldErrors.push({
-      message: 'FAQ Section: Button Text is required',
-      path: ['faqSection', 'ctaText']
-    })
-  }
-  if (
-    !ctaLink ||
-    typeof ctaLink !== 'string' ||
-    (ctaLink as string).trim() === ''
-  ) {
-    fieldErrors.push({
-      message: 'FAQ Section: Button Link is required',
+      message: 'FAQ Section: Button Link is required when Button Text is set',
       path: ['faqSection', 'ctaLink']
     })
   }
+  if (isNonEmptyString(ctaLink) && !isNonEmptyString(ctaText)) {
+    fieldErrors.push({
+      message: 'FAQ Section: Button Text is required when Button Link is set',
+      path: ['faqSection', 'ctaText']
+    })
+  }
+
   if (!Array.isArray(items) || items.length < 2) {
     fieldErrors.push({
       message: 'FAQ Section: At least 2 FAQ items are required',

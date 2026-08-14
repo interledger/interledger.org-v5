@@ -164,14 +164,32 @@ const grantFaqItemSchema = z.object({
   answer: z.string().min(1, 'answer is required')
 })
 
-const grantFaqSectionSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  subtitle: z.string().min(1, 'subtitle is required'),
-  description: z.string().min(1, 'description is required'),
-  ctaText: z.string().min(1, 'ctaText is required'),
-  ctaLink: z.string().min(1, 'ctaLink is required'),
-  items: z.array(grantFaqItemSchema).min(2)
-})
+const grantFaqSectionSchema = z
+  .object({
+    title: z.string().trim().min(1, 'title is required'),
+    subtitle: z.string().optional(),
+    description: z.string().trim().min(1, 'description is required'),
+    ctaText: z.string().optional(),
+    ctaLink: z.string().optional(),
+    items: z.array(grantFaqItemSchema).min(2)
+  })
+  // Same all-or-nothing rule as grantCtaStripSchema's secondary CTA (#484):
+  // the renderer only shows the button when both halves are present, so one
+  // half alone would validate here and then vanish silently at render time.
+  .superRefine((section, ctx) => {
+    const hasText = Boolean(section.ctaText?.trim())
+    const hasLink = Boolean(section.ctaLink?.trim())
+
+    if (hasText === hasLink) return
+
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: [hasText ? 'ctaLink' : 'ctaText'],
+      message: hasText
+        ? 'ctaLink is required when ctaText is set'
+        : 'ctaText is required when ctaLink is set'
+    })
+  })
 
 export const grantPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
