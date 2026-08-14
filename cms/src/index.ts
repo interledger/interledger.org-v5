@@ -1886,6 +1886,16 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'secondaryCta', size: 12 }]
     ],
+    'blocks.grant-faq-section': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'subtitle', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [
+        { name: 'ctaText', size: 6 },
+        { name: 'ctaLink', size: 6 }
+      ],
+      [{ name: 'items', size: 12 }]
+    ],
     'shared.secondary-cta-link': [
       [
         { name: 'text', size: 6 },
