@@ -61,7 +61,7 @@ const ogImageType = OG_IMAGE_MIME_TYPES[ogImageExtension] ?? 'image/png'
 const resolvedOgSiteName = ogSiteName ?? siteName
 const resolvedOgLocale = ogLocale ?? 'en_US'
 
-const resolvedTitle = title ? `${title} | ${siteName}` : siteName
+const resolvedTitle = title ? `${siteName} | ${title}` : siteName
 const resolvedDescription =
   description ?? 'Making payments as easy as sending an email'
 const resolvedOgImageAlt = ogImageAlt ?? (title ? title : siteName)

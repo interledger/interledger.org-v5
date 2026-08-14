@@ -20,7 +20,10 @@ const { getNavigation } = await import('./navigation')
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
     const { mainMenu } = getNavigation('hackathon', 'en')
-    expect(mainMenu.map((group) => group.label)).toContain('Hackathon')
+    expect(mainMenu.map((group) => group.label)).toEqual([
+      'Hackathon',
+      'Resources'
+    ])
   })
 
   it('returns the localized config for es', () => {

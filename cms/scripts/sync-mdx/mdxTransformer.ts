@@ -652,13 +652,15 @@ export async function buildGrantPagePayload(
       : null
 
     const faqSectionFm = parsed.faqSection
+    // subtitle/ctaText/ctaLink sent as null (not omitted) when absent so PUT
+    // clears any previously synced values, matching the ctaStrip pattern above.
     const faqSection = faqSectionFm
       ? {
           title: faqSectionFm.title,
-          subtitle: faqSectionFm.subtitle,
+          subtitle: nullOrValue(faqSectionFm.subtitle),
           description: faqSectionFm.description,
-          ctaText: faqSectionFm.ctaText,
-          ctaLink: faqSectionFm.ctaLink,
+          ctaText: nullOrValue(faqSectionFm.ctaText),
+          ctaLink: nullOrValue(faqSectionFm.ctaLink),
           items: (faqSectionFm.items ?? []).map(
             (i: { question: string; answer: string }) => ({
               question: i.question,

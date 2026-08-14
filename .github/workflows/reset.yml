@@ -4,7 +4,8 @@ name: Force Reset
 # Not applicable to staging — staging is the default branch and must preserve full history; its head is never reset.
 # Requires a full 40-character SHA — authenticated via a GitHub App token to bypass branch protections.
 # For playground, the Strapi VM checkout is hard reset afterwards so it follows the force-pushed head
-# (a force push is non-fast-forward, so the VM's `git pull --ff-only` in merge.yml would fail otherwise).
+# (a force push is non-fast-forward, so the VM's `git pull --ff-only` in scheduled-content-sync.yml
+# would fail otherwise).
 
 on:
   workflow_dispatch:

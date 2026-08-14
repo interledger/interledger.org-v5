@@ -905,33 +905,45 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
+      title:
+        'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the site root (/). Example: about-us → /about-us; no leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::summit-page.summit-page': {
+      title:
+        'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /summit/. Example: faq → /summit/faq. Do not include /summit/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
+      title:
+        'Enter only the page name, e.g. "Rules" — not "Interledger Hackathon | Rules". The "Interledger Hackathon |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /hackathon/. Example: overview → /hackathon/overview. Do not include /hackathon/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
+      title:
+        'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /grant/. Example: education/on-campus → /grant/education/on-campus. No leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
+      title:
+        'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::podcast-page.podcast-page': {
+      title:
+        'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the site root, no leading slash. CMS-authored — use "podcast" for the live /podcast page. Multiple entries are allowed; each is routed by its own pathSlug.',
       description:
@@ -942,6 +954,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'The full list of podcast episodes. Author in chronological order (oldest first); the site displays newest first.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
+      title:
+        'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description:
@@ -958,6 +972,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
     },
     'api::faq.faq': {
+      title:
+        'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Interledger Hackathon) is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
@@ -975,6 +991,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       // where hints do render.
     },
     'api::report.report': {
+      title:
+        'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Interledger Hackathon) is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
@@ -1938,6 +1956,16 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'textType', size: 6 }],
       [{ name: 'textContent', size: 12 }],
       [{ name: 'textDisclaimer', size: 12 }]
+    ],
+    'blocks.grant-faq-section': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'subtitle', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [
+        { name: 'ctaText', size: 6 },
+        { name: 'ctaLink', size: 6 }
+      ],
+      [{ name: 'items', size: 12 }]
     ],
     'shared.secondary-cta-link': [
       [
