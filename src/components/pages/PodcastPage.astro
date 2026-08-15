@@ -48,7 +48,10 @@ const basePath = stripPagination(Astro.url.pathname)
 
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
-  { name: heroTitle ?? title, href: localizeRoute(PODCAST_PAGE_SLUG, routeLocale) }
+  {
+    name: heroTitle ?? title,
+    href: localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
+  }
 ]
 ---
 
