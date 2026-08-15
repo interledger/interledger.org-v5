@@ -109,6 +109,11 @@ export {
   getReadingTime,
   resolveRelatedPosts
 } from './main/blog'
+export {
+  PODCAST_PAGE_SIZE,
+  type PodcastPageData,
+  paginatePodcastEpisodes
+} from './main/podcastPagination'
 
 // Main site: Text
 export { generateSlug } from './main/slug'

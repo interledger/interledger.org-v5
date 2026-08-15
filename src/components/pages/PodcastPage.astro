@@ -1,30 +1,33 @@
 ---
-import { type Locale, useTranslations, localizeRoute } from '@/utils'
-import { getCollection } from 'astro:content'
+import type { Page } from 'astro'
+import {
+  type Locale,
+  type PodcastPageData,
+  useTranslations,
+  localizeRoute,
+  stripPagination,
+  PODCAST_PAGE_SLUG
+} from '@/utils'
+import type { PodcastItemType } from '@/schemas/content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import PodcastList from '@/components/shared/PodcastList.astro'
+import Pagination from '@/components/shared/Pagination.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {
-  slug: string
+  page: Page<PodcastItemType>
+  podcastPage: PodcastPageData
   contentLocale: Locale
   isFallback?: boolean
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
+const { page, podcastPage, isFallback = false } = Astro.props
 // Nav chrome must follow the URL locale, not content locale — ES routes can
 // fall back to EN body while remaining under /es/.
 const { routeLocale } = Astro.locals
-const pages = await getCollection('podcast-pages')
-
-const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
-)
-
-if (!mdxPage) return Astro.redirect('/404')
 
 const {
   title,
@@ -37,15 +40,15 @@ const {
   heroImageMobileAlt,
   heroCtas,
   titleCards,
-  podcasts,
   ctaStrip
-} = mdxPage.data
+} = podcastPage
 
 const t = useTranslations(routeLocale)
+const basePath = stripPagination(Astro.url.pathname)
 
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
-  { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
+  { name: heroTitle ?? title, href: localizeRoute(PODCAST_PAGE_SLUG, routeLocale) }
 ]
 ---
 
@@ -64,24 +67,35 @@ const breadcrumbs = [
       breadcrumbs={breadcrumbs}
     />
 
-    <section class="py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
-      >
-        <CardGrid
-          ariaLabel={titleCards.ariaLabel}
-          columns={titleCards.columns}
-          variant="Title"
-          titleCards={titleCards.cards}
-        />
-      </div>
-    </section>
+    {
+      page.currentPage === 1 && (
+        <section class="py-4xl">
+          <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
+            <CardGrid
+              ariaLabel={titleCards.ariaLabel}
+              columns={titleCards.columns}
+              variant="Title"
+              titleCards={titleCards.cards}
+            />
+          </div>
+        </section>
+      )
+    }
 
     <section class="py-4xl">
       <div
         class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
       >
-        <PodcastList podcasts={podcasts} />
+        <PodcastList podcasts={page.data} />
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          label={heroTitle ?? title}
+          class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+        />
       </div>
     </section>
 
