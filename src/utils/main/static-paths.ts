@@ -13,7 +13,6 @@ export type CollectionType =
   | 'hackathon-pages'
   | 'foundation-blog'
   | 'profiles'
-  | 'podcast-pages'
 
 type Entry = Awaited<ReturnType<typeof getCollection>>[number]
 

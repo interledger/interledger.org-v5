@@ -945,7 +945,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the site root, no leading slash. CMS-authored — use "podcast" for the live /podcast page. Multiple entries are allowed; each is routed by its own pathSlug.',
+        'Path must be set to "podcast". We only render one page with slug "podcast", at /podcast. Other slugs will not be built. If you need changes contact the frontend dev team.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       titleCards:

@@ -5,6 +5,14 @@ export const HOME_CONTENT_SLUG = 'home'
 /** pathSlug for the primary grant overview at `/grant/our-grantmaking`. */
 export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 
+/**
+ * pathSlug for the single podcast landing page at `/podcast`.
+ * Only one podcast-pages entry is ever rendered — src/pages/podcast/index.astro
+ * queries for this exact slug, so additional entries with other slugs won't
+ * get a route.
+ */
+export const PODCAST_PAGE_SLUG = 'podcast'
+
 export const ROUTE_BASES = {
   'foundation-pages': '',
   'foundation-blog': '/blog',

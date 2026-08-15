@@ -40,6 +40,7 @@ export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
+  PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
