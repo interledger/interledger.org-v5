@@ -1,19 +1,20 @@
 import type { PaginateFunction } from 'astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
-import { defaultLocale, type Locale } from './i18'
+import { defaultLocale, type Locale } from './locales'
 import { PODCAST_PAGE_SLUG } from './routes'
 
-// Matches the blog listing's page size (src/utils/main/tagFilter.ts) so both
-// SSG listings paginate at the same cadence.
+// Smaller than the blog listing's pageSize (10, src/utils/main/tagFilter.ts):
+// each episode embeds a live iframe, so a shorter page keeps iframe count
+// per view down.
 export const PODCAST_PAGE_SIZE = 5
 
 export type PodcastPageData = CollectionEntry<'podcast-pages'>['data']
 
-async function findPodcastPage(
+function findPodcastPage(
+  pages: CollectionEntry<'podcast-pages'>[],
   lang: Locale
-): Promise<CollectionEntry<'podcast-pages'> | undefined> {
-  const pages = await getCollection('podcast-pages')
+): CollectionEntry<'podcast-pages'> | undefined {
   return pages.find(
     (page) =>
       page.data.pathSlug === PODCAST_PAGE_SLUG && page.data.locale === lang
@@ -36,8 +37,9 @@ export async function paginatePodcastEpisodes({
   paginate: PaginateFunction
   lang: Locale
 }) {
-  const localizedPage = await findPodcastPage(lang)
-  const mdxPage = localizedPage ?? (await findPodcastPage(defaultLocale))
+  const pages = await getCollection('podcast-pages')
+  const localizedPage = findPodcastPage(pages, lang)
+  const mdxPage = localizedPage ?? findPodcastPage(pages, defaultLocale)
 
   if (!mdxPage) return []
 

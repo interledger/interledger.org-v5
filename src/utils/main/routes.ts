@@ -7,7 +7,8 @@ export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 
 /**
  * pathSlug for the single podcast landing page at `/podcast`.
- * Only one podcast-pages entry is ever rendered — src/pages/podcast/index.astro
+ * Only one podcast-pages entry is ever rendered — its episodes are paginated
+ * across src/pages/podcast/[...page].astro (see paginatePodcastEpisodes).
  */
 export const PODCAST_PAGE_SLUG = 'podcast'
 
