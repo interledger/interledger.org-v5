@@ -1,15 +1,15 @@
 ---
-import type { BlogCollectionType } from '@/content.config'
 import {
-  getBlogTaxonomy,
+  getTaxonomy,
   getTermUrl,
   translateTerm,
   useTranslations,
-  buildUmamiAttrs
+  buildUmamiAttrs,
+  ALL_TERM_SLUG
 } from '@/utils'
-import type { Locale } from '@/utils'
+import type { Locale, TaxonomyCollection } from '@/utils'
 interface Props {
-  collection: BlogCollectionType
+  collection: TaxonomyCollection
   terms: string[]
   enabledTerms?: string[]
   selectedTerm?: string
@@ -27,12 +27,14 @@ const {
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const taxonomy = getBlogTaxonomy(collection)
+const taxonomy = getTaxonomy(collection)
 const enabledSet = enabledTerms ? new Set(enabledTerms) : null
-// Cross-lang routes always use "tag" as the URL segment (see tagFilter.ts).
-const allHref = contentLangOverride
-  ? `${href}/${taxonomy.segment}/all/lang/${contentLangOverride}`
-  : `${href}/${taxonomy.segment}/all`
+const allHref = getTermUrl(
+  href,
+  taxonomy.segment,
+  ALL_TERM_SLUG,
+  contentLangOverride
+)
 
 const linkClasses = `
   inline-block py-xs px-sm text-body-sm-standard text-neutral-100 
@@ -64,9 +66,9 @@ const filterAttrs = (action: string, label: string) =>
       href={allHref}
       class={linkClasses}
       aria-current={!selectedTerm ? 'page' : undefined}
-      {...filterAttrs('filter_all', t('blog.filter.all'))}
+      {...filterAttrs('filter_all', t(taxonomy.allLabelKey))}
     >
-      {t('blog.filter.all')}
+      {t(taxonomy.allLabelKey)}
     </a>
   </li>
   {

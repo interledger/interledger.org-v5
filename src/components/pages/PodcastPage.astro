@@ -1,32 +1,40 @@
 ---
 import type { Page } from 'astro'
 import {
-  type Locale,
-  type PodcastPageData,
   useTranslations,
   localizeRoute,
   stripPagination,
+  translateTerm,
   PODCAST_PAGE_SLUG
 } from '@/utils'
-import type { PodcastItemType } from '@/schemas/content'
+import type { PodcastPageData } from '@/utils'
+import type { Podcast } from '@/types/podcast'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import PodcastList from '@/components/shared/PodcastList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
+import TaxonomyFilter from '@/components/shared/TaxonomyFilter.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {
-  page: Page<PodcastItemType>
+  page: Page<Podcast>
   podcastPage: PodcastPageData
-  contentLocale: Locale
   isFallback?: boolean
+  allTerms?: string[]
+  selectedTerm?: string
 }
 
-const { page, podcastPage, isFallback = false } = Astro.props
-// Nav chrome must follow the URL locale, not content locale — ES routes can
-// fall back to EN body while remaining under /es/.
+const {
+  page,
+  podcastPage,
+  isFallback = false,
+  allTerms = [],
+  selectedTerm
+} = Astro.props
+// Nav chrome always follows the URL locale — ES routes can fall back to EN
+// content while staying under /es/.
 const { routeLocale } = Astro.locals
 
 const {
@@ -45,17 +53,25 @@ const {
 
 const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
+const podcastPath = localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
+
+const translatedTerm = selectedTerm
+  ? translateTerm('podcast.categories', selectedTerm, t)
+  : undefined
+const pageTitle = translatedTerm
+  ? t('podcast.tag_title', { tag: translatedTerm })
+  : title
+const pageDescription = translatedTerm
+  ? t('podcast.tag_description', { tag: translatedTerm })
+  : description
 
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
-  {
-    name: heroTitle ?? title,
-    href: localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
-  }
+  { name: heroTitle ?? title, href: podcastPath }
 ]
 ---
 
-<FoundationPageLayout title={title} description={description}>
+<FoundationPageLayout title={pageTitle} description={pageDescription}>
   <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
@@ -71,7 +87,7 @@ const breadcrumbs = [
     />
 
     {
-      page.currentPage === 1 && (
+      page.currentPage === 1 && !selectedTerm && (
         <section class="py-4xl">
           <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
             <CardGrid
@@ -84,6 +100,20 @@ const breadcrumbs = [
         </section>
       )
     }
+
+    <section
+      aria-label={t('aria.podcast.filters_label')}
+      class="px-lg min-w-90 mb-3xl tablet:px-xl tablet:mb-4xl"
+    >
+      <div class="mx-auto max-w-content desktop:max-w-content">
+        <TaxonomyFilter
+          collection="podcast-pages"
+          terms={allTerms}
+          selectedTerm={selectedTerm}
+          href={podcastPath}
+        />
+      </div>
+    </section>
 
     <section class="py-4xl">
       <div
@@ -111,7 +141,6 @@ const breadcrumbs = [
           description={ctaStrip.description}
           primaryButtonText={ctaStrip.buttonText}
           primaryButtonLink={ctaStrip.buttonLink}
-          color={ctaStrip.color}
           secondaryButtonText={ctaStrip.secondaryButtonText}
           secondaryButtonLink={ctaStrip.secondaryButtonLink}
         />

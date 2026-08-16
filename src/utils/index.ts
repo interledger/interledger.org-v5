@@ -92,14 +92,16 @@ export {
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
 export {
-  type BlogTaxonomy,
-  getBlogTaxonomy,
+  type TermTaxonomy,
+  type TaxonomyCollection,
+  getTaxonomy,
   getTermSlug,
   getTermUrl,
   translateTerm,
   buildContentLangHrefs,
   paginateAllPosts,
-  paginatePostsByTerm
+  paginatePostsByTerm,
+  ALL_TERM_SLUG
 } from './main/tagFilter'
 export {
   FEATURED_POST_LIMIT,
@@ -112,7 +114,8 @@ export {
 export {
   PODCAST_PAGE_SIZE,
   type PodcastPageData,
-  paginatePodcastEpisodes
+  paginatePodcastEpisodes,
+  paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 
 // Main site: Text

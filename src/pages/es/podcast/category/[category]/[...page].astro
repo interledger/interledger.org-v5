@@ -1,6 +1,6 @@
 ---
 import type { Page, GetStaticPaths } from 'astro'
-import { paginatePodcastEpisodes } from '@/utils'
+import { paginatePodcastEpisodesByTerm } from '@/utils'
 import type { PodcastPageData } from '@/utils'
 import type { Podcast } from '@/types/podcast'
 import PodcastPage from '@/components/pages/PodcastPage.astro'
@@ -10,10 +10,11 @@ type Props = {
   podcastPage: PodcastPageData
   isFallback: boolean
   allTerms: string[]
+  selectedTerm?: string
 }
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  return paginatePodcastEpisodes({ paginate, lang: 'es' })
+  return paginatePodcastEpisodesByTerm({ paginate, lang: 'es' })
 }
 ---
 

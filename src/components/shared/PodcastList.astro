@@ -3,7 +3,7 @@
  * Podcast List — renders a page of the /podcast episode list.
  * podcasts is a plain frontmatter array (page-owned, not a relation), so
  * there's no category/relation lookup here — just a direct map. Callers pass
- * episodes already in display order (see paginatePodcastEpisodes).
+ * episodes already in display order (see src/utils/main/podcastPagination.ts).
  */
 import PodcastItem from './PodcastItem.astro'
 import type { Podcast } from '@/types/podcast'
