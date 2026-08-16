@@ -69,8 +69,7 @@ export function getTermSlug(term: string) {
 export const ALL_TERM_SLUG = 'all'
 
 /** Builds the URL of a taxonomy filter page, e.g. `/blog/category/announcements`.
- *  Cross-lang combo routes always use "tag" as the generic URL segment, so we
- *  switch to it whenever a contentLangOverride is present.
+ *  Appends `/lang/<locale>` when contentLangOverride is set (cross-lang combo routes).
  */
 export function getTermUrl(
   basePath: string,
@@ -181,44 +180,41 @@ export async function paginatePostsByTerm({
     effectiveLang
   )
 
-  // For combined term+lang routes the URL segment is always "tag" (generic);
-  // for term-only routes it matches the collection's taxonomy segment.
-  const termParamKey = segment
-
-  const termPaths = allTerms.flatMap((tag) => {
-    const termSlug = getTermSlug(tag)
+  const termPaths = allTerms.flatMap((term) => {
+    const termSlug = getTermSlug(term)
     const filteredEntries = blogEntries.filter((entry) =>
-      getEntryTerms(entry, field).some((t) => t === tag)
+      getEntryTerms(entry, field).some((t) => t === term)
     )
 
     const langParam = contentLang ? { contentLang } : undefined
 
-    // When no posts match the tag+lang combo, paginate all lang posts as a fallback
-    // so the page renders with content rather than 404 or an empty list. The tag
-    // stays in the URL so switching back to the other lang preserves the filter.
+    // When no posts match the term+lang combo, paginate all lang posts as a
+    // fallback so the page renders with content rather than 404 or an empty
+    // list. The term stays in the URL so switching back to the other lang
+    // preserves the filter.
     const pageEntries =
       filteredEntries.length > 0 ? filteredEntries : blogEntries
     const isTermFallback = filteredEntries.length === 0
 
     return paginate(pageEntries, {
-      params: { [termParamKey]: termSlug, ...langParam },
+      params: { [segment]: termSlug, ...langParam },
       pageSize: 10,
       props: {
         allTerms,
         totalEntries: pageEntries.length,
         enabledTerms: [...enabledTerms],
-        selectedTerm: tag,
+        selectedTerm: term,
         contentLang: effectiveLang,
         isTermFallback
       }
     })
   })
 
-  // Generate /<segment>/all (or /tag/all/lang/<locale>) so the "All" filter button
-  // has a canonical URL on both simple and cross-lang routes.
+  // Generate /<segment>/all (or /<segment>/all/lang/<locale>) so the "All"
+  // filter button has a canonical URL on both simple and cross-lang routes.
   const allParams = contentLang
-    ? { [termParamKey]: ALL_TERM_SLUG, contentLang }
-    : { [termParamKey]: ALL_TERM_SLUG }
+    ? { [segment]: ALL_TERM_SLUG, contentLang }
+    : { [segment]: ALL_TERM_SLUG }
 
   const allPath = paginate(blogEntries, {
     params: allParams,

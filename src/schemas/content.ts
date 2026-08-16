@@ -363,8 +363,7 @@ const podcastItemSchema = z.object({
 // Podcast landing page. No dynamic zone — hero, title cards, episodes, and CTA
 // strip are page-owned fields. Only the entry with pathSlug === 'podcast'
 // (PODCAST_PAGE_SLUG) is ever rendered, across the dedicated, paginated
-// podcast routes (see src/utils/main/podcastPagination.ts) — not the
-// foundation [...page] catch-all.
+// podcast routes (see src/utils/main/podcastPagination.ts).
 export const podcastPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),

@@ -8,7 +8,7 @@ import type { Podcast } from '@/types/podcast'
 
 // Smaller than the blog listing's pageSize (10, src/utils/main/tagFilter.ts):
 // each episode embeds a live iframe, so a shorter page keeps iframe count
-// per view down.
+// per view down for better performance.
 export const PODCAST_PAGE_SIZE = 5
 
 export type PodcastPageData = CollectionEntry<'podcast-pages'>['data']
@@ -26,9 +26,7 @@ function findPodcastPage(
 interface ResolvedPodcastPage {
   podcastPage: PodcastPageData
   isFallback: boolean
-  /** Newest episode first (authored oldest -> newest). */
   episodes: Podcast[]
-  /** Unique `series` values actually present, for the taxonomy filter. */
   allTerms: string[]
 }
 

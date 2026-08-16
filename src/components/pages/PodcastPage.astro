@@ -33,8 +33,7 @@ const {
   allTerms = [],
   selectedTerm
 } = Astro.props
-// Nav chrome always follows the URL locale — ES routes can fall back to EN
-// content while staying under /es/.
+
 const { routeLocale } = Astro.locals
 
 const {
@@ -82,6 +81,7 @@ const breadcrumbs = [
   <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
+    <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
       title={heroTitle ?? title}
       description={heroDescription ?? description}

@@ -370,7 +370,6 @@ export const ui = {
     'blog.related.title': '',
     'podcast.filter.category.label': '',
     'podcast.filter.all': '',
-    // Show titles — proper nouns, unchanged across locales.
     'podcast.categories.future-money': 'Future Money',
     'podcast.categories.off-the-ledger': 'Off the Ledger',
     'podcast.categories.interledger-salon': 'Interledger Salon',

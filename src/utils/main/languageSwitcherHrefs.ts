@@ -7,10 +7,9 @@ function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
 }
 
-// Blog/podcast taxonomy filter URLs are `.../<segment>/<name>` (page 1) or
-// `.../<segment>/<name>/<n>` (page n>1) — the segment keyword itself, e.g.
-// 'category'/'tag', names the filter.
-const TAXONOMY_SEGMENTS = new Set(['category', 'tag'])
+// Blog/podcast taxonomy filter URLs are `.../category/<name>` (page 1) or
+// `.../category/<name>/<n>` (page n>1).
+const TAXONOMY_SEGMENT = 'category'
 
 // Summit paginates /summit/<year>/talks and /summit/<year>/speakers, but its
 // bare year page (/summit/<year>) is itself a real, non-paginated pathSlug
@@ -32,7 +31,7 @@ const SUMMIT_PAGINATED_LISTING_SEGMENTS = new Set(['talks', 'speakers'])
  */
 function isBareTaxonomyName(parts: string[], nameOffset: number): boolean {
   return (
-    TAXONOMY_SEGMENTS.has(parts[nameOffset - 1]) &&
+    parts[nameOffset - 1] === TAXONOMY_SEGMENT &&
     parts.length === nameOffset + 1
   )
 }
@@ -69,18 +68,14 @@ function stripSlugPagination(basePath: string, slug: string): string {
 function parseBlogSlug(slug: string): {
   term?: string
   contentLang?: Locale
-  segment?: 'tag' | 'category'
 } {
   const parts = slug.split('/').filter(Boolean)
 
-  const tagIdx = parts.indexOf('tag')
-  const categoryIdx = parts.indexOf('category')
-  const termIdx = tagIdx >= 0 ? tagIdx : categoryIdx
+  const categoryIdx = parts.indexOf(TAXONOMY_SEGMENT)
   const langIdx = parts.indexOf('lang')
   return {
-    term: termIdx >= 0 ? parts[termIdx + 1] : undefined,
-    contentLang: langIdx >= 0 ? (parts[langIdx + 1] as Locale) : undefined,
-    segment: tagIdx >= 0 ? 'tag' : categoryIdx >= 0 ? 'category' : undefined
+    term: categoryIdx >= 0 ? parts[categoryIdx + 1] : undefined,
+    contentLang: langIdx >= 0 ? (parts[langIdx + 1] as Locale) : undefined
   }
 }
 
@@ -89,12 +84,12 @@ function buildBlogSwitchHref(
   slug: string,
   targetLocale: Locale
 ): string {
-  const { term, contentLang, segment } = parseBlogSlug(slug)
+  const { term, contentLang } = parseBlogSlug(slug)
   const targetContentLang = contentLang ?? targetLocale
   const hasExplicitLang = contentLang !== undefined
   let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
   if (term) {
-    href += `/${segment ?? 'category'}/${term}`
+    href += `/${TAXONOMY_SEGMENT}/${term}`
   }
   if (hasExplicitLang) href += `/lang/${targetContentLang}`
   return href
