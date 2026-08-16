@@ -96,9 +96,7 @@ export async function paginatePodcastEpisodes({
 
 /**
  * Paginates the podcast episodes per `series`, one path set per term plus a
- * canonical /podcast/category/all set — mirrors paginatePostsByTerm's shape
- * for the blog. Switching categories always lands on that category's page 1,
- * since getTermUrl (and the "all" href) never carry a page number.
+ * canonical /podcast/category/all set.
  */
 export async function paginatePodcastEpisodesByTerm({
   paginate,
