@@ -988,12 +988,11 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
 /**
  * Builds a Strapi payload for a hackathon-page MDX file.
  *
- * Like reports, hackathon-pages have no hero/seo components — `description`
- * is a plain top-level field. Unlike every other page type's `content` zone,
- * the allowed component list is enforced here (not just at Strapi's own
- * dynamic-zone level): an MDX author using a component with a globally
- * registered handler but not in `HACKATHON_PAGE_ALLOWED_COMPONENTS` fails the
- * sync instead of relying solely on Strapi's write-time rejection.
+ * Same shape as other page types for title / pathSlug / description / hero,
+ * but the `content` zone is restricted to `HACKATHON_PAGE_ALLOWED_COMPONENTS`:
+ * an MDX author using a component with a globally registered handler that
+ * isn't on that list fails the sync instead of relying solely on Strapi's
+ * write-time rejection.
  *
  * Returns `Record<string, unknown> | Error`.
  */
@@ -1001,7 +1000,8 @@ export async function buildHackathonPagePayload(
   schema: typeof hackathonPageFrontmatterSchema,
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  strapiUploadContext?: StrapiUploadContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -1017,6 +1017,16 @@ export async function buildHackathonPagePayload(
       title: parsed.title,
       pathSlug: parsed.pathSlug,
       description: parsed.description,
+      hero: await buildHeroWithImage(
+        parsed as Record<string, unknown>,
+        strapiUploadContext,
+        strapiUploadContext
+          ? {
+              pathSlug: mdx.pathSlug,
+              updatedAltIds: new Map<number, string | null>()
+            }
+          : undefined
+      ),
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
