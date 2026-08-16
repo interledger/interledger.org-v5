@@ -3,7 +3,8 @@ import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import { defaultLocale, type Locale } from './locales'
 import { PODCAST_PAGE_SLUG } from './routes'
-import { getTermSlug, ALL_TERM_SLUG } from './tagFilter'
+import { getTermSlug, ALL_TERM_SLUG, CATEGORY_SEGMENT } from './tagFilter'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
 import type { Podcast } from '@/types/podcast'
 
 // Smaller than the blog listing's pageSize (10, src/utils/main/tagFilter.ts):
@@ -21,6 +22,24 @@ function findPodcastPage(
     (page) =>
       page.data.pathSlug === PODCAST_PAGE_SLUG && page.data.locale === lang
   )
+}
+
+/**
+ * Recognizes podcast's paginated URL shapes so a language-switch link can
+ * safely drop a trailing page number: bare `podcast[/<n>]` and
+ * `podcast/category/<name>[/<n>]`. Podcast isn't registered in ROUTE_BASES
+ * (its slug is always the fixed PODCAST_PAGE_SLUG, never translated), so its
+ * whole path — including the literal leading "podcast" segment — ends up in
+ * the slug this shape matches against, one level deeper than blog's.
+ */
+export const podcastRouteShape: PaginatedRouteShape = {
+  matches: (basePath, parts) =>
+    basePath === '' && parts[0] === PODCAST_PAGE_SLUG,
+  isValidListingPrefix: (prefixParts) => {
+    const rest = prefixParts.slice(1)
+    if (rest.length === 0) return true
+    return rest.length === 2 && rest[0] === CATEGORY_SEGMENT
+  }
 }
 
 interface ResolvedPodcastPage {

@@ -1,50 +1,39 @@
 import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
-import { localizeRoute, normalizeBasePath, PODCAST_PAGE_SLUG } from './routes'
+import { localizeRoute, normalizeBasePath } from './routes'
 import { buildRoutePath } from './translatePath'
-import { CATEGORY_SEGMENT } from './tagFilter'
+import { CATEGORY_SEGMENT, blogRouteShape } from './tagFilter'
+import { podcastRouteShape } from './podcastPagination'
+import { summitRouteShape } from './summit-talks-speakers'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
 }
 
-// Summit paginates /summit/<year>/talks and /summit/<year>/speakers, but its
-// bare year page (/summit/<year>) is itself a real, non-paginated pathSlug
-// that happens to be numeric — so a trailing digit alone can't tell them
-// apart there. Only strip it when the segment right before it names one of
-// summit's actual paginated listings.
-const SUMMIT_PAGINATED_LISTING_SEGMENTS = new Set(['talks', 'speakers'])
+/**
+ * Every paginated section on the site registers its shape here (each shape
+ * lives next to the pagination code it describes — see PaginatedRouteShape).
+ * Adding a new paginated route means adding its shape to its own module and
+ * registering it in this one list — nothing else in this file needs to change.
+ */
+const PAGINATED_ROUTE_SHAPES: PaginatedRouteShape[] = [
+  blogRouteShape,
+  podcastRouteShape,
+  summitRouteShape
+]
 
 /**
  * True when `slug`'s trailing digit (if any) is safe to treat as a page
- * number for this basePath, rather than part of a real content pathSlug.
- *
- * `nameOffset` is where a taxonomy filter's own <name> segment sits, counted
- * from the front of `parts` — 1 for blog (`category/<name>`), 2 for podcast
- * (`podcast/category/<name>`), since podcast's slug carries an extra leading
- * 'podcast' segment (it isn't registered in ROUTE_BASES). When `parts` is
- * exactly that long, the trailing segment IS the filter's own name — which
- * might itself look numeric — not a page number, so it must not be stripped.
+ * number, rather than part of a real content pathSlug (e.g. a numeric
+ * category name or a summit year) that just happens to look like one.
  */
-function isBareTaxonomyName(parts: string[], nameOffset: number): boolean {
-  return (
-    parts[nameOffset - 1] === CATEGORY_SEGMENT &&
-    parts.length === nameOffset + 1
-  )
-}
-
 function hasStrippablePageNumber(basePath: string, parts: string[]): boolean {
   const last = parts.at(-1)
   if (!last || !/^\d+$/.test(last) || Number(last) <= 0) return false
 
-  if (isBlogPath(basePath)) return !isBareTaxonomyName(parts, 1)
-  if (basePath === '' && parts[0] === PODCAST_PAGE_SLUG) {
-    return !isBareTaxonomyName(parts, 2)
-  }
-  if (basePath.endsWith('/summit')) {
-    return SUMMIT_PAGINATED_LISTING_SEGMENTS.has(parts.at(-2) ?? '')
-  }
-  return false
+  const shape = PAGINATED_ROUTE_SHAPES.find((s) => s.matches(basePath, parts))
+  return shape ? shape.isValidListingPrefix(parts.slice(0, -1)) : false
 }
 
 /**

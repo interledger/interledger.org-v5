@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
 import type { Locale, UiKey } from './i18'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 /**
  * Collections that expose a term taxonomy for the shared TaxonomyFilter UI.
@@ -53,6 +54,23 @@ const TERM_TAXONOMY: Record<TaxonomyCollection, TermTaxonomy> = {
 
 export function getTaxonomy(collection: TaxonomyCollection): TermTaxonomy {
   return TERM_TAXONOMY[collection]
+}
+
+/**
+ * Recognizes blog's paginated URL shapes so a language-switch link can safely
+ * drop a trailing page number: bare `/blog[/<n>]`, `/blog/category/<name>[/<n>]`,
+ * and the cross-lang combo `/blog/category/<name>/lang/<locale>[/<n>]`. A
+ * numeric-looking category name (`/blog/category/2024`) is not mistaken for a
+ * page number, since there's nothing after it to be the actual page digit.
+ */
+export const blogRouteShape: PaginatedRouteShape = {
+  matches: (basePath) => basePath.endsWith('/blog'),
+  isValidListingPrefix: (prefixParts) => {
+    if (prefixParts.length === 0) return true
+    if (prefixParts[0] !== CATEGORY_SEGMENT) return false
+    if (prefixParts.length === 2) return true
+    return prefixParts.length === 4 && prefixParts[2] === 'lang'
+  }
 }
 
 /** Reads the taxonomy terms off a blog entry regardless of collection. */

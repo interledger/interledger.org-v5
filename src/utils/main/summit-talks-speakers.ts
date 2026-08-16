@@ -6,6 +6,23 @@ import {
   type SessionizeSupportedLocale,
   SESSIONIZE_SUPPORTED_LOCALES
 } from '@/types/summit'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
+
+const SUMMIT_PAGINATED_LISTING_SEGMENTS = new Set(['talks', 'speakers'])
+
+/**
+ * Recognizes summit's paginated URL shapes so a language-switch link can
+ * safely drop a trailing page number: `/summit/<year>/talks[/<n>]` and
+ * `/summit/<year>/speakers[/<n>]`. A bare `/summit/<year>` is itself a real,
+ * non-paginated pathSlug that happens to be numeric — the digit is only safe
+ * to strip when the segment right before it names one of summit's actual
+ * paginated listings.
+ */
+export const summitRouteShape: PaginatedRouteShape = {
+  matches: (basePath) => basePath.endsWith('/summit'),
+  isValidListingPrefix: (prefixParts) =>
+    SUMMIT_PAGINATED_LISTING_SEGMENTS.has(prefixParts.at(-1) ?? '')
+}
 
 function isSessionizeSupportedLocale(
   lang: string
