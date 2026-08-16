@@ -55,6 +55,13 @@ const t = useTranslations(routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
 const podcastPath = localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
 
+// Title cards + hero image only show on the bare /podcast landing view.
+// Suppressed by any active category filter (including /category/all, where
+// selectedTerm is undefined but the URL still carries a filter) or pagination.
+const hasCategoryFilter = Astro.url.pathname.includes('/category/')
+const isLandingPage =
+  page.currentPage === 1 && !selectedTerm && !hasCategoryFilter
+
 const translatedTerm = selectedTerm
   ? translateTerm('podcast.categories', selectedTerm, t)
   : undefined
@@ -78,16 +85,16 @@ const breadcrumbs = [
     <PageHero
       title={heroTitle ?? title}
       description={heroDescription ?? description}
-      image={heroImage}
+      image={isLandingPage ? heroImage : undefined}
       imageAlt={heroImageAlt}
-      imageMobile={heroImageMobile}
+      imageMobile={isLandingPage ? heroImageMobile : undefined}
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
     />
 
     {
-      page.currentPage === 1 && !selectedTerm && (
+      isLandingPage && (
         <section class="py-4xl">
           <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
             <CardGrid
