@@ -26,19 +26,15 @@ function findPodcastPage(
 
 /**
  * Recognizes podcast's paginated URL shapes so a language-switch link can
- * safely drop a trailing page number: bare `podcast[/<n>]` and
- * `podcast/category/<name>[/<n>]`. Podcast isn't registered in ROUTE_BASES
- * (its slug is always the fixed PODCAST_PAGE_SLUG, never translated), so its
- * whole path — including the literal leading "podcast" segment — ends up in
- * the slug this shape matches against, one level deeper than blog's.
+ * safely drop a trailing page number: bare `[/<n>]` and
+ * `category/<name>[/<n>]`. A numeric-looking category name is not mistaken
+ * for a page number, since there's nothing after it to be the actual digit.
  */
 export const podcastRouteShape: PaginatedRouteShape = {
-  matches: (basePath, parts) =>
-    basePath === '' && parts[0] === PODCAST_PAGE_SLUG,
+  matches: (basePath) => basePath.endsWith('/podcast'),
   isValidListingPrefix: (prefixParts) => {
-    const rest = prefixParts.slice(1)
-    if (rest.length === 0) return true
-    return rest.length === 2 && rest[0] === CATEGORY_SEGMENT
+    if (prefixParts.length === 0) return true
+    return prefixParts.length === 2 && prefixParts[0] === CATEGORY_SEGMENT
   }
 }
 

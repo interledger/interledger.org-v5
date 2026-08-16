@@ -19,6 +19,11 @@ export const ROUTE_BASES = {
   'hackathon-pages': '/hackathon',
   'grant-pages': '/grant',
   'grant-overview-pages': '/grant',
+  // Registered so routeContextFromPathname/translationMap treat /podcast like
+  // every other section. Its one entry's slug never varies by locale though,
+  // so always build its href directly with PODCAST_PAGE_SLUG + localizeRoute
+  // (see PodcastPage.astro) — never translatePath('podcast-pages', ...).
+  'podcast-pages': '/podcast',
   // Profiles, faqs and reports use section-relative pathSlugs (e.g. 'fellowship/andria-barrett').
   // The empty base means the translation map indexes them by their pathSlug directly;
   // routeContextFromPathname derives currentBasePath from the actual URL section.

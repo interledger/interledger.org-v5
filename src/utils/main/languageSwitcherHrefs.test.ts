@@ -45,7 +45,7 @@ describe('getLanguageSwitcherHrefs', () => {
   })
 
   it('drops the page number for a paginated podcast root page', () => {
-    expect(getLanguageSwitcherHrefs('podcast/2', '')).toEqual({
+    expect(getLanguageSwitcherHrefs('2', '/podcast')).toEqual({
       en: '/podcast',
       es: '/es/podcast'
     })
@@ -53,7 +53,7 @@ describe('getLanguageSwitcherHrefs', () => {
 
   it('drops the page number but keeps the category for a paginated podcast category page', () => {
     expect(
-      getLanguageSwitcherHrefs('podcast/category/future-money/4', '')
+      getLanguageSwitcherHrefs('category/future-money/4', '/podcast')
     ).toEqual({
       en: '/podcast/category/future-money',
       es: '/es/podcast/category/future-money'
@@ -103,14 +103,14 @@ describe('getLanguageSwitcherHrefs', () => {
   })
 
   it('does not strip a numeric-looking podcast category name with no page number', () => {
-    expect(getLanguageSwitcherHrefs('podcast/category/2024', '')).toEqual({
+    expect(getLanguageSwitcherHrefs('category/2024', '/podcast')).toEqual({
       en: '/podcast/category/2024',
       es: '/es/podcast/category/2024'
     })
   })
 
   it('drops the page number but keeps a numeric-looking podcast category name', () => {
-    expect(getLanguageSwitcherHrefs('podcast/category/2024/2', '')).toEqual({
+    expect(getLanguageSwitcherHrefs('category/2024/2', '/podcast')).toEqual({
       en: '/podcast/category/2024',
       es: '/es/podcast/category/2024'
     })
