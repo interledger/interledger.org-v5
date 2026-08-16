@@ -547,7 +547,8 @@ export function validateReportContent(
 
 /**
  * Validate the Hero component on page-like content types (foundation-page,
- * summit-page): title is required, and each CTA needs both text and link.
+ * summit-page, hackathon-page): title is required, and each CTA needs both
+ * text and link.
  *
  * Returns a `ValidationError` combining every failing field, `undefined` when hero is absent or valid.
  */
