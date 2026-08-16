@@ -23,6 +23,7 @@ import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
+import HackathonHero from '@/components/pages/HackathonHero.astro'
 import {
   type Locale,
   useTranslations,
@@ -50,7 +51,18 @@ if (!entry) return Astro.redirect('/404')
 Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(entry)
-const { title, description } = entry.data
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCtas
+} = entry.data
+const hasHero = Boolean(heroTitle?.trim())
 
 // hackathon-pages is a fixed-section collection (no `section` frontmatter
 // field, unlike the cross-section faq/report/profile collections) — every
@@ -67,16 +79,39 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
 
 <HackathonPageLayout title={title} description={description} noindex={noindex}>
   <main
-    class="hackathon-content flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl text-neutral-0 tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="hackathon-content flex flex-col pb-5xl text-neutral-0 tablet:pb-6xl desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
-    <div class="mx-auto max-w-content">
+    {
+      hasHero && (
+        <HackathonHero
+          title={heroTitle!}
+          description={heroDescription}
+          image={heroImage}
+          imageAlt={heroImageAlt}
+          imageMobile={heroImageMobile}
+          imageMobileAlt={heroImageMobileAlt}
+          cta={heroCtas?.[0]}
+          pageLang={contentLocale}
+        />
+      )
+    }
+    <div
+      class:list={[
+        'mx-auto w-full max-w-content px-lg tablet:px-xl desktop:px-5xl',
+        hasHero
+          ? 'pt-3xl tablet:pt-4xl'
+          : 'pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]'
+      ]}
+    >
+      <TranslationDisclaimer isVisible={isFallback} />
       <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <h1
-        class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
-      >
-        {title}
-      </h1>
+      {
+        !hasHero && (
+          <h1 class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg">
+            {title}
+          </h1>
+        )
+      }
       <section
         data-prose
         class="mt-2xl [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
@@ -121,7 +156,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
       [data-component='EventCard'] *
     ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
       [data-component='LogoCarousel'] *
-    ) {
+    ):not([data-component='HackathonHero'] *) {
     color: var(--color-neutral-0);
   }
 </style>

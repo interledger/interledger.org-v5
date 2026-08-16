@@ -1,0 +1,165 @@
+---
+/**
+ * Two-column hackathon microsite hero: logo + copy on the left, image filling
+ * the right grid cell. Purple band and apricot description are fixed for this
+ * microsite; the primary CTA colour is forced apricot here until INTORG-1072
+ * lands shared dark-mode button tokens.
+ */
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import HackathonLogo from '@/components/logos/HackathonLogo.astro'
+import { buildUmamiAttrs, useTranslations, type Locale } from '@/utils'
+
+const HERO_IMAGE_WIDTH = 696
+const HERO_IMAGE_HEIGHT = 648
+const HERO_IMAGE_MOBILE_WIDTH = 768
+const HERO_IMAGE_MOBILE_HEIGHT = 480
+
+export interface HackathonHeroCta {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
+interface Props {
+  title: string
+  description?: string | null
+  image?: string | null
+  imageAlt?: string | null
+  imageMobile?: string | null
+  imageMobileAlt?: string | null
+  cta?: HackathonHeroCta | null
+  pageLang?: Locale
+}
+
+const {
+  title,
+  description,
+  image,
+  imageAlt,
+  imageMobile,
+  imageMobileAlt,
+  cta,
+  pageLang
+} = Astro.props
+
+const { routeLocale } = Astro.locals
+const lang = pageLang ?? routeLocale
+const t = useTranslations(lang)
+
+const resolvedMobileAlt = imageMobileAlt ?? imageAlt
+const hasImage = Boolean(image || imageMobile)
+const desktopImage = image ?? imageMobile
+const ctaUmami = cta
+  ? buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang,
+      section: 'hero',
+      href: cta.link,
+      linkText: cta.text
+    })
+  : {}
+---
+
+<section
+  data-component="HackathonHero"
+  data-umami-component="hackathon-hero"
+  class="bg-royal-purple-100 text-neutral-0"
+  aria-labelledby="hackathon-hero-title"
+>
+  <div
+    class:list={[
+      'mx-auto grid w-full max-w-wide items-center gap-3xl px-lg py-3xl tablet:px-xl tablet:py-4xl desktop:px-5xl desktop:py-5xl',
+      hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : ''
+    ]}
+  >
+    <div
+      class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100"
+    >
+      <HackathonLogo class="mb-2xl" />
+      <h1
+        id="hackathon-hero-title"
+        class="text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
+      >
+        {title}
+      </h1>
+      {
+        description && (
+          <p class="mt-xl whitespace-pre-line text-h4 text-apricot-100 tablet:text-h4-md desktop:text-h4-lg">
+            {description}
+          </p>
+        )
+      }
+      {
+        cta && (
+          <nav aria-label={t('hackathonHero.cta_navigation')} class="mt-2xl">
+            <LinkButton
+              href={cta.link}
+              variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+              mode="dark"
+              external={cta.external}
+              class="w-full text-royal-purple-150 hover:text-royal-purple-150 tablet:w-auto"
+              style="--color-button-primary: var(--color-apricot-100); --color-button-primary-hover: var(--color-apricot-150); --color-button-primary-disabled: var(--color-apricot-50);"
+              {...ctaUmami}
+            >
+              {cta.text}
+            </LinkButton>
+          </nav>
+        )
+      }
+    </div>
+
+    {
+      hasImage && desktopImage && (
+        <div class="min-w-0">
+          {imageMobile ? (
+            <>
+              <OptimizedImage
+                src={imageMobile}
+                alt={resolvedMobileAlt ?? ''}
+                width={HERO_IMAGE_MOBILE_WIDTH}
+                height={HERO_IMAGE_MOBILE_HEIGHT}
+                loading="eager"
+                fetchpriority="high"
+                sizes="100vw"
+                pictureClass="block tablet:hidden"
+                class="h-auto w-full object-cover"
+              />
+              <OptimizedImage
+                src={desktopImage}
+                alt={imageAlt ?? ''}
+                width={HERO_IMAGE_WIDTH}
+                height={HERO_IMAGE_HEIGHT}
+                loading="eager"
+                fetchpriority="high"
+                sizes="(min-width: 810px) 50vw, 100vw"
+                pictureClass="hidden tablet:block"
+                class="h-auto w-full object-cover"
+              />
+            </>
+          ) : (
+            <OptimizedImage
+              src={desktopImage}
+              alt={imageAlt ?? ''}
+              width={HERO_IMAGE_WIDTH}
+              height={HERO_IMAGE_HEIGHT}
+              loading="eager"
+              fetchpriority="high"
+              sizes="(min-width: 810px) 50vw, 100vw"
+              class="h-auto w-full object-cover"
+            />
+          )}
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* HackathonPageLayout tints every descendant <a>. Keep the apricot CTA
+     readable (dark text) instead of inheriting that chrome colour. */
+  [data-component='HackathonHero'] [data-component='LinkButton'] {
+    color: var(--color-royal-purple-150);
+  }
+</style>

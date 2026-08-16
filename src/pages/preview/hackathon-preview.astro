@@ -1,0 +1,137 @@
+---
+/**
+ * Hackathon page preview (SSR).
+ * Fetches draft content from Strapi before publishing.
+ * URL: /preview/hackathon-preview?documentId={documentId}
+ */
+import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
+import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import HackathonHero from '@/components/pages/HackathonHero.astro'
+import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+
+interface HeroCta {
+  text?: string
+  link?: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+}
+
+interface MediaFile {
+  url?: string
+  alternativeText?: string | null
+}
+
+interface LocalizedMedia {
+  image?: MediaFile | null
+  alternativeText?: string | null
+}
+
+interface HackathonPagePreview {
+  title?: string
+  description?: string
+  hero?: {
+    title?: string
+    description?: string
+    media?: LocalizedMedia | null
+    backgroundImageMobile?: MediaFile | null
+    hero_call_to_action?: HeroCta | HeroCta[] | null
+  }
+  content?: Array<{ __component: string; [key: string]: unknown }>
+}
+
+export const prerender = false
+applyPreviewNoStore(Astro.response.headers)
+
+const documentId = Astro.url.searchParams.get('documentId')
+if (!documentId) {
+  return Astro.redirect('/404')
+}
+
+const populateParams = new URLSearchParams({
+  status: 'draft',
+  'populate[hero][populate][media][populate]': 'image',
+  'populate[hero][populate][backgroundImageMobile]': 'true',
+  'populate[hero][populate][hero_call_to_action]': 'true',
+  'populate[content][on][blocks.paragraph][populate]': '*',
+  'populate[content][on][blocks.card-grid][populate]': '*',
+  'populate[content][on][blocks.number-tiles][populate][tiles]': '*',
+  'populate[content][on][blocks.agenda][populate][items]': '*',
+  'populate[content][on][blocks.split-layout][populate]': '*',
+  'populate[content][on][blocks.profile-grid][populate][profiles][populate]':
+    '*',
+  'populate[content][on][blocks.cta-strip][populate]': '*',
+  'populate[content][on][blocks.carousel][populate][logos][populate]': '*',
+  'populate[content][on][blocks.faq][populate][items]': '*',
+  'populate[content][on][blocks.cta-buttons][populate][buttons]': '*',
+  'populate[content][on][blocks.event-card][populate][when]': '*',
+  'populate[content][on][blocks.event-card][populate][where]': '*',
+  'populate[content][on][blocks.event-card][populate][apply][populate]': '*',
+  'populate[content][on][blocks.quote][populate]': '*'
+})
+
+const response = await fetchStrapi<HackathonPagePreview>(
+  `api/hackathon-pages/${documentId}?${populateParams.toString()}`
+)
+if (response instanceof Error) {
+  return Astro.redirect('/404')
+}
+const page = response.data
+if (!page) {
+  return Astro.redirect('/404')
+}
+
+function toSitePath(url?: string | null): string | undefined {
+  if (!url) return undefined
+  try {
+    return url.startsWith('http') ? new URL(url).pathname : url
+  } catch {
+    return url
+  }
+}
+
+const title = page.title || 'Preview'
+const metaDescription = page.description || undefined
+const heroTitle = page.hero?.title?.trim()
+const rawCta = page.hero?.hero_call_to_action
+const heroCta = Array.isArray(rawCta) ? rawCta[0] : (rawCta ?? undefined)
+const resolvedCta =
+  heroCta?.text?.trim() && heroCta.link?.trim()
+    ? {
+        text: heroCta.text,
+        link: heroCta.link,
+        style: heroCta.style,
+        external: heroCta.external
+      }
+    : null
+const content = page.content || []
+---
+
+<HackathonPageLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+  <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
+    PREVIEW MODE - This content is not published
+  </div>
+
+  {
+    heroTitle && (
+      <HackathonHero
+        title={heroTitle}
+        description={page.hero?.description}
+        image={toSitePath(page.hero?.media?.image?.url)}
+        imageAlt={page.hero?.media?.alternativeText}
+        imageMobile={toSitePath(page.hero?.backgroundImageMobile?.url)}
+        imageMobileAlt={page.hero?.backgroundImageMobile?.alternativeText}
+        cta={resolvedCta}
+      />
+    )
+  }
+
+  {
+    content.length > 0 && (
+      <section class="px-lg py-4xl tablet:px-xl desktop:px-5xl">
+        <div class="mx-auto w-full min-w-0 max-w-content" data-prose>
+          <DynamicZone blocks={content} />
+        </div>
+      </section>
+    )
+  }
+</HackathonPageLayout>

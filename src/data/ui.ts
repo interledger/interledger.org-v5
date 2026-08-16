@@ -196,6 +196,11 @@ export const ui = {
     'homepageHero.cta_explore_tech': 'Explore our Tech',
     'homepageHero.cta_explore_grants': 'Explore our Grants',
     'homepageHero.cta_navigation': 'Featured actions',
+    'hackathonHero.logo.open_payments': 'Open Payments',
+    'hackathonHero.logo.hackath': 'HACKATH',
+    'hackathonHero.logo.on': 'ON',
+    'hackathonHero.logo.by': 'BY Interledger',
+    'hackathonHero.cta_navigation': 'Featured actions',
     'animatedNetwork.problem.heading': "The Problem We're Solving",
     'animatedNetwork.problem.body_1':
       "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - <em>if</em> they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
@@ -452,6 +457,11 @@ export const ui = {
     'homepageHero.cta_explore_tech': 'Explorar nuestra tecnología',
     'homepageHero.cta_explore_grants': 'Explorar nuestras subvenciones',
     'homepageHero.cta_navigation': 'Acciones destacadas',
+    'hackathonHero.logo.open_payments': '',
+    'hackathonHero.logo.hackath': '',
+    'hackathonHero.logo.on': '',
+    'hackathonHero.logo.by': '',
+    'hackathonHero.cta_navigation': 'Acciones destacadas',
     'animatedNetwork.problem.heading': 'El problema que estamos resolviendo',
     'animatedNetwork.problem.body_1':
       'Los sistemas financieros nunca fueron diseñados para funcionar juntos. Diferentes reglas, distintos formatos y diferentes formas de conectarse - <em>si</em> es que se conectan. Para quienes los administran, es una pesadilla operativa. Para los demás, significa incertidumbre, costos más altos y oportunidades negadas.',
