@@ -5,7 +5,8 @@ import {
   localizeRoute,
   stripPagination,
   translateTerm,
-  PODCAST_PAGE_SLUG
+  PODCAST_PAGE_SLUG,
+  CATEGORY_SEGMENT
 } from '@/utils'
 import type { PodcastPageData } from '@/utils'
 import type { Podcast } from '@/types/podcast'
@@ -57,7 +58,7 @@ const podcastPath = localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
 // Title cards + hero image only show on the bare /podcast landing view.
 // Suppressed by any active category filter (including /category/all, where
 // selectedTerm is undefined but the URL still carries a filter) or pagination.
-const hasCategoryFilter = Astro.url.pathname.includes('/category/')
+const hasCategoryFilter = Astro.url.pathname.includes(`/${CATEGORY_SEGMENT}/`)
 const isLandingPage =
   page.currentPage === 1 && !selectedTerm && !hasCategoryFilter
 

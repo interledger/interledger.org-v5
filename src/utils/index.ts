@@ -101,7 +101,8 @@ export {
   buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm,
-  ALL_TERM_SLUG
+  ALL_TERM_SLUG,
+  CATEGORY_SEGMENT
 } from './main/tagFilter'
 export {
   FEATURED_POST_LIMIT,

@@ -31,17 +31,20 @@ export interface TermTaxonomy {
   allLabelKey: UiKey
 }
 
+/** URL segment every taxonomy filter page lives under, e.g. /blog/category/<slug>. */
+export const CATEGORY_SEGMENT = 'category'
+
 const TERM_TAXONOMY: Record<TaxonomyCollection, TermTaxonomy> = {
   'foundation-blog': {
     field: 'categories',
-    segment: 'category',
+    segment: CATEGORY_SEGMENT,
     i18nPrefix: 'blog.categories',
     filterLabelKey: 'blog.filter.category.label',
     allLabelKey: 'blog.filter.all'
   },
   'podcast-pages': {
     field: 'series',
-    segment: 'category',
+    segment: CATEGORY_SEGMENT,
     i18nPrefix: 'podcast.categories',
     filterLabelKey: 'podcast.filter.category.label',
     allLabelKey: 'podcast.filter.all'
@@ -95,7 +98,7 @@ export function buildContentLangHrefs(
   selectedTerm?: string
 ): { enHref: string; esHref: string } {
   const crossLangBase = selectedTerm
-    ? `${blogIndexHref}/category/${getTermSlug(selectedTerm)}`
+    ? `${blogIndexHref}/${CATEGORY_SEGMENT}/${getTermSlug(selectedTerm)}`
     : blogIndexHref
   return {
     enHref: `${crossLangBase}/lang/en`,

@@ -2,14 +2,11 @@ import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
 import { localizeRoute, normalizeBasePath, PODCAST_PAGE_SLUG } from './routes'
 import { buildRoutePath } from './translatePath'
+import { CATEGORY_SEGMENT } from './tagFilter'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
 }
-
-// Blog/podcast taxonomy filter URLs are `.../category/<name>` (page 1) or
-// `.../category/<name>/<n>` (page n>1).
-const TAXONOMY_SEGMENT = 'category'
 
 // Summit paginates /summit/<year>/talks and /summit/<year>/speakers, but its
 // bare year page (/summit/<year>) is itself a real, non-paginated pathSlug
@@ -31,7 +28,7 @@ const SUMMIT_PAGINATED_LISTING_SEGMENTS = new Set(['talks', 'speakers'])
  */
 function isBareTaxonomyName(parts: string[], nameOffset: number): boolean {
   return (
-    parts[nameOffset - 1] === TAXONOMY_SEGMENT &&
+    parts[nameOffset - 1] === CATEGORY_SEGMENT &&
     parts.length === nameOffset + 1
   )
 }
@@ -71,7 +68,7 @@ function parseBlogSlug(slug: string): {
 } {
   const parts = slug.split('/').filter(Boolean)
 
-  const categoryIdx = parts.indexOf(TAXONOMY_SEGMENT)
+  const categoryIdx = parts.indexOf(CATEGORY_SEGMENT)
   const langIdx = parts.indexOf('lang')
   return {
     term: categoryIdx >= 0 ? parts[categoryIdx + 1] : undefined,
@@ -89,7 +86,7 @@ function buildBlogSwitchHref(
   const hasExplicitLang = contentLang !== undefined
   let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
   if (term) {
-    href += `/${TAXONOMY_SEGMENT}/${term}`
+    href += `/${CATEGORY_SEGMENT}/${term}`
   }
   if (hasExplicitLang) href += `/lang/${targetContentLang}`
   return href
