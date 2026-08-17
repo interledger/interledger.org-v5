@@ -173,6 +173,8 @@ jobs:
     needs: rebuild-and-sync
     # A failed rebuild can leave the systemd service stopped, so this is worth flagging even for a
     # manually triggered run. Callers can opt out with notify_on_failure: false.
+    # No always() wrapper: failure() already returns true when an ancestor job in a `needs` chain
+    # fails, and that is the only case worth paging for — always() would add cancellations too.
     if: ${{ failure() && inputs.notify_on_failure }}
     steps:
       - name: Notify Slack on failure
