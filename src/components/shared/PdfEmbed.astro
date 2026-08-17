@@ -1,4 +1,5 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
 import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
@@ -32,26 +33,34 @@ const downloadAttrs = buildUmamiAttrs({
     Fallback download link — hidden by default via inline style (not a Tailwind class)
     so it can't be overridden by other display utilities like `inline-flex`.
     JS shows it only if the <object> fails to render the PDF.
+
+    `target="_blank"` is load-bearing, not cosmetic. The Umami tracker binds a
+    capture-phase click listener to every `[data-umami-event]` element. For an
+    anchor it calls `preventDefault()`, sends the event, then navigates itself
+    with `location.href`. It never looks for `download`, so the attribute was
+    discarded and the PDF opened in the tab instead of downloading
+    (INTORG-1090, the same bug fixed on `LinkButton` in INTORG-938).
+
+    Umami skips that path when the anchor targets a new context, which leaves
+    the default action intact so the browser honours `download`, and no tab is
+    left behind. The event is still sent, because only the manual navigation is
+    conditional. If the tracker ever learns about `download`, this can go.
   -->
   <a
     id={`${id}-fallback`}
     href={url}
     download
+    target="_blank"
+    rel="noopener noreferrer"
     style={{ display: 'none' }}
     class="group inline-flex items-center gap-s rounded-full px-xl py-lg text-h4 tablet:text-h4-md desktop:text-h4-lg font-medium no-underline bg-primary text-btn-txt transition-all duration-fast focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:underline"
     {...downloadAttrs}
   >
     {label}
-    <!-- Inline arrow — slides right on hover via group-hover -->
-    <svg
-      class="h-[0.75em] w-[0.75em] transition-transform duration-fast group-hover:translate-x-0.5"
-      viewBox="0 0 12 12"
-      aria-hidden="true"
-    >
-      <path
-        d="M11.92 5.62a1.001 1.001 0 0 0-.21-.33l-5-5a1.004 1.004 0 0 0-1.42 1.42L8.59 5H1a1 1 0 0 0 0 2h7.59l-3.3 3.29a1.002 1.002 0 0 0 .325 1.639 1 1 0 0 0 1.095-.219l5-5a1 1 0 0 0 .21-.33 1 1 0 0 0 0-.76Z"
-        fill="currentColor"></path>
-    </svg>
+    <Icon
+      name="download"
+      class="h-[0.75em] w-[0.75em] transition-transform duration-fast group-hover:translate-y-0.5"
+    />
   </a>
 </div>
 
