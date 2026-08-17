@@ -203,6 +203,9 @@ export {
 } from './main/seoMeta'
 export { isDemoPathSlug, isDemoPathname } from './shared/demoPaths'
 
+// Main site: Footer
+export { socialLinks, type SocialLink, getResourcesColumn } from './main/footer'
+
 // Main site: Roadmap (developers tech roadmap timeline)
 export {
   createPositioner,

@@ -4,7 +4,7 @@
  * Extends BaseLayout with Foundation header/footer.
  */
 import BaseLayout from './BaseLayout.astro'
-import FoundationFooter from '@/components/layout/FoundationFooter.astro'
+import SiteFooter from '@/components/layout/SiteFooter.astro'
 import FoundationHeader from '@/components/layout/FoundationHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
@@ -55,5 +55,5 @@ const {
   <FoundationHeader slot="header" theme={headerTheme} />
   <TableScrollSupport />
   <slot />
-  <FoundationFooter slot="footer" />
+  <SiteFooter slot="footer" />
 </BaseLayout>

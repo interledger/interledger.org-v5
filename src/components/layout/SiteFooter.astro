@@ -5,9 +5,10 @@ import {
   buildUmamiAttrs,
   getNavigation,
   localizeRoute,
-  type UiKey
+  socialLinks,
+  getResourcesColumn
 } from '@/utils'
-import type { MenuGroup, NavigationSite } from '@/types/navigation'
+import type { NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
@@ -22,15 +23,7 @@ const t = useTranslations(routeLocale)
 
 const { mainMenu } = getNavigation(site, routeLocale)
 
-const resourcesColumn: MenuGroup = {
-  label: 'Resources',
-  items: [
-    { label: 'Terms of Service', href: '/terms-of-service' },
-    { label: 'Privacy Policy', href: '/privacy-policy' },
-    { label: 'Press & Media', href: '/press-and-media' },
-    { label: 'FAQ', href: '/faq' }
-  ]
-}
+const resourcesColumn = getResourcesColumn(site, routeLocale)
 
 const footerColumns = [...mainMenu, resourcesColumn]
 
@@ -52,62 +45,15 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     linkText
   })
 
-const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
-
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
 const isActive = (href: string | null | undefined) =>
   !!href && currentPath === localizeRoute(href, routeLocale).replace(/\/$/, '')
 
-type SocialIconName =
-  | 'youtube'
-  | 'mastodon'
-  | 'x'
-  | 'github'
-  | 'instagram'
-  | 'linkedin'
-  | 'slack'
-
-const socialLinks: Array<{
-  href: string
-  icon: SocialIconName
-  labelKey: UiKey
-}> = [
-  {
-    href: 'https://www.youtube.com/@InterledgerFoundation',
-    icon: 'youtube',
-    labelKey: 'footer.youtube'
-  },
-  {
-    href: 'https://interledger.social/about',
-    icon: 'mastodon',
-    labelKey: 'footer.mastodon'
-  },
-  { href: 'https://x.com/interledger', icon: 'x', labelKey: 'footer.x' },
-  {
-    href: 'https://github.com/interledger',
-    icon: 'github',
-    labelKey: 'footer.github'
-  },
-  {
-    href: 'https://www.instagram.com/interledgerfoundation/',
-    icon: 'instagram',
-    labelKey: 'footer.instagram'
-  },
-  {
-    href: 'https://www.linkedin.com/company/interledger-foundation/',
-    icon: 'linkedin',
-    labelKey: 'footer.linkedin'
-  },
-  {
-    href: 'https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA',
-    icon: 'slack',
-    labelKey: 'footer.slack'
-  }
-]
+const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 ---
 
 <footer
-  data-component="FoundationFooter"
+  data-component="SiteFooter"
   class="bg-ice-mint-50 px-lg tablet:px-xl desktop:px-3xl-tight"
   role="contentinfo"
 >
