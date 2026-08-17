@@ -19,6 +19,7 @@ import {
   validateGitSyncRepoOnStartup,
   type GitSyncDeps
 } from './gitSync'
+import type { GitSyncAlert } from './slackNotify'
 
 const REPO = '/staging-clone'
 
@@ -34,6 +35,8 @@ const STATUS_COMMAND = 'git status --porcelain'
 interface FakeDeps extends GitSyncDeps {
   /** Every command passed to `exec`, in order. */
   commands: string[]
+  /** Every alert handed to the notifier, in order. */
+  alerts: GitSyncAlert[]
 }
 
 /**
@@ -48,14 +51,19 @@ function createDeps(
 ): FakeDeps {
   const { respond = () => '', existing = [REPO, ...STAGE_DIRS] } = options
   const commands: string[] = []
+  const alerts: GitSyncAlert[] = []
 
   return {
     commands,
+    alerts,
     exec: async (command) => {
       commands.push(command)
       return respond(command)
     },
-    fileExists: (filepath) => existing.includes(filepath)
+    fileExists: (filepath) => existing.includes(filepath),
+    notify: async (alert) => {
+      alerts.push(alert)
+    }
   }
 }
 
@@ -88,6 +96,7 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => {})
   vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', REPO)
   vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'false')
+  vi.stubEnv('SLACK_WEBHOOK_URL', 'https://hooks.slack.com/services/T0/B0/xxx')
 })
 
 afterEach(() => {
@@ -408,6 +417,54 @@ describe('validateGitSyncRepoOnStartup', () => {
 
     await expect(validateGitSyncRepoOnStartup(deps)).resolves.toBeUndefined()
     expect(deps.commands).toEqual([])
+  })
+
+  it('refuses to start when git sync is enabled without a Slack webhook', async () => {
+    // Syncing without alerting is the state that let push failures go unnoticed.
+    vi.stubEnv('SLACK_WEBHOOK_URL', '')
+    const deps = createDeps({ existing: [REPO, path.join(REPO, '.git')] })
+
+    await expect(validateGitSyncRepoOnStartup(deps)).rejects.toThrow(
+      /SLACK_WEBHOOK_URL is not set while git sync is enabled/
+    )
+    expect(deps.commands).toEqual([])
+  })
+
+  it('names both escape hatches in the refusal', async () => {
+    vi.stubEnv('SLACK_WEBHOOK_URL', '')
+    const deps = createDeps()
+
+    await expect(validateGitSyncRepoOnStartup(deps)).rejects.toThrow(
+      /STRAPI_DISABLE_GIT_SYNC=true/
+    )
+  })
+
+  it('treats a whitespace-only webhook as unset', async () => {
+    vi.stubEnv('SLACK_WEBHOOK_URL', '   ')
+    const deps = createDeps()
+
+    await expect(validateGitSyncRepoOnStartup(deps)).rejects.toThrow(
+      /SLACK_WEBHOOK_URL is not set/
+    )
+  })
+
+  it('allows a missing webhook when git sync is disabled', async () => {
+    vi.stubEnv('SLACK_WEBHOOK_URL', '')
+    vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'true')
+    const deps = createDeps({ existing: [] })
+
+    await expect(validateGitSyncRepoOnStartup(deps)).resolves.toBeUndefined()
+  })
+
+  it('checks the webhook before touching the filesystem', async () => {
+    // A config error is cheaper to diagnose than a filesystem one, and it is
+    // the likelier mistake on a fresh deploy.
+    vi.stubEnv('SLACK_WEBHOOK_URL', '')
+    const deps = createDeps({ existing: [] })
+
+    await expect(validateGitSyncRepoOnStartup(deps)).rejects.toThrow(
+      /SLACK_WEBHOOK_URL/
+    )
   })
 
   it('throws when the clone directory is missing', async () => {
@@ -759,10 +816,12 @@ describe('createDebouncedGitSync', () => {
   it('never rejects, even if a dependency throws', async () => {
     const deps: FakeDeps = {
       commands: [],
+      alerts: [],
       exec: async () => {
         throw new Error('spawn ENOMEM')
       },
-      fileExists: () => true
+      fileExists: () => true,
+      notify: async () => {}
     }
     const scheduler = createDebouncedGitSync(deps, DELAY)
 
@@ -804,6 +863,118 @@ describe('createDebouncedGitSync', () => {
 })
 
 // ── gitCommitAndPush ─────────────────────────────────────────────────────────
+
+// ── Alerting ─────────────────────────────────────────────────────────────────
+
+describe('git sync alerting', () => {
+  const contentStatus = (command: string) =>
+    command === STATUS_COMMAND ? status(['M', 'src/content/faqs/a.mdx']) : ''
+
+  it('alerts on a failed push with the context needed to act', async () => {
+    const deps = createDeps({
+      respond: (command) =>
+        command === STATUS_COMMAND
+          ? status(['M', 'src/content/faqs/a.mdx'])
+          : gitFailure(command, { stderr: '! [rejected] non-fast-forward' })
+    })
+
+    await runGitSync(
+      'faq',
+      { author: { name: 'Ada Lovelace', email: 'ada@example.com' } },
+      deps
+    )
+
+    expect(deps.alerts).toEqual([
+      {
+        outcome: 'failed',
+        label: 'faq',
+        repoRoot: REPO,
+        commitMessage: 'faq: update a',
+        author: { name: 'Ada Lovelace', email: 'ada@example.com' },
+        reason: '! [rejected] non-fast-forward',
+        detail: '\n! [rejected] non-fast-forward'
+      }
+    ])
+  })
+
+  it('alerts when the status read itself fails', async () => {
+    const deps = createDeps({
+      respond: (command) =>
+        gitFailure(command, { stderr: 'fatal: not a git repository' })
+    })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed', label: 'faq', reason: 'fatal: not a git repository' }
+    ])
+  })
+
+  it('reports a successful sync as healthy so a recovery can fire', async () => {
+    const deps = createDeps({ respond: contentStatus })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toMatchObject([{ outcome: 'healthy', label: 'faq' }])
+  })
+
+  it('reports an empty commit as healthy', async () => {
+    const deps = createDeps({
+      respond: (command) =>
+        command === STATUS_COMMAND
+          ? status(['M', 'src/content/faqs/a.mdx'])
+          : gitFailure(command, {
+              stdout: 'nothing to commit, working tree clean'
+            })
+    })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toMatchObject([{ outcome: 'healthy' }])
+  })
+
+  it('stays silent on a skip, which says nothing about repo health', async () => {
+    // A clean tree does not prove the last push landed, so it must not be
+    // allowed to clear an outstanding failure.
+    const deps = createDeps({ respond: () => '' })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toEqual([])
+  })
+
+  it('stays silent when git sync is disabled', async () => {
+    vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'true')
+    const deps = createDeps({ respond: contentStatus })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toEqual([])
+  })
+
+  it('alerts on a failed navigation commit', async () => {
+    const deps = createDeps({
+      existing: [REPO],
+      respond: (command) =>
+        gitFailure(command, { stderr: 'Authentication failed' })
+    })
+
+    await gitCommitAndPush(
+      `${REPO}/src/data/navigation.json`,
+      'nav: update',
+      deps
+    )
+
+    expect(deps.alerts).toMatchObject([
+      {
+        outcome: 'failed',
+        label: 'navigation',
+        commitMessage: 'nav: update',
+        reason: 'Authentication failed'
+      }
+    ])
+  })
+})
 
 describe('gitCommitAndPush', () => {
   const NAV = `${REPO}/src/data/navigation.json`

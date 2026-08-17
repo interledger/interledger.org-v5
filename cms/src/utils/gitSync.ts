@@ -3,6 +3,11 @@ import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
 import { PATHS, getProjectRoot } from './paths'
+import {
+  isSlackAlertingConfigured,
+  notifyGitSyncToSlack,
+  type NotifyGitSync
+} from './slackNotify'
 
 // Repo directories git sync touches, derived from PATHS so this file keeps no
 // second copy of the layout. The trailing slash matters: these double as
@@ -88,6 +93,7 @@ export type GitExec = (
 export interface GitSyncDeps {
   exec: GitExec
   fileExists: (filepath: string) => boolean
+  notify: NotifyGitSync
 }
 
 function execInRepo(
@@ -114,7 +120,8 @@ function execInRepo(
 
 export const defaultGitSyncDeps: GitSyncDeps = {
   exec: execInRepo,
-  fileExists: (filepath) => fs.existsSync(filepath)
+  fileExists: (filepath) => fs.existsSync(filepath),
+  notify: notifyGitSyncToSlack
 }
 
 // ── Shell + path helpers ─────────────────────────────────────────────────────
@@ -171,6 +178,17 @@ export async function validateGitSyncRepoOnStartup(
   if (isGitSyncDisabled()) {
     console.log('⏭️  Git sync validation skipped via STRAPI_DISABLE_GIT_SYNC')
     return
+  }
+
+  // Git sync without alerting is how failures went unnoticed: a rejected push
+  // strands editor content on the VM with nothing but a console line to say so.
+  // Refuse to boot rather than run in that state.
+  if (!isSlackAlertingConfigured()) {
+    throw new Error(
+      'SLACK_WEBHOOK_URL is not set while git sync is enabled, so sync failures ' +
+        'would go unreported. Set SLACK_WEBHOOK_URL, or set ' +
+        'STRAPI_DISABLE_GIT_SYNC=true for local development and CI.'
+    )
   }
 
   const repoRoot = getTargetRepoRoot()
@@ -346,6 +364,51 @@ async function commitAndPush(
   return { outcome: 'synced', message }
 }
 
+// ── Reporting ────────────────────────────────────────────────────────────────
+
+interface ReportContext {
+  label: string
+  repoRoot: string
+  commitMessage?: string
+  author?: { name: string; email: string }
+}
+
+/**
+ * The single funnel from a {@link GitSyncResult} to an alert. A `skipped`
+ * outcome says nothing about repo health, so it neither alerts nor clears an
+ * outstanding failure; only a real commit or a real no-op counts as healthy.
+ */
+async function report(
+  result: GitSyncResult,
+  context: ReportContext,
+  deps: GitSyncDeps
+): Promise<GitSyncResult> {
+  if (result.outcome === 'skipped') return result
+
+  if (result.outcome === 'failed') {
+    const { error } = result
+    await deps.notify({
+      outcome: 'failed',
+      label: context.label,
+      repoRoot: context.repoRoot,
+      commitMessage: context.commitMessage,
+      author: context.author,
+      reason: error.message,
+      detail:
+        error instanceof GitCommandError ? error.combinedOutput : error.stack
+    })
+    return result
+  }
+
+  await deps.notify({
+    outcome: 'healthy',
+    label: context.label,
+    repoRoot: context.repoRoot,
+    commitMessage: context.commitMessage
+  })
+  return result
+}
+
 // ── Sync ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -364,7 +427,11 @@ export async function runGitSync(
 
   if (changes instanceof GitCommandError) {
     console.error(`⚠️  Git sync failed to read status: ${changes.message}`)
-    return { outcome: 'failed', error: changes }
+    return report(
+      { outcome: 'failed', error: changes },
+      { label, repoRoot },
+      deps
+    )
   }
 
   if (changes.length === 0) {
@@ -384,7 +451,18 @@ export async function runGitSync(
       : inferCommitMessage(label, changes)
   console.log(`[gitSync] Inferred message: ${message}`)
 
-  return commitAndPush(repoRoot, stagePaths, message, deps, context?.author)
+  const result = await commitAndPush(
+    repoRoot,
+    stagePaths,
+    message,
+    deps,
+    context?.author
+  )
+  return report(
+    result,
+    { label, repoRoot, commitMessage: message, author: context?.author },
+    deps
+  )
 }
 
 // ── Debounced sync ───────────────────────────────────────────────────────────
@@ -487,5 +565,10 @@ export async function gitCommitAndPush(
     return { outcome: 'skipped', reason: 'no-valid-paths' }
   }
 
-  return commitAndPush(repoRoot, paths, message, deps)
+  const result = await commitAndPush(repoRoot, paths, message, deps)
+  return report(
+    result,
+    { label: 'navigation', repoRoot, commitMessage: message },
+    deps
+  )
 }

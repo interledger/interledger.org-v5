@@ -156,6 +156,10 @@ jobs:
           DATABASE_FILENAME: .tmp/ci-dry-run.db
           HOST: 0.0.0.0
           PORT: 1337
+          # A disposable CI instance must never commit and push. This also
+          # exempts it from the SLACK_WEBHOOK_URL startup guard, which only
+          # applies when git sync is enabled.
+          STRAPI_DISABLE_GIT_SYNC: 'true'
           CI_API_TOKEN_OUTPUT_PATH: ${{ github.workspace }}/cms/.ci-api-token
         run: |
           rm -f "$DATABASE_FILENAME" "$CI_API_TOKEN_OUTPUT_PATH"

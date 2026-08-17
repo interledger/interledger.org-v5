@@ -42,13 +42,44 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
+| Variable                    | Description                                                                                                                                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                                |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                             |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                                     |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).         |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                    |
+| `SLACK_WEBHOOK_URL`         | Slack incoming webhook that git sync failures are posted to. **Required whenever git sync is enabled** — Strapi refuses to start without it. Set `STRAPI_DISABLE_GIT_SYNC=true` for local development instead. |
+
+### Git Sync Failure Reporting
+
+Git sync runs inside lifecycle hooks, so a failure has no user-facing surface: a
+rejected push or an expired token would leave editor content stranded in the
+staging clone with nothing but a line in the VM's log. Failures are therefore
+posted to Slack via `SLACK_WEBHOOK_URL`.
+
+Because syncing without alerting is the state that hid these failures,
+`validateGitSyncRepoOnStartup` **refuses to boot** when git sync is enabled and
+`SLACK_WEBHOOK_URL` is unset. Local development and CI opt out with
+`STRAPI_DISABLE_GIT_SYNC=true`; production must supply the webhook.
+
+What gets posted:
+
+- **Failures**, with host, environment, repo path, content type, the attempted
+  commit message, and the editor whose change is affected, plus the tail of
+  git's output.
+- **A recovery notice** on the first sync that succeeds after a failure, so the
+  channel is never left on an unresolved ❌.
+
+Two safeguards worth knowing about:
+
+- **Secrets are redacted.** Git echoes the remote URL on an auth failure, and
+  ours carries a GitHub App token, so credentials and `gh*_`/`github_pat_`
+  tokens are stripped before anything is sent.
+- **Repeats are throttled** for 15 minutes, fingerprinted on the root cause
+  rather than the content type. A clone left mid-rebase fails on _every_
+  subsequent save, so an unthrottled alert would post per editor action; the
+  next message after the window says how many repeats were suppressed.
 
 ### Git Sync Repository Target
 
