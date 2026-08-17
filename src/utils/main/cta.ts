@@ -96,11 +96,13 @@ export function resolveCtaLink(
 export function resolveCtaLink(input: CtaLinkInput): ResolvedCtaLink
 export function resolveCtaLink({
   url,
-  external: externalFlag = false,
+  external: externalFlag,
   document: isDocument = false,
   internalIcon = null
 }: CtaLinkInput): ResolvedCtaLink {
-  const external = externalFlag || isExternalHref(url)
+  // Unset flag → infer from the URL. Explicit `false` stays same-tab even
+  // for an absolute URL (hackathon register is authored that way).
+  const external = externalFlag ?? isExternalHref(url)
 
   // Guard on the scheme, not on `external`: an author may tick "external" on a
   // site-relative path, and `mailto:` / `tel:` links carry a scheme without

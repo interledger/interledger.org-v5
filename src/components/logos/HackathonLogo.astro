@@ -2,6 +2,9 @@
 /**
  * Official Open Payments Hackathon lockup (negative) used on the hero.
  * Brand chrome — not a heading (the hero title is the page h1).
+ *
+ * Raster stand-in (1891×567 PNG). Swap for an inline negative-space SVG
+ * when design ships one — a lockup this size should be a couple of KB.
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import { useTranslations } from '@/utils'
@@ -21,6 +24,7 @@ const t = useTranslations(routeLocale)
     alt={t('hackathonHero.logo.alt')}
     width={232}
     height={70}
+    loading="eager"
     sizes="(min-width: 1200px) 232px, (min-width: 810px) 123px, 114px"
     class="h-auto w-[114px] tablet:w-[123px] desktop:w-[232px]"
   />

@@ -2,8 +2,7 @@
 /**
  * Two-column hackathon microsite hero: logo + copy on the left, image filling
  * the right grid cell. Purple band and apricot description are fixed for this
- * microsite. The CTA is the shared LinkButton with no icon — CtaButtons
- * always adds an arrow on internal links.
+ * microsite. The CTA is LinkButton with no icon.
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -80,7 +79,7 @@ const ctaUmami = cta
       <HackathonLogo class="mb-3xl" />
       <h1
         id="hackathon-hero-title"
-        class="!text-h2 !font-extrabold text-neutral-0 tablet:!text-h2-md"
+        class="text-h2 font-extrabold text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
       >
         {title}
       </h1>
@@ -97,6 +96,7 @@ const ctaUmami = cta
             <LinkButton
               href={cta.link}
               variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+              mode={cta.style === 'secondary' ? 'dark' : undefined}
               external={cta.external}
               class="w-full tablet:w-auto"
               {...ctaUmami}
@@ -153,3 +153,14 @@ const ctaUmami = cta
     }
   </div>
 </section>
+
+<style>
+  /* Apricot primary, dark label — matches the hackathon hero mock. */
+  [data-component='HackathonHero']
+    :global([data-component='CtaButtons'] [data-component='LinkButton']) {
+    --color-button-primary: var(--color-apricot-100);
+    --color-button-primary-hover: var(--color-apricot-150);
+    --color-button-primary-disabled: var(--color-apricot-50);
+    color: var(--color-royal-purple-150);
+  }
+</style>

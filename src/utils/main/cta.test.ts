@@ -47,6 +47,12 @@ describe('resolveCtaLink', () => {
       )
     })
 
+    it('honours an explicit false on an absolute URL', () => {
+      expect(
+        resolveCtaLink({ url: 'https://example.com', external: false }).external
+      ).toBe(false)
+    })
+
     it('still resolves the href for a flagged site path', () => {
       expect(resolveCtaLink({ url: 'about', external: true }).href).toBe(
         '/about'
@@ -134,6 +140,16 @@ describe('resolveCtaLink', () => {
       expect(resolveCtaLink({ url: 'https://example.com' }).icon).toBe(
         'external-link'
       )
+    })
+
+    it('uses internalIcon when external is explicitly false on an absolute URL', () => {
+      expect(
+        resolveCtaLink({
+          url: 'https://example.com',
+          external: false,
+          internalIcon: 'arrow-right'
+        }).icon
+      ).toBe('arrow-right')
     })
 
     it('is download for a document', () => {
