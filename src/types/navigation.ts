@@ -25,4 +25,4 @@ export interface NavigationData {
 export type NavigationSite = 'foundation' | 'summit' | 'hackathon'
 
 /** Sites that share the microsite chrome (dark header/footer over BaseLayout). */
-export type MicrositeSite = Extract<NavigationSite, 'summit' | 'hackathon'>
+export type MicrositeSite = Extract<NavigationSite, 'summit'>
