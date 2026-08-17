@@ -74,10 +74,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <TranslationDisclaimer isVisible={isFallback} />
-        <div
-          data-prose
-          class="[&_h1]:text-neutral-0 [&_h2]:mb-xl [&_h2]:font-semibold [&_h2]:text-neutral-0 [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:font-semibold [&_h3]:text-neutral-0 [&_h4]:text-neutral-0 [&_h5]:text-neutral-0 [&_h6]:text-neutral-0 [&_p]:mb-xl [&_p]:leading-[1.6] [&_p]:text-neutral-50 [&_ul]:mb-xl [&_ul]:ps-2xl [&_ul_li]:mb-lg [&_a:not([data-component='LinkButton'])]:underline [&_a:not([data-component='LinkButton']):hover]:no-underline"
-        >
+        <div data-prose>
           <MdxContent
             components={{
               Paragraph,
@@ -109,10 +106,40 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
 </HackathonPageLayout>
 
 <style>
-  .hackathon-content {
-    color: var(--color-neutral-50);
+  /* Spacing / weight only — heading and body colour come from
+     [data-theme='dark'] via --color-heading / --color-prose. */
+  .hackathon-content :global([data-prose] h2) {
+    margin-bottom: var(--spacing-xl);
+    font-weight: 600;
   }
+
+  .hackathon-content :global([data-prose] h3) {
+    margin-top: var(--spacing-2xl);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 600;
+  }
+
   .hackathon-content :global([data-prose] p) {
-    color: var(--color-neutral-50);
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+  }
+
+  .hackathon-content :global([data-prose] ul) {
+    margin-bottom: var(--spacing-xl);
+    padding-inline-start: var(--spacing-2xl);
+  }
+
+  .hackathon-content :global([data-prose] ul li) {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .hackathon-content
+    :global([data-prose] a:not([data-component='LinkButton'])) {
+    text-decoration-line: underline;
+  }
+
+  .hackathon-content
+    :global([data-prose] a:not([data-component='LinkButton']):hover) {
+    text-decoration-line: none;
   }
 </style>

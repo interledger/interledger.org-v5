@@ -53,6 +53,25 @@ src/styles/
    - Custom `@utility` definitions for behaviors that can't be expressed as a `@theme` token alone (e.g. scroll-driven animations that need `animation-timeline` / `animation-range` / reduced-motion branches alongside the `animation` shorthand)
    - `@utility` rules are placed in `@layer utilities` automatically and win over component styles regardless of import order — keeping these imports last is for readability, not cascade priority
 
+## Dark theme (`data-theme`)
+
+`BaseLayout` sets `data-theme` on `<html>` (`light` or `dark`). Tailwind
+`dark:` utilities and `@variant dark` follow that selector.
+
+Runtime tokens in `base/variables.css`:
+
+| Token | Light | Dark |
+| --- | --- | --- |
+| `--color-heading` | neutral-900 | neutral-0 |
+| `--color-prose` | neutral-100 | neutral-50 |
+| `--color-text` | (unset / chrome) | white |
+| `--color-bg` | (unset) | neutral-150 |
+
+Prose (`components/prose/default.css`) reads `--color-heading` and
+`--color-prose` under `@variant dark`, so summit and hackathon pick up
+white headings and muted body copy without page-level colour overrides.
+`--color-text` stays white for chrome (e.g. microsite footer).
+
 ## Pillar Theming System
 
 > **Currently orchid for every pillar, by design.** The legacy pillar accents (`--color-tech-main`, etc.) were removed in the design-token cleanup. Each `[data-pillar='X']` block in `base/variables.css` still sets `--color-primary`, but points at `--color-orchid-100` until distinct hues are chosen. Do **not** use `--color-primary: var(--color-primary)` — that self-reference is invalid at computed-value time and strips the primary color from the whole subtree (prose links, `text-primary`, etc.). See "Adding a New Pillar" below to wire a real hue.
