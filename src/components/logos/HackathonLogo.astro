@@ -15,10 +15,7 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 ---
 
-<div
-  class:list={['hackathon-logo', className]}
-  data-component="HackathonLogo"
->
+<div class:list={['hackathon-logo', className]} data-component="HackathonLogo">
   <OptimizedImage
     src="/img/hackathon/lockup-negative.png"
     alt={t('hackathonHero.logo.alt')}
