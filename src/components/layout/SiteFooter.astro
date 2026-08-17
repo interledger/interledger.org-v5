@@ -6,12 +6,14 @@ import {
   getNavigation,
   localizeRoute,
   socialLinks,
-  getResourcesColumn
+  getResourcesColumn,
+  HACKATHON_HOME_SLUG
 } from '@/utils'
 import type { NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
+import HackathonLogo from '@/components/logos/HackathonLogo.astro'
 
 interface Props {
   site?: NavigationSite
@@ -34,6 +36,11 @@ const subscribeHref = translatePath(
 )
 const contactHref = translatePath('foundation-pages', routeLocale, 'contact')
 const homeHref = localizeRoute('/', routeLocale)
+const hackathonHomeHref = translatePath(
+  'hackathon-pages',
+  routeLocale,
+  HACKATHON_HOME_SLUG
+)
 
 const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
   buildUmamiAttrs({
@@ -48,6 +55,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
 const isActive = (href: string | null | undefined) =>
   !!href && currentPath === localizeRoute(href, routeLocale).replace(/\/$/, '')
+const isHackathonSite = site === 'hackathon'
 
 const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 ---
@@ -266,11 +274,28 @@ const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
     </nav>
 
     <!-- Bottom: copyright, legal links, logo -->
-    <div class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center">
+    <div
+      class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center flex flex-col items-center"
+    >
       <p class="mb-3xl text-body-sm-standard text-neutral-75">
         {t('footer.copyright')}
       </p>
-
+      {
+        isHackathonSite && (
+          <a
+            href={hackathonHomeHref}
+            aria-label={t('footer.logo_hackathon')}
+            class="inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none"
+            {...footerLink(
+              hackathonHomeHref,
+              t('footer.logo_hackathon'),
+              t('footer.logo_hackathon')
+            )}
+          >
+            <HackathonLogo class="h-6 w-auto" />
+          </a>
+        )
+      }
       <a
         href={homeHref}
         aria-label={t('footer.logo_home')}

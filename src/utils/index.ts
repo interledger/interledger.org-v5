@@ -39,6 +39,7 @@ export {
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
+  HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,

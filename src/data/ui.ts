@@ -47,6 +47,7 @@ export const ui = {
     'footer.copyright':
       'Content on this website and Interledger Foundation publications are licensed under CC BY 4.0, unless otherwise noted. Interledger technologies and software are licensed under the Apache License 2.0, unless otherwise noted. Interledger Protocol® and ILP® are registered trademarks of the Interledger Foundation.',
     'footer.logo_home': 'Go to homepage',
+    'footer.logo_hackathon': 'Go to Hackathon overview',
     'blog.foundation.title': 'Blog',
     'blog.foundation.description':
       'Interledger Foundation brings you all the latest news, insights and updates about digital financial inclusion and our mission to build equity and inclusion within a global payments network for inclusive digital financial service providers.',
@@ -314,6 +315,7 @@ export const ui = {
     'footer.copyright':
       'El contenido de este sitio web y las publicaciones de la Fundación Interledger se distribuyen bajo la licencia CC BY 4.0, salvo que se indique lo contrario. Las tecnologías y el software de Interledger se distribuyen bajo la Licencia Apache 2.0, salvo que se indique lo contrario. Interledger Protocol® e ILP® son marcas registradas de la Fundación Interledger.',
     'footer.logo_home': 'Ir a la página de inicio',
+    'footer.logo_hackathon': '',
     'blog.foundation.title': '',
     'blog.foundation.description': '',
     'blog.foundation.tag_title': '',

@@ -11,6 +11,7 @@ import {
   useTranslations,
   translatePath,
   HOME_CONTENT_SLUG,
+  HACKATHON_HOME_SLUG,
   buildDeferredUmamiAttrs
 } from '@/utils'
 import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
@@ -32,7 +33,7 @@ const t = useTranslations(routeLocale)
 const homePath =
   site === 'summit'
     ? translatePath('summit-pages', routeLocale, HOME_CONTENT_SLUG)
-    : translatePath('hackathon-pages', routeLocale, 'overview')
+    : translatePath('hackathon-pages', routeLocale, HACKATHON_HOME_SLUG)
 
 const navLabel = site === 'summit' ? t('nav.summit') : t('nav.hackathon')
 const logoLabel =
