@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Info Card",
     "icon": "layout",
-    "description": "Single info card with a required heading and body"
+    "description": "Info card with a heading and body, or an optional cover image"
   },
   "options": {},
   "attributes": {
@@ -22,7 +22,27 @@
       "options": {
         "preset": "basicMarkdownPreset"
       },
-      "required": true
+      "required": false
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "imageAlt": {
+      "type": "string",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

@@ -76,6 +76,40 @@ describe('CardGrid round-trip (serialize → parse)', () => {
       await parseMdxToBlocks(serialize({ ...info }), { locale: 'en' })
     ).toEqual([{ __component: 'blocks.card-grid', ...info }])
 
+    const infoWithImage = {
+      ariaLabel: 'Why participate',
+      variant: 'Info' as const,
+      columns: 'Three' as const,
+      infoCards: [
+        { heading: 'Build', body: 'Ship a prototype.' },
+        {
+          heading: 'Photo',
+          image: { url: '/img/hackathon/participate.webp' },
+          imageAlt: 'A builder coding'
+        }
+      ]
+    }
+    expect(
+      await parseMdxToBlocks(serialize({ ...infoWithImage }), {
+        locale: 'en',
+        resolveMediaUpload: async (url) => {
+          if (url === '/img/hackathon/participate.webp') return 42
+          throw new Error(`unexpected upload ${url}`)
+        }
+      })
+    ).toEqual([
+      {
+        __component: 'blocks.card-grid',
+        ariaLabel: 'Why participate',
+        variant: 'Info',
+        columns: 'Three',
+        infoCards: [
+          { heading: 'Build', body: 'Ship a prototype.' },
+          { heading: 'Photo', image: 42, imageAlt: 'A builder coding' }
+        ]
+      }
+    ])
+
     const nav = {
       ariaLabel: 'Nav',
       variant: 'Navigation' as const,

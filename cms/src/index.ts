@@ -1180,7 +1180,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.info-card': {
       heading: 'Card Heading',
-      body: 'Card Body'
+      body: 'Card Body',
+      image: 'Image',
+      imageAlt: 'Image alternative text'
     },
     'blocks.carousel': {
       heading: 'Section Heading',
@@ -1366,7 +1368,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.info-card': {
       heading: 'Required card title.',
-      body: 'Required. Supports markdown including bullet lists.'
+      body: 'Required unless an image is set. Supports markdown including bullet lists.',
+      image:
+        'Optional cover photo. Use a square image (1:1). It fills the card without stretching. When set, the card shows the photo instead of the heading and body.',
+      imageAlt:
+        'Describe the photo for screen readers. Falls back to the card heading if left blank.'
     },
     'blocks.faq-section': {
       heading:
@@ -1987,7 +1993,11 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.info-card': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'body', size: 12 }]
+      [{ name: 'body', size: 12 }],
+      [
+        { name: 'image', size: 6 },
+        { name: 'imageAlt', size: 6 }
+      ]
     ],
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],

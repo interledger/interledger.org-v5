@@ -41,7 +41,7 @@ const GRANT_BLOCKS = {
     populate: {
       titleCards: { populate: { secondaryCta: true } },
       resourceCards: { populate: { secondaryCta: true } },
-      infoCards: true,
+      infoCards: { populate: { image: true } },
       navigationCards: { populate: { secondaryCta: true } }
     }
   },
@@ -91,7 +91,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: {
       titleCards: { populate: { secondaryCta: true } },
       resourceCards: { populate: { secondaryCta: true } },
-      infoCards: true,
+      infoCards: { populate: { image: true } },
       navigationCards: { populate: { secondaryCta: true } }
     }
   },
@@ -153,7 +153,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: {
         titleCards: { populate: { secondaryCta: true } },
         resourceCards: { populate: { secondaryCta: true } },
-        infoCards: true,
+        infoCards: { populate: { image: true } },
         navigationCards: { populate: { secondaryCta: true } }
       }
     },

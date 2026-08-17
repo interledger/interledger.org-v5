@@ -29,6 +29,9 @@ interface StrapiCard {
   description?: string
   body?: string
   secondaryCta?: SecondaryCta
+  imageSrc?: string
+  image?: string | { url?: string }
+  imageAlt?: string | null
 }
 
 type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
@@ -102,6 +105,15 @@ const htmlCards =
 // Resource / Navigation at save time. Incomplete cards (MDX import, old
 // content, bypass paths) still render a visible placeholder so the grid
 // layout and the missing CTA are obvious — not only a server console.warn.
+function infoCardImageSrc(card: StrapiCard): string {
+  if (card.imageSrc?.trim()) return card.imageSrc.trim()
+  if (typeof card.image === 'string') return card.image
+  if (card.image && typeof card.image === 'object') {
+    return card.image.url ?? ''
+  }
+  return ''
+}
+
 function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
   return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
 }
@@ -134,7 +146,11 @@ function warnMissingSecondaryCta(
         htmlCards.map((card) => {
           if (variant === 'Info') {
             return (
-              <InfoCard heading={card.heading}>
+              <InfoCard
+                heading={card.heading}
+                imageSrc={infoCardImageSrc(card) || undefined}
+                imageAlt={card.imageAlt}
+              >
                 <Fragment set:html={card.html} />
               </InfoCard>
             )

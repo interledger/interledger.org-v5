@@ -1,5 +1,10 @@
 import { escDouble as esc, escMdxBraces } from '../shared'
-import { SerializerFieldError, type FieldError } from '../../utils'
+import {
+  SerializerFieldError,
+  getImageUrl,
+  hasMediaValue,
+  type FieldError
+} from '../../utils'
 import {
   CARD_GRID_COLUMNS,
   CARD_GRID_VARIANTS,
@@ -104,9 +109,11 @@ function validateCard(
   }
 
   if (variant === 'Info') {
-    if (!card.body?.trim()) {
+    const hasImage =
+      Boolean(card.imageSrc?.trim()) || hasMediaValue(card.image as never)
+    if (!hasImage && !card.body?.trim()) {
       fieldErrors.push({
-        message: `${label} is missing body`,
+        message: `${label} needs a body, or an image`,
         path: [...pathPrefix, 'body']
       })
     }
@@ -322,12 +329,33 @@ function getSecondaryCta(
   return card.secondaryCta
 }
 
+function infoCardImageSrc(card: CardGridCard): string {
+  if (card.imageSrc?.trim()) return card.imageSrc.trim()
+  if (hasMediaValue(card.image as never)) {
+    if (typeof card.image === 'string' || typeof card.image === 'number') {
+      return ''
+    }
+    return getImageUrl(card.image as { url?: string }) ?? ''
+  }
+  return ''
+}
+
+function infoCardImageAlt(card: CardGridCard): string {
+  return (card.imageAlt ?? '').trim()
+}
+
 function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
   const headingAttr = ` heading="${esc(card.heading ?? '')}"`
 
   if (variant === 'Info') {
-    const body = escMdxBraces(card.body ?? '')
-    return `<InfoCard${headingAttr}>\n\n${body}\n\n</InfoCard>`
+    const src = infoCardImageSrc(card)
+    const alt = infoCardImageAlt(card)
+    let attrs = headingAttr
+    if (src) attrs += ` imageSrc="${esc(src)}"`
+    if (alt) attrs += ` imageAlt="${esc(alt)}"`
+    const body = (card.body ?? '').trim()
+    if (src && !body) return `<InfoCard${attrs} />`
+    return `<InfoCard${attrs}>\n\n${escMdxBraces(card.body ?? '')}\n\n</InfoCard>`
   }
 
   if (variant === 'Navigation') {

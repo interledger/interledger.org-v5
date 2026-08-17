@@ -86,6 +86,38 @@ describe('card-grid serializer', () => {
     ).toContain('<NavigationCard heading="Next step"')
   })
 
+  it('serializes an Info card with a cover image and no body', () => {
+    const result = serialize({
+      ariaLabel: 'Why participate',
+      variant: 'Info',
+      columns: 'Three',
+      infoCards: [
+        infoCard,
+        {
+          __component: 'blocks.info-card',
+          heading: 'A builder coding',
+          imageSrc: '/img/hackathon/participate.webp',
+          imageAlt: 'A builder coding'
+        }
+      ]
+    })
+    expect(result).toContain('<InfoCard heading="Why apply">')
+    expect(result).toContain(
+      '<InfoCard heading="A builder coding" imageSrc="/img/hackathon/participate.webp" imageAlt="A builder coding" />'
+    )
+  })
+
+  it('rejects an Info card that has neither body nor image', () => {
+    expect(() =>
+      serialize({
+        ariaLabel: 'Info',
+        variant: 'Info',
+        columns: 'Three',
+        infoCards: [{ __component: 'blocks.info-card', heading: 'Empty' }]
+      })
+    ).toThrow(SerializerFieldError)
+  })
+
   it('rejects One column for non-Navigation variants', () => {
     expect(() =>
       serialize({

@@ -940,13 +940,12 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
 export interface BlocksInfoCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_info_card'
   info: {
-    description: 'Single info card with a required heading and body'
+    description: 'Info card with a heading and body, or an optional cover image'
     displayName: 'Info Card'
     icon: 'layout'
   }
   attributes: {
     body: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
@@ -955,6 +954,18 @@ export interface BlocksInfoCard extends Struct.ComponentSchema {
       >
     heading: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    imageAlt: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

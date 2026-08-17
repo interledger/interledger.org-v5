@@ -117,23 +117,47 @@ function parseResourceCard(node: JsxBlockNode): CardGridCard {
   }
 }
 
-function parseInfoCard(node: JsxBlockNode): CardGridCard {
+async function parseInfoCard(
+  node: JsxBlockNode,
+  ctx: ParserContext
+): Promise<CardGridCard> {
   const heading = getStringAttr(node, 'heading', { required: true })
+  const imageSrc = getStringAttr(node, 'imageSrc')
+  const imageAlt = getStringAttr(node, 'imageAlt')
   const body = node.children.length > 0 ? childrenToMarkdown(node.children) : ''
-  if (!body) {
+
+  if (!body && !imageSrc) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
-      message: 'InfoCard requires non-empty children for the body.',
+      message:
+        'InfoCard requires non-empty children for the body, or an imageSrc.',
       component: 'InfoCard',
       prop: 'children',
       line: node.position?.start.line,
       column: node.position?.start.column
     })
   }
-  return {
-    heading,
-    body
+
+  const card: CardGridCard = { heading }
+  if (body) card.body = body
+  if (imageAlt !== undefined) card.imageAlt = imageAlt
+
+  if (imageSrc) {
+    if (!ctx.resolveMediaUpload) {
+      throw new MdxParserError({
+        code: ParserErrorCode.UNRESOLVED_RELATION,
+        message:
+          'resolveMediaUpload is required to import InfoCard imageSrc but was not provided.',
+        component: 'InfoCard',
+        prop: 'imageSrc',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
+    card.image = await ctx.resolveMediaUpload(imageSrc)
   }
+
+  return card
 }
 
 function parseNavigationCard(node: JsxBlockNode): CardGridCard {
@@ -156,18 +180,19 @@ function parseNavigationCard(node: JsxBlockNode): CardGridCard {
   }
 }
 
-const PARSERS: Record<CardGridVariant, (node: JsxBlockNode) => CardGridCard> = {
+const PARSERS: Partial<
+  Record<CardGridVariant, (node: JsxBlockNode) => CardGridCard>
+> = {
   Title: parseTitleCard,
   Resource: parseResourceCard,
-  Info: parseInfoCard,
   Navigation: parseNavigationCard
 }
 
 async function handleCardGrid(
   node: JsxBlockNode,
-  _ctx: ParserContext
+  ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
-  return tryCatchParserError(() => {
+  return tryCatchParserError(async () => {
     const ariaLabel = getStringAttr(node, 'ariaLabel', { required: true })
     const variantAttr = getStringAttr(node, 'variant', { required: true })
     const columns = getStringAttr(node, 'columns', { required: true })
@@ -256,12 +281,18 @@ async function handleCardGrid(
 
     const parse = PARSERS[variantAttr]
     const cardsField = CARD_GRID_VARIANT_FIELDS[variantAttr]
+    const cards =
+      variantAttr === 'Info'
+        ? await Promise.all(
+            cardNodes.map((cardNode) => parseInfoCard(cardNode, ctx))
+          )
+        : cardNodes.map((cardNode) => parse!(cardNode))
     const block: CardGridBlock = {
       __component: 'blocks.card-grid',
       ariaLabel,
       variant: variantAttr,
       columns,
-      [cardsField]: cardNodes.map(parse)
+      [cardsField]: cards
     }
 
     return [block]
