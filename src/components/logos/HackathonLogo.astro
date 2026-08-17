@@ -1,8 +1,9 @@
 ---
 /**
- * Open Payments Hackathon lockup used on every hackathon hero.
+ * Official Open Payments Hackathon lockup (negative) used on the hero.
  * Brand chrome — not a heading (the hero title is the page h1).
  */
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import { useTranslations } from '@/utils'
 
 interface Props {
@@ -14,32 +15,16 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 ---
 
-<p
-  class:list={['hackathon-logo text-neutral-0', className]}
+<div
+  class:list={['hackathon-logo', className]}
   data-component="HackathonLogo"
 >
-  <span class="block text-body-sm-standard font-medium leading-none">
-    {t('hackathonHero.logo.open_payments')}
-  </span>
-  <span class="mt-xs flex flex-wrap items-end gap-x-sm">
-    <span
-      class="inline-flex items-center text-[1.375rem] font-semibold leading-none tracking-[0.02em] tablet:text-[1.5rem]"
-    >
-      <span>{t('hackathonHero.logo.hackath')}</span>
-      <svg
-        class="mx-[0.12em] h-[0.72em] w-[0.72em] shrink-0"
-        viewBox="0 0 16 16"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <path d="M3 2.2 13.4 8 3 13.8V2.2Z" fill="currentColor"></path>
-      </svg>
-      <span>{t('hackathonHero.logo.on')}</span>
-    </span>
-    <span
-      class="pb-px text-[0.625rem] font-medium leading-none tracking-[0.04em]"
-    >
-      {t('hackathonHero.logo.by')}
-    </span>
-  </span>
-</p>
+  <OptimizedImage
+    src="/img/hackathon/lockup-negative.png"
+    alt={t('hackathonHero.logo.alt')}
+    width={202}
+    height={61}
+    sizes="202px"
+    class="h-auto w-[202px]"
+  />
+</div>

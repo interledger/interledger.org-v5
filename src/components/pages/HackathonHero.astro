@@ -65,7 +65,7 @@ const ctaUmami = cta
 <section
   data-component="HackathonHero"
   data-umami-component="hackathon-hero"
-  class="bg-royal-purple-100 text-neutral-0"
+  class="flex min-h-[calc(100vh-var(--site-header-height))] items-center bg-royal-purple-100 text-neutral-0 desktop:min-h-[calc(100vh-var(--site-header-height-desktop))]"
   aria-labelledby="hackathon-hero-title"
 >
   <div
@@ -80,13 +80,13 @@ const ctaUmami = cta
       <HackathonLogo class="mb-2xl" />
       <h1
         id="hackathon-hero-title"
-        class="text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
+        class="text-h1 font-extrabold text-neutral-0"
       >
         {title}
       </h1>
       {
         description && (
-          <p class="mt-xl whitespace-pre-line text-h4 text-apricot-100 tablet:text-h4-md desktop:text-h4-lg">
+          <p class="mt-xl whitespace-pre-line text-h5-lg text-apricot-100">
             {description}
           </p>
         )

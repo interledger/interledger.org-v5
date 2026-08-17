@@ -196,10 +196,7 @@ export const ui = {
     'homepageHero.cta_explore_tech': 'Explore our Tech',
     'homepageHero.cta_explore_grants': 'Explore our Grants',
     'homepageHero.cta_navigation': 'Featured actions',
-    'hackathonHero.logo.open_payments': 'Open Payments',
-    'hackathonHero.logo.hackath': 'HACKATH',
-    'hackathonHero.logo.on': 'ON',
-    'hackathonHero.logo.by': 'BY Interledger',
+    'hackathonHero.logo.alt': 'Open Payments Hackathon by Interledger',
     'hackathonHero.cta_navigation': 'Featured actions',
     'animatedNetwork.problem.heading': "The Problem We're Solving",
     'animatedNetwork.problem.body_1':
@@ -457,10 +454,7 @@ export const ui = {
     'homepageHero.cta_explore_tech': 'Explorar nuestra tecnología',
     'homepageHero.cta_explore_grants': 'Explorar nuestras subvenciones',
     'homepageHero.cta_navigation': 'Acciones destacadas',
-    'hackathonHero.logo.open_payments': '',
-    'hackathonHero.logo.hackath': '',
-    'hackathonHero.logo.on': '',
-    'hackathonHero.logo.by': '',
+    'hackathonHero.logo.alt': 'Open Payments Hackathon by Interledger',
     'hackathonHero.cta_navigation': 'Acciones destacadas',
     'animatedNetwork.problem.heading': 'El problema que estamos resolviendo',
     'animatedNetwork.problem.body_1':
