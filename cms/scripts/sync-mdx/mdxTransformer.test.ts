@@ -1426,7 +1426,8 @@ describe('buildGrantPagePayload', () => {
           text: 'Apply now',
           link: '/apply',
           style: 'primary',
-          external: true
+          external: true,
+          document: false
         }
       })
     })
@@ -1788,7 +1789,8 @@ describe('buildGrantOverviewPagePayload', () => {
           text: 'Apply now',
           link: '/apply',
           style: 'primary',
-          external: true
+          external: true,
+          document: false
         }
       })
     })

@@ -202,6 +202,7 @@ interface StrapiHeroPayload {
     link: string
     style: string
     external: boolean
+    document: boolean
   } | null
 }
 
@@ -221,7 +222,8 @@ function buildHeroPayload(
       text: cta.text ?? '',
       link: cta.link ?? '',
       style: cta.style ?? 'primary',
-      external: cta.external ?? false
+      external: cta.external ?? false,
+      document: cta.document ?? false
     }
   }
 

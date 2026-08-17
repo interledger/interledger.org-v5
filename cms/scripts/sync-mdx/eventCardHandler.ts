@@ -5,7 +5,8 @@
  * - <EventCard>
  *     <EventWhen title="…" date="…" time="…">optional text</EventWhen>
  *     <EventWhere title="…" location="…">optional text</EventWhere>
- *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool} />
+ *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool}
+ *       buttonDocument={bool} />
  *   </EventCard>
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
@@ -23,6 +24,7 @@ import type {
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
 import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
+import { hasConflictingCtaFlags } from './types.blocks'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -70,7 +72,7 @@ function parseApply(node: JsxBlockNode): EventCardApply {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
       message:
-        'EventApply accepts only title, buttonText, buttonUrl, and buttonExternal attributes — no children. Use a self-closing tag; there is no Apply body text field.',
+        'EventApply accepts only title, buttonText, buttonUrl, buttonExternal, and buttonDocument attributes — no children. Use a self-closing tag; there is no Apply body text field.',
       component: 'EventApply',
       prop: 'children',
       line: node.position?.start.line,
@@ -82,13 +84,32 @@ function parseApply(node: JsxBlockNode): EventCardApply {
   const buttonText = getStringAttr(node, 'buttonText', { required: true })
   const buttonUrl = getStringAttr(node, 'buttonUrl', { required: true })
   const buttonExternal = getBooleanAttr(node, 'buttonExternal')
+  const buttonDocument = getBooleanAttr(node, 'buttonDocument')
+
+  if (
+    hasConflictingCtaFlags({
+      external: buttonExternal ?? false,
+      document: buttonDocument ?? false
+    })
+  ) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'EventApply cannot set both buttonExternal and buttonDocument. Pick one: external opens a new tab, document downloads a file.',
+      component: 'EventApply',
+      prop: 'buttonDocument',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
 
   return {
     title,
     primaryCta: {
       text: buttonText,
       link: buttonUrl,
-      external: buttonExternal ?? false
+      external: buttonExternal ?? false,
+      document: buttonDocument ?? false
     }
   }
 }

@@ -359,6 +359,49 @@ describe('validateGrantInfoCards', () => {
   })
 })
 
+describe('validateCtaStrip flags', () => {
+  const base = {
+    primaryButtonText: 'Apply',
+    primaryButtonLink: '/apply'
+  }
+
+  it('accepts a document flag on its own', () => {
+    expect(
+      validateCtaStrip({ ctaStrip: { ...base, primaryButtonDocument: true } })
+    ).toBeUndefined()
+  })
+
+  it('rejects external and document on the primary button', () => {
+    const err = validateCtaStrip({
+      ctaStrip: {
+        ...base,
+        primaryButtonExternal: true,
+        primaryButtonDocument: true
+      }
+    })
+    expect(err?.details.errors[0].path).toEqual([
+      'ctaStrip',
+      'primaryButtonDocument'
+    ])
+  })
+
+  it('rejects external and document on the secondary button', () => {
+    const err = validateCtaStrip({
+      ctaStrip: {
+        ...base,
+        secondaryButtonText: 'More',
+        secondaryButtonLink: '/more',
+        secondaryButtonExternal: true,
+        secondaryButtonDocument: true
+      }
+    })
+    expect(err?.details.errors[0].path).toEqual([
+      'ctaStrip',
+      'secondaryButtonDocument'
+    ])
+  })
+})
+
 describe('validateGrantPagePrimaryCta', () => {
   it('returns undefined when primaryCta is absent', () => {
     expect(validateGrantPagePrimaryCta({})).toBeUndefined()
@@ -394,6 +437,29 @@ describe('validateGrantPagePrimaryCta', () => {
     })
     expect(err?.message).toBe('Primary Call to Action: Link is required')
     expect(err?.details.errors[0].path).toEqual(['primaryCta', 'link'])
+  })
+
+  it('accepts document on its own', () => {
+    expect(
+      validateGrantPagePrimaryCta({
+        primaryCta: { text: 'Read the report', link: '/r.pdf', document: true }
+      })
+    ).toBeUndefined()
+  })
+
+  it('rejects external and document together', () => {
+    const err = validateGrantPagePrimaryCta({
+      primaryCta: {
+        text: 'Report',
+        link: 'https://example.com/r.pdf',
+        external: true,
+        document: true
+      }
+    })
+    expect(err?.message).toBe(
+      'Primary Call to Action: Pick either External Link or Document Download, not both'
+    )
+    expect(err?.details.errors[0].path).toEqual(['primaryCta', 'document'])
   })
 
   it('reports both text and link as separate entries when both are missing, not just the first', () => {
@@ -796,6 +862,43 @@ describe('validateHeroFields', () => {
       'hero_call_to_action',
       'link'
     ])
+  })
+
+  it('flags a CTA that is both external and a document', () => {
+    const err = validateHeroFields({
+      hero: {
+        title: 'Hello',
+        hero_call_to_action: {
+          text: 'Pack',
+          link: '/uploads/img/original/pack.pdf',
+          external: true,
+          document: true
+        }
+      }
+    })
+    expect(err?.message).toBe(
+      'Hero CTA: Pick either External Link or Document Download, not both'
+    )
+    expect(err?.details.errors[0].path).toEqual([
+      'hero',
+      'hero_call_to_action',
+      'document'
+    ])
+  })
+
+  it('accepts a CTA that is a document only', () => {
+    expect(
+      validateHeroFields({
+        hero: {
+          title: 'Hello',
+          hero_call_to_action: {
+            text: 'Pack',
+            link: '/uploads/img/original/pack.pdf',
+            document: true
+          }
+        }
+      })
+    ).toBeUndefined()
   })
 })
 

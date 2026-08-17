@@ -206,5 +206,6 @@ export {
 export {
   ensureLeadingSlash,
   normalizePathSegment,
-  normalizeRelativeLinksInDocumentData
+  normalizeRelativeLinksInDocumentData,
+  stripUploadOrigin
 } from './relativeLinks'

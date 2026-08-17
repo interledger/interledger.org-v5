@@ -72,4 +72,47 @@ describe('CtaLink handler', () => {
       ParserErrorCode.MISSING_REQUIRED_PROP
     )
   })
+
+  it('parses document', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<CtaLink text="Read the report" link="/docs/report.pdf" document={true} />',
+      CTX
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'shared.cta-link',
+        text: 'Read the report',
+        link: '/docs/report.pdf',
+        document: true
+      }
+    ])
+  })
+
+  it('omits document when it is false', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<CtaLink text="Apply now" link="/grants" document={false} />',
+      CTX
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'shared.cta-link',
+        text: 'Apply now',
+        link: '/grants'
+      }
+    ])
+  })
+
+  it('rejects external and document together', async () => {
+    const result = await parseMdxToBlocks(
+      '<CtaLink text="Report" link="https://example.com/r.pdf" external={true} document={true} />',
+      CTX
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
+  })
 })

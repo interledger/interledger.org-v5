@@ -64,6 +64,16 @@ describe('resolveCtaLink', () => {
     it('is empty for internal links', () => {
       expect(resolveCtaLink({ url: '/about' }).targetAttrs).toEqual({})
     })
+
+    // Not cosmetic. Umami's click listener calls preventDefault on any
+    // `[data-umami-event]` anchor and navigates itself, which throws the
+    // `download` attribute away. It skips that path for a new-context target,
+    // so this is what makes a tracked download actually download.
+    it('opens a document in a new context so `download` survives Umami', () => {
+      expect(
+        resolveCtaLink({ url: '/docs/guide.pdf', document: true }).targetAttrs
+      ).toEqual({ target: '_blank', rel: 'noopener noreferrer' })
+    })
   })
 
   // Cards render the CTA twice: a visible button, and an invisible overlay

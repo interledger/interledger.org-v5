@@ -11,6 +11,7 @@ export interface HeroSectionCta {
   link?: string
   style?: string
   external?: boolean
+  document?: boolean
 }
 
 interface Props {
@@ -58,6 +59,7 @@ const resolvedCtas = ctas.filter(
               style={cta.style}
               variant="hero"
               external={cta.external}
+              document={cta.document}
               text={cta.text}
             />
           ))}

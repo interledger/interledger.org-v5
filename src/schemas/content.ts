@@ -4,7 +4,8 @@ const heroCtaSchema = z.object({
   text: z.string(),
   link: z.string(),
   style: z.enum(['primary', 'secondary']).optional(),
-  external: z.boolean().optional()
+  external: z.boolean().optional(),
+  document: z.boolean().optional()
 })
 
 // Normalizes pathSlug by stripping any leading or trailing slashes so that
@@ -122,8 +123,12 @@ const grantCtaStripSchema = z
     description: z.string().optional(),
     buttonText: z.string(),
     buttonLink: z.string(),
+    buttonExternal: z.boolean().optional(),
+    buttonDocument: z.boolean().optional(),
     secondaryButtonText: z.string().optional(),
-    secondaryButtonLink: z.string().optional()
+    secondaryButtonLink: z.string().optional(),
+    secondaryButtonExternal: z.boolean().optional(),
+    secondaryButtonDocument: z.boolean().optional()
   })
   // The secondary CTA is an all-or-nothing pair everywhere else: the MDX
   // handler, the serializer, the renderer and the Strapi validator all need
@@ -171,6 +176,8 @@ const grantFaqSectionSchema = z
     description: z.string().trim().min(1, 'description is required'),
     ctaText: z.string().optional(),
     ctaLink: z.string().optional(),
+    ctaExternal: z.boolean().optional(),
+    ctaDocument: z.boolean().optional(),
     items: z.array(grantFaqItemSchema).min(2)
   })
   // Same all-or-nothing rule as grantCtaStripSchema's secondary CTA (#484):
@@ -207,7 +214,8 @@ export const grantPageFrontmatterSchema = z.object({
     .object({
       text: z.string(),
       link: z.string(),
-      external: z.boolean().optional()
+      external: z.boolean().optional(),
+      document: z.boolean().optional()
     })
     .optional(),
   infoCards: grantInfoCardsSchema.optional(),
@@ -327,11 +335,15 @@ const podcastCtaStripSchema = z.object({
   description: z.string(),
   buttonText: z.string(),
   buttonLink: z.string(),
+  buttonExternal: z.boolean().optional(),
+  buttonDocument: z.boolean().optional(),
   // #481 removed these along with `color`, correctly at the time: the
   // component had no secondary CTA then. INTORG-908 puts one back, and the
   // podcast page uses `blocks.cta-strip`, so it can carry one again.
   secondaryButtonText: z.string().optional(),
-  secondaryButtonLink: z.string().optional()
+  secondaryButtonLink: z.string().optional(),
+  secondaryButtonExternal: z.boolean().optional(),
+  secondaryButtonDocument: z.boolean().optional()
 })
 
 const podcastTitleCardSchema = z.object({

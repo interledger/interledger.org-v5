@@ -71,4 +71,37 @@ describe('cta-link serializer', () => {
       })
     ).toThrow('CtaLink "style" must be one of primary, secondary')
   })
+
+  it('writes document', () => {
+    expect(
+      serialize({
+        text: 'Read the report',
+        link: '/docs/report.pdf',
+        document: true
+      })
+    ).toBe(
+      '<CtaLink text="Read the report" link="/docs/report.pdf" document={true} />'
+    )
+  })
+
+  it('omits document when it is false', () => {
+    const result = serialize({
+      text: 'Apply now',
+      link: '/grants',
+      document: false
+    })
+
+    expect(result).not.toContain('document=')
+  })
+
+  it('throws when external and document are both set', () => {
+    expect(() =>
+      serialize({
+        text: 'Report',
+        link: 'https://example.com/r.pdf',
+        external: true,
+        document: true
+      })
+    ).toThrow('CtaLink cannot be both external and document')
+  })
 })

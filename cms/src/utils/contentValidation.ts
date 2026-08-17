@@ -14,6 +14,7 @@ import {
   getAllowedCardGridVariants,
   isCardGridVariantAllowed
 } from './cardGrid'
+import { hasConflictingCtaFlags } from './ctaButtons'
 
 export interface FieldError {
   path: Array<string | number>
@@ -130,10 +131,15 @@ export function validateGrantPageFaqSection(
   const faq = (body as Record<string, unknown>)?.faqSection
   if (!faq || typeof faq !== 'object') return undefined
 
-  const { title, description, ctaText, ctaLink, items } = faq as Record<
-    string,
-    unknown
-  >
+  const {
+    title,
+    description,
+    ctaText,
+    ctaLink,
+    ctaExternal,
+    ctaDocument,
+    items
+  } = faq as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
   if (!title || typeof title !== 'string' || (title as string).trim() === '') {
@@ -167,6 +173,18 @@ export function validateGrantPageFaqSection(
     fieldErrors.push({
       message: 'FAQ Section: Button Text is required when Button Link is set',
       path: ['faqSection', 'ctaText']
+    })
+  }
+  if (
+    hasConflictingCtaFlags({
+      external: Boolean(ctaExternal),
+      document: Boolean(ctaDocument)
+    })
+  ) {
+    fieldErrors.push({
+      message:
+        'FAQ Section: Pick either External Link or Document Download, not both',
+      path: ['faqSection', 'ctaDocument']
     })
   }
 
@@ -280,7 +298,7 @@ function validateCtaLinkField(
   const cta = (body as Record<string, unknown>)?.[fieldName]
   if (!cta || typeof cta !== 'object') return undefined
 
-  const { text, link } = cta as Record<string, unknown>
+  const { text, link, external, document } = cta as Record<string, unknown>
   const fieldErrors: FieldError[] = []
   if (!text || typeof text !== 'string' || text.trim() === '') {
     fieldErrors.push({
@@ -292,6 +310,17 @@ function validateCtaLinkField(
     fieldErrors.push({
       message: `${label}: Link is required`,
       path: [fieldName, 'link']
+    })
+  }
+  if (
+    hasConflictingCtaFlags({
+      external: Boolean(external),
+      document: Boolean(document)
+    })
+  ) {
+    fieldErrors.push({
+      message: `${label}: Pick either External Link or Document Download, not both`,
+      path: [fieldName, 'document']
     })
   }
   return combineFieldErrors(fieldErrors)
@@ -340,8 +369,12 @@ export function validateCtaStrip(
   const {
     primaryButtonText,
     primaryButtonLink,
+    primaryButtonExternal,
+    primaryButtonDocument,
     secondaryButtonText,
-    secondaryButtonLink
+    secondaryButtonLink,
+    secondaryButtonExternal,
+    secondaryButtonDocument
   } = ctaStrip as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
@@ -384,6 +417,34 @@ export function validateCtaStrip(
         'CTA Strip: Secondary Button Text is required when Secondary Button Link is set',
       path: ['ctaStrip', 'secondaryButtonText']
     })
+  }
+
+  // Each button carries its own pair of flags, so check them separately and
+  // point at the button that is wrong.
+  for (const [label, field, flags] of [
+    [
+      'Primary',
+      'primaryButtonDocument',
+      {
+        external: Boolean(primaryButtonExternal),
+        document: Boolean(primaryButtonDocument)
+      }
+    ],
+    [
+      'Secondary',
+      'secondaryButtonDocument',
+      {
+        external: Boolean(secondaryButtonExternal),
+        document: Boolean(secondaryButtonDocument)
+      }
+    ]
+  ] as const) {
+    if (hasConflictingCtaFlags(flags)) {
+      fieldErrors.push({
+        message: `CTA Strip: ${label} button cannot be both External Link and Document Download`,
+        path: ['ctaStrip', field]
+      })
+    }
   }
 
   return combineFieldErrors(fieldErrors)
@@ -515,6 +576,18 @@ export function validateHeroFields(
       fieldErrors.push({
         message: 'Hero CTA is missing required link',
         path: ['hero', 'hero_call_to_action', 'link']
+      })
+    }
+    if (
+      hasConflictingCtaFlags({
+        external: Boolean(cta.external),
+        document: Boolean(cta.document)
+      })
+    ) {
+      fieldErrors.push({
+        message:
+          'Hero CTA: Pick either External Link or Document Download, not both',
+        path: ['hero', 'hero_call_to_action', 'document']
       })
     }
   }

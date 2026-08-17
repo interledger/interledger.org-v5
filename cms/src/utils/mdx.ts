@@ -253,7 +253,8 @@ export function heroFrontmatter(
         text: cta.text!,
         link: cta.link!,
         ...(cta.style && cta.style !== 'primary' ? { style: cta.style } : {}),
-        ...(cta.external ? { external: true } : {})
+        ...(cta.external ? { external: true } : {}),
+        ...(cta.document ? { document: true } : {})
       }
     ]
   }

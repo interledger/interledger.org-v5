@@ -12,6 +12,7 @@ export function serialize(block: {
   link: string
   style?: string
   external?: boolean
+  document?: boolean
 }): string {
   if (!block.text) throw new Error('CtaLink block is missing text')
   if (!block.link) throw new Error('CtaLink block is missing link')
@@ -26,8 +27,17 @@ export function serialize(block: {
     }
     attrs.push(`style="${esc(block.style)}"`)
   }
+  if (block.external && block.document) {
+    throw new Error(
+      'CtaLink cannot be both external and document. Pick one: external ' +
+        'opens a new tab, document downloads a file.'
+    )
+  }
   if (block.external) {
     attrs.push('external={true}')
+  }
+  if (block.document) {
+    attrs.push('document={true}')
   }
 
   return `<CtaLink ${attrs.join(' ')} />`

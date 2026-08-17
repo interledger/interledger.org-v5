@@ -1,15 +1,35 @@
 ---
+/**
+ * A standalone call-to-action link, authored in the body of a page.
+ *
+ * The icon follows the link kind: a document downloads, an external link
+ * opens a new tab, and anything else is internal. Before INTORG-938 this
+ * component showed `arrow-right` when the link was external, which is the
+ * opposite of the rule, and it had no download case at all.
+ *
+ * Internal links get the arrow here. That is Sarah's rule for components an
+ * editor picks, as opposed to a CTA baked into a page template, which keeps
+ * whatever its own design says (Sarah, INTORG-907, 2026-08-09).
+ */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
+import { resolveCtaLink } from '@/utils'
 
 interface Props {
   text: string
   link: string
   style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
 }
 
-const { text, link, style = 'primary', external = false } = Astro.props
+const {
+  text,
+  link,
+  style = 'primary',
+  external = false,
+  document: isDocument = false
+} = Astro.props
 
 // Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so that
 // gap is tight (24px, 32px from desktop) and the gap below is the full block
@@ -20,14 +40,22 @@ const { text, link, style = 'primary', external = false } = Astro.props
 //
 // `cta-link` is the hook `Paragraph` matches on. Keep the two in step.
 const spacingClass = 'cta-link mb-6xl'
+
+const resolved = resolveCtaLink({
+  url: link,
+  external,
+  document: isDocument,
+  internalIcon: 'arrow-right'
+})
 ---
 
 <LinkButton
-  href={link}
+  href={resolved.href}
   variant={style}
-  external={external}
+  external={resolved.external}
+  document={resolved.document}
   class={spacingClass}
 >
   {text}
-  {external && <Icon name="arrow-right" slot="icon-right" />}
+  <Icon name={resolved.icon} slot="icon-right" />
 </LinkButton>

@@ -5,25 +5,39 @@
  */
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { buildUmamiAttrs, ensureLeadingSlash, hasUrlScheme } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
 
 interface Props {
   title: string
   buttonText: string
   buttonUrl: string
   buttonExternal?: boolean
+  buttonDocument?: boolean
 }
 
-const { title, buttonText, buttonUrl, buttonExternal = false } = Astro.props
+const {
+  title,
+  buttonText,
+  buttonUrl,
+  buttonExternal = false,
+  buttonDocument = false
+} = Astro.props
 
 const { routeLocale } = Astro.locals
 
-// Scheme-bearing URLs (https:, mailto:, tel:, //…) must not go through
-// ensureLeadingSlash (would become `/https://…` / `/mailto:…`). Auto-detect
-// so a missing external flag still navigates correctly.
-const schemeUrl = hasUrlScheme(buttonUrl)
-const external = buttonExternal || schemeUrl
-const href = schemeUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
+// Icon by link kind (INTORG-938). This button hard-coded
+// `external ? 'external-link' : 'arrow-right'` and had no download case, so a
+// document CTA showed an arrow and never set the `download` attribute.
+//
+// The internal case keeps the arrow: this CTA belongs to the event card
+// template, not to a component an editor picks (Sarah, INTORG-907,
+// 2026-08-09).
+const resolved = resolveCtaLink({
+  url: buttonUrl,
+  external: buttonExternal,
+  document: buttonDocument,
+  internalIcon: 'arrow-right'
+})
 ---
 
 <div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">
@@ -34,20 +48,21 @@ const href = schemeUrl ? buttonUrl : ensureLeadingSlash(buttonUrl)
   </h3>
 
   <LinkButton
-    href={href}
+    href={resolved.href}
     variant="primary"
     size="lg"
-    external={external}
+    external={resolved.external}
+    document={resolved.document}
     class="self-start"
     {...buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
       section: 'cta',
-      href,
+      href: resolved.href,
       linkText: buttonText
     })}
   >
     {buttonText}
-    <Icon name={external ? 'external-link' : 'arrow-right'} slot="icon-right" />
+    <Icon name={resolved.icon} slot="icon-right" />
   </LinkButton>
 </div>
