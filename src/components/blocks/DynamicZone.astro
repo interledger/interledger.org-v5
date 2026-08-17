@@ -29,6 +29,7 @@ import EventCard from './EventCard.astro'
 import Quote from './Quote.astro'
 import CtaLink from './CtaLink.astro'
 import CtaButtons from './CtaButtons.astro'
+import HackathonAnimation from '@/components/hackathon/HackathonAnimation.astro'
 
 interface Block {
   __component: string
@@ -64,7 +65,8 @@ const componentMap: Record<string, any> = {
   'blocks.event-card': EventCard,
   'blocks.quote': Quote,
   'shared.cta-link': CtaLink,
-  'blocks.cta-buttons': CtaButtons
+  'blocks.cta-buttons': CtaButtons,
+  'blocks.hackathon-animation': HackathonAnimation
 }
 
 const resolvedBlocks = blocks

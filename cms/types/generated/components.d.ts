@@ -830,6 +830,16 @@ export interface BlocksGrantFaqSection extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksHackathonAnimation extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_hackathon_animations'
+  info: {
+    description: 'Decorative scroll-driven chevron animation. No fields \u2014 one-off visual block for hackathon pages only.'
+    displayName: 'Hackathon Animation'
+    icon: 'shapes'
+  }
+  attributes: {}
+}
+
 export interface BlocksImageBlock extends Struct.ComponentSchema {
   collectionName: 'components_blocks_image_blocks'
   info: {
@@ -1880,6 +1890,7 @@ declare module '@strapi/strapi' {
       'blocks.faq-section': BlocksFaqSection
       'blocks.grant-faq-item': BlocksGrantFaqItem
       'blocks.grant-faq-section': BlocksGrantFaqSection
+      'blocks.hackathon-animation': BlocksHackathonAnimation
       'blocks.image-block': BlocksImageBlock
       'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard

@@ -1,0 +1,153 @@
+---
+/**
+ * Decorative scroll-driven chevron animation for hackathon pages only.
+ *
+ * Six chevrons in two mirrored groups (3 pointing left, 3 pointing right)
+ * separate horizontally as the section scrolls through the viewport — the
+ * left group drifts further left, the right group drifts further right —
+ * with spring physics (stiffness 600, damping 60, mass 1) driven by
+ * src/scripts/hackathon-animation.ts. Purely decorative, no accessible
+ * content, so the whole section is aria-hidden.
+ */
+
+const CHEVRON_VIEWBOX = {
+  large: '0 0 264 400',
+  medium: '0 0 185 280',
+  small: '0 0 66 100'
+} as const
+
+const CHEVRON_PATH = {
+  large: 'M196.744 0L0 199.994L196.75 400L264 399.994L67.2613 200L264 0H196.744Z',
+  medium: 'M137.87 0L0 139.996L137.874 280L185 279.996L47.1339 140L185 0H137.87Z',
+  small: 'M49.1861 0L0 49.9986L49.1875 100L66 99.9986L16.8153 50L66 0H49.1861Z'
+} as const
+
+type ChevronSize = keyof typeof CHEVRON_VIEWBOX
+
+interface ChevronSpec {
+  id: string
+  size: ChevronSize
+  color: string
+  mirrored: boolean
+  /** Signed fraction of the container's height used as the spring target multiplier. */
+  offset: number
+  position: string
+}
+
+const CHEVRONS: ChevronSpec[] = [
+  {
+    id: 'left-large',
+    size: 'large',
+    color: 'fill-royal-purple-100',
+    mirrored: false,
+    offset: -0.65,
+    position:
+      'left-[12%] top-0 h-full w-[33.8%] tablet:left-[13.2%] tablet:w-[32.6%] desktop:left-[27.6%] desktop:w-[13.75%]'
+  },
+  {
+    id: 'left-medium',
+    size: 'medium',
+    color: 'fill-apricot-100',
+    mirrored: false,
+    offset: -0.4,
+    position:
+      'left-[25.4%] top-[15%] h-[70%] w-[23.8%] tablet:left-[26%] tablet:w-[22.8%] desktop:left-[34.6%] desktop:w-[9.64%]'
+  },
+  {
+    id: 'left-small',
+    size: 'small',
+    color: 'fill-aqua-mint-100',
+    mirrored: false,
+    offset: -0.2,
+    position:
+      'left-[39%] top-[37.5%] h-[25%] w-[8.5%] tablet:left-[39%] tablet:w-[8.15%] desktop:left-[41.1%] desktop:w-[3.44%]'
+  },
+  {
+    id: 'right-large',
+    size: 'large',
+    color: 'fill-royal-purple-100',
+    mirrored: true,
+    offset: 0.7,
+    position:
+      'right-[12%] top-0 h-full w-[33.8%] tablet:right-[13.2%] tablet:w-[32.6%] desktop:right-[27.6%] desktop:w-[13.75%]'
+  },
+  {
+    id: 'right-medium',
+    size: 'medium',
+    color: 'fill-apricot-100',
+    mirrored: true,
+    offset: 0.4,
+    position:
+      'right-[25.4%] top-[15%] h-[70%] w-[23.8%] tablet:right-[26%] tablet:w-[22.8%] desktop:right-[34.6%] desktop:w-[9.64%]'
+  },
+  {
+    id: 'right-small',
+    size: 'small',
+    color: 'fill-aqua-mint-100',
+    mirrored: true,
+    offset: 0.2,
+    position:
+      'right-[39%] top-[37.5%] h-[25%] w-[8.5%] tablet:right-[39%] tablet:w-[8.15%] desktop:right-[41.1%] desktop:w-[3.44%]'
+  }
+]
+---
+
+{
+  /*
+    Full-bleed breakout: the MDX content column is capped at max-w-content,
+    but this block's chevrons are meant to run to the screen edges per the
+    Figma design. left/right 50% + negative 50vw margins cancel out the
+    parent's max-width/padding regardless of nesting depth. Relies on
+    HackathonPageLayout's overflow-x-hidden body to absorb any sub-pixel
+    scrollbar-width overhang from 100vw.
+  */
+}
+<section
+  data-component="HackathonAnimation"
+  aria-hidden="true"
+  class="relative isolate left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden bg-black"
+>
+  <div
+    class="hackathon-animation-stage relative mx-auto h-[200px] w-full overflow-hidden tablet:h-[400px]"
+  >
+    {
+      CHEVRONS.map((chevron) => (
+        <div
+          class:list={['chevron absolute', chevron.position]}
+          data-chevron-offset={chevron.offset}
+          style={chevron.mirrored ? 'scale: -1 1' : undefined}
+        >
+          <svg
+            viewBox={CHEVRON_VIEWBOX[chevron.size]}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="block h-full w-full"
+          >
+            <path d={CHEVRON_PATH[chevron.size]} class={chevron.color} />
+          </svg>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  [data-component='HackathonAnimation'] .chevron {
+    translate: var(--chevron-x, 0px) 0;
+  }
+
+  [data-component='HackathonAnimation'].hackathon-animation--compositing
+    .chevron {
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-component='HackathonAnimation'] .chevron {
+      translate: 0 0;
+    }
+  }
+</style>
+
+<script>
+  import '@/scripts/hackathon-animation'
+</script>

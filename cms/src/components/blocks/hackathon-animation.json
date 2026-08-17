@@ -1,0 +1,10 @@
+{
+  "collectionName": "components_blocks_hackathon_animations",
+  "info": {
+    "displayName": "Hackathon Animation",
+    "icon": "shapes",
+    "description": "Decorative scroll-driven chevron animation. No fields — one-off visual block for hackathon pages only."
+  },
+  "options": {},
+  "attributes": {}
+}
