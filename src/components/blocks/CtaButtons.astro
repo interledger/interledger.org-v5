@@ -57,19 +57,14 @@ const resolved = buttons
         url: button.link.trim(),
         external: button.external,
         document: button.document,
-        // A document shows `download` and an external link shows
-        // `external-link` for both styles. Only the internal case splits: the
-        // primary keeps its arrow and the secondary shows nothing.
+        // Only the internal case depends on the style: primary keeps the
+        // arrow, secondary shows nothing, matching a secondary in a CTA strip
+        // or a split layout. Documents and external links keep their own icon
+        // on both styles.
         //
-        // INTORG-938 gave the arrow to both styles, which is what Sarah asked
-        // for on 2026-07-29. Seeing it on the deploy preview she reversed that
-        // part, because a secondary in a CTA strip or a split layout has never
-        // carried an arrow, so an editor's button looked unlike the same
-        // button elsewhere (INTORG-1086).
-        //
-        // The internal arrow stays scoped to components an editor picks. CTAs
-        // on template pages and the home page keep whatever their own Figma
-        // spec says, so this must not be pushed into the shared default.
+        // Scoped to components an editor picks. Template pages and the home
+        // page follow their own Figma spec, so this must not become the shared
+        // default (INTORG-1086).
         internalIcon: variant === 'primary' ? 'arrow-right' : null
       })
     }

@@ -2,15 +2,10 @@
 /**
  * A standalone call-to-action link, authored in the body of a page.
  *
- * The icon follows the link kind: a document downloads, an external link
- * opens a new tab, and anything else is internal. Before INTORG-938 this
- * component showed `arrow-right` when the link was external, which is the
- * opposite of the rule, and it had no download case at all.
- *
- * An internal link shows the arrow on the primary style only. The secondary
- * shows nothing, which is what a secondary already does in a CTA strip and in
- * a split layout (Sarah, INTORG-1086). `CtaButtons` follows the same rule, so
- * keep the two in step.
+ * The icon follows the link kind: a document downloads, an external link opens
+ * a new tab, and anything else is internal. An internal link shows the arrow on
+ * the primary style only, matching a secondary in a CTA strip or a split
+ * layout. `CtaButtons` follows the same rule, so keep the two in step.
  *
  * The internal arrow stays scoped to components an editor picks. A CTA baked
  * into a page template keeps whatever its own design says (Sarah, INTORG-907,
