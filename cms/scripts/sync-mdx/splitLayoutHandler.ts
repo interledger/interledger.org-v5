@@ -83,6 +83,18 @@ async function handleSplitLayout(
     const ctaExternal = getBooleanAttr(node, 'ctaExternal')
     const ctaDocument = getBooleanAttr(node, 'ctaDocument')
 
+    if (ctaExternal && ctaDocument) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message:
+          'SplitLayout cannot set both ctaExternal and ctaDocument. Pick one: external opens a new tab, document downloads a file.',
+        component: 'SplitLayout',
+        prop: 'ctaDocument',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
+
     const content =
       node.children.length > 0 ? childrenToMarkdown(node.children) : undefined
 

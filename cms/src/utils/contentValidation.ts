@@ -578,6 +578,18 @@ export function validateHeroFields(
         path: ['hero', 'hero_call_to_action', 'link']
       })
     }
+    if (
+      hasConflictingCtaFlags({
+        external: Boolean(cta.external),
+        document: Boolean(cta.document)
+      })
+    ) {
+      fieldErrors.push({
+        message:
+          'Hero CTA: Pick either External Link or Document Download, not both',
+        path: ['hero', 'hero_call_to_action', 'document']
+      })
+    }
   }
   return combineFieldErrors(fieldErrors)
 }

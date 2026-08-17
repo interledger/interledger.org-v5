@@ -1063,16 +1063,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.cta-buttons': {
       buttons: 'Buttons'
     },
-    'shared.cta-button': {
-      link: 'Link',
-      text: 'Button Text',
-      style: 'Style',
-      external: 'External Link',
-      document: 'Document Download'
-    },
-    'blocks.cta-buttons': {
-      buttons: 'Buttons'
-    },
     'shared.secondary-cta-link': {
       link: 'Link',
       text: 'Button Text',

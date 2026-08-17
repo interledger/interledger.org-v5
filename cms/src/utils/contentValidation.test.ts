@@ -863,6 +863,43 @@ describe('validateHeroFields', () => {
       'link'
     ])
   })
+
+  it('flags a CTA that is both external and a document', () => {
+    const err = validateHeroFields({
+      hero: {
+        title: 'Hello',
+        hero_call_to_action: {
+          text: 'Pack',
+          link: '/uploads/img/original/pack.pdf',
+          external: true,
+          document: true
+        }
+      }
+    })
+    expect(err?.message).toBe(
+      'Hero CTA: Pick either External Link or Document Download, not both'
+    )
+    expect(err?.details.errors[0].path).toEqual([
+      'hero',
+      'hero_call_to_action',
+      'document'
+    ])
+  })
+
+  it('accepts a CTA that is a document only', () => {
+    expect(
+      validateHeroFields({
+        hero: {
+          title: 'Hello',
+          hero_call_to_action: {
+            text: 'Pack',
+            link: '/uploads/img/original/pack.pdf',
+            document: true
+          }
+        }
+      })
+    ).toBeUndefined()
+  })
 })
 
 describe('validatePodcastPageFields', () => {

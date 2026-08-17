@@ -372,6 +372,7 @@ export interface EventCardApply {
     text: string
     link: string
     external?: boolean
+    document?: boolean
   }
 }
 

@@ -103,6 +103,12 @@ export function serialize(block: {
   }
 
   const cta = block.cta
+  if (cta?.external && cta?.document) {
+    throw new Error(
+      'Split layout CTA cannot be both external and document. Pick one: ' +
+        'external opens a new tab, document downloads a file.'
+    )
+  }
   if (isTextLayout && cta?.text && cta?.link) {
     attrs.push(`ctaText="${esc(cta.text)}"`)
     attrs.push(`ctaLink="${esc(cta.link)}"`)

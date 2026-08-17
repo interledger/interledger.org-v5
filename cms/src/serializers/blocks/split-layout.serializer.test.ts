@@ -158,7 +158,19 @@ describe('split-layout serializer', () => {
     expect(result).toContain('ctaLink="https://example.com"')
   })
 
-  it('serializes the CTA external and document flags', () => {
+  it('serializes the CTA external flag', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      content: 'Text body.',
+      cta: { text: 'Partner site', link: 'https://example.com', external: true }
+    })
+
+    expect(result).toContain('ctaExternal={true}')
+    expect(result).not.toContain('ctaDocument=')
+  })
+
+  it('serializes the CTA document flag', () => {
     const result = serialize({
       layoutType: 'image-text',
       media: { image: { url: '/uploads/education_grant.jpg' } },
@@ -166,13 +178,28 @@ describe('split-layout serializer', () => {
       cta: {
         text: 'Application pack',
         link: '/uploads/pack.pdf',
-        external: true,
         document: true
       }
     })
 
-    expect(result).toContain('ctaExternal={true}')
     expect(result).toContain('ctaDocument={true}')
+    expect(result).not.toContain('ctaExternal=')
+  })
+
+  it('throws when the CTA is both external and a document', () => {
+    expect(() =>
+      serialize({
+        layoutType: 'image-text',
+        media: { image: { url: '/uploads/education_grant.jpg' } },
+        content: 'Text body.',
+        cta: {
+          text: 'Application pack',
+          link: '/uploads/pack.pdf',
+          external: true,
+          document: true
+        }
+      })
+    ).toThrow('cannot be both external and document')
   })
 
   it('omits the CTA external and document flags when they are unset', () => {

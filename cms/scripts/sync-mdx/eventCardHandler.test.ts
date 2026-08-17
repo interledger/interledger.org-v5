@@ -40,7 +40,8 @@ describe('EventCard handler', () => {
           primaryCta: {
             text: 'Apply today',
             link: '/grants/apply',
-            external: false
+            external: false,
+            document: false
           }
         }
       }

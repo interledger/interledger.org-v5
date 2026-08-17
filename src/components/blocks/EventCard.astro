@@ -33,6 +33,7 @@ interface EventApplyData {
     text: string
     link: string
     external?: boolean
+    document?: boolean
   }
 }
 
@@ -126,6 +127,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
               buttonText={apply.primaryCta.text}
               buttonUrl={apply.primaryCta.link}
               buttonExternal={apply.primaryCta.external}
+              buttonDocument={apply.primaryCta.document}
             />
           )}
         </>
