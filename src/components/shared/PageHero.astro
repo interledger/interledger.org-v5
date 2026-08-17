@@ -3,12 +3,14 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import { resolveCtaLink } from '@/utils'
 
 interface HeroCta {
   text: string
   link: string
   style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
 }
 
 interface BreadcrumbItem {
@@ -47,6 +49,19 @@ const {
   breadcrumbs,
   imageBand = 'default'
 } = Astro.props
+
+// Icon by link kind (INTORG-938). This hero always showed `arrow-right`, so an
+// external link and a document download both got the wrong glyph. The internal
+// case keeps the arrow: arrow-on-internal is scoped to components an editor
+// picks, and a page template's own hero is not one (Sarah, INTORG-907, 2026-08-09).
+const resolvedCta = cta
+  ? resolveCtaLink({
+      url: cta.link,
+      external: cta.external,
+      document: cta.document,
+      internalIcon: 'arrow-right'
+    })
+  : null
 
 const resolvedMobileAlt = imageMobileAlt ?? imageAlt
 
@@ -93,15 +108,16 @@ const parallaxImgClass = isWideBand
     )
   }
   {
-    cta && (
+    cta && resolvedCta && (
       <LinkButton
-        href={cta.link}
+        href={resolvedCta.href}
         variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-        external={cta.external}
+        external={resolvedCta.external}
+        document={resolvedCta.document}
         class="w-full tablet:w-auto"
       >
         {cta.text}
-        <Icon name="arrow-right" slot="icon-right" />
+        <Icon name={resolvedCta.icon} slot="icon-right" />
       </LinkButton>
     )
   }

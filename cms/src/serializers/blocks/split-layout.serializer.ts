@@ -10,6 +10,7 @@ interface SplitLayoutCta {
   link?: string
   style?: string
   external?: boolean
+  document?: boolean
 }
 
 type SplitLayoutType =
@@ -102,6 +103,12 @@ export function serialize(block: {
   }
 
   const cta = block.cta
+  if (cta?.external && cta?.document) {
+    throw new Error(
+      'Split layout CTA cannot be both external and document. Pick one: ' +
+        'external opens a new tab, document downloads a file.'
+    )
+  }
   if (isTextLayout && cta?.text && cta?.link) {
     attrs.push(`ctaText="${esc(cta.text)}"`)
     attrs.push(`ctaLink="${esc(cta.link)}"`)
@@ -110,6 +117,9 @@ export function serialize(block: {
     }
     if (cta.external) {
       attrs.push(`ctaExternal={true}`)
+    }
+    if (cta.document) {
+      attrs.push(`ctaDocument={true}`)
     }
   }
 

@@ -1,38 +1,23 @@
 ---
 title: 'Grant Overview Page Demo'
 pathSlug: 'demo-grant-overview-page'
-description: >-
-  Demo page for previewing every grant-overview frontmatter section and
-  dynamic-zone block with realistic placeholder content.
+description: 'Demo page for previewing every grant-overview frontmatter section and dynamic-zone block with realistic placeholder content. '
 locale: 'en'
+ctaStrip:
+  buttonText: 'Sign up to our newsletter'
+  buttonLink: '/subscribe'
+  heading: 'Get involved'
+  description: 'Demo strip only. Confirm purple/green styling, description wrapping, and primary plus optional secondary buttons on a grant overview page.'
+  secondaryButtonText: 'View programs'
+  secondaryButtonLink: '/grant/our-grantmaking'
 heroTitle: 'Grant overview demo'
-heroDescription: >-
-  Sample hub page for grant programs. Use this route to check hero layout,
-  number tiles, card grids, media blocks, and the closing CTA strip.
+heroDescription: 'Sample hub page for grant programs. Use this route to check hero layout, number tiles, card grids, media blocks, and the closing CTA strip.'
 heroImage: '/uploads/img/original/grant_overview_hero_52b51629b7.png'
 heroImageAlt: 'Abstract illustration used as the grant overview hero image'
 heroCtas:
   - text: 'Explore demo grants'
     link: '/grant/demo-grant-page'
-ctaStrip:
-  heading: 'Get involved'
-  description: >-
-    Demo strip only. Confirm purple/green styling, description wrapping, and
-    primary plus optional secondary buttons on a grant overview page.
-  buttonText: 'Sign up to our newsletter'
-  buttonLink: '/subscribe'
-  secondaryButtonText: 'View programs'
-  secondaryButtonLink: '/grant/our-grantmaking'
-followUpContent: >-
-  ## Contact our Programs Team
-
-
-  This follow-up markdown block sits **below** the CTA strip. Use it for
-  contact details, disclaimers, or next steps after the main call to action.
-
-
-  Questions? Email
-  [programteam@interledger.org](mailto:programteam@interledger.org).
+followUpContent: "## Contact our Programs Team\n\nThis follow-up markdown block sits **below** the CTA strip. Use it for contact details, disclaimers, or next steps after the main call to action.\n\nQuestions? Email [programteam@interledger.org](mailto:programteam@interledger.org)."
 ---
 
 <Paragraph>
@@ -64,20 +49,16 @@ content below the strip.
 </Paragraph>
 
 <SplitLayout
-  layoutType="image-text"
   imagePosition="left"
   displayRatio="1:1"
   imageSrc="/uploads/img/original/grant-overview-theory-of-change.svg"
   imageAlt="Theory of change diagram with interconnected circles"
   ctaText="See our approach"
   ctaLink="/grant/our-grantmaking"
-  ctaStyle="primary"
 >
-
-Building better financial infrastructure takes more than technology. It
-requires people, knowledge, collaboration, and long-term support. This split
-layout checks image + body + CTA balance on a grant hub page.
-
+  Building better financial infrastructure takes more than technology. It
+  requires people, knowledge, collaboration, and long-term support. This split
+  layout checks image + body + CTA balance on a grant hub page.
 </SplitLayout>
 
 <NumberTiles
@@ -88,11 +69,7 @@ layout checks image + body + CTA balance on a grant hub page.
       suffix: 'M+',
       description: 'In grants (demo)'
     },
-    {
-      number: '300',
-      suffix: '+',
-      description: 'Projects supported worldwide'
-    },
+    { number: '300', suffix: '+', description: 'Projects supported worldwide' },
     { number: '10', suffix: '+', description: 'University activations' },
     { number: '45', suffix: '+', description: 'Countries impacted' }
   ]}
@@ -108,99 +85,57 @@ component as foundation, with Resource / Info / Navigation unavailable here.
 </Paragraph>
 
 <CardGrid ariaLabel="Demo title cards two-up" variant="Title" columns="Two">
-  <TitleCard
-    heading="Build"
-    subheading="Create open payment systems"
-    buttonUrl="/grant/innovation"
-    buttonText="See Innovation Grants"
-    buttonExternal={false}
-  >
-    For developers, startups, and providers building tools, integrations, and
-    financial infrastructure.
-  </TitleCard>
-  <TitleCard
-    heading="Educate"
-    subheading="Build practical capability"
-    buttonUrl="/grant/education"
-    buttonText="See Education Grants"
-    buttonExternal={false}
-  >
-    For educators, universities, and students building skills in open payments
-    and financial inclusion.
-  </TitleCard>
+<TitleCard heading="Build" subheading="Create open payment systems" buttonUrl="/grant/innovation" buttonText="See Innovation Grants" buttonExternal={false}>
+
+For developers, startups, and providers building tools, integrations, and
+financial infrastructure.
+
+</TitleCard>
+<TitleCard heading="Educate" subheading="Build practical capability" buttonUrl="/grant/education" buttonText="See Education Grants" buttonExternal={false}>
+
+For educators, universities, and students building skills in open payments
+and financial inclusion.
+
+</TitleCard>
 </CardGrid>
 
 <CardGrid ariaLabel="Demo title cards three-up" variant="Title" columns="Three">
-  <TitleCard
-    heading="Lead"
-    subheading="Drive long-term systems work"
-    buttonUrl="/grant/fellowship"
-    buttonText="Explore Fellowship"
-    buttonExternal={false}
-  >
-    For emerging leaders across technology, policy, research, or community
-    implementation.
-  </TitleCard>
-  <TitleCard
-    heading="Enable"
-    subheading="Shape conditions for participation"
-    buttonUrl="/grant/public-policy-activation"
-    buttonText="See Policy Activation"
-    buttonExternal={false}
-  >
-    For organizations working with regulators and institutions to make open
-    financial systems viable in practice.
-  </TitleCard>
-  <TitleCard
-    heading="Create"
-    subheading="Envision a more equitable future"
-    buttonUrl="/contact"
-    buttonText="See creative grants"
-    buttonExternal={false}
-  >
-    For artists and makers challenging assumptions built into financial systems.
-  </TitleCard>
-  <TitleCard
-    heading="Research"
-    subheading="Understand systems and barriers"
-    buttonUrl="/contact"
-    buttonText="Contact us"
-    buttonExternal={false}
-  >
-    For researchers analysing infrastructure, regulation, access, and how
-    financial systems operate across different contexts.
-  </TitleCard>
-  <TitleCard
-    heading="Demo grant page"
-    subheading="Individual program template"
-    buttonUrl="/grant/demo-grant-page"
-    buttonText="Open grant demo"
-    buttonExternal={false}
-  >
-    Jump to the individual grant-page demo (Info card grids only on that type).
-  </TitleCard>
-  <TitleCard
-    heading="Live grantmaking hub"
-    subheading="Production overview"
-    buttonUrl="/grant/our-grantmaking"
-    buttonText="Our grantmaking"
-    buttonExternal={false}
-  >
-    Compare this demo against the live our-grantmaking page layout.
-  </TitleCard>
+<TitleCard heading="Lead" subheading="Drive long-term systems work" buttonUrl="/grant/fellowship" buttonText="Explore Fellowship" buttonExternal={false}>
+
+For emerging leaders across technology, policy, research, or community
+implementation.
+
+</TitleCard>
+<TitleCard heading="Enable" subheading="Shape conditions for participation" buttonUrl="/grant/public-policy-activation" buttonText="See Policy Activation" buttonExternal={false}>
+
+For organizations working with regulators and institutions to make open
+financial systems viable in practice.
+
+</TitleCard>
+<TitleCard heading="Create" subheading="Envision a more equitable future" buttonUrl="/contact" buttonText="See creative grants" buttonExternal={false}>
+
+For artists and makers challenging assumptions built into financial systems.
+
+</TitleCard>
+<TitleCard heading="Research" subheading="Understand systems and barriers" buttonUrl="/contact" buttonText="Contact us" buttonExternal={false}>
+
+For researchers analysing infrastructure, regulation, access, and how
+financial systems operate across different contexts.
+
+</TitleCard>
+<TitleCard heading="Demo grant page" subheading="Individual program template" buttonUrl="/grant/demo-grant-page" buttonText="Open grant demo" buttonExternal={false}>
+
+Jump to the individual grant-page demo (Info card grids only on that type).
+
+</TitleCard>
+<TitleCard heading="Live grantmaking hub" subheading="Production overview" buttonUrl="/grant/our-grantmaking" buttonText="Our grantmaking" buttonExternal={false}>
+
+Compare this demo against the live our-grantmaking page layout.
+
+</TitleCard>
 </CardGrid>
 
-<SplitLayout
-  layoutType="image-text"
-  imagePosition="right"
-  displayRatio="2:1"
-  imageSrc="/uploads/img/original/grant-overview-grantee-map.png"
-  imageAlt="World map showing countries where Interledger Foundation grantees work"
-  ctaText="Grantee database"
-  ctaLink="/grantee-directory"
-  ctaStyle="secondary"
->
-
+<SplitLayout imageSrc="/uploads/img/original/grant-overview-grantee-map.png" imageAlt="World map showing countries where Interledger Foundation grantees work" ctaText="Grantee database" ctaLink="/grantee-directory" ctaStyle="secondary">
 ## Where the work is happening
 
 Our grantees range from community-rooted organizations to global research

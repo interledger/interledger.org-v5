@@ -27,7 +27,8 @@ describe('EventCard round-trip (serialize → parse)', () => {
         primaryCta: {
           text: 'Apply today',
           link: '/grants/apply',
-          external: false
+          external: false,
+          document: false
         }
       }
     }
@@ -58,7 +59,8 @@ describe('EventCard round-trip (serialize → parse)', () => {
         primaryCta: {
           text: 'Register',
           link: 'https://example.com/register',
-          external: true
+          external: true,
+          document: false
         }
       }
     }
@@ -66,6 +68,44 @@ describe('EventCard round-trip (serialize → parse)', () => {
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
     expect(blocks).toEqual([{ __component: 'blocks.event-card', ...original }])
+  })
+
+  it('round-trips a document Apply CTA', async () => {
+    const original = {
+      when: { title: 'When?' },
+      where: { title: 'Where?' },
+      apply: {
+        title: 'Apply',
+        primaryCta: {
+          text: 'Application pack',
+          link: '/uploads/img/original/pack.pdf',
+          external: false,
+          document: true
+        }
+      }
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.event-card', ...original }])
+  })
+
+  it('rejects an Apply CTA that is both external and a document', () => {
+    expect(() =>
+      serialize({
+        when: { title: 'When?' },
+        where: { title: 'Where?' },
+        apply: {
+          title: 'Apply',
+          primaryCta: {
+            text: 'Application pack',
+            link: '/uploads/img/original/pack.pdf',
+            external: true,
+            document: true
+          }
+        }
+      })
+    ).toThrow()
   })
 
   it('round-trips a multi-line location address', async () => {

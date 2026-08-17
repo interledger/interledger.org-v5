@@ -40,7 +40,21 @@ export interface ResolvedCtaLink {
   document: boolean
   /** Trailing icon, or null when this link kind carries none. */
   icon: CtaIconName | null
-  /** Spread onto the anchor. Empty for links that stay in the same tab. */
+  /**
+   * Spread onto the anchor. Empty for links that stay in the same tab.
+   *
+   * A document gets these too, and that is load-bearing rather than cosmetic.
+   * The Umami tracker binds a capture-phase click listener to every
+   * `[data-umami-event]` element. For an anchor it calls `preventDefault()`,
+   * sends the event, then navigates itself with `location.href`. It never
+   * looks for `download`, so the attribute was discarded and the file opened
+   * in the tab instead of downloading (INTORG-938).
+   *
+   * Umami skips that path when the anchor targets a new context, which leaves
+   * the default action intact so the browser honours `download` and no tab is
+   * left behind. The event is still sent, because only the manual navigation
+   * is conditional.
+   */
   targetAttrs:
     | { target: '_blank'; rel: 'noopener noreferrer' }
     | Record<string, never>
@@ -104,9 +118,10 @@ export function resolveCtaLink({
     external,
     document: isDocument,
     icon,
-    targetAttrs: external
-      ? { target: '_blank', rel: 'noopener noreferrer' }
-      : {},
+    targetAttrs:
+      external || isDocument
+        ? { target: '_blank', rel: 'noopener noreferrer' }
+        : {},
     downloadAttrs: isDocument ? { download: resolveDownloadName(href) } : {}
   }
 }

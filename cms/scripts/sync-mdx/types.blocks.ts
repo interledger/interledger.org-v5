@@ -136,8 +136,12 @@ export interface CtaStripBlock extends StrapiBlockBase {
   description?: string
   primaryButtonText: string
   primaryButtonLink: string
+  primaryButtonExternal?: boolean
+  primaryButtonDocument?: boolean
   secondaryButtonText?: string
   secondaryButtonLink?: string
+  secondaryButtonExternal?: boolean
+  secondaryButtonDocument?: boolean
 }
 
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
@@ -224,6 +228,7 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
     link: string
     style?: string
     external?: boolean
+    document?: boolean
   }
 }
 
@@ -271,6 +276,22 @@ export interface CtaLinkBlock extends StrapiBlockBase {
   link: string
   style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
+}
+
+/** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
+export interface CtaButton {
+  text: string
+  link: string
+  style: CtaButtonStyle
+  external?: boolean
+  document?: boolean
+}
+
+/** blocks.cta-buttons — one CTA button, or two side by side. */
+export interface CtaButtonsBlock extends StrapiBlockBase {
+  __component: 'blocks.cta-buttons'
+  buttons: CtaButton[]
 }
 
 /** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
@@ -351,6 +372,7 @@ export interface EventCardApply {
     text: string
     link: string
     external?: boolean
+    document?: boolean
   }
 }
 

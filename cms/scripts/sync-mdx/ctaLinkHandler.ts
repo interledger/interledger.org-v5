@@ -2,13 +2,18 @@
  * CtaLink component handler for the MDX block parser.
  *
  * Handles:
- * - <CtaLink text="..." link="..." style="primary|secondary" external={true} />
+ * - <CtaLink text="..." link="..." style="primary|secondary" external={true}
+ *     document={true} />
  *
  * Maps to Strapi shared.cta-link, used directly in a dynamic zone (as
  * opposed to nested inside another component like SplitLayout or Hero).
  */
 
-import type { ParsedBlock, CtaLinkBlock } from './types.blocks'
+import {
+  hasConflictingCtaFlags,
+  type ParsedBlock,
+  type CtaLinkBlock
+} from './types.blocks'
 import { getStringAttr, getBooleanAttr } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -30,6 +35,20 @@ async function handleCtaLink(
     const link = getStringAttr(node, 'link', { required: true })
     const style = getStringAttr(node, 'style')
     const external = getBooleanAttr(node, 'external')
+    const document = getBooleanAttr(node, 'document')
+
+    if (hasConflictingCtaFlags({ external, document })) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message:
+          'CtaLink cannot be both external and document. Pick one: ' +
+          'external opens a new tab, document downloads a file.',
+        component: 'CtaLink',
+        prop: 'document',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
 
     if (style !== undefined && style !== 'primary' && style !== 'secondary') {
       throw new MdxParserError({
@@ -47,7 +66,8 @@ async function handleCtaLink(
       text,
       link,
       ...(style ? { style } : {}),
-      ...(external ? { external: true } : {})
+      ...(external ? { external: true } : {}),
+      ...(document ? { document: true } : {})
     }
 
     return [block]

@@ -41,6 +41,16 @@
           "localized": true
         }
       }
+    },
+    "document": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat the link as a downloadable document (shows download icon).",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   },
   "config": {}

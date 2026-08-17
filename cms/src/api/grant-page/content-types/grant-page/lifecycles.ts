@@ -47,6 +47,8 @@ interface FaqSection {
   description?: string
   ctaText?: string
   ctaLink?: string
+  ctaExternal?: boolean
+  ctaDocument?: boolean
   items?: FaqItem[]
 }
 
@@ -145,10 +147,15 @@ export function generateGrantPageMDX(
             // Compare and write the trimmed values: `validateGrantPageFaqSection`
             // and the renderer both treat whitespace as empty, so a truthiness
             // test would export `"   "` into MDX and then drop it on render.
+            //
+            // The flags sit inside the same guard: a dropped button must not
+            // leave a document flag behind in the frontmatter.
             ...(faqSection.ctaText?.trim() && faqSection.ctaLink?.trim()
               ? {
                   ctaText: faqSection.ctaText.trim(),
-                  ctaLink: faqSection.ctaLink.trim()
+                  ctaLink: faqSection.ctaLink.trim(),
+                  ...(faqSection.ctaExternal ? { ctaExternal: true } : {}),
+                  ...(faqSection.ctaDocument ? { ctaDocument: true } : {})
                 }
               : {}),
             items: (faqSection.items ?? []).map((i) => ({

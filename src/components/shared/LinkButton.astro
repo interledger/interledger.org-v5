@@ -63,7 +63,24 @@ if (iconOnly && !rest['aria-label']) {
   console.warn('[LinkButton] iconOnly={true} requires aria-label')
 }
 
-const targetAttrs = external
+// A download also opens in a new browsing context, and that is load-bearing
+// rather than cosmetic.
+//
+// The Umami tracker binds a capture-phase click listener to every
+// `[data-umami-event]` element. For an anchor it calls `preventDefault()`,
+// sends the event, then navigates itself with `location.href = href`. It never
+// looks for `download`, so the attribute was discarded and the file opened in
+// the tab instead of downloading (INTORG-938).
+//
+// Umami skips that path when the anchor targets a new context, so `_blank`
+// leaves the default action intact. The browser then honours `download` and no
+// tab is left behind. The event is still sent: Umami tracks either way, and
+// only the manual navigation is conditional.
+//
+// If the tracker ever learns about `download`, this can go back to `external`
+// alone. Until then, do not remove it to tidy the markup.
+const opensNewContext = external || isDocument
+const targetAttrs = opensNewContext
   ? { target: '_blank', rel: 'noopener noreferrer' }
   : {}
 // Anchors can't be natively disabled. Strip href so Enter activation does

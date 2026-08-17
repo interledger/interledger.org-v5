@@ -72,6 +72,33 @@ describe('SplitLayout handler', () => {
     ])
   })
 
+  it('parses ctaDocument into the CTA document flag', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Application pack" ctaLink="/uploads/pack.pdf" ctaDocument={true}>Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      cta: {
+        text: 'Application pack',
+        link: '/uploads/pack.pdf',
+        document: true
+      }
+    })
+  })
+
+  it('omits the CTA document flag when ctaDocument is absent', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Apply" ctaLink="/apply">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      cta: { text: 'Apply', link: '/apply' }
+    })
+    expect(blocks[0].cta).not.toHaveProperty('document')
+  })
+
   it('parses imageAlt into media.alternativeText', async () => {
     const blocks = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt">Body.</SplitLayout>`,
@@ -261,6 +288,16 @@ describe('SplitLayout handler — errors', () => {
   it('returns DYNAMIC_EXPRESSION when ctaExternal is dynamic', async () => {
     const result = await parseMdxToBlocks(
       '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaExternal={isExternal}>Body.</SplitLayout>',
+      { locale: 'en' }
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+  })
+
+  it('returns DYNAMIC_EXPRESSION when ctaDocument is dynamic', async () => {
+    const result = await parseMdxToBlocks(
+      '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaDocument={isDocument}>Body.</SplitLayout>',
       { locale: 'en' }
     )
 

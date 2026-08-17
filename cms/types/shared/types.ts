@@ -23,6 +23,7 @@ export interface HeroCta {
   link?: string
   style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
 }
 
 /**

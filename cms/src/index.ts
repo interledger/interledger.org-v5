@@ -1062,12 +1062,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       link: 'Link',
       text: 'Button Text',
       style: 'Style',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
     },
     'shared.primary-cta-link': {
       link: 'Link',
       text: 'Button Text',
-      external: 'External Link'
+      external: 'External Link',
+      document: 'Document Download'
     },
     'shared.cta-button': {
       link: 'Link',
@@ -1123,6 +1125,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description',
       ctaText: 'Button Text',
       ctaLink: 'Button Link',
+      ctaExternal: 'External Link',
+      ctaDocument: 'Document Download',
       items: 'FAQ Items'
     },
     'blocks.grant-faq-item': {
@@ -1230,8 +1234,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
       primaryButtonLink: 'Primary Button URL',
+      primaryButtonExternal: 'Primary External Link',
+      primaryButtonDocument: 'Primary Document Download',
       secondaryButtonText: 'Secondary Button Text',
-      secondaryButtonLink: 'Secondary Button URL'
+      secondaryButtonLink: 'Secondary Button URL',
+      secondaryButtonExternal: 'Secondary External Link',
+      secondaryButtonDocument: 'Secondary Document Download'
     },
     'blocks.image-row': {
       heading: 'Heading',
@@ -1390,7 +1398,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'shared.secondary-cta-link': {
       link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.cta-button': {
@@ -1398,7 +1406,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
       document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link.',
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'blocks.cta-buttons': {
@@ -1406,10 +1414,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'One button, or two side by side. On mobile they stack and both go full width.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.'
+      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      document:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
+      external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'navigation.menu-item': {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
@@ -1425,7 +1439,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.grant-faq-section': {
       ctaLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      ctaExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      ctaDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.card-grid': {
       ariaLabel:
@@ -1489,8 +1507,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.cta-strip': {
       primaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      primaryButtonExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      primaryButtonDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       secondaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+      secondaryButtonExternal:
+        'Opens in a new tab. Cannot be combined with Document Download.',
+      secondaryButtonDocument:
+        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.quote': {
       authorLink:
@@ -1726,6 +1752,17 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
 
+  // These layouts REPLACE whatever Strapi generated, they do not merge with it.
+  // Any field missing from the list below is missing from the edit form, even
+  // though it exists on the component and the API returns it.
+  //
+  // So adding a field to a component schema is only half the job: add it here
+  // too, or an editor never sees it. `document` on `shared.cta-link` and the
+  // four flags on `blocks.cta-strip` were both invisible for exactly this
+  // reason (INTORG-938).
+  //
+  // Components without an entry here are safe: Strapi appends new fields to
+  // its own generated layout.
   const componentLayouts: Record<string, EditLayoutField[][]> = {
     'navigation.menu-item': [
       [
@@ -1859,8 +1896,16 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'primaryButtonLink', size: 6 }
       ],
       [
+        { name: 'primaryButtonExternal', size: 6 },
+        { name: 'primaryButtonDocument', size: 6 }
+      ],
+      [
         { name: 'secondaryButtonText', size: 6 },
         { name: 'secondaryButtonLink', size: 6 }
+      ],
+      [
+        { name: 'secondaryButtonExternal', size: 6 },
+        { name: 'secondaryButtonDocument', size: 6 }
       ]
     ],
     'shared.hero': [
@@ -1876,7 +1921,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'text', size: 4 },
         { name: 'style', size: 4 }
       ],
-      [{ name: 'external', size: 4 }]
+      [
+        { name: 'external', size: 4 },
+        { name: 'document', size: 4 }
+      ]
     ],
     'shared.cta-button': [
       [

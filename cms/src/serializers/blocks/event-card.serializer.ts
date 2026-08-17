@@ -1,5 +1,9 @@
 import { escDouble as esc, escMdxBraces } from '../shared'
-import { SerializerFieldError, type FieldError } from '../../utils'
+import {
+  SerializerFieldError,
+  hasConflictingCtaFlags,
+  type FieldError
+} from '../../utils'
 
 interface EventCardWhen {
   title?: string
@@ -20,6 +24,7 @@ interface EventCardApply {
     text?: string
     link?: string
     external?: boolean
+    document?: boolean
   }
 }
 
@@ -101,6 +106,18 @@ function validateEventApply(
       path: ['apply', 'primaryCta', 'link']
     })
   }
+  if (
+    hasConflictingCtaFlags({
+      external: Boolean(apply.primaryCta.external),
+      document: Boolean(apply.primaryCta.document)
+    })
+  ) {
+    fieldErrors.push({
+      message:
+        'Event card Apply button cannot be both External Link and Document Download',
+      path: ['apply', 'primaryCta', 'document']
+    })
+  }
 
   return fieldErrors
 }
@@ -150,6 +167,7 @@ function serializeApply(apply: EventCardApply): string {
     `buttonUrl="${esc(cta.link!.trim())}"`
   ]
   if (cta.external) attrs.push('buttonExternal={true}')
+  if (cta.document) attrs.push('buttonDocument={true}')
   // Apply has no optional body text — title + primary CTA only.
   return `<EventApply ${attrs.join(' ')} />`
 }

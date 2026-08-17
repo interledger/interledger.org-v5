@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   ensureLeadingSlash,
   normalizePathSegment,
-  normalizeRelativeLinksInDocumentData
+  normalizeRelativeLinksInDocumentData,
+  stripUploadOrigin
 } from '@/utils'
 
 describe('ensureLeadingSlash', () => {
@@ -157,5 +158,58 @@ describe('normalizeRelativeLinksInDocumentData', () => {
       count: 3,
       media: null
     })
+  })
+
+  it('reduces a media-library URL pasted into a link field to its path', () => {
+    const data = {
+      link: 'https://cms.example.org/uploads/img/original/report_a1b2.pdf'
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data).toEqual({ link: '/uploads/img/original/report_a1b2.pdf' })
+  })
+})
+
+describe('stripUploadOrigin', () => {
+  it('reduces an absolute upload URL to its path', () => {
+    expect(
+      stripUploadOrigin(
+        'http://localhost:1338/uploads/img/original/report_a1b2.pdf'
+      )
+    ).toBe('/uploads/img/original/report_a1b2.pdf')
+  })
+
+  it('keeps a query string and a fragment', () => {
+    expect(
+      stripUploadOrigin(
+        'https://cms.example.org/uploads/img/original/a.pdf?v=2#page=3'
+      )
+    ).toBe('/uploads/img/original/a.pdf?v=2#page=3')
+  })
+
+  it('leaves an already relative path alone', () => {
+    expect(stripUploadOrigin('/uploads/img/original/a.pdf')).toBe(
+      '/uploads/img/original/a.pdf'
+    )
+  })
+
+  it('leaves an external link that happens to use an uploads path alone', () => {
+    const href = 'https://example.com/uploads/report.pdf'
+    expect(stripUploadOrigin(href)).toBe(href)
+  })
+
+  it('leaves an ordinary external link alone', () => {
+    const href = 'https://example.com/grants'
+    expect(stripUploadOrigin(href)).toBe(href)
+  })
+
+  it('leaves mailto and tel alone', () => {
+    expect(stripUploadOrigin('mailto:hi@example.com')).toBe(
+      'mailto:hi@example.com'
+    )
+    expect(stripUploadOrigin('tel:+15551234')).toBe('tel:+15551234')
+  })
+
+  it('leaves a malformed URL alone rather than throwing', () => {
+    expect(stripUploadOrigin('https://')).toBe('https://')
   })
 })

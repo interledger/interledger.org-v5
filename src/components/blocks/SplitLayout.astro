@@ -4,6 +4,7 @@ import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
+import { resolveCtaLink } from '@/utils'
 
 /** Content-to-media column ratio (admin labels). Astro maps these to grid `fr` tracks. */
 export type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
@@ -28,6 +29,7 @@ interface Props {
   ctaLink?: string
   ctaStyle?: string
   ctaExternal?: boolean
+  ctaDocument?: boolean
 }
 
 const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
@@ -65,8 +67,21 @@ const {
   ctaText,
   ctaLink,
   ctaStyle,
-  ctaExternal
+  ctaExternal,
+  ctaDocument
 } = Astro.props
+
+// Icon by link kind (INTORG-938). Before this the block showed `arrow-right`
+// when the link was external, which is the rule inverted. An internal link
+// still shows nothing: the arrow-on-internal rule covers components an editor
+// picks, and this CTA belongs to a page template (Sarah, INTORG-907, 2026-08-09).
+const resolvedCta = ctaLink
+  ? resolveCtaLink({
+      url: ctaLink,
+      external: ctaExternal,
+      document: ctaDocument
+    })
+  : null
 
 // Unknown ratios fall back to 2:1 here; sync handler/serializer hard-fail instead.
 const displayRatio: SplitLayoutDisplayRatio =
@@ -126,15 +141,18 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
           <div class="[&>*:last-child]:mb-0">
             <slot />
           </div>
-          {ctaText && ctaLink && (
+          {ctaText && resolvedCta && (
             <div>
               <LinkButton
-                href={ctaLink}
+                href={resolvedCta.href}
                 variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
-                external={ctaExternal}
+                external={resolvedCta.external}
+                document={resolvedCta.document}
               >
                 {ctaText}
-                {ctaExternal && <Icon name="arrow-right" slot="icon-right" />}
+                {resolvedCta.icon && (
+                  <Icon name={resolvedCta.icon} slot="icon-right" />
+                )}
               </LinkButton>
             </div>
           )}
