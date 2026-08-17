@@ -1207,7 +1207,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.agenda-item': {
       time: 'Time',
       activity: 'Activity',
-      additionalInfo: 'Additional information'
+      additionalInfo: 'Additional information (optional)'
     },
     'blocks.event-card': {
       when: 'When',

@@ -265,7 +265,7 @@ export interface AgendaBlock extends StrapiBlockBase {
   items: {
     time: string
     activity: string
-    additionalInfo: string
+    additionalInfo?: string
   }[]
 }
 

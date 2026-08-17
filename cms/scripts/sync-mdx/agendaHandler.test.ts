@@ -58,17 +58,24 @@ describe('Agenda handler', () => {
     expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
   })
 
-  it('rejects an item without additional information', async () => {
-    const invalidItems = [
+  it('accepts an item without additional information', async () => {
+    const optionalItems = [
       { time: '8:30', activity: 'Registration' },
       { time: '9:30', activity: 'Welcome', additionalInfo: 'Overview.' }
     ]
-    const result = await parseMdxToBlocks(
-      `<Agenda items={${JSON.stringify(invalidItems)}} />`,
+    const blocks = await parseMdxToBlocks(
+      `<Agenda items={${JSON.stringify(optionalItems)}} />`,
       { locale: 'en' }
     )
 
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.agenda',
+        items: [
+          { time: '8:30', activity: 'Registration' },
+          { time: '9:30', activity: 'Welcome', additionalInfo: 'Overview.' }
+        ]
+      }
+    ])
   })
 })

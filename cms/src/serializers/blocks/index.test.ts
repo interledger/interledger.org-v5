@@ -96,7 +96,6 @@ describe('validateContentBlocks', () => {
     ])
 
     expect(err?.details.errors.map((error) => error.path)).toEqual([
-      ['content', '0', 'items', '0', 'additionalInfo'],
       ['content', '0', 'items', '1', 'activity']
     ])
   })

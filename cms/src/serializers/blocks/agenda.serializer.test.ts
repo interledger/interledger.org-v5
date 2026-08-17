@@ -49,11 +49,33 @@ describe('agenda serializer', () => {
       ).toEqual([
         ['items', 0, 'time'],
         ['items', 0, 'activity'],
-        ['items', 0, 'additionalInfo'],
         ['items', 1, 'time'],
-        ['items', 1, 'activity'],
-        ['items', 1, 'additionalInfo']
+        ['items', 1, 'activity']
       ])
     }
+  })
+
+  it('omits empty additional information', () => {
+    const result = serialize({
+      items: [
+        { time: '8:30 am', activity: 'Registration' },
+        {
+          time: '9:30 am',
+          activity: 'Welcome',
+          additionalInfo: 'An overview of the day.'
+        }
+      ]
+    })
+
+    expect(result).toContain(
+      JSON.stringify([
+        { time: '8:30 am', activity: 'Registration' },
+        {
+          time: '9:30 am',
+          activity: 'Welcome',
+          additionalInfo: 'An overview of the day.'
+        }
+      ])
+    )
   })
 })

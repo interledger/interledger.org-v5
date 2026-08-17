@@ -48,14 +48,10 @@ export function serialize(block: AgendaBlock): string {
         message: `Agenda item ${index + 1} is missing an activity`
       })
     }
-    if (!additionalInfo) {
-      fieldErrors.push({
-        path: ['items', index, 'additionalInfo'],
-        message: `Agenda item ${index + 1} is missing additional information`
-      })
-    }
 
-    return { time, activity, additionalInfo }
+    return additionalInfo
+      ? { time, activity, additionalInfo }
+      : { time, activity }
   })
 
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
