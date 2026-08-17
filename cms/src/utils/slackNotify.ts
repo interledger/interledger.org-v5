@@ -4,12 +4,11 @@ import { tryCatchAsync } from './tryCatch'
 /** Never block a content lifecycle hook on Slack being reachable. */
 const WEBHOOK_TIMEOUT_MS = 5_000
 /**
- * A staging clone left mid-rebase fails on *every* subsequent save, so an
- * unthrottled alert would post per keystroke-save and get the channel muted
- * within a day. Post once per root cause, then summarise the repeats.
+ * A clone left mid-rebase fails on every subsequent save, so an unthrottled
+ * alert would post per editor action. Once per root cause, then a summary.
  */
 const REPEAT_SUPPRESSION_MS = 15 * 60 * 1_000
-/** Git output is unbounded; keep the tail, where the actionable line usually is. */
+/** Keep the tail, where the actionable line usually is. */
 const MAX_DETAIL_CHARS = 1_000
 
 export interface GitSyncAlert {
@@ -65,10 +64,7 @@ export function isSlackAlertingConfigured(): boolean {
 
 // ── Redaction ────────────────────────────────────────────────────────────────
 
-/**
- * Git echoes the remote URL on an auth failure, and ours carries a GitHub App
- * token — posting raw stderr to a channel would publish it.
- */
+/** Git echoes the remote URL on auth failure, and ours carries a GitHub App token. */
 const SECRET_PATTERNS: [RegExp, string][] = [
   // https://x-access-token:<token>@github.com/...
   [/(\bhttps?:\/\/)[^\s/:@]+:[^\s/@]+@/gi, '$1***:***@'],
@@ -198,9 +194,8 @@ interface ThrottleEntry {
 }
 
 /**
- * Builds a notifier holding its own throttle and health state. Failures are
- * deduplicated by root cause rather than by content type, because one broken
- * repo fails every content type at once.
+ * Builds a notifier with its own throttle and health state. Deduplicates by
+ * root cause, not content type: one broken repo fails every type at once.
  */
 export function createSlackGitSyncNotifier(
   overrides: Partial<SlackNotifierDeps> = {}
@@ -233,8 +228,7 @@ export function createSlackGitSyncNotifier(
 
   return async function notifyGitSync(alert: GitSyncAlert): Promise<void> {
     const url = deps.webhookUrl()
-    // Unconfigured is a valid state in local dev and CI; the startup guard is
-    // what stops a git-syncing deployment from running without alerting.
+    // Valid in local dev and CI; the startup guard covers deployments.
     if (!url) return
 
     const hostname = deps.hostname()

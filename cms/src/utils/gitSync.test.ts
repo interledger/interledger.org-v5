@@ -119,8 +119,8 @@ describe('shellQuote', () => {
   })
 
   it('neutralises a quote-break injection attempt', () => {
-    // Commit messages carry editor-controlled slugs, and the whole command is
-    // handed to a shell — a bare `'` would end the quoted string.
+    // Commit messages carry editor-controlled slugs into a shell command, where
+    // a bare `'` would end the quoted string.
     expect(shellQuote("x'; rm -rf /; echo '")).toBe(
       "'x'\\''; rm -rf /; echo '\\'''"
     )
@@ -368,8 +368,8 @@ describe('inferCommitMessage', () => {
   })
 
   it('counts an added-then-modified file in both buckets', () => {
-    // `AM` satisfies both isAdded and isModified, so the summary counts add up
-    // to more than the number of files. Documented, not endorsed.
+    // `AM` satisfies both isAdded and isModified, so counts exceed the number
+    // of files. Documented, not endorsed.
     const changes = [
       { status: 'AM', filepath: 'src/content/faqs/a.mdx' },
       { status: 'M', filepath: 'src/content/faqs/b.mdx' }
@@ -457,8 +457,7 @@ describe('validateGitSyncRepoOnStartup', () => {
   })
 
   it('checks the webhook before touching the filesystem', async () => {
-    // A config error is cheaper to diagnose than a filesystem one, and it is
-    // the likelier mistake on a fresh deploy.
+    // A config error is cheaper to diagnose, and likelier on a fresh deploy.
     vi.stubEnv('SLACK_WEBHOOK_URL', '')
     const deps = createDeps({ existing: [] })
 
@@ -484,8 +483,8 @@ describe('validateGitSyncRepoOnStartup', () => {
   })
 
   it('rethrows a failing rev-parse instead of booting into a broken repo', async () => {
-    // Regression guard: exec now returns errors rather than rejecting, so this
-    // needs an explicit rethrow to keep failing the bootstrap.
+    // exec returns errors rather than rejecting, so this needs an explicit
+    // rethrow to keep failing the bootstrap.
     const deps = createDeps({
       existing: [REPO, path.join(REPO, '.git')],
       respond: (command) =>
@@ -523,8 +522,8 @@ describe('runGitSync', () => {
   })
 
   it('reports a failed status read instead of reading it as a clean tree', async () => {
-    // Regression guard for the original `catch { return [] }`: a repo left
-    // mid-rebase used to log "No changes to commit" and look like success.
+    // Guards the original `catch { return [] }`: a repo left mid-rebase used to
+    // log "No changes to commit" and look like success.
     const deps = createDeps({
       respond: (command) =>
         gitFailure(command, {
@@ -678,8 +677,8 @@ describe('runGitSync', () => {
   })
 
   it('reports a failed push rather than swallowing it', async () => {
-    // The original implementation logged and resolved, so a rejected push was
-    // indistinguishable from a successful sync to every caller.
+    // The original implementation logged and resolved, making a rejected push
+    // indistinguishable from a successful sync.
     const deps = createDeps({
       respond: (command) =>
         command === STATUS_COMMAND
@@ -769,7 +768,7 @@ describe('createDebouncedGitSync', () => {
 
   it('lets the last caller win the label and context', async () => {
     // Two content types saved inside one window produce one commit, described
-    // by whichever saved last — worth knowing when reading the log.
+    // by whichever saved last.
     const deps = contentDeps()
     const scheduler = createDebouncedGitSync(deps, DELAY)
 
@@ -934,8 +933,8 @@ describe('git sync alerting', () => {
   })
 
   it('stays silent on a skip, which says nothing about repo health', async () => {
-    // A clean tree does not prove the last push landed, so it must not be
-    // allowed to clear an outstanding failure.
+    // A clean tree does not prove the last push landed, so it must not clear an
+    // outstanding failure.
     const deps = createDeps({ respond: () => '' })
 
     await runGitSync('faq', undefined, deps)

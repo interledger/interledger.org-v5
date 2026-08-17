@@ -9,10 +9,9 @@ import {
   type NotifyGitSync
 } from './slackNotify'
 
-// Repo directories git sync touches, derived from PATHS so this file keeps no
-// second copy of the layout. The trailing slash matters: these double as
-// `startsWith` prefixes, and a bare `src/content` would also match a sibling
-// such as `src/contentious/`.
+// Derived from PATHS so this file keeps no second copy of the layout. The
+// trailing slash matters: these double as `startsWith` prefixes, where a bare
+// `src/content` would also match `src/contentious/`.
 const CONTENT_DIR = `${PATHS.CONTENT_ROOT}/`
 const DATA_DIR = `${PATHS.DATA_ROOT}/`
 const UPLOADS_DIR = PATHS.UPLOADS
@@ -37,9 +36,8 @@ export interface SyncContext {
 // ── Results ──────────────────────────────────────────────────────────────────
 
 /**
- * A git command that exited non-zero. Carries the raw streams so callers can
- * report the failure (a push rejection and an expired token look nothing alike
- * to a human, but both surface only as a non-zero exit).
+ * A git command that exited non-zero. Carries the raw streams: a push rejection
+ * and an expired token both surface only as a non-zero exit.
  */
 export class GitCommandError extends Error {
   readonly command: string
@@ -72,9 +70,8 @@ export type GitSyncSkipReason =
   | 'no-valid-paths'
 
 /**
- * Outcome of a sync attempt. Deliberately distinguishes the three benign
- * no-ops from a genuine failure: they are indistinguishable in the logs, which
- * is how push failures went unnoticed in the past.
+ * Outcome of a sync attempt. Separates the benign no-ops from a genuine
+ * failure, which the logs alone did not.
  */
 export type GitSyncResult =
   | { outcome: 'synced'; message: string }
@@ -180,9 +177,8 @@ export async function validateGitSyncRepoOnStartup(
     return
   }
 
-  // Git sync without alerting is how failures went unnoticed: a rejected push
-  // strands editor content on the VM with nothing but a console line to say so.
-  // Refuse to boot rather than run in that state.
+  // Syncing without alerting is how failures went unnoticed: a rejected push
+  // strands editor content with only a console line to say so.
   if (!isSlackAlertingConfigured()) {
     throw new Error(
       'SLACK_WEBHOOK_URL is not set while git sync is enabled, so sync failures ' +
@@ -374,9 +370,9 @@ interface ReportContext {
 }
 
 /**
- * The single funnel from a {@link GitSyncResult} to an alert. A `skipped`
- * outcome says nothing about repo health, so it neither alerts nor clears an
- * outstanding failure; only a real commit or a real no-op counts as healthy.
+ * The single funnel from a {@link GitSyncResult} to an alert. `skipped` says
+ * nothing about repo health, so it neither alerts nor clears an outstanding
+ * failure.
  */
 async function report(
   result: GitSyncResult,
@@ -474,8 +470,8 @@ export interface DebouncedGitSync {
    */
   schedule(label: string, context?: SyncContext): void
   /**
-   * The most recently started flush, or `null` if none has started yet.
-   * Exists so callers (and tests) can observe an otherwise fire-and-forget run.
+   * The most recently started flush, or `null` if none has started. Lets
+   * callers observe an otherwise fire-and-forget run.
    */
   settled(): Promise<GitSyncResult | null>
 }

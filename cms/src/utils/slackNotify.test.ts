@@ -264,8 +264,7 @@ describe('createSlackGitSyncNotifier', () => {
   })
 
   it('suppresses a repeat of the same root cause inside the window', async () => {
-    // A repo left mid-rebase fails on every save; without this the channel
-    // gets one message per editor action.
+    // A repo left mid-rebase fails on every save, one message per editor action.
     const { notify, posts, advance } = setup()
 
     await notify(failure)
@@ -350,8 +349,8 @@ describe('createSlackGitSyncNotifier', () => {
   })
 
   it('alerts immediately when the same fault returns after a recovery', async () => {
-    // The throttle must reset on recovery, or a fault that recurs inside the
-    // window would be silently swallowed after being declared fixed.
+    // The throttle must reset on recovery, or a fault recurring inside the
+    // window is swallowed after being declared fixed.
     const { notify, posts } = setup()
 
     await notify(failure)
