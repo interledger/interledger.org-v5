@@ -40,6 +40,22 @@ describe('CardGrid handler', () => {
     ])
   })
 
+  it('parses an optional title', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid title="Why Participate?" ariaLabel="Reasons" variant="Info" columns="Three">',
+        '<InfoCard heading="Why">Body</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(blocks[0]).toMatchObject({
+      title: 'Why Participate?',
+      ariaLabel: 'Reasons',
+      variant: 'Info'
+    })
+  })
+
   it('parses Resource, Info, and Navigation variants', async () => {
     const resource = await parseMdxToBlocks(
       [

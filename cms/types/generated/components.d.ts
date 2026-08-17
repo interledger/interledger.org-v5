@@ -180,6 +180,12 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
     infoCards: Schema.Attribute.Component<'blocks.info-card', true>
     navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
     resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true>
     variant: Schema.Attribute.String &
       Schema.Attribute.Required &

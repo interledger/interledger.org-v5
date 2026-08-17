@@ -315,6 +315,7 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
   ariaLabel: string
+  title?: string
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
 } & Partial<Record<CardGridCardsField, CardGridCard[]>>

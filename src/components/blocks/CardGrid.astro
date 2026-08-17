@@ -42,6 +42,7 @@ type CtaCardVariant = 'Title' | 'Resource' | 'Navigation'
 type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
+  title?: string
   ariaLabel: string
   variant: string
   columns: keyof typeof GRID_COLUMNS_CLASS
@@ -52,6 +53,7 @@ interface Props {
 }
 
 const {
+  title,
   ariaLabel,
   variant,
   columns,
@@ -127,13 +129,32 @@ function warnMissingSecondaryCta(
     `CardGrid ${cardVariant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA; rendering incomplete placeholder.`
   )
 }
+
+const headingText = title?.trim() || undefined
+const headingId = headingText
+  ? `card-grid-heading-${crypto.randomUUID()}`
+  : undefined
 ---
 
 <section
   data-component="CardGrid"
-  aria-label={ariaLabel}
-  class="mt-6xl mb-6xl [&_h3]:!mb-0"
+  aria-label={headingId ? undefined : ariaLabel}
+  aria-labelledby={headingId}
+  class:list={[
+    'mt-6xl mb-6xl [&_h3]:!mb-0',
+    headingText && 'flex flex-col gap-2xl'
+  ]}
 >
+  {
+    headingText && headingId && (
+      <h2
+        id={headingId}
+        class="m-0 text-h2 font-semibold tablet:text-h2-md desktop:text-h2-lg"
+      >
+        {headingText}
+      </h2>
+    )
+  }
   <div
     class:list={[
       'grid grid-cols-1 gap-lg tablet:gap-xl',

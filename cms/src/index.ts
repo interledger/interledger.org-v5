@@ -1089,6 +1089,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.card-grid': {
+      title: 'Title',
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
@@ -1460,6 +1461,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.card-grid': {
+      title: 'Optional. Shown above the cards as a heading.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -2001,6 +2003,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],
+      [{ name: 'title', size: 12 }],
       [
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }

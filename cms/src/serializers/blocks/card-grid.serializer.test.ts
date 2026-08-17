@@ -53,6 +53,30 @@ describe('card-grid serializer', () => {
     expect(result).toContain('</CardGrid>')
   })
 
+  it('serializes an optional title and omits it when blank', () => {
+    expect(
+      serialize({
+        title: 'Why Participate?',
+        ariaLabel: 'Reasons to participate',
+        variant: 'Info',
+        columns: 'Three',
+        cards: [infoCard]
+      })
+    ).toContain(
+      '<CardGrid title="Why Participate?" ariaLabel="Reasons to participate"'
+    )
+
+    expect(
+      serialize({
+        title: '   ',
+        ariaLabel: 'Info',
+        variant: 'Info',
+        columns: 'Three',
+        cards: [infoCard]
+      })
+    ).not.toContain('title="')
+  })
+
   it('serializes Resource cards with document flag', () => {
     const result = serialize({
       ariaLabel: 'Resources',

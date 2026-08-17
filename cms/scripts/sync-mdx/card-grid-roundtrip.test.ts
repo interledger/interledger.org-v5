@@ -29,6 +29,20 @@ describe('CardGrid round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
   })
 
+  it('round-trips an optional title', async () => {
+    const original = {
+      title: 'Why Participate?',
+      ariaLabel: 'Reasons to participate',
+      variant: 'Info' as const,
+      columns: 'Three' as const,
+      infoCards: [{ heading: 'Why apply', body: 'Open worldwide.' }]
+    }
+    const blocks = await parseMdxToBlocks(serialize({ ...original }), {
+      locale: 'en'
+    })
+    expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
+  })
+
   it('round-trips Resource, Info, and Navigation', async () => {
     const resource = {
       ariaLabel: 'Resources',

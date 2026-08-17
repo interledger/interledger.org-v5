@@ -1,7 +1,7 @@
 /**
  * CardGrid + nested card handlers for the MDX block parser.
  *
- * <CardGrid ariaLabel="..." variant="..." columns="One|Two|Three">
+ * <CardGrid title="..." ariaLabel="..." variant="..." columns="One|Two|Three">
  *   <TitleCard ...>...</TitleCard>
  *   <ResourceCard ...>...</ResourceCard>
  *   <InfoCard ...>...</InfoCard>
@@ -194,6 +194,7 @@ async function handleCardGrid(
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
     const ariaLabel = getStringAttr(node, 'ariaLabel', { required: true })
+    const title = getStringAttr(node, 'title')
     const variantAttr = getStringAttr(node, 'variant', { required: true })
     const columns = getStringAttr(node, 'columns', { required: true })
 
@@ -294,6 +295,7 @@ async function handleCardGrid(
       columns,
       [cardsField]: cards
     }
+    if (title?.trim()) block.title = title.trim()
 
     return [block]
   })
