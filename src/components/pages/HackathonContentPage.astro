@@ -74,12 +74,13 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   routeLocale,
   t('nav.home')
 )
+const showBreadcrumbs = entry.data.pathSlug !== 'overview'
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 ---
 
 <HackathonPageLayout title={title} description={description} noindex={noindex}>
   <main
-    class="hackathon-content flex flex-col pb-5xl text-neutral-0 tablet:pb-6xl desktop:pb-7xl"
+    class="hackathon-content flex flex-col pb-5xl text-neutral-50 tablet:pb-6xl desktop:pb-7xl"
   >
     {
       hasHero && (
@@ -95,68 +96,59 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
         />
       )
     }
-    <div
-      class:list={[
-        'mx-auto w-full max-w-content px-lg tablet:px-xl desktop:px-5xl',
-        hasHero
-          ? 'pt-3xl tablet:pt-4xl'
-          : 'pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]'
-      ]}
-    >
-      <TranslationDisclaimer isVisible={isFallback} />
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
-      {
-        !hasHero && (
-          <h1 class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg">
-            {title}
-          </h1>
-        )
-      }
-      <section
-        data-prose
-        class="mt-2xl [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
-      >
-        <MdxContent
-          components={{
-            Paragraph,
-            InfoCard,
-            NumberTiles,
-            Agenda,
-            SplitLayout,
-            CtaStrip,
-            TitleCard,
-            CardGrid,
-            ResourceCard,
-            NavigationCard,
-            Faq,
-            CtaButtons,
-            FaqItem,
-            EventCard,
-            EventWhen,
-            EventWhere,
-            EventApply,
-            Quote,
-            ProfileGrid,
-            LogoCarousel
-          }}
-        />
-      </section>
-    </div>
+    <section class="py-4xl">
+      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <TranslationDisclaimer isVisible={isFallback} />
+        {showBreadcrumbs && <Breadcrumbs breadcrumbs={breadcrumbs} />}
+        {
+          !hasHero && (
+            <h1 class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg">
+              {title}
+            </h1>
+          )
+        }
+        <div
+          data-prose
+          class="[&_h1]:text-neutral-0 [&_h2]:mb-xl [&_h2]:text-h2 [&_h2]:font-semibold [&_h2]:text-neutral-0 tablet:[&_h2]:text-h2-md desktop:[&_h2]:text-h2-lg [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_h3]:text-neutral-0 [&_h4]:text-neutral-0 [&_h5]:text-neutral-0 [&_h6]:text-neutral-0 [&_p]:mb-xl [&_p]:leading-[1.6] [&_p]:text-neutral-50 [&_ul]:mb-xl [&_ul]:ps-2xl [&_ul_li]:mb-lg [&_a:not([data-component='LinkButton'])]:underline [&_a:not([data-component='LinkButton']):hover]:no-underline"
+        >
+          <MdxContent
+            components={{
+              Paragraph,
+              InfoCard,
+              NumberTiles,
+              Agenda,
+              SplitLayout,
+              CtaStrip,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
+              Faq,
+              CtaButtons,
+              FaqItem,
+              EventCard,
+              EventWhen,
+              EventWhere,
+              EventApply,
+              Quote,
+              ProfileGrid,
+              LogoCarousel
+            }}
+          />
+        </div>
+      </div>
+    </section>
   </main>
 </HackathonPageLayout>
 
 <style>
   .hackathon-content {
-    color: var(--color-neutral-0);
+    color: var(--color-neutral-50);
   }
 
-  /* Light body text for hackathon chrome; dark-on-white blocks opt out. */
-  .hackathon-content
-    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
-      [data-component='EventCard'] *
-    ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
-      [data-component='LogoCarousel'] *
-    ):not([data-component='HackathonHero'] *) {
-    color: var(--color-neutral-0);
+  /* MDX paragraphs are not scoped to this file, so :global is required.
+     Scoped to [data-prose] so the hero description stays apricot. */
+  .hackathon-content :global([data-prose] p) {
+    color: var(--color-neutral-50);
   }
 </style>
