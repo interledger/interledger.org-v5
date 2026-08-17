@@ -2,14 +2,20 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
-import { getProjectRoot } from './paths'
+import { PATHS, getProjectRoot } from './paths'
 
-const STAGE_CANDIDATES = [
-  'src/content/',
-  'src/data/',
-  'public/uploads/img/original'
-] as const
-const CONTENT_PATH_PREFIXES = ['src/content/', 'src/data/'] as const
+// Repo directories git sync touches, derived from PATHS so this file keeps no
+// second copy of the layout. The trailing slash matters: these double as
+// `startsWith` prefixes, and a bare `src/content` would also match a sibling
+// such as `src/contentious/`.
+const CONTENT_DIR = `${PATHS.CONTENT_ROOT}/`
+const DATA_DIR = `${PATHS.DATA_ROOT}/`
+const UPLOADS_DIR = PATHS.UPLOADS
+
+/** Staged wholesale on every debounced sync, when the directory exists. */
+const STAGE_CANDIDATES = [CONTENT_DIR, DATA_DIR, UPLOADS_DIR] as const
+/** Prefixes treated as editorial content when inferring a commit message. */
+const CONTENT_PATH_PREFIXES = [CONTENT_DIR, DATA_DIR] as const
 const DEBOUNCE_MS = 300
 
 interface GitStatusChange {
@@ -23,30 +29,111 @@ export interface SyncContext {
   author?: { name: string; email: string }
 }
 
+// ── Results ──────────────────────────────────────────────────────────────────
+
+/**
+ * A git command that exited non-zero. Carries the raw streams so callers can
+ * report the failure (a push rejection and an expired token look nothing alike
+ * to a human, but both surface only as a non-zero exit).
+ */
+export class GitCommandError extends Error {
+  readonly command: string
+  readonly stdout: string
+  readonly stderr: string
+
+  constructor(
+    command: string,
+    stdout: string,
+    stderr: string,
+    message: string
+  ) {
+    super(message)
+    this.name = 'GitCommandError'
+    this.command = command
+    this.stdout = stdout
+    this.stderr = stderr
+  }
+
+  /** Both streams, for matching git's messages wherever it chose to print them. */
+  get combinedOutput(): string {
+    return `${this.stdout}\n${this.stderr}`
+  }
+}
+
+export type GitSyncSkipReason =
+  | 'disabled'
+  | 'no-changes'
+  | 'no-stage-paths'
+  | 'no-valid-paths'
+
+/**
+ * Outcome of a sync attempt. Deliberately distinguishes the three benign
+ * no-ops from a genuine failure: they are indistinguishable in the logs, which
+ * is how push failures went unnoticed in the past.
+ */
+export type GitSyncResult =
+  | { outcome: 'synced'; message: string }
+  | { outcome: 'nothing-to-commit' }
+  | { outcome: 'skipped'; reason: GitSyncSkipReason }
+  | { outcome: 'failed'; error: Error }
+
+// ── Injected effects ─────────────────────────────────────────────────────────
+
+/** Runs a command in `cwd`. Never rejects — a non-zero exit is a return value. */
+export type GitExec = (
+  command: string,
+  cwd: string
+) => Promise<string | GitCommandError>
+
+export interface GitSyncDeps {
+  exec: GitExec
+  fileExists: (filepath: string) => boolean
+}
+
+function execInRepo(
+  command: string,
+  cwd: string
+): Promise<string | GitCommandError> {
+  return new Promise((resolve) => {
+    exec(command, { cwd }, (error, stdout, stderr) => {
+      if (error) {
+        resolve(
+          new GitCommandError(
+            command,
+            stdout ?? '',
+            stderr ?? '',
+            stderr?.trim() || error.message
+          )
+        )
+      } else {
+        resolve(stdout.trim())
+      }
+    })
+  })
+}
+
+export const defaultGitSyncDeps: GitSyncDeps = {
+  exec: execInRepo,
+  fileExists: (filepath) => fs.existsSync(filepath)
+}
+
+// ── Shell + path helpers ─────────────────────────────────────────────────────
+
 function shellEscape(value: string): string {
   return value.replace(/'/g, "'\\''")
 }
 
-function shellQuote(value: string): string {
+export function shellQuote(value: string): string {
   return `'${shellEscape(value)}'`
 }
 
-function expandHomeDir(filepath: string): string {
+export function expandHomeDir(filepath: string): string {
   return filepath.startsWith('~/')
     ? path.join(os.homedir(), filepath.slice(2))
     : filepath
 }
 
-function execInRepo(command: string, cwd: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    exec(command, { cwd }, (error, stdout, stderr) => {
-      if (error) reject(new Error(stderr?.trim() || error.message))
-      else resolve(stdout.trim())
-    })
-  })
-}
-
-function toGitPath(repoRoot: string, filepath: string): string | null {
+export function toGitPath(repoRoot: string, filepath: string): string | null {
   const relative = path.isAbsolute(filepath)
     ? path.relative(repoRoot, filepath)
     : filepath
@@ -67,6 +154,10 @@ function quoteGitPaths(paths: string[]): string[] {
 
 // ── Repo resolution ──────────────────────────────────────────────────────────
 
+export function isGitSyncDisabled(): boolean {
+  return process.env.STRAPI_DISABLE_GIT_SYNC === 'true'
+}
+
 export function getTargetRepoRoot(): string {
   const configured = process.env.STRAPI_GIT_SYNC_REPO_PATH
   return configured ? path.resolve(expandHomeDir(configured)) : getProjectRoot()
@@ -74,26 +165,30 @@ export function getTargetRepoRoot(): string {
 
 // ── Startup validation ───────────────────────────────────────────────────────
 
-export async function validateGitSyncRepoOnStartup(): Promise<void> {
-  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
+export async function validateGitSyncRepoOnStartup(
+  deps: GitSyncDeps = defaultGitSyncDeps
+): Promise<void> {
+  if (isGitSyncDisabled()) {
     console.log('⏭️  Git sync validation skipped via STRAPI_DISABLE_GIT_SYNC')
     return
   }
 
   const repoRoot = getTargetRepoRoot()
 
-  if (!fs.existsSync(repoRoot)) {
+  if (!deps.fileExists(repoRoot)) {
     throw new Error(
       `Git sync repository path does not exist: ${repoRoot}. ` +
         `Set STRAPI_GIT_SYNC_REPO_PATH or create the staging clone.`
     )
   }
 
-  if (!fs.existsSync(path.join(repoRoot, '.git'))) {
+  if (!deps.fileExists(path.join(repoRoot, '.git'))) {
     throw new Error(`Git sync repository is not a git checkout: ${repoRoot}`)
   }
 
-  const branch = await execInRepo('git rev-parse --abbrev-ref HEAD', repoRoot)
+  const branch = await deps.exec('git rev-parse --abbrev-ref HEAD', repoRoot)
+  if (branch instanceof Error) throw branch
+
   console.log(
     `✅ Git sync repository validated: ${repoRoot} (branch: ${branch})`
   )
@@ -101,7 +196,7 @@ export async function validateGitSyncRepoOnStartup(): Promise<void> {
 
 // ── Git status + commit message inference ───────────────────────────────────
 
-function parseGitStatusLine(line: string): GitStatusChange | null {
+export function parseGitStatusLine(line: string): GitStatusChange | null {
   if (!line.trim()) return null
 
   const status = line.slice(0, 2).trim()
@@ -129,26 +224,30 @@ function isModified(status: string): boolean {
   return status.includes('M') || status.includes('R') || status.includes('C')
 }
 
-async function getGitStatus(cwd: string): Promise<GitStatusChange[]> {
-  try {
-    const output = await execInRepo('git status --porcelain', cwd)
-    if (!output) return []
-    return output
-      .split('\n')
-      .map(parseGitStatusLine)
-      .filter((change): change is GitStatusChange => Boolean(change))
-  } catch {
-    return []
-  }
+async function getGitStatus(
+  cwd: string,
+  deps: GitSyncDeps
+): Promise<GitStatusChange[] | GitCommandError> {
+  const output = await deps.exec('git status --porcelain', cwd)
+  if (output instanceof GitCommandError) return output
+  if (!output) return []
+
+  return output
+    .split('\n')
+    .map(parseGitStatusLine)
+    .filter((change): change is GitStatusChange => Boolean(change))
 }
 
-function extractSlug(filepath: string): string {
+export function extractSlug(filepath: string): string {
   const basename = path.basename(filepath, path.extname(filepath))
   const dateMatch = basename.match(/^\d{4}-\d{2}-\d{2}-(.+)$/)
   return dateMatch ? dateMatch[1] : basename
 }
 
-function inferCommitMessage(label: string, changes: GitStatusChange[]): string {
+export function inferCommitMessage(
+  label: string,
+  changes: GitStatusChange[]
+): string {
   const contentChanges = changes.filter((c) =>
     CONTENT_PATH_PREFIXES.some((prefix) => c.filepath.startsWith(prefix))
   )
@@ -196,70 +295,87 @@ function inferCommitMessage(label: string, changes: GitStatusChange[]): string {
 
 // ── Git operations ───────────────────────────────────────────────────────────
 
-function getStagePaths(repoRoot: string): string[] {
+function getStagePaths(repoRoot: string, deps: GitSyncDeps): string[] {
   const stagePaths = STAGE_CANDIDATES.filter((p) =>
-    fs.existsSync(path.join(repoRoot, p))
+    deps.fileExists(path.join(repoRoot, p))
   )
   return quoteGitPaths(stagePaths)
+}
+
+export function buildCommitCommand(
+  addPaths: string[],
+  message: string,
+  author?: { name: string; email: string }
+): string {
+  const safeMessage = shellQuote(message)
+  const authorFlag = author
+    ? ` --author=${shellQuote(`${author.name} <${author.email}>`)}`
+    : ''
+  return [
+    `git add ${addPaths.join(' ')}`,
+    `git commit -m ${safeMessage}${authorFlag}`,
+    'git pull --rebase',
+    'git push'
+  ].join(' && ')
 }
 
 async function commitAndPush(
   repoRoot: string,
   addPaths: string[],
   message: string,
+  deps: GitSyncDeps,
   author?: { name: string; email: string }
-): Promise<void> {
-  const safeMessage = shellQuote(message)
-  const authorFlag = author
-    ? ` --author=${shellQuote(`${author.name} <${author.email}>`)}`
-    : ''
-  const commands = [
-    `git add ${addPaths.join(' ')}`,
-    `git commit -m ${safeMessage}${authorFlag}`,
-    'git pull --rebase',
-    'git push'
-  ].join(' && ')
+): Promise<GitSyncResult> {
+  const result = await deps.exec(
+    buildCommitCommand(addPaths, message, author),
+    repoRoot
+  )
 
-  return new Promise((resolve) => {
-    exec(commands, { cwd: repoRoot }, (error, stdout, stderr) => {
-      if (error) {
-        const combined = `${stdout ?? ''}\n${stderr ?? ''}`
-        if (combined.includes('nothing to commit')) {
-          console.log(`[gitSync] Nothing to commit`)
-        } else {
-          console.error(`⚠️  Git sync failed: ${error.message}`)
-          if (stderr) console.error(`stderr: ${stderr}`)
-        }
-      } else {
-        console.log(`✅ Git sync complete: ${message}`)
-        if (stdout) console.log(stdout)
-      }
-      resolve()
-    })
-  })
+  if (result instanceof GitCommandError) {
+    if (result.combinedOutput.includes('nothing to commit')) {
+      console.log(`[gitSync] Nothing to commit`)
+      return { outcome: 'nothing-to-commit' }
+    }
+    console.error(`⚠️  Git sync failed: ${result.message}`)
+    if (result.stderr) console.error(`stderr: ${result.stderr}`)
+    return { outcome: 'failed', error: result }
+  }
+
+  console.log(`✅ Git sync complete: ${message}`)
+  if (result) console.log(result)
+  return { outcome: 'synced', message }
 }
 
-// ── Debounced sync ───────────────────────────────────────────────────────────
+// ── Sync ─────────────────────────────────────────────────────────────────────
 
-let pendingSyncTimer: ReturnType<typeof setTimeout> | null = null
-let latestContext: SyncContext | undefined
-
-async function flushGitSync(
+/**
+ * Stage the content directories, commit, and push. The commit message is
+ * inferred from actual git status unless {@link SyncContext} supplies one.
+ */
+export async function runGitSync(
   label: string,
-  context?: SyncContext
-): Promise<void> {
+  context?: SyncContext,
+  deps: GitSyncDeps = defaultGitSyncDeps
+): Promise<GitSyncResult> {
+  if (isGitSyncDisabled()) return { outcome: 'skipped', reason: 'disabled' }
+
   const repoRoot = getTargetRepoRoot()
-  const changes = await getGitStatus(repoRoot)
+  const changes = await getGitStatus(repoRoot, deps)
+
+  if (changes instanceof GitCommandError) {
+    console.error(`⚠️  Git sync failed to read status: ${changes.message}`)
+    return { outcome: 'failed', error: changes }
+  }
 
   if (changes.length === 0) {
     console.log(`[gitSync] No changes to commit`)
-    return
+    return { outcome: 'skipped', reason: 'no-changes' }
   }
 
-  const stagePaths = getStagePaths(repoRoot)
+  const stagePaths = getStagePaths(repoRoot, deps)
   if (stagePaths.length === 0) {
     console.log(`[gitSync] No content directories to stage`)
-    return
+    return { outcome: 'skipped', reason: 'no-stage-paths' }
   }
 
   const message =
@@ -267,31 +383,76 @@ async function flushGitSync(
       ? `${label}: ${context.action} ${context.slug}`
       : inferCommitMessage(label, changes)
   console.log(`[gitSync] Inferred message: ${message}`)
-  await commitAndPush(repoRoot, stagePaths, message, context?.author)
+
+  return commitAndPush(repoRoot, stagePaths, message, deps, context?.author)
 }
+
+// ── Debounced sync ───────────────────────────────────────────────────────────
+
+export interface DebouncedGitSync {
+  /**
+   * Queue a sync. Calls within the debounce window are coalesced into one
+   * commit, and the *last* caller's label and context win.
+   */
+  schedule(label: string, context?: SyncContext): void
+  /**
+   * The most recently started flush, or `null` if none has started yet.
+   * Exists so callers (and tests) can observe an otherwise fire-and-forget run.
+   */
+  settled(): Promise<GitSyncResult | null>
+}
+
+export function createDebouncedGitSync(
+  deps: GitSyncDeps = defaultGitSyncDeps,
+  delayMs: number = DEBOUNCE_MS
+): DebouncedGitSync {
+  let pendingSyncTimer: ReturnType<typeof setTimeout> | null = null
+  let latestContext: SyncContext | undefined
+  let lastFlush: Promise<GitSyncResult> | null = null
+
+  return {
+    schedule(label, context) {
+      if (isGitSyncDisabled()) {
+        console.log(
+          '⏭️  Git sync scheduling skipped via STRAPI_DISABLE_GIT_SYNC'
+        )
+        return
+      }
+
+      if (pendingSyncTimer) clearTimeout(pendingSyncTimer)
+      latestContext = context
+
+      pendingSyncTimer = setTimeout(() => {
+        pendingSyncTimer = null
+        const ctx = latestContext
+        latestContext = undefined
+        lastFlush = runGitSync(label, ctx, deps).catch((err: unknown) => {
+          console.error(`[gitSync] Flush error:`, err)
+          const error = err instanceof Error ? err : new Error(String(err))
+          return { outcome: 'failed', error } as GitSyncResult
+        })
+      }, delayMs)
+    },
+
+    settled() {
+      return lastFlush ?? Promise.resolve(null)
+    }
+  }
+}
+
+const defaultScheduler = createDebouncedGitSync()
 
 /**
  * Schedule a debounced git sync. Multiple calls within {@link DEBOUNCE_MS}
- * are coalesced into a single commit. The commit message is inferred from
- * actual git status rather than the caller.
+ * are coalesced into a single commit.
  */
 export function scheduleGitSync(label: string, context?: SyncContext): void {
-  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
-    console.log('⏭️  Git sync scheduling skipped via STRAPI_DISABLE_GIT_SYNC')
-    return
-  }
+  defaultScheduler.schedule(label, context)
+}
 
-  if (pendingSyncTimer) clearTimeout(pendingSyncTimer)
-  latestContext = context
-
-  pendingSyncTimer = setTimeout(() => {
-    pendingSyncTimer = null
-    const ctx = latestContext
-    latestContext = undefined
-    flushGitSync(label, ctx).catch((err) =>
-      console.error(`[gitSync] Flush error:`, err)
-    )
-  }, DEBOUNCE_MS)
+/** The most recent scheduled flush. Lets callers observe the outcome. */
+export function settledGitSync(): Promise<GitSyncResult | null> {
+  return defaultScheduler.settled()
 }
 
 /**
@@ -300,11 +461,12 @@ export function scheduleGitSync(label: string, context?: SyncContext): void {
  */
 export async function gitCommitAndPush(
   filepath: string | string[],
-  message: string
-): Promise<void> {
-  if (process.env.STRAPI_DISABLE_GIT_SYNC === 'true') {
+  message: string,
+  deps: GitSyncDeps = defaultGitSyncDeps
+): Promise<GitSyncResult> {
+  if (isGitSyncDisabled()) {
     console.log('⏭️  Git sync commit skipped via STRAPI_DISABLE_GIT_SYNC')
-    return
+    return { outcome: 'skipped', reason: 'disabled' }
   }
 
   const repoRoot = getTargetRepoRoot()
@@ -313,8 +475,8 @@ export async function gitCommitAndPush(
     .map((fp) => toGitPath(repoRoot, fp))
     .filter((p): p is string => Boolean(p))
 
-  const uploadsDir = path.join(repoRoot, 'public', 'uploads', 'img', 'original')
-  if (fs.existsSync(uploadsDir)) {
+  const uploadsDir = path.join(repoRoot, UPLOADS_DIR)
+  if (deps.fileExists(uploadsDir)) {
     const uploadsPath = toGitPath(repoRoot, uploadsDir)
     if (uploadsPath) normalizedPaths.push(uploadsPath)
   }
@@ -322,8 +484,8 @@ export async function gitCommitAndPush(
   const paths = quoteGitPaths(normalizedPaths)
   if (paths.length === 0) {
     console.log('[gitSync] No valid paths to stage')
-    return
+    return { outcome: 'skipped', reason: 'no-valid-paths' }
   }
 
-  await commitAndPush(repoRoot, paths, message)
+  return commitAndPush(repoRoot, paths, message, deps)
 }

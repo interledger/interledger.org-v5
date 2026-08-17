@@ -158,12 +158,23 @@ export {
 // Block serialization (dynamic-zone content -> MDX)
 export { serializeContent, validateContentBlocks } from '../serializers/blocks'
 
-// Git sync
+// Git sync after publish
 export {
   type SyncContext,
+  type GitSyncResult,
+  type GitSyncSkipReason,
+  type GitSyncDeps,
+  type GitExec,
+  type DebouncedGitSync,
+  GitCommandError,
+  defaultGitSyncDeps,
+  isGitSyncDisabled,
   getTargetRepoRoot,
   validateGitSyncRepoOnStartup,
+  runGitSync,
+  createDebouncedGitSync,
   scheduleGitSync,
+  settledGitSync,
   gitCommitAndPush
 } from './gitSync'
 
