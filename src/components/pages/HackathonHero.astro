@@ -2,11 +2,11 @@
 /**
  * Two-column hackathon microsite hero: logo + copy on the left, image filling
  * the right grid cell. Purple band and apricot description are fixed for this
- * microsite. The CTA is the shared LinkButton — dark-mode apricot lands later.
+ * microsite. The CTA is the shared LinkButton with no icon — CtaButtons
+ * always adds an arrow on internal links.
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import Icon from '@/components/shared/Icon.astro'
 import HackathonLogo from '@/components/logos/HackathonLogo.astro'
 import { buildUmamiAttrs, useTranslations, type Locale } from '@/utils'
 
@@ -65,28 +65,28 @@ const ctaUmami = cta
 <section
   data-component="HackathonHero"
   data-umami-component="hackathon-hero"
-  class="flex min-h-[calc(100vh-var(--site-header-height))] items-center bg-royal-purple-100 text-neutral-0 desktop:min-h-[calc(100vh-var(--site-header-height-desktop))]"
+  class="flex min-h-[calc(100vh-var(--site-header-height))] items-start bg-royal-purple-100 text-neutral-0 tablet:min-h-[calc(80vh-var(--site-header-height))] tablet:items-center desktop:min-h-[calc(100vh-var(--site-header-height-desktop))]"
   aria-labelledby="hackathon-hero-title"
 >
   <div
     class:list={[
-      'mx-auto grid w-full max-w-wide items-center gap-3xl px-lg py-3xl tablet:px-xl tablet:py-4xl desktop:px-5xl desktop:py-5xl',
+      'mx-auto grid w-full max-w-wide items-center gap-3xl px-xl pt-xl pb-3xl tablet:py-5xl desktop:px-5xl',
       hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : ''
     ]}
   >
     <div
       class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100"
     >
-      <HackathonLogo class="mb-4xl" />
+      <HackathonLogo class="mb-3xl" />
       <h1
         id="hackathon-hero-title"
-        class="text-h1 font-extrabold text-neutral-0"
+        class="!text-h2 !font-extrabold text-neutral-0 tablet:!text-h2-md"
       >
         {title}
       </h1>
       {
         description && (
-          <p class="mt-xl whitespace-pre-line text-h5-lg text-apricot-100">
+          <p class="mt-xl whitespace-pre-line text-h5 text-apricot-100 tablet:text-h5-md desktop:text-h5-lg">
             {description}
           </p>
         )
@@ -102,7 +102,6 @@ const ctaUmami = cta
               {...ctaUmami}
             >
               {cta.text}
-              <Icon name="arrow-right" slot="icon-right" />
             </LinkButton>
           </nav>
         )
