@@ -2629,7 +2629,8 @@ describe('buildHackathonPagePayload', () => {
           text: '<register_your_interest>',
           link: 'https://interledger.app/signup',
           style: 'primary',
-          external: true
+          external: true,
+          document: false
         }
       })
     })
