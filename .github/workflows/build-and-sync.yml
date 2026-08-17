@@ -1,0 +1,33 @@
+name: Build and Sync
+# Manual on-demand rebuild of the Strapi CMS plus a content/navigation/media sync, against one
+# selected branch. Use it to pick up a cms/ change without waiting for the daily scheduled run
+# (scheduled-content-sync.yml), or to recover a VM from a bad prior deploy.
+#
+# Only staging and playground are offered: production has no Strapi instance.
+#
+# The work itself lives in the reusable strapi-rebuild-and-sync workflow, which is shared with the
+# scheduled run — including the concurrency group, so a manual run here queues behind (rather than
+# collides with) a scheduled run on the same VM.
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to build and sync
+        required: true
+        type: choice
+        options:
+          - staging
+          - playground
+
+jobs:
+  build-and-sync:
+    uses: ./.github/workflows/strapi-rebuild-and-sync.yml
+    with:
+      branch: ${{ inputs.branch }}
+      # Always rebuild: someone triggering this by hand wants the build, not a "nothing changed"
+      # early exit.
+      force_rebuild: true
+    # ENV_STRAPI_API_TOKEN resolves from the called job's environment; inherit covers the
+    # repo-level secrets the Slack notification needs.
+    secrets: inherit
