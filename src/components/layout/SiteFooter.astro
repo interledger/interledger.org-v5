@@ -58,11 +58,13 @@ const isActive = (href: string | null | undefined) =>
 const isHackathonSite = site === 'hackathon'
 
 const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
+const footerLogoLinkClass =
+  'inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none'
 ---
 
 <footer
   data-component="SiteFooter"
-  class="bg-ice-mint-50 px-lg tablet:px-xl desktop:px-3xl-tight"
+  class="bg-ice-mint-50 dark:bg-ice-indigo-100 px-lg tablet:px-xl desktop:px-3xl-tight"
   role="contentinfo"
 >
   <div class="mx-auto max-w-wide min-w-[360px]">
@@ -275,9 +277,9 @@ const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 
     <!-- Bottom: copyright, legal links, logo -->
     <div
-      class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center flex flex-col items-center"
+      class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center flex flex-col items-center gap-3xl"
     >
-      <p class="mb-3xl text-body-sm-standard text-neutral-75">
+      <p class="text-body-sm-standard text-neutral-75">
         {t('footer.copyright')}
       </p>
       {
@@ -285,21 +287,21 @@ const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
           <a
             href={hackathonHomeHref}
             aria-label={t('footer.logo_hackathon')}
-            class="inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none"
+            class={footerLogoLinkClass}
             {...footerLink(
               hackathonHomeHref,
               t('footer.logo_hackathon'),
               t('footer.logo_hackathon')
             )}
           >
-            <HackathonLogo class="h-6 w-auto" />
+            <HackathonLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
           </a>
         )
       }
       <a
         href={homeHref}
         aria-label={t('footer.logo_home')}
-        class="inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none"
+        class={footerLogoLinkClass}
         {...footerLink(homeHref, t('footer.logo_home'), t('footer.logo_home'))}
       >
         <InterledgerIcon class="h-10 w-10" />

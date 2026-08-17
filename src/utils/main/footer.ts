@@ -57,7 +57,7 @@ export function getResourcesColumn(
 
   if (site === 'hackathon') {
     return {
-      label: 'Resources',
+      label: t('footer.resources'),
       items: [
         {
           label: t('footer.learn_open_payments'),
@@ -72,7 +72,7 @@ export function getResourcesColumn(
   }
 
   return {
-    label: 'Resources',
+    label: t('footer.resources'),
     items: [
       {
         label: t('footer.terms_service'),
