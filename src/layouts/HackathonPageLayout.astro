@@ -53,9 +53,23 @@ const {
   <MicrositeHeader site="hackathon" slot="header" />
   <TableScrollSupport />
   <div
-    class="flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_[data-prose]_h1]:text-h2-lg [&_[data-prose]_h2]:text-h2 tablet:[&_[data-prose]_h2]:text-h2-md desktop:[&_[data-prose]_h2]:text-h2-lg [&_[data-prose]_h3]:text-h3 [&_[data-prose]_h4]:text-h4 [&_a:not([data-component='LinkButton'])]:text-current [&_a:not([data-component='LinkButton'])]:transition-colors [&_a:not([data-component='LinkButton'])]:duration-slow [&_a:not([data-component='LinkButton']):hover]:text-[hsla(26,100%,76%,1)]"
+    class="hackathon-main flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_[data-prose]_h1]:text-h2-lg [&_[data-prose]_h2]:text-h2 tablet:[&_[data-prose]_h2]:text-h2-md desktop:[&_[data-prose]_h2]:text-h2-lg [&_[data-prose]_h3]:text-h3 [&_[data-prose]_h4]:text-h4"
   >
     <slot />
   </div>
   <FoundationFooter site="hackathon" slot="footer" />
 </BaseLayout>
+
+<style>
+  /* Body links only — LinkButton keeps its own palette. :global because
+     anchors live in child components, not this file. */
+  .hackathon-main :global(a:not([data-component='LinkButton'])) {
+    color: currentColor;
+    transition-property: color;
+    transition-duration: 300ms;
+  }
+
+  .hackathon-main :global(a:not([data-component='LinkButton']):hover) {
+    color: hsla(26, 100%, 76%, 1);
+  }
+</style>
