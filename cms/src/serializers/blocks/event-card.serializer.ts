@@ -176,10 +176,9 @@ export function serialize(block: {
   const fieldErrors = validateEventCard(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  const open =
-    block.title?.trim()
-      ? `<EventCard title="${esc(block.title.trim())}">`
-      : '<EventCard>'
+  const open = block.title?.trim()
+    ? `<EventCard title="${esc(block.title.trim())}">`
+    : '<EventCard>'
 
   const parts = [serializeWhen(block.when!), serializeWhere(block.where!)]
   if (block.apply) parts.push(serializeApply(block.apply))
