@@ -60,12 +60,12 @@ src/styles/
 
 Runtime tokens in `base/variables.css`:
 
-| Token | Light | Dark |
-| --- | --- | --- |
-| `--color-heading` | neutral-900 | neutral-0 |
-| `--color-prose` | neutral-100 | neutral-50 |
-| `--color-text` | (unset / chrome) | white |
-| `--color-bg` | (unset) | neutral-150 |
+| Token             | Light            | Dark        |
+| ----------------- | ---------------- | ----------- |
+| `--color-heading` | neutral-900      | neutral-0   |
+| `--color-prose`   | neutral-100      | neutral-50  |
+| `--color-text`    | (unset / chrome) | white       |
+| `--color-bg`      | (unset)          | neutral-150 |
 
 Prose (`components/prose/default.css`) reads `--color-heading` and
 `--color-prose` under `@variant dark`, so summit and hackathon pick up
