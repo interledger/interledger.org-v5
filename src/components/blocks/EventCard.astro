@@ -4,7 +4,7 @@
  *
  * One card per use (no multi-card grid). When Apply is omitted, When and Where
  * expand across the available width (INTORG-891). Optional `title` sits above
- * the columns.
+ * the card, not inside the bordered surface.
  *
  * Strapi preview passes structured `when` / `where` / `apply` props.
  * MDX authoring passes <EventWhen>, <EventWhere>, and optional <EventApply>
@@ -53,6 +53,9 @@ const t = useTranslations(routeLocale)
 const fromStrapi = Boolean(when && where)
 const hasApply = Boolean(apply?.primaryCta?.text && apply?.primaryCta?.link)
 const heading = title?.trim()
+const headingId = heading
+  ? `event-card-heading-${crypto.randomUUID()}`
+  : undefined
 
 // Populate gaps (e.g. preview missing nested when/where) must not paint an
 // empty bordered shell. MDX authoring always has default-slot children.
@@ -63,82 +66,90 @@ if (!fromStrapi && !Astro.slots.has('default')) {
 
 <section
   data-component="EventCard"
-  aria-label={heading || t('eventCard.block_label')}
-  class:list={[
-    'mb-6xl w-full rounded-3xl border border-neutral-50 bg-white',
-    'dark:border-neutral-75 dark:bg-neutral-100',
-    'px-lg py-lg tablet:px-xl tablet:py-xl',
-    '[&_h3]:!m-0 [&_h3]:!text-h3-lg',
-    'dark:[&_h3]:!text-neutral-0',
-    '[&_p]:!m-0',
-    '[&_[data-event-meta]]:!text-h4-lg',
-    '[&_[data-event-copy]]:!text-h5',
-    '[&_[data-event-copy]_p]:!text-h5',
-    'dark:[&_[data-event-meta]]:!text-neutral-0',
-    'dark:[&_[data-event-copy]]:!text-neutral-0',
-    'dark:[&_[data-event-copy]_p]:!text-neutral-0',
-    '[&_ul]:!m-0 [&_ul]:!p-0 [&_ul]:!ps-0',
-    '[&_li]:!m-0 [&_li]:!mb-0',
-    '[&_[data-component=LinkButton]]:!no-underline',
-    '[&_[data-component=LinkButton]:hover]:!no-underline'
-  ]}
+  aria-label={heading ? undefined : t('eventCard.block_label')}
+  aria-labelledby={headingId}
+  class="mb-6xl w-full"
 >
   {
-    heading && (
-      <h2 class="mb-xl mt-0 text-h4-lg font-normal text-neutral-100 dark:text-neutral-0">
+    heading && headingId && (
+      <h2
+        id={headingId}
+        class="!mb-2xl mt-0 text-h2 font-semibold text-neutral-100 dark:text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
+      >
         {heading}
       </h2>
     )
   }
   <div
     class:list={[
-      'event-card-grid grid',
-      '[&>[data-event-column]:not(:last-child)]:border-b',
-      '[&>[data-event-column]:not(:last-child)]:border-neutral-50',
-      'dark:[&>[data-event-column]:not(:last-child)]:border-neutral-75',
-      '[&>[data-event-column]:not(:last-child)]:pb-xl',
-      '[&>[data-event-column]:not(:first-child)]:pt-xl',
-      'tablet:[&>[data-event-column]:not(:last-child)]:border-b-0',
-      'tablet:[&>[data-event-column]:not(:last-child)]:pb-0',
-      'tablet:[&>[data-event-column]:not(:first-child)]:pt-0',
-      'tablet:[&>[data-event-column]+[data-event-column]]:border-s',
-      'tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-50',
-      'dark:tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-75',
-      'tablet:[&>[data-event-column]]:px-xl',
-      'tablet:[&>[data-event-column]:first-child]:ps-0',
-      'tablet:[&>[data-event-column]+[data-event-column]]:ps-2xl',
-      'tablet:[&>[data-event-column]:last-child]:pe-0'
+      'rounded-3xl border border-neutral-50 bg-white',
+      'dark:border-neutral-75 dark:bg-neutral-100',
+      'px-xl py-xl',
+      '[&_h3]:!m-0 [&_h3]:!text-h3 tablet:[&_h3]:!text-h3-md desktop:[&_h3]:!text-h3-lg',
+      'dark:[&_h3]:!text-neutral-0',
+      '[&_p]:!m-0',
+      '[&_[data-event-meta]]:!text-h4 tablet:[&_[data-event-meta]]:!text-h4-md desktop:[&_[data-event-meta]]:!text-h4-lg',
+      '[&_[data-event-copy]]:!text-h5',
+      '[&_[data-event-copy]_p]:!text-h5',
+      'dark:[&_[data-event-meta]]:!text-neutral-0',
+      'dark:[&_[data-event-copy]]:!text-neutral-0',
+      'dark:[&_[data-event-copy]_p]:!text-neutral-0',
+      '[&_ul]:!m-0 [&_ul]:!p-0 [&_ul]:!ps-0',
+      '[&_li]:!m-0 [&_li]:!mb-0',
+      '[&_[data-component=LinkButton]]:!no-underline',
+      '[&_[data-component=LinkButton]:hover]:!no-underline'
     ]}
   >
-    {
-      fromStrapi ? (
-        <>
-          <EventWhen
-            title={when!.title}
-            text={when!.text}
-            date={when!.date}
-            time={when!.time}
-          />
-          <EventWhere
-            title={where!.title}
-            text={where!.text}
-            location={where!.location}
-          />
-          {hasApply && apply && (
-            <EventApply
-              title={apply.title}
-              text={apply.text}
-              buttonText={apply.primaryCta.text}
-              buttonUrl={apply.primaryCta.link}
-              buttonExternal={apply.primaryCta.external}
-              buttonDocument={apply.primaryCta.document}
+    <div
+      class:list={[
+        'event-card-grid grid',
+        '[&>[data-event-column]:not(:last-child)]:border-b',
+        '[&>[data-event-column]:not(:last-child)]:border-neutral-50',
+        'dark:[&>[data-event-column]:not(:last-child)]:border-neutral-75',
+        '[&>[data-event-column]:not(:last-child)]:pb-xl',
+        '[&>[data-event-column]:not(:first-child)]:pt-xl',
+        'tablet:[&>[data-event-column]:not(:last-child)]:border-b-0',
+        'tablet:[&>[data-event-column]:not(:last-child)]:pb-0',
+        'tablet:[&>[data-event-column]:not(:first-child)]:pt-0',
+        'tablet:[&>[data-event-column]+[data-event-column]]:border-s',
+        'tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-50',
+        'dark:tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-75',
+        'tablet:[&>[data-event-column]]:px-xl',
+        'tablet:[&>[data-event-column]:first-child]:ps-0',
+        'tablet:[&>[data-event-column]+[data-event-column]]:ps-2xl',
+        'tablet:[&>[data-event-column]:last-child]:pe-0'
+      ]}
+    >
+      {
+        fromStrapi ? (
+          <>
+            <EventWhen
+              title={when!.title}
+              text={when!.text}
+              date={when!.date}
+              time={when!.time}
             />
-          )}
-        </>
-      ) : (
-        <slot />
-      )
-    }
+            <EventWhere
+              title={where!.title}
+              text={where!.text}
+              location={where!.location}
+            />
+            {hasApply && apply && (
+              <EventApply
+                title={apply.title}
+                text={apply.text}
+                buttonText={apply.primaryCta.text}
+                buttonUrl={apply.primaryCta.link}
+                buttonExternal={apply.primaryCta.external}
+                buttonDocument={apply.primaryCta.document}
+              />
+            )}
+          </>
+        ) : (
+          <slot />
+        )
+      }
+    </div>
   </div>
 </section>
 

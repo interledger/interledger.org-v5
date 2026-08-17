@@ -25,10 +25,10 @@ const {
 const hasText = Boolean(text) || Astro.slots.has('default')
 ---
 
-<div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">
+<div class="flex min-w-0 flex-col gap-xl" data-event-column="apply">
   {
     title && (
-      <h3 class="m-0 font-poppins text-h3-lg text-neutral-100 dark:text-neutral-0">
+      <h3 class="m-0 font-poppins text-h3 text-neutral-100 dark:text-neutral-0 tablet:text-h3-md desktop:text-h3-lg">
         {title}
       </h3>
     )

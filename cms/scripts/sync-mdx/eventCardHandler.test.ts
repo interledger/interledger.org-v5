@@ -179,5 +179,4 @@ Early arrival for speakers.
       component: 'EventApply'
     })
   })
-
 })

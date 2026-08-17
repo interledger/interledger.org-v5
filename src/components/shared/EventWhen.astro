@@ -19,9 +19,9 @@ const t = useTranslations(routeLocale)
 const hasText = Boolean(text) || Astro.slots.has('default')
 ---
 
-<div class="flex min-w-0 flex-col gap-lg" data-event-column="when">
+<div class="flex min-w-0 flex-col gap-xl" data-event-column="when">
   <h3
-    class="m-0 font-poppins text-h3-lg text-neutral-100 dark:text-neutral-0"
+    class="m-0 font-poppins text-h3 text-neutral-100 dark:text-neutral-0 tablet:text-h3-md desktop:text-h3-lg"
   >
     {title}
   </h3>
@@ -39,14 +39,17 @@ const hasText = Boolean(text) || Astro.slots.has('default')
 
   {
     (date || time) && (
-      <ul class="m-0 flex list-none flex-col gap-md p-0">
+      <ul class="m-0 flex list-none flex-col gap-xl p-0">
         {date && (
           <li class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0">
             <Icon
               name="calendar"
-              class="size-8 shrink-0 text-neutral-75 dark:text-neutral-0"
+              class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
             />
-            <span data-event-meta class="font-poppins text-h4-lg">
+            <span
+              data-event-meta
+              class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
+            >
               <span class="sr-only">{t('eventCard.dateLabel')}: </span>
               {date}
             </span>
@@ -56,9 +59,12 @@ const hasText = Boolean(text) || Astro.slots.has('default')
           <li class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0">
             <Icon
               name="clock"
-              class="size-8 shrink-0 text-neutral-75 dark:text-neutral-0"
+              class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
             />
-            <span data-event-meta class="font-poppins text-h4-lg">
+            <span
+              data-event-meta
+              class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
+            >
               <span class="sr-only">{t('eventCard.timeLabel')}: </span>
               {time}
             </span>
