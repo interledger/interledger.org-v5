@@ -2,11 +2,11 @@
 /**
  * Two-column hackathon microsite hero: logo + copy on the left, image filling
  * the right grid cell. Purple band and apricot description are fixed for this
- * microsite; the primary CTA colour is forced apricot here until INTORG-1072
- * lands shared dark-mode button tokens.
+ * microsite. The CTA is the shared LinkButton — dark-mode apricot lands later.
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
 import HackathonLogo from '@/components/logos/HackathonLogo.astro'
 import { buildUmamiAttrs, useTranslations, type Locale } from '@/utils'
 
@@ -97,13 +97,12 @@ const ctaUmami = cta
             <LinkButton
               href={cta.link}
               variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-              mode="dark"
               external={cta.external}
-              class="w-full text-royal-purple-150 hover:text-royal-purple-150 tablet:w-auto"
-              style="--color-button-primary: var(--color-apricot-100); --color-button-primary-hover: var(--color-apricot-150); --color-button-primary-disabled: var(--color-apricot-50);"
+              class="w-full tablet:w-auto"
               {...ctaUmami}
             >
               {cta.text}
+              <Icon name="arrow-right" slot="icon-right" />
             </LinkButton>
           </nav>
         )
@@ -155,11 +154,3 @@ const ctaUmami = cta
     }
   </div>
 </section>
-
-<style>
-  /* HackathonPageLayout tints every descendant <a>. Keep the apricot CTA
-     readable (dark text) instead of inheriting that chrome colour. */
-  [data-component='HackathonHero'] [data-component='LinkButton'] {
-    color: var(--color-royal-purple-150);
-  }
-</style>

@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
-import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
@@ -24,12 +23,7 @@ import CardGrid from '@/components/blocks/CardGrid.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
 import HackathonHero from '@/components/pages/HackathonHero.astro'
-import {
-  type Locale,
-  useTranslations,
-  buildSectionEntryBreadcrumbs,
-  isDemoPathSlug
-} from '@/utils'
+import { type Locale, isDemoPathSlug } from '@/utils'
 
 interface Props {
   slug: string
@@ -38,8 +32,6 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
 
 const pages = await getCollection('hackathon-pages')
 const entry = pages.find(
@@ -62,19 +54,6 @@ const {
   heroImageMobileAlt,
   heroCtas
 } = entry.data
-const hasHero = Boolean(heroTitle?.trim())
-
-// hackathon-pages is a fixed-section collection (no `section` frontmatter
-// field, unlike the cross-section faq/report/profile collections) — every
-// entry belongs to the hackathon microsite, so the section is hardcoded here.
-const breadcrumbs = buildSectionEntryBreadcrumbs(
-  entry.data.pathSlug,
-  'hackathon',
-  title,
-  routeLocale,
-  t('nav.home')
-)
-const showBreadcrumbs = entry.data.pathSlug !== 'overview'
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 ---
 
@@ -82,31 +61,19 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
   <main
     class="hackathon-content flex flex-col pb-5xl text-neutral-50 tablet:pb-6xl desktop:pb-7xl"
   >
-    {
-      hasHero && (
-        <HackathonHero
-          title={heroTitle!}
-          description={heroDescription}
-          image={heroImage}
-          imageAlt={heroImageAlt}
-          imageMobile={heroImageMobile}
-          imageMobileAlt={heroImageMobileAlt}
-          cta={heroCtas?.[0]}
-          pageLang={contentLocale}
-        />
-      )
-    }
+    <HackathonHero
+      title={heroTitle ?? title}
+      description={heroDescription}
+      image={heroImage}
+      imageAlt={heroImageAlt}
+      imageMobile={heroImageMobile}
+      imageMobileAlt={heroImageMobileAlt}
+      cta={heroCtas?.[0]}
+      pageLang={contentLocale}
+    />
     <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
         <TranslationDisclaimer isVisible={isFallback} />
-        {showBreadcrumbs && <Breadcrumbs breadcrumbs={breadcrumbs} />}
-        {
-          !hasHero && (
-            <h1 class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg">
-              {title}
-            </h1>
-          )
-        }
         <div
           data-prose
           class="[&_h1]:text-neutral-0 [&_h2]:mb-xl [&_h2]:text-h2 [&_h2]:font-semibold [&_h2]:text-neutral-0 tablet:[&_h2]:text-h2-md desktop:[&_h2]:text-h2-lg [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_h3]:text-neutral-0 [&_h4]:text-neutral-0 [&_h5]:text-neutral-0 [&_h6]:text-neutral-0 [&_p]:mb-xl [&_p]:leading-[1.6] [&_p]:text-neutral-50 [&_ul]:mb-xl [&_ul]:ps-2xl [&_ul_li]:mb-lg [&_a:not([data-component='LinkButton'])]:underline [&_a:not([data-component='LinkButton']):hover]:no-underline"
@@ -145,9 +112,6 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
   .hackathon-content {
     color: var(--color-neutral-50);
   }
-
-  /* MDX paragraphs are not scoped to this file, so :global is required.
-     Scoped to [data-prose] so the hero description stays apricot. */
   .hackathon-content :global([data-prose] p) {
     color: var(--color-neutral-50);
   }

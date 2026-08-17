@@ -111,19 +111,15 @@ const content = page.content || []
     PREVIEW MODE - This content is not published
   </div>
 
-  {
-    heroTitle && (
-      <HackathonHero
-        title={heroTitle}
-        description={page.hero?.description}
-        image={toSitePath(page.hero?.media?.image?.url)}
-        imageAlt={page.hero?.media?.alternativeText}
-        imageMobile={toSitePath(page.hero?.backgroundImageMobile?.url)}
-        imageMobileAlt={page.hero?.backgroundImageMobile?.alternativeText}
-        cta={resolvedCta}
-      />
-    )
-  }
+  <HackathonHero
+    title={heroTitle || title}
+    description={page.hero?.description}
+    image={toSitePath(page.hero?.media?.image?.url)}
+    imageAlt={page.hero?.media?.alternativeText}
+    imageMobile={toSitePath(page.hero?.backgroundImageMobile?.url)}
+    imageMobileAlt={page.hero?.backgroundImageMobile?.alternativeText}
+    cta={resolvedCta}
+  />
 
   {
     content.length > 0 && (
