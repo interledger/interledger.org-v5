@@ -23,9 +23,13 @@ const HACKATHON_ANIMATION_SECTION_SELECTOR =
   '[data-component="HackathonAnimation"]'
 const CHEVRON_SELECTOR = '.chevron'
 
+type ChevronSide = 'left' | 'right'
+
 type ChevronState = {
   element: HTMLElement
-  offset: number
+  side: ChevronSide
+  /** Fraction of this side's edge distance this chevron travels; 1 = the large chevron, which defines the edge distance itself. */
+  ratio: number
   x: number
   v: number
 }
@@ -35,7 +39,8 @@ type ScrollControllerState = {
   abort: AbortController | null
   rafId: number
   sectionTop: number
-  stageHeight: number
+  /** Live pixel gap from each side's large chevron's resting position to that side's screen edge. */
+  edgeDistance: Record<ChevronSide, number>
   isNear: boolean
   chevrons: ChevronState[]
   lastTickTime: number | null
@@ -46,7 +51,7 @@ const scrollController: ScrollControllerState = {
   abort: null,
   rafId: 0,
   sectionTop: 0,
-  stageHeight: 0,
+  edgeDistance: { left: 0, right: 0 },
   isNear: false,
   chevrons: [],
   lastTickTime: null
@@ -72,19 +77,54 @@ function readChevrons(section: HTMLElement): ChevronState[] {
     .filter((el): el is HTMLElement => el instanceof HTMLElement)
     .map((element) => ({
       element,
-      offset: Number.parseFloat(element.dataset.chevronOffset ?? '0'),
+      side: element.dataset.chevronSide === 'right' ? 'right' : 'left',
+      ratio: Number.parseFloat(element.dataset.chevronRatio ?? '0'),
       x: 0,
       v: 0
     }))
 }
 
-function cacheSectionBounds(section: HTMLElement): void {
-  const rect = section.getBoundingClientRect()
-  scrollController.sectionTop = rect.top + window.scrollY
+/**
+ * Cancels the full-bleed div's natural offset from the viewport edge via
+ * `translate`, whose value is self-referential to this div's own box rather
+ * than a percentage of the (unreliable — see HackathonAnimation.astro)
+ * ancestor width. Must reset to 0 before measuring or a stale shift from a
+ * previous call would be baked into the new reading.
+ */
+function applyFullBleedShift(section: HTMLElement): void {
+  const fullBleed = section.querySelector('.hackathon-fullbleed')
+  if (!(fullBleed instanceof HTMLElement)) return
+
+  fullBleed.style.setProperty('--hackathon-fullbleed-shift', '0px')
+  const { left } = fullBleed.getBoundingClientRect()
+  fullBleed.style.setProperty('--hackathon-fullbleed-shift', `${-left}px`)
+}
+
+/** Pixel gap from a side's large chevron's resting edge to that side's screen edge. */
+function measureEdgeDistance(section: HTMLElement, side: ChevronSide): number {
+  const large = section.querySelector(
+    `[data-chevron-side="${side}"][data-chevron-size="large"]`
+  )
+  if (!(large instanceof HTMLElement)) return 0
 
   const stage = section.querySelector('.hackathon-animation-stage')
-  scrollController.stageHeight =
-    stage instanceof HTMLElement ? stage.offsetHeight : section.offsetHeight
+  const stageWidth =
+    stage instanceof HTMLElement ? stage.offsetWidth : section.offsetWidth
+
+  return side === 'left'
+    ? large.offsetLeft
+    : stageWidth - (large.offsetLeft + large.offsetWidth)
+}
+
+function cacheSectionBounds(section: HTMLElement): void {
+  applyFullBleedShift(section)
+
+  const rect = section.getBoundingClientRect()
+  scrollController.sectionTop = rect.top + window.scrollY
+  scrollController.edgeDistance = {
+    left: measureEdgeDistance(section, 'left'),
+    right: measureEdgeDistance(section, 'right')
+  }
 }
 
 function clearInlineStyles(): void {
@@ -95,21 +135,33 @@ function clearInlineStyles(): void {
   }
 }
 
-/** View progress across the section's scroll through the viewport, clamped 0–1. */
+/**
+ * View progress from 0 (section top at the bottom edge of the viewport) to 1
+ * (section top — where the large chevrons' top edge sits — at mid-viewport).
+ * Reaching the midpoint that fast, rather than waiting for the whole section
+ * to pass through, is what makes the chevrons feel fully extended by the
+ * time they're half-scrolled into view.
+ */
 export function getViewProgress(): number {
+  const sectionTopInViewport = scrollController.sectionTop - window.scrollY
   const progress =
-    (window.scrollY + window.innerHeight - scrollController.sectionTop) /
-    (scrollController.sectionHeight + window.innerHeight)
+    (window.innerHeight - sectionTopInViewport) / (window.innerHeight / 2)
   return Math.min(1, Math.max(0, progress))
 }
 
-/** Spring target position for a chevron at the given view progress. */
+/**
+ * Spring target position for a chevron at the given view progress. Left
+ * chevrons travel negative (toward the left edge), right chevrons positive
+ * (toward the right edge); `ratio` of 1 reaches `edgeDistance` exactly.
+ */
 export function getChevronTarget(
   viewProgress: number,
-  offset: number,
-  stageHeight: number
+  side: ChevronSide,
+  ratio: number,
+  edgeDistance: number
 ): number {
-  return viewProgress * offset * stageHeight
+  const direction = side === 'left' ? -1 : 1
+  return viewProgress * ratio * edgeDistance * direction
 }
 
 /** One semi-implicit Euler step of the spring integrator. */
@@ -183,8 +235,9 @@ function tick(time: number): void {
   for (const chevron of scrollController.chevrons) {
     const target = getChevronTarget(
       viewProgress,
-      chevron.offset,
-      scrollController.stageHeight
+      chevron.side,
+      chevron.ratio,
+      scrollController.edgeDistance[chevron.side]
     )
     const next = stepSpring(chevron.x, chevron.v, target, dt)
     chevron.x = next.x
@@ -223,6 +276,16 @@ function attachScrollController(section: HTMLElement): void {
   scrollController.rafId = requestAnimationFrame(tick)
 }
 
+/**
+ * Applies the full-bleed shift independent of the spring controller's
+ * attach/destroy lifecycle — reduced-motion users still need the section to
+ * sit flush against the screen edges, they just skip the scroll spring.
+ */
+function syncFullBleedLayout(): void {
+  const section = getSection()
+  if (section?.isConnected) applyFullBleedShift(section)
+}
+
 function syncScrollController(): void {
   const section = getSection()
   const reducedMotion = getReducedMotionQuery()
@@ -252,28 +315,37 @@ export function initHackathonAnimation(): () => void {
   const abort = new AbortController()
   const { signal } = abort
 
+  const syncAll = (): void => {
+    syncFullBleedLayout()
+    syncScrollController()
+  }
+
   getReducedMotionQuery().addEventListener('change', syncScrollController, {
+    signal
+  })
+  window.addEventListener('resize', syncFullBleedLayout, {
+    passive: true,
     signal
   })
   window.addEventListener('pagehide', () => destroyScrollController(), {
     signal
   })
-  window.addEventListener('pageshow', syncScrollController, { signal })
+  window.addEventListener('pageshow', syncAll, { signal })
 
   document.addEventListener('astro:before-swap', destroyScrollController, {
     signal
   })
-  document.addEventListener('astro:page-load', syncScrollController, {
+  document.addEventListener('astro:page-load', syncAll, {
     signal
   })
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncScrollController, {
+    document.addEventListener('DOMContentLoaded', syncAll, {
       once: true,
       signal
     })
   } else {
-    syncScrollController()
+    syncAll()
   }
 
   const cleanup = (): void => {
