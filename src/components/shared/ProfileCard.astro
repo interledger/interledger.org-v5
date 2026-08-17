@@ -41,10 +41,11 @@ const umamiBase = {
 }
 ---
 
-<article class="text-center">
+<article class="text-center" data-component="ProfileCard">
   <a
     href={profileLink}
-    class="text-black no-underline"
+    data-component="ProfileCard"
+    class="text-neutral-900 no-underline hover:no-underline dark:text-neutral-0"
     {...buildUmamiAttrs({
       ...umamiBase,
       href: profileLink,
@@ -71,12 +72,12 @@ const umamiBase = {
       }
     </div>
     <div class="max-w-100 mx-auto mt-xl">
-      <h3 class="text-h4 md:text-h4-md lg:text-h4-lg text-neutral-900 mb-sm">
+      <h3 class="mb-sm text-h4 font-normal text-neutral-900 tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0">
         {name}
       </h3>
       {
         tagline && (
-          <p class="text-body-lg-standard md:text-body-lg-standard-md mb-xl">
+          <p class="mb-xl text-body-lg-standard text-neutral-100 tablet:text-body-lg-standard-md dark:text-neutral-50">
             {tagline}
           </p>
         )
@@ -84,3 +85,10 @@ const umamiBase = {
     </div>
   </a>
 </article>
+
+<style>
+  :global([data-prose] a[data-component='ProfileCard']),
+  :global([data-prose] a[data-component='ProfileCard']:hover) {
+    text-decoration-line: none;
+  }
+</style>

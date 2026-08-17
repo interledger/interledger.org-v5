@@ -133,12 +133,20 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
   }
 
   .hackathon-content
-    :global([data-prose] a:not([data-component='LinkButton'])) {
+    :global(
+      [data-prose]
+        a:not([data-component='LinkButton']):not([data-component='ProfileCard'])
+    ) {
     text-decoration-line: underline;
   }
 
   .hackathon-content
-    :global([data-prose] a:not([data-component='LinkButton']):hover) {
+    :global(
+      [data-prose]
+        a:not([data-component='LinkButton']):not(
+          [data-component='ProfileCard']
+        ):hover
+    ) {
     text-decoration-line: none;
   }
 </style>
