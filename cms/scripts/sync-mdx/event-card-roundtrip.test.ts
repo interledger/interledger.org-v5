@@ -22,8 +22,10 @@ describe('EventCard round-trip (serialize → parse)', () => {
         location: 'Mexico City',
         text: 'Main auditorium.'
       },
+      title: 'Upcoming',
       apply: {
         title: 'Apply',
+        text: 'A 24h hackathon for students.',
         primaryCta: {
           text: 'Apply today',
           link: '/grants/apply',

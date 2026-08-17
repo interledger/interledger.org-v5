@@ -533,6 +533,12 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     when: Schema.Attribute.Component<'blocks.event-card-when', false> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -553,7 +559,7 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
 export interface BlocksEventCardApply extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_card_applies'
   info: {
-    description: 'Application, registration, or interest actions (title and primary CTA required)'
+    description: 'Application, registration, or interest actions (primary CTA required; title and text optional)'
     displayName: 'Event Card \u2014 Apply'
     icon: 'cursor'
   }
@@ -565,8 +571,13 @@ export interface BlocksEventCardApply extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

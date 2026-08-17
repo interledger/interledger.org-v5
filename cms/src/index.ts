@@ -1211,6 +1211,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       additionalInfo: 'Additional information (optional)'
     },
     'blocks.event-card': {
+      title: 'Title',
       when: 'When',
       where: 'Where',
       apply: 'Apply'
@@ -1228,6 +1229,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.event-card-apply': {
       title: 'Title',
+      text: 'Text',
       primaryCta: 'Primary CTA button'
     },
 
@@ -1489,6 +1491,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
+      title: 'Optional heading shown above the When / Where / Apply columns.',
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
       apply:
@@ -1506,7 +1509,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       location: 'Optional. Venue or address; multi-line text is fine.'
     },
     'blocks.event-card-apply': {
-      title: 'Required. Column heading, e.g. "Apply".',
+      title: 'Optional. Column heading, e.g. "Apply".',
+      text: 'Optional supporting copy shown under the title, above the button.',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     },
@@ -1845,6 +1849,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'additionalInfo', size: 12 }]
     ],
     'blocks.event-card': [
+      [{ name: 'title', size: 12 }],
       [{ name: 'when', size: 12 }],
       [{ name: 'where', size: 12 }],
       [{ name: 'apply', size: 12 }]
@@ -1864,6 +1869,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.event-card-apply': [
       [{ name: 'title', size: 12 }],
+      [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
     ],
     'blocks.image-row': [

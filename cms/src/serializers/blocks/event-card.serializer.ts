@@ -20,6 +20,7 @@ interface EventCardWhere {
 
 interface EventCardApply {
   title?: string
+  text?: string
   primaryCta?: {
     text?: string
     link?: string
@@ -78,13 +79,6 @@ function validateEventApply(
   if (!apply) return []
 
   const fieldErrors: FieldError[] = []
-
-  if (!apply.title?.trim()) {
-    fieldErrors.push({
-      message: 'Event card Apply column is missing a title',
-      path: ['apply', 'title']
-    })
-  }
 
   if (!apply.primaryCta) {
     fieldErrors.push({
@@ -162,17 +156,19 @@ function serializeWhere(where: EventCardWhere): string {
 function serializeApply(apply: EventCardApply): string {
   const cta = apply.primaryCta!
   const attrs = [
-    `title="${esc(apply.title!.trim())}"`,
     `buttonText="${esc(cta.text!.trim())}"`,
     `buttonUrl="${esc(cta.link!.trim())}"`
   ]
+  if (apply.title?.trim()) attrs.unshift(`title="${esc(apply.title.trim())}"`)
   if (cta.external) attrs.push('buttonExternal={true}')
   if (cta.document) attrs.push('buttonDocument={true}')
-  // Apply has no optional body text — title + primary CTA only.
-  return `<EventApply ${attrs.join(' ')} />`
+  const body = serializeOptionalTextBody(apply.text)
+  if (!body) return `<EventApply ${attrs.join(' ')} />`
+  return `<EventApply ${attrs.join(' ')}>${body}</EventApply>`
 }
 
 export function serialize(block: {
+  title?: string
   when?: EventCardWhen
   where?: EventCardWhere
   apply?: EventCardApply | null
@@ -180,9 +176,13 @@ export function serialize(block: {
   const fieldErrors = validateEventCard(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  // Validation guarantees when/where (and apply fields when present).
+  const open =
+    block.title?.trim()
+      ? `<EventCard title="${esc(block.title.trim())}">`
+      : '<EventCard>'
+
   const parts = [serializeWhen(block.when!), serializeWhere(block.where!)]
   if (block.apply) parts.push(serializeApply(block.apply))
 
-  return `<EventCard>\n\n${parts.join('\n\n')}\n\n</EventCard>`
+  return `${open}\n\n${parts.join('\n\n')}\n\n</EventCard>`
 }

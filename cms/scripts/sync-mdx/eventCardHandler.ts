@@ -6,13 +6,12 @@
  *     <EventWhen title="…" date="…" time="…">optional text</EventWhen>
  *     <EventWhere title="…" location="…">optional text</EventWhere>
  *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool}
- *       buttonDocument={bool} />
+ *       buttonDocument={bool}>optional text</EventApply>
  *   </EventCard>
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
- * optional. Optional body text is only on When/Where (JSX children). Apply is
- * self-closing only: title + CTA attrs — children are rejected so MDX authors
- * who mirror When/Where body copy do not lose content silently on sync.
+ * optional. Optional body text is JSX children on When, Where, and Apply.
+ * EventCard `title` and EventApply `title` are optional.
  */
 
 import type {
@@ -67,24 +66,12 @@ function parseWhere(node: JsxBlockNode): EventCardWhere {
 }
 
 function parseApply(node: JsxBlockNode): EventCardApply {
-  const childrenText = optionalChildrenText(node)
-  if (childrenText !== undefined) {
-    throw new MdxParserError({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      message:
-        'EventApply accepts only title, buttonText, buttonUrl, buttonExternal, and buttonDocument attributes — no children. Use a self-closing tag; there is no Apply body text field.',
-      component: 'EventApply',
-      prop: 'children',
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
-  }
-
-  const title = getStringAttr(node, 'title', { required: true })
+  const title = getStringAttr(node, 'title')
   const buttonText = getStringAttr(node, 'buttonText', { required: true })
   const buttonUrl = getStringAttr(node, 'buttonUrl', { required: true })
   const buttonExternal = getBooleanAttr(node, 'buttonExternal')
   const buttonDocument = getBooleanAttr(node, 'buttonDocument')
+  const text = optionalChildrenText(node)
 
   if (
     hasConflictingCtaFlags({
@@ -103,8 +90,7 @@ function parseApply(node: JsxBlockNode): EventCardApply {
     })
   }
 
-  return {
-    title,
+  const apply: EventCardApply = {
     primaryCta: {
       text: buttonText,
       link: buttonUrl,
@@ -112,6 +98,9 @@ function parseApply(node: JsxBlockNode): EventCardApply {
       document: buttonDocument ?? false
     }
   }
+  if (title !== undefined) apply.title = title
+  if (text !== undefined) apply.text = text
+  return apply
 }
 
 async function handleEventCard(
@@ -158,11 +147,13 @@ async function handleEventCard(
       })
     }
 
+    const cardTitle = getStringAttr(node, 'title')
     const block: EventCardBlock = {
       __component: 'blocks.event-card',
       when: parseWhen(whenNodes[0]),
       where: parseWhere(whereNodes[0])
     }
+    if (cardTitle !== undefined) block.title = cardTitle
 
     if (applyNodes.length === 1) {
       block.apply = parseApply(applyNodes[0])

@@ -153,4 +153,12 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     ) {
     text-decoration-line: none;
   }
+
+  .hackathon-content
+    :global([data-component='EventCard'] [data-component='LinkButton']) {
+    --color-button-primary: var(--color-apricot-100);
+    --color-button-primary-hover: var(--color-apricot-150);
+    --color-button-primary-disabled: var(--color-apricot-50);
+    color: var(--color-royal-purple-150);
+  }
 </style>

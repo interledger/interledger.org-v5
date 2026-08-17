@@ -3,7 +3,8 @@
  * Event Card — full-width When / Where / optional Apply columns.
  *
  * One card per use (no multi-card grid). When Apply is omitted, When and Where
- * expand across the available width (INTORG-891).
+ * expand across the available width (INTORG-891). Optional `title` sits above
+ * the columns.
  *
  * Strapi preview passes structured `when` / `where` / `apply` props.
  * MDX authoring passes <EventWhen>, <EventWhere>, and optional <EventApply>
@@ -28,7 +29,8 @@ interface EventWhereData {
 }
 
 interface EventApplyData {
-  title: string
+  title?: string
+  text?: string
   primaryCta: {
     text: string
     link: string
@@ -38,19 +40,19 @@ interface EventApplyData {
 }
 
 interface Props {
+  title?: string
   when?: EventWhenData
   where?: EventWhereData
   apply?: EventApplyData | null
 }
 
-const { when, where, apply } = Astro.props
+const { title, when, where, apply } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const fromStrapi = Boolean(when && where)
-const hasApply = Boolean(
-  apply?.title && apply?.primaryCta?.text && apply?.primaryCta?.link
-)
+const hasApply = Boolean(apply?.primaryCta?.text && apply?.primaryCta?.link)
+const heading = title?.trim()
 
 // Populate gaps (e.g. preview missing nested when/where) must not paint an
 // empty bordered shell. MDX authoring always has default-slot children.
@@ -61,17 +63,20 @@ if (!fromStrapi && !Astro.slots.has('default')) {
 
 <section
   data-component="EventCard"
-  aria-label={t('eventCard.block_label')}
+  aria-label={heading || t('eventCard.block_label')}
   class:list={[
     'mb-6xl w-full rounded-3xl border border-neutral-50 bg-white',
-    'px-xl py-xl tablet:px-2xl tablet:py-2xl',
-    // Summit/Hackathon prose wrappers use [&_h3]/[&_ul]/[&_li]/[&_p]/[&_a]
-    // descendant utilities (specificity 0,1,1) that beat column classes
-    // (0,1,0). Reset at the card root so When/Where/Apply stay self-contained.
-    // Anchors: only neutralize LinkButton CTAs — body links in When/Where
-    // text should still pick up page-level underline styles.
-    '[&_h3]:!m-0 [&_h3]:!text-h3 [&_h3]:tablet:!text-h3-md [&_h3]:desktop:!text-h3-lg',
+    'dark:border-neutral-75 dark:bg-neutral-100',
+    'px-lg py-lg tablet:px-xl tablet:py-xl',
+    '[&_h3]:!m-0 [&_h3]:!text-h3-lg',
+    'dark:[&_h3]:!text-neutral-0',
     '[&_p]:!m-0',
+    '[&_[data-event-meta]]:!text-h4-lg',
+    '[&_[data-event-copy]]:!text-h5',
+    '[&_[data-event-copy]_p]:!text-h5',
+    'dark:[&_[data-event-meta]]:!text-neutral-0',
+    'dark:[&_[data-event-copy]]:!text-neutral-0',
+    'dark:[&_[data-event-copy]_p]:!text-neutral-0',
     '[&_ul]:!m-0 [&_ul]:!p-0 [&_ul]:!ps-0',
     '[&_li]:!m-0 [&_li]:!mb-0',
     '[&_[data-component=LinkButton]]:!no-underline',
@@ -79,31 +84,29 @@ if (!fromStrapi && !Astro.slots.has('default')) {
   ]}
 >
   {
-    /*
-    Mobile: stacked columns with horizontal divider lines between sections.
-    Tablet+: side-by-side columns with vertical rules; When Apply is present,
-    expand to 3 columns.
-  */
+    heading && (
+      <h2 class="mb-xl mt-0 text-h4-lg font-normal text-neutral-100 dark:text-neutral-0">
+        {heading}
+      </h2>
+    )
   }
   <div
     class:list={[
-      'grid grid-cols-1',
-      // Mobile: horizontal rules between When / Where / Apply
+      'event-card-grid grid',
       '[&>[data-event-column]:not(:last-child)]:border-b',
       '[&>[data-event-column]:not(:last-child)]:border-neutral-50',
+      'dark:[&>[data-event-column]:not(:last-child)]:border-neutral-75',
       '[&>[data-event-column]:not(:last-child)]:pb-xl',
       '[&>[data-event-column]:not(:first-child)]:pt-xl',
-      // Tablet+: multi-column, drop horizontal rules, use vertical rules
-      'tablet:grid-cols-2',
-      'tablet:has-[[data-event-column=apply]]:grid-cols-3',
       'tablet:[&>[data-event-column]:not(:last-child)]:border-b-0',
       'tablet:[&>[data-event-column]:not(:last-child)]:pb-0',
       'tablet:[&>[data-event-column]:not(:first-child)]:pt-0',
       'tablet:[&>[data-event-column]+[data-event-column]]:border-s',
       'tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-50',
-      // Column padding when side-by-side; outer edges flush with card padding
+      'dark:tablet:[&>[data-event-column]+[data-event-column]]:border-neutral-75',
       'tablet:[&>[data-event-column]]:px-xl',
       'tablet:[&>[data-event-column]:first-child]:ps-0',
+      'tablet:[&>[data-event-column]+[data-event-column]]:ps-2xl',
       'tablet:[&>[data-event-column]:last-child]:pe-0'
     ]}
   >
@@ -124,6 +127,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
           {hasApply && apply && (
             <EventApply
               title={apply.title}
+              text={apply.text}
               buttonText={apply.primaryCta.text}
               buttonUrl={apply.primaryCta.link}
               buttonExternal={apply.primaryCta.external}
@@ -137,3 +141,19 @@ if (!fromStrapi && !Astro.slots.has('default')) {
     }
   </div>
 </section>
+
+<style>
+  .event-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 810px) {
+    .event-card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .event-card-grid:has(> [data-event-column='apply']) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr);
+    }
+  }
+</style>
