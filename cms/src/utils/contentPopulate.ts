@@ -77,6 +77,13 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.video-embed': {
     populate: { file: true }
   },
+  'blocks.image-block': {
+    populate: {
+      media: { populate: { image: true } },
+      tabletImage: true,
+      mobileImage: true
+    }
+  },
   'blocks.number-tiles': {
     populate: { tiles: true }
   },
@@ -182,7 +189,14 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.quote': {
       populate: { authorImage: true }
     },
-    'blocks.hackathon-animation': {}
+    'blocks.hackathon-animation': {},
+    'blocks.image-block': {
+      populate: {
+        media: { populate: { image: true } },
+        tabletImage: true,
+        mobileImage: true
+      }
+    }
   }
 } as const
 

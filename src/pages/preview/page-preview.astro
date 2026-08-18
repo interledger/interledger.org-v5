@@ -59,7 +59,11 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.cta-buttons][populate][buttons]': '*',
   'populate[content][on][blocks.event-card][populate][when]': '*',
   'populate[content][on][blocks.event-card][populate][where]': '*',
-  'populate[content][on][blocks.event-card][populate][apply][populate]': '*'
+  'populate[content][on][blocks.event-card][populate][apply][populate]': '*',
+  'populate[content][on][blocks.image-block][populate][media][populate]':
+    'image',
+  'populate[content][on][blocks.image-block][populate][tabletImage]': 'true',
+  'populate[content][on][blocks.image-block][populate][mobileImage]': 'true'
 })
 
 const response = await fetchStrapi<FoundationPagePreview>(

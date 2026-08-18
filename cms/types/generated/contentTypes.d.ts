@@ -746,6 +746,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.image-block',
         'blocks.number-tiles',
         'blocks.card-grid',
         'blocks.carousel',
@@ -1094,7 +1095,8 @@ export interface ApiHackathonPageHackathonPage
         'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote',
-        'blocks.hackathon-animation'
+        'blocks.hackathon-animation',
+        'blocks.image-block'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1508,6 +1510,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.cta-strip',
         'blocks.pdf-embed',
         'blocks.video-embed',
+        'blocks.image-block',
         'blocks.number-tiles',
         'blocks.card-grid',
         'blocks.carousel',
