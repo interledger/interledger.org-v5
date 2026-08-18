@@ -24,6 +24,24 @@ const CHEVRON_PATH = {
   small: 'M49.1861 0L0 49.9986L49.1875 100L66 99.9986L16.8153 50L66 0H49.1861Z'
 } as const
 
+/**
+ * Locks each chevron's box to its own viewBox proportions (all ≈0.66,
+ * i.e. width:height) instead of an independent width percentage. The width
+ * classes this replaced were tuned for a fixed-width container; once the
+ * stage became full-bleed (screen-edge to screen-edge), that same
+ * percentage no longer matches the SVG's true aspect ratio at most viewport
+ * widths — with the SVG's default preserveAspectRatio (xMidYMid meet), the
+ * path then gets letterboxed inside its box, showing as empty space between
+ * the box edge and the visible chevron. Deriving width from height via
+ * aspect-ratio instead makes the box's shape always exactly match the path,
+ * at any viewport width, so there's no ratio to drift out of sync.
+ */
+const CHEVRON_ASPECT = {
+  large: 'aspect-[264/400]',
+  medium: 'aspect-[185/280]',
+  small: 'aspect-[66/100]'
+} as const
+
 type ChevronSize = keyof typeof CHEVRON_VIEWBOX
 
 interface ChevronSpec {
@@ -52,8 +70,7 @@ const CHEVRONS: ChevronSpec[] = [
     mirrored: false,
     side: 'left',
     travelRatio: 1,
-    position:
-      'left-[12%] top-0 h-full w-[33.8%] tablet:left-[13.2%] tablet:w-[32.6%] desktop:left-[27.6%] desktop:w-[13.75%]'
+    position: 'left-[12%] top-0 h-full tablet:left-[13.2%] desktop:left-[27.6%]'
   },
   {
     id: 'left-medium',
@@ -63,7 +80,7 @@ const CHEVRONS: ChevronSpec[] = [
     side: 'left',
     travelRatio: 0.6154,
     position:
-      'left-[25.4%] top-[15%] h-[70%] w-[23.8%] tablet:left-[26%] tablet:w-[22.8%] desktop:left-[34.6%] desktop:w-[9.64%]'
+      'left-[25.4%] top-[15%] h-[70%] tablet:left-[26%] desktop:left-[34.6%]'
   },
   {
     id: 'left-small',
@@ -73,7 +90,7 @@ const CHEVRONS: ChevronSpec[] = [
     side: 'left',
     travelRatio: 0.3077,
     position:
-      'left-[39%] top-[37.5%] h-[25%] w-[8.5%] tablet:left-[39%] tablet:w-[8.15%] desktop:left-[41.1%] desktop:w-[3.44%]'
+      'left-[39%] top-[37.5%] h-[25%] tablet:left-[39%] desktop:left-[41.1%]'
   },
   {
     id: 'right-large',
@@ -83,7 +100,7 @@ const CHEVRONS: ChevronSpec[] = [
     side: 'right',
     travelRatio: 1,
     position:
-      'right-[12%] top-0 h-full w-[33.8%] tablet:right-[13.2%] tablet:w-[32.6%] desktop:right-[27.6%] desktop:w-[13.75%]'
+      'right-[12%] top-0 h-full tablet:right-[13.2%] desktop:right-[27.6%]'
   },
   {
     id: 'right-medium',
@@ -93,7 +110,7 @@ const CHEVRONS: ChevronSpec[] = [
     side: 'right',
     travelRatio: 0.5714,
     position:
-      'right-[25.4%] top-[15%] h-[70%] w-[23.8%] tablet:right-[26%] tablet:w-[22.8%] desktop:right-[34.6%] desktop:w-[9.64%]'
+      'right-[25.4%] top-[15%] h-[70%] tablet:right-[26%] desktop:right-[34.6%]'
   },
   {
     id: 'right-small',
@@ -103,7 +120,7 @@ const CHEVRONS: ChevronSpec[] = [
     side: 'right',
     travelRatio: 0.2857,
     position:
-      'right-[39%] top-[37.5%] h-[25%] w-[8.5%] tablet:right-[39%] tablet:w-[8.15%] desktop:right-[41.1%] desktop:w-[3.44%]'
+      'right-[39%] top-[37.5%] h-[25%] tablet:right-[39%] desktop:right-[41.1%]'
   }
 ]
 ---
@@ -153,7 +170,11 @@ const CHEVRONS: ChevronSpec[] = [
       {
         CHEVRONS.map((chevron) => (
           <div
-            class:list={['chevron absolute', chevron.position]}
+            class:list={[
+              'chevron absolute',
+              CHEVRON_ASPECT[chevron.size],
+              chevron.position
+            ]}
             data-chevron-side={chevron.side}
             data-chevron-size={chevron.size}
             data-chevron-ratio={chevron.travelRatio}
