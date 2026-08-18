@@ -1112,6 +1112,12 @@ export interface ApiHackathonPageHackathonPage
           localized: true
         }
       }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',

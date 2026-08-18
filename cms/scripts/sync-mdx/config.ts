@@ -217,6 +217,13 @@ export function buildContentTypes(
               mdx.pathSlug,
               dryRun
             )
+          },
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
           }
         )
       }

@@ -38,6 +38,18 @@
       }
     }
 
+    @variant dark {
+      color: var(--color-prose);
+
+      p {
+        color: var(--color-prose);
+      }
+
+      :is(h1, h2, h3, h4, h5, h6) {
+        color: var(--color-heading);
+      }
+    }
+
     /* Links: visible underline, accent color */
     a {
       color: var(--color-primary);

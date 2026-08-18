@@ -2578,6 +2578,84 @@ describe('buildHackathonPagePayload', () => {
     })
   })
 
+  describe('hero', () => {
+    it('uses frontmatter heroTitle and heroDescription when provided', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          ...baseHackathonPageFrontmatter,
+          heroTitle: 'Build the Future of Finance in 24 hours',
+          heroDescription:
+            "Next Hackathon:\nSep 11-12, '26 – Medellín, Colombia"
+        }
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Build the Future of Finance in 24 hours',
+        description: "Next Hackathon:\nSep 11-12, '26 – Medellín, Colombia"
+      })
+    })
+
+    it('includes a single CTA when heroCtas is set', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: {
+          ...baseHackathonPageFrontmatter,
+          heroTitle: 'Welcome',
+          heroCtas: [
+            {
+              text: '<register_your_interest>',
+              link: 'https://interledger.app/signup',
+              external: true
+            }
+          ]
+        }
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx
+      )
+
+      expect((payload as Record<string, unknown>).hero).toEqual({
+        title: 'Welcome',
+        description: '',
+        hero_call_to_action: {
+          text: '<register_your_interest>',
+          link: 'https://interledger.app/signup',
+          style: 'primary',
+          external: true,
+          document: false
+        }
+      })
+    })
+
+    it('clears the existing hero when no hero fields in frontmatter', async () => {
+      const existingEntry: StrapiEntry = {
+        documentId: '1',
+        pathSlug: 'overview',
+        hero: { title: 'Existing Hero', description: 'Kept intact' }
+      }
+      const mdx = createMdxFile({
+        pathSlug: 'overview',
+        frontmatter: baseHackathonPageFrontmatter
+      })
+
+      const payload = await buildHackathonPagePayload(
+        hackathonPageFrontmatterSchema,
+        mdx,
+        existingEntry
+      )
+
+      expect((payload as Record<string, unknown>).hero).toBeNull()
+    })
+  })
+
   describe('content parsing without parserCtx', () => {
     it('includes MDX body as paragraph content', async () => {
       const mdx = createMdxFile({

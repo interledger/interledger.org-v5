@@ -1,0 +1,29 @@
+---
+/**
+ * Official Open Payments Hackathon secondary lockup (white) used on the hero.
+ * Brand chrome — not a heading (the hero title is the page h1).
+ */
+import { useTranslations } from '@/utils'
+
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const logoAlt = t('hackathonHero.logo.alt')
+---
+
+<div class:list={['hackathon-logo', className]} data-component="HackathonLogo">
+  <img
+    src="/img/hackathon/lockup-secondary-white.svg"
+    alt={logoAlt}
+    width={232}
+    height={70}
+    loading="eager"
+    decoding="async"
+    class="h-auto w-[114px] tablet:w-[123px] desktop:w-[232px]"
+  />
+</div>
