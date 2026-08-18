@@ -39,6 +39,7 @@ export {
 export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
+  HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
@@ -212,6 +213,13 @@ export {
   type HreflangMeta
 } from './main/seoMeta'
 export { isDemoPathSlug, isDemoPathname } from './shared/demoPaths'
+
+// Main site: Footer
+export {
+  socialLinks,
+  type SocialLink,
+  getFooterOnlyColumn
+} from './main/footer'
 
 // Main site: Roadmap (developers tech roadmap timeline)
 export {

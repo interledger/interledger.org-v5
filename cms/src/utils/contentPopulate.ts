@@ -181,7 +181,8 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     },
     'blocks.quote': {
       populate: { authorImage: true }
-    }
+    },
+    'blocks.hackathon-animation': {}
   }
 } as const
 

@@ -3,11 +3,11 @@
  * Hackathon site layout.
  * Dark theme on a neutral-150 page (rgb(13, 13, 13)). Shared blocks keep
  * their existing styles until later PRs add hackathon-specific variants.
- * The shared FoundationFooter stays on its light ice-mint surface.
+ * The shared SiteFooter stays on its light ice-mint surface.
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
-import FoundationFooter from '@/components/layout/FoundationFooter.astro'
+import SiteFooter from '@/components/layout/SiteFooter.astro'
 import HackathonHeader from '@/components/layout/HackathonHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
@@ -57,7 +57,7 @@ const {
   >
     <slot />
   </div>
-  <FoundationFooter site="hackathon" slot="footer" />
+  <SiteFooter site="hackathon" slot="footer" />
 </BaseLayout>
 
 <style>

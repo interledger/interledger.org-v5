@@ -1093,7 +1093,8 @@ export interface ApiHackathonPageHackathonPage
         'blocks.faq',
         'blocks.cta-buttons',
         'blocks.event-card',
-        'blocks.quote'
+        'blocks.quote',
+        'blocks.hackathon-animation'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

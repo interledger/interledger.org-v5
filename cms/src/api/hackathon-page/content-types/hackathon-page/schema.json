@@ -68,7 +68,8 @@
         "blocks.faq",
         "blocks.cta-buttons",
         "blocks.event-card",
-        "blocks.quote"
+        "blocks.quote",
+        "blocks.hackathon-animation"
       ],
       "pluginOptions": {
         "i18n": {
