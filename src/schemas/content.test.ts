@@ -317,7 +317,8 @@ describe('hackathonPageFrontmatterSchema', () => {
     const result = hackathonPageFrontmatterSchema.safeParse({
       ...hackathonPageBase,
       heroTitle: 'Build the Future of Finance in 24 hours',
-      heroDescription: "Next Hackathon:\n16-17 October 2026 – Medellín, Colombia",
+      heroDescription:
+        'Next Hackathon:\n16-17 October 2026 – Medellín, Colombia',
       heroImage: '/img/hackathon/hero.webp',
       heroCtas: [
         {
