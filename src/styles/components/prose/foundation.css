@@ -150,4 +150,37 @@
   [data-prose] tbody tr:last-child > :last-child {
     border-end-end-radius: var(--radius-2xl);
   }
+
+  /* Dark tables: charcoal surface, white type, ocean/purple zebra (same
+     pairing as dark Agenda rows) so the grid stays readable on hackathon. */
+  @variant dark {
+    [data-prose] table {
+      background-color: var(--color-neutral-150);
+    }
+
+    [data-prose] th,
+    [data-prose] td {
+      border-block-end-color: var(--color-neutral-75);
+      border-inline-end-color: var(--color-neutral-75);
+      color: var(--color-neutral-0);
+    }
+
+    [data-prose] :is(th, td):first-child {
+      border-inline-start-color: var(--color-neutral-75);
+    }
+
+    [data-prose] tbody tr:nth-child(odd) > * {
+      background-color: var(--color-ocean-100);
+    }
+
+    [data-prose] tbody tr:nth-child(even) > * {
+      background-color: var(--color-royal-purple-100);
+    }
+
+    [data-prose] thead th {
+      background-color: var(--color-neutral-150);
+      border-top-color: var(--color-neutral-75);
+      color: var(--color-neutral-0);
+    }
+  }
 }
