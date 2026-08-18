@@ -12,8 +12,7 @@ const LOGO_UPLOAD_ID = 42
  */
 const CAROUSEL_PAGE_TYPES: (keyof ContentTypes)[] = [
   'foundation-pages',
-  'summit-pages',
-  'hackathon-pages'
+  'summit-pages'
 ]
 
 function stubStrapi() {
