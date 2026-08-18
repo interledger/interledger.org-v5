@@ -69,7 +69,6 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
       imageMobile={heroImageMobile}
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
-      pageLang={contentLocale}
     />
     <section class="py-4xl">
       <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
@@ -108,12 +107,12 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
 <style>
   /* Spacing / weight only — heading and body colour come from
      [data-theme='dark'] via --color-heading / --color-prose. */
-  .hackathon-content :global([data-prose] h2) {
+  .hackathon-content :global([data-prose] > h2) {
     margin-bottom: var(--spacing-xl);
     font-weight: 600;
   }
 
-  .hackathon-content :global([data-prose] h3) {
+  .hackathon-content :global([data-prose] > h3) {
     margin-top: var(--spacing-2xl);
     margin-bottom: var(--spacing-lg);
     font-weight: 600;
