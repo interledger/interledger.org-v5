@@ -2,38 +2,11 @@ import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
 import { localizeRoute, normalizeBasePath } from './routes'
 import { buildRoutePath } from './translatePath'
-import { CATEGORY_SEGMENT, blogRouteShape } from './tagFilter'
-import { podcastRouteShape } from './podcastPagination'
-import { summitRouteShape } from './summit-talks-speakers'
-import type { PaginatedRouteShape } from './paginatedRouteShape'
+import { CATEGORY_SEGMENT } from './tagFilter'
+import { hasStrippablePageNumber } from './paginatedRouteShape'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
-}
-
-/**
- * Every paginated section on the site registers its shape here (each shape
- * lives next to the pagination code it describes — see PaginatedRouteShape).
- * Adding a new paginated route means adding its shape to its own module and
- * registering it in this one list — nothing else in this file needs to change.
- */
-const PAGINATED_ROUTE_SHAPES: PaginatedRouteShape[] = [
-  blogRouteShape,
-  podcastRouteShape,
-  summitRouteShape
-]
-
-/**
- * True when `slug`'s trailing digit (if any) is safe to treat as a page
- * number, rather than part of a real content pathSlug (e.g. a numeric
- * category name or a summit year) that just happens to look like one.
- */
-function hasStrippablePageNumber(basePath: string, parts: string[]): boolean {
-  const last = parts.at(-1)
-  if (!last || !/^\d+$/.test(last) || Number(last) <= 0) return false
-
-  const shape = PAGINATED_ROUTE_SHAPES.find((s) => s.matches(basePath, parts))
-  return shape ? shape.isValidListingPrefix(parts.slice(0, -1)) : false
 }
 
 /**
