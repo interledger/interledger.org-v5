@@ -136,11 +136,11 @@
  * keep the designed palette instead of charcoal-on-charcoal / apricot hover.
  */
 [data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
-  color: var(--color-primary);
+  color: var(--color-lavender-100);
 }
 
 [data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
-  color: var(--color-orchid-150);
+  color: var(--color-lavender-150);
 }
 
 [data-theme='dark']
@@ -167,13 +167,17 @@
 [data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
-  a {
-  color: var(--color-primary);
+  a,
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  li::before {
+  color: var(--color-lavender-100);
 }
 
 [data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   a:hover {
-  color: var(--color-orchid-150);
+  color: var(--color-lavender-150);
 }
