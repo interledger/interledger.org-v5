@@ -8,7 +8,7 @@ import TitleCard from '@/components/shared/TitleCard.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
-import { parseMarkdown } from '@/utils'
+import { generateSlug, parseMarkdown } from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
@@ -132,7 +132,7 @@ function warnMissingSecondaryCta(
 
 const headingText = title?.trim() || undefined
 const headingId = headingText
-  ? `card-grid-heading-${crypto.randomUUID()}`
+  ? `card-grid-heading-${generateSlug(`${cardGridPath} ${headingText}`) || 'untitled'}`
   : undefined
 ---
 
