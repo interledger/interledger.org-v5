@@ -97,7 +97,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Hackathon', href: '/hackathon' },
+      { name: 'Hackathon', href: '/hackathon/overview' },
       { name: '2025', href: '/hackathon/2025' },
       { name: 'Judges', href: '/hackathon/2025/judges' },
       { name: 'Jane Doe', href: '/hackathon/2025/judges/jane-doe' }

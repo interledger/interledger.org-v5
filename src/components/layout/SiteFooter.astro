@@ -5,12 +5,16 @@ import {
   buildUmamiAttrs,
   getNavigation,
   localizeRoute,
-  type UiKey
+  socialLinks,
+  getFooterOnlyColumn,
+  HACKATHON_HOME_SLUG,
+  twMerge
 } from '@/utils'
-import type { MenuGroup, NavigationSite } from '@/types/navigation'
+import type { NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
+import HackathonFooterLogo from '@/components/logos/HackathonFooterLogo.astro'
 
 interface Props {
   site?: NavigationSite
@@ -22,17 +26,11 @@ const t = useTranslations(routeLocale)
 
 const { mainMenu } = getNavigation(site, routeLocale)
 
-const resourcesColumn: MenuGroup = {
-  label: 'Resources',
-  items: [
-    { label: 'Terms of Service', href: '/terms-of-service' },
-    { label: 'Privacy Policy', href: '/privacy-policy' },
-    { label: 'Press & Media', href: '/press-and-media' },
-    { label: 'FAQ', href: '/faq' }
-  ]
-}
+const footerOnlyColumn = getFooterOnlyColumn(site, routeLocale)
 
-const footerColumns = [...mainMenu, resourcesColumn]
+const footerColumns = footerOnlyColumn
+  ? [...mainMenu, footerOnlyColumn]
+  : mainMenu
 
 const subscribeHref = translatePath(
   'foundation-pages',
@@ -41,6 +39,11 @@ const subscribeHref = translatePath(
 )
 const contactHref = translatePath('foundation-pages', routeLocale, 'contact')
 const homeHref = localizeRoute('/', routeLocale)
+const hackathonHomeHref = translatePath(
+  'hackathon-pages',
+  routeLocale,
+  HACKATHON_HOME_SLUG
+)
 
 const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
   buildUmamiAttrs({
@@ -52,63 +55,23 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
     linkText
   })
 
-const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
-
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
 const isActive = (href: string | null | undefined) =>
   !!href && currentPath === localizeRoute(href, routeLocale).replace(/\/$/, '')
+const isHackathonSite = site === 'hackathon'
 
-type SocialIconName =
-  | 'youtube'
-  | 'mastodon'
-  | 'x'
-  | 'github'
-  | 'instagram'
-  | 'linkedin'
-  | 'slack'
-
-const socialLinks: Array<{
-  href: string
-  icon: SocialIconName
-  labelKey: UiKey
-}> = [
-  {
-    href: 'https://www.youtube.com/@InterledgerFoundation',
-    icon: 'youtube',
-    labelKey: 'footer.youtube'
-  },
-  {
-    href: 'https://interledger.social/about',
-    icon: 'mastodon',
-    labelKey: 'footer.mastodon'
-  },
-  { href: 'https://x.com/interledger', icon: 'x', labelKey: 'footer.x' },
-  {
-    href: 'https://github.com/interledger',
-    icon: 'github',
-    labelKey: 'footer.github'
-  },
-  {
-    href: 'https://www.instagram.com/interledgerfoundation/',
-    icon: 'instagram',
-    labelKey: 'footer.instagram'
-  },
-  {
-    href: 'https://www.linkedin.com/company/interledger-foundation/',
-    icon: 'linkedin',
-    labelKey: 'footer.linkedin'
-  },
-  {
-    href: 'https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA',
-    icon: 'slack',
-    labelKey: 'footer.slack'
-  }
-]
+const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
+const footerLogoLinkClass =
+  'inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none'
+const navigationUlClass = twMerge(
+  'm-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6',
+  isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : ''
+)
 ---
 
 <footer
-  data-component="FoundationFooter"
-  class="bg-ice-mint-50 px-lg tablet:px-xl desktop:px-3xl-tight"
+  data-component="SiteFooter"
+  class="bg-ice-mint-50 dark:bg-ice-indigo-100 px-lg tablet:px-xl desktop:px-3xl-tight"
   role="contentinfo"
 >
   <div class="mx-auto max-w-wide min-w-[360px]">
@@ -127,7 +90,7 @@ const socialLinks: Array<{
         >
           {t('footer.stay_up_to_date')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-xl text-body-sm-standard text-neutral-75">
           {t('footer.newsletter_description')}
         </p>
         <LinkButton
@@ -152,7 +115,7 @@ const socialLinks: Array<{
         >
           {t('footer.contact_us')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-xl text-body-sm-standard text-neutral-75">
           {t('footer.contact_description')}
         </p>
         <LinkButton
@@ -208,10 +171,7 @@ const socialLinks: Array<{
       aria-label={t('footer.nav_label')}
       class="border-t border-neutral-50 py-3xl"
     >
-      <ul
-        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6"
-        role="list"
-      >
+      <ul class={navigationUlClass} role="list">
         {
           footerColumns.map((group, groupIndex) => {
             const groupHeadingId = `footer-nav-group-${groupIndex}`
@@ -320,15 +280,32 @@ const socialLinks: Array<{
     </nav>
 
     <!-- Bottom: copyright, legal links, logo -->
-    <div class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center">
-      <p class="mb-3xl text-body-sm-standard text-neutral-75">
+    <div
+      class="border-t border-neutral-50 pt-3xl pb-3xl-tight text-center flex flex-col items-center gap-3xl"
+    >
+      <p class="text-body-sm-standard text-neutral-75">
         {t('footer.copyright')}
       </p>
-
+      {
+        isHackathonSite && (
+          <a
+            href={hackathonHomeHref}
+            aria-label={t('footer.logo_hackathon')}
+            class={footerLogoLinkClass}
+            {...footerLink(
+              hackathonHomeHref,
+              t('footer.logo_hackathon'),
+              t('footer.logo_hackathon')
+            )}
+          >
+            <HackathonFooterLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
+          </a>
+        )
+      }
       <a
         href={homeHref}
         aria-label={t('footer.logo_home')}
-        class="inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none"
+        class={footerLogoLinkClass}
         {...footerLink(homeHref, t('footer.logo_home'), t('footer.logo_home'))}
       >
         <InterledgerIcon class="h-10 w-10" />

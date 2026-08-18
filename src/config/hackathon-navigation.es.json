@@ -8,8 +8,12 @@
           "href": "/es/hackathon/overview"
         },
         {
+          "label": "Requisitos de participación",
+          "href": "/es/hackathon/participation"
+        },
+        {
           "label": "Preguntas frecuentes",
-          "href": "/es/hackathon/faqs"
+          "href": "/es/hackathon/faq"
         }
       ]
     },
@@ -17,8 +21,8 @@
       "label": "Recursos",
       "items": [
         {
-          "label": "Requisitos de participación",
-          "href": "/es/hackathon/participation"
+          "label": "Aprende sobre Open Payments",
+          "href": "/es/hackathon/open-payments"
         },
         {
           "label": "Código de conducta",
