@@ -66,11 +66,26 @@ const repeatCount =
     : 2
 const duplicateBatches = Array.from({ length: repeatCount - 1 })
 
+// Explicit width, not CSS `width: max-content`: a max-content track buried
+// this deep under the page's flex-column ancestors (main > ... ) makes an
+// intrinsic-size query bubble all the way up and miscompute the content
+// column's own width on any viewport narrower than max-w-content — a real
+// browser bug in how nested flex stretch-sizing interacts with a
+// max-content descendant, not something local `overflow`/`contain`/`min-w-0`
+// on this component can contain. The exact item count is already computed
+// above for `repeatCount`, so a definite pixel width is exact, not a guess.
+const totalTrackItems = logos.length * repeatCount
+const trackWidthPx =
+  totalTrackItems > 0
+    ? totalTrackItems * LOGO_ITEM_WIDTH_PX + (totalTrackItems - 1) * LOGO_GAP_PX
+    : 0
+
 const carouselStyle = `
   --logo-count: ${logos.length};
   --logo-carousel-repeat-count: ${repeatCount};
   --logo-carousel-item-width: ${LOGO_ITEM_WIDTH_PX}px;
   --logo-carousel-gap: ${LOGO_GAP_PX}px;
+  --logo-carousel-track-width: ${trackWidthPx}px;
 `
 
 const sectionClasses = `
@@ -98,7 +113,7 @@ const viewportClasses = `
 const trackClasses = `
   flex items-center gap-[var(--logo-carousel-gap)]
   list-none p-0 m-0
-  w-max
+  w-[var(--logo-carousel-track-width)]
   animate-[scroll-left_var(--logo-carousel-cycle)_linear_infinite]
   motion-reduce:animate-none
 `
