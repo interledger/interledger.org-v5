@@ -44,31 +44,21 @@ export const socialLinks: SocialLink[] = [
 ]
 
 /**
- * The footer's "Resources" nav column. Hackathon links to its own docs;
- * every other site (SiteFooter is only ever rendered for 'foundation' or
- * 'hackathon' — 'summit' uses MicrositeFooter instead) gets the Foundation
- * resources.
+ * The footer's extra nav column — items shown in the footer only, on top of
+ * `mainMenu` (shared with the header via `getNavigation`, from
+ * `foundation-navigation`/`hackathon-navigation`). Hackathon has no such
+ * column for now. Every other site (SiteFooter is currently only
+ * rendered for 'foundation' or 'hackathon' — 'summit' uses MicrositeFooter
+ * instead) gets the Foundation-only column (terms, privacy, press, FAQ).
  */
-export function getResourcesColumn(
+export function getFooterOnlyColumn(
   site: NavigationSite,
   lang: Locale
-): MenuGroup {
+): MenuGroup | null {
   const t = useTranslations(lang)
 
   if (site === 'hackathon') {
-    return {
-      label: t('footer.resources'),
-      items: [
-        {
-          label: t('footer.learn_open_payments'),
-          href: translatePath('hackathon-pages', lang, 'open-payments')
-        },
-        {
-          label: t('footer.code_conduct'),
-          href: translatePath('hackathon-pages', lang, 'code-conduct')
-        }
-      ]
-    }
+    return null
   }
 
   return {

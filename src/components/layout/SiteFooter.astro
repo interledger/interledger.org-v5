@@ -6,7 +6,7 @@ import {
   getNavigation,
   localizeRoute,
   socialLinks,
-  getResourcesColumn,
+  getFooterOnlyColumn,
   HACKATHON_HOME_SLUG
 } from '@/utils'
 import type { NavigationSite } from '@/types/navigation'
@@ -25,9 +25,11 @@ const t = useTranslations(routeLocale)
 
 const { mainMenu } = getNavigation(site, routeLocale)
 
-const resourcesColumn = getResourcesColumn(site, routeLocale)
+const footerOnlyColumn = getFooterOnlyColumn(site, routeLocale)
 
-const footerColumns = [...mainMenu, resourcesColumn]
+const footerColumns = footerOnlyColumn
+  ? [...mainMenu, footerOnlyColumn]
+  : mainMenu
 
 const subscribeHref = translatePath(
   'foundation-pages',
