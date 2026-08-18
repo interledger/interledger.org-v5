@@ -1,9 +1,7 @@
 ---
 /**
- * Shared microsite header (Summit and Hackathon).
- * Composes navigation menu, action links, and mobile toggle. The chrome is
- * identical across microsites; only the navigation config, home link, and
- * accessible names vary by `site`.
+ * Summit site header.
+ * Composes navigation menu, action links, and mobile toggle.
  */
 import FoundationLogo from '@/components/logos/FoundationLogo.astro'
 import {
@@ -11,7 +9,6 @@ import {
   useTranslations,
   translatePath,
   HOME_CONTENT_SLUG,
-  HACKATHON_HOME_SLUG,
   buildDeferredUmamiAttrs
 } from '@/utils'
 import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
@@ -28,16 +25,9 @@ const { routeLocale } = Astro.locals
 const { mainMenu, ctaButton } = getNavigation(site, routeLocale)
 const t = useTranslations(routeLocale)
 
-// Summit has a landing page at its route base; hackathon does not yet, so its
-// logo points at the overview page instead.
-const homePath =
-  site === 'summit'
-    ? translatePath('summit-pages', routeLocale, HOME_CONTENT_SLUG)
-    : translatePath('hackathon-pages', routeLocale, HACKATHON_HOME_SLUG)
-
-const navLabel = site === 'summit' ? t('nav.summit') : t('nav.hackathon')
-const logoLabel =
-  site === 'summit' ? t('aria.logo.summit') : t('aria.logo.hackathon')
+const homePath = translatePath('summit-pages', routeLocale, HOME_CONTENT_SLUG)
+const navLabel = t('nav.summit')
+const logoLabel = t('aria.logo.summit')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   buildDeferredUmamiAttrs({
