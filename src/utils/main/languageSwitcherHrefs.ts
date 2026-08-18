@@ -2,28 +2,39 @@ import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
 import { localizeRoute, normalizeBasePath } from './routes'
 import { buildRoutePath } from './translatePath'
+import { CATEGORY_SEGMENT } from './tagFilter'
+import { hasStrippablePageNumber } from './paginatedRouteShape'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
 }
 
+/**
+ * Drops a trailing pagination segment from a slug (not a full pathname), e.g.
+ * 'category/announcements/2' -> 'category/announcements', '2' -> ''. Applied
+ * before building a switch-language href so a paginated page (/blog/2,
+ * /podcast/2, /podcast/category/future-money/2, /summit/2025/talks/2, ...)
+ * always switches to page 1 of the target locale instead of preserving a page
+ * number that section may not have.
+ */
+function stripSlugPagination(basePath: string, slug: string): string {
+  const parts = slug.split('/').filter(Boolean)
+  if (!hasStrippablePageNumber(basePath, parts)) return slug
+  return parts.slice(0, -1).join('/')
+}
+
+/** Expects a slug with any trailing pagination segment already stripped. */
 function parseBlogSlug(slug: string): {
   term?: string
   contentLang?: Locale
-  segment?: 'tag' | 'category'
 } {
   const parts = slug.split('/').filter(Boolean)
-  const last = parts.at(-1)
-  const relevant = last && /^\d+$/.test(last) ? parts.slice(0, -1) : parts
 
-  const tagIdx = relevant.indexOf('tag')
-  const categoryIdx = relevant.indexOf('category')
-  const termIdx = tagIdx >= 0 ? tagIdx : categoryIdx
-  const langIdx = relevant.indexOf('lang')
+  const categoryIdx = parts.indexOf(CATEGORY_SEGMENT)
+  const langIdx = parts.indexOf('lang')
   return {
-    term: termIdx >= 0 ? relevant[termIdx + 1] : undefined,
-    contentLang: langIdx >= 0 ? (relevant[langIdx + 1] as Locale) : undefined,
-    segment: tagIdx >= 0 ? 'tag' : categoryIdx >= 0 ? 'category' : undefined
+    term: categoryIdx >= 0 ? parts[categoryIdx + 1] : undefined,
+    contentLang: langIdx >= 0 ? (parts[langIdx + 1] as Locale) : undefined
   }
 }
 
@@ -32,12 +43,12 @@ function buildBlogSwitchHref(
   slug: string,
   targetLocale: Locale
 ): string {
-  const { term, contentLang, segment } = parseBlogSlug(slug)
+  const { term, contentLang } = parseBlogSlug(slug)
   const targetContentLang = contentLang ?? targetLocale
   const hasExplicitLang = contentLang !== undefined
   let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
   if (term) {
-    href += `/${segment ?? 'category'}/${term}`
+    href += `/${CATEGORY_SEGMENT}/${term}`
   }
   if (hasExplicitLang) href += `/lang/${targetContentLang}`
   return href
@@ -47,28 +58,29 @@ export function getLanguageSwitcherHrefs(
   currentSlug: string,
   currentBasePath: string
 ): Record<Locale, string> {
+  // Switching locale always targets page 1 of the current section — a
+  // paginated page number from one locale's listing has no guarantee of
+  // existing (or meaning the same thing) in the other.
+  const slug = stripSlugPagination(currentBasePath, currentSlug)
   const fullSlug = normalizeBasePath(
-    buildRoutePath(currentBasePath, currentSlug)
+    buildRoutePath(currentBasePath, slug)
   ).slice(1)
-  const entry = translationMap[currentSlug] ?? translationMap[fullSlug]
+  const entry = translationMap[slug] ?? translationMap[fullSlug]
 
   return Object.fromEntries(
     switcherLocales.map((locale) => {
       if (isBlogPath(currentBasePath)) {
-        const { term, contentLang } = parseBlogSlug(currentSlug)
+        const { term, contentLang } = parseBlogSlug(slug)
         if (term || contentLang) {
-          return [
-            locale,
-            buildBlogSwitchHref(currentBasePath, currentSlug, locale)
-          ]
+          return [locale, buildBlogSwitchHref(currentBasePath, slug, locale)]
         }
       }
 
-      const slug = entry?.[locale] ?? currentSlug
+      const targetSlug = entry?.[locale] ?? slug
       const path =
-        entry && translationMap[fullSlug] && !translationMap[currentSlug]
-          ? buildRoutePath('', slug)
-          : buildRoutePath(currentBasePath, slug)
+        entry && translationMap[fullSlug] && !translationMap[slug]
+          ? buildRoutePath('', targetSlug)
+          : buildRoutePath(currentBasePath, targetSlug)
       const href = localizeRoute(path, locale)
       return [locale, href]
     })

@@ -3,41 +3,80 @@ import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
 import type { Locale, UiKey } from './i18'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 /**
- * The blog exposes its taxonomy under a frontmatter field, a URL segment, and a
- * set of translation keys. Kept as a small map (rather than inlined) so the
- * shared listing/filter code stays collection-agnostic if a second blog
- * collection is ever reintroduced.
+ * Collections that expose a term taxonomy for the shared TaxonomyFilter UI.
+ * foundation-blog fetches/paginates through this module's own functions
+ * below; podcast-pages paginates through podcastPagination.ts instead (its
+ * "entries" are one page's array field, not real per-locale collection
+ * entries) but shares this same taxonomy config, URL, and label shape.
  */
-export interface BlogTaxonomy {
-  /** Frontmatter field holding the term list on the collection entry. */
-  field: 'categories'
+export type TaxonomyCollection = BlogCollectionType | 'podcast-pages'
+
+/**
+ * A taxonomy exposes its terms under a frontmatter field, a URL segment, and a
+ * set of translation keys. Kept as a small map (rather than inlined) so the
+ * shared listing/filter code stays collection-agnostic across collections.
+ */
+export interface TermTaxonomy {
+  /** Frontmatter field holding the term(s) on the entry/item. */
+  field: 'categories' | 'series'
   /** URL segment for filter pages, e.g. /blog/<segment>/<slug>/. */
   segment: 'category'
   /** Translation-key prefix for individual terms, e.g. `blog.categories`. */
-  i18nPrefix: 'blog.categories'
+  i18nPrefix: 'blog.categories' | 'podcast.categories'
   /** Translation key for the filter heading. */
   filterLabelKey: UiKey
+  /** Translation key for the "All" filter pill. */
+  allLabelKey: UiKey
 }
 
-const BLOG_TAXONOMY: Record<BlogCollectionType, BlogTaxonomy> = {
+/** URL segment every taxonomy filter page lives under, e.g. /blog/category/<slug>. */
+export const CATEGORY_SEGMENT = 'category'
+
+const TERM_TAXONOMY: Record<TaxonomyCollection, TermTaxonomy> = {
   'foundation-blog': {
     field: 'categories',
-    segment: 'category',
+    segment: CATEGORY_SEGMENT,
     i18nPrefix: 'blog.categories',
-    filterLabelKey: 'blog.filter.category.label'
+    filterLabelKey: 'blog.filter.category.label',
+    allLabelKey: 'blog.filter.all'
+  },
+  'podcast-pages': {
+    field: 'series',
+    segment: CATEGORY_SEGMENT,
+    i18nPrefix: 'podcast.categories',
+    filterLabelKey: 'podcast.filter.category.label',
+    allLabelKey: 'podcast.filter.all'
   }
 }
 
-export function getBlogTaxonomy(collection: BlogCollectionType): BlogTaxonomy {
-  return BLOG_TAXONOMY[collection]
+export function getTaxonomy(collection: TaxonomyCollection): TermTaxonomy {
+  return TERM_TAXONOMY[collection]
+}
+
+/**
+ * Recognizes blog's paginated URL shapes so a language-switch link can safely
+ * drop a trailing page number: bare `/blog[/<n>]`, `/blog/category/<name>[/<n>]`,
+ * and the cross-lang combo `/blog/category/<name>/lang/<locale>[/<n>]`. A
+ * numeric-looking category name (`/blog/category/2024`) is not mistaken for a
+ * page number, since there's nothing after it to be the actual page digit.
+ */
+export const blogRouteShape: PaginatedRouteShape = {
+  matches: (basePath) => basePath.endsWith('/blog'),
+  isValidListingPrefix: (prefixParts) => {
+    if (prefixParts.length === 0) return true
+    if (prefixParts[0] !== CATEGORY_SEGMENT) return false
+    if (prefixParts.length === 2) return true
+    return prefixParts.length === 4 && prefixParts[2] === 'lang'
+  }
 }
 
 /** Reads the taxonomy terms off a blog entry regardless of collection. */
 function getEntryTerms(
   entry: CollectionEntry<BlogCollectionType>,
-  field: BlogTaxonomy['field']
+  field: TermTaxonomy['field']
 ): string[] {
   const value = (entry.data as Record<string, unknown>)[field]
   return Array.isArray(value) ? (value as string[]) : []
@@ -47,13 +86,15 @@ export function getTermSlug(term: string) {
   return term.toLowerCase().replace(/\s+/g, '-')
 }
 
+/** Routing sentinel for the canonical "all terms" filter page/URL segment. */
+export const ALL_TERM_SLUG = 'all'
+
 /** Builds the URL of a taxonomy filter page, e.g. `/blog/category/announcements`.
- *  Cross-lang combo routes always use "tag" as the generic URL segment, so we
- *  switch to it whenever a contentLangOverride is present.
+ *  Appends `/lang/<locale>` when contentLangOverride is set (cross-lang combo routes).
  */
 export function getTermUrl(
   basePath: string,
-  segment: BlogTaxonomy['segment'],
+  segment: TermTaxonomy['segment'],
   term: string,
   contentLangOverride?: Locale
 ) {
@@ -75,7 +116,7 @@ export function buildContentLangHrefs(
   selectedTerm?: string
 ): { enHref: string; esHref: string } {
   const crossLangBase = selectedTerm
-    ? `${blogIndexHref}/category/${getTermSlug(selectedTerm)}`
+    ? `${blogIndexHref}/${CATEGORY_SEGMENT}/${getTermSlug(selectedTerm)}`
     : blogIndexHref
   return {
     enHref: `${crossLangBase}/lang/en`,
@@ -84,7 +125,7 @@ export function buildContentLangHrefs(
 }
 
 export function translateTerm(
-  prefix: BlogTaxonomy['i18nPrefix'],
+  prefix: TermTaxonomy['i18nPrefix'],
   term: string,
   t: (key: UiKey) => string
 ): string {
@@ -96,7 +137,7 @@ async function fetchPostsAndTerms(
   collection: BlogCollectionType,
   lang: Locale
 ) {
-  const { field } = getBlogTaxonomy(collection)
+  const { field } = getTaxonomy(collection)
   const allEntries = (await getCollection(collection)).sort(
     (a, b) => b.data.date.getTime() - a.data.date.getTime()
   )
@@ -153,51 +194,48 @@ export async function paginatePostsByTerm({
   lang: Locale
   contentLang?: Locale
 }) {
-  const { field, segment } = getBlogTaxonomy(collection)
+  const { field, segment } = getTaxonomy(collection)
   const effectiveLang = contentLang ?? lang
   const { blogEntries, allTerms, enabledTerms } = await fetchPostsAndTerms(
     collection,
     effectiveLang
   )
 
-  // For combined term+lang routes the URL segment is always "tag" (generic);
-  // for term-only routes it matches the collection's taxonomy segment.
-  const termParamKey = segment
-
-  const termPaths = allTerms.flatMap((tag) => {
-    const termSlug = getTermSlug(tag)
+  const termPaths = allTerms.flatMap((term) => {
+    const termSlug = getTermSlug(term)
     const filteredEntries = blogEntries.filter((entry) =>
-      getEntryTerms(entry, field).some((t) => t === tag)
+      getEntryTerms(entry, field).some((t) => t === term)
     )
 
     const langParam = contentLang ? { contentLang } : undefined
 
-    // When no posts match the tag+lang combo, paginate all lang posts as a fallback
-    // so the page renders with content rather than 404 or an empty list. The tag
-    // stays in the URL so switching back to the other lang preserves the filter.
+    // When no posts match the term+lang combo, paginate all lang posts as a
+    // fallback so the page renders with content rather than 404 or an empty
+    // list. The term stays in the URL so switching back to the other lang
+    // preserves the filter.
     const pageEntries =
       filteredEntries.length > 0 ? filteredEntries : blogEntries
     const isTermFallback = filteredEntries.length === 0
 
     return paginate(pageEntries, {
-      params: { [termParamKey]: termSlug, ...langParam },
+      params: { [segment]: termSlug, ...langParam },
       pageSize: 10,
       props: {
         allTerms,
         totalEntries: pageEntries.length,
         enabledTerms: [...enabledTerms],
-        selectedTerm: tag,
+        selectedTerm: term,
         contentLang: effectiveLang,
         isTermFallback
       }
     })
   })
 
-  // Generate /<segment>/all (or /tag/all/lang/<locale>) so the "All" filter button
-  // has a canonical URL on both simple and cross-lang routes.
+  // Generate /<segment>/all (or /<segment>/all/lang/<locale>) so the "All"
+  // filter button has a canonical URL on both simple and cross-lang routes.
   const allParams = contentLang
-    ? { [termParamKey]: 'all', contentLang }
-    : { [termParamKey]: 'all' }
+    ? { [segment]: ALL_TERM_SLUG, contentLang }
+    : { [segment]: ALL_TERM_SLUG }
 
   const allPath = paginate(blogEntries, {
     params: allParams,

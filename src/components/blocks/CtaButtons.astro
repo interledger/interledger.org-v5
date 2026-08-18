@@ -44,24 +44,31 @@ const { routeLocale } = Astro.locals
 // or link. Skip those rather than rendering an empty or dead button.
 const resolved = buttons
   .filter((button) => button?.text?.trim() && button?.link?.trim())
-  .map((button) => ({
-    text: button.text.trim(),
-    variant:
+  .map((button) => {
+    const variant =
       button.style === 'secondary'
         ? ('secondary' as const)
-        : ('primary' as const),
-    ...resolveCtaLink({
-      url: button.link.trim(),
-      external: button.external,
-      document: button.document,
-      // An internal link gets an arrow whether it's primary or secondary
-      // (Sarah, INTORG-907, 2026-08-09). That rule is scoped to custom
-      // components like this one; CTAs on template pages and the home page
-      // keep whatever their own Figma spec says, so this must not be pushed
-      // out into the shared default.
-      internalIcon: 'arrow-right'
-    })
-  }))
+        : ('primary' as const)
+
+    return {
+      text: button.text.trim(),
+      variant,
+      ...resolveCtaLink({
+        url: button.link.trim(),
+        external: button.external,
+        document: button.document,
+        // Only the internal case depends on the style: primary keeps the
+        // arrow, secondary shows nothing, matching a secondary in a CTA strip
+        // or a split layout. Documents and external links keep their own icon
+        // on both styles.
+        //
+        // Scoped to components an editor picks. Template pages and the home
+        // page follow their own Figma spec, so this must not become the shared
+        // default (INTORG-1086).
+        internalIcon: variant === 'primary' ? 'arrow-right' : null
+      })
+    }
+  })
 ---
 
 {

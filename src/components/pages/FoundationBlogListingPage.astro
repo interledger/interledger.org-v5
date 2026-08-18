@@ -10,7 +10,8 @@ import {
   translateTerm,
   getFeaturedPosts,
   useTranslations,
-  localizeRoute
+  localizeRoute,
+  CATEGORY_SEGMENT
 } from '@/utils'
 import type { Locale } from '@/utils'
 import FeaturedPosts from '@/components/blog/FeaturedPosts.astro'
@@ -65,11 +66,9 @@ const description = translatedTerm
   : t('blog.foundation.description')
 
 // Featured posts only show on the bare blog index (first page, no filters).
-// Suppressed by any active category/tag filter (including /category/all) or explicit lang filter.
+// Suppressed by any active category filter (including /category/all) or explicit lang filter.
 const hasLangFilter = Astro.url.pathname.includes('/lang/')
-const hasTermFilter =
-  Astro.url.pathname.includes('/category/') ||
-  Astro.url.pathname.includes('/tag/')
+const hasTermFilter = Astro.url.pathname.includes(`/${CATEGORY_SEGMENT}/`)
 const showFeatured =
   !selectedTerm && !hasTermFilter && !hasLangFilter && page.currentPage === 1
 const featuredPosts = showFeatured
