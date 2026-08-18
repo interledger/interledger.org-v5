@@ -951,6 +951,92 @@ describe('git sync alerting', () => {
     expect(deps.alerts).toEqual([])
   })
 
+  it('alerts when a dependency throws instead of returning an error', async () => {
+    // An unexpected throw used to be converted to a `failed` result by the
+    // debounced wrapper, bypassing the funnel: no alert, and no recovery on the
+    // next success because the notifier never saw the outage.
+    const deps = createDeps()
+    deps.exec = async () => {
+      throw new Error('spawn ENOMEM')
+    }
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({ outcome: 'failed' })
+    expect(deps.alerts).toMatchObject([
+      {
+        outcome: 'failed',
+        label: 'faq',
+        repoRoot: REPO,
+        reason: 'spawn ENOMEM'
+      }
+    ])
+  })
+
+  it('alerts when a dependency throws during a navigation commit', async () => {
+    const deps = createDeps({ existing: [REPO] })
+    deps.exec = async () => {
+      throw new Error('spawn ENOMEM')
+    }
+
+    const result = await gitCommitAndPush(
+      'src/data/nav.json',
+      'nav: update',
+      deps
+    )
+
+    expect(result).toMatchObject({ outcome: 'failed' })
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed', label: 'navigation', reason: 'spawn ENOMEM' }
+    ])
+  })
+
+  it('carries a stack as the detail when the error is not a git failure', async () => {
+    const deps = createDeps()
+    deps.exec = async () => {
+      throw new Error('spawn ENOMEM')
+    }
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts[0].detail).toContain('spawn ENOMEM')
+  })
+
+  it('does not reject when the notifier itself throws', async () => {
+    // Reporting is a side channel; a broken notifier must not convert a handled
+    // failure into a rejected sync.
+    const deps = createDeps({
+      respond: (command) =>
+        command === STATUS_COMMAND
+          ? status(['M', 'src/content/faqs/a.mdx'])
+          : gitFailure(command, { stderr: 'push rejected' })
+    })
+    deps.notify = async () => {
+      throw new Error('slack exploded')
+    }
+
+    await expect(runGitSync('faq', undefined, deps)).resolves.toMatchObject({
+      outcome: 'failed'
+    })
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('slack exploded')
+    )
+  })
+
+  it('reports an outage exactly once', async () => {
+    // The outer safety net must not re-report what the inner funnel handled.
+    const deps = createDeps({
+      respond: (command) =>
+        command === STATUS_COMMAND
+          ? status(['M', 'src/content/faqs/a.mdx'])
+          : gitFailure(command, { stderr: 'push rejected' })
+    })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts).toHaveLength(1)
+  })
+
   it('alerts on a failed navigation commit', async () => {
     const deps = createDeps({
       existing: [REPO],

@@ -3,9 +3,11 @@ import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
 import { PATHS, getProjectRoot } from './paths'
+import { tryCatchAsync } from './tryCatch'
 import {
   isSlackAlertingConfigured,
   notifyGitSyncToSlack,
+  type GitSyncAlert,
   type NotifyGitSync
 } from './slackNotify'
 
@@ -381,27 +383,34 @@ async function report(
 ): Promise<GitSyncResult> {
   if (result.outcome === 'skipped') return result
 
-  if (result.outcome === 'failed') {
-    const { error } = result
-    await deps.notify({
-      outcome: 'failed',
-      label: context.label,
-      repoRoot: context.repoRoot,
-      commitMessage: context.commitMessage,
-      author: context.author,
-      reason: error.message,
-      detail:
-        error instanceof GitCommandError ? error.combinedOutput : error.stack
-    })
-    return result
+  const alert: GitSyncAlert =
+    result.outcome === 'failed'
+      ? {
+          outcome: 'failed',
+          label: context.label,
+          repoRoot: context.repoRoot,
+          commitMessage: context.commitMessage,
+          author: context.author,
+          reason: result.error.message,
+          detail:
+            result.error instanceof GitCommandError
+              ? result.error.combinedOutput
+              : result.error.stack
+        }
+      : {
+          outcome: 'healthy',
+          label: context.label,
+          repoRoot: context.repoRoot,
+          commitMessage: context.commitMessage
+        }
+
+  // Reporting must not alter control flow. `notify` is injectable, so a throwing
+  // one would otherwise turn a handled failure into a rejected sync.
+  const notified = await tryCatchAsync(() => deps.notify(alert))
+  if (notified instanceof Error) {
+    console.error(`⚠️  Git sync alert failed to send: ${notified.message}`)
   }
 
-  await deps.notify({
-    outcome: 'healthy',
-    label: context.label,
-    repoRoot: context.repoRoot,
-    commitMessage: context.commitMessage
-  })
   return result
 }
 
@@ -410,6 +419,9 @@ async function report(
 /**
  * Stage the content directories, commit, and push. The commit message is
  * inferred from actual git status unless {@link SyncContext} supplies one.
+ *
+ * Never rejects: an unexpected throw is reported and returned as `failed`, so
+ * no outage escapes the alerting funnel.
  */
 export async function runGitSync(
   label: string,
@@ -419,6 +431,21 @@ export async function runGitSync(
   if (isGitSyncDisabled()) return { outcome: 'skipped', reason: 'disabled' }
 
   const repoRoot = getTargetRepoRoot()
+  const result = await tryCatchAsync(() =>
+    syncContentDirectories(label, repoRoot, context, deps)
+  )
+  if (!(result instanceof Error)) return result
+
+  console.error(`⚠️  Git sync failed unexpectedly: ${result.message}`)
+  return report({ outcome: 'failed', error: result }, { label, repoRoot }, deps)
+}
+
+async function syncContentDirectories(
+  label: string,
+  repoRoot: string,
+  context: SyncContext | undefined,
+  deps: GitSyncDeps
+): Promise<GitSyncResult> {
   const changes = await getGitStatus(repoRoot, deps)
 
   if (changes instanceof GitCommandError) {
@@ -500,6 +527,8 @@ export function createDebouncedGitSync(
         pendingSyncTimer = null
         const ctx = latestContext
         latestContext = undefined
+        // runGitSync reports its own failures, so this only catches a throw
+        // from resolving the repo path — before there is a repo to report on.
         lastFlush = runGitSync(label, ctx, deps).catch((err: unknown) => {
           console.error(`[gitSync] Flush error:`, err)
           const error = err instanceof Error ? err : new Error(String(err))
@@ -532,6 +561,8 @@ export function settledGitSync(): Promise<GitSyncResult | null> {
 /**
  * Commit specific files immediately with an explicit message.
  * Use for cases like navigation updates where status inference isn't needed.
+ *
+ * Never rejects, on the same terms as {@link runGitSync}.
  */
 export async function gitCommitAndPush(
   filepath: string | string[],
@@ -544,6 +575,25 @@ export async function gitCommitAndPush(
   }
 
   const repoRoot = getTargetRepoRoot()
+  const result = await tryCatchAsync(() =>
+    commitExplicitPaths(filepath, message, repoRoot, deps)
+  )
+  if (!(result instanceof Error)) return result
+
+  console.error(`⚠️  Git sync failed unexpectedly: ${result.message}`)
+  return report(
+    { outcome: 'failed', error: result },
+    { label: 'navigation', repoRoot, commitMessage: message },
+    deps
+  )
+}
+
+async function commitExplicitPaths(
+  filepath: string | string[],
+  message: string,
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<GitSyncResult> {
   const rawPaths = Array.isArray(filepath) ? filepath : [filepath]
   const normalizedPaths = rawPaths
     .map((fp) => toGitPath(repoRoot, fp))
