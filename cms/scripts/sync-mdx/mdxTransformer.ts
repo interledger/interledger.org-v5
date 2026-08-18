@@ -983,7 +983,8 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.cta-buttons',
   'blocks.event-card',
   'blocks.quote',
-  'blocks.hackathon-animation'
+  'blocks.hackathon-animation',
+  'blocks.image-block'
 ] as const
 
 /**

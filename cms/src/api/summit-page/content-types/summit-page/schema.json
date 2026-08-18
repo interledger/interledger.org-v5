@@ -70,6 +70,7 @@
         "blocks.cta-strip",
         "blocks.pdf-embed",
         "blocks.video-embed",
+        "blocks.image-block",
         "blocks.number-tiles",
         "blocks.card-grid",
         "blocks.carousel",

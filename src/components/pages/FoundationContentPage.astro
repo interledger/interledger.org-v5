@@ -30,6 +30,7 @@ import EventCard from '@/components/blocks/EventCard.astro'
 import EventWhen from '@/components/shared/EventWhen.astro'
 import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
+import ImageBlock from '@/components/blocks/ImageBlock.astro'
 
 interface Props {
   slug: string
@@ -106,7 +107,8 @@ if (isNotFound) return Astro.redirect('/404')
               EventWhen,
               EventWhere,
               EventApply,
-              LogoCarousel
+              LogoCarousel,
+              ImageBlock
             }}
           />
         </div>
