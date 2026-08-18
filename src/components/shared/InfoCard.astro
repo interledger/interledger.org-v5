@@ -2,8 +2,9 @@
 /**
  * Single info card — used by grant `InfoCards` and CardGrid `variant="Info"`.
  * Optional `imageSrc` turns the cell into a full-bleed cover photo
- * (`object-cover`, no stretch). The photo cell is at least 3:4
- * (height/width) and grows with the grid row when siblings are taller.
+ * (`object-cover`, no stretch). Mobile is 3:2; tablet+ defaults to 4:3.
+ * Multi-column CardGrid drops the aspect ratio on tablet+ so row-height
+ * fill cannot overflow the column.
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
@@ -21,7 +22,7 @@ const imageAltText = imageAlt?.trim() || heading
   imageSrc ? (
     <figure
       data-component="InfoCard"
-      class="relative m-0 aspect-[4/3] h-full overflow-hidden rounded-3xl"
+      class="relative m-0 aspect-[3/2] w-full min-w-0 overflow-hidden rounded-3xl tablet:aspect-[4/3]"
     >
       <OptimizedImage
         src={imageSrc}

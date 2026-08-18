@@ -138,6 +138,7 @@ const headingId = headingText
 
 <section
   data-component="CardGrid"
+  data-columns={columns}
   aria-label={headingId ? undefined : ariaLabel}
   aria-labelledby={headingId}
   class:list={[
@@ -157,9 +158,11 @@ const headingId = headingText
   }
   <div
     class:list={[
-      'grid grid-cols-1 gap-lg tablet:gap-xl',
+      'grid grid-cols-1 gap-lg tablet:gap-xl [&>*]:min-w-0',
       columns === 'One' ? 'tablet:grid-cols-1' : 'tablet:grid-cols-2',
-      gridColumnsClass
+      gridColumnsClass,
+      columns !== 'One' &&
+        '[&_figure[data-component=InfoCard]]:tablet:aspect-auto [&_figure[data-component=InfoCard]]:tablet:h-full'
     ]}
   >
     {
