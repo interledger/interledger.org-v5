@@ -1,9 +1,9 @@
 ---
 import {
   buildUmamiAttrs,
+  isHackathonBasePath,
   parseMarkdown,
-  resolveCtaLink,
-  ROUTE_BASES
+  resolveCtaLink
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
@@ -47,17 +47,13 @@ const {
 
 const { routeLocale, currentBasePath } = Astro.locals
 
-// The hackathon's main CTA carries no arrow. Its label is usually programmatic,
-// such as `<register_today>`, and an arrow beside that reads as too much. The
-// rule holds even for an ordinary label like "Subscribe" (Radu, 2026-08-18 on
-// INTORG-1083).
-//
-// Decided here rather than with a `dark:` class for two reasons. The arrow is
-// per site, not per theme: summit is dark too and keeps its arrow. And the icon
-// sets the button's padding, because LinkButton derives `iconSide` from slot
-// presence and `iconSide: 'right'` pads 24/16 where `'none'` pads 16/16. Hiding
-// the glyph in CSS would leave the label 8px off centre.
-const isHackathon = currentBasePath === ROUTE_BASES['hackathon-pages']
+// The hackathon's main CTA carries no arrow; `isHackathonBasePath` holds the
+// reason. Decided here rather than with a `dark:` class partly because the rule
+// is per site and not per theme, and partly because the icon sets the button's
+// padding: LinkButton derives `iconSide` from slot presence, and `'right'` pads
+// 24/16 where `'none'` pads 16/16. Hiding the glyph in CSS would leave the
+// label 8px off centre.
+const isHackathon = isHackathonBasePath(currentBasePath)
 
 // Icon by link kind (INTORG-938). Both buttons carry their own external and
 // document flags, so an editor can mark either one a download.

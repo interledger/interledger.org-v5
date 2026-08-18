@@ -36,6 +36,25 @@ export function normalizeBasePath(basePath: string): string {
   return basePath.startsWith('/') ? basePath : `/${basePath}`
 }
 
+/**
+ * True when the current render sits on the hackathon microsite. Pass
+ * `Astro.locals.currentBasePath`.
+ *
+ * Exists for the arrow rule: a hackathon primary carries no arrow, because its
+ * label is usually programmatic such as `<register_today>` and an arrow beside
+ * that reads as too much. The rule holds for an ordinary label like
+ * "Subscribe" too (Radu, 2026-08-18 on INTORG-1083).
+ *
+ * A `dark:` class cannot express this. The rule is per site, not per theme, and
+ * summit is dark as well and keeps its arrow.
+ *
+ * External and document links keep their own icon on the hackathon. Those
+ * glyphs report what the link does rather than decorate the label.
+ */
+export function isHackathonBasePath(basePath: string): boolean {
+  return normalizeBasePath(basePath) === ROUTE_BASES['hackathon-pages']
+}
+
 /** Catch-all `page` param for grant-overview-pages static paths. */
 export function grantOverviewRouteParam(pathSlug: string): string {
   return `grant/${pathSlug}`

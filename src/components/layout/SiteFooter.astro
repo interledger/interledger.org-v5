@@ -24,6 +24,12 @@ const { site = 'foundation' } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+// A hackathon primary carries no arrow, Subscribe included. See
+// `isHackathonBasePath` for the reason (INTORG-1072). Keyed on the `site` prop
+// rather than the base path because this component is already told its site,
+// and a footer renders the same way whatever page it sits under.
+const subscribeIcon = site === 'hackathon' ? null : 'arrow-right'
+
 const { mainMenu } = getNavigation(site, routeLocale)
 
 const footerOnlyColumn = getFooterOnlyColumn(site, routeLocale)
@@ -96,11 +102,12 @@ const navigationUlClass = twMerge(
         <LinkButton
           href={subscribeHref}
           size="lg"
+          iconSide={subscribeIcon ? 'right' : 'none'}
           class="w-full tablet:w-auto"
           {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
         >
           {t('footer.subscribe')}
-          <Icon slot="icon-right" name="arrow-right" />
+          {subscribeIcon && <Icon slot="icon-right" name={subscribeIcon} />}
         </LinkButton>
       </section>
 
