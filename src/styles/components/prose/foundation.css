@@ -151,8 +151,7 @@
     border-end-end-radius: var(--radius-2xl);
   }
 
-  /* Dark tables: charcoal surface, white type, ocean/purple zebra (same
-     pairing as dark Agenda rows) so the grid stays readable on hackathon. */
+  /* Dark tables: charcoal surface, white type, same zebra as Agenda rows. */
   @variant dark {
     [data-prose] table {
       background-color: var(--color-neutral-150);
@@ -170,11 +169,11 @@
     }
 
     [data-prose] tbody tr:nth-child(odd) > * {
-      background-color: var(--color-ocean-100);
+      background-color: var(--color-ocean-150);
     }
 
     [data-prose] tbody tr:nth-child(even) > * {
-      background-color: var(--color-royal-purple-100);
+      background-color: var(--color-royal-purple-150);
     }
 
     [data-prose] thead th {
