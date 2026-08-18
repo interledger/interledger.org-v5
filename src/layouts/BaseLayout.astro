@@ -8,12 +8,22 @@ import '../styles/tailwind.css'
 import SeoHead from '@/components/shared/SeoHead.astro'
 import SmoothScroll from '@/components/shared/SmoothScroll.astro'
 import { useTranslations, buildCanonicalMeta } from '@/utils'
+import type { MicrositeSite } from '@/types/navigation'
 
 interface Props {
   title: string
   titleSuffix?: string
   description?: string
   theme?: 'light' | 'dark'
+  /**
+   * Which site this page belongs to, emitted as `data-site` on <html>.
+   *
+   * Separate from `theme` on purpose. Both microsites are permanently dark, so
+   * `data-theme` cannot tell them apart, and some tokens are per-site rather
+   * than per-theme — the hackathon's apricot buttons, for one. Omitted on the
+   * foundation site, which needs no override (INTORG-1083).
+   */
+  site?: MicrositeSite
   ogType?: string
   ogImageUrl?: string
   canonicalURL?: string
@@ -37,6 +47,7 @@ const {
   titleSuffix = t('site.title.foundation'),
   description = t('site.description'),
   theme = 'light',
+  site,
   ogType = 'website',
   ogImageUrl = new URL('/img/og-foundation.png', Astro.site).href,
   canonicalURL = canonicalMeta.canonical,
@@ -56,7 +67,7 @@ const umamiWebsiteId = isProduction
 ---
 
 <!doctype html>
-<html lang={routeLocale} data-theme={theme}>
+<html lang={routeLocale} data-theme={theme} data-site={site}>
   <head>
     <link
       rel="preload"

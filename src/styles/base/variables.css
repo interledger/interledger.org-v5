@@ -25,6 +25,16 @@
     --color-button-primary: var(--color-orchid-100);
     --color-button-primary-hover: var(--color-orchid-150);
     --color-button-primary-disabled: var(--color-orchid-50);
+    /* Label colour. A retint can change the fill's lightness enough that white
+       stops working: on the hackathon's apricot fill it measures 1.79:1. Kept
+       separate from --color-btn-txt, which PdfEmbed pairs with --color-primary
+       (not retinted), so overriding that would darken its label over orchid. */
+    --color-button-primary-text: var(--color-neutral-0);
+    /* Focus state: a pale fill with one accent used for both the label and the
+       inset outline. Retintable for the same reason as the label — the accent
+       has to stay readable on whatever the pale fill becomes. */
+    --color-button-primary-focus: var(--color-orchid-50);
+    --color-button-primary-focus-accent: var(--color-orchid-100);
 
     /* Dependent color vars — reference other vars, so must live in :root */
     --color-btn-txt: var(--color-white);
@@ -83,5 +93,28 @@
   }
   [data-pillar='values'] {
     --color-primary: var(--color-orchid-100);
+  }
+
+  /* Site overrides — set on <html> by BaseLayout, alongside data-theme.
+     Same shape as the pillar hook above, keyed on the site instead of the
+     section.
+
+     This has to be a site selector, not `dark:`. Both microsites set
+     data-theme="dark", so no dark variant can tell hackathon from summit, and
+     apricot is a hackathon colour. The prototype confirms the two are separate
+     kinds rather than two themes of one: a single hackathon page carries both
+     an apricot primary and an orchid one (INTORG-1083). */
+  [data-site='hackathon'] {
+    --color-button-primary: var(--color-apricot-100);
+    --color-button-primary-hover: var(--color-apricot-150);
+    --color-button-primary-disabled: var(--color-apricot-50);
+    --color-button-primary-text: var(--color-neutral-100);
+    /* Not apricot-150 for the accent. Apricot's own 150 on its own 50 measures
+       1.63:1, because both are light — orchid gets away with the pattern only
+       because its 100 is dark. neutral-100 measures 11.88:1 and keeps the label
+       the same colour it is at rest, so focus only lightens the fill.
+       Proposed, not specified: Radu has not named an apricot focus state. */
+    --color-button-primary-focus: var(--color-apricot-50);
+    --color-button-primary-focus-accent: var(--color-neutral-100);
   }
 }

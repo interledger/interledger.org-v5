@@ -10,9 +10,10 @@
  * src/utils/twMerge.ts). Button.astro and LinkButton.astro wrap the
  * buttonVariants() result with twMerge so `<Button class="w-full">` cleanly
  * wins over CVA defaults. Override patterns:
- *   - Pattern A: wrap in [data-pillar='X'] (preferred for pillar re-tint)
- *   - Pattern B: inline-style the --color-button-primary{,-hover,-disabled}
- *               vars (preferred for forcing a specific palette colour)
+ *   - Pattern A: wrap in [data-pillar='X'] or [data-site='X'] (preferred for a
+ *               pillar or whole-site re-tint; see src/styles/base/variables.css)
+ *   - Pattern B: inline-style the --color-button-primary* vars (preferred for
+ *               forcing a specific palette colour on one button)
  *   - Pattern C: pass `class` prop (preferred for non-colour utilities)
  */
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -29,14 +30,18 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          'bg-button-primary text-neutral-0',
+          // Both fill and label are vars, so a [data-site] or [data-pillar]
+          // retint carries the pair. White is not safe on every fill: on the
+          // hackathon's apricot it measures 1.79:1 (INTORG-1083).
+          'bg-button-primary text-button-primary-text',
           'hover:bg-button-primary-hover',
-          // Focus state: orchid-50 fill, 2px orchid-100 outline drawn inside
-          // the button border (so layout doesn't shift), orchid-100 text.
-          // Hardcoded to orchid; pillar-aware focus tokens are a follow-up
-          // once design specifies per-pillar focus colours.
-          'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
-          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
+          // Focus state: a pale fill with one accent for both the label and a
+          // 2px outline drawn inside the button border (so layout doesn't
+          // shift). Orchid resolves to the old hardcoded orchid-50/orchid-100
+          // pair; a retint supplies its own, because the accent has to stay
+          // readable on whatever the pale fill becomes (INTORG-1083).
+          'focus-visible:bg-button-primary-focus focus-visible:text-button-primary-focus-accent',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-button-primary-focus-accent',
           'disabled:bg-button-primary-disabled disabled:text-neutral-25 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-25'
         ],
         secondary: ['bg-transparent border'],
@@ -139,7 +144,12 @@ export const buttonVariants = cva(
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
           'disabled:border-neutral-50 disabled:text-neutral-50',
           'aria-disabled:border-neutral-50 aria-disabled:text-neutral-50',
-          'dark:border-neutral-75 dark:text-neutral-25',
+          // neutral-50, not the neutral-75 the explicit `dark` compound uses.
+          // `auto` lands on the near-black microsite surfaces, where neutral-75
+          // measures 2.82:1 against neutral-150 and fails the 3:1 minimum for a
+          // control boundary. neutral-50 measures 11.74:1 and matches the
+          // hackathon prototype (INTORG-1083).
+          'dark:border-neutral-50 dark:text-neutral-25',
           'dark:hover:border-neutral-0 dark:hover:text-neutral-25',
           'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',
           'dark:focus-visible:outline-neutral-0',
