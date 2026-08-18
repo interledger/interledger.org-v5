@@ -25,7 +25,6 @@ const {
 
 const { routeLocale } = Astro.locals
 
-// Figma default uses the bidirectional swap icon; external/document override.
 const {
   href,
   external,
@@ -38,8 +37,7 @@ const {
 } = resolveCtaLink({
   url: buttonUrl,
   external: buttonExternal,
-  document: buttonDocument,
-  internalIcon: 'swap'
+  document: buttonDocument
 })
 
 const overlayUmamiAttrs = buildUmamiAttrs({
@@ -74,7 +72,11 @@ const overlayUmamiAttrs = buildUmamiAttrs({
       class="self-start z-[1]"
     >
       {buttonText}
-      <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+      {
+        trailingIcon && (
+          <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+        )
+      }
     </LinkButton>
   </div>
   <a
