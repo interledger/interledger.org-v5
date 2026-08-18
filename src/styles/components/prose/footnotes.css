@@ -135,47 +135,47 @@
  * the layout. These sit outside @layer so footnote markers, body, and links
  * keep the designed palette instead of charcoal-on-charcoal / apricot hover.
  */
-[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
+html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
   color: var(--color-lavender-100);
 }
 
-[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
+html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
   color: var(--color-lavender-150);
 }
 
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes]) {
   border-block-start-color: var(--color-neutral-75);
   color: var(--color-prose);
 }
 
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   :is(p, li) {
   color: var(--color-prose);
 }
 
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   p {
   margin-block: 0;
 }
 
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   a,
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   li::before {
   color: var(--color-lavender-100);
 }
 
-[data-theme='dark']
+html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   a:hover {
