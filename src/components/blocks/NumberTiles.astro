@@ -34,13 +34,14 @@ const { tiles } = Astro.props
 // StatsSection's homepage h1. StatCard always sizes the suffix to match
 // numberClass, so "21" and "M+" read as one continuous size automatically.
 const NUMBER_CLASS =
-  'font-poppins font-semibold text-h2 tablet:text-h2-md desktop:text-h2-lg'
-const LABEL_CLASS = 'text-left text-neutral-75'
+  'font-poppins font-semibold text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0'
+const LABEL_CLASS = 'text-left text-neutral-75 dark:text-neutral-50'
 ---
 
 <ul
   role="list"
   class="m-0 mb-6xl grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 desktop:grid-cols-4"
+  data-component="NumberTiles"
   data-animated-number-trigger
   data-umami-component="number-tiles"
 >
