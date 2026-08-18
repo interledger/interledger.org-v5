@@ -66,16 +66,16 @@ const authorAbove = Boolean(image || safeAuthorLink)
 // Image-1 layout: name-only attribution under the quote with an en dash.
 const authorBelow = Boolean(authorName && !authorAbove)
 
-// Match quote-body type scale (h5) so figcaption attribution reads at the same size.
+// Match quote-body type; colour inherits --color-prose like the body <p>.
 const authorTypeClasses =
   'font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg font-normal'
-const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} text-neutral-900 no-underline transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
+const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`
 ---
 
 <figure
   data-component="quote"
   data-umami-component="quote"
-  class="my-2xl border-x-2 border-raspberry-100 px-xl py-0 tablet:px-xl"
+  class="my-2xl border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl"
 >
   {
     authorAbove && (
@@ -107,7 +107,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
               <span>{authorName}</span>
               <Icon
                 name="link-rounded"
-                class="size-5 shrink-0 text-primary"
+                class="size-5 shrink-0 text-current"
                 aria-hidden="true"
               />
               {isExternalHref(safeAuthorLink) && (
@@ -115,9 +115,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
               )}
             </a>
           ) : (
-            <cite
-              class:list={['not-italic text-neutral-900', authorTypeClasses]}
-            >
+            <cite class:list={['not-italic', authorTypeClasses]}>
               {authorName}
             </cite>
           ))}
@@ -135,7 +133,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
           >
             <Icon
               name="link-rounded"
-              class="size-5 shrink-0 text-primary"
+              class="size-5 shrink-0 text-current"
               aria-hidden="true"
             />
           </a>
@@ -144,9 +142,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
     )
   }
 
-  <blockquote
-    class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100"
-  >
+  <blockquote class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg">
     {
       // String prop: keep marks in the same text run. Slot (MDX): children are
       // often block <p>s — use CSS ::before/::after on first/last child so the
@@ -164,7 +160,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
   {
     authorBelow && (
       <figcaption class="mt-0">
-        <p class:list={['m-0 text-neutral-100', authorTypeClasses]}>
+        <p class:list={['m-0', authorTypeClasses]}>
           – <cite class="not-italic font-normal">{authorName}</cite>
         </p>
       </figcaption>
