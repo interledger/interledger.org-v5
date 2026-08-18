@@ -293,7 +293,7 @@ export const redirects = {
     '/summit/hackathon/resources/ideation-framework',
 
   // Summit hackathon (Spanish)
-  '/es/summit/hackathon': '/es/hackaton',
+  '/es/summit/hackathon': '/es/hackathon',
   '/es/hackathon': '/es/hackathon/overview',
   '/es/summit/hackathon/faqs': '/es/hackathon/faq',
   '/es/summit/hackathon/participation': '/es/hackathon/participation',
@@ -301,7 +301,7 @@ export const redirects = {
   '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
   '/es/summit/code-conduct': '/es/hackathon/code-conduct',
   '/es/summit/hackathon/schedule': '/es/summit/hackaton/programa',
-  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackaton/faq',
+  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
 
   // Summit talks and speakers
   // Old singular routes (redirect directly to final destination)

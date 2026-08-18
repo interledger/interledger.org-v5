@@ -7,7 +7,8 @@ import {
   localizeRoute,
   socialLinks,
   getFooterOnlyColumn,
-  HACKATHON_HOME_SLUG
+  HACKATHON_HOME_SLUG,
+  twMerge
 } from '@/utils'
 import type { NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
@@ -62,6 +63,10 @@ const isHackathonSite = site === 'hackathon'
 const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 const footerLogoLinkClass =
   'inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none'
+const navigationUlClass = twMerge(
+  'm-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6',
+  isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : ''
+)
 ---
 
 <footer
@@ -85,7 +90,7 @@ const footerLogoLinkClass =
         >
           {t('footer.stay_up_to_date')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-xl text-body-sm-standard text-neutral-75">
           {t('footer.newsletter_description')}
         </p>
         <LinkButton
@@ -110,7 +115,7 @@ const footerLogoLinkClass =
         >
           {t('footer.contact_us')}
         </h5>
-        <p class="mb-xl max-w-[44ch] text-body-sm-standard text-neutral-75">
+        <p class="mb-xl text-body-sm-standard text-neutral-75">
           {t('footer.contact_description')}
         </p>
         <LinkButton
@@ -166,10 +171,7 @@ const footerLogoLinkClass =
       aria-label={t('footer.nav_label')}
       class="border-t border-neutral-50 py-3xl"
     >
-      <ul
-        class="m-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6"
-        role="list"
-      >
+      <ul class={navigationUlClass} role="list">
         {
           footerColumns.map((group, groupIndex) => {
             const groupHeadingId = `footer-nav-group-${groupIndex}`
