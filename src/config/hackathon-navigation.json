@@ -5,11 +5,15 @@
       "items": [
         {
           "label": "Overview",
-          "href": "/hackathon/overview"
+          "href": "/hackathon"
+        },
+        {
+          "label": "Participation Requirements",
+          "href": "/hackathon/participation"
         },
         {
           "label": "FAQ",
-          "href": "/hackathon/faqs"
+          "href": "/hackathon/faq"
         }
       ]
     },
@@ -17,11 +21,11 @@
       "label": "Resources",
       "items": [
         {
-          "label": "Participation requirements",
-          "href": "/hackathon/participation"
+          "label": "Learn Open Payments",
+          "href": "/hackathon/open-payments"
         },
         {
-          "label": "Code of conduct",
+          "label": "Code of Conduct",
           "href": "/hackathon/code-conduct"
         }
       ]

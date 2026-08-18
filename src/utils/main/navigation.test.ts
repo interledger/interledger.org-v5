@@ -29,7 +29,7 @@ describe('getNavigation', () => {
   it('returns the localized config for es', () => {
     const { mainMenu } = getNavigation('hackathon', 'es')
     expect(mainMenu[0].items?.[0]).toMatchObject({
-      href: '/es/hackathon/overview'
+      href: '/es/hackathon'
     })
   })
 
