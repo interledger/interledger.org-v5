@@ -219,14 +219,21 @@ const hasSecondary = Boolean(
           </div>
         )}
 
-        <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
+        <div
+          class:list={[
+            'flex w-full gap-sm tablet:w-fit',
+            hasSecondary
+              ? 'flex-col items-stretch tablet:flex-row tablet:items-center tablet:justify-center'
+              : 'flex-col items-stretch'
+          ]}
+        >
           <LinkButton
             href={resolvedPrimary.href}
             variant="primary"
             external={resolvedPrimary.external}
             document={resolvedPrimary.document}
             iconSide={resolvedPrimary.icon ? 'right' : 'none'}
-            class="w-full"
+            class:list={[hasSecondary ? 'w-full tablet:w-auto' : 'w-full']}
             {...buildUmamiAttrs({
               ...umamiBase,
               href: primaryButtonLink,
@@ -247,7 +254,7 @@ const hasSecondary = Boolean(
               external={resolvedSecondary.external}
               document={resolvedSecondary.document}
               iconSide={resolvedSecondary.icon ? 'right' : 'none'}
-              class="cta-strip-secondary w-full"
+              class="cta-strip-secondary w-full tablet:w-auto"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: secondaryButtonLink,
