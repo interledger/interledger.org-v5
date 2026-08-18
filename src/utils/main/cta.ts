@@ -13,7 +13,7 @@ import { ensureLeadingSlash, hasUrlScheme, isExternalHref } from '../shared/url'
  * Trailing icons a CTA can carry. Every member must stay assignable to
  * `Icon.astro`'s `name` prop.
  */
-export type CtaIconName = 'download' | 'external-link' | 'arrow-right' | 'swap'
+export type CtaIconName = 'download' | 'external-link' | 'arrow-right'
 
 export interface CtaLinkInput {
   /** Raw URL as authored: a site path, or an absolute URL. */
@@ -27,9 +27,9 @@ export interface CtaLinkInput {
   /** Author's explicit "this link downloads a file" flag. */
   document?: boolean
   /**
-   * Icon for a link that is neither external nor a document. Call sites
-   * disagree today (navigation cards use `swap`, others show nothing), so it
-   * stays a parameter rather than a baked-in default.
+   * Icon for a link that is neither external nor a document. Most call sites
+   * show nothing; primary CTAs pass `arrow-right`. Stays a parameter rather
+   * than a baked-in default so each caller can opt in.
    */
   internalIcon?: CtaIconName | null
 }

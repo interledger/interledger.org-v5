@@ -99,7 +99,7 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'light',
         class: [
-          'border-neutral-50 text-neutral-100',
+          'border-neutral-75 text-neutral-100',
           // Hover: border colour darkens to black and text deepens to black.
           // Fill stays transparent.
           'hover:border-neutral-900 hover:text-neutral-900',
@@ -139,8 +139,8 @@ export const buttonVariants = cva(
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
           'disabled:border-neutral-50 disabled:text-neutral-50',
           'aria-disabled:border-neutral-50 aria-disabled:text-neutral-50',
-          'dark:border-neutral-75 dark:text-neutral-25',
-          'dark:hover:border-neutral-0 dark:hover:text-neutral-25',
+          'dark:border-neutral-50 dark:text-neutral-25',
+          'dark:hover:border-neutral-0 dark:hover:text-neutral-0',
           'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',
           'dark:focus-visible:outline-neutral-0',
           'dark:disabled:border-neutral-100 dark:disabled:text-neutral-75',
