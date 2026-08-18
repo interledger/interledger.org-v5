@@ -1,4 +1,5 @@
 export function serialize(block: {
+  title?: string
   tiles?: {
     number?: string
     prefix?: string
@@ -32,7 +33,9 @@ export function serialize(block: {
     }
   })
 
+  const title = block.title?.trim()
+  const titleAttr = title ? ` title=${JSON.stringify(title)}` : ''
   const tilesAttr = ` tiles={${JSON.stringify(tileItems)}}`
 
-  return `<NumberTiles${tilesAttr} />`
+  return `<NumberTiles${titleAttr}${tilesAttr} />`
 }

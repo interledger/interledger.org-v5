@@ -78,6 +78,33 @@ describe('NumberTiles handler', () => {
     ])
   })
 
+  it('parses an optional title', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<NumberTiles title="Overview" tiles={[{ number: '150', suffix: '+', description: 'Builders' }, { number: '24', suffix: 'H', description: 'Code Rush' }]} />`,
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.number-tiles',
+        title: 'Overview',
+        tiles: [
+          { number: '150', suffix: '+', description: 'Builders' },
+          { number: '24', suffix: 'H', description: 'Code Rush' }
+        ]
+      }
+    ])
+  })
+
+  it('omits title when absent', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
+      { locale: 'en' }
+    )
+    if (blocks instanceof MdxParserError) throw blocks
+    expect(blocks[0]).not.toHaveProperty('title')
+  })
+
   it('omits suffix when absent', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
@@ -151,6 +178,18 @@ describe('NumberTiles handler — errors', () => {
     )
     expect(result).toBeInstanceOf(MdxParserError)
     expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
+  })
+
+  it('returns INVALID_PROP_VALUE when title is blank', async () => {
+    const result = await parseMdxToBlocks(
+      `<NumberTiles title="  " tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
+      { locale: 'en' }
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      prop: 'title'
+    })
   })
 
   it('returns INVALID_PROP_VALUE when fewer than 2 tiles are provided', async () => {

@@ -3,10 +3,19 @@
   "info": {
     "displayName": "Number Tiles",
     "icon": "chart-pie",
-    "description": "Row of stat tiles (number + optional suffix + description). Minimum 2 tiles."
+    "description": "Row of stat tiles with an optional title (number + optional suffix + description). Minimum 2 tiles."
   },
   "options": {},
   "attributes": {
+    "title": {
+      "type": "string",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "tiles": {
       "type": "component",
       "repeatable": true,
