@@ -30,19 +30,21 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          // Both fill and label are vars, so a [data-site] or [data-pillar]
-          // retint carries the pair. White is not safe on every fill: on the
-          // hackathon's apricot it measures 1.79:1 (INTORG-1083).
+          // Every state reads its fill and its label from a var, so a
+          // [data-site] or [data-pillar] retint carries the whole set. Nothing
+          // here is a fixed colour, because no single label works on every fill:
+          // white measures 1.79:1 on the hackathon's apricot (INTORG-1083).
+          //
+          // Orchid resolves to the colours these classes used to hardcode, so
+          // the foundation and summit rendering does not move.
           'bg-button-primary text-button-primary-text',
-          'hover:bg-button-primary-hover',
-          // Focus state: a pale fill with one accent for both the label and a
-          // 2px outline drawn inside the button border (so layout doesn't
-          // shift). Orchid resolves to the old hardcoded orchid-50/orchid-100
-          // pair; a retint supplies its own, because the accent has to stay
-          // readable on whatever the pale fill becomes (INTORG-1083).
-          'focus-visible:bg-button-primary-focus focus-visible:text-button-primary-focus-accent',
-          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-button-primary-focus-accent',
-          'disabled:bg-button-primary-disabled disabled:text-neutral-25 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-25'
+          'hover:bg-button-primary-hover hover:text-button-primary-hover-text',
+          // Figma draws the focus ring as a 2px border. This uses an inset
+          // outline instead: the resting primary has no border, so a real one
+          // would grow the button by 4px on focus. Same look, no layout shift.
+          'focus-visible:bg-button-primary-focus focus-visible:text-button-primary-focus-text',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-button-primary-focus-outline',
+          'disabled:bg-button-primary-disabled disabled:text-button-primary-disabled-text aria-disabled:bg-button-primary-disabled aria-disabled:text-button-primary-disabled-text'
         ],
         secondary: ['bg-transparent border'],
         // Footer ghost button. Inline text-with-padding link, no fill, no

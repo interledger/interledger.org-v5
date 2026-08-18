@@ -36,11 +36,18 @@
    [data-site='X'] overrides would never reach the generated utility class. */
 @theme inline {
   --color-button-primary: var(--color-button-primary);
-  --color-button-primary-hover: var(--color-button-primary-hover);
-  --color-button-primary-disabled: var(--color-button-primary-disabled);
   --color-button-primary-text: var(--color-button-primary-text);
+  --color-button-primary-hover: var(--color-button-primary-hover);
+  --color-button-primary-hover-text: var(--color-button-primary-hover-text);
   --color-button-primary-focus: var(--color-button-primary-focus);
-  --color-button-primary-focus-accent: var(--color-button-primary-focus-accent);
+  --color-button-primary-focus-text: var(--color-button-primary-focus-text);
+  --color-button-primary-focus-outline: var(
+    --color-button-primary-focus-outline
+  );
+  --color-button-primary-disabled: var(--color-button-primary-disabled);
+  --color-button-primary-disabled-text: var(
+    --color-button-primary-disabled-text
+  );
 }
 
 /* Static design tokens — single source of truth for values */
