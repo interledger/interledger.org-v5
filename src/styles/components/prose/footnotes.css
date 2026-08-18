@@ -129,3 +129,55 @@
     }
   }
 }
+
+/*
+ * Dark footnote list still hard-codes charcoal in the layered rules above.
+ * Unlayered so list copy, numbers, and links pick up --color-link from
+ * .hackathon-main instead of the layout's previous currentColor/apricot.
+ */
+html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
+  color: var(--color-link, var(--color-lavender-100));
+}
+
+html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
+  color: var(--color-link-hover, var(--color-lavender-150));
+}
+
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes]) {
+  border-block-start-color: var(--color-neutral-75);
+  color: var(--color-prose);
+}
+
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  :is(p, li) {
+  color: var(--color-prose);
+}
+
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  p {
+  margin-block: 0;
+}
+
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  a,
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  li::before {
+  color: var(--color-link, var(--color-lavender-100));
+}
+
+html[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  a:hover {
+  color: var(--color-link-hover, var(--color-lavender-150));
+}
