@@ -16,11 +16,15 @@ const MIN_ITEMS = 2
 interface AgendaItem {
   time: string
   activity: string
-  additionalInfo: string
+  additionalInfo?: string
 }
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
+}
+
+function isOptionalString(value: unknown): boolean {
+  return value === undefined || value === null || typeof value === 'string'
 }
 
 function isAgendaItem(value: unknown): value is AgendaItem {
@@ -29,7 +33,7 @@ function isAgendaItem(value: unknown): value is AgendaItem {
   return (
     isNonEmptyString(item.time) &&
     isNonEmptyString(item.activity) &&
-    isNonEmptyString(item.additionalInfo)
+    isOptionalString(item.additionalInfo)
   )
 }
 
@@ -60,7 +64,7 @@ async function handleAgenda(
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
         message:
-          'Prop "items" must be an array of { time, activity, additionalInfo } objects with non-empty string values.',
+          'Prop "items" must be an array of { time, activity, additionalInfo? } objects. time and activity must be non-empty strings.',
         component: 'Agenda',
         prop: 'items',
         line: node.position?.start.line,
@@ -85,7 +89,9 @@ async function handleAgenda(
       items: items.map((item) => ({
         time: item.time.trim(),
         activity: item.activity.trim(),
-        additionalInfo: item.additionalInfo.trim()
+        ...(isNonEmptyString(item.additionalInfo)
+          ? { additionalInfo: item.additionalInfo.trim() }
+          : {})
       }))
     }
 

@@ -4,7 +4,7 @@ import { parseMarkdown, parseMarkdownInline, useTranslations } from '@/utils'
 interface AgendaItem {
   time: string
   activity: string
-  additionalInfo: string
+  additionalInfo?: string
 }
 
 interface Props {
@@ -27,11 +27,18 @@ const headingId = renderedHeading
   ? `agenda-heading-${crypto.randomUUID()}`
   : undefined
 const renderedItems = await Promise.all(
-  items.map(async (item) => ({
-    time: parseMarkdownInline(item.time, markdownContext),
-    activity: parseMarkdownInline(item.activity, markdownContext),
-    additionalInfo: await parseMarkdown(item.additionalInfo, markdownContext)
-  }))
+  items.map(async (item) => {
+    const additionalInfo = await parseMarkdown(
+      item.additionalInfo,
+      markdownContext
+    )
+    return {
+      time: parseMarkdownInline(item.time, markdownContext),
+      activity: parseMarkdownInline(item.activity, markdownContext),
+      additionalInfo,
+      hasAdditionalInfo: additionalInfo.trim().length > 0
+    }
+  })
 )
 ---
 
@@ -45,7 +52,7 @@ const renderedItems = await Promise.all(
     renderedHeading && headingId && (
       <h2
         id={headingId}
-        class="mb-xl tablet:mb-2xl"
+        class="mb-xl text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 dark:text-neutral-50 tablet:mb-2xl"
         set:html={renderedHeading}
       />
     )
@@ -60,10 +67,10 @@ const renderedItems = await Promise.all(
         <li class="relative tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid">
           <div
             aria-hidden="true"
-            class="absolute top-[calc(var(--spacing-md)-1px)] bottom-0 left-sm z-10 flex w-2xl justify-center tablet:left-sm"
+            class="absolute top-[calc(var(--spacing-lg)-1px)] tablet:top-[calc(var(--spacing-xl)-1px)] bottom-0 left-md z-10 flex w-2xl justify-center"
           >
             <svg
-              class="relative z-10 size-xl shrink-0 rounded-full text-neutral-75"
+              class="relative z-10 size-xl shrink-0 rounded-full text-neutral-75 dark:text-neutral-0"
               viewBox="0 0 24 24"
               fill="none"
             >
@@ -73,17 +80,26 @@ const renderedItems = await Promise.all(
               />
             </svg>
             {index < renderedItems.length - 1 && (
-              <span class="absolute top-xl left-1/2 w-px -translate-x-1/2 bg-neutral-75 bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-md)+0.5rem+3px))]" />
+              <span class="absolute top-xl left-1/2 w-px -translate-x-1/2 bg-neutral-75 dark:bg-neutral-25 bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-lg)+0.5rem+3px))] tablet:bottom-[calc(-1*(var(--spacing-lg)+var(--spacing-xl)+0.5rem+3px))]" />
             )}
           </div>
 
           <dl
             class:list={[
-              'm-0 min-w-0 rounded-2xl pt-md pb-sm pr-lg pl-3xl text-neutral-100 tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid tablet:items-stretch tablet:rounded-lg tablet:py-md tablet:pr-xl tablet:pl-3xl',
-              index % 2 === 0 ? 'bg-ice-indigo-50' : 'bg-rose-mint-50'
+              'm-0 min-w-0 rounded-2xl py-lg pr-2xl pl-3xl text-neutral-100 dark:text-neutral-0 tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid tablet:items-stretch tablet:rounded-lg dark:tablet:rounded-2xl tablet:py-xl tablet:pr-3xl',
+              index % 2 === 0
+                ? 'bg-ice-indigo-50 dark:bg-ocean-150'
+                : 'bg-rose-mint-50 dark:bg-royal-purple-150'
             ]}
           >
-            <div class="min-w-0 max-w-[300px] tablet:border-r tablet:border-neutral-50 tablet:pr-xl">
+            <div
+              class:list={[
+                'min-w-0',
+                item.hasAdditionalInfo
+                  ? 'max-w-[300px] tablet:pr-xl'
+                  : 'tablet:col-span-2'
+              ]}
+            >
               <dt class="sr-only">{t('agenda.timeLabel')}</dt>
               <dd
                 class="m-0 text-body-lg-emphasis tablet:text-body-lg-emphasis-md [&_p]:m-0"
@@ -91,19 +107,21 @@ const renderedItems = await Promise.all(
               />
               <dt class="sr-only">{t('agenda.activityLabel')}</dt>
               <dd
-                class="mt-md mb-0 text-h5 text-primary tablet:mt-sm tablet:text-h5-md desktop:text-h5-lg [&_p]:m-0"
+                class="mt-md mb-0 text-h5 text-primary dark:text-lavender-100 tablet:mt-sm tablet:text-h5-md desktop:text-h5-lg [&_p]:m-0"
                 set:html={item.activity}
               />
             </div>
 
-            <div class="mt-md min-w-0 tablet:mt-0 tablet:pl-lg flex flex-col justify-center">
-              <dt class="sr-only">{t('agenda.additionalInfoLabel')}</dt>
-              <dd
-                data-agenda-info
-                class="m-0 text-body-lg-standard tablet:text-body-lg-standard-md [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit"
-                set:html={item.additionalInfo}
-              />
-            </div>
+            {item.hasAdditionalInfo && (
+              <div class="mt-md min-w-0 pl-md tablet:mt-0 tablet:border-l tablet:border-neutral-50 dark:tablet:border-neutral-75 tablet:pl-2xl flex flex-col justify-center">
+                <dt class="sr-only">{t('agenda.additionalInfoLabel')}</dt>
+                <dd
+                  data-agenda-info
+                  class="m-0 text-body-sm-standard tablet:text-body-lg-standard-md [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
+                  set:html={item.additionalInfo}
+                />
+              </div>
+            )}
           </dl>
         </li>
       ))
@@ -138,9 +156,16 @@ const renderedItems = await Promise.all(
   [data-agenda-info] :global(ul),
   [data-agenda-info] :global(ol) {
     margin: 0;
-    padding-inline-start: var(--spacing-lg);
+    padding-inline-start: var(--spacing-xs);
     font-size: inherit;
     list-style-position: outside;
+  }
+
+  @media (min-width: 810px) {
+    [data-agenda-info] :global(ul),
+    [data-agenda-info] :global(ol) {
+      padding-inline-start: var(--spacing-sm);
+    }
   }
 
   [data-agenda-info] :global(ul) {
@@ -155,7 +180,24 @@ const renderedItems = await Promise.all(
     margin-block-end: var(--spacing-sm);
   }
 
-  [data-agenda-info] :global(li:last-of-type) {
+  /* Beat page-prose ul/li spacing. After the list matches the gap between lines. */
+  :global([data-prose] [data-component='Agenda'] [data-agenda-info] ul),
+  :global([data-prose] [data-component='Agenda'] [data-agenda-info] ol) {
+    margin-block-end: 0;
+    padding-block-end: 0;
+    padding-inline-start: var(--spacing-xs);
+  }
+
+  @media (min-width: 810px) {
+    :global([data-prose] [data-component='Agenda'] [data-agenda-info] ul),
+    :global([data-prose] [data-component='Agenda'] [data-agenda-info] ol) {
+      padding-inline-start: var(--spacing-sm);
+    }
+  }
+
+  :global(
+    [data-prose] [data-component='Agenda'] [data-agenda-info] li:last-of-type
+  ) {
     margin-block-end: 0;
   }
 </style>
