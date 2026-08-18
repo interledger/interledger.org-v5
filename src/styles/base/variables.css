@@ -29,6 +29,8 @@
     /* Dependent color vars — reference other vars, so must live in :root */
     --color-btn-txt: var(--color-white);
     --color-header-bg: var(--color-white);
+    --color-heading: var(--color-neutral-900);
+    --color-prose: var(--color-neutral-100);
 
     /* Layout tokens — no @theme namespace available */
     --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
@@ -51,9 +53,11 @@
   }
 
   [data-theme='dark'] {
-    --color-bg: var(--color-black);
+    --color-bg: var(--color-neutral-150);
     --color-text: var(--color-white);
     --color-btn-txt: var(--color-white);
+    --color-heading: var(--color-neutral-0);
+    --color-prose: var(--color-neutral-50);
   }
 
   /* Pillar overrides — set on a page wrapper via data-pillar.

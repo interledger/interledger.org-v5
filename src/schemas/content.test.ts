@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   foundationBlogFrontmatterSchema,
   grantPageFrontmatterSchema,
+  hackathonPageFrontmatterSchema,
   podcastPageFrontmatterSchema
 } from './content'
 
@@ -296,5 +297,56 @@ describe('grantPageFrontmatterSchema, the faqSection cta pair', () => {
       withFaqSection({ ctaText: '  ', ctaLink: '  ' })
     )
     expect(result.success).toBe(true)
+  })
+})
+
+describe('hackathonPageFrontmatterSchema', () => {
+  const hackathonPageBase = {
+    title: 'Hackathon Overview',
+    pathSlug: 'overview',
+    description: 'A short description of the Interledger hackathon.'
+  }
+
+  it('accepts a page with no hero', () => {
+    expect(
+      hackathonPageFrontmatterSchema.safeParse(hackathonPageBase).success
+    ).toBe(true)
+  })
+
+  it('accepts a hero with a single CTA', () => {
+    const result = hackathonPageFrontmatterSchema.safeParse({
+      ...hackathonPageBase,
+      heroTitle: 'Build the Future of Finance in 24 hours',
+      heroDescription: "Next Hackathon:\nSep 11-12, '26 – Medellín, Colombia",
+      heroImage: '/img/hackathon/hero.webp',
+      heroCtas: [
+        {
+          text: '<register_your_interest>',
+          link: 'https://interledger.app/signup',
+          external: true
+        }
+      ]
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects a blank heroTitle', () => {
+    const result = hackathonPageFrontmatterSchema.safeParse({
+      ...hackathonPageBase,
+      heroTitle: '   '
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects more than one hero CTA', () => {
+    const result = hackathonPageFrontmatterSchema.safeParse({
+      ...hackathonPageBase,
+      heroTitle: 'Welcome',
+      heroCtas: [
+        { text: 'One', link: '/one' },
+        { text: 'Two', link: '/two' }
+      ]
+    })
+    expect(result.success).toBe(false)
   })
 })

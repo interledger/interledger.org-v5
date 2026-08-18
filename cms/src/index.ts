@@ -823,6 +823,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       content: 'Page Content'
     },
     'api::foundation-navigation.foundation-navigation': {
@@ -1339,6 +1340,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
     },
+    'shared.hero': {
+      backgroundImageMobile:
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to the desktop image when absent.'
+    },
     'shared.localized-media': {
       alternativeText:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
@@ -1707,6 +1712,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
     'api::grant-overview-page.grant-overview-page': [
@@ -2223,8 +2229,11 @@ export default {
       strapi,
       'api::hackathon-page.hackathon-page',
       (body) =>
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerDocumentValidation(
