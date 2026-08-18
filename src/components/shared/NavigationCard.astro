@@ -50,7 +50,7 @@ const overlayUmamiAttrs = buildUmamiAttrs({
 ---
 
 <article
-  class="relative flex h-full gap-lg rounded-3xl border border-neutral-50 bg-white p-xl tablet:gap-xl"
+  class="relative flex h-full gap-lg rounded-3xl border border-neutral-50 bg-white dark:bg-neutral-100 dark:border-neutral-75 p-xl tablet:gap-xl"
 >
   <div
     class="w-1.5 shrink-0 self-stretch rounded-full bg-orchid-100"
@@ -59,13 +59,14 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   </div>
   <div class="flex min-w-0 flex-1 flex-col justify-between gap-xl">
     <h3
-      class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg"
+      class="m-0 text-h4 text-neutral-900 dark:text-neutral-25 tablet:text-h4-md desktop:text-h4-lg"
     >
       {heading}
     </h3>
     <LinkButton
       href={href}
       variant="secondary"
+      mode="auto"
       size="lg"
       external={external}
       document={buttonDocument}
