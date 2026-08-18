@@ -142,7 +142,9 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
     )
   }
 
-  <blockquote class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg">
+  <blockquote
+    class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg"
+  >
     {
       // String prop: keep marks in the same text run. Slot (MDX): children are
       // often block <p>s — use CSS ::before/::after on first/last child so the
