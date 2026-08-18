@@ -1,5 +1,11 @@
 ---
-import { useTranslations, buildUmamiAttrs, stripPagination } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  stripPagination,
+  CATEGORY_SEGMENT,
+  ALL_TERM_SLUG
+} from '@/utils'
 import type { Locale } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 
@@ -18,9 +24,9 @@ const t = useTranslations(routeLocale)
 const pathname = stripPagination(Astro.url.pathname)
 const base = pathname.includes('/lang/')
   ? pathname.replace(/\/lang\/[^/]+$/, '')
-  : pathname.includes('/category/')
+  : pathname.includes(`/${CATEGORY_SEGMENT}/`)
     ? pathname
-    : `${pathname}/category/all`
+    : `${pathname}/${CATEGORY_SEGMENT}/${ALL_TERM_SLUG}`
 const enHref = `${base}/lang/en`
 const esHref = `${base}/lang/es`
 

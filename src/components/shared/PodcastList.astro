@@ -1,8 +1,9 @@
 ---
 /**
- * Podcast List — renders the /podcast page's fixed episode list.
+ * Podcast List — renders a page of the /podcast episode list.
  * podcasts is a plain frontmatter array (page-owned, not a relation), so
- * there's no category/relation lookup here — just a direct map.
+ * there's no category/relation lookup here — just a direct map. Callers pass
+ * episodes already in display order (see src/utils/main/podcastPagination.ts).
  */
 import PodcastItem from './PodcastItem.astro'
 import type { Podcast } from '@/types/podcast'
@@ -14,14 +15,11 @@ interface Props {
 
 const { podcasts, theme = 'light' } = Astro.props
 const isDark = theme === 'dark'
-
-// Authored in chronological order; the newest episode (last in the list) shows first.
-const orderedPodcasts = [...podcasts].reverse()
 ---
 
 <ul class="m-0 flex list-none flex-col p-0" role="list">
   {
-    orderedPodcasts.map((podcast) => (
+    podcasts.map((podcast) => (
       <li
         class:list={[
           'border-b py-3xl first:pt-0 last:border-b-0 last:pb-0',

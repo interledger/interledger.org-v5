@@ -1,11 +1,4 @@
-export type PodcastSeries =
-  | 'Interledger Salon'
-  | 'Future Money'
-  | 'Off the Ledger'
+import type { PodcastItemType } from '@/schemas/content'
 
-export interface Podcast {
-  title: string
-  description: string
-  url: string
-  series: PodcastSeries
-}
+export type PodcastSeries = PodcastItemType['series']
+export type Podcast = PodcastItemType

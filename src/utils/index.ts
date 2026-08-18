@@ -40,6 +40,7 @@ export {
   type RouteCollection,
   HOME_CONTENT_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
+  PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
@@ -91,14 +92,17 @@ export {
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
 export {
-  type BlogTaxonomy,
-  getBlogTaxonomy,
+  type TermTaxonomy,
+  type TaxonomyCollection,
+  getTaxonomy,
   getTermSlug,
   getTermUrl,
   translateTerm,
   buildContentLangHrefs,
   paginateAllPosts,
-  paginatePostsByTerm
+  paginatePostsByTerm,
+  ALL_TERM_SLUG,
+  CATEGORY_SEGMENT
 } from './main/tagFilter'
 export {
   FEATURED_POST_LIMIT,
@@ -108,6 +112,12 @@ export {
   getReadingTime,
   resolveRelatedPosts
 } from './main/blog'
+export {
+  PODCAST_PAGE_SIZE,
+  type PodcastPageData,
+  paginatePodcastEpisodes,
+  paginatePodcastEpisodesByTerm
+} from './main/podcastPagination'
 
 // Main site: Text
 export { generateSlug } from './main/slug'

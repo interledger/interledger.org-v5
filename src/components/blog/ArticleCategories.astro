@@ -4,7 +4,8 @@ import {
   buildUmamiAttrs,
   getTermUrl,
   translateTerm,
-  useTranslations
+  useTranslations,
+  CATEGORY_SEGMENT
 } from '@/utils'
 interface Props {
   categories: BlogCategory[]
@@ -39,7 +40,7 @@ const categoryClasses = `
         return (
           <li class="m-0">
             <a
-              href={getTermUrl(path, 'category', category)}
+              href={getTermUrl(path, CATEGORY_SEGMENT, category)}
               class={categoryClasses}
               {...categoryAttrs(label)}
             >
