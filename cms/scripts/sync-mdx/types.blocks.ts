@@ -387,6 +387,14 @@ export interface EventCardBlock extends StrapiBlockBase {
   apply?: EventCardApply
 }
 
+/**
+ * blocks.hackathon-animation — decorative scroll-driven chevron animation.
+ * No fields; the tag's presence is the only signal.
+ */
+export interface HackathonAnimationBlock extends StrapiBlockBase {
+  __component: 'blocks.hackathon-animation'
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -414,3 +422,4 @@ export type ParsedBlock =
   | EventCardBlock
   | CtaLinkBlock
   | CtaButtonsBlock
+  | HackathonAnimationBlock

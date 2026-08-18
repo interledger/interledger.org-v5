@@ -33,7 +33,13 @@ export const ParserErrorCode = {
   CONFLICTING_PROPS: 'CONFLICTING_PROPS',
 
   /** Nested JSX inside a Paragraph block (silent content corruption). */
-  NESTED_JSX: 'NESTED_JSX'
+  NESTED_JSX: 'NESTED_JSX',
+
+  /** A prop was given to a component that accepts none. */
+  UNEXPECTED_PROP: 'UNEXPECTED_PROP',
+
+  /** A component that must be self-closing received child content. */
+  UNEXPECTED_CHILDREN: 'UNEXPECTED_CHILDREN'
 } as const
 
 export type ParserErrorCode =

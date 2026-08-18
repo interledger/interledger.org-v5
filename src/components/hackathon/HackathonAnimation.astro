@@ -1,0 +1,222 @@
+---
+/**
+ * Decorative scroll-driven chevron animation for hackathon pages only.
+ *
+ * Six chevrons in two mirrored groups (3 pointing left, 3 pointing right)
+ * separate horizontally as the section scrolls through the viewport — the
+ * left group drifts further left, the right group drifts further right —
+ * with spring physics (stiffness 600, damping 60, mass 1) driven by
+ * src/scripts/hackathon-animation.ts. Purely decorative, no accessible
+ * content, so the whole section is aria-hidden.
+ */
+
+const CHEVRON_VIEWBOX = {
+  large: '0 0 264 400',
+  medium: '0 0 185 280',
+  small: '0 0 66 100'
+} as const
+
+const CHEVRON_PATH = {
+  large:
+    'M196.744 0L0 199.994L196.75 400L264 399.994L67.2613 200L264 0H196.744Z',
+  medium:
+    'M137.87 0L0 139.996L137.874 280L185 279.996L47.1339 140L185 0H137.87Z',
+  small: 'M49.1861 0L0 49.9986L49.1875 100L66 99.9986L16.8153 50L66 0H49.1861Z'
+} as const
+
+/**
+ * Locks each chevron's box to its own viewBox proportions (all ≈0.66,
+ * i.e. width:height) instead of an independent width percentage. The width
+ * classes this replaced were tuned for a fixed-width container; once the
+ * stage became full-bleed (screen-edge to screen-edge), that same
+ * percentage no longer matches the SVG's true aspect ratio at most viewport
+ * widths — with the SVG's default preserveAspectRatio (xMidYMid meet), the
+ * path then gets letterboxed inside its box, showing as empty space between
+ * the box edge and the visible chevron. Deriving width from height via
+ * aspect-ratio instead makes the box's shape always exactly match the path,
+ * at any viewport width, so there's no ratio to drift out of sync.
+ */
+const CHEVRON_ASPECT = {
+  large: 'aspect-[264/400]',
+  medium: 'aspect-[185/280]',
+  small: 'aspect-[66/100]'
+} as const
+
+type ChevronSize = keyof typeof CHEVRON_VIEWBOX
+
+interface ChevronSpec {
+  id: string
+  size: ChevronSize
+  color: string
+  mirrored: boolean
+  side: 'left' | 'right'
+  /**
+   * Fraction of this side's edge-reaching travel distance. 1 = the large
+   * chevron itself, whose target is set at runtime to its own resting gap
+   * to the screen edge (see hackathon-animation.ts), so it lands exactly on
+   * the edge at full scroll regardless of viewport width. Smaller values
+   * trail behind it, preserving the original Figma-authored relative
+   * speeds (large:medium:small ≈ 0.65:0.4:0.2 left, 0.7:0.4:0.2 right).
+   */
+  travelRatio: number
+  position: string
+}
+
+const CHEVRONS: ChevronSpec[] = [
+  {
+    id: 'left-large',
+    size: 'large',
+    color: 'fill-royal-purple-100',
+    mirrored: false,
+    side: 'left',
+    travelRatio: 1,
+    position: 'left-[12%] top-0 h-full tablet:left-[13.2%] desktop:left-[27.6%]'
+  },
+  {
+    id: 'left-medium',
+    size: 'medium',
+    color: 'fill-apricot-100',
+    mirrored: false,
+    side: 'left',
+    travelRatio: 0.6154,
+    position:
+      'left-[25.4%] top-[15%] h-[70%] tablet:left-[26%] desktop:left-[34.6%]'
+  },
+  {
+    id: 'left-small',
+    size: 'small',
+    color: 'fill-aqua-mint-100',
+    mirrored: false,
+    side: 'left',
+    travelRatio: 0.3077,
+    position:
+      'left-[39%] top-[37.5%] h-[25%] tablet:left-[39%] desktop:left-[41.1%]'
+  },
+  {
+    id: 'right-large',
+    size: 'large',
+    color: 'fill-royal-purple-100',
+    mirrored: true,
+    side: 'right',
+    travelRatio: 1,
+    position:
+      'right-[12%] top-0 h-full tablet:right-[13.2%] desktop:right-[27.6%]'
+  },
+  {
+    id: 'right-medium',
+    size: 'medium',
+    color: 'fill-apricot-100',
+    mirrored: true,
+    side: 'right',
+    travelRatio: 0.5714,
+    position:
+      'right-[25.4%] top-[15%] h-[70%] tablet:right-[26%] desktop:right-[34.6%]'
+  },
+  {
+    id: 'right-small',
+    size: 'small',
+    color: 'fill-aqua-mint-100',
+    mirrored: true,
+    side: 'right',
+    travelRatio: 0.2857,
+    position:
+      'right-[39%] top-[37.5%] h-[25%] tablet:right-[39%] desktop:right-[41.1%]'
+  }
+]
+---
+
+{
+  /*
+    Full-bleed breakout: the MDX content column is capped at max-w-content,
+    but this block's chevrons are meant to run to the screen edges per the
+    Figma design.
+
+    This can't be done with the usual left:50%/-50vw-margin CSS trick: that
+    math only cancels out correctly if the ancestor it resolves "50%"
+    against is genuinely centered at the assumed width. On this page, once
+    this component is anywhere in the tree, the mx-auto max-w-content
+    ancestor's own computed width is measurably wrong (confirmed: the same
+    page template without this component reports the correct, narrower
+    width) — a real layout bug in how this page's column-flex chain sizes
+    that ancestor, not something fixable from inside this one-off component.
+    So instead src/scripts/hackathon-animation.ts measures this div's actual
+    rendered offset from the viewport edge and cancels it with `translate`,
+    whose percentage/pixel value is self-referential to this div's own box,
+    never the ancestor's — immune to however wrong the ancestor's width is.
+
+    This div stays a normal in-flow block (no position:absolute) — the
+    earlier ancestor-width bug was specifically triggered by a *negative
+    margin* (a layout-affecting property leaking into intrinsic-size
+    computation via the flex min-width:auto default). `translate` is a
+    paint-time-only transform that never contributes to layout/intrinsic
+    sizing, so it doesn't retrigger that bug — and staying in-flow means its
+    own content (padding + stage) directly determines this section's height,
+    with no separate spacer needed. The chevron stage must live inside this
+    same div, not a sibling: only what's inside actually reaches the edges.
+
+    Relies on HackathonPageLayout's overflow-x-hidden body to absorb any
+    sub-pixel scrollbar-width overhang from 100vw.
+  */
+}
+<section
+  data-component="HackathonAnimation"
+  aria-hidden="true"
+  class="relative isolate"
+>
+  <div class="hackathon-fullbleed w-screen overflow-hidden py-5xl">
+    <div
+      class="hackathon-animation-stage relative h-50 w-full overflow-hidden tablet:h-100"
+    >
+      {
+        CHEVRONS.map((chevron) => (
+          <div
+            class:list={[
+              'chevron absolute',
+              CHEVRON_ASPECT[chevron.size],
+              chevron.position
+            ]}
+            data-chevron-side={chevron.side}
+            data-chevron-size={chevron.size}
+            data-chevron-ratio={chevron.travelRatio}
+            style={chevron.mirrored ? 'scale: -1 1' : undefined}
+          >
+            <svg
+              viewBox={CHEVRON_VIEWBOX[chevron.size]}
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              class="block h-full w-full"
+            >
+              <path d={CHEVRON_PATH[chevron.size]} class={chevron.color} />
+            </svg>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Set by hackathon-animation.ts from a real measurement — see the comment above the markup. */
+  [data-component='HackathonAnimation'] .hackathon-fullbleed {
+    translate: var(--hackathon-fullbleed-shift, 0px) 0;
+  }
+
+  [data-component='HackathonAnimation'] .chevron {
+    translate: var(--chevron-x, 0px) 0;
+  }
+
+  [data-component='HackathonAnimation'].hackathon-animation--compositing
+    .chevron {
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-component='HackathonAnimation'] .chevron {
+      translate: 0 0;
+    }
+  }
+</style>
+
+<script>
+  import '@/scripts/hackathon-animation'
+</script>
