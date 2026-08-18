@@ -3,9 +3,12 @@
  *
  * Unlike animated-network.ts (a stateless progress→value function that only
  * needs to run on scroll/resize), a spring has persisted velocity that must
- * keep integrating after scrolling stops until it settles — so this runs a
- * continuous rAF loop for as long as the section is near the viewport,
- * rather than gating ticks on scroll/resize events.
+ * keep integrating after scrolling stops until it settles — so while the
+ * section is near the viewport, this runs a per-frame rAF loop instead of
+ * gating ticks on scroll/resize events. The loop itself starts and stops
+ * with the IntersectionObserver's near/far transitions (see `scheduleTick`),
+ * so it never spins in the background on long pages where the section is
+ * off-screen.
  *
  * Listener lifecycle is managed with AbortController so resize/scroll/media-query
  * handlers are fully removed on teardown, page hide, and Astro view transitions.
@@ -162,6 +165,34 @@ function clearInlineStyles(): void {
   }
 }
 
+/** Below this, `start - end` is treated as collapsed rather than divided by. */
+const MIN_PROGRESS_WINDOW_PX = 1e-3
+
+/**
+ * View progress from 0 (`sectionTopInViewport` at `start`) to 1 (at `end`).
+ *
+ * `start` and `end` can coincide (a very short viewport, or startDelayPx
+ * landing exactly on innerHeight/2), which would otherwise divide by ~0 and
+ * hand a spring target of NaN — that propagates into `--chevron-x: NaNpx`
+ * and permanently breaks the chevron's transform. A collapsed window has no
+ * scroll distance to interpolate over, so step straight to whichever side
+ * of the (single) threshold the section is currently on.
+ */
+export function computeViewProgress(
+  sectionTopInViewport: number,
+  start: number,
+  end: number
+): number {
+  const progressWindowPx = start - end
+
+  if (Math.abs(progressWindowPx) < MIN_PROGRESS_WINDOW_PX) {
+    return sectionTopInViewport <= start ? 1 : 0
+  }
+
+  const progress = (start - sectionTopInViewport) / progressWindowPx
+  return Math.min(1, Math.max(0, progress))
+}
+
 /**
  * View progress from 0 — `startDelayPx` past the section's viewport entry,
  * so the resting chevrons are visible for a beat before they move — to 1
@@ -174,8 +205,7 @@ export function getViewProgress(): number {
   const sectionTopInViewport = scrollController.sectionTop - window.scrollY
   const start = window.innerHeight - scrollController.startDelayPx
   const end = window.innerHeight / 2
-  const progress = (start - sectionTopInViewport) / (start - end)
-  return Math.min(1, Math.max(0, progress))
+  return computeViewProgress(sectionTopInViewport, start, end)
 }
 
 /**
@@ -229,6 +259,7 @@ export function destroyScrollController(): void {
   scrollController.abort?.abort()
   scrollController.abort = null
   scrollController.lastTickTime = null
+  scrollController.isNear = false
 
   const section = scrollController.section
   if (section) {
@@ -240,6 +271,12 @@ export function destroyScrollController(): void {
   scrollController.chevrons = []
 }
 
+/** Starts the rAF loop if it isn't already running. */
+function scheduleTick(): void {
+  if (scrollController.rafId !== 0) return
+  scrollController.rafId = requestAnimationFrame(tick)
+}
+
 function tick(time: number): void {
   const section = scrollController.section
   if (!section?.isConnected) {
@@ -247,9 +284,12 @@ function tick(time: number): void {
     return
   }
 
+  // Stop rather than keep polling every frame — the IntersectionObserver
+  // callback below restarts the loop once the section is near again, so
+  // there's no need to burn a rAF callback per frame while it's off-screen.
   if (!scrollController.isNear) {
     scrollController.lastTickTime = null
-    scrollController.rafId = requestAnimationFrame(tick)
+    scrollController.rafId = 0
     return
   }
 
@@ -287,10 +327,14 @@ function attachScrollController(section: HTMLElement): void {
   scrollController.chevrons = readChevrons(section)
   cacheSectionBounds(section)
 
+  // The loop only starts here, on the near → true transition — not
+  // unconditionally on attach — so it never spins while off-screen.
   const observer = new IntersectionObserver(
     (entries) => {
+      const wasNear = scrollController.isNear
       scrollController.isNear = entries[0].isIntersecting
       setCompositing(section, scrollController.isNear)
+      if (scrollController.isNear && !wasNear) scheduleTick()
     },
     { rootMargin: `${VIEWPORT_NEAR_MARGIN_PX}px` }
   )
@@ -301,8 +345,6 @@ function attachScrollController(section: HTMLElement): void {
     passive: true,
     signal
   })
-
-  scrollController.rafId = requestAnimationFrame(tick)
 }
 
 /**
