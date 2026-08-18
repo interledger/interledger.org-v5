@@ -129,3 +129,51 @@
     }
   }
 }
+
+/*
+ * Dark pages (hackathon) inherit an unlayered `a { color: currentColor }` from
+ * the layout. These sit outside @layer so footnote markers, body, and links
+ * keep the designed palette instead of charcoal-on-charcoal / apricot hover.
+ */
+[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
+  color: var(--color-primary);
+}
+
+[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
+  color: var(--color-orchid-150);
+}
+
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes]) {
+  border-block-start-color: var(--color-neutral-75);
+  color: var(--color-prose);
+}
+
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  :is(p, li) {
+  color: var(--color-prose);
+}
+
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  p {
+  margin-block: 0;
+}
+
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  a {
+  color: var(--color-primary);
+}
+
+[data-theme='dark']
+  :is([data-prose], [data-prose-blog])
+  :is(.footnotes, [data-footnotes])
+  a:hover {
+  color: var(--color-orchid-150);
+}
