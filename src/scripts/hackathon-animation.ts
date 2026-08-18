@@ -23,6 +23,17 @@ const SPRING_MASS = 1
 const VIEWPORT_NEAR_MARGIN_PX = 200
 
 /**
+ * Mobile browsers fire many `resize` events as the address bar collapses or
+ * expands *during* an active scroll gesture, not just on rotation. Recomputing
+ * geometry on every one of them would repeatedly shift the cached
+ * `sectionTop`/`viewportHeight` the spring reads from mid-animation — read
+ * mid-transition, those measurements are themselves transient, so this looks
+ * like the chevrons drifting on their own or never quite settling. Debouncing
+ * means we only resync once a resize burst actually settles.
+ */
+const RESIZE_DEBOUNCE_MS = 150
+
+/**
  * Fraction of the chevron stage's own height that should already be
  * scrolled into view before the spring starts moving — a brief pause so the
  * resting chevrons are visible for a beat, rather than animating from the
@@ -50,6 +61,8 @@ type ScrollControllerState = {
   abort: AbortController | null
   rafId: number
   sectionTop: number
+  /** Cached alongside sectionTop so both reflect the same moment — see RESIZE_DEBOUNCE_MS. */
+  viewportHeight: number
   /** Live pixel gap from each side's large chevron's resting position to that side's screen edge. */
   edgeDistance: Record<ChevronSide, number>
   /** Extra scroll (px) the section's top edge must travel past viewport-entry before the spring starts moving. */
@@ -64,6 +77,7 @@ const scrollController: ScrollControllerState = {
   abort: null,
   rafId: 0,
   sectionTop: 0,
+  viewportHeight: 0,
   edgeDistance: { left: 0, right: 0 },
   startDelayPx: 0,
   isNear: false,
@@ -150,6 +164,7 @@ function cacheSectionBounds(section: HTMLElement): void {
 
   const rect = section.getBoundingClientRect()
   scrollController.sectionTop = rect.top + window.scrollY
+  scrollController.viewportHeight = window.innerHeight
   scrollController.startDelayPx = measureStartDelay(section)
   scrollController.edgeDistance = {
     left: measureEdgeDistance(section, 'left'),
@@ -203,8 +218,8 @@ export function computeViewProgress(
  */
 export function getViewProgress(): number {
   const sectionTopInViewport = scrollController.sectionTop - window.scrollY
-  const start = window.innerHeight - scrollController.startDelayPx
-  const end = window.innerHeight / 2
+  const start = scrollController.viewportHeight - scrollController.startDelayPx
+  const end = scrollController.viewportHeight / 2
   return computeViewProgress(sectionTopInViewport, start, end)
 }
 
@@ -237,6 +252,47 @@ export function stepSpring(
   const nextV = v + (force / mass) * dt
   const nextX = x + nextV * dt
   return { x: nextX, v: nextV }
+}
+
+/**
+ * Largest single `stepSpring` step (seconds) that stays numerically stable
+ * for SPRING_STIFFNESS/SPRING_DAMPING/SPRING_MASS. Semi-implicit Euler on a
+ * damped oscillator is only conditionally stable: solving the Jury
+ * conditions on this spring's discrete update matrix puts the boundary at
+ * dt ≈ 0.0291s for these constants — past it, position/velocity grow
+ * exponentially every step instead of converging, entirely independent of
+ * the target (verified: a single dt=0.1 step repeated 10 times reaches
+ * x ≈ -8×10^11). A dropped frame during scroll (very common on mobile,
+ * exactly when this is animating) easily produces a dt that large, which is
+ * what made the chevrons fly to huge off-screen positions and keep drifting
+ * with no relation to scroll position. Comfortably under the ~0.0291s
+ * boundary, with margin for the constants ever being tuned.
+ */
+const MAX_STABLE_SPRING_DT = 1 / 120
+
+/**
+ * Integrates the spring across `dt` using however many `MAX_STABLE_SPRING_DT`
+ * substeps that takes, instead of one `stepSpring` call with a potentially
+ * unstable `dt`. Splitting a large step into several small ones changes
+ * nothing about a converging spring's trajectory (that's just smaller
+ * increments of the same motion) — it only matters for the large, rare `dt`
+ * values that would otherwise diverge.
+ */
+export function integrateSpring(
+  x: number,
+  v: number,
+  target: number,
+  dt: number
+): { x: number; v: number } {
+  const steps = Math.ceil(dt / MAX_STABLE_SPRING_DT)
+  if (steps <= 0) return { x, v }
+
+  const subDt = dt / steps
+  let state = { x, v }
+  for (let i = 0; i < steps; i++) {
+    state = stepSpring(state.x, state.v, target, subDt)
+  }
+  return state
 }
 
 function setCompositing(section: HTMLElement, enabled: boolean): void {
@@ -293,6 +349,10 @@ function tick(time: number): void {
     return
   }
 
+  // The 0.1s cap here only bounds how far the spring tries to "catch up"
+  // after a long pause (backgrounded tab, etc.) — it does not need to be
+  // small enough for integration stability, since integrateSpring substeps
+  // internally regardless of how large dt is.
   const dt =
     scrollController.lastTickTime === null
       ? 0
@@ -308,7 +368,7 @@ function tick(time: number): void {
       chevron.ratio,
       scrollController.edgeDistance[chevron.side]
     )
-    const next = stepSpring(chevron.x, chevron.v, target, dt)
+    const next = integrateSpring(chevron.x, chevron.v, target, dt)
     chevron.x = next.x
     chevron.v = next.v
     chevron.element.style.setProperty('--chevron-x', `${chevron.x}px`)
@@ -341,10 +401,16 @@ function attachScrollController(section: HTMLElement): void {
   observer.observe(section)
   signal.addEventListener('abort', () => observer.disconnect())
 
-  window.addEventListener('resize', () => cacheSectionBounds(section), {
-    passive: true,
-    signal
-  })
+  let resizeTimeoutId = 0
+  const onResize = (): void => {
+    window.clearTimeout(resizeTimeoutId)
+    resizeTimeoutId = window.setTimeout(
+      () => cacheSectionBounds(section),
+      RESIZE_DEBOUNCE_MS
+    )
+  }
+  window.addEventListener('resize', onResize, { passive: true, signal })
+  signal.addEventListener('abort', () => window.clearTimeout(resizeTimeoutId))
 }
 
 /**
