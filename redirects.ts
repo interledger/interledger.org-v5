@@ -262,10 +262,16 @@ export const redirects = {
   '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
 
   // Summit hackathon
+  '/summit/hackathon': '/hackathon',
+  '/hackathon': '/hackathon/overview',
+  '/summit/hackathon/participation': '/hackathon/participation',
+  '/summit/hackathon/faqs': '/hackathon/faq',
+  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/summit/hackathon/resources': '/hackathon/open-payments',
+  '/summit/code-conduct': '/hackathon/code-conduct',
   '/summit/hackathon-2024': '/summit/hackathon/resources',
   '/summit/hackathon-venue': '/summit/hackathon/resources/venue',
   '/summit/hackathon/schedule': '/summit/2024/hackathon/schedule',
-  '/summit/hackathon/resources': '/summit/hackaton/recursos',
   '/summit/hackathon/resources/glossary':
     '/summit/hackathon/resources/documentation/glossary',
   '/summit/hackathon-glossary-documentation':
@@ -287,14 +293,15 @@ export const redirects = {
     '/summit/hackathon/resources/ideation-framework',
 
   // Summit hackathon (Spanish)
-  '/es//summit/hackathon': '/es/summit/hackaton',
+  '/es/summit/hackathon': '/es/hackaton',
+  '/es/hackathon': '/es/hackathon/overview',
+  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
+  '/es/summit/hackathon/participation': '/es/hackathon/participation',
+  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
+  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
   '/es/summit/hackathon/schedule': '/es/summit/hackaton/programa',
-  '/es/summit/hackathon/faqs': '/es/summit/hackaton/preguntas-frecuentes',
-  '/es/summit/hackathon/preguntas-frecuentes':
-    '/es/summit/hackaton/preguntas-frecuentes',
-  '/es/summit/hackathon/resources': '/es/summit/hackaton/recursos',
-  '/es/summit/hackathon/resources/documentation':
-    '/es/summit/hackaton/recursos/open-payments',
+  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackaton/faq',
 
   // Summit talks and speakers
   // Old singular routes (redirect directly to final destination)
