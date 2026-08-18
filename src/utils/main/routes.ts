@@ -6,6 +6,13 @@ export const HACKATHON_HOME_SLUG = 'overview'
 /** pathSlug for the primary grant overview at `/grant/our-grantmaking`. */
 export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 
+/**
+ * pathSlug for the single podcast landing page at `/podcast`.
+ * Only one podcast-pages entry is ever rendered, across its bare and
+ * per-category paginated routes (see podcastPagination.ts).
+ */
+export const PODCAST_PAGE_SLUG = 'podcast'
+
 export const ROUTE_BASES = {
   'foundation-pages': '',
   'foundation-blog': '/blog',
@@ -13,6 +20,7 @@ export const ROUTE_BASES = {
   'hackathon-pages': '/hackathon',
   'grant-pages': '/grant',
   'grant-overview-pages': '/grant',
+  'podcast-pages': '/podcast',
   // Profiles, faqs and reports use section-relative pathSlugs (e.g. 'fellowship/andria-barrett').
   // The empty base means the translation map indexes them by their pathSlug directly;
   // routeContextFromPathname derives currentBasePath from the actual URL section.

@@ -1,30 +1,41 @@
 ---
-import { type Locale, useTranslations, localizeRoute } from '@/utils'
-import { getCollection } from 'astro:content'
+import type { Page } from 'astro'
+import {
+  useTranslations,
+  localizeRoute,
+  stripPagination,
+  translateTerm,
+  PODCAST_PAGE_SLUG,
+  CATEGORY_SEGMENT
+} from '@/utils'
+import type { PodcastPageData } from '@/utils'
+import type { Podcast } from '@/types/podcast'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import PodcastList from '@/components/shared/PodcastList.astro'
+import Pagination from '@/components/shared/Pagination.astro'
+import TaxonomyFilter from '@/components/shared/TaxonomyFilter.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 
 interface Props {
-  slug: string
-  contentLocale: Locale
+  page: Page<Podcast>
+  podcastPage: PodcastPageData
   isFallback?: boolean
+  allTerms?: string[]
+  selectedTerm?: string
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
-// Nav chrome must follow the URL locale, not content locale — ES routes can
-// fall back to EN body while remaining under /es/.
+const {
+  page,
+  podcastPage,
+  isFallback = false,
+  allTerms = [],
+  selectedTerm
+} = Astro.props
+
 const { routeLocale } = Astro.locals
-const pages = await getCollection('podcast-pages')
-
-const mdxPage = pages.find(
-  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
-)
-
-if (!mdxPage) return Astro.redirect('/404')
 
 const {
   title,
@@ -37,42 +48,77 @@ const {
   heroImageMobileAlt,
   heroCtas,
   titleCards,
-  podcasts,
   ctaStrip
-} = mdxPage.data
+} = podcastPage
 
 const t = useTranslations(routeLocale)
+const basePath = stripPagination(Astro.url.pathname)
+const podcastPath = localizeRoute(PODCAST_PAGE_SLUG, routeLocale)
+
+// Title cards + hero image only show on the bare /podcast landing view.
+// Suppressed by any active category filter (including /category/all, where
+// selectedTerm is undefined but the URL still carries a filter) or pagination.
+const hasCategoryFilter = Astro.url.pathname.includes(`/${CATEGORY_SEGMENT}/`)
+const isLandingPage =
+  page.currentPage === 1 && !selectedTerm && !hasCategoryFilter
+
+const translatedTerm = selectedTerm
+  ? translateTerm('podcast.categories', selectedTerm, t)
+  : undefined
+const pageTitle = translatedTerm
+  ? t('podcast.tag_title', { tag: translatedTerm })
+  : title
+const pageDescription = translatedTerm
+  ? t('podcast.tag_description', { tag: translatedTerm })
+  : description
 
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
-  { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
+  { name: heroTitle ?? title, href: podcastPath }
 ]
 ---
 
-<FoundationPageLayout title={title} description={description}>
+<FoundationPageLayout title={pageTitle} description={pageDescription}>
   <main class="pb-3xl">
     <TranslationDisclaimer isVisible={isFallback} />
 
+    <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
       title={heroTitle ?? title}
       description={heroDescription ?? description}
-      image={heroImage}
+      image={isLandingPage ? heroImage : undefined}
       imageAlt={heroImageAlt}
-      imageMobile={heroImageMobile}
+      imageMobile={isLandingPage ? heroImageMobile : undefined}
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
     />
 
-    <section class="py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
-      >
-        <CardGrid
-          ariaLabel={titleCards.ariaLabel}
-          columns={titleCards.columns}
-          variant="Title"
-          titleCards={titleCards.cards}
+    {
+      isLandingPage && (
+        <section class="py-4xl">
+          <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
+            <CardGrid
+              ariaLabel={titleCards.ariaLabel}
+              columns={titleCards.columns}
+              variant="Title"
+              titleCards={titleCards.cards}
+            />
+          </div>
+        </section>
+      )
+    }
+
+    <section
+      aria-label={t('aria.podcast.filters_label')}
+      class="px-lg min-w-90 mb-3xl tablet:px-xl tablet:mb-4xl"
+    >
+      <div class="mx-auto max-w-content desktop:max-w-content">
+        <TaxonomyFilter
+          collection="podcast-pages"
+          terms={allTerms}
+          selectedTerm={selectedTerm}
+          href={podcastPath}
         />
       </div>
     </section>
@@ -81,7 +127,16 @@ const breadcrumbs = [
       <div
         class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
       >
-        <PodcastList podcasts={podcasts} />
+        <PodcastList podcasts={page.data} />
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          label={heroTitle ?? title}
+          class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+        />
       </div>
     </section>
 
@@ -96,7 +151,6 @@ const breadcrumbs = [
           primaryButtonLink={ctaStrip.buttonLink}
           primaryButtonExternal={ctaStrip.buttonExternal}
           primaryButtonDocument={ctaStrip.buttonDocument}
-          color={ctaStrip.color}
           secondaryButtonText={ctaStrip.secondaryButtonText}
           secondaryButtonLink={ctaStrip.secondaryButtonLink}
           secondaryButtonExternal={ctaStrip.secondaryButtonExternal}

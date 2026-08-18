@@ -14,7 +14,7 @@ import type { NavigationSite } from '@/types/navigation'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import InterledgerIcon from '@/components/logos/InterledgerIcon.astro'
-import HackathonLogo from '@/components/logos/HackathonLogo.astro'
+import HackathonFooterLogo from '@/components/logos/HackathonFooterLogo.astro'
 
 interface Props {
   site?: NavigationSite
@@ -298,7 +298,7 @@ const navigationUlClass = twMerge(
               t('footer.logo_hackathon')
             )}
           >
-            <HackathonLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
+            <HackathonFooterLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
           </a>
         )
       }

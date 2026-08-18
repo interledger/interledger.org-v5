@@ -44,6 +44,16 @@
         }
       }
     },
+    "hero": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.hero",
+      "repeatable": false
+    },
     "content": {
       "type": "dynamiczone",
       "components": [

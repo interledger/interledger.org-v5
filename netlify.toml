@@ -127,6 +127,11 @@
     Cache-Control = "private, no-store, max-age=0, must-revalidate"
 
 [[headers]]
+  for = "/preview/hackathon-preview"
+  [headers.values]
+    Cache-Control = "private, no-store, max-age=0, must-revalidate"
+
+[[headers]]
   for = "/developers/blog/preview"
   [headers.values]
     Cache-Control = "private, no-store, max-age=0, must-revalidate"

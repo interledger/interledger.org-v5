@@ -1,9 +1,9 @@
 ---
 /**
  * Hackathon site layout.
- * Extends BaseLayout with the shared microsite chrome and dark theme. The
- * chrome is still visually Summit's; only the menu contents differ until the
- * hackathon microsite gets its own design.
+ * Dark theme on a neutral-150 page (rgb(13, 13, 13)). Shared blocks keep
+ * their existing styles until later PRs add hackathon-specific variants.
+ * The shared FoundationFooter stays on its light ice-mint surface.
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
@@ -14,7 +14,6 @@ import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 interface Props {
   title: string
   description?: string
-  gradient?: string
   ogImageUrl?: string
   canonicalURL?: string
   noindex?: boolean
@@ -27,7 +26,6 @@ const site = Astro.site!
 const {
   title,
   description,
-  gradient = 'option1',
   ogImageUrl = new URL('/img/og-hackathon.png', site).href,
   canonicalURL,
   noindex = false
@@ -41,16 +39,37 @@ const {
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   theme="dark"
-  bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"
-  bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
+  bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-neutral-150 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-50"
   noindex={noindex}
 >
+  <link
+    slot="head"
+    rel="preload"
+    href="/fonts/poppins-extrabold.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
   <MicrositeHeader site="hackathon" slot="header" />
   <TableScrollSupport />
   <div
-    class="flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_h1]:text-h2-lg [&_h2]:text-h3-md [&_h3]:text-h3 [&_h4]:text-h4 [&_a]:text-current [&_a]:transition-colors [&_a]:duration-slow [&_a:hover]:text-[hsla(26,100%,76%,1)]"
+    class="hackathon-main flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_[data-prose]>h1]:text-h2-lg [&_[data-prose]>h2]:text-h2 tablet:[&_[data-prose]>h2]:text-h2-md desktop:[&_[data-prose]>h2]:text-h2-lg [&_[data-prose]>h3]:text-h3 [&_[data-prose]>h4]:text-h4"
   >
     <slot />
   </div>
   <SiteFooter site="hackathon" slot="footer" />
 </BaseLayout>
+
+<style>
+  /* Body links only — LinkButton keeps its own palette. :global because
+     anchors live in child components, not this file. */
+  .hackathon-main :global(a:not([data-component='LinkButton'])) {
+    color: currentColor;
+    transition-property: color;
+    transition-duration: 300ms;
+  }
+
+  .hackathon-main :global(a:not([data-component='LinkButton']):hover) {
+    color: hsla(26, 100%, 76%, 1);
+  }
+</style>

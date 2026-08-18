@@ -823,6 +823,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
+      hero: 'Hero',
       content: 'Page Content'
     },
     'api::foundation-navigation.foundation-navigation': {
@@ -945,7 +946,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the site root, no leading slash. CMS-authored — use "podcast" for the live /podcast page. Multiple entries are allowed; each is routed by its own pathSlug.',
+        'Path must be set to "podcast". We only render one page with slug "podcast", at /podcast. Other slugs will not be built. If you need changes contact the frontend dev team.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       titleCards:
@@ -1339,6 +1340,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       needsOutline:
         'Enable if the image has a white or light background and needs a boundary to separate it from blending into the page.'
     },
+    'shared.hero': {
+      backgroundImageMobile:
+        'Optional mobile hero image. Recommended size: 768×480px. Falls back to the desktop image when absent.'
+    },
     'shared.localized-media': {
       alternativeText:
         'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
@@ -1707,6 +1712,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
     ],
     'api::grant-overview-page.grant-overview-page': [
@@ -2223,8 +2229,11 @@ export default {
       strapi,
       'api::hackathon-page.hackathon-page',
       (body) =>
-        validateContentBlocks(
-          Array.isArray(body.content) ? body.content : undefined
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
         )
     )
     registerDocumentValidation(

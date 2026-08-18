@@ -110,6 +110,13 @@ export const hackathonPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),
   description: z.string().min(1, 'description is required'),
+  heroTitle: z.string().trim().min(1, 'heroTitle cannot be blank').optional(),
+  heroDescription: z.string().optional(),
+  heroImage: z.string().optional(),
+  heroImageAlt: z.string().nullable().optional(),
+  heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
@@ -373,9 +380,9 @@ const podcastItemSchema = z.object({
 })
 
 // Podcast landing page. No dynamic zone — hero, title cards, episodes, and CTA
-// strip are page-owned fields. pathSlug is CMS-authored (live entry typically
-// uses "podcast" → /podcast). Collection type: multiple entries allowed; each
-// routes under the foundation [...page] catch-all by its own pathSlug.
+// strip are page-owned fields. Only the entry with pathSlug === 'podcast'
+// (PODCAST_PAGE_SLUG) is ever rendered, across the dedicated, paginated
+// podcast routes (see src/utils/main/podcastPagination.ts).
 export const podcastPageFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
   pathSlug: pathSlugSchema(),

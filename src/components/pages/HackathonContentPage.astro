@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
-import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
@@ -23,12 +22,8 @@ import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
-import {
-  type Locale,
-  useTranslations,
-  buildSectionEntryBreadcrumbs,
-  isDemoPathSlug
-} from '@/utils'
+import HackathonHero from '@/components/pages/HackathonHero.astro'
+import { type Locale, isDemoPathSlug } from '@/utils'
 
 interface Props {
   slug: string
@@ -37,8 +32,6 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
 
 const pages = await getCollection('hackathon-pages')
 const entry = pages.find(
@@ -50,78 +43,102 @@ if (!entry) return Astro.redirect('/404')
 Astro.locals.profileEntries = await getCollection('profiles')
 
 const { Content: MdxContent } = await render(entry)
-const { title, description } = entry.data
-
-// hackathon-pages is a fixed-section collection (no `section` frontmatter
-// field, unlike the cross-section faq/report/profile collections) — every
-// entry belongs to the hackathon microsite, so the section is hardcoded here.
-const breadcrumbs = buildSectionEntryBreadcrumbs(
-  entry.data.pathSlug,
-  'hackathon',
+const {
   title,
-  routeLocale,
-  t('nav.home')
-)
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCtas
+} = entry.data
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 ---
 
 <HackathonPageLayout title={title} description={description} noindex={noindex}>
   <main
-    class="hackathon-content flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl text-neutral-0 tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="hackathon-content flex flex-col pb-5xl text-neutral-50 tablet:pb-6xl desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
-    <div class="mx-auto max-w-content">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <h1
-        class="mt-2xl text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
-      >
-        {title}
-      </h1>
-      <section
-        data-prose
-        class="mt-2xl [&_h2]:mt-3xl [&_h2]:mb-xl [&_h2]:text-[1.75rem] [&_h2]:font-semibold [&_h3]:mt-2xl [&_h3]:mb-lg [&_h3]:text-[1.25rem] [&_h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&_ul]:mb-xl [&_ul]:ps-2xl [&_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
-      >
-        <MdxContent
-          components={{
-            Paragraph,
-            InfoCard,
-            NumberTiles,
-            Agenda,
-            SplitLayout,
-            CtaStrip,
-            TitleCard,
-            CardGrid,
-            ResourceCard,
-            NavigationCard,
-            Faq,
-            CtaButtons,
-            FaqItem,
-            EventCard,
-            EventWhen,
-            EventWhere,
-            EventApply,
-            Quote,
-            ProfileGrid,
-            LogoCarousel
-          }}
-        />
-      </section>
-    </div>
+    <HackathonHero
+      title={heroTitle ?? title}
+      description={heroDescription}
+      image={heroImage}
+      imageAlt={heroImageAlt}
+      imageMobile={heroImageMobile}
+      imageMobileAlt={heroImageMobileAlt}
+      cta={heroCtas?.[0]}
+    />
+    <section class="py-4xl">
+      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <TranslationDisclaimer isVisible={isFallback} />
+        <div data-prose>
+          <MdxContent
+            components={{
+              Paragraph,
+              InfoCard,
+              NumberTiles,
+              Agenda,
+              SplitLayout,
+              CtaStrip,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
+              Faq,
+              CtaButtons,
+              FaqItem,
+              EventCard,
+              EventWhen,
+              EventWhere,
+              EventApply,
+              Quote,
+              ProfileGrid,
+              LogoCarousel
+            }}
+          />
+        </div>
+      </div>
+    </section>
   </main>
 </HackathonPageLayout>
 
 <style>
-  .hackathon-content {
-    color: var(--color-neutral-0);
+  /* Spacing / weight only — heading and body colour come from
+     [data-theme='dark'] via --color-heading / --color-prose. */
+  .hackathon-content :global([data-prose] > h2) {
+    margin-bottom: var(--spacing-xl);
+    font-weight: 600;
   }
 
-  /* Light body text for hackathon chrome; dark-on-white blocks opt out. */
+  .hackathon-content :global([data-prose] > h3) {
+    margin-top: var(--spacing-2xl);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 600;
+  }
+
+  .hackathon-content :global([data-prose] p) {
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+  }
+
+  .hackathon-content :global([data-prose] ul) {
+    margin-bottom: var(--spacing-xl);
+    padding-inline-start: var(--spacing-2xl);
+  }
+
+  .hackathon-content :global([data-prose] ul li) {
+    margin-bottom: var(--spacing-lg);
+  }
+
   .hackathon-content
-    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
-      [data-component='EventCard'] *
-    ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
-      [data-component='LogoCarousel'] *
-    ) {
-    color: var(--color-neutral-0);
+    :global([data-prose] a:not([data-component='LinkButton'])) {
+    text-decoration-line: underline;
+  }
+
+  .hackathon-content
+    :global([data-prose] a:not([data-component='LinkButton']):hover) {
+    text-decoration-line: none;
   }
 </style>

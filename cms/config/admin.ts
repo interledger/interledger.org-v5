@@ -18,6 +18,8 @@ const getPreviewPathname = (
     case 'api::summit-page.summit-page':
       // TODO: create /summit-preview SSR page (similar to /page-preview)
       return `/summit-preview?documentId=${documentId}`
+    case 'api::hackathon-page.hackathon-page':
+      return `/preview/hackathon-preview?documentId=${documentId}`
     default:
       return null
   }
