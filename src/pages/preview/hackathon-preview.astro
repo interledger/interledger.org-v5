@@ -53,7 +53,14 @@ const populateParams = new URLSearchParams({
   'populate[hero][populate][backgroundImageMobile]': 'true',
   'populate[hero][populate][hero_call_to_action]': 'true',
   'populate[content][on][blocks.paragraph][populate]': '*',
-  'populate[content][on][blocks.card-grid][populate]': '*',
+  'populate[content][on][blocks.card-grid][populate][titleCards][populate][secondaryCta]':
+    'true',
+  'populate[content][on][blocks.card-grid][populate][resourceCards][populate][secondaryCta]':
+    'true',
+  'populate[content][on][blocks.card-grid][populate][infoCards][populate][image]':
+    'true',
+  'populate[content][on][blocks.card-grid][populate][navigationCards][populate][secondaryCta]':
+    'true',
   'populate[content][on][blocks.number-tiles][populate][tiles]': '*',
   'populate[content][on][blocks.agenda][populate][items]': '*',
   'populate[content][on][blocks.split-layout][populate]': '*',
