@@ -98,8 +98,8 @@ const heroCta = Array.isArray(rawCta) ? rawCta[0] : (rawCta ?? undefined)
 const resolvedCta =
   heroCta?.text?.trim() && heroCta.link?.trim()
     ? {
-        text: heroCta.text,
-        link: heroCta.link,
+        text: heroCta.text.trim(),
+        link: heroCta.link.trim(),
         style: heroCta.style,
         external: heroCta.external
       }

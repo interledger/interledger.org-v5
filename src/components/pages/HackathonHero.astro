@@ -44,6 +44,7 @@ const {
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+const resolvedDesktopAlt = imageAlt ?? imageMobileAlt
 const resolvedMobileAlt = imageMobileAlt ?? imageAlt
 const hasImage = Boolean(image || imageMobile)
 const desktopImage = image ?? imageMobile
@@ -123,7 +124,7 @@ const ctaUmami = cta
               />
               <OptimizedImage
                 src={desktopImage}
-                alt={imageAlt ?? ''}
+                alt={resolvedDesktopAlt ?? ''}
                 width={HERO_IMAGE_WIDTH}
                 height={HERO_IMAGE_HEIGHT}
                 loading="eager"
@@ -136,7 +137,7 @@ const ctaUmami = cta
           ) : (
             <OptimizedImage
               src={desktopImage}
-              alt={imageAlt ?? ''}
+              alt={resolvedDesktopAlt ?? ''}
               width={HERO_IMAGE_WIDTH}
               height={HERO_IMAGE_HEIGHT}
               loading="eager"
