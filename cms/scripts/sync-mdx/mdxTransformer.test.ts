@@ -2586,7 +2586,7 @@ describe('buildHackathonPagePayload', () => {
           ...baseHackathonPageFrontmatter,
           heroTitle: 'Build the Future of Finance in 24 hours',
           heroDescription:
-            "Next Hackathon:\nSep 11-12, '26 – Medellín, Colombia"
+            'Next Hackathon:\n16-17 October 2026 – Medellín, Colombia'
         }
       })
 
@@ -2597,7 +2597,7 @@ describe('buildHackathonPagePayload', () => {
 
       expect((payload as Record<string, unknown>).hero).toEqual({
         title: 'Build the Future of Finance in 24 hours',
-        description: "Next Hackathon:\nSep 11-12, '26 – Medellín, Colombia"
+        description: 'Next Hackathon:\n16-17 October 2026 – Medellín, Colombia'
       })
     })
 

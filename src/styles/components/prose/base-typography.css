@@ -8,18 +8,18 @@
   :is([data-prose], [data-prose-blog]) {
     /* H2 headings */
     h2 {
-      font-size: var(--text-h3);
-      line-height: var(--text-h3--line-height);
-      font-weight: var(--text-h3--font-weight);
-      
+      font-size: var(--text-h2);
+      line-height: var(--text-h2--line-height);
+      font-weight: var(--text-h2--font-weight);
+
       @variant tablet {
-        font-size: var(--text-h3-md);
-        line-height: var(--text-h3-md--line-height);
+        font-size: var(--text-h2-md);
+        line-height: var(--text-h2-md--line-height);
       }
 
       @variant desktop {
-        font-size: var(--text-h3-lg);
-        line-height: var(--text-h3-lg--line-height);
+        font-size: var(--text-h2-lg);
+        line-height: var(--text-h2-lg--line-height);
       }
     }
 
