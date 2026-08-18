@@ -19,6 +19,14 @@ const SPRING_MASS = 1
 /** Pre-promote compositor layers shortly before the section enters view. */
 const VIEWPORT_NEAR_MARGIN_PX = 200
 
+/**
+ * Fraction of the chevron stage's own height that should already be
+ * scrolled into view before the spring starts moving — a brief pause so the
+ * resting chevrons are visible for a beat, rather than animating from the
+ * instant the section (padding included) touches the viewport edge.
+ */
+const START_DELAY_STAGE_FRACTION = 0.5
+
 const HACKATHON_ANIMATION_SECTION_SELECTOR =
   '[data-component="HackathonAnimation"]'
 const CHEVRON_SELECTOR = '.chevron'
@@ -41,6 +49,8 @@ type ScrollControllerState = {
   sectionTop: number
   /** Live pixel gap from each side's large chevron's resting position to that side's screen edge. */
   edgeDistance: Record<ChevronSide, number>
+  /** Extra scroll (px) the section's top edge must travel past viewport-entry before the spring starts moving. */
+  startDelayPx: number
   isNear: boolean
   chevrons: ChevronState[]
   lastTickTime: number | null
@@ -52,6 +62,7 @@ const scrollController: ScrollControllerState = {
   rafId: 0,
   sectionTop: 0,
   edgeDistance: { left: 0, right: 0 },
+  startDelayPx: 0,
   isNear: false,
   chevrons: [],
   lastTickTime: null
@@ -116,11 +127,27 @@ function measureEdgeDistance(section: HTMLElement, side: ChevronSide): number {
     : stageWidth - (large.offsetLeft + large.offsetWidth)
 }
 
+/**
+ * Pixels from the section's own top edge (padding included) to the point
+ * where `START_DELAY_STAGE_FRACTION` of the chevron stage has scrolled into
+ * view — measured from the DOM rather than hardcoded, so it stays correct
+ * across breakpoints where both the padding and the stage height differ.
+ */
+function measureStartDelay(section: HTMLElement): number {
+  const stage = section.querySelector('.hackathon-animation-stage')
+  if (!(stage instanceof HTMLElement)) return 0
+
+  const stageTopOffset =
+    stage.getBoundingClientRect().top - section.getBoundingClientRect().top
+  return stageTopOffset + stage.offsetHeight * START_DELAY_STAGE_FRACTION
+}
+
 function cacheSectionBounds(section: HTMLElement): void {
   applyFullBleedShift(section)
 
   const rect = section.getBoundingClientRect()
   scrollController.sectionTop = rect.top + window.scrollY
+  scrollController.startDelayPx = measureStartDelay(section)
   scrollController.edgeDistance = {
     left: measureEdgeDistance(section, 'left'),
     right: measureEdgeDistance(section, 'right')
@@ -136,16 +163,18 @@ function clearInlineStyles(): void {
 }
 
 /**
- * View progress from 0 (section top at the bottom edge of the viewport) to 1
- * (section top — where the large chevrons' top edge sits — at mid-viewport).
- * Reaching the midpoint that fast, rather than waiting for the whole section
- * to pass through, is what makes the chevrons feel fully extended by the
- * time they're half-scrolled into view.
+ * View progress from 0 — `startDelayPx` past the section's viewport entry,
+ * so the resting chevrons are visible for a beat before they move — to 1
+ * (section top — where the large chevrons' top edge sits — at mid-viewport,
+ * unchanged). Reaching the midpoint that fast, rather than waiting for the
+ * whole section to pass through, is what makes the chevrons feel fully
+ * extended by the time they're half-scrolled into view.
  */
 export function getViewProgress(): number {
   const sectionTopInViewport = scrollController.sectionTop - window.scrollY
-  const progress =
-    (window.innerHeight - sectionTopInViewport) / (window.innerHeight / 2)
+  const start = window.innerHeight - scrollController.startDelayPx
+  const end = window.innerHeight / 2
+  const progress = (start - sectionTopInViewport) / (start - end)
   return Math.min(1, Math.max(0, progress))
 }
 

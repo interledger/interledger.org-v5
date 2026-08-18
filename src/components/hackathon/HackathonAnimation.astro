@@ -127,6 +127,16 @@ const CHEVRONS: ChevronSpec[] = [
     whose percentage/pixel value is self-referential to this div's own box,
     never the ancestor's — immune to however wrong the ancestor's width is.
 
+    This div stays a normal in-flow block (no position:absolute) — the
+    earlier ancestor-width bug was specifically triggered by a *negative
+    margin* (a layout-affecting property leaking into intrinsic-size
+    computation via the flex min-width:auto default). `translate` is a
+    paint-time-only transform that never contributes to layout/intrinsic
+    sizing, so it doesn't retrigger that bug — and staying in-flow means its
+    own content (padding + stage) directly determines this section's height,
+    with no separate spacer needed. The chevron stage must live inside this
+    same div, not a sibling: only what's inside actually reaches the edges.
+
     Relies on HackathonPageLayout's overflow-x-hidden body to absorb any
     sub-pixel scrollbar-width overhang from 100vw.
   */
@@ -134,13 +144,13 @@ const CHEVRONS: ChevronSpec[] = [
 <section
   data-component="HackathonAnimation"
   aria-hidden="true"
-  class="relative isolate h-50 tablet:h-100"
+  class="relative isolate"
 >
   <div
-    class="hackathon-fullbleed absolute inset-y-0 w-screen overflow-hidden bg-black"
+    class="hackathon-fullbleed w-screen overflow-hidden bg-white py-5xl dark:bg-black"
   >
     <div
-      class="hackathon-animation-stage relative h-full w-full overflow-hidden"
+      class="hackathon-animation-stage relative h-50 w-full overflow-hidden tablet:h-100"
     >
       {
         CHEVRONS.map((chevron) => (
