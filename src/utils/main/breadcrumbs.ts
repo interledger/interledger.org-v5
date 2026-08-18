@@ -1,4 +1,4 @@
-import { localizeRoute } from './routes'
+import { localizeRoute, HACKATHON_HOME_SLUG } from './routes'
 import type { Locale } from './i18'
 import type { SiteSection } from './static-paths'
 
@@ -39,10 +39,21 @@ export function buildSectionEntryBreadcrumbs(
 
   return [
     { name: homeLabel, href: localizeRoute('', routeLocale) },
-    ...parentParts.map((_, i) => ({
-      name: toLabel(parentParts[i]),
-      href: localizeRoute(parentParts.slice(0, i + 1).join('/'), routeLocale)
-    })),
+    ...parentParts.map((_, i) => {
+      const segments = parentParts.slice(0, i + 1)
+      // Hackathon has no landing page at its route base (see MicrositeHeader),
+      // so its section-root breadcrumb must link straight to the overview
+      // page instead of a bare path that only exists as a redirect.
+      const isHackathonRoot = i === 0 && section === 'hackathon'
+      const routePath = isHackathonRoot
+        ? [...segments, HACKATHON_HOME_SLUG].join('/')
+        : segments.join('/')
+
+      return {
+        name: toLabel(parentParts[i]),
+        href: localizeRoute(routePath, routeLocale)
+      }
+    }),
     { name: label, href: localizeRoute(fullPath, routeLocale) }
   ]
 }

@@ -262,7 +262,7 @@ export const redirects = {
   '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
 
   // Summit hackathon
-  '/summit/hackathon': '/hackathon',
+  '/summit/hackathon': '/hackathon/overview',
   '/hackathon': '/hackathon/overview',
   '/summit/hackathon/participation': '/hackathon/participation',
   '/summit/hackathon/faqs': '/hackathon/faq',
@@ -293,7 +293,7 @@ export const redirects = {
     '/summit/hackathon/resources/ideation-framework',
 
   // Summit hackathon (Spanish)
-  '/es/summit/hackathon': '/es/hackathon',
+  '/es/summit/hackathon': '/es/hackathon/overview',
   '/es/hackathon': '/es/hackathon/overview',
   '/es/summit/hackathon/faqs': '/es/hackathon/faq',
   '/es/summit/hackathon/participation': '/es/hackathon/participation',
