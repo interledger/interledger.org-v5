@@ -64,12 +64,12 @@ const {
   /* Body links only — LinkButton keeps its own palette. :global because
      anchors live in child components, not this file. */
   .hackathon-main :global(a:not([data-component='LinkButton'])) {
-    color: currentColor;
+    color: var(--color-link);
     transition-property: color;
     transition-duration: 300ms;
   }
 
   .hackathon-main :global(a:not([data-component='LinkButton']):hover) {
-    color: hsla(26, 100%, 76%, 1);
+    color: var(--color-link-hover);
   }
 </style>

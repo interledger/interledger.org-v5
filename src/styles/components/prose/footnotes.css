@@ -131,16 +131,16 @@
 }
 
 /*
- * Dark pages (hackathon) inherit an unlayered `a { color: currentColor }` from
- * the layout. These sit outside @layer so footnote markers, body, and links
- * keep the designed palette instead of charcoal-on-charcoal / apricot hover.
+ * Dark footnote list still hard-codes charcoal in the layered rules above.
+ * Unlayered so list copy, numbers, and links pick up --color-link from
+ * .hackathon-main instead of the layout's previous currentColor/apricot.
  */
 html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
-  color: var(--color-lavender-100);
+  color: var(--color-link, var(--color-lavender-100));
 }
 
 html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
-  color: var(--color-lavender-150);
+  color: var(--color-link-hover, var(--color-lavender-150));
 }
 
 html[data-theme='dark']
@@ -172,12 +172,12 @@ html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   li::before {
-  color: var(--color-lavender-100);
+  color: var(--color-link, var(--color-lavender-100));
 }
 
 html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes])
   a:hover {
-  color: var(--color-lavender-150);
+  color: var(--color-link-hover, var(--color-lavender-150));
 }
