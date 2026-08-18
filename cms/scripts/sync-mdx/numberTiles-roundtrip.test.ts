@@ -67,6 +67,22 @@ describe('NumberTiles round-trip (serialize → parse)', () => {
     ])
   })
 
+  it('round-trips an optional title', async () => {
+    const original = {
+      title: 'Overview',
+      tiles: [
+        { number: '150', suffix: '+', description: 'Builders' },
+        { number: '24', suffix: 'H', description: 'Code Rush' }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.number-tiles', ...original }
+    ])
+  })
+
   it('round-trips four tiles (overflow row layout data)', async () => {
     const original = {
       tiles: [

@@ -244,12 +244,14 @@ export interface CarouselBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.number-tiles — row of stat tiles (number + optional currency prefix
- * and suffix + description). `number` is plain text (not numeric) so editors
- * can type commas manually, e.g. "1,000". At least 2 tiles are required.
+ * blocks.number-tiles — optional title, then a row of stat tiles (number +
+ * optional currency prefix and suffix + description). `number` is plain text
+ * (not numeric) so editors can type commas manually, e.g. "1,000". At least
+ * 2 tiles are required.
  */
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
+  title?: string
   tiles: {
     number: string
     prefix?: string

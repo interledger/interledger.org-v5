@@ -15,11 +15,37 @@ locale: 'es'
 localizes: 'overview'
 ---
 
+<NumberTiles
+  title="Resumen"
+  tiles={[
+    { number: '150', suffix: '+', description: 'Constructores' },
+    { number: '24', suffix: 'H', description: 'Code Rush' },
+    {
+      number: '20000',
+      prefix: '$',
+      suffix: '+',
+      description: 'Premios en efectivo'
+    },
+    { number: '4', description: 'Categorías ganadoras' }
+  ]}
+/>
+
 <Paragraph>
 
-El Hackathon de Interledger reúne a desarrolladores, diseñadores y creadores para prototipar nuevas ideas sobre estándares de pagos abiertos. Los equipos tienen un fin de semana para diseñar, construir y presentar un proyecto funcional.
+Durante un Hackathon de Open Payments de Interledger de 24 horas, asumirás
+un reto financiero real, construirás un prototipo funcional y lo presentarás
+ante un panel de líderes del sector, inversores y socios del ecosistema.
+Construyes sobre Open Payments: un estándar de API abierto que permite a las
+aplicaciones enviar, recibir y gestionar pagos entre redes a través de una
+única interfaz interoperable.
 
 </Paragraph>
+
+<CtaButtons
+  buttons={[
+    { text: 'Registra tu interés', link: '/hackathon/signup', style: 'primary' }
+  ]}
+/>
 
 <HackathonAnimation />
 

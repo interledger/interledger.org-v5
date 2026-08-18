@@ -1192,6 +1192,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       alternativeText: 'Alternative Text'
     },
     'blocks.number-tiles': {
+      title: 'Title (optional)',
       tiles: 'Tiles'
     },
     'blocks.number-tile': {
@@ -1820,7 +1821,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'image', size: 6 }],
       [{ name: 'alternativeText', size: 6 }]
     ],
-    'blocks.number-tiles': [[{ name: 'tiles', size: 12 }]],
+    'blocks.number-tiles': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'tiles', size: 12 }]
+    ],
     'blocks.number-tile': [
       [
         { name: 'prefix', size: 4 },

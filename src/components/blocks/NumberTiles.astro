@@ -25,53 +25,75 @@ interface Tile {
 }
 
 interface Props {
+  title?: string
   tiles: Tile[]
 }
 
 const { tiles } = Astro.props
+const title = Astro.props.title?.trim() || undefined
+const titleId = title
+  ? `number-tiles-heading-${crypto.randomUUID()}`
+  : undefined
 
 // Number tiles use the h2 heading scale (56px at desktop), smaller than
-// StatsSection's homepage h1. StatCard always sizes the suffix to match
-// numberClass, so "21" and "M+" read as one continuous size automatically.
+// StatsSection's homepage h1. Suffix steps down one type size and sits
+// 8px off the number's bottom edge so "+" / "H" read as a raised label.
 const NUMBER_CLASS =
   'font-poppins font-semibold text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0'
-const LABEL_CLASS = 'text-left text-neutral-75 dark:text-neutral-50'
+const SUFFIX_CLASS =
+  'self-end mb-sm text-h3 font-normal tablet:text-h3-md desktop:text-h3-lg'
+const LABEL_CLASS = 'text-left text-neutral-75 dark:text-neutral-0'
 ---
 
-<ul
-  role="list"
-  class="m-0 mb-6xl grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 desktop:grid-cols-4"
+<section
   data-component="NumberTiles"
-  data-animated-number-trigger
   data-umami-component="number-tiles"
+  aria-labelledby={titleId}
 >
   {
-    tiles.map((tile) => {
-      const parsed = parseStatNumber(tile.number)
-      // Strapi stores plain digits (e.g. "1000"); format for display with
-      // commas. Non-numeric free text falls back to the raw field value.
-      const display = parsed !== null ? formatStatNumber(parsed) : tile.number
-      // Expand freeform affixes (e.g. "$" + "M+") so screen readers don't
-      // mangle them — undefined when no affixes so StatCard reads natively.
-      const ariaLabel = buildNumberTileAriaLabel(
-        display,
-        tile.description,
-        tile.prefix,
-        tile.suffix
-      )
-      return (
-        <StatCard
-          value={parsed ?? 0}
-          display={display}
-          prefix={tile.prefix}
-          suffix={tile.suffix}
-          numberClass={NUMBER_CLASS}
-          label={tile.description}
-          labelClass={LABEL_CLASS}
-          ariaLabel={ariaLabel}
-          class="w-full items-start pt-0 pb-0 pl-0 desktop:pt-0 desktop:pb-0"
-        />
-      )
-    })
+    title && titleId && (
+      <h2
+        id={titleId}
+        class="font-poppins mb-2xl text-h2 text-neutral-900 tablet:mb-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
+      >
+        {title}
+      </h2>
+    )
   }
-</ul>
+  <ul
+    role="list"
+    class="m-0 mb-6xl grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 desktop:grid-cols-4"
+    data-animated-number-trigger
+  >
+    {
+      tiles.map((tile) => {
+        const parsed = parseStatNumber(tile.number)
+        // Strapi stores plain digits (e.g. "1000"); format for display with
+        // commas. Non-numeric free text falls back to the raw field value.
+        const display = parsed !== null ? formatStatNumber(parsed) : tile.number
+        // Expand freeform affixes (e.g. "$" + "M+") so screen readers don't
+        // mangle them — undefined when no affixes so StatCard reads natively.
+        const ariaLabel = buildNumberTileAriaLabel(
+          display,
+          tile.description,
+          tile.prefix,
+          tile.suffix
+        )
+        return (
+          <StatCard
+            value={parsed ?? 0}
+            display={display}
+            prefix={tile.prefix}
+            suffix={tile.suffix}
+            numberClass={NUMBER_CLASS}
+            suffixClass={SUFFIX_CLASS}
+            label={tile.description}
+            labelClass={LABEL_CLASS}
+            ariaLabel={ariaLabel}
+            class="w-full items-start py-0 pl-0 desktop:p-0"
+          />
+        )
+      })
+    }
+  </ul>
+</section>

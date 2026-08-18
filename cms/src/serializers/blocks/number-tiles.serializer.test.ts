@@ -34,6 +34,30 @@ describe('number-tiles serializer', () => {
     )
   })
 
+  it('serializes an optional title', () => {
+    const result = serialize({
+      title: 'Overview',
+      tiles: [
+        { number: '150', suffix: '+', description: 'Builders' },
+        { number: '24', suffix: 'H', description: 'Code Rush' }
+      ]
+    })
+
+    expect(result).toContain('title="Overview"')
+  })
+
+  it('omits a blank title', () => {
+    const result = serialize({
+      title: '  ',
+      tiles: [
+        { number: '150', description: 'Builders' },
+        { number: '24', description: 'Code Rush' }
+      ]
+    })
+
+    expect(result).not.toContain('title=')
+  })
+
   it('omits a blank prefix', () => {
     const result = serialize({
       tiles: [

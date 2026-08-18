@@ -1053,12 +1053,18 @@ export interface BlocksNumberTile extends Struct.ComponentSchema {
 export interface BlocksNumberTiles extends Struct.ComponentSchema {
   collectionName: 'components_blocks_number_tiles'
   info: {
-    description: 'Row of stat tiles (number + optional suffix + description). Minimum 2 tiles.'
+    description: 'Row of stat tiles with an optional title (number + optional suffix + description). Minimum 2 tiles.'
     displayName: 'Number Tiles'
     icon: 'chart-pie'
   }
   attributes: {
     tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    title: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

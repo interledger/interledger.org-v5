@@ -14,11 +14,40 @@ heroCtas:
 locale: 'en'
 ---
 
+<NumberTiles
+  title="Overview"
+  tiles={[
+    { number: '150', suffix: '+', description: 'Builders' },
+    { number: '24', suffix: 'H', description: 'Code Rush' },
+    {
+      number: '20000',
+      prefix: '$',
+      suffix: '+',
+      description: 'Cash Prizes'
+    },
+    { number: '4', description: 'Winning Categories' }
+  ]}
+/>
+
 <Paragraph>
 
-The Interledger hackathon brings together developers, designers, and builders to prototype new ideas on top of open payment standards. Teams have a weekend to design, build, and pitch a working project.
+During a 24-hour Interledger Open Payments Hackathon, you'll take on a real
+financial challenge, build a working prototype, and pitch it to a panel of
+industry leaders, investors and ecosystem partners. You build on Open
+Payments: an open API standard that lets applications send, receive and
+manage payments across networks through one interoperable interface.
 
 </Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Register your interest',
+      link: '/hackathon/signup',
+      style: 'primary'
+    }
+  ]}
+/>
 
 <HackathonAnimation />
 

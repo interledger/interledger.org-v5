@@ -27,8 +27,10 @@ export interface StatItem {
   ariaLabel?: string
   /** Merged onto the default width classes — lets callers override the fixed per-breakpoint widths (e.g. for a percentage-based flex-basis layout). */
   class?: string
-  /** Merged onto the number's default size classes — the suffix always matches this size too (no separate smaller "superscript" scale). */
+  /** Merged onto the number's default size classes. Suffix size follows this unless `suffixClass` overrides it. */
   numberClass?: string
+  /** Merged onto the suffix after `numberClass` — e.g. a lighter weight than the digits. */
+  suffixClass?: string
   /** Merged onto the description label's default classes — e.g. to set a different text color. */
   labelClass?: string
 }
@@ -44,6 +46,7 @@ const {
   ariaLabel,
   class: className,
   numberClass,
+  suffixClass,
   labelClass
 } = Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
@@ -57,6 +60,7 @@ const numberClasses = twMerge(
   'font-poppins font-semibold text-h1 tablet:text-h1-md desktop:text-[4.75rem]',
   numberClass
 )
+const suffixClasses = twMerge('whitespace-nowrap', numberClasses, suffixClass)
 // `mb-0` beats the global `main p { margin-block-end }` prose rule
 // (src/styles/components/prose/default.css) — that rule targets body
 // copy, not this label, but it applies to every `<p>` inside `<main>`.
@@ -74,13 +78,7 @@ const labelClasses = twMerge(
       prefix={prefix}
       class={numberClasses}
     />
-    {
-      suffix && (
-        <span class={twMerge('whitespace-nowrap', numberClasses)}>
-          {suffix}
-        </span>
-      )
-    }
+    {suffix && <span class={suffixClasses}>{suffix}</span>}
   </div>
   <p class={labelClasses} aria-hidden={hideContents}>
     {label}
