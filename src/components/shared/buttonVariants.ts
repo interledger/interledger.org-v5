@@ -99,7 +99,7 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'light',
         class: [
-          'border-neutral-50 text-neutral-100',
+          'border-neutral-75 text-neutral-100',
           // Hover: border colour darkens to black and text deepens to black.
           // Fill stays transparent.
           'hover:border-neutral-900 hover:text-neutral-900',
