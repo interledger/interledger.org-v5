@@ -27,17 +27,6 @@ const hasText = Boolean(text) || Astro.slots.has('default')
   </h3>
 
   {
-    hasText && (
-      <div
-        data-event-copy
-        class="font-poppins text-h5 text-neutral-100 dark:text-neutral-0 [&_p]:m-0"
-      >
-        <slot>{text}</slot>
-      </div>
-    )
-  }
-
-  {
     (date || time) && (
       <ul class="m-0 flex list-none flex-col gap-xl p-0">
         {date && (
@@ -71,6 +60,17 @@ const hasText = Boolean(text) || Astro.slots.has('default')
           </li>
         )}
       </ul>
+    )
+  }
+
+  {
+    hasText && (
+      <div
+        data-event-copy
+        class="font-poppins text-h5 text-neutral-100 dark:text-neutral-0 [&_p]:m-0"
+      >
+        <slot>{text}</slot>
+      </div>
     )
   }
 </div>
