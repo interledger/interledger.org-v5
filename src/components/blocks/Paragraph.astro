@@ -35,7 +35,7 @@ const CTA_PAIR_SPACING =
   '[&:has(+.cta-link)]:mb-xl desktop:[&:has(+.cta-link)]:mb-2xl [&:has(+.cta-link)>*:last-child]:mb-0'
 
 const hasContent = content != null && content !== ''
-const className = [alignmentClass, 'paragraph-content mb-6xl', CTA_PAIR_SPACING]
+const className = [alignmentClass, 'mb-6xl', CTA_PAIR_SPACING]
   .filter(Boolean)
   .join(' ')
 const htmlContent = hasContent
@@ -49,9 +49,9 @@ const htmlContent = hasContent
 
 {
   hasContent ? (
-    <div class={className} set:html={htmlContent} />
+    <div data-component="Paragraph" class={className} set:html={htmlContent} />
   ) : (
-    <div class={className}>
+    <div data-component="Paragraph" class={className}>
       <slot />
     </div>
   )

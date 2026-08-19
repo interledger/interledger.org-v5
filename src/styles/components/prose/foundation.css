@@ -193,12 +193,12 @@
   }
 
   /* Bullet points styles for list items inside Paragraphs */
-  [data-prose] .paragraph-content ul {
+  [data-prose] [data-component='Paragraph'] ul {
     list-style: none;
-    padding: 0px;
+    padding: 0;
   }
 
-  [data-prose] .paragraph-content ul > li {
+  [data-prose] [data-component='Paragraph'] ul > li {
     margin-bottom: var(--spacing-xl);
     color: var(--color-tangerine-100);
     @variant tablet {
@@ -209,7 +209,7 @@
     }
   }
 
-  [data-prose] .paragraph-content ul > li::before {
+  [data-prose] [data-component='Paragraph'] ul > li::before {
     content: '';
     display: inline-block;
     position: relative;
@@ -226,10 +226,10 @@
   }
 
   @variant dark {
-    [data-prose] .paragraph-content ul > li {
+    [data-prose] [data-component='Paragraph'] ul > li {
       color: var(--color-aqua-mint-100);
     }
-    [data-prose] .paragraph-content ul > li::before {
+    [data-prose] [data-component='Paragraph'] ul > li::before {
       background-color: var(--color-aqua-mint-100);
     }
   }
