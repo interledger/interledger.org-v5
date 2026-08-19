@@ -14,40 +14,7 @@ vi.mock('astro:content', async () => {
   return { z, getCollection: vi.fn().mockResolvedValue([]) }
 })
 
-const { isHackathonBasePath, normalizeBasePath, ROUTE_BASES } =
-  await import('./routes')
-
-describe('isHackathonBasePath', () => {
-  it('matches the hackathon base path', () => {
-    expect(isHackathonBasePath(ROUTE_BASES['hackathon-pages'])).toBe(true)
-  })
-
-  it('matches a base path with no leading slash', () => {
-    expect(isHackathonBasePath('hackathon')).toBe(true)
-  })
-
-  it('rejects the other microsite', () => {
-    expect(isHackathonBasePath(ROUTE_BASES['summit-pages'])).toBe(false)
-  })
-
-  it.each(['', '/', '/blog', '/grant', '/podcast'])(
-    'rejects %j',
-    (basePath) => {
-      expect(isHackathonBasePath(basePath)).toBe(false)
-    }
-  )
-
-  it('rejects a full page path rather than a base path', () => {
-    // `routeContextFromPathname` always hands back the base alone, never the
-    // slug with it. Guard the contract so a caller passing `Astro.url.pathname`
-    // by mistake fails loudly instead of silently keeping the arrow.
-    expect(isHackathonBasePath('/hackathon/overview')).toBe(false)
-  })
-
-  it('rejects a base path that only starts with the hackathon base', () => {
-    expect(isHackathonBasePath('/hackathon-archive')).toBe(false)
-  })
-})
+const { normalizeBasePath } = await import('./routes')
 
 describe('normalizeBasePath', () => {
   it('treats an empty base and the site root alike', () => {

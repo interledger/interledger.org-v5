@@ -25,7 +25,7 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 // A hackathon primary carries no arrow, Subscribe included. See
-// `isHackathonBasePath` for the reason (INTORG-1072). Keyed on the `site` prop
+// A hackathon primary carries no arrow (INTORG-1072). Keyed on the `site` prop
 // rather than the base path because this component is already told its site,
 // and a footer renders the same way whatever page it sits under.
 const subscribeIcon = site === 'hackathon' ? null : 'arrow-right'

@@ -1,10 +1,5 @@
 ---
-import {
-  buildUmamiAttrs,
-  isHackathonBasePath,
-  parseMarkdown,
-  resolveCtaLink
-} from '@/utils'
+import { buildUmamiAttrs, parseMarkdown, resolveCtaLink } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -45,15 +40,23 @@ const {
   umamiContext
 } = Astro.props
 
-const { routeLocale, currentBasePath } = Astro.locals
+const { routeLocale, site } = Astro.locals
 
-// The hackathon's main CTA carries no arrow; `isHackathonBasePath` holds the
-// reason. Decided here rather than with a `dark:` class partly because the rule
-// is per site and not per theme, and partly because the icon sets the button's
-// padding: LinkButton derives `iconSide` from slot presence, and `'right'` pads
-// 24/16 where `'none'` pads 16/16. Hiding the glyph in CSS would leave the
-// label 8px off centre.
-const isHackathon = isHackathonBasePath(currentBasePath)
+// The hackathon's main CTA carries no arrow. Its label is usually programmatic,
+// such as `<register_today>`, and an arrow beside that reads as too much. The
+// rule holds even for an ordinary label like "Subscribe" (Radu, 2026-08-18 on
+// INTORG-1083).
+//
+// Decided here rather than with a `dark:` class for two reasons. The arrow is
+// per site, not per theme: summit is dark too and keeps its arrow. And the icon
+// sets the button's padding, because LinkButton derives `iconSide` from slot
+// presence and `iconSide: 'right'` pads 24/16 where `'none'` pads 16/16. Hiding
+// the glyph in CSS would leave the label 8px off centre.
+//
+// Read from `Astro.locals`, which is the same value `BaseLayout` writes to
+// `data-site` for the token overrides. Deriving it separately, from the URL for
+// instance, would let the arrow and the button colour disagree (Jonathan, #520).
+const isHackathon = site === 'hackathon'
 
 // Icon by link kind (INTORG-938). Both buttons carry their own external and
 // document flags, so an editor can mark either one a download.
@@ -215,14 +218,21 @@ const hasSecondary = Boolean(
           </div>
         )}
 
-        <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
+        <div
+          class:list={[
+            'flex w-full gap-sm tablet:w-fit',
+            hasSecondary
+              ? 'flex-col items-stretch tablet:flex-row tablet:items-center tablet:justify-center'
+              : 'flex-col items-stretch'
+          ]}
+        >
           <LinkButton
             href={resolvedPrimary.href}
             variant="primary"
             external={resolvedPrimary.external}
             document={resolvedPrimary.document}
             iconSide={resolvedPrimary.icon ? 'right' : 'none'}
-            class="w-full"
+            class:list={[hasSecondary ? 'w-full tablet:w-auto' : 'w-full']}
             {...buildUmamiAttrs({
               ...umamiBase,
               href: primaryButtonLink,
@@ -243,7 +253,7 @@ const hasSecondary = Boolean(
               external={resolvedSecondary.external}
               document={resolvedSecondary.document}
               iconSide={resolvedSecondary.icon ? 'right' : 'none'}
-              class="cta-strip-secondary w-full"
+              class="cta-strip-secondary w-full tablet:w-auto"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: secondaryButtonLink,

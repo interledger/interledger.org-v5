@@ -52,6 +52,15 @@
     margin-block-start: var(--spacing-md);
   }
 
+  /* Dark (hackathon): orchid bars. Type stays --color-prose like body copy. */
+  @variant dark {
+    [data-prose] blockquote {
+      border-left-color: var(--color-orchid-100);
+      border-right-color: var(--color-orchid-100);
+      color: var(--color-prose);
+    }
+  }
+
   /* === Table styles === */
   [data-prose] .table-scroll {
     display: block;
@@ -149,5 +158,37 @@
 
   [data-prose] tbody tr:last-child > :last-child {
     border-end-end-radius: var(--radius-2xl);
+  }
+
+  /* Dark tables: charcoal surface, white type, same zebra as Agenda rows. */
+  @variant dark {
+    [data-prose] table {
+      background-color: var(--color-neutral-150);
+    }
+
+    [data-prose] th,
+    [data-prose] td {
+      border-block-end-color: var(--color-neutral-75);
+      border-inline-end-color: var(--color-neutral-75);
+      color: var(--color-neutral-0);
+    }
+
+    [data-prose] :is(th, td):first-child {
+      border-inline-start-color: var(--color-neutral-75);
+    }
+
+    [data-prose] tbody tr:nth-child(odd) > * {
+      background-color: var(--color-ocean-150);
+    }
+
+    [data-prose] tbody tr:nth-child(even) > * {
+      background-color: var(--color-royal-purple-150);
+    }
+
+    [data-prose] thead th {
+      background-color: var(--color-neutral-150);
+      border-top-color: var(--color-neutral-75);
+      color: var(--color-neutral-0);
+    }
   }
 }

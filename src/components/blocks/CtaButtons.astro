@@ -23,7 +23,7 @@
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { buildUmamiAttrs, isHackathonBasePath, resolveCtaLink } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
 
 interface CtaButtonProp {
   text: string
@@ -38,10 +38,12 @@ interface Props {
 }
 
 const { buttons = [] } = Astro.props
-const { routeLocale, currentBasePath } = Astro.locals
+const { routeLocale, site } = Astro.locals
 
-// A hackathon primary carries no arrow. See `isHackathonBasePath` (INTORG-1072).
-const isHackathon = isHackathonBasePath(currentBasePath)
+// A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
+// the same value `BaseLayout` writes to `data-site` for the button tokens, so the
+// arrow and the fill cannot disagree (Jonathan, #520).
+const isHackathon = site === 'hackathon'
 
 // Strapi drafts can be saved mid-edit, so a button may arrive without its text
 // or link. Skip those rather than rendering an empty or dead button.

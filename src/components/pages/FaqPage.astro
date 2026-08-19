@@ -53,9 +53,13 @@ const Layout = getSectionPageLayout(entry.data.section)
   >
     <TranslationDisclaimer isVisible={isFallback} />
     <div class="mx-auto max-w-content">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      {
+        entry.data.section !== 'hackathon' && (
+          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        )
+      }
       <h1
-        class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg"
+        class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
       >
         {heading}
       </h1>
@@ -66,7 +70,7 @@ const Layout = getSectionPageLayout(entry.data.section)
             class="mt-xl tablet:mt-3xl"
           >
             <div
-              class="text-neutral-100 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+              class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
               set:html={introParagraphHtml}
             />
           </section>

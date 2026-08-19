@@ -1,36 +1,21 @@
 ---
 /**
- * Foundation site header.
- * Composes navigation menu, action links, and mobile toggle.
- *
- * `theme="dark"` is used on pages where the nav sits over a dark hero
- * (e.g. the homepage). It renders a solid dark bar, light text, and dark
- * dropdown panels. Default `"light"` is the white-bar treatment used on
- * inner pages after scrolling past the hero.
+ * Hackathon site header. Always dark — no scroll theme flip.
  */
 import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
 import FoundationNavActions from '@/components/layout/FoundationNavActions.astro'
-import FoundationLogo from '@/components/logos/FoundationLogo.astro'
+import HackathonNavLogo from '@/components/logos/HackathonNavLogo.astro'
 import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import Icon from '@/components/shared/Icon.astro'
-
 import {
   translatePath,
-  HOME_CONTENT_SLUG,
   useTranslations,
   getNavigation,
   buildDeferredUmamiAttrs,
   getAlternateLocale,
   getAlternateLocaleHref
 } from '@/utils'
-
-interface Props {
-  theme?: 'light' | 'dark'
-}
-
-const { theme = 'dark' } = Astro.props
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -43,14 +28,10 @@ const alternateLocaleHref = getAlternateLocaleHref(
 )
 const alternateLocaleLabel = alternateLocale?.toUpperCase() ?? ''
 
-const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
-const homeHref = translatePath(
-  'foundation-pages',
-  routeLocale,
-  HOME_CONTENT_SLUG
-)
-const navLabel = t('nav.main')
-const logoLabel = t('aria.logo.foundation')
+const { mainMenu, ctaButton } = getNavigation('hackathon', routeLocale)
+const homeHref = translatePath('hackathon-pages', routeLocale, 'overview')
+const navLabel = t('nav.hackathon')
+const logoLabel = t('aria.logo.hackathon')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   buildDeferredUmamiAttrs({
@@ -61,38 +42,33 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     linkText,
     ariaLabel
   })
-
-const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 ---
 
 <header
-  class={headerClass}
-  data-theme={theme}
-  data-component="FoundationHeader"
+  class="hackathon-header sticky top-0 z-[2] px-lg desktop:px-2xl text-base"
+  data-component="HackathonHeader"
 >
   <nav
     class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
-    aria-labelledby="block-interledger-mainnavigation-menu"
-    id="block-interledger-mainnavigation"
+    aria-labelledby="block-hackathon-navigation-menu"
+    id="block-hackathon-navigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
-      {navLabel}
-    </h2>
+    <h2 class="sr-only" id="block-hackathon-navigation-menu">{navLabel}</h2>
     <a
       href={homeHref}
-      class="flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
+      class="flex items-center self-center flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
       aria-label={logoLabel}
       {...navLink(homeHref, undefined, logoLabel)}
     >
-      <FoundationLogo />
+      <HackathonNavLogo />
     </a>
     <div
       class="header-nav-wrapper header-nav-wrapper--foundation"
       data-nav-wrapper
       data-lenis-prevent
       data-offscreen="true"
-      id="siteNavLinks"
+      id="hackathonNavLinks"
     >
       <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl">
         <div class="flex items-center justify-between gap-xl">
@@ -125,7 +101,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
       <hr
         class="desktop:hidden mx-lg mt-md mb-xl border-t border-neutral-25 dark:border-neutral-75"
       />
-      <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
+      <FoundationNavMenu menuGroups={mainMenu} theme="dark" />
       {
         ctaButton && (
           <div class="desktop:hidden mx-lg mt-2xl mb-4xl">
@@ -138,14 +114,16 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
               {...navLink(ctaButton.href || '#', ctaButton.label)}
             >
               {ctaButton.label}
-              <Icon slot="icon-right" name="arrow-right" />
             </LinkButton>
           </div>
         )
       }
     </div>
-    <FoundationNavActions ctaButton={ctaButton} />
-    <HamburgerButton controlsId="siteNavLinks" iconId="foundationMenuIcon" />
+    <FoundationNavActions ctaButton={ctaButton} hideCtaIcon />
+    <HamburgerButton
+      controlsId="hackathonNavLinks"
+      iconId="hackathonMenuIcon"
+    />
   </nav>
 </header>
 
@@ -155,7 +133,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
      initial attribute to match the viewport. -->
 <script is:inline>
   ;(function () {
-    const w = document.getElementById('siteNavLinks')
+    const w = document.getElementById('hackathonNavLinks')
     if (w && window.matchMedia('(min-width: 1200px)').matches) {
       w.dataset.offscreen = 'false'
       w.removeAttribute('inert')
@@ -164,5 +142,5 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 </script>
 
 <script>
-  import './foundation-header.ts'
+  import './hackathon-header.ts'
 </script>

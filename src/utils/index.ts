@@ -45,7 +45,6 @@ export {
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
-  isHackathonBasePath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'

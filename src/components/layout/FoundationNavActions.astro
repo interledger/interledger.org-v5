@@ -7,9 +7,10 @@ import { buildDeferredUmamiAttrs } from '@/utils'
 
 interface Props {
   ctaButton?: MenuItem
+  hideCtaIcon?: boolean
 }
 
-const { ctaButton } = Astro.props
+const { ctaButton, hideCtaIcon = false } = Astro.props
 const { routeLocale } = Astro.locals
 
 const ctaAttrs =
@@ -34,11 +35,12 @@ const ctaAttrs =
         variant="primary"
         size="sm"
         external={ctaButton.openInNewTab}
+        iconSide={hideCtaIcon ? 'none' : undefined}
         class="max-desktop:hidden"
         {...ctaAttrs}
       >
         {ctaButton.label}
-        <Icon slot="icon-right" name="arrow-right" />
+        {!hideCtaIcon && <Icon slot="icon-right" name="arrow-right" />}
       </LinkButton>
     )
   }
