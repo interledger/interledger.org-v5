@@ -2564,9 +2564,7 @@ describe('buildPodcastPagePayload', () => {
       podcastPageFrontmatterSchema,
       mdx
     )
-    expect(
-      (payload as Record<string, unknown>).textSection
-    ).toBeNull()
+    expect((payload as Record<string, unknown>).textSection).toBeNull()
   })
 })
 

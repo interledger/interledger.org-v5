@@ -5,6 +5,7 @@ import {
   localizeRoute,
   stripPagination,
   translateTerm,
+  parseMarkdown,
   PODCAST_PAGE_SLUG,
   CATEGORY_SEGMENT
 } from '@/utils'
@@ -47,6 +48,7 @@ const {
   heroImageMobile,
   heroImageMobileAlt,
   heroCtas,
+  textSection,
   titleCards,
   ctaStrip
 } = podcastPage
@@ -76,6 +78,16 @@ const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
   { name: heroTitle ?? title, href: podcastPath }
 ]
+
+// Same landing-only gate as the title cards below.
+const textSectionHtml =
+  isLandingPage && textSection
+    ? await parseMarkdown(textSection, {
+        page: 'podcast',
+        pathname: Astro.url.pathname,
+        lang: routeLocale
+      })
+    : undefined
 ---
 
 <FoundationPageLayout title={pageTitle} description={pageDescription}>
@@ -97,12 +109,21 @@ const breadcrumbs = [
     {
       isLandingPage && (
         <section class="py-4xl">
+          {textSectionHtml && (
+            <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
+              <div
+                class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-100 dark:text-neutral-50 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_strong]:font-semibold"
+                set:html={textSectionHtml}
+              />
+            </div>
+          )}
           <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
             <CardGrid
               ariaLabel={titleCards.ariaLabel}
               columns={titleCards.columns}
               variant="Title"
               titleCards={titleCards.cards}
+              topSpacing={textSectionHtml ? 'tight' : 'default'}
             />
           </div>
         </section>
