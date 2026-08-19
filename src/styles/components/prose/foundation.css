@@ -201,6 +201,9 @@
   [data-prose] [data-component='Paragraph'] ul > li {
     margin-bottom: var(--spacing-xl);
     color: var(--color-tangerine-100);
+    display: flex;
+    flex-direction:row;
+    align-items: center;
     @variant tablet {
       margin-bottom: var(--spacing-lg);
     }
@@ -211,11 +214,8 @@
 
   [data-prose] [data-component='Paragraph'] ul > li::before {
     content: '';
-    display: inline-block;
-    position: relative;
     width: var(--spacing-xl);
     height: var(--spacing-xl);
-    top: var(--spacing-xs);
     background-color: var(--color-tangerine-100);
     mask: url('/img/bullet-point.svg') no-repeat center / contain;
     -webkit-mask: url('/img/bullet-point.svg') no-repeat center / contain;
