@@ -38,7 +38,12 @@ interface Props {
 }
 
 const { buttons = [] } = Astro.props
-const { routeLocale } = Astro.locals
+const { routeLocale, site } = Astro.locals
+
+// A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
+// the same value `BaseLayout` writes to `data-site` for the button tokens, so the
+// arrow and the fill cannot disagree (Jonathan, #520).
+const isHackathon = site === 'hackathon'
 
 // Strapi drafts can be saved mid-edit, so a button may arrive without its text
 // or link. Skip those rather than rendering an empty or dead button.
@@ -65,7 +70,8 @@ const resolved = buttons
         // Scoped to components an editor picks. Template pages and the home
         // page follow their own Figma spec, so this must not become the shared
         // default (INTORG-1086).
-        internalIcon: variant === 'primary' ? 'arrow-right' : null
+        internalIcon:
+          variant === 'primary' && !isHackathon ? 'arrow-right' : null
       })
     }
   })
@@ -77,6 +83,12 @@ const resolved = buttons
       data-component="CtaButtons"
       class="mt-xl mb-6xl desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
     >
+      {/*
+        `iconSide` is explicit because LinkButton otherwise infers it from
+        `Astro.slots.has('icon-right')`, which reports true even when the slot
+        holds a falsy conditional and renders nothing. An icon-less button then
+        keeps the with-icon padding and its label sits 8px off centre.
+      */}
       {resolved.map((button) => (
         <LinkButton
           href={button.href}
@@ -84,6 +96,7 @@ const resolved = buttons
           mode="auto"
           external={button.external}
           document={button.document}
+          iconSide={button.icon ? 'right' : 'none'}
           class="w-full tablet:w-auto"
           {...buildUmamiAttrs({
             pathname: Astro.url.pathname,

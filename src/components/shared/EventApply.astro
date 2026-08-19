@@ -23,20 +23,22 @@ const {
   buttonDocument = false
 } = Astro.props
 
-const { routeLocale } = Astro.locals
+const { routeLocale, site } = Astro.locals
 
 // Icon by link kind (INTORG-938). This button hard-coded
 // `external ? 'external-link' : 'arrow-right'` and had no download case, so a
 // document CTA showed an arrow and never set the `download` attribute.
 //
-// The internal case keeps the arrow: this CTA belongs to the event card
-// template, not to a component an editor picks (Sarah, INTORG-907,
-// 2026-08-09).
+// The internal case keeps the arrow everywhere but the hackathon, whose primary
+// carries none (INTORG-1072). The site comes from `Astro.locals`, the same value
+// that drives the button tokens (Jonathan, #520). Elsewhere the arrow stays,
+// because this CTA belongs to the event card template rather than to a
+// component an editor picks (Sarah, INTORG-907, 2026-08-09).
 const resolved = resolveCtaLink({
   url: buttonUrl,
   external: buttonExternal,
   document: buttonDocument,
-  internalIcon: 'arrow-right'
+  internalIcon: site === 'hackathon' ? null : 'arrow-right'
 })
 ---
 
@@ -53,6 +55,7 @@ const resolved = resolveCtaLink({
     size="lg"
     external={resolved.external}
     document={resolved.document}
+    iconSide={resolved.icon ? 'right' : 'none'}
     class="self-start"
     {...buildUmamiAttrs({
       pathname: Astro.url.pathname,
@@ -63,6 +66,6 @@ const resolved = resolveCtaLink({
     })}
   >
     {buttonText}
-    <Icon name={resolved.icon} slot="icon-right" />
+    {resolved.icon && <Icon name={resolved.icon} slot="icon-right" />}
   </LinkButton>
 </div>
