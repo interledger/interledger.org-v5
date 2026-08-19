@@ -10,9 +10,10 @@
  * src/utils/twMerge.ts). Button.astro and LinkButton.astro wrap the
  * buttonVariants() result with twMerge so `<Button class="w-full">` cleanly
  * wins over CVA defaults. Override patterns:
- *   - Pattern A: wrap in [data-pillar='X'] (preferred for pillar re-tint)
- *   - Pattern B: inline-style the --color-button-primary{,-hover,-disabled}
- *               vars (preferred for forcing a specific palette colour)
+ *   - Pattern A: wrap in [data-pillar='X'] or [data-site='X'] (preferred for a
+ *               pillar or whole-site re-tint; see src/styles/base/variables.css)
+ *   - Pattern B: inline-style the --color-button-primary* vars (preferred for
+ *               forcing a specific palette colour on one button)
  *   - Pattern C: pass `class` prop (preferred for non-colour utilities)
  */
 import { cva, type VariantProps } from 'class-variance-authority'
@@ -29,15 +30,21 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          'bg-button-primary text-neutral-0',
-          'hover:bg-button-primary-hover',
-          // Focus state: orchid-50 fill, 2px orchid-100 outline drawn inside
-          // the button border (so layout doesn't shift), orchid-100 text.
-          // Hardcoded to orchid; pillar-aware focus tokens are a follow-up
-          // once design specifies per-pillar focus colours.
-          'focus-visible:bg-orchid-50 focus-visible:text-orchid-100',
-          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-orchid-100',
-          'disabled:bg-button-primary-disabled disabled:text-neutral-25 aria-disabled:bg-button-primary-disabled aria-disabled:text-neutral-25'
+          // Every state reads its fill and its label from a var, so a
+          // [data-site] or [data-pillar] retint carries the whole set. Nothing
+          // here is a fixed colour, because no single label works on every fill:
+          // white measures 1.79:1 on the hackathon's apricot (INTORG-1083).
+          //
+          // Orchid resolves to the colours these classes used to hardcode, so
+          // the foundation and summit rendering does not move.
+          'bg-button-primary text-button-primary-text',
+          'hover:bg-button-primary-hover hover:text-button-primary-hover-text',
+          // Figma draws the focus ring as a 2px border. This uses an inset
+          // outline instead: the resting primary has no border, so a real one
+          // would grow the button by 4px on focus. Same look, no layout shift.
+          'focus-visible:bg-button-primary-focus focus-visible:text-button-primary-focus-text',
+          'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-button-primary-focus-outline',
+          'disabled:bg-button-primary-disabled disabled:text-button-primary-disabled-text aria-disabled:bg-button-primary-disabled aria-disabled:text-button-primary-disabled-text'
         ],
         secondary: ['bg-transparent border'],
         // Footer ghost button. Inline text-with-padding link, no fill, no
@@ -139,6 +146,11 @@ export const buttonVariants = cva(
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
           'disabled:border-neutral-50 disabled:text-neutral-50',
           'aria-disabled:border-neutral-50 aria-disabled:text-neutral-50',
+          // neutral-50, not the neutral-75 the explicit `dark` compound uses.
+          // `auto` lands on the near-black microsite surfaces, where neutral-75
+          // measures 2.82:1 against neutral-150 and fails the 3:1 minimum for a
+          // control boundary. neutral-50 measures 11.74:1 and matches the
+          // hackathon prototype (INTORG-1083).
           'dark:border-neutral-50 dark:text-neutral-25',
           'dark:hover:border-neutral-0 dark:hover:text-neutral-0',
           'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',

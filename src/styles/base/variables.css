@@ -22,9 +22,24 @@
        [data-pillar='X'] selectors (one block per pillar, mirroring the
        --color-primary pattern below). Callers can also override per-button
        via inline style on the element. */
+    /* Every state carries its own fill and its own label. A retint changes the
+       fill's lightness, so the label cannot be shared: white works on orchid but
+       measures 1.79:1 on the hackathon's apricot. The focus ring is separate from
+       the focus label too, because the hackathon spec uses two different oranges
+       for them (INTORG-1083).
+
+       Kept out of --color-btn-txt, which PdfEmbed pairs with --color-primary.
+       That var is not retinted, so writing to it would darken PdfEmbed's label
+       over an orchid fill. */
     --color-button-primary: var(--color-orchid-100);
+    --color-button-primary-text: var(--color-neutral-0);
     --color-button-primary-hover: var(--color-orchid-150);
+    --color-button-primary-hover-text: var(--color-neutral-0);
+    --color-button-primary-focus: var(--color-orchid-50);
+    --color-button-primary-focus-text: var(--color-orchid-100);
+    --color-button-primary-focus-outline: var(--color-orchid-100);
     --color-button-primary-disabled: var(--color-orchid-50);
+    --color-button-primary-disabled-text: var(--color-neutral-25);
 
     /* Dependent color vars — reference other vars, so must live in :root */
     --color-btn-txt: var(--color-white);
@@ -83,5 +98,29 @@
   }
   [data-pillar='values'] {
     --color-primary: var(--color-orchid-100);
+  }
+
+  /* Site overrides — set on <html> by BaseLayout, alongside data-theme.
+     Same shape as the pillar hook above, keyed on the site instead of the
+     section.
+
+     This has to be a site selector, not `dark:`. Both microsites set
+     data-theme="dark", so no dark variant can tell hackathon from summit, and
+     apricot is a hackathon colour. The prototype confirms the two are separate
+     kinds rather than two themes of one: a single hackathon page carries both
+     an apricot primary and an orchid one (INTORG-1083). */
+  /* Values read from the `Hackathon primary CTA` component in Figma
+     (node 3624:6696), which carries a full State axis: Default, Hover, Focus,
+     Disabled. Not an interpretation of the resting colour. */
+  [data-site='hackathon'] {
+    --color-button-primary: var(--color-apricot-100);
+    --color-button-primary-text: var(--color-neutral-100);
+    --color-button-primary-hover: var(--color-apricot-150);
+    --color-button-primary-hover-text: var(--color-neutral-900);
+    --color-button-primary-focus: var(--color-cream-orange-50);
+    --color-button-primary-focus-text: var(--color-tangerine-150);
+    --color-button-primary-focus-outline: var(--color-apricot-150);
+    --color-button-primary-disabled: var(--color-apricot-50);
+    --color-button-primary-disabled-text: var(--color-apricot-100);
   }
 }

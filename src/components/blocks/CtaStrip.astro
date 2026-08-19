@@ -40,7 +40,23 @@ const {
   umamiContext
 } = Astro.props
 
-const { routeLocale } = Astro.locals
+const { routeLocale, site } = Astro.locals
+
+// The hackathon's main CTA carries no arrow. Its label is usually programmatic,
+// such as `<register_today>`, and an arrow beside that reads as too much. The
+// rule holds even for an ordinary label like "Subscribe" (Radu, 2026-08-18 on
+// INTORG-1083).
+//
+// Decided here rather than with a `dark:` class for two reasons. The arrow is
+// per site, not per theme: summit is dark too and keeps its arrow. And the icon
+// sets the button's padding, because LinkButton derives `iconSide` from slot
+// presence and `iconSide: 'right'` pads 24/16 where `'none'` pads 16/16. Hiding
+// the glyph in CSS would leave the label 8px off centre.
+//
+// Read from `Astro.locals`, which is the same value `BaseLayout` writes to
+// `data-site` for the token overrides. Deriving it separately, from the URL for
+// instance, would let the arrow and the button colour disagree (Jonathan, #520).
+const isHackathon = site === 'hackathon'
 
 // Icon by link kind (INTORG-938). Both buttons carry their own external and
 // document flags, so an editor can mark either one a download.
@@ -49,11 +65,22 @@ const { routeLocale } = Astro.locals
 // nothing, which is what each renders today. Arrow-on-internal is scoped to
 // components an editor picks, and the strip is page furniture (Sarah,
 // 2026-08-09 on INTORG-907). Only the external and document cases change.
+//
+// Dropping `internalIcon` on the hackathon drops the arrow only. An external or
+// document primary keeps its own icon, because those report what the link does
+// rather than decorate it.
+//
+// Both buttons pass `iconSide` explicitly. `LinkButton` otherwise infers it from
+// `Astro.slots.has('icon-right')`, which reports true even when the slot holds a
+// falsy conditional and renders nothing, so the button keeps the with-icon
+// padding (24 left, 16 right) and the label sits 8px off centre. That already
+// happened to every icon-less secondary before this change; measured on the
+// built foundation page, not inferred.
 const resolvedPrimary = resolveCtaLink({
   url: primaryButtonLink,
   external: primaryButtonExternal,
   document: primaryButtonDocument,
-  internalIcon: 'arrow-right'
+  internalIcon: isHackathon ? null : 'arrow-right'
 })
 const resolvedSecondary = secondaryButtonLink
   ? resolveCtaLink({
@@ -112,27 +139,57 @@ const hasSecondary = Boolean(
       class:list={[
         'relative isolate overflow-clip rounded-3xl',
         'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-        'bg-soft-indigo-50',
-        // The summit and hackathon content wrapper styles every descendant
-        // anchor with `[&_a]:text-current`, so the page's white body colour
-        // reaches inside this card. That selector has a higher specificity
-        // than the button's own `text-neutral-100`, so the secondary button
-        // renders white on light indigo (about 1.06:1). The card is always
-        // light, whatever the page theme, so re-assert the light-mode colours
-        // through a selector that outranks the wrapper.
+        // Dark card (INTORG-1083). Figma's `Theme` variant changes exactly four
+        // things: the fill, a hairline border that only exists on dark, the
+        // heading colour and the description colour. Radius, padding, gaps and
+        // every type ramp are shared, so nothing else moves.
+        //
+        // On the hackathon the page itself is neutral-150, so the card is the
+        // same colour as its background and the border is the only thing
+        // separating them. It is structural, not decoration.
+        //
+        // The border is always present and merely transparent on light,
+        // following the `ghost` button in buttonVariants. One that existed only
+        // on dark would shrink the content box by 2px between themes, and Figma
+        // draws both at the same width.
+        'bg-soft-indigo-50 dark:bg-neutral-150',
+        'border border-transparent dark:border-ice-indigo-100',
+        // The summit content wrapper styles every descendant anchor with
+        // `[&_a]:text-current`, so the page's white body colour reaches inside
+        // this card. That selector has a higher specificity than the button's
+        // own `text-neutral-100`, so the secondary button renders white on light
+        // indigo (about 1.06:1). Re-assert the colours through a selector that
+        // outranks the wrapper.
         // Re-assert all three states, not only the resting one. This selector
         // also outranks the button's own `focus-visible:text-neutral-900`, so
         // without the third rule the text would stay neutral-100 on focus
         // instead of deepening to black (Copilot, #484).
+        //
+        // The dark twins are not optional. These light rules land at 0,2,1,
+        // while `mode="auto"`'s own `dark:text-neutral-25` lands at 0,1,0 —
+        // Tailwind compiles the `dark` variant to `:where([data-theme=dark], …)`,
+        // and `:where()` adds no specificity. So the card would keep asserting
+        // the light colours over a dark background without a counterpart here.
         '[&_a.cta-strip-secondary]:text-neutral-100',
         '[&_a.cta-strip-secondary:hover]:text-neutral-900',
-        '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900'
+        '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900',
+        'dark:[&_a.cta-strip-secondary]:text-neutral-25',
+        'dark:[&_a.cta-strip-secondary:hover]:text-neutral-25',
+        'dark:[&_a.cta-strip-secondary:focus-visible]:text-neutral-0'
       ]}
     >
       {/*
         Decorative Interledger network motif bleeding off the left edge.
         Absolutely positioned so it never affects layout (no CLS); hidden from
         the a11y tree. Low opacity so the nodes read as muted over the card.
+
+        The same 40% on dark, which is what Figma's dark variant shows. The
+        prototype runs its motif at full opacity, but that does not transfer:
+        there the motif is confined to the left of a wide card with the text
+        centred beside it, while ours is scaled and rotated across the whole
+        card. Measured at 390px, full opacity puts a node on top of the heading
+        and an arc through the description. At 40% every node still reads
+        clearly against neutral-150 (INTORG-1083).
       */}
       <img
         src="/img/blocks/cta-strip-network.svg"
@@ -146,13 +203,13 @@ const hasSecondary = Boolean(
 
       <div class="flex flex-col items-center gap-lg text-center">
         {heading && (
-          <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900">
+          <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900 dark:text-neutral-0">
             {heading}
           </h2>
         )}
 
         {hasDescription && (
-          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2">
+          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 dark:text-neutral-25 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2">
             {descriptionHtml ? (
               <Fragment set:html={descriptionHtml} />
             ) : (
@@ -161,13 +218,21 @@ const hasSecondary = Boolean(
           </div>
         )}
 
-        <div class="flex w-full flex-col items-stretch gap-sm tablet:w-fit">
+        <div
+          class:list={[
+            'flex w-full gap-sm tablet:w-fit',
+            hasSecondary
+              ? 'flex-col items-stretch tablet:flex-row tablet:items-center tablet:justify-center'
+              : 'flex-col items-stretch'
+          ]}
+        >
           <LinkButton
             href={resolvedPrimary.href}
             variant="primary"
             external={resolvedPrimary.external}
             document={resolvedPrimary.document}
-            class="w-full"
+            iconSide={resolvedPrimary.icon ? 'right' : 'none'}
+            class:list={[hasSecondary ? 'w-full tablet:w-auto' : 'w-full']}
             {...buildUmamiAttrs({
               ...umamiBase,
               href: primaryButtonLink,
@@ -175,16 +240,20 @@ const hasSecondary = Boolean(
             })}
           >
             {primaryButtonText}
-            <Icon name={resolvedPrimary.icon} slot="icon-right" />
+            {resolvedPrimary.icon && (
+              <Icon name={resolvedPrimary.icon} slot="icon-right" />
+            )}
           </LinkButton>
 
           {hasSecondary && resolvedSecondary && (
             <LinkButton
               href={resolvedSecondary.href}
               variant="secondary"
+              mode="auto"
               external={resolvedSecondary.external}
               document={resolvedSecondary.document}
-              class="cta-strip-secondary w-full"
+              iconSide={resolvedSecondary.icon ? 'right' : 'none'}
+              class="cta-strip-secondary w-full tablet:w-auto"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: secondaryButtonLink,
