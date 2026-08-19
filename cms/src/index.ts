@@ -1371,7 +1371,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Required card title.',
       body: 'Required unless an image is set. Supports markdown including bullet lists.',
       image:
-        'Optional cover photo. Use a square image (1:1). It fills the card without stretching. When set, the card shows the photo instead of the heading and body.',
+        'Optional cover photo. When set, the card shows the photo instead of the heading and body.',
       imageAlt:
         'Describe the photo for screen readers. Falls back to the card heading if left blank.'
     },
