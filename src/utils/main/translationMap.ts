@@ -119,7 +119,7 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   }
 
   // Add hardcoded entries for routes that are not generated from content files
-  const hardcodedRoutes = ['contact']
+  const hardcodedRoutes = ['contact', 'subscribe']
   for (const route of hardcodedRoutes) {
     map[route] = createFallbackEntry(route)
   }

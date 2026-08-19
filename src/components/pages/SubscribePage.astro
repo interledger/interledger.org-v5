@@ -1,0 +1,552 @@
+---
+import {
+  useTranslations,
+  localizeRoute,
+  translatePath,
+  type BreadcrumbItem
+} from '@/utils'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Button from '@/components/shared/Button.astro'
+import Icon from '@/components/shared/Icon.astro'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: t('subscribe.title'), href: localizeRoute('subscribe', routeLocale) }
+]
+
+const currentPath = Astro.url.pathname
+
+const expectPoints = [
+  t('subscribe.expect.grants'),
+  t('subscribe.expect.events'),
+  t('subscribe.expect.community'),
+  t('subscribe.expect.dev_updates'),
+  t('subscribe.expect.trends')
+]
+
+// Internal property values expected by the HubSpot "im_interested_in" field.
+const interestOptions = [
+  { value: 'Build The Tech', label: t('subscribe.interest.build_tech') },
+  { value: 'Grow The Movement', label: t('subscribe.interest.grow_movement') },
+  { value: 'Shift The System', label: t('subscribe.interest.shift_system') },
+  { value: 'Grants', label: t('subscribe.interest.grants') }
+]
+
+const privacyPolicyHref = translatePath(
+  'foundation-pages',
+  routeLocale,
+  'privacy-policy'
+)
+
+const hubspotPortalId = import.meta.env.PUBLIC_HUBSPOT_PORTAL_ID
+const hubspotFormId = import.meta.env.PUBLIC_HUBSPOT_FORM_ID
+// HubSpot communication subscription type id backing the marketing consent
+// checkbox on this specific form (portal 146747646 / form
+// ec4289c9-69b7-4a37-b4d2-60d856ce3926) — not a value we can derive at runtime.
+const hubspotCommunicationSubscriptionTypeId = 2514113604
+const consentProcessingLabel = t('subscribe.consent_processing_label')
+const consentCommunicationsLabel = t('subscribe.consent_communications_label')
+
+const inputClasses =
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary dark:border-neutral-75 dark:bg-neutral-150 dark:text-neutral-0'
+
+const labelClasses =
+  'font-thin text-body-sm-standard text-neutral-900 dark:text-neutral-0'
+
+const errorClasses =
+  'hidden mb-0 text-body-sm-standard text-red-600 dark:text-red-400'
+
+const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
+---
+
+<FoundationPageLayout
+  title={t('subscribe.title')}
+  description={t('subscribe.description')}
+>
+  <main class="pt-2xl pb-4xl desktop:min-h-screen">
+    <div class="mx-auto max-w-content min-w-90 px-[5%] min-[1600px]:px-0">
+      <div class="mb-xl">
+        <Breadcrumbs breadcrumbs={breadcrumbs} />
+      </div>
+
+      <div class="flex flex-col gap-3xl dark:desktop:border-neutral-75 desktop:flex-row desktop:gap-5xl">
+        <div class="flex flex-col gap-xl desktop:max-w-[45%]">
+          <h1 class="text-h1 text-neutral-900 dark:text-neutral-0">
+            {t('subscribe.title')}
+          </h1>
+
+          <p class={`text-body-md-standard ${secondaryTextClasses}`}>
+            {t('subscribe.intro')}
+          </p>
+
+          <div class="flex flex-col gap-md">
+            <h2 class="text-h4-lg text-neutral-900 dark:text-neutral-0">
+              {t('subscribe.expect_heading')}
+            </h2>
+            <ul class="flex flex-col gap-sm list-disc pl-xl">
+              {
+                expectPoints.map((point) => (
+                  <li class={`text-body-md-standard ${secondaryTextClasses}`}>
+                    {point}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex flex-1 flex-col gap-xl tablet:flex-row tablet:gap-5xl desktop:flex-col desktop:gap-xl">
+          <OptimizedImage
+            src="/img/interledger-bird.png"
+            alt=""
+            width={645}
+            height={564}
+            loading="eager"
+            pictureClass="order-first tablet:order-last desktop:order-first"
+            class="h-16 w-18.25 object-contain tablet:h-65.5 tablet:w-75 desktop:h-30.5 desktop:w-35"
+          />
+
+          <div class="p-xl">
+            <div
+              id="success-message"
+              class="hidden outline-none"
+              role="status"
+              aria-live="polite"
+              tabindex="-1"
+            >
+              <p class="font-semibold mb-s text-neutral-900 dark:text-neutral-0">
+                {t('subscribe.success_message')}
+              </p>
+              <p class={secondaryTextClasses}>
+                {t('subscribe.success_thanks')}
+              </p>
+            </div>
+
+            <div id="form-wrapper">
+              <form
+                id="subscribe-form"
+                aria-labelledby="subscribe-title"
+                class="flex flex-col gap-xl"
+              >
+                <span id="subscribe-title" class="sr-only">
+                  {t('subscribe.title')}
+                </span>
+
+                <div id="subscribe-step-1" class="flex flex-col gap-xl">
+                  <div class="flex flex-col gap-xs">
+                    <label for="firstname" class={labelClasses}>
+                      {t('subscribe.first_name')}
+                    </label>
+                    <input
+                      id="firstname"
+                      type="text"
+                      name="firstname"
+                      autocomplete="given-name"
+                      class={inputClasses}
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-xs">
+                    <label for="lastname" class={labelClasses}>
+                      {t('subscribe.last_name')}
+                    </label>
+                    <input
+                      id="lastname"
+                      type="text"
+                      name="lastname"
+                      autocomplete="family-name"
+                      class={inputClasses}
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-xs">
+                    <label for="email" class={labelClasses}>
+                      {t('subscribe.email')}
+                      <span aria-hidden="true" class="ml-0.5 text-primary"
+                        >*</span
+                      >
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      name="email"
+                      required
+                      aria-required="true"
+                      autocomplete="email"
+                      class={inputClasses}
+                    />
+                  </div>
+
+                  <div class="flex flex-col gap-xs">
+                    <label for="country" class={labelClasses}>
+                      {t('subscribe.country')}
+                      <span aria-hidden="true" class="ml-0.5 text-primary"
+                        >*</span
+                      >
+                    </label>
+                    <input
+                      id="country"
+                      type="text"
+                      name="country"
+                      required
+                      aria-required="true"
+                      autocomplete="country-name"
+                      class={inputClasses}
+                    />
+                  </div>
+
+                  <fieldset class="flex flex-col gap-lg py-lg">
+                    <legend class={labelClasses}>
+                      {t('subscribe.interest_heading')}
+                      <span aria-hidden="true" class="ml-0.5 text-primary"
+                        >*</span
+                      >
+                    </legend>
+                    {
+                      interestOptions.map((option) => (
+                        <label class="flex items-start gap-sm text-body-sm-standard text-neutral-75 dark:text-neutral-50">
+                          <input
+                            type="checkbox"
+                            name="im_interested_in"
+                            value={option.value}
+                            class="mt-0.5 size-4 shrink-0 accent-primary"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))
+                    }
+                    <p
+                      id="interest-error"
+                      class={errorClasses}
+                      role="alert"
+                      tabindex="-1"
+                    >
+                      {t('subscribe.error.interest')}
+                    </p>
+                  </fieldset>
+
+                  <div>
+                    <Button
+                      type="button"
+                      id="subscribe-next"
+                      variant="primary"
+                      iconSide="right"
+                      size="lg"
+                    >
+                      {t('subscribe.next')}
+                      <Icon
+                        slot="icon-right"
+                        name="arrow-right"
+                        class="size-5 shrink-0"
+                        aria-hidden="true"
+                      />
+                    </Button>
+                  </div>
+                </div>
+
+                <div id="subscribe-step-2" class="hidden">
+                  <div class="flex flex-col gap-xl">
+                    <div
+                      class="flex flex-col gap-md dark:border-neutral-75"
+                    >
+                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                        {t('subscribe.consent_communications_intro')}
+                      </p>
+                      <label
+                        class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      >
+                        <input
+                          type="checkbox"
+                          id="consent-communications"
+                          name="consent_communications"
+                          required
+                          aria-required="true"
+                          disabled
+                          class="mt-0.5 size-4 shrink-0 accent-primary"
+                        />
+                        <span>
+                          {t('subscribe.consent_communications_label')}
+                          <span aria-hidden="true" class="text-primary">*</span>
+                        </span>
+                      </label>
+
+                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                        {t('subscribe.consent_processing_intro')}
+                      </p>
+                      <label
+                        class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      >
+                        <input
+                          type="checkbox"
+                          id="consent-processing"
+                          name="consent_processing"
+                          required
+                          aria-required="true"
+                          disabled
+                          class="mt-0.5 size-4 shrink-0 accent-primary"
+                        />
+                        <span>
+                          {t('subscribe.consent_processing_label')}
+                          <span aria-hidden="true" class="text-primary">*</span>
+                        </span>
+                      </label>
+
+                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                        {t('subscribe.consent_privacy_notice_pre')}{' '}
+                        <a
+                          href={privacyPolicyHref}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                          class="text-body-sm-standard underline"
+                        >
+                          {t('subscribe.privacy_policy_link_text')}
+                        </a>
+                        {t('subscribe.consent_privacy_notice_post')}
+                      </p>
+                    </div>
+
+                    <div class="flex flex-col gap-sm">
+                      <p
+                        id="submit-error"
+                        class={errorClasses}
+                        role="alert"
+                        tabindex="-1"
+                      >
+                        {t('subscribe.error.submit')}
+                      </p>
+                      <div class="flex flex-wrap gap-xl">
+                        <Button
+                          type="button"
+                          id="subscribe-back"
+                          variant="secondary"
+                          size="lg"
+                        >
+                          {t('subscribe.back')}
+                        </Button>
+                        <Button
+                          type="submit"
+                          id="subscribe-submit"
+                          variant="primary"
+                          iconSide="right"
+                          size="lg"
+                          data-label-default={t('subscribe.submit')}
+                          data-label-busy={t('subscribe.submitting')}
+                          data-umami-event="button_form"
+                          data-umami-event-base-component="form"
+                          data-umami-event-link-text={t('subscribe.submit')}
+                          data-umami-event-lang={routeLocale}
+                          data-umami-event-current-path={currentPath}
+                          data-umami-event-current-section="subscribe"
+                          data-umami-event-destination-path=""
+                          data-umami-event-destination-section=""
+                        >
+                          <span id="subscribe-submit-label"
+                            >{t('subscribe.submit')}</span
+                          >
+                          <Icon
+                            slot="icon-right"
+                            name="arrow-right"
+                            class="size-5 shrink-0"
+                            aria-hidden="true"
+                          />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</FoundationPageLayout>
+
+<script
+  is:inline
+  define:vars={{
+    hubspotPortalId,
+    hubspotFormId,
+    hubspotCommunicationSubscriptionTypeId,
+    consentProcessingLabel,
+    consentCommunicationsLabel
+  }}
+>
+  const successEl = document.getElementById('success-message')
+  const formWrapper = document.getElementById('form-wrapper')
+  const form = document.getElementById('subscribe-form')
+  const step1El = document.getElementById('subscribe-step-1')
+  const step2El = document.getElementById('subscribe-step-2')
+  const nextBtn = document.getElementById('subscribe-next')
+  const backBtn = document.getElementById('subscribe-back')
+  const submitBtn = document.getElementById('subscribe-submit')
+  const submitLabel = document.getElementById('subscribe-submit-label')
+  const submitError = document.getElementById('submit-error')
+  const interestError = document.getElementById('interest-error')
+  const consentCommunications = document.getElementById(
+    'consent-communications'
+  )
+  const consentProcessing = document.getElementById('consent-processing')
+
+  function showError(el) {
+    if (!el) return
+    el.classList.remove('hidden')
+    el.focus()
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  function getCheckedInterests() {
+    return Array.from(form.querySelectorAll('input[name="im_interested_in"]'))
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value)
+  }
+
+  function goToStep(step) {
+    const showStep2 = step === 2
+    step1El?.classList.toggle('hidden', showStep2)
+    step2El?.classList.toggle('hidden', !showStep2)
+    // A hidden-but-required checkbox is still counted as invalid by
+    // form.checkValidity() in some browsers, which silently blocks Next/
+    // Submit since the invalid control can't be focused to show why.
+    // Disabling it while off-screen excludes it from validation reliably.
+    if (consentCommunications) consentCommunications.disabled = !showStep2
+    if (consentProcessing) consentProcessing.disabled = !showStep2
+    const target = showStep2
+      ? step2El?.querySelector('input, button')
+      : step1El?.querySelector('input')
+    target?.focus()
+  }
+
+  nextBtn?.addEventListener('click', () => {
+    interestError?.classList.add('hidden')
+
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
+
+    if (getCheckedInterests().length === 0) {
+      showError(interestError)
+      return
+    }
+
+    goToStep(2)
+  })
+
+  backBtn?.addEventListener('click', () => {
+    goToStep(1)
+  })
+
+  function setSubmitting(busy) {
+    if (!submitBtn) return
+    submitBtn.disabled = busy
+    submitBtn.setAttribute('aria-busy', busy ? 'true' : 'false')
+    const defaultLabel = submitBtn.dataset.labelDefault || ''
+    const busyLabel = submitBtn.dataset.labelBusy || defaultLabel
+    if (submitLabel) submitLabel.textContent = busy ? busyLabel : defaultLabel
+    submitBtn.classList.toggle('opacity-70', busy)
+    submitBtn.classList.toggle('pointer-events-none', busy)
+  }
+
+  function getHubspotCookie() {
+    const match = document.cookie.match(/(?:^|;\s*)hubspotutk=([^;]*)/)
+    return match ? match[1] : undefined
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    submitError?.classList.add('hidden')
+    interestError?.classList.add('hidden')
+
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
+
+    const checkedInterests = getCheckedInterests()
+
+    if (checkedInterests.length === 0) {
+      goToStep(1)
+      showError(interestError)
+      return
+    }
+
+    if (!hubspotPortalId || !hubspotFormId) {
+      console.error(
+        '[subscribe] Missing PUBLIC_HUBSPOT_PORTAL_ID or PUBLIC_HUBSPOT_FORM_ID'
+      )
+      showError(submitError)
+      return
+    }
+
+    setSubmitting(true)
+
+    try {
+      // im_interested_in and the consent checkboxes are handled separately
+      // below (multi-value join, legalConsentOptions), so exclude them here.
+      const excludedFieldNames = new Set([
+        'im_interested_in',
+        'consent_communications',
+        'consent_processing'
+      ])
+      const formData = new FormData(form)
+      const fields = []
+      formData.forEach((value, name) => {
+        if (excludedFieldNames.has(name)) return
+        if (typeof value === 'string' && value.trim() !== '') {
+          fields.push({ name, value })
+        }
+      })
+      fields.push({
+        name: 'im_interested_in',
+        value: checkedInterests.join(';')
+      })
+
+      const hutk = getHubspotCookie()
+      const payload = {
+        fields,
+        context: {
+          ...(hutk ? { hutk } : {}),
+          pageUri: window.location.href,
+          pageName: document.title
+        },
+        legalConsentOptions: {
+          consent: {
+            consentToProcess: !!consentProcessing?.checked,
+            text: consentProcessingLabel,
+            communications: [
+              {
+                value: !!consentCommunications?.checked,
+                subscriptionTypeId: hubspotCommunicationSubscriptionTypeId,
+                text: consentCommunicationsLabel
+              }
+            ]
+          }
+        }
+      }
+
+      const endpoint = `https://api-eu1.hsforms.com/submissions/v3/integration/submit/${hubspotPortalId}/${hubspotFormId}`
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) throw new Error(`Submission failed: ${res.status}`)
+
+      formWrapper?.classList.add('hidden')
+      successEl?.classList.remove('hidden')
+      successEl?.focus()
+    } catch (err) {
+      console.error(err)
+      setSubmitting(false)
+      showError(submitError)
+    }
+  })
+</script>
