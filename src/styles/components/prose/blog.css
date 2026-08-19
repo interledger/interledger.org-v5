@@ -83,8 +83,6 @@
     }
 
     .video-embed {
-      border-radius: var(--radius-3xl);
-      overflow: hidden;
       margin-block-end: var(--spacing-2xl);
     }
   }

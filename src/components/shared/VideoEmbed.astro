@@ -36,19 +36,34 @@ const videoAttrs = buildUmamiAttrs({
   linkText: title,
   label: 'video'
 })
+
+const embedWrapperClass = 'video-embed w-full overflow-hidden rounded-3xl'
+
+/** Provider facade posters cannot use srcset — request the highest thumbnail tier. */
+const embedPosterQuality = 'max' as const
 ---
 
 {
   provider === 'youtube' ? (
-    <div class="video-embed w-full">
-      <YouTube id={url} playlabel={title} poster={posterSrc} />
+    <div class={embedWrapperClass}>
+      <YouTube
+        id={url}
+        playlabel={title}
+        poster={posterSrc}
+        posterQuality={embedPosterQuality}
+      />
     </div>
   ) : provider === 'vimeo' ? (
-    <div class="video-embed w-full">
-      <Vimeo id={url} playlabel={title} />
+    <div class={embedWrapperClass}>
+      <Vimeo
+        id={url}
+        playlabel={title}
+        poster={posterSrc}
+        posterQuality={embedPosterQuality}
+      />
     </div>
   ) : provider === 'file' ? (
-    <div class="video-embed w-full">
+    <div class={embedWrapperClass}>
       <video
         src={url}
         poster={posterSrc}
@@ -58,7 +73,7 @@ const videoAttrs = buildUmamiAttrs({
         autoplay
         playsinline
         aria-label={title}
-        class="w-full"
+        class="block w-full border-0"
       >
         <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
           {title}
@@ -73,6 +88,11 @@ const videoAttrs = buildUmamiAttrs({
 }
 
 <style>
+  .video-embed :is(lite-youtube, lite-vimeo, video) {
+    display: block;
+    width: 100%;
+  }
+
   lite-youtube {
     max-width: unset;
   }
