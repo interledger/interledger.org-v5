@@ -106,7 +106,7 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'light',
         class: [
-          'border-neutral-50 text-neutral-100',
+          'border-neutral-75 text-neutral-100',
           // Hover: border colour darkens to black and text deepens to black.
           // Fill stays transparent.
           'hover:border-neutral-900 hover:text-neutral-900',
@@ -152,7 +152,7 @@ export const buttonVariants = cva(
           // control boundary. neutral-50 measures 11.74:1 and matches the
           // hackathon prototype (INTORG-1083).
           'dark:border-neutral-50 dark:text-neutral-25',
-          'dark:hover:border-neutral-0 dark:hover:text-neutral-25',
+          'dark:hover:border-neutral-0 dark:hover:text-neutral-0',
           'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',
           'dark:focus-visible:outline-neutral-0',
           'dark:disabled:border-neutral-100 dark:disabled:text-neutral-75',

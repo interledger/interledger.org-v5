@@ -17,7 +17,8 @@ import {
   getProfileColorIndex,
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
-  getSectionPageLayout
+  getSectionPageLayout,
+  isDemoPathSlug
 } from '@/utils'
 
 interface Props {
@@ -40,7 +41,8 @@ if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)
 const { Content: MdxContent } = await render(entry)
 const { name, photo, photoAlt, tagline, role, cta, description } = entry.data
 
-const title = `${name} | Interledger Foundation`
+const isHackathon = entry.data.section === 'hackathon'
+const title = isHackathon ? name : `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
 const hasBody = Boolean(entry.body?.trim())
@@ -63,9 +65,20 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 )
 
 const Layout = getSectionPageLayout(entry.data.section)
+const noindex = isDemoPathSlug(entry.data.pathSlug)
+const nameClass = isHackathon
+  ? 'text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg'
+  : 'text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg'
+const roleClass = isHackathon
+  ? 'inline-block border-b-4 border-lavender-100 text-h4 font-normal text-neutral-0 tablet:text-h4-md desktop:text-h4-lg'
+  : 'inline-block border-b-4 border-orchid-100 text-h4 font-normal text-neutral-900 tablet:text-h4-md desktop:text-h4-lg'
 ---
 
-<Layout title={title} description={description ?? displayRole ?? name}>
+<Layout
+  title={title}
+  description={description ?? displayRole ?? name}
+  noindex={noindex}
+>
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     <header
@@ -100,18 +113,8 @@ const Layout = getSectionPageLayout(entry.data.section)
       <div
         class="mt-xl flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
       >
-        <h1
-          class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg"
-        >
-          {name}
-        </h1>
-        {
-          displayRole && (
-            <h4 class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-4 border-orchid-100 font-normal">
-              {displayRole}
-            </h4>
-          )
-        }
+        <h1 class={nameClass}>{name}</h1>
+        {displayRole && <h4 class={roleClass}>{displayRole}</h4>}
       </div>
       {
         description && (

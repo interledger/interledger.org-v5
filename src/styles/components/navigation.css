@@ -73,7 +73,7 @@
       background-color: #ffffff;
     }
 
-    .foundation-header[data-theme='dark'] .header-nav-wrapper--foundation {
+    :is(.foundation-header[data-theme='dark'], .hackathon-header) .header-nav-wrapper--foundation {
       background-color: #0d0d0d;
     }
 
@@ -134,9 +134,19 @@
   }
 }
 
+/* Hackathon bar is always the 70% charcoal overlay — including tablet,
+   where the foundation dark header stays solid. */
+.hackathon-header {
+  background-color: rgba(13, 13, 13, 0.7);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--color-neutral-50);
+  box-shadow: none;
+}
+
 /* Desktop: translucent bar; dropdown panels keep their own solid backgrounds. */
 @media (min-width: 1200px) {
-  .foundation-header[data-theme='dark'] {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) {
     background-color: rgb(13 13 13 / 0.7);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
@@ -151,13 +161,13 @@
   }
 }
 
-.foundation-header[data-theme='dark'] [data-component='HamburgerButton'] {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='HamburgerButton'] {
   color: var(--color-neutral-25);
 }
 
 /* Nav button hover/focus backgrounds (desktop only) */
 @media (min-width: 1200px) {
-  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible) {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
     background-color: var(--color-neutral-100);
   }
 
@@ -168,7 +178,7 @@
 
 /* Dropdown panel backgrounds (desktop only) */
 @media (min-width: 1200px) {
-  .foundation-header[data-theme='dark'] .submenu-panel {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) .submenu-panel {
     background-color: var(--color-neutral-150);
     border-color: var(--color-neutral-100);
   }
@@ -180,7 +190,7 @@
 }
 
 /* Nav link text */
-.foundation-header[data-theme='dark'] .nav-link {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link {
   color: var(--color-neutral-25);
 }
 
@@ -189,7 +199,7 @@
 }
 
 /* Subgroup heading text and divider */
-.foundation-header[data-theme='dark'] .nav-subgroup-heading {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-subgroup-heading {
   color: var(--color-neutral-50);
   border-color: var(--color-neutral-75);
 }
@@ -200,7 +210,7 @@
 }
 
 /* Mobile drawer language label */
-.foundation-header[data-theme='dark'] .foundation-drawer-language-label {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label {
   color: var(--color-neutral-50);
 }
 
@@ -208,7 +218,7 @@
   color: black;
 }
 
-.foundation-header[data-theme='dark'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label:is(:hover, :focus-visible) {
   color: var(--color-neutral-25);
 }
 
@@ -217,21 +227,21 @@
 }
 
 /* Language switcher */
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] {
   background-color: var(--color-neutral-150);
   border-color: var(--color-neutral-100);
 }
 
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='page'] {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] [aria-current='page'] {
   background-color: var(--color-neutral-100);
   color: var(--color-orchid-50);
 }
 
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] a:not([aria-current]) {
   color: var(--color-neutral-50);
 }
 
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher']:hover {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
   border-color: var(--color-neutral-75);
 }
 
@@ -256,8 +266,8 @@
 
 /* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
 @media (max-width: 1199px) {
-  .foundation-header[data-theme='dark'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
-  .foundation-header[data-theme='dark'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:hover, :focus-visible, [data-active=true]),
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
     outline: none;
     background-color: var(--color-neutral-100);
   }

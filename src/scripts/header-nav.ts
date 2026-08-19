@@ -1,6 +1,6 @@
 /**
  * Shared header navigation behavior.
- * Used by both the Foundation and microsite (Summit, Hackathon) headers.
+ * Used by the Foundation, Summit, and Hackathon headers.
  *
  * All DOM queries are scoped to the nav root identified by `navId`,
  * so multiple headers on the same page won't interfere with each other.
@@ -15,8 +15,8 @@ declare global {
 const TRACK_EVENT_ATTR = 'data-track-event'
 const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
 
-// initHeaderNav runs once per header on the page (Foundation + microsite
-// headers both call it), but the click-tracking listener is page-global —
+// initHeaderNav runs once per header on the page (Foundation, Summit, and
+// Hackathon headers all call it), but the click-tracking listener is page-global —
 // this guard keeps a second header init from registering it twice and
 // double-firing window.umami.track() on every click.
 let navClickTrackingInitialized = false

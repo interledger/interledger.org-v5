@@ -24,6 +24,7 @@ import ResourceCard from '@/components/shared/ResourceCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
 import HackathonHero from '@/components/pages/HackathonHero.astro'
 import HackathonAnimation from '@/components/hackathon/HackathonAnimation.astro'
+import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import { type Locale, isDemoPathSlug } from '@/utils'
 
 interface Props {
@@ -97,7 +98,8 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
               Quote,
               ProfileGrid,
               LogoCarousel,
-              HackathonAnimation
+              HackathonAnimation,
+              ImageBlock
             }}
           />
         </div>
@@ -120,7 +122,7 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     font-weight: 600;
   }
 
-  .hackathon-content :global([data-prose] p) {
+  .hackathon-content :global([data-prose] > p) {
     margin-bottom: var(--spacing-xl);
     line-height: 1.6;
   }

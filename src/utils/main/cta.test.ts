@@ -131,9 +131,9 @@ describe('resolveCtaLink', () => {
     })
 
     it('uses internalIcon for a plain internal link', () => {
-      expect(resolveCtaLink({ url: '/about', internalIcon: 'swap' }).icon).toBe(
-        'swap'
-      )
+      expect(
+        resolveCtaLink({ url: '/about', internalIcon: 'arrow-right' }).icon
+      ).toBe('arrow-right')
     })
 
     it('is external-link for an external link', () => {
@@ -170,15 +170,18 @@ describe('resolveCtaLink', () => {
         resolveCtaLink({
           url: '/pack.pdf',
           document: true,
-          internalIcon: 'swap'
+          internalIcon: 'arrow-right'
         }).icon
       ).toBe('download')
     })
 
     it('prefers external-link over internalIcon', () => {
       expect(
-        resolveCtaLink({ url: '/about', external: true, internalIcon: 'swap' })
-          .icon
+        resolveCtaLink({
+          url: '/about',
+          external: true,
+          internalIcon: 'arrow-right'
+        }).icon
       ).toBe('external-link')
     })
   })

@@ -53,27 +53,32 @@ nth-[6n+3]:[--card-bg:var(--color-tangerine-50)]
 nth-[6n+4]:[--card-bg:var(--color-periwinkle-50)] 
 nth-[6n+5]:[--card-bg:var(--color-lagoon-50)] 
 nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
+nth-[5n+1]:dark:[--card-bg:var(--color-royal-purple-100)] 
+nth-[5n+2]:dark:[--card-bg:var(--color-ocean-100)] 
+nth-[5n+3]:dark:[--card-bg:var(--color-wine-100)] 
+nth-[5n+4]:dark:[--card-bg:var(--color-forest-green-100)] 
+nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)] 
 `
 ---
 
 <article
-  class={`relative flex h-full flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 bg-[var(--card-bg)] tablet:bg-white tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`}
+  class={`group/card relative flex h-full flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 dark:border-neutral-75 bg-[var(--card-bg)] tablet:bg-white tablet:dark:bg-neutral-900 tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`}
 >
   <div class="flex flex-col gap-lg">
     <h3
-      class="m-0 text-neutral-900 text-h3 tablet:text-h3-md desktop:text-h3-lg"
+      class="m-0 text-neutral-900 dark:text-neutral-0 text-h3 tablet:text-h3-md desktop:text-h3-lg"
     >
       {heading}
     </h3>
     {
       subheading && (
-        <p class="m-0 text-neutral-100 text-h4 tablet:text-h4-md desktop:text-h4-lg">
+        <p class="m-0 text-neutral-100 dark:text-neutral-50 text-h4 tablet:text-h4-md desktop:text-h4-lg">
           {subheading}
         </p>
       )
     }
     <div
-      class="text-body-lg-standard text-neutral-100 [&_a]:relative [&_a]:z-[1] [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md"
+      class="text-body-lg-standard text-neutral-100 dark:text-neutral-50 [&_a]:relative [&_a]:z-1 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md [&_p]:text-inherit"
     >
       <slot />
     </div>
@@ -81,10 +86,11 @@ nth-[6n+6]:[--card-bg:var(--color-pistachio-50)]
   <LinkButton
     href={href}
     variant="secondary"
+    mode="auto"
     size="lg"
     external={external}
     document={buttonDocument}
-    class="tablet:self-start z-[1]"
+    class="tablet:self-start z-1 group-hover/card:border-neutral-900 group-hover/card:text-neutral-900 dark:group-hover/card:border-neutral-0 dark:group-hover/card:text-neutral-0"
   >
     {buttonText}
     {

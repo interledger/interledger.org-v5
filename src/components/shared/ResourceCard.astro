@@ -49,26 +49,27 @@ const overlayUmamiAttrs = buildUmamiAttrs({
 ---
 
 <article
-  class="relative flex h-full flex-col gap-xl rounded-3xl border border-neutral-50 bg-white p-xl tablet:flex-row tablet:items-start tablet:gap-2xl"
+  class="relative flex h-full flex-col gap-xl rounded-3xl border border-neutral-50 bg-white dark:border-neutral-75 dark:bg-neutral-900 p-xl tablet:flex-row tablet:items-start tablet:gap-2xl"
 >
   <h3
-    class="m-0 shrink-0 text-h4 text-neutral-900 tablet:w-1/2 tablet:text-h4-md desktop:text-h4-lg"
+    class="m-0 shrink-0 text-h3 text-neutral-900 dark:text-neutral-0 tablet:w-1/2 tablet:text-h3-md desktop:text-h4-lg"
   >
     {heading}
   </h3>
   <div class="flex min-w-0 flex-1 flex-col gap-xl">
     <div
-      class="text-body-lg-standard text-neutral-100 [&_a]:relative [&_a]:z-[1] [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md"
+      class="text-h5 text-neutral-50 [&_a]:relative [&_a]:z-[1] [&_p]:m-0 [&_p]:text-inherit [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg"
     >
       <slot />
     </div>
     <LinkButton
       href={href}
       variant="secondary"
+      mode="auto"
       size="lg"
       external={external}
       document={buttonDocument}
-      class="self-start z-[1]"
+      class="tablet:self-start z-[1]"
     >
       {buttonText}
       {

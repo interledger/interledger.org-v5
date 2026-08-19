@@ -3,12 +3,12 @@
  * Hackathon site layout.
  * Dark theme on a neutral-150 page (rgb(13, 13, 13)). Shared blocks keep
  * their existing styles until later PRs add hackathon-specific variants.
- * The shared FoundationFooter stays on its light ice-mint surface.
+ * The shared SiteFooter stays on its light ice-mint surface.
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
-import MicrositeHeader from '@/components/layout/MicrositeHeader.astro'
+import HackathonHeader from '@/components/layout/HackathonHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 
 interface Props {
@@ -45,7 +45,7 @@ Astro.locals.site = 'hackathon'
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   theme="dark"
-  bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-neutral-150 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-50"
+  bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-clip bg-neutral-150 text-neutral-50"
   noindex={noindex}
 >
   <link
@@ -56,7 +56,7 @@ Astro.locals.site = 'hackathon'
     type="font/woff2"
     crossorigin
   />
-  <MicrositeHeader site="hackathon" slot="header" />
+  <HackathonHeader slot="header" />
   <TableScrollSupport />
   <div
     class="hackathon-main flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg [&>section]:w-full [&>section]:py-2xl [&_[data-prose]>h1]:text-h2-lg [&_[data-prose]>h2]:text-h2 tablet:[&_[data-prose]>h2]:text-h2-md desktop:[&_[data-prose]>h2]:text-h2-lg [&_[data-prose]>h3]:text-h3 [&_[data-prose]>h4]:text-h4"
