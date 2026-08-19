@@ -252,6 +252,7 @@ export const ui = {
       "Thank you for joining the Interledger newsletter. We'll be in touch soon.",
     'subscribe.error.submit':
       'Something went wrong subscribing you. Please try again.',
+    'subscribe.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'homepageHero.title_lead': 'Financial Systems Should Work Together,',
     'homepageHero.title_accent': 'for Everyone',
     'homepageHero.description':
@@ -573,6 +574,7 @@ export const ui = {
       'Gracias por unirte al boletín de Interledger. Nos pondremos en contacto pronto.',
     'subscribe.error.submit':
       'Ocurrió un error al suscribirte. Por favor, inténtalo de nuevo.',
+    'subscribe.error.captcha': 'Por favor, completa el desafío de reCAPTCHA.',
     'homepageHero.title_lead':
       'Los sistemas financieros deberían funcionar juntos,',
     'homepageHero.title_accent': 'para todos',

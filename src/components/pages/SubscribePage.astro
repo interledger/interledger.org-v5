@@ -43,14 +43,14 @@ const privacyPolicyHref = translatePath(
   'privacy-policy'
 )
 
-const hubspotPortalId = import.meta.env.PUBLIC_HUBSPOT_PORTAL_ID
-const hubspotFormId = import.meta.env.PUBLIC_HUBSPOT_FORM_ID
 // HubSpot communication subscription type id backing the marketing consent
 // checkbox on this specific form (portal 146747646 / form
 // ec4289c9-69b7-4a37-b4d2-60d856ce3926) — not a value we can derive at runtime.
 const hubspotCommunicationSubscriptionTypeId = 2514113604
 const consentProcessingLabel = t('subscribe.consent_processing_label')
 const consentCommunicationsLabel = t('subscribe.consent_communications_label')
+
+const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY
 
 const inputClasses =
   'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary dark:border-neutral-75 dark:bg-neutral-150 dark:text-neutral-0'
@@ -74,7 +74,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
 
-      <div class="flex flex-col gap-3xl dark:desktop:border-neutral-75 desktop:flex-row desktop:gap-5xl">
+      <div
+        class="flex flex-col gap-3xl dark:desktop:border-neutral-75 desktop:flex-row desktop:gap-5xl"
+      >
         <div class="flex flex-col gap-xl desktop:max-w-[45%]">
           <h1 class="text-h1 text-neutral-900 dark:text-neutral-0">
             {t('subscribe.title')}
@@ -100,7 +102,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
           </div>
         </div>
 
-        <div class="flex flex-1 flex-col gap-xl tablet:flex-row tablet:gap-5xl desktop:flex-col desktop:gap-xl">
+        <div
+          class="flex flex-1 flex-col gap-xl tablet:flex-row tablet:gap-5xl desktop:flex-col desktop:gap-xl"
+        >
           <OptimizedImage
             src="/img/interledger-bird.png"
             alt=""
@@ -119,7 +123,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
               aria-live="polite"
               tabindex="-1"
             >
-              <p class="font-semibold mb-s text-neutral-900 dark:text-neutral-0">
+              <p
+                class="font-semibold mb-s text-neutral-900 dark:text-neutral-0"
+              >
                 {t('subscribe.success_message')}
               </p>
               <p class={secondaryTextClasses}>
@@ -251,10 +257,10 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
 
                 <div id="subscribe-step-2" class="hidden">
                   <div class="flex flex-col gap-xl">
-                    <div
-                      class="flex flex-col gap-md dark:border-neutral-75"
-                    >
-                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                    <div class="flex flex-col gap-md dark:border-neutral-75">
+                      <p
+                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      >
                         {t('subscribe.consent_communications_intro')}
                       </p>
                       <label
@@ -275,7 +281,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                         </span>
                       </label>
 
-                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                      <p
+                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      >
                         {t('subscribe.consent_processing_intro')}
                       </p>
                       <label
@@ -296,7 +304,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                         </span>
                       </label>
 
-                      <p class="text-body-sm-standard text-neutral-150 dark:text-neutral-50">
+                      <p
+                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      >
                         {t('subscribe.consent_privacy_notice_pre')}{' '}
                         <a
                           href={privacyPolicyHref}
@@ -311,6 +321,15 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                     </div>
 
                     <div class="flex flex-col gap-sm">
+                      <div id="recaptcha-container"></div>
+                      <p
+                        id="captcha-error"
+                        class={errorClasses}
+                        role="alert"
+                        tabindex="-1"
+                      >
+                        {t('subscribe.error.captcha')}
+                      </p>
                       <p
                         id="submit-error"
                         class={errorClasses}
@@ -368,14 +387,24 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
   </main>
 </FoundationPageLayout>
 
+{
+  recaptchaSiteKey && (
+    <script
+      is:inline
+      src="https://www.google.com/recaptcha/api.js?onload=onSubscribeRecaptchaLoad&render=explicit"
+      async
+      defer
+    />
+  )
+}
+
 <script
   is:inline
   define:vars={{
-    hubspotPortalId,
-    hubspotFormId,
     hubspotCommunicationSubscriptionTypeId,
     consentProcessingLabel,
-    consentCommunicationsLabel
+    consentCommunicationsLabel,
+    recaptchaSiteKey
   }}
 >
   const successEl = document.getElementById('success-message')
@@ -389,10 +418,33 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
   const submitLabel = document.getElementById('subscribe-submit-label')
   const submitError = document.getElementById('submit-error')
   const interestError = document.getElementById('interest-error')
+  const captchaError = document.getElementById('captcha-error')
   const consentCommunications = document.getElementById(
     'consent-communications'
   )
   const consentProcessing = document.getElementById('consent-processing')
+
+  let recaptchaWidgetId = null
+  let recaptchaLoaded = false
+
+  function renderRecaptcha() {
+    if (recaptchaWidgetId !== null || !recaptchaSiteKey) return
+    if (!recaptchaLoaded || !window.grecaptcha) return
+    // Rendering onto a display:none container sizes the iframe incorrectly,
+    // so only render once step 2 is actually visible.
+    if (step2El?.classList.contains('hidden')) return
+    recaptchaWidgetId = window.grecaptcha.render('recaptcha-container', {
+      sitekey: recaptchaSiteKey
+    })
+  }
+
+  // Fired by the recaptcha/api.js `onload` query param once the library is
+  // ready. If the user already reached step 2 before this fired, render now;
+  // otherwise goToStep(2) triggers the render when the user gets there.
+  window.onSubscribeRecaptchaLoad = function () {
+    recaptchaLoaded = true
+    renderRecaptcha()
+  }
 
   function showError(el) {
     if (!el) return
@@ -417,6 +469,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
     // Disabling it while off-screen excludes it from validation reliably.
     if (consentCommunications) consentCommunications.disabled = !showStep2
     if (consentProcessing) consentProcessing.disabled = !showStep2
+    if (showStep2) renderRecaptcha()
     const target = showStep2
       ? step2El?.querySelector('input, button')
       : step1El?.querySelector('input')
@@ -463,6 +516,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
     e.preventDefault()
     submitError?.classList.add('hidden')
     interestError?.classList.add('hidden')
+    captchaError?.classList.add('hidden')
 
     if (!form.checkValidity()) {
       form.reportValidity()
@@ -477,11 +531,13 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
       return
     }
 
-    if (!hubspotPortalId || !hubspotFormId) {
-      console.error(
-        '[subscribe] Missing PUBLIC_HUBSPOT_PORTAL_ID or PUBLIC_HUBSPOT_FORM_ID'
-      )
-      showError(submitError)
+    const recaptchaToken =
+      recaptchaWidgetId !== null
+        ? window.grecaptcha?.getResponse(recaptchaWidgetId)
+        : ''
+
+    if (!recaptchaToken) {
+      showError(captchaError)
       return
     }
 
@@ -510,6 +566,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
 
       const hutk = getHubspotCookie()
       const payload = {
+        recaptchaToken,
         fields,
         context: {
           ...(hutk ? { hutk } : {}),
@@ -531,8 +588,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
         }
       }
 
-      const endpoint = `https://api-eu1.hsforms.com/submissions/v3/integration/submit/${hubspotPortalId}/${hubspotFormId}`
-      const res = await fetch(endpoint, {
+      const res = await fetch('/api/subscribe-newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -546,6 +602,8 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
     } catch (err) {
       console.error(err)
       setSubmitting(false)
+      if (recaptchaWidgetId !== null)
+        window.grecaptcha?.reset(recaptchaWidgetId)
       showError(submitError)
     }
   })
