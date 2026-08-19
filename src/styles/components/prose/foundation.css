@@ -52,6 +52,15 @@
     margin-block-start: var(--spacing-md);
   }
 
+  /* Dark (hackathon): orchid bars. Type stays --color-prose like body copy. */
+  @variant dark {
+    [data-prose] blockquote {
+      border-left-color: var(--color-orchid-100);
+      border-right-color: var(--color-orchid-100);
+      color: var(--color-prose);
+    }
+  }
+
   /* === Table styles === */
   [data-prose] .table-scroll {
     display: block;
