@@ -53,6 +53,30 @@ describe('card-grid serializer', () => {
     expect(result).toContain('</CardGrid>')
   })
 
+  it('serializes an optional title and omits it when blank', () => {
+    expect(
+      serialize({
+        title: 'Why Participate?',
+        ariaLabel: 'Reasons to participate',
+        variant: 'Info',
+        columns: 'Three',
+        cards: [infoCard]
+      })
+    ).toContain(
+      '<CardGrid title="Why Participate?" ariaLabel="Reasons to participate"'
+    )
+
+    expect(
+      serialize({
+        title: '   ',
+        ariaLabel: 'Info',
+        variant: 'Info',
+        columns: 'Three',
+        cards: [infoCard]
+      })
+    ).not.toContain('title="')
+  })
+
   it('serializes Resource cards with document flag', () => {
     const result = serialize({
       ariaLabel: 'Resources',
@@ -84,6 +108,57 @@ describe('card-grid serializer', () => {
         cards: [navCard]
       })
     ).toContain('<NavigationCard heading="Next step"')
+  })
+
+  it('serializes an Info card with a cover image and no body', () => {
+    const result = serialize({
+      ariaLabel: 'Why participate',
+      variant: 'Info',
+      columns: 'Three',
+      infoCards: [
+        infoCard,
+        {
+          __component: 'blocks.info-card',
+          heading: 'A builder coding',
+          imageSrc: '/img/hackathon/participate.webp',
+          imageAlt: 'A builder coding'
+        }
+      ]
+    })
+    expect(result).toContain('<InfoCard heading="Why apply">')
+    expect(result).toContain(
+      '<InfoCard heading="A builder coding" imageSrc="/img/hackathon/participate.webp" imageAlt="A builder coding" />'
+    )
+  })
+
+  it('rejects an Info card that has neither body nor image', () => {
+    expect(() =>
+      serialize({
+        ariaLabel: 'Info',
+        variant: 'Info',
+        columns: 'Three',
+        infoCards: [{ __component: 'blocks.info-card', heading: 'Empty' }]
+      })
+    ).toThrow(SerializerFieldError)
+  })
+
+  it('rejects an Info card with both a cover image and body text', () => {
+    const errors = validateCardGrid({
+      ariaLabel: 'Info',
+      variant: 'Info',
+      columns: 'Three',
+      infoCards: [
+        {
+          __component: 'blocks.info-card',
+          heading: 'Photo card',
+          body: 'This text is ignored on the page.',
+          imageSrc: '/img/hackathon/participate.webp'
+        }
+      ]
+    })
+    expect(errors.some((e) => e.message.includes('cannot have both'))).toBe(
+      true
+    )
   })
 
   it('rejects One column for non-Navigation variants', () => {

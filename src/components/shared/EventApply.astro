@@ -1,14 +1,13 @@
 ---
 /**
- * Event card "Apply" column — title + primary CTA only (no body text field).
- * Self-closing only: no default slot; MDX authors must not put children inside.
+ * Event card "Apply" column — title, optional body text, and a CtaButtons
+ * primary with no trailing icon.
  */
-import Icon from '@/components/shared/Icon.astro'
-import LinkButton from '@/components/shared/LinkButton.astro'
-import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
+import CtaButtons from '@/components/blocks/CtaButtons.astro'
 
 interface Props {
-  title: string
+  title?: string
+  text?: string
   buttonText: string
   buttonUrl: string
   buttonExternal?: boolean
@@ -17,52 +16,47 @@ interface Props {
 
 const {
   title,
+  text,
   buttonText,
   buttonUrl,
   buttonExternal = false,
   buttonDocument = false
 } = Astro.props
-
-const { routeLocale } = Astro.locals
-
-// Icon by link kind (INTORG-938). This button hard-coded
-// `external ? 'external-link' : 'arrow-right'` and had no download case, so a
-// document CTA showed an arrow and never set the `download` attribute.
-//
-// The internal case keeps the arrow: this CTA belongs to the event card
-// template, not to a component an editor picks (Sarah, INTORG-907,
-// 2026-08-09).
-const resolved = resolveCtaLink({
-  url: buttonUrl,
-  external: buttonExternal,
-  document: buttonDocument,
-  internalIcon: 'arrow-right'
-})
+const hasText = Boolean(text) || Astro.slots.has('default')
 ---
 
-<div class="flex min-w-0 flex-col gap-lg" data-event-column="apply">
-  <h3
-    class="m-0 font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-100"
-  >
-    {title}
-  </h3>
+<div class="flex min-w-0 flex-col gap-xl" data-event-column="apply">
+  {
+    title && (
+      <h3 class="m-0 font-poppins text-h3 text-neutral-100 dark:text-neutral-0 tablet:text-h3-md desktop:text-h3-lg">
+        {title}
+      </h3>
+    )
+  }
 
-  <LinkButton
-    href={resolved.href}
-    variant="primary"
-    size="lg"
-    external={resolved.external}
-    document={resolved.document}
-    class="self-start"
-    {...buildUmamiAttrs({
-      pathname: Astro.url.pathname,
-      lang: routeLocale,
-      section: 'cta',
-      href: resolved.href,
-      linkText: buttonText
-    })}
-  >
-    {buttonText}
-    <Icon name={resolved.icon} slot="icon-right" />
-  </LinkButton>
+  {
+    hasText && (
+      <div
+        data-event-copy
+        class="font-poppins text-h5 text-neutral-100 dark:text-neutral-0 [&_p]:m-0"
+      >
+        <slot>{text}</slot>
+      </div>
+    )
+  }
+
+  <div class="[&_[data-component='CtaButtons']]:m-0">
+    <CtaButtons
+      hideIcons
+      buttons={[
+        {
+          text: buttonText,
+          link: buttonUrl,
+          style: 'primary',
+          external: buttonExternal,
+          document: buttonDocument
+        }
+      ]}
+    />
+  </div>
 </div>

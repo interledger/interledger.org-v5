@@ -1,23 +1,50 @@
 ---
 /**
  * Single info card — used by grant `InfoCards` and CardGrid `variant="Info"`.
+ * Optional `imageSrc` turns the cell into a full-bleed cover photo
+ * (`object-cover`, no stretch). Mobile is 3:2; tablet+ defaults to 4:3.
+ * Multi-column CardGrid drops the aspect ratio on tablet+ so row-height
+ * fill cannot overflow the column.
  */
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+
 interface Props {
   heading: string
+  imageSrc?: string
+  imageAlt?: string | null
 }
 
-const { heading } = Astro.props
+const { heading, imageSrc, imageAlt } = Astro.props
+const imageAltText = imageAlt?.trim() || heading
 ---
 
-<article
-  class="flex flex-1 flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 tablet:gap-xl tablet:p-xl"
->
-  <h3 class="m-0 text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg">
-    {heading}
-  </h3>
-  <div
-    class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_ul]:mb-0 [&_ul]:list-disc [&_ul]:ps-2xl [&_li]:mb-md [&_li:last-child]:mb-0"
-  >
-    <slot />
-  </div>
-</article>
+{
+  imageSrc ? (
+    <figure
+      data-component="InfoCard"
+      class="relative m-0 aspect-[3/2] w-full min-w-0 overflow-hidden rounded-3xl tablet:aspect-[4/3]"
+    >
+      <OptimizedImage
+        src={imageSrc}
+        alt={imageAltText}
+        width={800}
+        height={800}
+        sizes="(min-width: 1200px) 33vw, (min-width: 810px) 50vw, 100vw"
+        pictureClass="absolute inset-0 block h-full w-full"
+        class="h-full w-full object-cover"
+      />
+    </figure>
+  ) : (
+    <article
+      data-component="InfoCard"
+      class="flex flex-1 flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 dark:bg-neutral-100 dark:text-neutral-50 tablet:gap-xl tablet:p-xl"
+    >
+      <h3 class="m-0 !mt-0 !mb-0 !text-h3 text-neutral-900 dark:text-aqua-mint-100 tablet:!text-h3-md desktop:!text-h3-lg">
+        {heading}
+      </h3>
+      <div class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 dark:text-neutral-50 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_ul]:mb-0 [&_ul]:list-disc [&_ul]:ps-2xl [&_li]:mb-md [&_li:last-child]:mb-0">
+        <slot />
+      </div>
+    </article>
+  )
+}

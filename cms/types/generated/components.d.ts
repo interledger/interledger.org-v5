@@ -180,6 +180,12 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
     infoCards: Schema.Attribute.Component<'blocks.info-card', true>
     navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
     resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true>
     variant: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -533,6 +539,12 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     when: Schema.Attribute.Component<'blocks.event-card-when', false> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -553,7 +565,7 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
 export interface BlocksEventCardApply extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_card_applies'
   info: {
-    description: 'Application, registration, or interest actions (title and primary CTA required)'
+    description: 'Application, registration, or interest actions (primary CTA required; title and text optional)'
     displayName: 'Event Card \u2014 Apply'
     icon: 'cursor'
   }
@@ -565,8 +577,13 @@ export interface BlocksEventCardApply extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    text: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -929,13 +946,12 @@ export interface BlocksImageRow extends Struct.ComponentSchema {
 export interface BlocksInfoCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_info_card'
   info: {
-    description: 'Single info card with a required heading and body'
+    description: 'Info card with a heading and body, or an optional cover image'
     displayName: 'Info Card'
     icon: 'layout'
   }
   attributes: {
     body: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
@@ -944,6 +960,18 @@ export interface BlocksInfoCard extends Struct.ComponentSchema {
       >
     heading: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    image: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    imageAlt: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

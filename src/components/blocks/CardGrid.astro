@@ -8,7 +8,7 @@ import TitleCard from '@/components/shared/TitleCard.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
-import { parseMarkdown } from '@/utils'
+import { generateSlug, parseMarkdown } from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
@@ -37,6 +37,9 @@ interface StrapiCard {
   description?: string
   body?: string
   secondaryCta?: SecondaryCta
+  imageSrc?: string
+  image?: string | { url?: string }
+  imageAlt?: string | null
 }
 
 type CardVariant = 'Info' | 'Title' | 'Resource' | 'Navigation'
@@ -47,6 +50,7 @@ type CtaCardVariant = 'Title' | 'Resource' | 'Navigation'
 type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
+  title?: string
   ariaLabel: string
   variant: string
   columns: keyof typeof GRID_COLUMNS_CLASS
@@ -59,6 +63,7 @@ interface Props {
 }
 
 const {
+  title,
   ariaLabel,
   variant,
   columns,
@@ -113,6 +118,15 @@ const htmlCards =
 // Resource / Navigation at save time. Incomplete cards (MDX import, old
 // content, bypass paths) still render a visible placeholder so the grid
 // layout and the missing CTA are obvious — not only a server console.warn.
+function infoCardImageSrc(card: StrapiCard): string {
+  if (card.imageSrc?.trim()) return card.imageSrc.trim()
+  if (typeof card.image === 'string') return card.image
+  if (card.image && typeof card.image === 'object') {
+    return card.image.url ?? ''
+  }
+  return ''
+}
+
 function hasSecondaryCta(card: StrapiCard): card is CardWithSecondaryCta {
   return Boolean(card.secondaryCta?.link && card.secondaryCta.text)
 }
@@ -126,18 +140,40 @@ function warnMissingSecondaryCta(
     `CardGrid ${cardVariant} card "${card.heading || 'Untitled'}" on ${cardGridPath}: missing secondary CTA; rendering incomplete placeholder.`
   )
 }
+
+const headingText = title?.trim() || undefined
+const headingId = headingText
+  ? `card-grid-heading-${generateSlug(`${cardGridPath} ${headingText}`) || 'untitled'}`
+  : undefined
 ---
 
 <section
   data-component="CardGrid"
-  aria-label={ariaLabel}
-  class={`${TOP_SPACING_CLASS[topSpacing]} mb-6xl [&_h3]:!mb-0`}
+  data-columns={columns}
+  aria-label={headingId ? undefined : ariaLabel}
+  aria-labelledby={headingId}
+  class:list={[
+    `${TOP_SPACING_CLASS[topSpacing]} mb-6xl [&_h3]:!mb-0`,
+    headingText && 'flex flex-col gap-2xl'
+  ]}
 >
+  {
+    headingText && headingId && (
+      <h2
+        id={headingId}
+        class="m-0 text-h2 font-semibold tablet:text-h2-md desktop:text-h2-lg"
+      >
+        {headingText}
+      </h2>
+    )
+  }
   <div
     class:list={[
-      'grid grid-cols-1 gap-lg tablet:gap-xl',
+      'grid grid-cols-1 gap-lg tablet:gap-xl [&>*]:min-w-0',
       columns === 'One' ? 'tablet:grid-cols-1' : 'tablet:grid-cols-2',
-      gridColumnsClass
+      gridColumnsClass,
+      columns !== 'One' &&
+        '[&_figure[data-component=InfoCard]]:tablet:aspect-auto [&_figure[data-component=InfoCard]]:tablet:h-full'
     ]}
   >
     {
@@ -145,7 +181,11 @@ function warnMissingSecondaryCta(
         htmlCards.map((card) => {
           if (variant === 'Info') {
             return (
-              <InfoCard heading={card.heading}>
+              <InfoCard
+                heading={card.heading}
+                imageSrc={infoCardImageSrc(card) || undefined}
+                imageAlt={card.imageAlt}
+              >
                 <Fragment set:html={card.html} />
               </InfoCard>
             )

@@ -315,6 +315,7 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
   ariaLabel: string
+  title?: string
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
 } & Partial<Record<CardGridCardsField, CardGridCard[]>>
@@ -367,9 +368,10 @@ export interface EventCardWhere {
   location?: string
 }
 
-/** Nested column on blocks.event-card — apply / register CTA (no body text). */
+/** Nested column on blocks.event-card — apply / register CTA. */
 export interface EventCardApply {
-  title: string
+  title?: string
+  text?: string
   primaryCta: {
     text: string
     link: string
@@ -384,6 +386,7 @@ export interface EventCardApply {
  */
 export interface EventCardBlock extends StrapiBlockBase {
   __component: 'blocks.event-card'
+  title?: string
   when: EventCardWhen
   where: EventCardWhere
   apply?: EventCardApply

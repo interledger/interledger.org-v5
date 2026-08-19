@@ -67,23 +67,31 @@ describe('EventCard handler', () => {
 
   it('captures optional column text from children', async () => {
     const mdx = `
-<EventCard>
+<EventCard title="Upcoming">
   <EventWhen title="When?" date="Nov 8">
 Early arrival for speakers.
   </EventWhen>
   <EventWhere title="Where?">
     Main hall only.
   </EventWhere>
+  <EventApply buttonText="Apply today" buttonUrl="/apply">
+    Please read the guidelines first.
+  </EventApply>
 </EventCard>
 `
     const blocks = await parseMdxToBlocks(mdx, ctx)
     const block = blocks[0] as {
+      title?: string
       when: { text?: string }
       where: { text?: string }
+      apply: { text?: string; title?: string }
     }
 
+    expect(block.title).toBe('Upcoming')
     expect(block.when.text).toContain('Early arrival for speakers.')
     expect(block.where.text).toContain('Main hall only.')
+    expect(block.apply.text).toContain('Please read the guidelines first.')
+    expect(block.apply.title).toBeUndefined()
   })
 
   it('parses external Apply buttons', async () => {
@@ -170,24 +178,5 @@ Early arrival for speakers.
       prop: 'buttonUrl',
       component: 'EventApply'
     })
-  })
-
-  it('errors when EventApply has children (no body text field)', async () => {
-    const mdx = `
-<EventCard>
-  <EventWhen title="When?" />
-  <EventWhere title="Where?" />
-  <EventApply title="Apply" buttonText="Apply today" buttonUrl="/apply">
-    Please read the guidelines first.
-  </EventApply>
-</EventCard>
-`
-    const result = await parseMdxToBlocks(mdx, ctx)
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect((result as MdxParserError).code).toBe(
-      ParserErrorCode.INVALID_PROP_VALUE
-    )
-    expect((result as MdxParserError).component).toBe('EventApply')
-    expect((result as MdxParserError).message).toMatch(/no children/i)
   })
 })

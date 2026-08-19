@@ -1,5 +1,10 @@
 import { escDouble as esc, escMdxBraces } from '../shared'
-import { SerializerFieldError, type FieldError } from '../../utils'
+import {
+  SerializerFieldError,
+  getImageUrl,
+  hasMediaValue,
+  type FieldError
+} from '../../utils'
 import {
   CARD_GRID_COLUMNS,
   CARD_GRID_VARIANTS,
@@ -17,6 +22,7 @@ export interface CardGridSerializeInput extends Partial<
   Record<CardGridCardsField, CardGridCard[]>
 > {
   ariaLabel?: string
+  title?: string
   variant?: string
   columns?: string
   /** @deprecated Prefer variant-specific fields; kept for tests and legacy. */
@@ -104,9 +110,17 @@ function validateCard(
   }
 
   if (variant === 'Info') {
-    if (!card.body?.trim()) {
+    const hasImage =
+      Boolean(card.imageSrc?.trim()) || hasMediaValue(card.image as never)
+    const body = (card.body ?? '').trim()
+    if (hasImage && body) {
       fieldErrors.push({
-        message: `${label} is missing body`,
+        message: `${label} cannot have both a cover image and body text. Use one or the other.`,
+        path: [...pathPrefix, 'body']
+      })
+    } else if (!hasImage && !body) {
+      fieldErrors.push({
+        message: `${label} needs a body, or an image`,
         path: [...pathPrefix, 'body']
       })
     }
@@ -322,12 +336,33 @@ function getSecondaryCta(
   return card.secondaryCta
 }
 
+function infoCardImageSrc(card: CardGridCard): string {
+  if (card.imageSrc?.trim()) return card.imageSrc.trim()
+  if (hasMediaValue(card.image as never)) {
+    if (typeof card.image === 'string' || typeof card.image === 'number') {
+      return ''
+    }
+    return getImageUrl(card.image as { url?: string }) ?? ''
+  }
+  return ''
+}
+
+function infoCardImageAlt(card: CardGridCard): string {
+  return (card.imageAlt ?? '').trim()
+}
+
 function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
   const headingAttr = ` heading="${esc(card.heading ?? '')}"`
 
   if (variant === 'Info') {
-    const body = escMdxBraces(card.body ?? '')
-    return `<InfoCard${headingAttr}>\n\n${body}\n\n</InfoCard>`
+    const src = infoCardImageSrc(card)
+    const alt = infoCardImageAlt(card)
+    let attrs = headingAttr
+    if (src) attrs += ` imageSrc="${esc(src)}"`
+    if (alt) attrs += ` imageAlt="${esc(alt)}"`
+    const body = (card.body ?? '').trim()
+    if (src) return `<InfoCard${attrs} />`
+    return `<InfoCard${attrs}>\n\n${escMdxBraces(body)}\n\n</InfoCard>`
   }
 
   if (variant === 'Navigation') {
@@ -353,7 +388,9 @@ export function serialize(block: CardGridSerializeInput): string {
 
   const variant = block.variant as CardGridVariant
   const cards = resolveCardGridCards(block, variant)
-  const gridAttrs = ` ariaLabel="${esc(block.ariaLabel)}" variant="${esc(block.variant)}" columns="${esc(block.columns)}"`
+  const title = block.title?.trim()
+  const titleAttr = title ? ` title="${esc(title)}"` : ''
+  const gridAttrs = `${titleAttr} ariaLabel="${esc(block.ariaLabel)}" variant="${esc(block.variant)}" columns="${esc(block.columns)}"`
   const cardMdx = cards.map((card) => serializeCard(card, variant))
 
   return `<CardGrid${gridAttrs}>\n${cardMdx.join('\n')}\n</CardGrid>`

@@ -1092,6 +1092,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.card-grid': {
+      title: 'Title',
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
@@ -1183,7 +1184,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.info-card': {
       heading: 'Card Heading',
-      body: 'Card Body'
+      body: 'Card Body',
+      image: 'Image',
+      imageAlt: 'Image alternative text'
     },
     'blocks.carousel': {
       heading: 'Section Heading',
@@ -1214,6 +1217,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       additionalInfo: 'Additional information (optional)'
     },
     'blocks.event-card': {
+      title: 'Title',
       when: 'When',
       where: 'Where',
       apply: 'Apply'
@@ -1231,6 +1235,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.event-card-apply': {
       title: 'Title',
+      text: 'Text',
       primaryCta: 'Primary CTA button'
     },
 
@@ -1367,7 +1372,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.info-card': {
       heading: 'Required card title.',
-      body: 'Required. Supports markdown including bullet lists.'
+      body: 'Required when no cover photo is set. Body and image are mutually exclusive. Supports markdown including bullet lists.',
+      image:
+        'Optional cover photo. When set, the card shows the photo instead of the heading and body. Clear the body field before adding an image.',
+      imageAlt:
+        'Describe the photo for screen readers. Falls back to the card heading if left blank.'
     },
     'blocks.faq-section': {
       heading:
@@ -1455,6 +1464,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.card-grid': {
+      title: 'Optional. Shown above the cards as a heading.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -1492,6 +1502,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
+      title: 'Optional heading shown above the When / Where / Apply columns.',
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
       apply:
@@ -1509,7 +1520,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       location: 'Optional. Venue or address; multi-line text is fine.'
     },
     'blocks.event-card-apply': {
-      title: 'Required. Column heading, e.g. "Apply".',
+      title: 'Optional. Column heading, e.g. "Apply".',
+      text: 'Optional supporting copy shown under the title, above the button.',
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     },
@@ -1849,6 +1861,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'additionalInfo', size: 12 }]
     ],
     'blocks.event-card': [
+      [{ name: 'title', size: 12 }],
       [{ name: 'when', size: 12 }],
       [{ name: 'where', size: 12 }],
       [{ name: 'apply', size: 12 }]
@@ -1868,6 +1881,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.event-card-apply': [
       [{ name: 'title', size: 12 }],
+      [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
     ],
     'blocks.image-row': [
@@ -1985,10 +1999,15 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.info-card': [
       [{ name: 'heading', size: 12 }],
-      [{ name: 'body', size: 12 }]
+      [{ name: 'body', size: 12 }],
+      [
+        { name: 'image', size: 6 },
+        { name: 'imageAlt', size: 6 }
+      ]
     ],
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],
+      [{ name: 'title', size: 12 }],
       [
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }

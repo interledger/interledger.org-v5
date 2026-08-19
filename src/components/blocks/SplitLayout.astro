@@ -144,11 +144,26 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
           </div>
           {ctaText && resolvedCta && (
             <div>
+              {/*
+                `mode="auto"` because this block renders on foundation (light)
+                as well as on the two permanently dark microsites. Without it
+                the secondary falls back to `light`, whose `text-neutral-100`
+                label measures 1.10:1 on the hackathon's `neutral-150` page and
+                is effectively invisible (INTORG-1072).
+
+                `iconSide` is explicit because LinkButton otherwise infers it
+                from `Astro.slots.has('icon-right')`, which reports true even
+                when the slot holds a falsy conditional and renders nothing.
+                An icon-less button then keeps the with-icon padding and its
+                label sits 8px off centre.
+              */}
               <LinkButton
                 href={resolvedCta.href}
                 variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
+                mode="auto"
                 external={resolvedCta.external}
                 document={resolvedCta.document}
+                iconSide={resolvedCta.icon ? 'right' : 'none'}
               >
                 {ctaText}
                 {resolvedCta.icon && (

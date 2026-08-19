@@ -24,7 +24,11 @@ interface Props {
   noindex?: boolean
 }
 
-const { routeLocale, currentSlug, currentBasePath } = Astro.locals
+// `site` is set by the microsite layout's frontmatter, which runs before the
+// slot that renders this component's children. Absent on the foundation site,
+// which needs no token override. Reading it here rather than taking a prop
+// keeps one source of site identity (Jonathan, #520).
+const { routeLocale, currentSlug, currentBasePath, site } = Astro.locals
 const t = useTranslations(routeLocale)
 const canonicalMeta = buildCanonicalMeta(
   Astro.site!,
@@ -56,7 +60,7 @@ const umamiWebsiteId = isProduction
 ---
 
 <!doctype html>
-<html lang={routeLocale} data-theme={theme}>
+<html lang={routeLocale} data-theme={theme} data-site={site}>
   <head>
     <link
       rel="preload"
