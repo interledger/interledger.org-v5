@@ -3,13 +3,22 @@
   "info": {
     "displayName": "Event Card — Apply",
     "icon": "cursor",
-    "description": "Application, registration, or interest actions (title and primary CTA required)"
+    "description": "Application, registration, or interest actions (primary CTA required; title and text optional)"
   },
   "options": {},
   "attributes": {
     "title": {
       "type": "string",
-      "required": true,
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "text": {
+      "type": "text",
+      "required": false,
       "pluginOptions": {
         "i18n": {
           "localized": true

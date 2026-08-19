@@ -7,6 +7,15 @@
   },
   "options": {},
   "attributes": {
+    "title": {
+      "type": "string",
+      "required": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "when": {
       "type": "component",
       "repeatable": false,

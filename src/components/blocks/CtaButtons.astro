@@ -35,9 +35,11 @@ interface CtaButtonProp {
 
 interface Props {
   buttons?: CtaButtonProp[]
+  /** Template surfaces (event card, hackathon hero) can drop the trailing icon. */
+  hideIcons?: boolean
 }
 
-const { buttons = [] } = Astro.props
+const { buttons = [], hideIcons = false } = Astro.props
 const { routeLocale, site } = Astro.locals
 
 // A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
@@ -107,7 +109,9 @@ const resolved = buttons
           })}
         >
           {button.text}
-          {button.icon && <Icon name={button.icon} slot="icon-right" />}
+          {!hideIcons && button.icon && (
+            <Icon name={button.icon} slot="icon-right" />
+          )}
         </LinkButton>
       ))}
     </div>
