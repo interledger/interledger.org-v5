@@ -78,7 +78,7 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
       )
     }
     <div
-      class="text-body-lg-standard text-neutral-100 dark:text-neutral-50 [&_a]:relative [&_a]:z-1 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:tablet:text-body-lg-standard-md [&_p]:text-inherit"
+      class="text-body-lg-standard text-neutral-100 dark:text-neutral-50 [&_a]:relative [&_a]:z-1 [&_p]:m-0 [&_:is(p,li,a)]:text-body-lg-standard [&_:is(p,li,a)]:tablet:text-body-lg-standard-md [&_is(p,li)]:text-inherit"
     >
       <slot />
     </div>
