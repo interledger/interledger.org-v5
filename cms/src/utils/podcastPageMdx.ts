@@ -52,6 +52,7 @@ export interface PodcastPageInput {
   pathSlug: string
   description: string
   hero?: Hero | null
+  textSection?: string
   titleCards: PodcastPageTitleCardGrid
   podcasts: PodcastPageItem[]
   ctaStrip: PodcastPageCtaStrip
@@ -120,6 +121,9 @@ export function generatePodcastPageMdx(
     pathSlug: page.pathSlug,
     description: page.description,
     ...heroFrontmatter(page.hero),
+    ...(page.textSection
+      ? { textSection: ckeditorFieldToMarkdown(page.textSection) }
+      : {}),
     titleCards: titleCardsFrontmatter(page.titleCards),
     podcasts: podcastsFrontmatter(page.podcasts),
     ctaStrip: ctaStripFrontmatter(page.ctaStrip),

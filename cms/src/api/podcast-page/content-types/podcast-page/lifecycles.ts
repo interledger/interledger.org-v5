@@ -22,6 +22,7 @@ import type {
 
 interface PodcastPageData extends PageData {
   description?: string
+  textSection?: string
   titleCards?: PodcastPageTitleCardGrid
   podcasts?: PodcastPageItem[]
   ctaStrip?: PodcastPageCtaStrip
@@ -40,6 +41,7 @@ function generatePodcastPageMDX(
       pathSlug: podcastPage.pathSlug ?? '',
       description: podcastPage.description ?? '',
       hero: podcastPage.hero,
+      textSection: podcastPage.textSection,
       titleCards: podcastPage.titleCards ?? {
         columns: 'Three',
         ariaLabel: '',

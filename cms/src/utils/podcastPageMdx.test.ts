@@ -140,4 +140,19 @@ describe('generatePodcastPageMdx', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     expect(data.localizes).toBeUndefined()
   })
+
+  it('converts textSection through ckeditorFieldToMarkdown when present', () => {
+    const { data } = matter(
+      generatePodcastPageMdx(
+        makePage({ textSection: '<p>Hello <strong>world</strong></p>' })
+      )
+    )
+
+    expect(data.textSection).toBe('Hello **world**')
+  })
+
+  it('omits textSection when absent', () => {
+    const { data } = matter(generatePodcastPageMdx(makePage()))
+    expect(data).not.toHaveProperty('textSection')
+  })
 })
