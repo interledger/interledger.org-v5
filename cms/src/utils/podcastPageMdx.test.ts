@@ -155,4 +155,22 @@ describe('generatePodcastPageMdx', () => {
     const { data } = matter(generatePodcastPageMdx(makePage()))
     expect(data).not.toHaveProperty('textSection')
   })
+
+  // Turndown escapes a literal underscore as `\_` so markdown renderers
+  // don't misread it as emphasis. This locks in that yaml.dump/gray-matter
+  // round-trips a multi-paragraph value containing that escape correctly.
+  it('round-trips an escaped underscore across paragraphs without corrupting it', () => {
+    const { data } = matter(
+      generatePodcastPageMdx(
+        makePage({
+          textSection:
+            '<p>Sub_scribe to our podcast.</p><p>your_favorite platform now.</p>'
+        })
+      )
+    )
+
+    expect(data.textSection).toBe(
+      'Sub\\_scribe to our podcast.\n\nyour\\_favorite platform now.'
+    )
+  })
 })

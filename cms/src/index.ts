@@ -883,6 +883,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug: 'Path Slug',
       description: 'Short Description',
       hero: 'Hero',
+      textSection: 'Text Section',
       titleCards: 'Title Cards',
       podcasts: 'Podcasts',
       ctaStrip: 'CTA Strip'
@@ -949,6 +950,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Path must be set to "podcast". We only render one page with slug "podcast", at /podcast. Other slugs will not be built. If you need changes contact the frontend dev team.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
+      textSection:
+        'Optional paragraph shown below the hero, above the title cards. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
       titleCards:
         'List every featured podcast series shown at the top of the page.',
       podcasts:
@@ -1730,6 +1733,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
+      [{ name: 'textSection', size: 12 }],
       [{ name: 'titleCards', size: 12 }],
       [{ name: 'podcasts', size: 12 }],
       [{ name: 'ctaStrip', size: 12 }]
