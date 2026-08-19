@@ -103,8 +103,9 @@
        that content instead of forcing it onto a line of its own. */
     ul,
     ol {
-      list-style-position: outside;
-      padding-inline-start: var(--spacing-lg);
+      list-style: disc outside none;
+      margin: var(--spacing-lg) 0;
+      padding-inline-start: var(--spacing-3xl-tight);
     }
     ul {
       list-style-type: disc;
@@ -115,6 +116,7 @@
     ol li,
     ul li {
       margin-block-end: var(--spacing-md);
+      padding: 0;
     }
     ol li:last-of-type,
     ul li:last-of-type {
