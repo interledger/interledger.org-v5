@@ -29,6 +29,20 @@ describe('CardGrid round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
   })
 
+  it('round-trips an optional title', async () => {
+    const original = {
+      title: 'Why Participate?',
+      ariaLabel: 'Reasons to participate',
+      variant: 'Info' as const,
+      columns: 'Three' as const,
+      infoCards: [{ heading: 'Why apply', body: 'Open worldwide.' }]
+    }
+    const blocks = await parseMdxToBlocks(serialize({ ...original }), {
+      locale: 'en'
+    })
+    expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
+  })
+
   it('round-trips Resource, Info, and Navigation', async () => {
     const resource = {
       ariaLabel: 'Resources',
@@ -75,6 +89,40 @@ describe('CardGrid round-trip (serialize → parse)', () => {
     expect(
       await parseMdxToBlocks(serialize({ ...info }), { locale: 'en' })
     ).toEqual([{ __component: 'blocks.card-grid', ...info }])
+
+    const infoWithImage = {
+      ariaLabel: 'Why participate',
+      variant: 'Info' as const,
+      columns: 'Three' as const,
+      infoCards: [
+        { heading: 'Build', body: 'Ship a prototype.' },
+        {
+          heading: 'Photo',
+          image: { url: '/img/hackathon/participate.webp' },
+          imageAlt: 'A builder coding'
+        }
+      ]
+    }
+    expect(
+      await parseMdxToBlocks(serialize({ ...infoWithImage }), {
+        locale: 'en',
+        resolveMediaUpload: async (url) => {
+          if (url === '/img/hackathon/participate.webp') return 42
+          throw new Error(`unexpected upload ${url}`)
+        }
+      })
+    ).toEqual([
+      {
+        __component: 'blocks.card-grid',
+        ariaLabel: 'Why participate',
+        variant: 'Info',
+        columns: 'Three',
+        infoCards: [
+          { heading: 'Build', body: 'Ship a prototype.' },
+          { heading: 'Photo', image: 42, imageAlt: 'A builder coding' }
+        ]
+      }
+    ])
 
     const nav = {
       ariaLabel: 'Nav',

@@ -40,6 +40,22 @@ describe('CardGrid handler', () => {
     ])
   })
 
+  it('parses an optional title', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid title="Why Participate?" ariaLabel="Reasons" variant="Info" columns="Three">',
+        '<InfoCard heading="Why">Body</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(blocks[0]).toMatchObject({
+      title: 'Why Participate?',
+      ariaLabel: 'Reasons',
+      variant: 'Info'
+    })
+  })
+
   it('parses Resource, Info, and Navigation variants', async () => {
     const resource = await parseMdxToBlocks(
       [
@@ -91,6 +107,92 @@ describe('CardGrid handler', () => {
       columns: 'One',
       navigationCards: [{ heading: 'Go' }]
     })
+  })
+
+  it('parses an Info card with imageSrc and no body', async () => {
+    const ctxWithMedia: ParserContext = {
+      locale: 'en',
+      resolveMediaUpload: async (url) => {
+        if (url === '/img/hackathon/participate.webp') return 42
+        throw new Error(`unexpected upload ${url}`)
+      }
+    }
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Why participate" variant="Info" columns="Three">',
+        '<InfoCard heading="Build">Body A</InfoCard>',
+        '<InfoCard heading="Photo" imageSrc="/img/hackathon/participate.webp" imageAlt="A builder coding" />',
+        '</CardGrid>'
+      ].join('\n'),
+      ctxWithMedia
+    )
+    expect(result).toEqual([
+      {
+        __component: 'blocks.card-grid',
+        ariaLabel: 'Why participate',
+        variant: 'Info',
+        columns: 'Three',
+        infoCards: [
+          { heading: 'Build', body: 'Body A' },
+          {
+            heading: 'Photo',
+            image: 42,
+            imageAlt: 'A builder coding'
+          }
+        ]
+      }
+    ])
+  })
+
+  it('returns UNRESOLVED_RELATION when InfoCard imageSrc has no media resolver', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="Photo" imageSrc="/img/a.webp" />',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.UNRESOLVED_RELATION,
+      component: 'InfoCard'
+    })
+  })
+
+  it('rejects an InfoCard with neither body nor imageSrc', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="Empty" />',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'InfoCard'
+    })
+  })
+
+  it('rejects an InfoCard with both body content and imageSrc', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="Photo" imageSrc="/img/hackathon/participate.webp">',
+        'Body text',
+        '</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'InfoCard'
+    })
+    expect((result as MdxParserError).message).toContain('cannot have both')
   })
 
   it('rejects One column for non-Navigation', async () => {

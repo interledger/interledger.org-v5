@@ -22,15 +22,7 @@ Blocks covered on this page:
 - Logo carousel
 
 Use it to validate challenge copy, resource links, mentor grids, and partner
-logos. Teams often compare prototype transfer costs to traditional rails.[^1]
-Typical remittance quotes sit well above Interledger settlement.[^2] Fintech
-corridors have narrowed that gap but still leave a premium.[^3]
-
-[^1]: Average cost to send 1 USDT (Tether, the largest stablecoin pegged to the US dollar) on August 5, 2025 per GasFeesNow. [https://gasfeesnow.com](https://gasfeesnow.com/)
-
-[^2]: Average price for a $200 bank initiated cross-border transfer, according to the World Bank (Q3, 2024). [https://remittanceprices.worldbank.org/sites/default/files/rpw_main_report_and_annex_q324.pdf](https://remittanceprices.worldbank.org/sites/default/files/rpw_main_report_and_annex_q324.pdf)
-
-[^3]: Average price to send $200 from the United States to Mexico using Wise for a personal account to a personal account transaction, according to the Inter-American Dialogue (2024). [https://thedialogue.org/wp-content/uploads/2024/03/Transaction-Costs-and-Money-Transfer-Operators-A-Review-of-Costs-by-MTO-Receiving-Countries.pdf](https://thedialogue.org/wp-content/uploads/2024/03/Transaction-Costs-and-Money-Transfer-Operators-A-Review-of-Costs-by-MTO-Receiving-Countries.pdf)
+logos.
 
 | Method                         | Typical fee (send $200) | Typical settlement time |
 | ------------------------------ | ----------------------- | ----------------------- |
@@ -74,22 +66,22 @@ corridors have narrowed that gap but still leave a premium.[^3]
   next step toward meaningful growth.
 </Quote>
 
-<Paragraph>
-
 > Open financial infrastructure works best when builders, policymakers, and
 > communities shape it together.
 
-</Paragraph>
-
 <SplitLayout
+  layoutType="image-text"
+  imagePosition="right"
+  displayRatio="2:1"
   imageSrc="/uploads/img/original/financial_services_7cc26eb342.jpg"
   imageAlt="Workshop participants discussing a financial services prototype"
   ctaText="Review the challenge"
   ctaLink="/hackathon/overview"
+  ctaStyle="primary"
 >
-  Hackathon participants move quickly from concept to prototype. This
-  placeholder block tests a practical event prompt with supporting imagery and a
-  call to action.
+
+Hackathon participants move quickly from concept to prototype. This placeholder block tests a practical event prompt with supporting imagery and a call to action.
+
 </SplitLayout>
 
 <SplitLayout
@@ -104,15 +96,16 @@ corridors have narrowed that gap but still leave a premium.[^3]
 
 <SplitLayout
   layoutType="video-text"
+  imagePosition="right"
   displayRatio="1:2"
   videoUrl="https://www.youtube.com/watch?v=oJNFsO3k7LM"
   ctaText="Open starter docs"
   ctaLink="/developers/get-started"
   ctaStyle="secondary"
 >
-  Use a video split layout for kickoff recordings, technical briefings, and
-  finalist demos. This sample checks how embedded media behaves inside the
-  hackathon page shell.
+
+Use a video split layout for kickoff recordings, technical briefings, and finalist demos. This sample checks how embedded media behaves inside the hackathon page shell.
+
 </SplitLayout>
 
 <SplitLayout
@@ -133,60 +126,77 @@ Hackathon pages can use every Card Grid variant. Each grid uses one variant only
 </Paragraph>
 
 <CardGrid ariaLabel="Hackathon challenge cards" variant="Title" columns="Two">
-<TitleCard heading="Build a wallet flow" subheading="Challenge track" buttonUrl="/hackathon/overview" buttonText="View track" buttonExternal={false}>
-
-Design a user journey that helps someone receive, hold, and send value
-through an interoperable payment experience.
-
-</TitleCard>
-<TitleCard heading="Improve onboarding" subheading="Challenge track" buttonUrl="/hackathon/overview" buttonText="View track" buttonExternal={false}>
-
-Prototype a smoother path from account creation to first successful payment,
-with clear recovery and support states.
-
-</TitleCard>
+  <TitleCard
+    heading="Build a wallet flow"
+    subheading="Challenge track"
+    buttonText="View track"
+    buttonUrl="/hackathon/overview"
+  >
+    Design a user journey that helps someone receive, hold, and send value
+    through an interoperable payment experience.
+  </TitleCard>
+  <TitleCard
+    heading="Improve onboarding"
+    subheading="Challenge track"
+    buttonText="View track"
+    buttonUrl="/hackathon/overview"
+  >
+    Prototype a smoother path from account creation to first successful payment,
+    with clear recovery and support states.
+  </TitleCard>
 </CardGrid>
 
 <CardGrid ariaLabel="Hackathon resources" variant="Resource" columns="Three">
-<ResourceCard heading="Starter Pack" buttonUrl="/developers/get-started" buttonText="Open guide" buttonExternal={false}>
-
-A resource card for documentation, sample repositories, API references, and
-challenge setup notes.
-
-</ResourceCard>
-<ResourceCard heading="Judging Rubric" buttonUrl="/documents/2025-application-guide.pdf" buttonText="Download" buttonExternal={false} buttonDocument={true}>
-
-A downloadable resource placeholder for scoring criteria, submission
-checklists, and finalist instructions.
-
-</ResourceCard>
-<ResourceCard heading="Community Channel" buttonUrl="https://interledger.org" buttonText="Join" buttonExternal={true}>
-
-An external resource placeholder for chat, office hours, livestreams, or
-public project showcases.
-
-</ResourceCard>
+  <ResourceCard
+    heading="Starter Pack"
+    buttonText="Open guide"
+    buttonUrl="/developers/get-started"
+  >
+    A resource card for documentation, sample repositories, API references, and
+    challenge setup notes.
+  </ResourceCard>
+  <ResourceCard
+    heading="Judging Rubric"
+    buttonText="Download"
+    buttonUrl="/documents/2025-application-guide.pdf"
+    buttonDocument={true}
+  >
+    A downloadable resource placeholder for scoring criteria, submission
+    checklists, and finalist instructions.
+  </ResourceCard>
+  <ResourceCard
+    heading="Community Channel"
+    buttonText="Join"
+    buttonUrl="https://interledger.org"
+    buttonExternal={true}
+  >
+    An external resource placeholder for chat, office hours, livestreams, or
+    public project showcases.
+  </ResourceCard>
 </CardGrid>
 
-<CardGrid ariaLabel="Hackathon information cards" variant="Info" columns="Three">
-<InfoCard heading="Who can join">
-
-Builders, designers, students, researchers, and product thinkers can all
-contribute to a useful prototype.
-
-</InfoCard>
-<InfoCard heading="What to submit">
-
-Share a short demo, the repository link, a concise problem statement, and
-notes about what should be tested next.
-
-</InfoCard>
-<InfoCard heading="How teams win">
-
-Strong submissions explain the user need, show a working payment moment, and
-document tradeoffs clearly.
-
-</InfoCard>
+<CardGrid
+  ariaLabel="Hackathon information cards"
+  variant="Info"
+  columns="Three"
+>
+  <InfoCard heading="Who can join">
+    Builders, designers, students, researchers, and product thinkers can all
+    contribute to a useful prototype.
+  </InfoCard>
+  <InfoCard
+    heading="A hackathon participant coding on a laptop"
+    imageSrc="/img/hackathon/participate.webp"
+    imageAlt="A hackathon participant coding on a laptop"
+  />
+  <InfoCard heading="What to submit">
+    Share a short demo, the repository link, a concise problem statement, and
+    notes about what should be tested next.
+  </InfoCard>
+  <InfoCard heading="How teams win">
+    Strong submissions explain the user need, show a working payment moment, and
+    document tradeoffs clearly.
+  </InfoCard>
 </CardGrid>
 
 <CardGrid
@@ -196,9 +206,8 @@ document tradeoffs clearly.
 >
   <NavigationCard
     heading="Return to the hackathon overview"
-    buttonUrl="/hackathon/overview"
     buttonText="Open overview"
-    buttonExternal={false}
+    buttonUrl="/hackathon/overview"
   />
 </CardGrid>
 
@@ -209,21 +218,18 @@ document tradeoffs clearly.
 >
   <NavigationCard
     heading="Read the event overview"
-    buttonUrl="/hackathon/overview"
     buttonText="Open overview"
-    buttonExternal={false}
+    buttonUrl="/hackathon/overview"
   />
   <NavigationCard
     heading="Start building with docs"
-    buttonUrl="/developers/get-started"
     buttonText="Get started"
-    buttonExternal={false}
+    buttonUrl="/developers/get-started"
   />
   <NavigationCard
     heading="Find ways to contribute"
-    buttonUrl="/developers/get-involved"
     buttonText="Get involved"
-    buttonExternal={false}
+    buttonUrl="/developers/get-involved"
   />
 </CardGrid>
 
@@ -251,7 +257,12 @@ document tradeoffs clearly.
 <Agenda
   heading={'Day 1 — Friday, 6 November 2026'}
   items={[
-    { time: '8:30 am – 9:15 am', activity: 'Check-in & setup' },
+    {
+      time: '8:30 am – 9:15 am',
+      activity: 'Check-in & setup',
+      additionalInfo:
+        '* Team registration and wristbands\n* Power strips and tables assigned by track\n* Breakfast and coffee available until 9:30 am'
+    },
     {
       time: '9:15 am – 9:45 am',
       activity: 'Kickoff briefing',
@@ -406,19 +417,15 @@ registration notes.
 </EventCard>
 
 <EventCard>
-
-<EventWhen title="When?" date="November 7, 2026" time="12:45 pm – 2:30 pm">
-
-Five minutes per team including Q\&A with the judging panel.
-
-</EventWhen>
-
-<EventWhere title="Where?" location="Main hall stage — demo order posted at noon">
-
-Audience seating is open; practice rooms are available until 12:30 pm.
-
-</EventWhere>
-
+  <EventWhen title="When?" date="November 7, 2026" time="12:45 pm – 2:30 pm">
+    Five minutes per team including Q&A with the judging panel.
+  </EventWhen>
+  <EventWhere
+    title="Where?"
+    location="Main hall stage — demo order posted at noon"
+  >
+    Audience seating is open; practice rooms are available until 12:30 pm.
+  </EventWhere>
 </EventCard>
 
 <Faq heading="FAQs – All Hackathons">
@@ -439,11 +446,7 @@ Audience seating is open; practice rooms are available until 12:30 pm.
   </FaqItem>
 </Faq>
 
-<Paragraph>
-
 ## CTA Buttons
-
-</Paragraph>
 
 <CtaButtons
   buttons={[

@@ -55,6 +55,11 @@ export interface CardGridCard {
   description?: string
   body?: string
   secondaryCta?: CardGridSecondaryCta
+  /** InfoCard cover image: site-relative path used in MDX (`imageSrc`). */
+  imageSrc?: string
+  /** InfoCard cover image: Strapi media id or populated `{ url }`. */
+  image?: unknown
+  imageAlt?: string | null
 }
 
 export const CARD_GRID_VARIANTS = CARD_GRID_VARIANT_DEFINITIONS.map(
