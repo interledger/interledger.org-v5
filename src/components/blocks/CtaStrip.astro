@@ -1,10 +1,5 @@
 ---
-import {
-  buildUmamiAttrs,
-  parseMarkdown,
-  resolveCtaLink,
-  ROUTE_BASES
-} from '@/utils'
+import { buildUmamiAttrs, parseMarkdown, resolveCtaLink } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -45,7 +40,7 @@ const {
   umamiContext
 } = Astro.props
 
-const { routeLocale, currentBasePath } = Astro.locals
+const { routeLocale, site } = Astro.locals
 
 // The hackathon's main CTA carries no arrow. Its label is usually programmatic,
 // such as `<register_today>`, and an arrow beside that reads as too much. The
@@ -57,7 +52,11 @@ const { routeLocale, currentBasePath } = Astro.locals
 // sets the button's padding, because LinkButton derives `iconSide` from slot
 // presence and `iconSide: 'right'` pads 24/16 where `'none'` pads 16/16. Hiding
 // the glyph in CSS would leave the label 8px off centre.
-const isHackathon = currentBasePath === ROUTE_BASES['hackathon-pages']
+//
+// Read from `Astro.locals`, which is the same value `BaseLayout` writes to
+// `data-site` for the token overrides. Deriving it separately, from the URL for
+// instance, would let the arrow and the button colour disagree (Jonathan, #520).
+const isHackathon = site === 'hackathon'
 
 // Icon by link kind (INTORG-938). Both buttons carry their own external and
 // document flags, so an editor can mark either one a download.

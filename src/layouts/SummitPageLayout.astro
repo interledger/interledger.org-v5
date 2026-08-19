@@ -30,6 +30,12 @@ const {
   canonicalURL,
   noindex = false
 } = Astro.props
+
+// Single source of site identity. `BaseLayout` turns this into `data-site` on
+// <html>, where the button token overrides key off it, and blocks inside the
+// page read it from locals rather than re-deriving it. Set in the layout
+// frontmatter, which runs before `<slot />` renders (Jonathan, #520).
+Astro.locals.site = 'summit'
 ---
 
 <BaseLayout
@@ -39,7 +45,6 @@ const {
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   theme="dark"
-  site="summit"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-hidden bg-fixed bg-no-repeat text-h4 tablet:text-h4-md desktop:text-h4-lg text-white"
   bodyStyle={`--gradient:var(--${gradient}); background-image: var(--gradient);`}
   noindex={noindex}
