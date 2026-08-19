@@ -112,7 +112,13 @@ function validateCard(
   if (variant === 'Info') {
     const hasImage =
       Boolean(card.imageSrc?.trim()) || hasMediaValue(card.image as never)
-    if (!hasImage && !card.body?.trim()) {
+    const body = (card.body ?? '').trim()
+    if (hasImage && body) {
+      fieldErrors.push({
+        message: `${label} cannot have both a cover image and body text. Use one or the other.`,
+        path: [...pathPrefix, 'body']
+      })
+    } else if (!hasImage && !body) {
       fieldErrors.push({
         message: `${label} needs a body, or an image`,
         path: [...pathPrefix, 'body']
@@ -355,8 +361,8 @@ function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
     if (src) attrs += ` imageSrc="${esc(src)}"`
     if (alt) attrs += ` imageAlt="${esc(alt)}"`
     const body = (card.body ?? '').trim()
-    if (src && !body) return `<InfoCard${attrs} />`
-    return `<InfoCard${attrs}>\n\n${escMdxBraces(card.body ?? '')}\n\n</InfoCard>`
+    if (src) return `<InfoCard${attrs} />`
+    return `<InfoCard${attrs}>\n\n${escMdxBraces(body)}\n\n</InfoCard>`
   }
 
   if (variant === 'Navigation') {

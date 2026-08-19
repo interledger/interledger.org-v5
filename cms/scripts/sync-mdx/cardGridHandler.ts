@@ -126,6 +126,18 @@ async function parseInfoCard(
   const imageAlt = getStringAttr(node, 'imageAlt')
   const body = node.children.length > 0 ? childrenToMarkdown(node.children) : ''
 
+  if (body && imageSrc) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'InfoCard cannot have both body content and imageSrc. Use one or the other.',
+      component: 'InfoCard',
+      prop: 'children',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
   if (!body && !imageSrc) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,

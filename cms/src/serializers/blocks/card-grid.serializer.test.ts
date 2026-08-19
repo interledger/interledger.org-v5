@@ -142,6 +142,25 @@ describe('card-grid serializer', () => {
     ).toThrow(SerializerFieldError)
   })
 
+  it('rejects an Info card with both a cover image and body text', () => {
+    const errors = validateCardGrid({
+      ariaLabel: 'Info',
+      variant: 'Info',
+      columns: 'Three',
+      infoCards: [
+        {
+          __component: 'blocks.info-card',
+          heading: 'Photo card',
+          body: 'This text is ignored on the page.',
+          imageSrc: '/img/hackathon/participate.webp'
+        }
+      ]
+    })
+    expect(errors.some((e) => e.message.includes('cannot have both'))).toBe(
+      true
+    )
+  })
+
   it('rejects One column for non-Navigation variants', () => {
     expect(() =>
       serialize({

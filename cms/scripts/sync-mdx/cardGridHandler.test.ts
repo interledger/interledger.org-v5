@@ -176,6 +176,25 @@ describe('CardGrid handler', () => {
     })
   })
 
+  it('rejects an InfoCard with both body content and imageSrc', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Info" variant="Info" columns="Three">',
+        '<InfoCard heading="Photo" imageSrc="/img/hackathon/participate.webp">',
+        'Body text',
+        '</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      component: 'InfoCard'
+    })
+    expect((result as MdxParserError).message).toContain('cannot have both')
+  })
+
   it('rejects One column for non-Navigation', async () => {
     const result = await parseMdxToBlocks(
       '<CardGrid ariaLabel="Info" variant="Info" columns="One"><InfoCard heading="A">B</InfoCard></CardGrid>',
