@@ -68,13 +68,13 @@ if (!fromStrapi && !Astro.slots.has('default')) {
   data-component="EventCard"
   aria-label={heading ? undefined : t('eventCard.block_label')}
   aria-labelledby={headingId}
-  class="mb-6xl w-full"
+  class:list={['mb-6xl w-full', heading && 'flex flex-col gap-block-heading']}
 >
   {
     heading && headingId && (
       <h2
         id={headingId}
-        class="!mb-2xl mt-0 text-h2 font-semibold text-neutral-100 dark:text-neutral-0 tablet:text-h2-md desktop:text-h2-lg"
+        class="m-0 text-h2 font-semibold text-neutral-100 tablet:text-h2-md dark:text-neutral-0 desktop:text-h2-lg"
       >
         {heading}
       </h2>
