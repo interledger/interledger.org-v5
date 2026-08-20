@@ -76,13 +76,6 @@
     --color-btn-txt: var(--color-white);
     --color-heading: var(--color-neutral-0);
     --color-prose: var(--color-neutral-50);
-    --color-link: var(--color-lavender-100);
-    --color-link-hover: var(--color-lavender-150);
-  }
-
-  /* Hackathon body/prose links. Scoped to the layout wrapper so foundation
-     dark pages (homepage) keep orchid. */
-  .hackathon-main {
     --color-link: var(--color-apricot-100);
     --color-link-hover: var(--color-apricot-150);
   }
