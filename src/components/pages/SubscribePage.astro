@@ -450,7 +450,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
   }
 
   function getCheckedInterests() {
-    return Array.from(form.querySelectorAll('input[name="im_interested_in"]'))
+    return Array.from(
+      form?.querySelectorAll('input[name="im_interested_in"]') ?? []
+    )
       .filter((checkbox) => checkbox.checked)
       .map((checkbox) => checkbox.value)
   }

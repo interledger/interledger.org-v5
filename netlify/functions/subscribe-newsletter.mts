@@ -17,10 +17,29 @@ interface RecaptchaVerifyResponse {
   success: boolean
 }
 
-function jsonResponse(body: unknown, status: number): Response {
+function isValidFields(
+  fields: unknown
+): fields is Array<{ name: string; value: string }> {
+  return (
+    Array.isArray(fields) &&
+    fields.every(
+      (field) =>
+        typeof field === 'object' &&
+        field !== null &&
+        typeof (field as Record<string, unknown>).name === 'string' &&
+        typeof (field as Record<string, unknown>).value === 'string'
+    )
+  )
+}
+
+function jsonResponse(
+  body: unknown,
+  status: number,
+  headers?: Record<string, string>
+): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', ...headers }
   })
 }
 
@@ -31,6 +50,9 @@ async function verifyRecaptcha(token: string): Promise<boolean | Error> {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ secret: RECAPTCHA_SECRET_KEY, response: token })
     })
+    if (!res.ok) {
+      throw new Error(`reCAPTCHA verify HTTP ${res.status}`)
+    }
     return (await res.json()) as RecaptchaVerifyResponse
   })
 
@@ -47,10 +69,7 @@ export default async function handler(
   _ctx: Context
 ): Promise<Response> {
   if (req.method !== 'POST') {
-    return jsonResponse(
-      { error: 'Method Not Allowed' },
-      405
-    )
+    return jsonResponse({ error: 'Method Not Allowed' }, 405, { Allow: 'POST' })
   }
 
   if (!HUBSPOT_PORTAL_ID || !HUBSPOT_FORM_ID || !RECAPTCHA_SECRET_KEY) {
@@ -66,7 +85,7 @@ export default async function handler(
   }
 
   const { recaptchaToken, fields, context, legalConsentOptions } = body
-  if (!recaptchaToken || !Array.isArray(fields)) {
+  if (!recaptchaToken || !isValidFields(fields)) {
     return jsonResponse({ error: 'Missing recaptchaToken or fields' }, 400)
   }
 

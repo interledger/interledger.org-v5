@@ -215,7 +215,7 @@ export const ui = {
     'subscribe.expect.community':
       'Discover valuable insights from the Interledger Community',
     'subscribe.expect.dev_updates':
-      'Stay up to speed with developer updates with Tech Byes',
+      'Stay up to speed with developer updates with Tech Bytes',
     'subscribe.expect.trends':
       'Read about the latest trends in digital financial innovation',
     'subscribe.email': 'Email',
@@ -536,7 +536,7 @@ export const ui = {
     'subscribe.expect.community':
       'Descubre información valiosa de la comunidad Interledger',
     'subscribe.expect.dev_updates':
-      'Mantente al día con las novedades para desarrolladores con Tech Byes',
+      'Mantente al día con las novedades para desarrolladores con Tech Bytes',
     'subscribe.expect.trends':
       'Lee sobre las últimas tendencias en innovación financiera digital',
     'subscribe.email': 'Correo electrónico',
