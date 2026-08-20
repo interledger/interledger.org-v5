@@ -69,7 +69,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
   description={t('subscribe.description')}
 >
   <main class="pt-2xl pb-4xl desktop:min-h-screen">
-    <div class="mx-auto max-w-content min-w-90 px-[5%] min-[1600px]:px-0">
+    <div class="mx-auto max-w-content min-w-90 px-lg tablet:px-xl">
       <div class="mb-xl">
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
@@ -111,11 +111,11 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
             width={645}
             height={564}
             loading="eager"
-            pictureClass="order-first tablet:order-last desktop:order-first"
+            pictureClass="order-first shrink-0 tablet:order-last desktop:order-first"
             class="h-16 w-18.25 object-contain tablet:h-65.5 tablet:w-75 desktop:h-30.5 desktop:w-35"
           />
 
-          <div class="p-xl">
+          <div class="min-w-0 py-xl tablet:flex-1">
             <div
               id="success-message"
               class="hidden outline-none"
@@ -220,7 +220,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                             type="checkbox"
                             name="im_interested_in"
                             value={option.value}
-                            class="mt-0.5 size-4 shrink-0 accent-primary"
+                            class="mt-1 size-4 shrink-0 accent-primary"
                           />
                           <span>{option.label}</span>
                         </label>
@@ -255,126 +255,122 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                   </div>
                 </div>
 
-                <div id="subscribe-step-2" class="hidden">
-                  <div class="flex flex-col gap-xl">
-                    <div class="flex flex-col gap-md dark:border-neutral-75">
-                      <p
-                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                <div id="subscribe-step-2" class="flex flex-col gap-xl hidden">
+                  <div class="flex flex-col gap-md dark:border-neutral-75">
+                    <p
+                      class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                    >
+                      {t('subscribe.consent_communications_intro')}
+                    </p>
+                    <label
+                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                    >
+                      <input
+                        type="checkbox"
+                        id="consent-communications"
+                        name="consent_communications"
+                        required
+                        aria-required="true"
+                        disabled
+                        class="mt-1 size-4 shrink-0 accent-primary"
+                      />
+                      <span>
+                        {t('subscribe.consent_communications_label')}
+                        <span aria-hidden="true" class="text-primary">*</span>
+                      </span>
+                    </label>
+
+                    <p
+                      class="text-body-sm-standard pl-xl text-neutral-150 dark:text-neutral-50"
+                    >
+                      {t('subscribe.consent_processing_intro')}
+                    </p>
+                    <label
+                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                    >
+                      <input
+                        type="checkbox"
+                        id="consent-processing"
+                        name="consent_processing"
+                        required
+                        aria-required="true"
+                        disabled
+                        class="mt-1 size-4 shrink-0 accent-primary"
+                      />
+                      <span>
+                        {t('subscribe.consent_processing_label')}
+                        <span aria-hidden="true" class="text-primary">*</span>
+                      </span>
+                    </label>
+
+                    <p
+                      class="text-body-sm-standard pl-xl text-neutral-150 dark:text-neutral-50"
+                    >
+                      {t('subscribe.consent_privacy_notice_pre')}{' '}
+                      <a
+                        href={privacyPolicyHref}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        class="text-body-sm-standard underline"
                       >
-                        {t('subscribe.consent_communications_intro')}
-                      </p>
-                      <label
-                        class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                        {t('subscribe.privacy_policy_link_text')}
+                      </a>
+                      {t('subscribe.consent_privacy_notice_post')}
+                    </p>
+                  </div>
+
+                  <div class="flex flex-col gap-sm">
+                    <div id="recaptcha-container"></div>
+                    <p
+                      id="captcha-error"
+                      class={errorClasses}
+                      role="alert"
+                      tabindex="-1"
+                    >
+                      {t('subscribe.error.captcha')}
+                    </p>
+                    <p
+                      id="submit-error"
+                      class={errorClasses}
+                      role="alert"
+                      tabindex="-1"
+                    >
+                      {t('subscribe.error.submit')}
+                    </p>
+                    <div class="flex flex-wrap gap-xl">
+                      <Button
+                        type="button"
+                        id="subscribe-back"
+                        variant="secondary"
+                        size="lg"
                       >
-                        <input
-                          type="checkbox"
-                          id="consent-communications"
-                          name="consent_communications"
-                          required
-                          aria-required="true"
-                          disabled
-                          class="mt-0.5 size-4 shrink-0 accent-primary"
+                        {t('subscribe.back')}
+                      </Button>
+                      <Button
+                        type="submit"
+                        id="subscribe-submit"
+                        variant="primary"
+                        iconSide="right"
+                        size="lg"
+                        data-label-default={t('subscribe.submit')}
+                        data-label-busy={t('subscribe.submitting')}
+                        data-umami-event="button_form"
+                        data-umami-event-base-component="form"
+                        data-umami-event-link-text={t('subscribe.submit')}
+                        data-umami-event-lang={routeLocale}
+                        data-umami-event-current-path={currentPath}
+                        data-umami-event-current-section="foundation"
+                      >
+                        <span id="subscribe-submit-label"
+                          >{t('subscribe.submit')}</span
+                        >
+                        <Icon
+                          slot="icon-right"
+                          name="arrow-right"
+                          class="size-5 shrink-0"
+                          aria-hidden="true"
                         />
-                        <span>
-                          {t('subscribe.consent_communications_label')}
-                          <span aria-hidden="true" class="text-primary">*</span>
-                        </span>
-                      </label>
-
-                      <p
-                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
-                      >
-                        {t('subscribe.consent_processing_intro')}
-                      </p>
-                      <label
-                        class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
-                      >
-                        <input
-                          type="checkbox"
-                          id="consent-processing"
-                          name="consent_processing"
-                          required
-                          aria-required="true"
-                          disabled
-                          class="mt-0.5 size-4 shrink-0 accent-primary"
-                        />
-                        <span>
-                          {t('subscribe.consent_processing_label')}
-                          <span aria-hidden="true" class="text-primary">*</span>
-                        </span>
-                      </label>
-
-                      <p
-                        class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
-                      >
-                        {t('subscribe.consent_privacy_notice_pre')}{' '}
-                        <a
-                          href={privacyPolicyHref}
-                          target="_blank"
-                          rel="noopener noreferrer nofollow"
-                          class="text-body-sm-standard underline"
-                        >
-                          {t('subscribe.privacy_policy_link_text')}
-                        </a>
-                        {t('subscribe.consent_privacy_notice_post')}
-                      </p>
-                    </div>
-
-                    <div class="flex flex-col gap-sm">
-                      <div id="recaptcha-container"></div>
-                      <p
-                        id="captcha-error"
-                        class={errorClasses}
-                        role="alert"
-                        tabindex="-1"
-                      >
-                        {t('subscribe.error.captcha')}
-                      </p>
-                      <p
-                        id="submit-error"
-                        class={errorClasses}
-                        role="alert"
-                        tabindex="-1"
-                      >
-                        {t('subscribe.error.submit')}
-                      </p>
-                      <div class="flex flex-wrap gap-xl">
-                        <Button
-                          type="button"
-                          id="subscribe-back"
-                          variant="secondary"
-                          size="lg"
-                        >
-                          {t('subscribe.back')}
-                        </Button>
-                        <Button
-                          type="submit"
-                          id="subscribe-submit"
-                          variant="primary"
-                          iconSide="right"
-                          size="lg"
-                          data-label-default={t('subscribe.submit')}
-                          data-label-busy={t('subscribe.submitting')}
-                          data-umami-event="button_form"
-                          data-umami-event-base-component="form"
-                          data-umami-event-link-text={t('subscribe.submit')}
-                          data-umami-event-lang={routeLocale}
-                          data-umami-event-current-path={currentPath}
-                          data-umami-event-current-section="subscribe"
-                          data-umami-event-destination-path=""
-                          data-umami-event-destination-section=""
-                        >
-                          <span id="subscribe-submit-label"
-                            >{t('subscribe.submit')}</span
-                          >
-                          <Icon
-                            slot="icon-right"
-                            name="arrow-right"
-                            class="size-5 shrink-0"
-                            aria-hidden="true"
-                          />
-                        </Button>
-                      </div>
+                      </Button>
                     </div>
                   </div>
                 </div>
