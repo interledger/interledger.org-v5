@@ -49,7 +49,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   data-component="HackathonHeader"
 >
   <nav
-    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
+    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
     aria-labelledby="block-hackathon-navigation-menu"
     id="block-hackathon-navigation"
     data-nav
@@ -57,7 +57,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     <h2 class="sr-only" id="block-hackathon-navigation-menu">{navLabel}</h2>
     <a
       href={homeHref}
-      class="flex items-center self-center flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
+      class="flex items-center self-center flex-none desktop:col-start-1 desktop:col-end-2 desktop:justify-self-start desktop:z-[1]"
       aria-label={logoLabel}
       {...navLink(homeHref, undefined, logoLabel)}
     >

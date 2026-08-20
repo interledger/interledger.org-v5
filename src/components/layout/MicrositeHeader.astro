@@ -45,7 +45,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   role="banner"
 >
   <nav
-    class="flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
+    class="flex items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:gap-xl max-desktop:h-[var(--site-header-height)]"
     role="navigation"
     aria-labelledby="block-microsite-navigation-menu"
     id="block-microsite-navigation"
@@ -54,7 +54,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
     <h2 class="sr-only" id="block-microsite-navigation-menu">{navLabel}</h2>
     <a
       href={homePath}
-      class="w-[11em] flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
+      class="w-[11em] flex-none desktop:col-start-1 desktop:col-end-2 desktop:justify-self-start desktop:z-[1]"
       aria-label={logoLabel}
       {...navLink(homePath, undefined, logoLabel)}
     >

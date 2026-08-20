@@ -71,7 +71,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
   data-component="FoundationHeader"
 >
   <nav
-    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[auto_1fr_auto] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
+    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
@@ -81,7 +81,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
     </h2>
     <a
       href={homeHref}
-      class="flex-none desktop:col-start-1 desktop:col-end-2 desktop:z-[1]"
+      class="flex-none desktop:col-start-1 desktop:col-end-2 desktop:justify-self-start desktop:z-[1]"
       aria-label={logoLabel}
       {...navLink(homeHref, undefined, logoLabel)}
     >

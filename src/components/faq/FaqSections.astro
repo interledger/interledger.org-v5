@@ -40,7 +40,7 @@ async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
 const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 ---
 
-<div class="flex flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
+<div class="flex w-full flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
   <div class="hidden tablet:block tablet:w-3/10 tablet:shrink-0">
     <FaqSectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
@@ -50,7 +50,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 
   <div
     data-faq-mobile-sections
-    class="flex flex-col gap-3xl tablet:border-l tablet:border-neutral-25 dark:tablet:border-neutral-75 tablet:pl-3xl tablet:w-7/10 tablet:gap-6xl"
+    class="flex w-full flex-col gap-3xl tablet:border-l tablet:border-neutral-25 dark:tablet:border-neutral-75 tablet:pl-3xl tablet:w-7/10 tablet:gap-6xl"
   >
     {
       sectionsWithIds.map((section, index) => (
@@ -59,9 +59,9 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
           data-faq-mobile-section
           data-faq-section
           id={section.id}
-          class="group/section scroll-mt-(--site-header-height-desktop)"
+          class="group/section w-full scroll-mt-(--site-header-height-desktop)"
         >
-          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-link dark:bg-neutral-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent dark:tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
+          <summary class="flex w-full list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-link dark:bg-neutral-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent dark:tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
             <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-link tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg dark:text-neutral-0 dark:tablet:group-open/section:text-neutral-0">
               {section.heading}
             </h2>
@@ -75,9 +75,9 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
               <details
                 open={itemIndex === 0}
                 data-faq-mobile-item
-                class="group/item border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl dark:border-neutral-75"
+                class="group/item w-full border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl dark:border-neutral-75"
               >
-                <summary class="flex cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden">
+                <summary class="flex w-full cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden">
                   <span class="text-h4-md tablet:text-h4-md desktop:text-h4-lg text-neutral-100 group-open/item:text-neutral-900 dark:text-neutral-0 dark:group-open/item:text-neutral-0">
                     {item.question}
                   </span>
