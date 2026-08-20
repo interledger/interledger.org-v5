@@ -19,7 +19,7 @@ const htmlContent = content
 ---
 
 <div
-  class="mb-xl text-h3-md tablet:text-h3-lg [&_p]:text-h3-md tablet:[&_p]:text-h3-lg [&_p]:mb-lg [&_strong]:font-semibold [&_em]:italic [&_a]:text-primary [&_a]:underline"
+  class="mb-xl text-h3-md tablet:text-h3-lg [&_p]:text-h3-md tablet:[&_p]:text-h3-lg [&_p]:mb-lg [&_strong]:font-semibold [&_em]:italic"
 >
   {htmlContent ? <Fragment set:html={htmlContent} /> : <slot />}
 </div>

@@ -4,12 +4,6 @@
  */
 
 @layer components {
-  /* === Breadcrumb nav links === */
-  [data-nav-links] a {
-    color: var(--color-primary);
-    text-decoration-line: none;
-  }
-
   /* Shared responsive wrapper used by Foundation/Summit header menus. */
   .header-nav-wrapper {
     will-change: clip-path;

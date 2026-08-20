@@ -50,7 +50,7 @@
       }
     }
 
-    /* Links: visible underline, accent color */
+    /* Links: visible underline, accent color. Dark mode & hackathon are handled through the `--color-link` / `--color-link-hover` variables. */
     a {
       color: var(--color-link);
       text-decoration-line: underline;

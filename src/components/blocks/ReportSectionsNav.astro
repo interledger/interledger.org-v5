@@ -30,20 +30,20 @@ const t = useTranslations(uiLocale)
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
-            class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-primary"
+            class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-link"
           >
             <span class="flex items-start gap-md pl-xs">
               <span
                 aria-hidden="true"
-                class="size-xs shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-primary"
+                class="size-xs shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-link"
               />
-              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-primary">
+              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-link">
                 {section.heading}
               </span>
             </span>
             <span
               aria-hidden="true"
-              class="h-px w-0 bg-primary transition-all duration-200 group-data-[active=true]:w-full"
+              class="h-px w-0 bg-link transition-all duration-200 group-data-[active=true]:w-full"
             />
           </a>
         </li>
