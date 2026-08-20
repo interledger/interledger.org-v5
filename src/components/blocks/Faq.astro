@@ -42,24 +42,26 @@ const renderedItems = items
 <section
   data-component="faq"
   aria-label={heading || t('faq.block_label')}
-  class="flex flex-col gap-xl"
+  class:list={['mb-6xl', heading && 'flex flex-col gap-block-heading']}
 >
   {
     heading && (
-      <h2 class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900 dark:text-neutral-0">
+      <h2 class="m-0 text-h3 text-neutral-900 tablet:text-h3-md dark:text-neutral-0 desktop:text-h3-lg">
         {heading}
       </h2>
     )
   }
-  {
-    renderedItems ? (
-      renderedItems.map((item) => (
-        <FaqItem question={item.question}>
-          <Fragment set:html={item.answerHtml} />
-        </FaqItem>
-      ))
-    ) : (
-      <slot />
-    )
-  }
+  <div class="flex flex-col gap-xl">
+    {
+      renderedItems ? (
+        renderedItems.map((item) => (
+          <FaqItem question={item.question}>
+            <Fragment set:html={item.answerHtml} />
+          </FaqItem>
+        ))
+      ) : (
+        <slot />
+      )
+    }
+  </div>
 </section>

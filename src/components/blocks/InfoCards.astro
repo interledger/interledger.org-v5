@@ -36,11 +36,11 @@ const htmlCards = await Promise.all(
 ---
 
 <div
-  class="mx-auto flex min-w-90 max-w-content flex-col gap-xl px-lg tablet:px-xl [&_h2]:mb-0"
+  class="mx-auto flex min-w-90 max-w-content flex-col gap-block-heading px-lg tablet:px-xl"
 >
   {
     heading && (
-      <h2 class="text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
+      <h2 class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900">
         {heading}
       </h2>
     )
