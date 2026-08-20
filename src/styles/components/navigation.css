@@ -159,6 +159,11 @@
   color: var(--color-neutral-25);
 }
 
+/* HamburgerButton's outline defaults to --color-link. Foundation's dark header still wants orchid, so override it back here. */
+.foundation-header[data-theme='dark'] [data-component='HamburgerButton']:focus-visible {
+  outline-color: var(--color-orchid-100);
+}
+
 /* Nav button hover/focus backgrounds (desktop only) */
 @media (min-width: 1200px) {
   :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
@@ -226,7 +231,7 @@
   border-color: var(--color-neutral-100);
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] [aria-current='page'] {
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='page'] {
   background-color: var(--color-neutral-100);
   color: var(--color-orchid-50);
 }
@@ -256,6 +261,13 @@
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
   border-color: var(--color-neutral-100);
+}
+
+/* LanguageSwitcher's outline defaults to --color-link, which now resolves to
+   apricot on every dark header. Foundation's dark header still wants orchid,
+   so override it back here. */
+.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:focus-visible {
+  outline-color: var(--color-orchid-100);
 }
 
 /* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
