@@ -1219,7 +1219,7 @@ export interface ApiPodcastPagePodcastPage extends Struct.CollectionTypeSchema {
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
-          preset: 'basicMarkdownPreset'
+          preset: 'defaultMarkdown'
         }
       > &
       Schema.Attribute.SetPluginOptions<{

@@ -59,7 +59,7 @@
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",
       "options": {
-        "preset": "basicMarkdownPreset"
+        "preset": "defaultMarkdown"
       },
       "pluginOptions": {
         "i18n": {
