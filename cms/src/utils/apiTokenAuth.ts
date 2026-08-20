@@ -15,7 +15,15 @@
  * extra environment variable.
  */
 
-const BEARER_PREFIX = 'Bearer '
+/**
+ * Matches an `Authorization` header that carries bearer credentials.
+ *
+ * The scheme name is case-insensitive (RFC 7235 section 2.1) and one or more
+ * spaces separate it from the token. Strapi's own api-token middleware accepts
+ * `bearer`, `BEARER` and extra spacing, so this route must not be stricter than
+ * every other authenticated route in the same application.
+ */
+const BEARER_CREDENTIALS = /^bearer\s+(\S.*)$/i
 
 /** The subset of `admin::api-token` this module uses. */
 interface ApiTokenService {
@@ -37,10 +45,12 @@ interface StrapiWithService {
  * failure, so this is a `null` and not an `Error`.
  */
 export function extractBearerToken(header: unknown): string | null {
+  // Node keeps only the first `Authorization` header, so this is a string or
+  // undefined in practice. The type guard covers the rest of the union anyway,
+  // because a wrong type must not become a truthy token.
   if (typeof header !== 'string') return null
-  if (!header.startsWith(BEARER_PREFIX)) return null
-  const token = header.slice(BEARER_PREFIX.length).trim()
-  return token.length > 0 ? token : null
+  const token = BEARER_CREDENTIALS.exec(header.trim())?.[1]
+  return token ? token.trim() : null
 }
 
 /**

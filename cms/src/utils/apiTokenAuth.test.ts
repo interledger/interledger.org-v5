@@ -35,6 +35,32 @@ describe('extractBearerToken', () => {
   it('does not strip the prefix from the middle of the value', () => {
     expect(extractBearerToken('Token Bearer abc123')).toBeNull()
   })
+
+  // RFC 7235 section 2.1 makes the scheme name case-insensitive, and Strapi's
+  // own api-token middleware accepts every one of these. This route must not be
+  // stricter than the rest of the application.
+  it.each(['bearer abc123', 'BEARER abc123', 'BeArEr abc123'])(
+    'accepts a case-varied scheme: %s',
+    (header) => {
+      expect(extractBearerToken(header)).toBe('abc123')
+    }
+  )
+
+  it('accepts more than one space after the scheme', () => {
+    expect(extractBearerToken('Bearer     abc123')).toBe('abc123')
+  })
+
+  it('accepts a tab after the scheme', () => {
+    expect(extractBearerToken('Bearer\tabc123')).toBe('abc123')
+  })
+
+  it('ignores leading and trailing whitespace on the header', () => {
+    expect(extractBearerToken('  Bearer abc123  ')).toBe('abc123')
+  })
+
+  it('still rejects a scheme that only starts with bearer', () => {
+    expect(extractBearerToken('Bearerish abc123')).toBeNull()
+  })
 })
 
 function strapiWith(service: unknown) {
