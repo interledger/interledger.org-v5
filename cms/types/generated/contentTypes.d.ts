@@ -1215,6 +1215,18 @@ export interface ApiPodcastPagePodcastPage extends Struct.CollectionTypeSchema {
         number
       >
     publishedAt: Schema.Attribute.DateTime
+    textSection: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'defaultMarkdown'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

@@ -16,6 +16,14 @@ const GRID_COLUMNS_CLASS = {
   Three: 'desktop:grid-cols-3'
 } as const satisfies Record<string, string>
 
+// `default` matches the historical standalone spacing (MDX prose flow).
+// `tight` is for callers that already control the gap above the grid
+// themselves (e.g. a preceding text block with its own bottom margin).
+const TOP_SPACING_CLASS = {
+  default: 'mt-6xl',
+  tight: 'mt-2xl'
+} as const satisfies Record<string, string>
+
 interface SecondaryCta {
   link: string
   text: string
@@ -50,6 +58,8 @@ interface Props {
   titleCards?: StrapiCard[]
   resourceCards?: StrapiCard[]
   navigationCards?: StrapiCard[]
+  /** Space above the grid. Defaults to the standalone MDX-prose spacing. */
+  topSpacing?: keyof typeof TOP_SPACING_CLASS
 }
 
 const {
@@ -60,7 +70,8 @@ const {
   infoCards,
   titleCards,
   resourceCards,
-  navigationCards
+  navigationCards,
+  topSpacing = 'default'
 }: Props = Astro.props
 const { routeLocale } = Astro.locals
 const cardGridPath = Astro.url.pathname
@@ -142,7 +153,7 @@ const headingId = headingText
   aria-label={headingId ? undefined : ariaLabel}
   aria-labelledby={headingId}
   class:list={[
-    'mt-6xl mb-6xl [&_h3]:!mb-0',
+    `${TOP_SPACING_CLASS[topSpacing]} mb-6xl [&_h3]:!mb-0`,
     headingText && 'flex flex-col gap-2xl'
   ]}
 >

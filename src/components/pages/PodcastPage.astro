@@ -5,6 +5,7 @@ import {
   localizeRoute,
   stripPagination,
   translateTerm,
+  parseMarkdown,
   PODCAST_PAGE_SLUG,
   CATEGORY_SEGMENT
 } from '@/utils'
@@ -47,6 +48,7 @@ const {
   heroImageMobile,
   heroImageMobileAlt,
   heroCtas,
+  textSection,
   titleCards,
   ctaStrip
 } = podcastPage
@@ -76,6 +78,16 @@ const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
   { name: heroTitle ?? title, href: podcastPath }
 ]
+
+// Same landing-only gate as the title cards below.
+const textSectionHtml =
+  isLandingPage && textSection
+    ? await parseMarkdown(textSection, {
+        page: 'podcast',
+        pathname: Astro.url.pathname,
+        lang: routeLocale
+      })
+    : undefined
 ---
 
 <FoundationPageLayout title={pageTitle} description={pageDescription}>
@@ -96,8 +108,13 @@ const breadcrumbs = [
 
     {
       isLandingPage && (
-        <section class="py-4xl">
-          <div class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content">
+        <section class="pt-4xl px-lg tablet:px-xl">
+          {textSectionHtml && (
+            <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
+              <div data-prose set:html={textSectionHtml} />
+            </div>
+          )}
+          <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
             <CardGrid
               ariaLabel={titleCards.ariaLabel}
               columns={titleCards.columns}
@@ -125,7 +142,7 @@ const breadcrumbs = [
 
     <section class="py-4xl">
       <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
+        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
       >
         <PodcastList podcasts={page.data} />
         <Pagination
@@ -142,7 +159,7 @@ const breadcrumbs = [
 
     <section class="tablet:py-4xl">
       <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content"
+        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
       >
         <CtaStrip
           heading={ctaStrip.heading}

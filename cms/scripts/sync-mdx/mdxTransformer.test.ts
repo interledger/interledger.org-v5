@@ -22,6 +22,7 @@ import {
   buildFaqPayload,
   buildReportPayload,
   buildHackathonPagePayload,
+  buildPodcastPagePayload,
   createMediaUploadResolver,
   buildProfilePayload,
   buildBlogPayload,
@@ -36,7 +37,8 @@ import {
   reportFrontmatterSchema,
   hackathonPageFrontmatterSchema,
   profileFrontmatterSchema,
-  foundationBlogFrontmatterSchema
+  foundationBlogFrontmatterSchema,
+  podcastPageFrontmatterSchema
 } from './siteSchemas'
 import type { StrapiEntry } from './strapiClient'
 import type { StrapiUploadContext } from './mdxTransformer'
@@ -2496,6 +2498,73 @@ describe('buildReportPayload', () => {
         }
       ])
     })
+  })
+})
+
+const basePodcastPageFrontmatter = {
+  title: 'Podcasts',
+  description: 'A short description of the podcast landing page.',
+  titleCards: {
+    columns: 'Three',
+    ariaLabel: 'Featured podcast series',
+    cards: [
+      {
+        heading: 'Future Money',
+        description: 'A podcast about the future of money.',
+        secondaryCta: { text: 'Listen now', link: '/podcast' }
+      }
+    ]
+  },
+  podcasts: [
+    {
+      title: 'Episode one',
+      description: 'The first episode.',
+      url: 'https://podcast.interledger.org/@futuremoneypodcast/episodes/one/embed/light',
+      series: 'Future Money'
+    }
+  ],
+  ctaStrip: {
+    heading: 'Listen now',
+    description: 'Catch every episode.',
+    buttonText: 'Listen',
+    buttonLink: '/podcast'
+  },
+  locale: 'en'
+}
+
+describe('buildPodcastPagePayload', () => {
+  // textSection was added to the schema and the Strapi content type but
+  // silently dropped by this builder — the return object never read it, so
+  // sync:mdx appeared to succeed while leaving the field empty in Strapi.
+  it('includes textSection when present', async () => {
+    const mdx = createMdxFile({
+      pathSlug: 'podcast',
+      frontmatter: {
+        ...basePodcastPageFrontmatter,
+        textSection: 'Financial systems shape who gets to participate.'
+      }
+    })
+
+    const payload = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      mdx
+    )
+    expect((payload as Record<string, unknown>).textSection).toBe(
+      'Financial systems shape who gets to participate.'
+    )
+  })
+
+  it('sets textSection to null when absent', async () => {
+    const mdx = createMdxFile({
+      pathSlug: 'podcast',
+      frontmatter: basePodcastPageFrontmatter
+    })
+
+    const payload = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      mdx
+    )
+    expect((payload as Record<string, unknown>).textSection).toBeNull()
   })
 })
 
