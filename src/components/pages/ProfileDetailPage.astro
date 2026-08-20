@@ -66,12 +66,9 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 
 const Layout = getSectionPageLayout(entry.data.section)
 const noindex = isDemoPathSlug(entry.data.pathSlug)
-const nameClass = isHackathon
-  ? 'text-h2 text-neutral-0 tablet:text-h2-md desktop:text-h2-lg'
-  : 'text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg'
-const roleClass = isHackathon
-  ? 'inline-block border-b-4 border-lavender-100 text-h4 font-normal text-neutral-0 tablet:text-h4-md desktop:text-h4-lg'
-  : 'inline-block border-b-4 border-orchid-100 text-h4 font-normal text-neutral-900 tablet:text-h4-md desktop:text-h4-lg'
+const textColorClass = isHackathon ? 'text-neutral-0' : 'text-neutral-900'
+const nameClass = `text-h2 ${textColorClass} tablet:text-h2-md desktop:text-h2-lg`
+const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
 ---
 
 <Layout

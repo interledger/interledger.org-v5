@@ -50,9 +50,9 @@
       }
     }
 
-    /* Links: visible underline, accent color */
+    /* Links: visible underline, accent color. Dark mode & hackathon are handled through the `--color-link` / `--color-link-hover` variables. */
     a {
-      color: var(--color-primary);
+      color: var(--color-link);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
       transition:
@@ -60,7 +60,7 @@
         text-decoration-color 200ms ease-in-out;
     }
     a:hover {
-      color: var(--color-orchid-150);
+      color: var(--color-link-hover);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
     }

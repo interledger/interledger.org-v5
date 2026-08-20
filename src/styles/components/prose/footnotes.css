@@ -2,26 +2,20 @@
  * GFM footnote styles (micromark `class="footnotes"` / `data-footnotes`).
  * Shared by foundation prose (reports) and blog articles.
  *
- * Design: primary-colored superscript markers at caption size (13px / 0.8125rem);
- * body copy stays neutral; links use primary with underline.
+ * Design: link-colored superscript markers at caption size (13px / 0.8125rem);
+ * body copy stays neutral; links use --color-link with underline.
  */
 
 @layer components {
   :is([data-prose], [data-prose-blog]) {
-    /* Inline citation markers — 13px primary */
+    /* Inline citation markers — 13px, no color of its own: falls through to
+       `main a` (default.css) for --color-link, same as any other link. */
     a[data-footnote-ref] {
-      color: var(--color-primary);
       font-size: var(--text-caption);
       font-weight: var(--text-caption--font-weight);
       line-height: 1;
       text-decoration-line: none;
       vertical-align: super;
-    }
-
-    a[data-footnote-ref]:hover {
-      color: var(--color-orchid-150);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
     }
 
     /* Footnote list at end of article */
@@ -75,14 +69,14 @@
       margin-block-end: 0;
     }
 
-    /* List markers — 13px primary superscripts */
+    /* List markers — 13px link-colored superscripts */
     .footnotes li::before,
     [data-footnotes] li::before {
       content: counter(footnote);
       position: absolute;
       inset-inline-start: 0;
       top: 0;
-      color: var(--color-primary);
+      color: var(--color-link);
       font-size: var(--text-caption);
       font-weight: var(--text-caption--font-weight);
       line-height: 1.2;
@@ -97,22 +91,16 @@
       color: var(--color-neutral-100);
     }
 
+    /* No color of its own: falls through to `main a` (default.css) for
+       --color-link, same as the footnote-ref marker above. */
     .footnotes a,
     [data-footnotes] a {
-      color: var(--color-primary);
       font-size: inherit;
       line-height: inherit;
       font-weight: var(--text-body-sm-standard--font-weight);
       text-decoration-line: underline;
       text-decoration-color: currentColor;
       overflow-wrap: anywhere;
-    }
-
-    .footnotes a:hover,
-    [data-footnotes] a:hover {
-      color: var(--color-orchid-150);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
     }
 
     .footnotes a.data-footnote-backref,
@@ -131,18 +119,11 @@
 }
 
 /*
- * Dark footnote list still hard-codes charcoal in the layered rules above.
- * Unlayered so list copy, numbers, and links pick up --color-link from
- * .hackathon-main instead of the layout's previous currentColor/apricot.
+ * Dark footnote list still hard-codes charcoal for body copy/borders below.
+ * Link color needs no override here: every link/marker in the layered rules
+ * above now resolves through --color-link, which [data-theme='dark'] /
+ * .hackathon-main (variables.css) already retint on their own.
  */
-html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
-  color: var(--color-link, var(--color-lavender-100));
-}
-
-html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
-  color: var(--color-link-hover, var(--color-lavender-150));
-}
-
 html[data-theme='dark']
   :is([data-prose], [data-prose-blog])
   :is(.footnotes, [data-footnotes]) {
@@ -162,22 +143,4 @@ html[data-theme='dark']
   :is(.footnotes, [data-footnotes])
   p {
   margin-block: 0;
-}
-
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  a,
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  li::before {
-  color: var(--color-link, var(--color-lavender-100));
-}
-
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  a:hover {
-  color: var(--color-link-hover, var(--color-lavender-150));
 }
