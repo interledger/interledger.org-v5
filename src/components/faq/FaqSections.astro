@@ -40,7 +40,9 @@ async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
 const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 ---
 
-<div class="flex w-full flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl">
+<div
+  class="flex w-full flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl"
+>
   <div class="hidden tablet:block tablet:w-3/10 tablet:shrink-0">
     <FaqSectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
