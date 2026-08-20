@@ -1,0 +1,9 @@
+/* Space after a block title. Value lives on --space-block-heading. */
+
+@utility mb-block-heading {
+  margin-bottom: var(--space-block-heading);
+}
+
+@utility gap-block-heading {
+  gap: var(--space-block-heading);
+}

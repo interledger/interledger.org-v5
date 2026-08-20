@@ -49,12 +49,13 @@ const LABEL_CLASS = 'text-left text-neutral-75 dark:text-neutral-0'
   data-component="NumberTiles"
   data-umami-component="number-tiles"
   aria-labelledby={titleId}
+  class:list={[title && 'flex flex-col gap-block-heading']}
 >
   {
     title && titleId && (
       <h2
         id={titleId}
-        class="!mb-3xl font-poppins text-h2 text-neutral-900 tablet:!mb-4xl tablet:text-h2-md dark:text-neutral-0 desktop:text-h2-lg"
+        class="m-0 font-poppins text-h2 text-neutral-900 tablet:text-h2-md dark:text-neutral-0 desktop:text-h2-lg"
       >
         {title}
       </h2>

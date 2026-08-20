@@ -47,12 +47,13 @@ const renderedItems = await Promise.all(
   data-umami-component="agenda"
   aria-labelledby={headingId}
   aria-label={headingId ? undefined : t('agenda.label')}
+  class:list={[renderedHeading && 'flex flex-col gap-block-heading']}
 >
   {
     renderedHeading && headingId && (
       <h2
         id={headingId}
-        class="!mb-3xl text-h4 text-neutral-900 tablet:!mb-4xl tablet:text-h4-md dark:text-neutral-50 desktop:text-h4-lg"
+        class="m-0 text-h4 text-neutral-900 tablet:text-h4-md dark:text-neutral-50 desktop:text-h4-lg"
         set:html={renderedHeading}
       />
     )
