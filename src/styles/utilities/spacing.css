@@ -7,3 +7,25 @@
 @utility gap-block-heading {
   gap: var(--space-block-heading);
 }
+
+/*
+ * Horizontal gutter around the max-w-content column.
+ * 16 / 24 / 60 so the 1440px column never sits flush to the viewport —
+ * desktop 4xl keeps ≥60px between 1200px and 1560px.
+ */
+@utility px-content {
+  padding-inline: var(--spacing-lg);
+
+  @variant tablet {
+    padding-inline: var(--spacing-xl);
+  }
+
+  @variant desktop {
+    padding-inline: var(--spacing-4xl);
+  }
+}
+
+/* Centered content column used inside px-content. */
+@utility content-column {
+  @apply mx-auto w-full max-w-content min-w-[360px];
+}
