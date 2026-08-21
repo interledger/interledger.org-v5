@@ -8,6 +8,7 @@ import {
   validateNoNestedJsx,
   validateReportDate,
   validateReportContent,
+  validateAuthorBio,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -1801,7 +1802,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'author', size: 6 },
         { name: 'link', size: 6 }
       ],
-      [{ name: 'media', size: 6 }],
+      [{ name: 'media', size: 12 }],
       [{ name: 'profileBio', size: 12 }]
     ],
     'shared.related-article': [[{ name: 'slug', size: 8 }]],
@@ -2284,6 +2285,7 @@ export default {
     registerDocumentValidation(strapi, 'api::report.report', (body) =>
       mergeValidationErrors(
         validateReportDate(body),
+        validateAuthorBio(body, 'author_bio'),
         validateReportContent(body),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined

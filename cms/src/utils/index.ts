@@ -82,6 +82,7 @@ export {
   validateGrantInfoCards,
   validateReportDate,
   validateReportContent,
+  validateAuthorBio,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
