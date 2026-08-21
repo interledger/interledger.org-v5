@@ -1,0 +1,158 @@
+---
+import type { Grantee } from '@/utils'
+import { truncateText, useTranslations, buildUmamiAttrs } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+
+interface Props {
+  grantee: Grantee
+}
+
+const { grantee } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const description = grantee.description
+  ? truncateText(grantee.description, 280)
+  : null
+const leadersLabel = grantee.leaders.join(', ')
+
+const tagClasses = `
+  inline-block px-sm py-xs text-body-sm-standard text-neutral-100
+  border border-neutral-50 rounded-full
+`
+
+const metaItemClasses =
+  'flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0'
+
+const detailsAttrs = grantee.projectUrl
+  ? buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      section: 'card',
+      href: grantee.projectUrl,
+      linkText: t('grantee.view_details'),
+      action: 'grantee_details'
+    })
+  : {}
+---
+
+<li
+  data-grantee-card
+  class="m-0 rounded-3xl border border-neutral-50 bg-white p-xl"
+>
+  <article class="flex flex-col gap-lg">
+    <div
+      class="flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl"
+    >
+      <div class="flex min-w-0 flex-col gap-sm">
+        <h3
+          class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg"
+        >
+          {grantee.name}
+        </h3>
+        {
+          grantee.program && (
+            <p class="m-0 text-body-lg-standard text-neutral-75">
+              {grantee.program}
+            </p>
+          )
+        }
+      </div>
+      {
+        grantee.budgetLabel && (
+          <div class="shrink-0 desktop:text-right">
+            <p class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg">
+              <span>{grantee.budgetLabel}</span>
+              <span class="ms-xs align-super text-body-sm-standard text-neutral-75">
+                {t('grantee.currency')}
+              </span>
+            </p>
+            <p class="m-0 text-body-sm-standard text-neutral-75">
+              {t('grantee.amount_label')}
+            </p>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      grantee.tags.length > 0 && (
+        <ul
+          class="flex flex-wrap gap-xs list-none m-0 p-0"
+          aria-label={t('aria.grantee.tags')}
+        >
+          {grantee.tags.map((tag) => (
+            <li class="m-0">
+              <span class={tagClasses}>{tag}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    <ul
+      class="flex flex-col gap-sm list-none m-0 p-0 tablet:flex-row tablet:flex-wrap tablet:gap-xl"
+    >
+      {
+        grantee.country && (
+          <li class:list={[metaItemClasses, 'm-0']}>
+            <Icon name="map-pin" class="size-5 shrink-0 text-neutral-75" />
+            <span>
+              <span class="sr-only">{t('aria.grantee.location')}: </span>
+              {grantee.country}
+            </span>
+          </li>
+        )
+      }
+      {
+        grantee.startLabel && (
+          <li class:list={[metaItemClasses, 'm-0']}>
+            <Icon name="calendar" class="size-5 shrink-0 text-neutral-75" />
+            <time datetime={grantee.startMonth}>
+              <span class="sr-only">{t('aria.grantee.date')}: </span>
+              {grantee.startLabel}
+            </time>
+          </li>
+        )
+      }
+      {
+        leadersLabel && (
+          <li class:list={[metaItemClasses, 'm-0']}>
+            <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+            <span>
+              <span class="sr-only">{t('grantee.project_lead')}: </span>
+              {leadersLabel}
+            </span>
+          </li>
+        )
+      }
+    </ul>
+
+    {
+      description && (
+        <p class="m-0 rounded-2xl bg-ice-indigo-50 p-lg text-body-lg-standard text-neutral-100">
+          {description}
+        </p>
+      )
+    }
+
+    {
+      grantee.projectUrl && (
+        <div class="flex flex-wrap gap-md">
+          <LinkButton
+            href={grantee.projectUrl}
+            external
+            variant="primary"
+            size="sm"
+            iconSide="right"
+            {...detailsAttrs}
+          >
+            {t('grantee.view_details')}
+            <Icon slot="icon-right" name="external-link" class="size-4" />
+          </LinkButton>
+        </div>
+      )
+    }
+  </article>
+</li>

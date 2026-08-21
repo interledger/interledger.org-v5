@@ -95,8 +95,8 @@
               "href": "/grant"
             },
             {
-              "label": "Grantee Directory",
-              "href": "/grantee-directory"
+              "label": "Grantee Database",
+              "href": "/grant/grantee-database"
             }
           ]
         },

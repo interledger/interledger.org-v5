@@ -95,8 +95,8 @@
               "href": "/grant"
             },
             {
-              "label": "Directorio de beneficiarios",
-              "href": "/grantee-directory"
+              "label": "Base de datos de beneficiarios",
+              "href": "/grant/grantee-database"
             }
           ]
         },
