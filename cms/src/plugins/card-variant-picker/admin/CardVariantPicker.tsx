@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useForm } from '@strapi/admin/strapi-admin'
 import { isCardVariant, type CardVariant } from './variantLabels'
 import { VARIANTS } from './variantIcons'
@@ -157,7 +158,14 @@ function applyCardFieldVisibility(
   const active = CARD_GRID_VARIANT_FIELDS[variant as CardVariant]
   if (!active) return
 
-  const root = findCardGridRoot(prefix, cardFields) ?? document.body
+  // No unscoped document.body fallback: an unresolved root means this
+  // instance's DOM hasn't painted yet (e.g. a just-added dynamic-zone block).
+  // Falling back to document.body would let the label-text matching in
+  // findFieldAnchor resolve to a DIFFERENT Card Grid instance on the same
+  // page. Skip this pass; the mount timeouts and MutationObserver retry it.
+  const root = findCardGridRoot(prefix, cardFields)
+  if (!root) return
+
   for (const fieldKey of cardFields) {
     const container = findFieldContainer(prefix, fieldKey, root, cardFields)
     if (!container) continue
@@ -194,7 +202,16 @@ export default function CardVariantPicker({
     : name
   const setFieldValue = useForm('CardVariantPicker', (form) => form.onChange)
 
-  const contentTypeUid = useMemo(() => getContentTypeUidFromLocation(), [])
+  // Content-type detection must react to SPA navigation: the content-manager
+  // edit view is a single route (`:collectionType/:slug/:id`) with no remount
+  // key on `:slug`, so navigating between two different content types' edit
+  // pages can reuse this mounted instance — recompute on pathname change
+  // rather than baking in whatever the URL was at first mount.
+  const location = useLocation()
+  const contentTypeUid = useMemo(
+    () => getContentTypeUidFromLocation(),
+    [location.pathname]
+  )
   // Fail closed when the content-type UID can't be parsed from the URL.
   // getAllowedCardGridVariants(null) returns every variant (used by MDX /
   // server paths with no UID); the admin picker must not unlock restricted
