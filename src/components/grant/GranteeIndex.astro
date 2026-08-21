@@ -24,7 +24,7 @@ const t = useTranslations(routeLocale)
   </p>
   <div class="mt-3xl flex flex-col gap-sm">
     <h2
-      class="m-0 text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-150"
+      class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-150"
     >
       {t('grantee.subtitle')}
     </h2>
@@ -37,7 +37,7 @@ const t = useTranslations(routeLocale)
 </div>
 
 <ol
-  class="list-none p-0 m-0 mt-4xl flex flex-col gap-2xl tablet:mt-5xl desktop:mt-5xl"
+  class="list-none p-0 m-0 mt-3xl flex flex-col gap-2xl"
   aria-label={t('aria.grantee.list')}
 >
   {grantees.map((grantee) => <GranteeCard grantee={grantee} />)}
