@@ -1,6 +1,6 @@
 ---
 import type { Grantee } from '@/utils'
-import { truncateText, useTranslations, buildUmamiAttrs } from '@/utils'
+import { useTranslations, buildUmamiAttrs } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -13,14 +13,25 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const description = grantee.description
-  ? truncateText(grantee.description, 280)
-  : null
+const descriptionId = `grantee-desc-${grantee.id}`
 const leadersLabel = grantee.leaders.join(', ')
 
 const tagClasses = `
-  inline-block px-sm py-xs text-body-sm-standard text-neutral-100
+  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
   border border-neutral-50 rounded-full
+  transition-all duration-200 ease-in-out
+  hover:border-neutral-75 hover:text-neutral-150
+  focus-visible:outline-none focus-visible:border-link
 `
+
+const tagAttrs = (tag: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    section: 'cta',
+    linkText: `#${tag}`,
+    action: 'grantee_tag'
+  })
 
 const metaItemClasses =
   'flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0'
@@ -84,7 +95,9 @@ const detailsAttrs = grantee.projectUrl
         >
           {grantee.tags.map((tag) => (
             <li class="m-0">
-              <span class={tagClasses}>{tag}</span>
+              <a href={Astro.url.pathname} class={tagClasses} {...tagAttrs(tag)}>
+                {tag}
+              </a>
             </li>
           ))}
         </ul>
@@ -127,9 +140,29 @@ const detailsAttrs = grantee.projectUrl
 
     {
       description && (
-        <p class="m-0 rounded-2xl bg-ice-indigo-50 p-lg text-body-lg-standard text-neutral-100">
-          {description}
-        </p>
+        <div
+          data-grantee-description
+          class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
+        >
+          <p
+            id={descriptionId}
+            data-grantee-description-text
+            class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100"
+          >
+            {description}
+          </p>
+          <button
+            type="button"
+            hidden
+            data-grantee-description-toggle
+            class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+            aria-expanded="false"
+            aria-controls={descriptionId}
+          >
+            {t('grantee.read_more')}
+            <Icon name="arrow-down" class="size-4" />
+          </button>
+        </div>
       )
     }
 

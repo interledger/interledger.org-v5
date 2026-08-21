@@ -124,15 +124,19 @@ export const ui = {
     'pagination.pages': '{label} pages',
     'pagination.previous': 'Previous page',
     'pagination.next': 'Next page',
-    'grantee.title': 'Grantee Database',
+    'grantee.title': 'Grantee Directory',
+    'grantee.meta_description':
+      "Browse the Interledger Foundation's grantee directory: community organizations, researchers, technologists, and advocates building open financial systems around the world.",
     'grantee.description':
-      'Projects and organisations funded by the Interledger Foundation, working to expand access to digital financial services around the world.',
+      'Projects and organizations funded by the Interledger Foundation, working to expand access to digital financial services around the world.',
+    'grantee.subtitle': 'The Work in Practice',
     'grantee.intro':
-      'Interledger grantees work across the world in different financial environments, from regions with limited infrastructure to highly connected digital economies. They include community-based organisations, researchers, technologists and advocates who build infrastructure, advance research, shape policy and expand how financial systems work in practice.',
+      'Interledger grantees work across the world in different financial environments, from regions with limited infrastructure to highly connected digital economies. They include community-based organizations, researchers, technologists, and advocates who build infrastructure, advance research, shape policy, and expand how financial systems work in practice.',
     'grantee.amount_label': 'Total amount awarded',
     'grantee.currency': 'USD',
     'grantee.project_lead': 'Project lead',
     'grantee.view_details': 'View project details',
+    'grantee.read_more': 'read more',
     'aria.grantee.list': 'Grantee projects',
     'aria.grantee.tags': 'Thematic tags',
     'aria.grantee.location': 'Location',
@@ -451,15 +455,19 @@ export const ui = {
     'pagination.pages': '',
     'pagination.previous': '',
     'pagination.next': '',
-    'grantee.title': 'Base de datos de beneficiarios',
+    'grantee.title': 'Directorio de beneficiarios',
+    'grantee.meta_description':
+      'Consulte el directorio de beneficiarios de la Interledger Foundation: organizaciones comunitarias, investigadores, tecnólogos y defensores que construyen sistemas financieros abiertos en todo el mundo.',
     'grantee.description':
       'Proyectos y organizaciones financiados por la Interledger Foundation, que trabajan para ampliar el acceso a los servicios financieros digitales en todo el mundo.',
+    'grantee.subtitle': 'El trabajo en la práctica',
     'grantee.intro':
       'Los beneficiarios de Interledger trabajan en todo el mundo en distintos entornos financieros, desde regiones con infraestructura limitada hasta economías digitales altamente conectadas. Incluyen organizaciones comunitarias, investigadores, tecnólogos y defensores que construyen infraestructura, impulsan la investigación, dan forma a las políticas y amplían el funcionamiento práctico de los sistemas financieros.',
     'grantee.amount_label': 'Monto total otorgado',
     'grantee.currency': 'USD',
     'grantee.project_lead': 'Líder del proyecto',
     'grantee.view_details': 'Ver detalles del proyecto',
+    'grantee.read_more': 'leer más',
     'aria.grantee.list': 'Proyectos de beneficiarios',
     'aria.grantee.tags': 'Etiquetas temáticas',
     'aria.grantee.location': 'Ubicación',
