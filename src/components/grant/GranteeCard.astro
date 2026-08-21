@@ -1,6 +1,10 @@
 ---
 import type { Grantee } from '@/utils'
-import { useTranslations, buildUmamiAttrs } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  parseMarkdownInline
+} from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -13,6 +17,11 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const description = grantee.description
+  ? parseMarkdownInline(grantee.description, {
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : null
 const descriptionId = `grantee-desc-${grantee.id}`
 const leadersLabel = grantee.leaders.join(', ')
 
@@ -147,10 +156,9 @@ const detailsAttrs = grantee.projectUrl
           <p
             id={descriptionId}
             data-grantee-description-text
-            class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100"
-          >
-            {description}
-          </p>
+            class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
+            set:html={description}
+          />
           <button
             type="button"
             hidden
