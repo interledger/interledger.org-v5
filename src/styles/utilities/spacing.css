@@ -21,7 +21,7 @@
   }
 
   @variant desktop {
-    padding-inline: var(--spacing-4xl);
+    padding-inline: var(--spacing-5xl);
   }
 }
 
