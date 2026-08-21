@@ -105,6 +105,16 @@
       ],
       "required": true,
       "min": 1
+    },
+    "author_bio": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.article-bio",
+      "repeatable": true
     }
   }
 }

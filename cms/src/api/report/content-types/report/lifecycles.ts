@@ -21,5 +21,9 @@ export default createFlatLocaleMdxLifecycle<Report, 'api::report.report'>({
     getContentPath(getTargetRepoRoot(), 'reports', locale),
   toMdxFilename: pathSlugToMdxFilename,
   generateContent: generateReportMdx,
-  populate: { content: REPORT_CONTENT_POPULATE, date: true }
+  populate: {
+    content: REPORT_CONTENT_POPULATE,
+    date: true,
+    author_bio: { populate: { media: { populate: { image: true } } } }
+  }
 })

@@ -1366,6 +1366,12 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    author_bio: Schema.Attribute.Component<'shared.article-bio', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     content: Schema.Attribute.DynamicZone<['blocks.report-section']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
