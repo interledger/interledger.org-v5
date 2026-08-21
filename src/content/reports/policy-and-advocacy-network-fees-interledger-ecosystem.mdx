@@ -1,0 +1,116 @@
+---
+title: 'Network Fees in the Interledger Ecosystem'
+pathSlug: 'policy-and-advocacy/network-fees-interledger-ecosystem'
+section: 'foundation'
+heading: 'Network Fees in the Interledger Ecosystem'
+description: 'The Interledger Foundation bridges technology, public policy, and community needs to build inclusivity and accessibility within digital financial systems.'
+introParagraph: "The Interledger Foundation stewards the development of the Interledger suite of free, open-source technologies that enable frictionless, inclusive, and interoperable payments across disparate financial systems. We promote digital public infrastructure that unlocks innovation in digital financial services while advancing affordability and accessibility for end-users.\n\nInterledger technologies do not impose any mandatory fees, nor does the Interledger Foundation set, enforce, or collect fees. Interledger-enabled payment networks and independent node operators, including financial institutions that deploy Interledger technologies, have the capacity to determine their own settlement strategies and cost-recovery needs, and thus may determine their own internal pricing models based on bilateral peering arrangements, infrastructure costs, or regulatory responsibilities.\n\nIt is important to distinguish between Interledger’s open-source technologies and any specific network implementation. Interledger technologies can be used by any group of participants to create their own payment network. As such, there is no single, centralized Interledger Network under the control of the Interledger Foundation or any other body. Multiple independent or overlapping networks may emerge, some composed of regulated financial institutions, and others operating in domain-specific or local contexts. Grantmaking of the Interledger Foundation, and participation in Interledger Foundation-developed reference implementations, is restricted to regulated Account Servicing Entities.\n\nWe acknowledge that network fees are a common business model for sustaining the payment rails that underpin digital payment networks. However, the Interledger Foundation advocates for operational approaches that prioritize low-cost models, especially for sending and receiving institutions, because open payment systems like Brazil’s Pix and India’s UPI1 have demonstrated that reducing network fees improves digital financial inclusion."
+date:
+  publishDate: '2025-10-20'
+locale: 'en'
+---
+
+<ReportSection>
+
+## 1. The Architecture of the Interledger Network
+
+<ReportText type="Paragraph">
+
+The current operational model of Interledger comprises the following nodes:
+
+- Closed-Loop Nodes: These Interledger deployments operate within a single institution’s internal ledger.
+- Cross-Financial Service Provider Nodes: The Interledger Protocol facilitates bilateral peering between two or more financial service providers who have agreed to do business with one another. 
+
+These nodes operate under bespoke, bilateral peering agreements/contracts that determine liquidity terms, settlement engines, and, if applicable, fees. The Interledger Foundation does not impose any network fees.
+
+In the future, Interledger-enabled payment networks may also support connector nodes: intermediaries that enable routing of payments between networks that do not directly peer with one another. While this form of multi-hop routing is not yet widely implemented in current Interledger tools like Rafiki, the protocol itself supports it at a technical level, and such configurations are ultimately up to individual network participants. As a result, the emergence of connectors is not constrained by any single implementation or centralized decision.<br />
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 2. Our Priority: Keeping Interledger Transactions Free or At-Cost
+
+<ReportText type="Paragraph">
+
+A significant innovation of the Interledger Protocol is the de-coupling of payment negotiation from settlement methods. By enabling greater competition at the settlement layer, Interledger theoretically improves the efficiency of routing decisions and empowers users to discover lower-cost payment paths. While this may not always reduce the backend processing burden for Interledger nodes, it creates opportunities for cost savings at the ecosystem level. Policymakers can amplify these savings by requiring up-front disclosure of all network fees and foreign-exchange spreads, so that consumers and small businesses are never surprised by hidden costs. Such fee-transparency mandates have proved effective in driving down prices in open-access payment systems like Brazil’s Pix and India’s UPI. As a nonprofit with a mission to increase equitable access to financial networks, we therefore advocate for zero-cost and no-margin pricing models that pass these efficiencies directly on to consumers and small businesses, particularly where financial institutions can sustain themselves through complementary revenue streams beyond per-transaction fees.
+
+| Network                    | Fee Model                                                                              | Transaction Costs                                                                        | Micropayment Viability                                                                                                                             |
+| -------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Credit Cards               | Interchange + merchant discount rate                                                   | High (e.g., $0.30 + 2.9%)                                                                | Low - fees prohibitive                                                                                                                             |
+| SEPA <br />(Europe)        | Fixed per-transaction fee                                                              | Low but not standardized; instant payments more expensive than slower settlement options | Low - fees prohibitive for real-time payments                                                                                                      |
+| Pix (Brazil)               | Government-supported, zero or low fees                                                 | Low (up to 0.22% for merchants)                                                          | No - minimum transaction size                                                                                                                      |
+| Digital Wallet like PayPal | Variable fee per transaction                                                           | High (e.g., \~3% + fixed fee + foreign exchange conversion fee)                          | Not supported                                                                                                                                      |
+| Interledger                | No protocol fees; bilateral and potentially dynamic pricing for transaction settlement | Always visible before transaction execution                                              | High - designed for low-value transactions as low as $0.0001 (currently only transactions as low as $0.01 are supported by existing network nodes) |
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 3. Pricing Models in the Interledger Ecosystem
+
+<ReportText type="Paragraph">
+
+The cost of settling transactions on the Interledger network is shaped by bilateral agreements and market conditions. Because Interledger decentralizes settlement and pricing power, in principle Interledger gives rise to a more dynamic and competitive environment. Connectors enable multiple routing paths through the network, introducing price competition and choice. To unlock and scale this competitive potential, the Interledger Foundation directs its grantmaking toward fostering new network nodes and broader network interoperability among both emerging players and established financial institutions. In contrast, when Interledger is used only between internal systems or a limited number of direct peers, this competitive advantage is not realized. Since 2020, we have granted over $21 million to grantees and awardees in over 40 countries, with the overarching goal to prevent the fee-based concentration of market power, and to encourage transparent pricing where fee structures are visible and predictable to all actors. 
+
+We promote business model innovation and believe there are alternative business models that can make it possible for financial service providers to make Interledger-enabled transactions free to end-users. These may include the provision of value-added services, subscriptions with tiered pricing based on usage, or predictable flat-fees for high-value transfers.
+
+From a policy standpoint, fee transparency, inclusion, and open access are mutually reinforcing objectives. Regulatory measures that (i) obligate intermediaries to publish real-time price quotes and post-transaction receipts, (ii) prohibit unjustified surcharges on low-value transfers, and (iii) safeguard non-discriminatory interconnection between competing nodes can ensure that the dynamic routing capabilities of Interledger translate into tangible consumer benefits rather than new rent-seeking opportunities.<br />
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 4. Our Action Plan
+
+<ReportText type="Paragraph">
+
+As part of our commitment to supporting open and inclusive digital financial infrastructure, the Interledger Foundation will:
+
+Support financial service providers to deploy Interledger, and to build needed capacity, through our Financial Services Grants.
+
+Encourage our financial service provider grantees who are engaged in money transmission to publish pricing data to the World Bank Remittance Price Database.
+
+Support the work of the United Nations Internet Governance Forum Dynamic Coalition on Digital Financial Inclusion as it works to promote equitable pricing models for cross-border payment systems.
+
+Invite independent research and pilots on new business models, including simulations and regional sandboxes, through our Call for Papers and grantmaking to academic institutions.
+
+Continue promoting the principle of keeping transaction fees at-cost, zero-margin for sending and receiving Cross-Financial Service Provider Nodes, while incentivizing healthy competition through Connector Nodes where they are beneficial.
+
+Connector Nodes can enhance reach, enable services like currency conversion, and potentially lower ecosystem costs, but they also introduce regulatory considerations. As Interledger does not enforce a centralized routing mechanism, each node selects its own paths and bears responsibility for compliance. The Interledger Protocol provides transparency into costs and paths prior to transaction execution, however due diligence obligations remain with each participating node.
+
+Engage proactively with central banks, financial-sector regulators, and competition authorities to co-design proportionate, technology-neutral supervisory frameworks that preserve space for innovation while ensuring consumer protection and systemic integrity.
+
+Convene multistakeholder policy dialogues at the annual Interledger Summit that bring together industry, civil-society, and regulators to build consensus on fair-pricing requirements for cross-border payments.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 5. Key Takeaways for Policymakers
+
+<ReportText type="Paragraph">
+
+The Interledger Foundation does not impose network fees at the protocol level or when other Interledger technologies are deployed; any fees are determined independently by bilateral agreements between participating financial institutions.
+
+The Interledger Foundation advocates for at-cost, zero-margin fees at sending and receiving nodes to promote digital financial inclusion. We believe this is possible and sound when cross-subsidized through business model innovation.
+
+By decoupling payment negotiation from a fixed settlement path, Interledger technologies enable multiple potential routes between sender and receiver. This decentralization promotes pricing competition between intermediaries and discourages rent-seeking behavior, as no single entity can monopolize a route. This flexible structure supports innovation and avoids the rigidity of centralized or mandated fee schedules.
+
+Where financial service providers opt to publish transaction cost data, such as through Rafiki’s telemetry feature, this transparency can support global initiatives like the World Bank Remittance Price Database. The Interledger Foundation encourages this practice among its grantees to promote accountability and affordability in cross-border payments.
+
+Policy should promote fee transparency, inclusion, and competition.
+
+Regulatory engagement is welcomed.
+
+</ReportText>
+
+</ReportSection>
