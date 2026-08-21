@@ -182,14 +182,23 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'reports'),
       apiId: 'reports',
       schema: reportFrontmatterSchema,
-      buildPayload: (mdx, _strapi, existing, _dryRun) => {
+      buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
-        // No resolveRelation/resolveMediaUpload: the report content zone only
-        // allows blocks.report-section (with nested blocks.report-text),
-        // neither of which resolves relations or media.
-        return buildReportPayload(reportFrontmatterSchema, mdx, existing, {
-          locale
-        })
+        // Report content blocks don't resolve relations/media, but
+        // strapiUploadContext is still needed for author_bio images.
+        return buildReportPayload(
+          reportFrontmatterSchema,
+          mdx,
+          existing,
+          { locale },
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          }
+        )
       }
     },
     'hackathon-pages': {

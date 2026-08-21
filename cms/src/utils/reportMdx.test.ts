@@ -155,3 +155,95 @@ describe('generateReportMdx', () => {
     expect(data.localizes).toBeUndefined()
   })
 })
+
+describe('generateReportMdx — author bios', () => {
+  it('omits authorBios from frontmatter when author_bio is absent', () => {
+    const { data } = matter(generateReportMdx(makeReport()))
+    expect(data.authorBios).toBeUndefined()
+  })
+
+  it('omits authorBios from frontmatter when author_bio is empty', () => {
+    const { data } = matter(generateReportMdx(makeReport({ author_bio: [] })))
+    expect(data.authorBios).toBeUndefined()
+  })
+
+  it('throws when a bio has a null author', () => {
+    expect(() =>
+      generateReportMdx(makeReport({ author_bio: [{ author: null }] }))
+    ).toThrow('Author Bio: Name is required')
+  })
+
+  it('throws when a bio has an empty or whitespace-only author', () => {
+    expect(() =>
+      generateReportMdx(makeReport({ author_bio: [{ author: '' }] }))
+    ).toThrow('Author Bio: Name is required')
+
+    expect(() =>
+      generateReportMdx(makeReport({ author_bio: [{ author: '   ' }] }))
+    ).toThrow('Author Bio: Name is required')
+  })
+
+  it('writes multiple bios with author and link', () => {
+    const { data } = matter(
+      generateReportMdx(
+        makeReport({
+          author_bio: [
+            { author: 'Jane Doe', link: 'https://example.com/jane' },
+            { author: 'John Smith' }
+          ]
+        })
+      )
+    )
+    expect(data.authorBios).toEqual([
+      { author: 'Jane Doe', link: 'https://example.com/jane' },
+      { author: 'John Smith' }
+    ])
+  })
+
+  it('writes text from profileBio via ckeditorFieldToMarkdown', () => {
+    const { data } = matter(
+      generateReportMdx(
+        makeReport({
+          author_bio: [{ author: 'Jane Doe', profileBio: 'A short bio.' }]
+        })
+      )
+    )
+    expect(data.authorBios[0].text).toBe('A short bio.')
+  })
+
+  it('writes image and imageAlt, falling back to author for imageAlt', () => {
+    const { data } = matter(
+      generateReportMdx(
+        makeReport({
+          author_bio: [
+            {
+              author: 'Jane Doe',
+              media: { image: { url: '/uploads/jane.jpg', name: 'jane.jpg' } }
+            }
+          ]
+        })
+      )
+    )
+    expect(data.authorBios[0].image).toBe('/uploads/jane.jpg')
+    expect(data.authorBios[0].imageAlt).toBe('Jane Doe')
+  })
+
+  it('writes explicit media.alternativeText for imageAlt over the author fallback', () => {
+    const { data } = matter(
+      generateReportMdx(
+        makeReport({
+          author_bio: [
+            {
+              author: 'Jane Doe',
+              media: {
+                image: { url: '/uploads/jane.jpg', name: 'jane.jpg' },
+                alternativeText: 'Jane Doe headshot'
+              }
+            }
+          ]
+        })
+      )
+    )
+    expect(data.authorBios[0].imageAlt).toBe('Jane Doe headshot')
+  })
+})

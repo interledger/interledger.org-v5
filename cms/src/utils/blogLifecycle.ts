@@ -13,6 +13,7 @@ import {
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
+import type { AuthorBio } from './contentTypes'
 import type { Core } from '@strapi/strapi'
 
 declare const strapi: Core.Strapi
@@ -52,16 +53,7 @@ interface BlogResult {
     image?: { name: string; url: string }
     alternativeText?: string | null
   }
-  articleBio?: {
-    // Nullable: Strapi populates an empty bio component's unset author as null.
-    author: string | null
-    link?: string
-    profileBio?: string
-    media?: {
-      image?: { url: string; name: string }
-      alternativeText?: string | null
-    }
-  }[]
+  articleBio?: AuthorBio[]
   categories?: { categoryValue: string }[]
   relatedArticles?: { slug: string }[]
   localizations: { pathSlug?: string; locale?: string }[]

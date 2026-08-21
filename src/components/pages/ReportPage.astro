@@ -6,6 +6,8 @@ import ReportIntro from '@/components/blocks/ReportIntro.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
 import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
+import AuthorByline from '@/components/shared/AuthorByline.astro'
+import AuthorBio from '@/components/shared/AuthorBio.astro'
 import {
   type Locale,
   useTranslations,
@@ -40,8 +42,10 @@ const entry = allReports.find(
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent, headings } = await render(entry)
-const { title, heading, description, date } = entry.data
+const { title, heading, description, date, authorBios } = entry.data
 const hasBody = Boolean(entry.body?.trim())
+const bioTextEntries = authorBios?.filter((bio) => bio.text) ?? []
+const hasAuthorBios = bioTextEntries.length > 0
 // generateReportMdx/reportIntroHandler guarantee <ReportIntro> is always the
 // leading element when present — see ReportIntro.astro's comment for why
 // this offsets ReportSectionsNav's grid row below.
@@ -78,8 +82,15 @@ const Layout = getSectionPageLayout(entry.data.section)
         {heading}
       </h1>
       {
+        authorBios?.length > 0 && (
+          <div class="mb-xl">
+            <AuthorByline authors={authorBios} />
+          </div>
+        )
+      }
+      {
         date && (
-          <div class="flex items-center gap-sm mb-xl tablet:mb-3xl">
+          <div class="flex items-center gap-sm">
             <time
               datetime={date.publishDate.toISOString()}
               class="text-body-lg-standard text-neutral-900 tablet:text-body-lg-standard-md"
@@ -105,8 +116,12 @@ const Layout = getSectionPageLayout(entry.data.section)
         )
       }
       {
-        hasBody && (
-          <section data-prose aria-label={t('report.body')}>
+        (hasBody || hasAuthorBios) && (
+          <section
+            data-prose
+            aria-label={t('report.body')}
+            class="flex flex-col gap-3xl mt-4xl desktop:mt-6xl *:data-footnotes:order-last "
+          >
             {sections.length > 0 ? (
               // CSS grid, not flex, so the auto-generated footnotes section
               // (a sibling of <ReportSection> we don't control) and the
@@ -136,6 +151,7 @@ const Layout = getSectionPageLayout(entry.data.section)
                 components={{ ReportIntro, ReportSection, ReportText }}
               />
             )}
+            {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
           </section>
         )
       }

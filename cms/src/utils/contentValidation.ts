@@ -724,11 +724,44 @@ export function validatePodcastPageFields(
   )
 }
 
+/** Validate that every bio in a repeatable `shared.article-bio` field has an author. */
+function validateBioAuthors(
+  bios: { author: string | null }[] | undefined,
+  fieldName: string
+): FieldError[] {
+  const fieldErrors: FieldError[] = []
+  for (const [i, bio] of (bios ?? []).entries()) {
+    if (!bio.author?.trim()) {
+      fieldErrors.push({
+        message: 'Author Bio: Name is required',
+        path: [fieldName, i, 'author']
+      })
+    }
+  }
+  return fieldErrors
+}
+
 /**
- * Validate a blog post's Article Bio and Related Articles components. Both
- * fields are marked `required` in their component schemas, so Strapi
- * enforces them on create; this fills the same partial-update gap as the
- * other validators here.
+ * Validate a repeatable `shared.article-bio` field (e.g. `articleBio` on
+ * blog, `author_bio` on report): every bio present must have an author.
+ *
+ * Returns a `ValidationError` on failure, `undefined` on success.
+ */
+export function validateAuthorBio(
+  body: unknown,
+  fieldName: string
+): errors.ValidationError | undefined {
+  const bios = (body as Record<string, unknown>)?.[fieldName]
+  return combineFieldErrors(
+    validateBioAuthors(Array.isArray(bios) ? bios : undefined, fieldName)
+  )
+}
+
+/**
+ * Validate a blog post's Related Articles component (Article Bio itself is
+ * validated via {@link validateAuthorBio}). `relatedArticles` is marked
+ * `required` in its component schema, so Strapi enforces it on create; this
+ * fills the same partial-update gap as the other validators here.
  *
  * Returns a `ValidationError` combining every missing field found, `undefined` otherwise.
  */
@@ -737,14 +770,6 @@ export function validateBlogFields(post: {
   relatedArticles?: { slug: string }[]
 }): errors.ValidationError | undefined {
   const fieldErrors: FieldError[] = []
-  for (const [i, bio] of (post.articleBio ?? []).entries()) {
-    if (!bio.author?.trim()) {
-      fieldErrors.push({
-        message: 'Author Bio: Name is required',
-        path: ['articleBio', i, 'author']
-      })
-    }
-  }
   for (const [i, related] of (post.relatedArticles ?? []).entries()) {
     if (!related.slug) {
       fieldErrors.push({
@@ -753,7 +778,10 @@ export function validateBlogFields(post: {
       })
     }
   }
-  return combineFieldErrors(fieldErrors)
+  return mergeValidationErrors(
+    validateAuthorBio(post, 'articleBio'),
+    combineFieldErrors(fieldErrors)
+  )
 }
 
 /**

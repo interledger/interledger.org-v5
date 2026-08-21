@@ -1,12 +1,12 @@
 ---
 import { ensureAbsoluteUrl, useTranslations, buildUmamiAttrs } from '@/utils'
-import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
+import type { AuthorBioType } from '@/schemas/content.ts'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import FallbackAuthorIcon from '@/components/blog/FallbackAuthorIcon.astro'
+import FallbackAuthorIcon from '@/components/shared/FallbackAuthorIcon.astro'
 import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
-  authors: FoundationBlogFrontmatterType['articleBios']
+  authors: AuthorBioType[]
 }
 
 const { authors } = Astro.props

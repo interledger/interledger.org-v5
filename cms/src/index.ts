@@ -8,6 +8,7 @@ import {
   validateNoNestedJsx,
   validateReportDate,
   validateReportContent,
+  validateAuthorBio,
   normalizeNavigationInput,
   validateHeroFields,
   validateGrantPagePrimaryCta,
@@ -878,7 +879,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short Description',
       introParagraph: 'Intro Paragraph',
       date: 'Date',
-      content: 'Report Sections'
+      content: 'Report Sections',
+      author_bio: 'Author'
     },
     'api::podcast-page.podcast-page': {
       title: 'Page Title',
@@ -1706,8 +1708,9 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'heading', size: 12 }],
       [{ name: 'description', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'author_bio', size: 12 }],
       [{ name: 'date', size: 12 }],
       [{ name: 'introParagraph', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -1801,7 +1804,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'author', size: 6 },
         { name: 'link', size: 6 }
       ],
-      [{ name: 'media', size: 6 }],
+      [{ name: 'media', size: 12 }],
       [{ name: 'profileBio', size: 12 }]
     ],
     'shared.related-article': [[{ name: 'slug', size: 8 }]],
@@ -2300,6 +2303,7 @@ export default {
     registerDocumentValidation(strapi, 'api::report.report', (body) =>
       mergeValidationErrors(
         validateReportDate(body),
+        validateAuthorBio(body, 'author_bio'),
         validateReportContent(body),
         validateContentBlocks(
           Array.isArray(body.content) ? body.content : undefined

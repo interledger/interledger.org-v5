@@ -13,6 +13,7 @@ import {
 } from './mdx'
 import { escMdxBraces } from '../serializers/shared'
 import { serializeContent } from '../serializers/blocks'
+import type { AuthorBio } from './contentTypes'
 
 export interface ReportMdxDate {
   publishDate?: string
@@ -28,6 +29,7 @@ export interface ReportMdxInput {
   introParagraph?: string | null
   date?: ReportMdxDate | null
   content?: Array<{ __component: string; [key: string]: unknown }> | null
+  author_bio?: AuthorBio[] | null
   locale?: string
 }
 
@@ -43,6 +45,31 @@ function dateFrontmatter(
 }
 
 /**
+ * Build the frontmatter authorBios array, omitting it entirely when no bios
+ * are present. Throws when a bio has no author — defense-in-depth mirroring
+ * generateBlogMDX's identical check (the primary enforcement point is
+ * validateAuthorBio in contentValidation.ts, which runs at save time).
+ */
+function authorBiosFrontmatter(
+  bios: AuthorBio[] | null | undefined
+): Record<string, unknown>[] | undefined {
+  if (!bios || bios.length === 0) return undefined
+  return bios.map((bio) => {
+    if (!bio.author?.trim()) throw new Error('Author Bio: Name is required')
+    const text = bio.profileBio ? ckeditorFieldToMarkdown(bio.profileBio) : null
+    return {
+      author: bio.author,
+      ...(bio.link ? { link: bio.link } : {}),
+      ...(text ? { text } : {}),
+      ...(bio.media?.image ? { image: bio.media.image.url } : {}),
+      ...(bio.media?.image
+        ? { imageAlt: bio.media.alternativeText ?? bio.author }
+        : {})
+    }
+  })
+}
+
+/**
  * Serialize a report page into MDX (frontmatter + markdown body).
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
@@ -53,6 +80,7 @@ export function generateReportMdx(
   const resolvedLocale = report.locale ?? defaultLang
   const isLocalized = resolvedLocale !== defaultLang
   const date = dateFrontmatter(report.date)
+  const authorBios = authorBiosFrontmatter(report.author_bio)
 
   const frontmatter: Record<string, unknown> = {
     title: report.title,
@@ -61,6 +89,7 @@ export function generateReportMdx(
     heading: report.heading,
     description: report.description,
     ...(date ? { date } : {}),
+    ...(authorBios ? { authorBios } : {}),
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }

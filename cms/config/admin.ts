@@ -32,8 +32,9 @@ export default ({ env }) => {
     auth: {
       secret: env('ADMIN_JWT_SECRET'),
       sessions: {
-        maxRefreshTokenLifespan: 2592000,
-        maxSessionLifespan: 2592000
+        maxRefreshTokenLifespan: 63072000, // 2 years
+        maxSessionLifespan: 63072000, // 2 years
+        idleSessionLifespan: 259200 // 72 hours
       }
     },
     apiToken: {

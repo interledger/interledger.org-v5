@@ -935,22 +935,65 @@ function reportDatePayload(
 }
 
 /**
- * Builds a Strapi payload for a report MDX file.
- *
- * Maps frontmatter fields and MDX body to the report Strapi schema. No
- * media or relation resolution needed — reports have no managed media
- * fields, and the content zone only allows blocks.report-section (with
- * nested blocks.report-text), neither of which references either. `date` is
- * sent as `null` when absent so a date removed in Astro clears in Strapi
- * too, rather than surviving as a stale field.
- *
- * Returns `Record<string, unknown> | Error`.
+ * Resolve a repeatable `articleBios`/`authorBios` frontmatter array into the
+ * Strapi `shared.article-bio` component payload shape — shared by report's
+ * `author_bio` and blog's `articleBio`, which both use this component. Each
+ * bio's image resolves to a Strapi upload ID only when a strapiUploadContext
+ * is provided; otherwise media is null.
+ */
+async function buildAuthorBiosPayload(
+  bios:
+    | Array<{
+        author: string
+        link?: string
+        text?: string
+        image?: string
+        imageAlt?: string | null
+      }>
+    | undefined,
+  strapiUploadContext?: StrapiUploadContext
+): Promise<
+  Array<{
+    author: string
+    link: string | null
+    profileBio: string | null
+    media: { image: number; alternativeText: string | null } | null
+  }>
+> {
+  return Promise.all(
+    (bios ?? []).map(async (bio) => {
+      const profileImageId = strapiUploadContext
+        ? (await getImageFromStrapi(strapiUploadContext, {
+            image: bio.image
+          })) || null
+        : null
+
+      return {
+        author: bio.author,
+        link: bio.link || null,
+        profileBio: bio.text || null,
+        media: profileImageId
+          ? {
+              image: profileImageId,
+              alternativeText: optionalAltText(bio.imageAlt)
+            }
+          : null
+      }
+    })
+  )
+}
+
+/**
+ * Builds a Strapi payload for a report MDX file. `date` is sent as `null`
+ * when absent so a removed date clears in Strapi instead of going stale.
+ * `author_bio` images resolve to upload IDs when strapiUploadContext is given.
  */
 export async function buildReportPayload(
   schema: typeof reportFrontmatterSchema,
   mdx: MDXFile,
   existingEntry: StrapiEntry | null = null,
-  parserCtx?: ParserContext
+  parserCtx?: ParserContext,
+  strapiUploadContext?: StrapiUploadContext
 ): Promise<Record<string, unknown> | Error> {
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
@@ -972,6 +1015,10 @@ export async function buildReportPayload(
       existingEntry,
       parserCtx
     )
+    const authorBio = await buildAuthorBiosPayload(
+      parsed.authorBios,
+      strapiUploadContext
+    )
 
     return {
       title: parsed.title,
@@ -981,6 +1028,7 @@ export async function buildReportPayload(
       description: parsed.description,
       introParagraph: nullOrValue(introExtraction.introParagraph),
       date: reportDatePayload(parsed.date),
+      author_bio: authorBio,
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
     }
@@ -1106,25 +1154,9 @@ export async function buildBlogPayload(
       slug
     }))
 
-    const articleBio = await Promise.all(
-      (parsed.articleBios ?? []).map(async (bio) => {
-        const profileImageId =
-          (await getImageFromStrapi(strapiUploadContext, {
-            image: bio.image
-          })) || null
-
-        return {
-          author: bio.author,
-          link: bio.link || null,
-          profileBio: bio.text || null,
-          media: profileImageId
-            ? {
-                image: profileImageId,
-                alternativeText: optionalAltText(bio.imageAlt)
-              }
-            : null
-        }
-      })
+    const articleBio = await buildAuthorBiosPayload(
+      parsed.articleBios,
+      strapiUploadContext
     )
 
     // featureImage/thumbnailImage alt lives on featureMedia/thumbnailMedia

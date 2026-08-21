@@ -3,7 +3,8 @@ import {
   foundationBlogFrontmatterSchema,
   grantPageFrontmatterSchema,
   hackathonPageFrontmatterSchema,
-  podcastPageFrontmatterSchema
+  podcastPageFrontmatterSchema,
+  reportFrontmatterSchema
 } from './content'
 
 const base = {
@@ -349,5 +350,48 @@ describe('hackathonPageFrontmatterSchema', () => {
       ]
     })
     expect(result.success).toBe(false)
+  })
+})
+
+describe('reportFrontmatterSchema', () => {
+  const reportBase = {
+    title: 'The Role of Stablecoins',
+    pathSlug: 'policy-and-advocacy/role-stablecoins',
+    section: 'foundation' as const,
+    heading: 'The Role of Stablecoins',
+    description: 'A short description of the report, 120 to 160 characters.',
+    locale: 'en'
+  }
+
+  it('accepts a report without authorBios and defaults it to an empty array', () => {
+    const parsed = reportFrontmatterSchema.parse(reportBase)
+    expect(parsed.authorBios).toEqual([])
+  })
+
+  it('accepts a report with multiple full author bios', () => {
+    const parsed = reportFrontmatterSchema.parse({
+      ...reportBase,
+      authorBios: [
+        {
+          author: 'Jane Doe',
+          link: 'https://example.com/jane',
+          text: 'A short bio.',
+          image: '/uploads/jane.jpg',
+          imageAlt: 'Jane Doe headshot'
+        },
+        { author: 'John Smith' }
+      ]
+    })
+    expect(parsed.authorBios).toHaveLength(2)
+    expect(parsed.authorBios[0].link).toBe('https://example.com/jane')
+    expect(parsed.authorBios[1].author).toBe('John Smith')
+  })
+
+  it('accepts an author bio with only an author', () => {
+    const parsed = reportFrontmatterSchema.parse({
+      ...reportBase,
+      authorBios: [{ author: 'Jane Doe' }]
+    })
+    expect(parsed.authorBios).toEqual([{ author: 'Jane Doe' }])
   })
 })
