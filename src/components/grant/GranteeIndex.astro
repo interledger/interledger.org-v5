@@ -18,11 +18,16 @@ const t = useTranslations(routeLocale)
   {t('grantee.title')}
 </h1>
 
-<p
-  class="m-0 max-w-[50rem] text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
->
-  {t('grantee.description')}
-</p>
+<div class="flex max-w-[50rem] flex-col gap-lg">
+  <p class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-75">
+    {t('grantee.description')}
+  </p>
+  <p
+    class="m-0 text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+  >
+    {t('grantee.intro')}
+  </p>
+</div>
 
 <ol
   class="list-none p-0 m-0 mt-4xl flex flex-col gap-2xl tablet:mt-5xl desktop:mt-5xl"
