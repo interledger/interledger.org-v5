@@ -1,11 +1,11 @@
 ---
-import type { ArticleBioType } from '@/schemas/content'
+import type { AuthorBioType } from '@/schemas/content'
 import { useTranslations, formatDate, twMerge } from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
-import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
+import FallbackAuthorIcon from '@/components/shared/FallbackAuthorIcon.astro'
 
 interface Props {
-  bio: ArticleBioType | null
+  bio: AuthorBioType | null
   date: Date
   readingTime: number
   featured: boolean

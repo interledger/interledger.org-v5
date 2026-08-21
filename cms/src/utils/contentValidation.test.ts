@@ -9,6 +9,7 @@ import {
   validateGrantInfoCards,
   validateReportDate,
   validateReportContent,
+  validateAuthorBio,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
@@ -1041,6 +1042,42 @@ describe('validateBlogFields', () => {
       ['articleBio', '0', 'author'],
       ['relatedArticles', '0', 'slug']
     ])
+  })
+})
+
+describe('validateAuthorBio', () => {
+  it('returns undefined when the field is absent', () => {
+    expect(validateAuthorBio({}, 'author_bio')).toBeUndefined()
+  })
+
+  it('returns undefined when the field is an empty array', () => {
+    expect(validateAuthorBio({ author_bio: [] }, 'author_bio')).toBeUndefined()
+  })
+
+  it('returns undefined when every bio has an author', () => {
+    expect(
+      validateAuthorBio(
+        { author_bio: [{ author: 'Jane' }, { author: 'John' }] },
+        'author_bio'
+      )
+    ).toBeUndefined()
+  })
+
+  it('flags a bio missing an author with an index-aware path, using the given field name', () => {
+    const err = validateAuthorBio(
+      { author_bio: [{ author: 'Jane' }, { author: null }] },
+      'author_bio'
+    )
+    expect(err?.message).toBe('Author Bio: Name is required')
+    expect(err?.details.errors[0].path).toEqual(['author_bio', '1', 'author'])
+  })
+
+  it('flags a bio with a blank or whitespace-only author', () => {
+    const err = validateAuthorBio(
+      { author_bio: [{ author: '   ' }] },
+      'author_bio'
+    )
+    expect(err?.details.errors[0].path).toEqual(['author_bio', '0', 'author'])
   })
 })
 

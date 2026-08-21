@@ -33,7 +33,7 @@ const blogCategories = [
 
 export type BlogCategory = (typeof blogCategories)[number]
 
-const ArticleBioSchema = z.object({
+const AuthorBioSchema = z.object({
   author: z.string(),
   link: z.string().optional(),
   text: z.string().optional(),
@@ -41,7 +41,7 @@ const ArticleBioSchema = z.object({
   imageAlt: z.string().nullable().optional()
 })
 
-export type ArticleBioType = z.infer<typeof ArticleBioSchema>
+export type AuthorBioType = z.infer<typeof AuthorBioSchema>
 
 export const foundationBlogFrontmatterSchema = z.object({
   title: z.string().min(1, 'title is required'),
@@ -63,7 +63,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   featureImageMobileAlt: z.string().nullable().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
-  articleBios: z.array(ArticleBioSchema).optional().default([]),
+  articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
   // Exactly 3 slugs of related posts when populated; optional for now so builds pass.
   relatedArticles: z.array(z.string()).max(3).optional().default([]),
@@ -332,6 +332,7 @@ export const reportFrontmatterSchema = z.object({
   description: z.string().min(1, 'description is required'),
   introParagraph: z.string().nullable().optional(),
   date: reportDateSchema.optional(),
+  authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),
   localizes: z.string().optional()
 })

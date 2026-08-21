@@ -1,6 +1,9 @@
 // Error handling
 export { tryCatchAsync } from './tryCatch'
 
+// Shared content-type shapes
+export { type AuthorBio } from './contentTypes'
+
 // Code block
 export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
 
@@ -82,6 +85,7 @@ export {
   validateGrantInfoCards,
   validateReportDate,
   validateReportContent,
+  validateAuthorBio,
   validateProfileCta,
   validateCtaStrip,
   validateHeroFields,
