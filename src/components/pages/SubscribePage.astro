@@ -53,15 +53,13 @@ const consentCommunicationsLabel = t('subscribe.consent_communications_label')
 const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY
 
 const inputClasses =
-  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary dark:border-neutral-75 dark:bg-neutral-150 dark:text-neutral-0'
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary'
 
-const labelClasses =
-  'font-thin text-body-sm-standard text-neutral-900 dark:text-neutral-0'
+const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 
-const errorClasses =
-  'hidden mb-0 text-body-sm-standard text-red-600 dark:text-red-400'
+const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
 
-const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
+const secondaryTextClasses = 'text-neutral-75'
 ---
 
 <FoundationPageLayout
@@ -74,11 +72,9 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
 
-      <div
-        class="flex flex-col gap-3xl dark:desktop:border-neutral-75 desktop:flex-row desktop:gap-5xl"
-      >
+      <div class="flex flex-col gap-3xl desktop:flex-row desktop:gap-5xl">
         <div class="flex flex-col gap-xl desktop:max-w-[45%]">
-          <h1 class="text-h1 text-neutral-900 dark:text-neutral-0">
+          <h1 class="text-h1 text-neutral-900">
             {t('subscribe.title')}
           </h1>
 
@@ -87,7 +83,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
           </p>
 
           <div class="flex flex-col gap-md">
-            <h2 class="text-h4-lg text-neutral-900 dark:text-neutral-0">
+            <h2 class="text-h4-lg text-neutral-900">
               {t('subscribe.expect_heading')}
             </h2>
             <ul class="flex flex-col gap-sm list-disc pl-xl">
@@ -123,9 +119,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
               aria-live="polite"
               tabindex="-1"
             >
-              <p
-                class="font-semibold mb-s text-neutral-900 dark:text-neutral-0"
-              >
+              <p class="font-semibold mb-s text-neutral-900">
                 {t('subscribe.success_message')}
               </p>
               <p class={secondaryTextClasses}>
@@ -215,7 +209,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                     </legend>
                     {
                       interestOptions.map((option) => (
-                        <label class="flex items-start gap-sm text-body-sm-standard text-neutral-75 dark:text-neutral-50">
+                        <label class="flex items-start gap-sm text-body-sm-standard text-neutral-75">
                           <input
                             type="checkbox"
                             name="im_interested_in"
@@ -256,14 +250,12 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                 </div>
 
                 <div id="subscribe-step-2" class="flex flex-col gap-xl hidden">
-                  <div class="flex flex-col gap-md dark:border-neutral-75">
-                    <p
-                      class="text-body-sm-standard text-neutral-150 dark:text-neutral-50"
-                    >
+                  <div class="flex flex-col gap-md">
+                    <p class="text-body-sm-standard text-neutral-150">
                       {t('subscribe.consent_communications_intro')}
                     </p>
                     <label
-                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150"
                     >
                       <input
                         type="checkbox"
@@ -280,13 +272,11 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                       </span>
                     </label>
 
-                    <p
-                      class="text-body-sm-standard pl-xl text-neutral-150 dark:text-neutral-50"
-                    >
+                    <p class="text-body-sm-standard pl-xl text-neutral-150">
                       {t('subscribe.consent_processing_intro')}
                     </p>
                     <label
-                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150 dark:text-neutral-50"
+                      class="flex items-start gap-sm text-body-sm-standard text-neutral-150"
                     >
                       <input
                         type="checkbox"
@@ -303,9 +293,7 @@ const secondaryTextClasses = 'text-neutral-75 dark:text-neutral-50'
                       </span>
                     </label>
 
-                    <p
-                      class="text-body-sm-standard pl-xl text-neutral-150 dark:text-neutral-50"
-                    >
+                    <p class="text-body-sm-standard pl-xl text-neutral-150">
                       {t('subscribe.consent_privacy_notice_pre')}{' '}
                       <a
                         href={privacyPolicyHref}
