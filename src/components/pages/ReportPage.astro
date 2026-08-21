@@ -45,6 +45,8 @@ const { Content: MdxContent, headings } = await render(entry)
 const { title, heading, description, introParagraph, date, authorBios } =
   entry.data
 const hasBody = Boolean(entry.body?.trim())
+const bioTextEntries = authorBios?.filter((bio) => bio.text) ?? []
+const hasAuthorBios = bioTextEntries.length > 0
 const sections = headings
   .filter(
     (h) =>
@@ -130,7 +132,7 @@ const Layout = getSectionPageLayout(entry.data.section)
         )
       }
       {
-        hasBody && (
+        (hasBody || hasAuthorBios) && (
           <section
             data-prose
             aria-label={t('report.body')}
@@ -153,18 +155,16 @@ const Layout = getSectionPageLayout(entry.data.section)
                   />
                 </div>
                 <MdxContent components={{ ReportSection, ReportText }} />
-                {authorBios?.filter((bio) => bio.text).length > 0 && (
+                {hasAuthorBios && (
                   <div class="-my-2xl tablet:col-span-full tablet:-my-xl">
-                    <AuthorBio bios={authorBios.filter((bio) => bio.text)} />
+                    <AuthorBio bios={bioTextEntries} />
                   </div>
                 )}
               </div>
             ) : (
               <>
                 <MdxContent components={{ ReportSection, ReportText }} />
-                {authorBios?.filter((bio) => bio.text).length > 0 && (
-                  <AuthorBio bios={authorBios.filter((bio) => bio.text)} />
-                )}
+                {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
               </>
             )}
           </section>
