@@ -2,6 +2,14 @@
 /**
  * Foundation site layout.
  * Extends BaseLayout with Foundation header/footer.
+ *
+ * The foundation site has one mode: light. Whole pages never render dark, so
+ * this layout pins the page theme instead of taking it as a prop.
+ *
+ * `headerTheme` is a separate concern and stays. The header flips to its dark
+ * variant over the dark sections of the home page (see foundation-header.ts).
+ * That is header chrome on a light page, not a page theme. Hackathon and
+ * summit are the dark sites, and they have their own layouts.
  */
 import BaseLayout from './BaseLayout.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
@@ -16,7 +24,6 @@ interface Props {
   canonicalURL?: string
   datePublished?: string
   headerTheme?: 'light' | 'dark'
-  pageTheme?: 'light' | 'dark'
   bodyClass?: string
   noindex?: boolean
 }
@@ -32,7 +39,6 @@ const {
   canonicalURL,
   datePublished,
   headerTheme = 'light',
-  pageTheme = 'light',
   bodyClass = defaultBodyClass,
   noindex = false
 } = Astro.props
@@ -45,7 +51,7 @@ const {
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
   datePublished={datePublished}
-  theme={pageTheme}
+  theme="light"
   bodyClass={bodyClass}
   noindex={noindex}
 >

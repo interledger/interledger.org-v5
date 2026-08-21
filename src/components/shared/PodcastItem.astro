@@ -7,59 +7,37 @@
  * it; Castopod / unrecognized URLs fall back to a raw iframe. Neither can be
  * driven by an external scrubber, so no fake play/seek UI is built.
  */
-import { detectVideoProvider, twMerge } from '@/utils'
+import { detectVideoProvider } from '@/utils'
 import VideoEmbed from './VideoEmbed.astro'
 import type { Podcast } from '@/types/podcast'
 
 interface Props {
   podcast: Podcast
-  theme?: 'light' | 'dark'
 }
 
-const { podcast, theme = 'light' } = Astro.props
+const { podcast } = Astro.props
 const { title, description, url, series } = podcast
-const isDark = theme === 'dark'
 const provider = detectVideoProvider(url)
 ---
 
 <article
-  class={twMerge(
-    'flex w-full flex-col gap-xl desktop:flex-row desktop:items-center desktop:gap-2xl'
-  )}
+  class="flex w-full flex-col gap-xl desktop:flex-row desktop:items-center desktop:gap-2xl"
 >
-  <div
-    class={twMerge(
-      'flex flex-col gap-md desktop:w-1/2',
-      isDark ? 'text-neutral-0' : 'text-neutral-900'
-    )}
-  >
-    <p
-      class={twMerge(
-        'm-0 text-caption uppercase tracking-wide',
-        isDark ? 'text-neutral-50' : 'text-neutral-75'
-      )}
-    >
+  <div class="flex flex-col gap-md text-neutral-900 desktop:w-1/2">
+    <p class="m-0 text-caption uppercase tracking-wide text-neutral-75">
       {series}
     </p>
     <h3 class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg">
       {title}
     </h3>
     <p
-      class={twMerge(
-        'm-0 text-h5 tablet:text-h5-md desktop:text-h5-lg',
-        isDark ? 'text-neutral-25' : 'text-neutral-100'
-      )}
+      class="m-0 text-h5 text-neutral-100 tablet:text-h5-md desktop:text-h5-lg"
     >
       {description}
     </p>
   </div>
 
-  <div
-    class={twMerge(
-      'rounded-3xl border p-lg desktop:w-1/2',
-      isDark ? 'border-neutral-75' : 'border-neutral-50'
-    )}
-  >
+  <div class="rounded-3xl border border-neutral-50 p-lg desktop:w-1/2">
     <div class="flex min-w-0 flex-col gap-md">
       {
         provider ? (

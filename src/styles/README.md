@@ -58,6 +58,31 @@ src/styles/
 `BaseLayout` sets `data-theme` on `<html>` (`light` or `dark`). Tailwind
 `dark:` utilities and `@variant dark` follow that selector.
 
+**There is no site-wide dark mode, and no light/dark switch.** Which mode a
+page renders in is fixed by its layout:
+
+| Layout                 | `data-theme` |
+| ---------------------- | ------------ |
+| `FoundationPageLayout` | always light |
+| `HackathonPageLayout`  | always dark  |
+| `SummitPageLayout`     | always dark  |
+
+The foundation site is light only. Do not add a `dark` page theme to it, and do
+not add `dark:` utilities to a component that renders only on foundation pages
+— `[data-theme="dark"]` never matches there, so the branch is dead code.
+
+Two things are deliberately not page themes, and both stay:
+
+- The foundation header flips between its light and dark variants as the user
+  scrolls over the dark sections of the home page. That is header chrome, keyed
+  off `data-theme` on the `.foundation-header` element, not on `<html>`. See
+  `src/components/layout/foundation-header.ts`.
+- Home page sections can be individually dark (e.g. `TextMediaSection
+theme="dark"`). That is a per-section prop on a light page.
+
+The Starlight developer docs keep their own theme picker, which Starlight
+provides and themes independently of these tokens.
+
 Runtime tokens in `base/variables.css`:
 
 | Token             | Light            | Dark        |

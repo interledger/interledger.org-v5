@@ -10,23 +10,16 @@ import type { Podcast } from '@/types/podcast'
 
 interface Props {
   podcasts: Podcast[]
-  theme?: 'light' | 'dark'
 }
 
-const { podcasts, theme = 'light' } = Astro.props
-const isDark = theme === 'dark'
+const { podcasts } = Astro.props
 ---
 
 <ul class="m-0 flex list-none flex-col p-0" role="list">
   {
     podcasts.map((podcast) => (
-      <li
-        class:list={[
-          'border-b py-3xl first:pt-0 last:border-b-0 last:pb-0',
-          isDark ? 'border-neutral-75' : 'border-neutral-50'
-        ]}
-      >
-        <PodcastItem podcast={podcast} theme={theme} />
+      <li class="border-b border-neutral-50 py-3xl first:pt-0 last:border-b-0 last:pb-0">
+        <PodcastItem podcast={podcast} />
       </li>
     ))
   }
