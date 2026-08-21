@@ -102,4 +102,26 @@ describe('stripPagination', () => {
   it('does not strip a locale-prefixed bare summit year', () => {
     expect(stripPagination('/es/summit/2025')).toBe('/es/summit/2025')
   })
+
+  it('drops the page number for the grantee database listing', () => {
+    expect(stripPagination('/grant/grantee-database/2')).toBe(
+      '/grant/grantee-database'
+    )
+  })
+
+  it('does not strip the unpaginated grantee database path', () => {
+    expect(stripPagination('/grant/grantee-database')).toBe(
+      '/grant/grantee-database'
+    )
+  })
+
+  it('drops the page number for locale-prefixed grantee database pages', () => {
+    expect(stripPagination('/es/grant/grantee-database/3')).toBe(
+      '/es/grant/grantee-database'
+    )
+  })
+
+  it('does not treat a grant program slug digit as a listing page', () => {
+    expect(stripPagination('/grant/fellowship/2')).toBe('/grant/fellowship/2')
+  })
 })

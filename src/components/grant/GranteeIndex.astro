@@ -1,15 +1,25 @@
 ---
-import type { Grantee } from '@/utils'
+import type { Grantee, GranteeFilterOption } from '@/utils'
 import { useTranslations } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
 import GranteeCard from './GranteeCard.astro'
 
 interface Props {
   grantees: Grantee[]
+  years: GranteeFilterOption[]
+  programs: GranteeFilterOption[]
+  countries: GranteeFilterOption[]
+  totalCount: number
 }
 
-const { grantees } = Astro.props
+const { grantees, years, programs, countries, totalCount } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const inputClasses =
+  'w-full rounded-lg border border-neutral-50 bg-white py-md text-body-sm-standard text-neutral-100 outline-none transition-colors focus-visible:border-link'
+const selectClasses = `${inputClasses} appearance-none pe-3xl`
+const labelClasses = 'text-body-sm-standard text-neutral-75'
 ---
 
 <h1
@@ -36,8 +46,94 @@ const t = useTranslations(routeLocale)
   </div>
 </div>
 
+<section
+  aria-label={t('aria.grantee.filters_label')}
+  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+>
+  <form
+    data-grantee-filters
+    class="flex flex-col gap-md tablet:flex-row tablet:flex-wrap tablet:items-end"
+  >
+    <div class="flex min-w-[10rem] flex-col gap-xs">
+      <label for="grantee-year" class={labelClasses}>
+        {t('grantee.filter.year')}
+      </label>
+      <div class="relative">
+        <select id="grantee-year" name="year" class={selectClasses}>
+          <option value="">{t('grantee.filter.all')}</option>
+          {
+            years.map((option) => (
+              <option value={option.value}>{option.label}</option>
+            ))
+          }
+        </select>
+        <Icon
+          name="arrow-down"
+          class="pointer-events-none absolute top-1/2 right-md size-5 -translate-y-1/2 text-neutral-75"
+        />
+      </div>
+    </div>
+
+    <div class="flex min-w-[10rem] flex-col gap-xs">
+      <label for="grantee-program" class={labelClasses}>
+        {t('grantee.filter.program')}
+      </label>
+      <div class="relative">
+        <select id="grantee-program" name="program" class={selectClasses}>
+          <option value="">{t('grantee.filter.all')}</option>
+          {
+            programs.map((option) => (
+              <option value={option.value}>{option.label}</option>
+            ))
+          }
+        </select>
+        <Icon
+          name="arrow-down"
+          class="pointer-events-none absolute top-1/2 right-md size-5 -translate-y-1/2 text-neutral-75"
+        />
+      </div>
+    </div>
+
+    <div class="flex min-w-[10rem] flex-col gap-xs">
+      <label for="grantee-country" class={labelClasses}>
+        {t('grantee.filter.region')}
+      </label>
+      <div class="relative">
+        <select id="grantee-country" name="country" class={selectClasses}>
+          <option value="">{t('grantee.filter.all')}</option>
+          {
+            countries.map((option) => (
+              <option value={option.value}>{option.label}</option>
+            ))
+          }
+        </select>
+        <Icon
+          name="arrow-down"
+          class="pointer-events-none absolute top-1/2 right-md size-5 -translate-y-1/2 text-neutral-75"
+        />
+      </div>
+    </div>
+  </form>
+
+  <p
+    data-grantee-status
+    class="m-0 text-body-sm-standard text-neutral-75"
+    aria-live="polite"
+  >
+    {t('grantee.results', { count: totalCount })}
+  </p>
+</section>
+
+<p
+  data-grantee-empty
+  class="hidden my-5xl text-h3 text-neutral-75 text-center tablet:text-h3-md"
+>
+  {t('grantee.empty')}
+</p>
+
 <ol
-  class="list-none p-0 m-0 mt-3xl flex flex-col gap-2xl"
+  data-grantee-list
+  class="list-none p-0 m-0 flex flex-col gap-2xl"
   aria-label={t('aria.grantee.list')}
 >
   {grantees.map((grantee) => <GranteeCard grantee={grantee} />)}

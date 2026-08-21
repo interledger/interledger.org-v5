@@ -5,6 +5,16 @@ import {
   isExternalHref,
   isSafeMarkdownHref
 } from '../shared/url'
+import type { PaginatedRouteShape } from './paginatedRouteShape'
+
+export const GRANTEE_PAGE_SIZE = 10
+
+export const granteeRouteShape: PaginatedRouteShape = {
+  matches: (basePath, parts) =>
+    basePath === '/grant' && parts[0] === 'grantee-database',
+  isValidListingPrefix: (prefixParts) =>
+    prefixParts.length === 1 && prefixParts[0] === 'grantee-database'
+}
 
 export interface Grantee {
   id: string
@@ -23,6 +33,17 @@ export interface Grantee {
   budget: number | null
   budgetLabel: string | null
   searchText: string
+}
+
+export interface GranteeFilters {
+  year: string
+  program: string
+  country: string
+}
+
+export interface GranteeFilterOption {
+  value: string
+  label: string
 }
 
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -182,4 +203,48 @@ export function parseGranteeRecords(
     .map((record) => toGrantee(record, locale))
     .filter((grantee): grantee is Grantee => grantee !== null)
     .sort(compareGrantees)
+}
+
+export function uniqueFilterOptions(
+  grantees: Grantee[],
+  key: 'year' | 'program' | 'country'
+): GranteeFilterOption[] {
+  const seen = new Map<string, string>()
+
+  for (const grantee of grantees) {
+    if (key === 'year' && grantee.year) {
+      seen.set(grantee.year, grantee.year)
+    } else if (key === 'program' && grantee.programKey && grantee.program) {
+      seen.set(grantee.programKey, grantee.program)
+    } else if (key === 'country' && grantee.countryKey && grantee.country) {
+      seen.set(grantee.countryKey, grantee.country)
+    }
+  }
+
+  const options = [...seen.entries()].map(([value, label]) => ({
+    value,
+    label
+  }))
+
+  if (key === 'year') {
+    return options.sort((a, b) => b.label.localeCompare(a.label))
+  }
+  return options.sort((a, b) => a.label.localeCompare(b.label))
+}
+
+export function matchesGranteeFilters(
+  grantee: Pick<Grantee, 'year' | 'programKey' | 'countryKey'>,
+  filters: GranteeFilters
+): boolean {
+  if (filters.year && grantee.year !== filters.year) return false
+  if (filters.program && grantee.programKey !== filters.program) return false
+  if (filters.country && grantee.countryKey !== filters.country) return false
+  return true
+}
+
+export function filterGrantees(
+  grantees: Grantee[],
+  filters: GranteeFilters
+): Grantee[] {
+  return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
 }

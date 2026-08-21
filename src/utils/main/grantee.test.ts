@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  filterGrantees,
   formatBudgetAmount,
   formatStartMonth,
+  matchesGranteeFilters,
   normalizeCountry,
-  parseGranteeRecords
+  parseGranteeRecords,
+  uniqueFilterOptions,
+  type Grantee
 } from './grantee'
 
 function record(
@@ -156,5 +160,117 @@ describe('parseGranteeRecords', () => {
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
     expect(result.map((g) => g.name)).toEqual(['Newer', 'Alpha', 'Beta'])
+  })
+})
+
+describe('uniqueFilterOptions', () => {
+  it('dedupes aliased countries and sorts labels', () => {
+    const parsed = parseGranteeRecords(
+      [
+        record({ 'Project Name': 'A', Country: 'US' }, 'a'),
+        record({ 'Project Name': 'B', Country: 'USA' }, 'b'),
+        record({ 'Project Name': 'C', Country: 'Canada' }, 'c')
+      ],
+      'en'
+    )
+    expect(parsed).not.toBeInstanceOf(Error)
+    if (parsed instanceof Error) return
+    expect(uniqueFilterOptions(parsed, 'country')).toEqual([
+      { value: 'canada', label: 'Canada' },
+      { value: 'united-states', label: 'United States' }
+    ])
+  })
+
+  it('sorts years newest first', () => {
+    const parsed = parseGranteeRecords(
+      [
+        record({ 'Project Name': 'A', Year: '2020' }, 'a'),
+        record({ 'Project Name': 'B', Year: '2025' }, 'b')
+      ],
+      'en'
+    )
+    expect(parsed).not.toBeInstanceOf(Error)
+    if (parsed instanceof Error) return
+    expect(uniqueFilterOptions(parsed, 'year').map((o) => o.value)).toEqual([
+      '2025',
+      '2020'
+    ])
+  })
+})
+
+describe('matchesGranteeFilters', () => {
+  const grantee: Grantee = {
+    id: 'rec1',
+    name: 'People’s Clearing House',
+    program: 'Digital Financial Services',
+    programKey: 'digital-financial-services',
+    year: '2024',
+    startMonth: '2024-09',
+    startLabel: 'September 2024',
+    country: 'Germany',
+    countryKey: 'germany',
+    leaders: ['Ada Lovelace'],
+    tags: ['Privacy'],
+    description: 'Open payments clearing house',
+    projectUrl: 'https://community.interledger.org/example',
+    budget: 750000,
+    budgetLabel: '750 000',
+    searchText:
+      'people’s clearing house digital financial services 2024 germany ada lovelace privacy open payments clearing house'
+  }
+
+  it('matches when no filters are set', () => {
+    expect(
+      matchesGranteeFilters(grantee, {
+        year: '',
+        program: '',
+        country: ''
+      })
+    ).toBe(true)
+  })
+
+  it('filters by year, program, and country', () => {
+    expect(
+      matchesGranteeFilters(grantee, {
+        year: '2024',
+        program: 'digital-financial-services',
+        country: 'germany'
+      })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(grantee, {
+        year: '2020',
+        program: '',
+        country: ''
+      })
+    ).toBe(false)
+  })
+})
+
+describe('filterGrantees', () => {
+  it('returns only matching records', () => {
+    const parsed = parseGranteeRecords(
+      [
+        sample,
+        record(
+          {
+            'Project Name': 'Campus Lab',
+            'Secondary Grant Program Name': 'NextGen Higher Education',
+            Year: '2025',
+            Country: 'Kenya'
+          },
+          'rec2'
+        )
+      ],
+      'en'
+    )
+    expect(parsed).not.toBeInstanceOf(Error)
+    if (parsed instanceof Error) return
+    const filtered = filterGrantees(parsed, {
+      year: '2025',
+      program: '',
+      country: ''
+    })
+    expect(filtered.map((g) => g.name)).toEqual(['Campus Lab'])
   })
 })

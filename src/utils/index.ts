@@ -123,11 +123,17 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export {
+  GRANTEE_PAGE_SIZE,
   parseGranteeRecords,
+  uniqueFilterOptions,
+  matchesGranteeFilters,
+  filterGrantees,
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
-  type Grantee
+  type Grantee,
+  type GranteeFilters,
+  type GranteeFilterOption
 } from './main/grantee'
 
 // Main site: Text
