@@ -5,19 +5,6 @@
  */
 
 @layer components {
-  [data-prose] a {
-    color: var(--color-primary);
-    text-decoration-line: underline;
-    text-decoration-color: currentColor;
-    transition:
-      color 200ms ease-in-out,
-      text-decoration-color 200ms ease-in-out;
-  }
-  [data-prose] a:hover {
-    color: var(--color-orchid-150);
-    text-decoration-line: underline;
-    text-decoration-color: currentColor;
-  }
   [data-prose] hr {
     border-color: var(--color-neutral-50);
   }
@@ -189,6 +176,48 @@
       background-color: var(--color-neutral-150);
       border-top-color: var(--color-neutral-75);
       color: var(--color-neutral-0);
+    }
+  }
+
+  /* Bullet points styles for list items inside Paragraphs */
+  [data-prose] [data-component='Paragraph'] ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  [data-prose] [data-component='Paragraph'] ul > li {
+    margin-bottom: var(--spacing-xl);
+    color: var(--color-tangerine-100);
+    display: flex;
+    flex-direction:row;
+    align-items: center;
+    @variant tablet {
+      margin-bottom: var(--spacing-lg);
+    }
+    @variant desktop {
+      margin-bottom: var(--spacing-xl);
+    }
+  }
+
+  [data-prose] [data-component='Paragraph'] ul > li::before {
+    content: '';
+    width: var(--spacing-xl);
+    height: var(--spacing-xl);
+    background-color: var(--color-tangerine-100);
+    mask: url('/img/bullet-point.svg') no-repeat center / contain;
+    -webkit-mask: url('/img/bullet-point.svg') no-repeat center / contain;
+    margin-right: var(--spacing-md);
+    @variant tablet {
+      margin-right: var(--spacing-lg);
+    }
+  }
+
+  @variant dark {
+    [data-prose] [data-component='Paragraph'] ul > li {
+      color: var(--color-aqua-mint-100);
+    }
+    [data-prose] [data-component='Paragraph'] ul > li::before {
+      background-color: var(--color-aqua-mint-100);
     }
   }
 }

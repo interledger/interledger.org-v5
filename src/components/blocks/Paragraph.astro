@@ -49,9 +49,9 @@ const htmlContent = hasContent
 
 {
   hasContent ? (
-    <div class={className} set:html={htmlContent} />
+    <div data-component="Paragraph" class={className} set:html={htmlContent} />
   ) : (
-    <div class={className}>
+    <div data-component="Paragraph" class={className}>
       <slot />
     </div>
   )

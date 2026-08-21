@@ -9,20 +9,6 @@
 
 @layer components {
   [data-prose-summit] {
-    & a {
-      color: var(--color-primary);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
-      transition:
-        color 200ms ease-in-out,
-        text-decoration-color 200ms ease-in-out;
-    }
-    & a:hover {
-      color: var(--color-orchid-150);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
-    }
-
     /* Rich-text quotes — dual raspberry edges (matches Quote / Blockquote) */
     & blockquote {
       border-left: 2px solid var(--color-raspberry-100);

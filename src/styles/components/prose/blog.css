@@ -9,21 +9,6 @@
 
 @layer components {
   [data-prose-blog] {
-    & a {
-      color: var(--color-primary);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
-      transition:
-        color 200ms ease-in-out,
-        text-decoration-color 200ms ease-in-out;
-    }
-
-    & a:hover {
-      color: var(--color-orchid-150);
-      text-decoration-line: underline;
-      text-decoration-color: currentColor;
-    }
-
     /* === Extended element spacing === */
     & figure {
       margin-block-end: var(--spacing-xl);
@@ -83,8 +68,6 @@
     }
 
     .video-embed {
-      border-radius: var(--radius-3xl);
-      overflow: hidden;
       margin-block-end: var(--spacing-2xl);
     }
   }

@@ -41,6 +41,9 @@
     --color-button-primary-disabled: var(--color-orchid-50);
     --color-button-primary-disabled-text: var(--color-neutral-25);
 
+    --color-link: var(--color-orchid-100);
+    --color-link-hover: var(--color-orchid-150);
+
     /* Dependent color vars — reference other vars, so must live in :root */
     --color-btn-txt: var(--color-white);
     --color-header-bg: var(--color-white);
@@ -50,6 +53,10 @@
     /* Layout tokens — no @theme namespace available */
     --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
     --site-header-height-desktop: 4.75rem; /* 76px — foundation desktop nav row */
+
+    /* Space below a block title (markdown h2, EventCard, CardGrid gap, etc.).
+       `mb-block-heading` / `gap-block-heading` read this. Start at 3xl. */
+    --space-block-heading: var(--spacing-3xl);
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
        Cap block size on large viewports for LCP hero band). */
@@ -73,13 +80,8 @@
     --color-btn-txt: var(--color-white);
     --color-heading: var(--color-neutral-0);
     --color-prose: var(--color-neutral-50);
-  }
-
-  /* Hackathon body/prose links. Scoped to the layout wrapper so foundation
-     dark pages (homepage) keep orchid. */
-  .hackathon-main {
-    --color-link: var(--color-lavender-100);
-    --color-link-hover: var(--color-lavender-150);
+    --color-link: var(--color-apricot-100);
+    --color-link-hover: var(--color-apricot-150);
   }
 
   /* Pillar overrides — set on a page wrapper via data-pillar.

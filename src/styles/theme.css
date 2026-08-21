@@ -26,6 +26,13 @@
   --color-btn-txt: var(--color-btn-txt);
 }
 
+/* Retinted by [data-theme='dark'] / .hackathon-main (variables.css); `inline`
+   keeps text-link reading that override instead of baking in a value. */
+@theme inline {
+  --color-link: var(--color-link);
+  --color-link-hover: var(--color-link-hover);
+}
+
 /* Expose the retintable button-primary vars as Tailwind utilities
    (bg-button-primary, bg-button-primary-hover, bg-button-primary-disabled,
    text-button-primary-text).

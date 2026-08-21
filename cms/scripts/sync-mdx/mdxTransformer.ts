@@ -835,11 +835,11 @@ export async function buildFaqPayload(
 /**
  * Builds a Strapi payload for the podcast-page MDX file.
  *
- * podcast-page has no `content` dynamic zone — hero, titleCards, podcasts,
- * and ctaStrip are all page-owned components flattened straight into
- * frontmatter, so this only needs frontmatter validation and hero image
- * resolution (shared with grant-overview-page via `buildHeroWithImage`).
- * No relation resolution.
+ * podcast-page has no `content` dynamic zone — hero, textSection, titleCards,
+ * podcasts, and ctaStrip are all page-owned fields/components flattened
+ * straight into frontmatter, so this only needs frontmatter validation and
+ * hero image resolution (shared with grant-overview-page via
+ * `buildHeroWithImage`). No relation resolution.
  *
  * Returns `Record<string, unknown> | Error`.
  */
@@ -903,6 +903,7 @@ export async function buildPodcastPagePayload(
       pathSlug: parsed.pathSlug,
       description: parsed.description,
       hero,
+      textSection: nullOrValue(parsed.textSection),
       titleCards,
       podcasts,
       ctaStrip,

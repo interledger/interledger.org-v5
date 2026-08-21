@@ -61,13 +61,13 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
           id={section.id}
           class="group/section scroll-mt-(--site-header-height-desktop)"
         >
-          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-orchid-100 dark:bg-neutral-100 dark:group-open/section:border-lavender-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent dark:tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
-            <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-orchid-100 tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg dark:text-neutral-0 dark:group-open/section:text-lavender-100 dark:tablet:group-open/section:text-neutral-0">
+          <summary class="flex list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-link dark:bg-neutral-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent dark:tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none">
+            <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-link tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg dark:text-neutral-0 dark:tablet:group-open/section:text-neutral-0">
               {section.heading}
             </h2>
             <Icon
               name="arrow-down"
-              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-orchid-100 dark:text-lavender-100 dark:group-open/section:text-lavender-100 tablet:hidden"
+              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-link dark:text-neutral-0 tablet:hidden"
             />
           </summary>
           <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0 dark:border-neutral-75">
@@ -83,12 +83,12 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                   </span>
                   <Icon
                     name="arrow-down"
-                    class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180 dark:text-lavender-100"
+                    class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180 dark:text-neutral-0"
                   />
                 </summary>
                 <div
                   data-prose-faq
-                  class="text-neutral-75 mt-md dark:text-neutral-50 [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:mb-0 [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg dark:[&_a]:text-lavender-100 dark:[&_a]:hover:text-lavender-150 [&_li>p:first-of-type]:inline"
+                  class="text-neutral-75 mt-md dark:text-neutral-50 [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit"
                   set:html={item.answerHtml}
                 />
               </details>

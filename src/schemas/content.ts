@@ -394,6 +394,7 @@ export const podcastPageFrontmatterSchema = z.object({
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
+  textSection: z.string().optional(),
   titleCards: podcastTitleCardsSchema,
   podcasts: z.array(podcastItemSchema).min(1),
   ctaStrip: podcastCtaStripSchema,

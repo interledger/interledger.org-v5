@@ -38,7 +38,7 @@ const gridClass =
 <div class="max-w-wide mx-auto">
   {
     heading && (
-      <div class="text-center mb-3xl">
+      <div class="text-center mb-block-heading">
         <h2 class="text-[2rem] font-semibold text-primary mb-lg">{heading}</h2>
         {subheading && (
           <p class="text-[1.125rem] text-neutral-75 max-w-[600px] mx-auto">
@@ -64,7 +64,7 @@ const gridClass =
           {card.link && (
             <a
               href={card.link}
-              class="text-primary no-underline font-medium hover:underline"
+              class="text-link no-underline font-medium hover:underline"
               {...buildUmamiAttrs({
                 ...umamiBase,
                 href: card.link,
