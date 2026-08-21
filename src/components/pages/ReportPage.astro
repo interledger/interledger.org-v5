@@ -120,10 +120,10 @@ const Layout = getSectionPageLayout(entry.data.section)
         introParagraphHtml && (
           <section
             aria-label={t('report.introduction')}
-            class="mt-xl tablet:mt-3xl"
+            class="mt-xl mb-4xl tablet:mt-3xl desktop:mb-6xl "
           >
             <div
-              class="mb-4xl text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:mb-6xl desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
+              class="text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
               set:html={introParagraphHtml}
             />
           </section>
@@ -134,7 +134,7 @@ const Layout = getSectionPageLayout(entry.data.section)
           <section
             data-prose
             aria-label={t('report.body')}
-            class="flex flex-col gap-3xl *:data-footnotes:order-last"
+            class="flex flex-col gap-3xl mt-4xl desktop:mt-6xl *:data-footnotes:order-last "
           >
             {sections.length > 0 ? (
               // Grid (not flex) so the auto-generated footnotes section — a
@@ -153,7 +153,7 @@ const Layout = getSectionPageLayout(entry.data.section)
                   />
                 </div>
                 <MdxContent components={{ ReportSection, ReportText }} />
-                {authorBios.filter((bio) => bio.text).length > 0 && (
+                {authorBios?.filter((bio) => bio.text).length > 0 && (
                   <div class="-my-2xl tablet:col-span-full tablet:-my-xl">
                     <AuthorBio bios={authorBios.filter((bio) => bio.text)} />
                   </div>
@@ -162,7 +162,7 @@ const Layout = getSectionPageLayout(entry.data.section)
             ) : (
               <>
                 <MdxContent components={{ ReportSection, ReportText }} />
-                {authorBios.filter((bio) => bio.text).length > 0 && (
+                {authorBios?.filter((bio) => bio.text).length > 0 && (
                   <AuthorBio bios={authorBios.filter((bio) => bio.text)} />
                 )}
               </>
