@@ -98,8 +98,8 @@ const breadcrumbs = [
 
     {
       hasBody && (
-        <section class="py-4xl">
-          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <section class="px-content py-4xl">
+          <div class="content-column">
             <div data-prose>
               <MdxContent
                 components={{
@@ -123,8 +123,8 @@ const breadcrumbs = [
       )
     }
 
-    <section class="tablet:py-4xl">
-      <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+    <section class="px-content tablet:py-4xl">
+      <div class="content-column">
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}
@@ -142,8 +142,8 @@ const breadcrumbs = [
 
     {
       followUpHtml && (
-        <section class="pt-4xl pb-4xl">
-          <div class="mx-auto max-w-content min-w-[360px] max-[1324px]:px-[5%]">
+        <section class="px-content pt-4xl pb-4xl">
+          <div class="content-column">
             <div data-prose set:html={followUpHtml} />
           </div>
         </section>

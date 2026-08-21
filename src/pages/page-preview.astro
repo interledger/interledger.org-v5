@@ -99,11 +99,8 @@ const content = page.content || []
 
     {
       content.length > 0 && (
-        <section class="py-4xl">
-          <div
-            class="mx-auto w-full min-w-0 max-w-content max-[1324px]:px-[5%]"
-            data-prose-blog
-          >
+        <section class="px-content py-4xl">
+          <div class="content-column min-w-0" data-prose-blog>
             <DynamicZone blocks={content} />
           </div>
         </section>
