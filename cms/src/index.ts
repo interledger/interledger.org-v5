@@ -24,7 +24,9 @@ import {
   toValidationError,
   normalizeRelativeLinksInDocumentData,
   LOCALES,
-  shouldSkipMdxExport
+  shouldSkipMdxExport,
+  extractBearerToken,
+  isFullAccessApiToken
 } from './utils'
 import {
   validateContentBlocks,
@@ -2048,18 +2050,34 @@ export default {
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
     // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
-    // restarting Strapi. Auth is STRAPI_API_TOKEN (same as other sync scripts)
-    // because this route bypasses Strapi's standard auth middleware.
+    // restarting Strapi. This route is registered on the Koa router, so Strapi's
+    // api-token middleware never runs for it and the handler authorizes the
+    // caller itself against the stored API tokens. It deliberately does not read
+    // STRAPI_API_TOKEN: that is a client-side variable the deployed Strapi
+    // processes do not carry, which made every call fail (INTORG-1098).
     strapi.server.router.post('/api/seed-media', async (ctx) => {
-      const bearer = String(ctx.request.headers['authorization'] ?? '').replace(
-        'Bearer ',
-        ''
-      )
-      if (!bearer || bearer !== process.env.STRAPI_API_TOKEN) {
+      const token = extractBearerToken(ctx.request.headers['authorization'])
+      if (!token) {
         ctx.status = 401
         ctx.body = { error: 'Unauthorized' }
         return
       }
+
+      const authorized = await isFullAccessApiToken(strapi, token)
+      if (authorized instanceof Error) {
+        strapi.log.error(
+          `[seed-media] Could not check the bearer token: ${authorized.message}`
+        )
+        ctx.status = 500
+        ctx.body = { error: 'Could not check the bearer token' }
+        return
+      }
+      if (!authorized) {
+        ctx.status = 401
+        ctx.body = { error: 'Unauthorized' }
+        return
+      }
+
       const seeded = await seedUploadsFromDisk(strapi)
       ctx.body = { seeded }
     })
