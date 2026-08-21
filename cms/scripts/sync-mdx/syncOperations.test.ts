@@ -702,6 +702,45 @@ describe('deleteOrphanedEntries', () => {
     expect(strapi.deleteEntry).toHaveBeenCalledWith('foundation-pages', '1')
   })
 
+  it('skips document root cleanup when the entry fetch was incomplete (non-404 error)', async () => {
+    mockedGetLocalesToCheck.mockReturnValue(['en'])
+    mockedHasMdxFile.mockReturnValue(false)
+    const strapi = createMockStrapi()
+    // locale=all fails with a transient (non-404) error.
+    strapi.getAllEntries.mockResolvedValueOnce(
+      new Error('Strapi API error (500): Internal Server Error')
+    )
+    // Per-locale 'en' query succeeds — but a sibling locale (e.g. 'es')
+    // could still exist in Strapi and simply wasn't fetched because of the
+    // error above, so allLocalesByDocument may be undercounting.
+    strapi.getAllEntries.mockResolvedValueOnce([
+      { documentId: '1', pathSlug: 'orphan', locale: 'en' }
+    ])
+    const ctx: SyncContext = { contentTypes, strapi }
+    const results = createResults()
+    const mdxSlugsByLocale = new Map<string, Set<string>>()
+
+    await deleteOrphanedEntries(
+      'foundation-pages',
+      baseConfig,
+      contentTypes,
+      mdxSlugsByLocale,
+      ctx,
+      results,
+      false
+    )
+
+    // 'en' still looks orphaned, so its locale is deleted...
+    expect(strapi.deleteLocalization).toHaveBeenCalledWith(
+      'foundation-pages',
+      '1',
+      'en'
+    )
+    // ...but document root cleanup must be skipped: with an incomplete
+    // fetch we can't be sure 'en' was the document's only locale in Strapi.
+    expect(strapi.deleteEntry).not.toHaveBeenCalled()
+  })
+
   it('tolerates 404 on deleteLocalization (cascaded delete)', async () => {
     mockedGetLocalesToCheck.mockReturnValue(['en', 'es'])
     mockedHasMdxFile.mockReturnValue(false)
