@@ -42,6 +42,7 @@ interface Props {
     | 'clock'
     | 'map-pin'
     | 'language'
+    | 'user'
   class?: string
 }
 
@@ -187,6 +188,10 @@ const ICONS: Record<Props['name'], IconDefinition> = {
     body:
       '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M1.5 3.5H10.5M6 2V3.5M8.5 14L11.5 7L14.5 14M9.42188 12H13.5781M8.79062 3.5C8.79062 3.5 8.03125 6.4375 6.21875 8.65625C4.40625 10.875 2.5 12 2.5 12"/>' +
       '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M8 10.5C8 10.5 6.90625 9.65625 5.75 8.15625C4.59375 6.65625 4 5.5 4 5.5"/>'
+  },
+  user: {
+    viewBox: '0 0 24 24',
+    body: '<path fill="currentColor" d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5s-5 2.239-5 5s2.239 5 5 5m0 2c-3.866 0-11 1.94-11 5.8V22h22v-2.2c0-3.86-7.134-5.8-11-5.8"/>'
   }
 }
 

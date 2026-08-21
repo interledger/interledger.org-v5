@@ -1,0 +1,32 @@
+---
+import type { Grantee } from '@/utils'
+import { useTranslations } from '@/utils'
+import GranteeCard from './GranteeCard.astro'
+
+interface Props {
+  grantees: Grantee[]
+}
+
+const { grantees } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+---
+
+<h1
+  class="my-xl text-neutral-900 text-h2 tablet:text-h2-md desktop:my-3xl desktop:text-h2-lg"
+>
+  {t('grantee.title')}
+</h1>
+
+<p
+  class="m-0 max-w-[50rem] text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+>
+  {t('grantee.description')}
+</p>
+
+<ol
+  class="list-none p-0 m-0 mt-4xl flex flex-col gap-2xl tablet:mt-5xl desktop:mt-5xl"
+  aria-label={t('aria.grantee.list')}
+>
+  {grantees.map((grantee) => <GranteeCard grantee={grantee} />)}
+</ol>
