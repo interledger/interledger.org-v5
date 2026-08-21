@@ -1,10 +1,6 @@
 ---
 import type { Grantee } from '@/utils'
-import {
-  useTranslations,
-  buildUmamiAttrs,
-  parseMarkdownInline
-} from '@/utils'
+import { useTranslations, buildUmamiAttrs, parseMarkdownInline } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
@@ -104,7 +100,11 @@ const detailsAttrs = grantee.projectUrl
         >
           {grantee.tags.map((tag) => (
             <li class="m-0">
-              <a href={Astro.url.pathname} class={tagClasses} {...tagAttrs(tag)}>
+              <a
+                href={Astro.url.pathname}
+                class={tagClasses}
+                {...tagAttrs(tag)}
+              >
                 {tag}
               </a>
             </li>
@@ -114,7 +114,7 @@ const detailsAttrs = grantee.projectUrl
     }
 
     {
-      (grantee.country || grantee.startLabel || leadersLabel) && (
+      (grantee.country || grantee.startLabel) && (
         <ul class="flex flex-col gap-sm list-none m-0 p-0">
           {grantee.country && (
             <li class:list={[metaItemClasses, 'm-0']}>
@@ -134,42 +134,46 @@ const detailsAttrs = grantee.projectUrl
               </time>
             </li>
           )}
-          {leadersLabel && (
-            <li class:list={[metaItemClasses, 'm-0']}>
-              <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
-              <span>
-                <span class="sr-only">{t('grantee.project_lead')}: </span>
-                {leadersLabel}
-              </span>
-            </li>
-          )}
         </ul>
       )
     }
 
     {
-      description && (
+      (leadersLabel || description) && (
         <div
           data-grantee-description
-          class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
+          class="flex flex-col gap-sm rounded-2xl bg-ice-indigo-50 p-lg"
         >
-          <p
-            id={descriptionId}
-            data-grantee-description-text
-            class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
-            set:html={description}
-          />
-          <button
-            type="button"
-            hidden
-            data-grantee-description-toggle
-            class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
-            aria-expanded="false"
-            aria-controls={descriptionId}
-          >
-            {t('grantee.read_more')}
-            <Icon name="arrow-down" class="size-4" />
-          </button>
+          {leadersLabel && (
+            <div class={metaItemClasses}>
+              <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+              <span>
+                <span class="sr-only">{t('grantee.project_lead')}: </span>
+                {leadersLabel}
+              </span>
+            </div>
+          )}
+          {description && (
+            <p
+              id={descriptionId}
+              data-grantee-description-text
+              class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
+              set:html={description}
+            />
+          )}
+          {description && (
+            <button
+              type="button"
+              hidden
+              data-grantee-description-toggle
+              class="self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+              aria-expanded="false"
+              aria-controls={descriptionId}
+            >
+              {t('grantee.read_more')}
+              <Icon name="arrow-down" class="size-4" />
+            </button>
+          )}
         </div>
       )
     }
