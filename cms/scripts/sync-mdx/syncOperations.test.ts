@@ -578,6 +578,42 @@ describe('deleteOrphanedEntries', () => {
     expect(results.deleted).toBe(2)
   })
 
+  it('deletes only the orphaned locale and leaves the sibling locale document root intact', async () => {
+    mockedGetLocalesToCheck.mockReturnValue(['en', 'es'])
+    // 'en' still has an MDX file; only 'es' was deleted.
+    mockedHasMdxFile.mockImplementation((_map, locale) => locale === 'en')
+    const strapi = createMockStrapi()
+    mockMergedFetch(strapi, [
+      { documentId: '1', pathSlug: 'pair', locale: 'en' },
+      { documentId: '1', pathSlug: 'huerfano', locale: 'es' }
+    ])
+    const ctx: SyncContext = { contentTypes, strapi }
+    const results = createResults()
+    const mdxSlugsByLocale = new Map<string, Set<string>>()
+
+    await deleteOrphanedEntries(
+      'foundation-pages',
+      baseConfig,
+      contentTypes,
+      mdxSlugsByLocale,
+      ctx,
+      results,
+      false
+    )
+
+    // Only the orphaned 'es' locale is deleted...
+    expect(strapi.deleteLocalization).toHaveBeenCalledTimes(1)
+    expect(strapi.deleteLocalization).toHaveBeenCalledWith(
+      'foundation-pages',
+      '1',
+      'es'
+    )
+    // ...and the document root must NOT be deleted, since that would also
+    // wipe out the still-valid 'en' entry.
+    expect(strapi.deleteEntry).not.toHaveBeenCalled()
+    expect(results.deleted).toBe(1)
+  })
+
   it('deletes non-default locales before default locale', async () => {
     mockedGetLocalesToCheck.mockReturnValue(['en', 'es'])
     mockedHasMdxFile.mockReturnValue(false)

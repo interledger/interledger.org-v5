@@ -272,6 +272,19 @@ export async function deleteOrphanedEntries(
   }
 
   // --- 2. Identify orphans and group by documentId ---
+  // Track every locale seen per document (not just orphaned ones) so we can
+  // tell a full-document orphan (safe to delete the document root) apart
+  // from a partial orphan (a sibling locale's MDX file still exists).
+  const allLocalesByDocument = new Map<string, Set<string>>()
+  for (const entry of allEntries) {
+    let locales = allLocalesByDocument.get(entry.documentId)
+    if (!locales) {
+      locales = new Set()
+      allLocalesByDocument.set(entry.documentId, locales)
+    }
+    locales.add(entry.locale)
+  }
+
   const orphansByDocument = new Map<
     string,
     { locales: Set<string>; slugs: Map<string, string> }
@@ -329,8 +342,14 @@ export async function deleteOrphanedEntries(
       deletedAny = true
     }
 
-    // Clean up document root
-    if (deletedAny) {
+    // Clean up document root — only when every locale this document has in
+    // Strapi was orphaned. A partial orphan (e.g. only 'es' has no MDX file
+    // while 'en' still does) must leave the document root alone, since an
+    // unscoped deleteEntry removes ALL locales, not just the orphaned ones.
+    const isFullDocumentOrphan =
+      doc.locales.size === (allLocalesByDocument.get(documentId)?.size ?? 0)
+
+    if (deletedAny && isFullDocumentOrphan) {
       const result = await ctx.strapi.deleteEntry(config.apiId, documentId)
       if (result instanceof Error && !isNotFoundError(result.message)) {
         // 404 = document was already fully removed by locale deletes. Expected.
