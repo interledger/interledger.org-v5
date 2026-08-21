@@ -2499,6 +2499,110 @@ describe('buildReportPayload', () => {
       ])
     })
   })
+
+  describe('author_bio media', () => {
+    it('sets author_bio to an empty array when authorBios is absent', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: baseReportFrontmatter
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).author_bio).toEqual([])
+    })
+
+    it('resolves each bio.image via strapiUploadContext into media.image', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/uploads/img/jane.jpg': 7
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          authorBios: [
+            {
+              author: 'Jane Doe',
+              image: '/uploads/img/jane.jpg',
+              imageAlt: 'Jane Doe headshot'
+            },
+            { author: 'John Smith' }
+          ]
+        }
+      })
+
+      const payload = await buildReportPayload(
+        reportFrontmatterSchema,
+        mdx,
+        null,
+        undefined,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).author_bio).toEqual([
+        {
+          author: 'Jane Doe',
+          link: null,
+          profileBio: null,
+          media: { image: 7, alternativeText: 'Jane Doe headshot' }
+        },
+        {
+          author: 'John Smith',
+          link: null,
+          profileBio: null,
+          media: null
+        }
+      ])
+    })
+
+    it('sets media to null for every bio when no strapiUploadContext is supplied', async () => {
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          authorBios: [{ author: 'Jane Doe', image: '/uploads/img/jane.jpg' }]
+        }
+      })
+
+      const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
+      expect((payload as Record<string, unknown>).author_bio).toEqual([
+        { author: 'Jane Doe', link: null, profileBio: null, media: null }
+      ])
+    })
+
+    it('round-trips link and profileBio (from text) into the payload', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext()
+      const mdx = createMdxFile({
+        pathSlug: 'policy-and-advocacy/role-stablecoins',
+        frontmatter: {
+          ...baseReportFrontmatter,
+          authorBios: [
+            {
+              author: 'Jane Doe',
+              link: 'https://example.com/jane',
+              text: 'A short bio.'
+            }
+          ]
+        }
+      })
+
+      const payload = await buildReportPayload(
+        reportFrontmatterSchema,
+        mdx,
+        null,
+        undefined,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).author_bio).toEqual([
+        {
+          author: 'Jane Doe',
+          link: 'https://example.com/jane',
+          profileBio: 'A short bio.',
+          media: null
+        }
+      ])
+    })
+  })
 })
 
 const basePodcastPageFrontmatter = {

@@ -47,7 +47,7 @@ function dateFrontmatter(
  * Build the frontmatter authorBios array, omitting it entirely when no bios
  * are present. Throws when a bio has no author — defense-in-depth mirroring
  * generateBlogMDX's identical check (the primary enforcement point is
- * validateReportAuthorBio in contentValidation.ts, which runs at save time).
+ * validateAuthorBio in contentValidation.ts, which runs at save time).
  */
 function authorBiosFrontmatter(
   bios: AuthorBio[] | null | undefined
