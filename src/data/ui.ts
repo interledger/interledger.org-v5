@@ -203,6 +203,56 @@ export const ui = {
     'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'contact.error.submit':
       'Something went wrong sending your message. Please try again.',
+    'subscribe.title': 'Subscribe to the Interledger Newsletter',
+    'subscribe.description':
+      'Subscribe to the Interledger Foundation newsletter for grant opportunities, event access, and community updates.',
+    'subscribe.intro':
+      'Join the Open Payments movement and subscribe to our monthly newsletter for access to opportunities, updates, and events!',
+    'subscribe.expect_heading': 'What to expect:',
+    'subscribe.expect.grants':
+      'Be the first to know about new grant opportunities.',
+    'subscribe.expect.events': 'Gain early access to upcoming events.',
+    'subscribe.expect.community':
+      'Discover valuable insights from the Interledger Community',
+    'subscribe.expect.dev_updates':
+      'Stay up to speed with developer updates with Tech Bytes',
+    'subscribe.expect.trends':
+      'Read about the latest trends in digital financial innovation',
+    'subscribe.email': 'Email',
+    'subscribe.first_name': 'First name',
+    'subscribe.last_name': 'Last name',
+    'subscribe.country': 'Where are you based?',
+    'subscribe.interest_heading': "I'm interested in:",
+    'subscribe.interest.build_tech':
+      'Building on or contributing to open payment infrastructure',
+    'subscribe.interest.grow_movement':
+      'Digital financial access - through research, education, advocacy, technology, or community organizing',
+    'subscribe.interest.shift_system':
+      'Policy, regulation, or governance of digital financial infrastructure',
+    'subscribe.interest.grants': 'Interledger grants and funding opportunities',
+    'subscribe.error.interest': 'Please select at least one area of interest.',
+    'subscribe.consent_communications_intro':
+      "Interledger Foundation is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, and our partners as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below to say how you would like us to contact you:",
+    'subscribe.consent_communications_label':
+      'I agree to receive other communications from Interledger Foundation.',
+    'subscribe.consent_processing_intro':
+      'To process your request, we need your permission to store and process your personal data. Please check the box below to confirm your consent:',
+    'subscribe.consent_processing_label':
+      'I agree to allow Interledger Foundation to store and process my personal data.',
+    'subscribe.consent_privacy_notice_pre':
+      'You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy practices, and how we are committed to protecting and respecting your privacy, please review our',
+    'subscribe.consent_privacy_notice_post': '.',
+    'subscribe.privacy_policy_link_text': 'Privacy Policy',
+    'subscribe.next': 'Next',
+    'subscribe.back': 'Back',
+    'subscribe.submit': 'Subscribe',
+    'subscribe.submitting': 'Subscribing…',
+    'subscribe.success_message': "You're subscribed!",
+    'subscribe.success_thanks':
+      "Thank you for joining the Interledger newsletter. We'll be in touch soon.",
+    'subscribe.error.submit':
+      'Something went wrong subscribing you. Please try again.',
+    'subscribe.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'homepageHero.title_lead': 'Financial Systems Should Work Together,',
     'homepageHero.title_accent': 'for Everyone',
     'homepageHero.description':
@@ -474,6 +524,57 @@ export const ui = {
     'contact.error.captcha': 'Por favor, completa el desafío de reCAPTCHA.',
     'contact.error.submit':
       'Ocurrió un error al enviar tu mensaje. Por favor, inténtalo de nuevo.',
+    'subscribe.title': 'Suscríbete al boletín de Interledger',
+    'subscribe.description':
+      'Suscríbete al boletín de la Fundación Interledger para conocer oportunidades de subvenciones, eventos y novedades de la comunidad.',
+    'subscribe.intro':
+      '¡Únete al movimiento Open Payments y suscríbete a nuestro boletín mensual para acceder a oportunidades, novedades y eventos!',
+    'subscribe.expect_heading': 'Qué esperar:',
+    'subscribe.expect.grants':
+      'Sé el primero en enterarte de nuevas oportunidades de subvenciones.',
+    'subscribe.expect.events': 'Obtén acceso anticipado a próximos eventos.',
+    'subscribe.expect.community':
+      'Descubre información valiosa de la comunidad Interledger',
+    'subscribe.expect.dev_updates':
+      'Mantente al día con las novedades para desarrolladores con Tech Bytes',
+    'subscribe.expect.trends':
+      'Lee sobre las últimas tendencias en innovación financiera digital',
+    'subscribe.email': 'Correo electrónico',
+    'subscribe.first_name': 'Nombre',
+    'subscribe.last_name': 'Apellido',
+    'subscribe.country': '¿Dónde te encuentras?',
+    'subscribe.interest_heading': 'Estoy interesado/a en:',
+    'subscribe.interest.build_tech':
+      'Construir o contribuir a la infraestructura de pagos abiertos',
+    'subscribe.interest.grow_movement':
+      'El acceso financiero digital, a través de la investigación, educación, promoción, tecnología u organización comunitaria',
+    'subscribe.interest.shift_system':
+      'La política, regulación o gobernanza de la infraestructura financiera digital',
+    'subscribe.interest.grants':
+      'Subvenciones y oportunidades de financiamiento de Interledger',
+    'subscribe.error.interest': 'Selecciona al menos un área de interés.',
+    'subscribe.consent_communications_intro':
+      'La Fundación Interledger se compromete a proteger y respetar tu privacidad, y solo utilizaremos tu información personal para administrar tu cuenta y brindarte los productos y servicios que nos solicitaste. De vez en cuando, nos gustaría contactarte sobre nuestros productos y servicios, así como sobre los de nuestros socios y otro contenido que pueda ser de tu interés. Si das tu consentimiento para que te contactemos con este fin, marca la casilla a continuación para indicarnos cómo te gustaría que te contactáramos:',
+    'subscribe.consent_communications_label':
+      'Acepto recibir otras comunicaciones de la Fundación Interledger.',
+    'subscribe.consent_processing_intro':
+      'Para procesar tu solicitud, necesitamos tu permiso para almacenar y procesar tus datos personales. Marca la casilla a continuación para confirmar tu consentimiento:',
+    'subscribe.consent_processing_label':
+      'Acepto que la Fundación Interledger almacene y procese mis datos personales.',
+    'subscribe.consent_privacy_notice_pre':
+      'Puedes cancelar tu suscripción a estas comunicaciones en cualquier momento. Para obtener más información sobre cómo darte de baja, nuestras prácticas de privacidad y cómo nos comprometemos a proteger y respetar tu privacidad, consulta nuestra',
+    'subscribe.consent_privacy_notice_post': '.',
+    'subscribe.privacy_policy_link_text': 'Política de privacidad',
+    'subscribe.next': 'Siguiente',
+    'subscribe.back': 'Atrás',
+    'subscribe.submit': 'Suscribirme',
+    'subscribe.submitting': 'Suscribiendo…',
+    'subscribe.success_message': '¡Ya estás suscrito!',
+    'subscribe.success_thanks':
+      'Gracias por unirte al boletín de Interledger. Nos pondremos en contacto pronto.',
+    'subscribe.error.submit':
+      'Ocurrió un error al suscribirte. Por favor, inténtalo de nuevo.',
+    'subscribe.error.captcha': 'Por favor, completa el desafío de reCAPTCHA.',
     'homepageHero.title_lead':
       'Los sistemas financieros deberían funcionar juntos,',
     'homepageHero.title_accent': 'para todos',
