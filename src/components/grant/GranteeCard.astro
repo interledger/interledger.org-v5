@@ -53,7 +53,7 @@ const detailsAttrs = grantee.projectUrl
         </h3>
         {
           grantee.program && (
-            <p class="m-0 text-body-lg-standard text-neutral-75">
+            <p class="m-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75">
               {grantee.program}
             </p>
           )
@@ -91,43 +91,39 @@ const detailsAttrs = grantee.projectUrl
       )
     }
 
-    <ul
-      class="flex flex-col gap-sm list-none m-0 p-0 tablet:flex-row tablet:flex-wrap tablet:gap-xl"
-    >
-      {
-        grantee.country && (
-          <li class:list={[metaItemClasses, 'm-0']}>
-            <Icon name="map-pin" class="size-5 shrink-0 text-neutral-75" />
-            <span>
-              <span class="sr-only">{t('aria.grantee.location')}: </span>
-              {grantee.country}
-            </span>
-          </li>
-        )
-      }
-      {
-        grantee.startLabel && (
-          <li class:list={[metaItemClasses, 'm-0']}>
-            <Icon name="calendar" class="size-5 shrink-0 text-neutral-75" />
-            <time datetime={grantee.startMonth}>
-              <span class="sr-only">{t('aria.grantee.date')}: </span>
-              {grantee.startLabel}
-            </time>
-          </li>
-        )
-      }
-      {
-        leadersLabel && (
-          <li class:list={[metaItemClasses, 'm-0']}>
-            <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
-            <span>
-              <span class="sr-only">{t('grantee.project_lead')}: </span>
-              {leadersLabel}
-            </span>
-          </li>
-        )
-      }
-    </ul>
+    {
+      (grantee.country || grantee.startLabel || leadersLabel) && (
+        <ul class="flex flex-col gap-sm list-none m-0 p-0">
+          {grantee.country && (
+            <li class:list={[metaItemClasses, 'm-0']}>
+              <Icon name="map-pin" class="size-5 shrink-0 text-neutral-75" />
+              <span>
+                <span class="sr-only">{t('aria.grantee.location')}: </span>
+                {grantee.country}
+              </span>
+            </li>
+          )}
+          {grantee.startLabel && (
+            <li class:list={[metaItemClasses, 'm-0']}>
+              <Icon name="calendar" class="size-5 shrink-0 text-neutral-75" />
+              <time datetime={grantee.startMonth}>
+                <span class="sr-only">{t('aria.grantee.date')}: </span>
+                {grantee.startLabel}
+              </time>
+            </li>
+          )}
+          {leadersLabel && (
+            <li class:list={[metaItemClasses, 'm-0']}>
+              <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+              <span>
+                <span class="sr-only">{t('grantee.project_lead')}: </span>
+                {leadersLabel}
+              </span>
+            </li>
+          )}
+        </ul>
+      )
+    }
 
     {
       description && (

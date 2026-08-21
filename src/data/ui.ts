@@ -127,6 +127,8 @@ export const ui = {
     'grantee.title': 'Grantee Database',
     'grantee.description':
       'Projects and organisations funded by the Interledger Foundation, working to expand access to digital financial services around the world.',
+    'grantee.intro':
+      'Interledger grantees work across the world in different financial environments, from regions with limited infrastructure to highly connected digital economies. They include community-based organisations, researchers, technologists and advocates who build infrastructure, advance research, shape policy and expand how financial systems work in practice.',
     'grantee.amount_label': 'Total amount awarded',
     'grantee.currency': 'USD',
     'grantee.project_lead': 'Project lead',
@@ -458,6 +460,8 @@ export const ui = {
     'grantee.title': 'Base de datos de beneficiarios',
     'grantee.description':
       'Proyectos y organizaciones financiados por la Interledger Foundation, que trabajan para ampliar el acceso a los servicios financieros digitales en todo el mundo.',
+    'grantee.intro':
+      'Los beneficiarios de Interledger trabajan en todo el mundo en distintos entornos financieros, desde regiones con infraestructura limitada hasta economías digitales altamente conectadas. Incluyen organizaciones comunitarias, investigadores, tecnólogos y defensores que construyen infraestructura, impulsan la investigación, dan forma a las políticas y amplían el funcionamiento práctico de los sistemas financieros.',
     'grantee.amount_label': 'Monto total otorgado',
     'grantee.currency': 'USD',
     'grantee.project_lead': 'Líder del proyecto',
