@@ -1,14 +1,22 @@
 ---
 import type { Grantee } from '@/utils'
-import { useTranslations, buildUmamiAttrs, parseMarkdownInline } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  parseMarkdownInline,
+  generateSlug,
+  getGranteeFilterUrl
+} from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
   grantee: Grantee
+  directoryPath: string
+  selectedYear?: string
 }
 
-const { grantee } = Astro.props
+const { grantee, directoryPath, selectedYear } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -57,7 +65,6 @@ const detailsAttrs = grantee.projectUrl
   data-grantee-card
   data-year={grantee.year}
   data-program={grantee.programKey}
-  data-country={grantee.countryKey}
   class="m-0 rounded-3xl border border-neutral-50 bg-white p-xl"
 >
   <article class="flex flex-col gap-lg">
@@ -104,7 +111,11 @@ const detailsAttrs = grantee.projectUrl
           {grantee.tags.map((tag) => (
             <li class="m-0">
               <a
-                href={Astro.url.pathname}
+                href={getGranteeFilterUrl(
+                  directoryPath,
+                  selectedYear,
+                  generateSlug(tag)
+                )}
                 class={tagClasses}
                 {...tagAttrs(tag)}
               >

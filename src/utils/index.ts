@@ -42,12 +42,12 @@ export {
   HOME_CONTENT_SLUG,
   HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
-  GRANT_GRANTEE_DATABASE_SLUG,
+  GRANT_GRANTEE_DIRECTORY_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
-  grantGranteeDatabasePath,
+  grantGranteeDirectoryPath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'
@@ -124,6 +124,13 @@ export {
 } from './main/podcastPagination'
 export {
   GRANTEE_PAGE_SIZE,
+  GRANTEE_YEAR_SEGMENT,
+  GRANTEE_TAG_SEGMENT,
+  ALL_GRANTEE_YEAR_SLUG,
+  getGranteeFilterUrl,
+  getGranteeListingData,
+  paginateGranteesByYear,
+  paginateGranteesByYearAndTag,
   parseGranteeRecords,
   uniqueFilterOptions,
   matchesGranteeFilters,

@@ -3,6 +3,7 @@ import {
   filterGrantees,
   formatBudgetAmount,
   formatStartMonth,
+  getGranteeFilterUrl,
   matchesGranteeFilters,
   normalizeCountry,
   parseGranteeRecords,
@@ -164,20 +165,39 @@ describe('parseGranteeRecords', () => {
 })
 
 describe('uniqueFilterOptions', () => {
-  it('dedupes aliased countries and sorts labels', () => {
+  it('dedupes thematic tags and sorts labels', () => {
     const parsed = parseGranteeRecords(
       [
-        record({ 'Project Name': 'A', Country: 'US' }, 'a'),
-        record({ 'Project Name': 'B', Country: 'USA' }, 'b'),
-        record({ 'Project Name': 'C', Country: 'Canada' }, 'c')
+        record(
+          {
+            'Project Name': 'A',
+            'Thematic Tag': ['Financial Services', 'Education']
+          },
+          'a'
+        ),
+        record(
+          {
+            'Project Name': 'B',
+            'Thematic Tag': ['Financial Services']
+          },
+          'b'
+        ),
+        record(
+          {
+            'Project Name': 'C',
+            'Thematic Tag': ['Privacy']
+          },
+          'c'
+        )
       ],
       'en'
     )
     expect(parsed).not.toBeInstanceOf(Error)
     if (parsed instanceof Error) return
-    expect(uniqueFilterOptions(parsed, 'country')).toEqual([
-      { value: 'canada', label: 'Canada' },
-      { value: 'united-states', label: 'United States' }
+    expect(uniqueFilterOptions(parsed, 'tag')).toEqual([
+      { value: 'education', label: 'Education' },
+      { value: 'financial-services', label: 'Financial Services' },
+      { value: 'privacy', label: 'Privacy' }
     ])
   })
 
@@ -222,26 +242,33 @@ describe('matchesGranteeFilters', () => {
   it('matches when no filters are set', () => {
     expect(
       matchesGranteeFilters(grantee, {
+        q: '',
         year: '',
-        program: '',
-        country: ''
+        tag: ''
       })
     ).toBe(true)
   })
 
-  it('filters by year, program, and country', () => {
+  it('filters by year and thematic tag', () => {
     expect(
       matchesGranteeFilters(grantee, {
+        q: '',
         year: '2024',
-        program: 'digital-financial-services',
-        country: 'germany'
+        tag: 'privacy'
       })
     ).toBe(true)
     expect(
       matchesGranteeFilters(grantee, {
+        q: '',
         year: '2020',
-        program: '',
-        country: ''
+        tag: ''
+      })
+    ).toBe(false)
+    expect(
+      matchesGranteeFilters(grantee, {
+        q: '',
+        year: '',
+        tag: 'education'
       })
     ).toBe(false)
   })
@@ -267,10 +294,36 @@ describe('filterGrantees', () => {
     expect(parsed).not.toBeInstanceOf(Error)
     if (parsed instanceof Error) return
     const filtered = filterGrantees(parsed, {
+      q: '',
       year: '2025',
-      program: '',
-      country: ''
+      tag: ''
     })
     expect(filtered.map((g) => g.name)).toEqual(['Campus Lab'])
+  })
+})
+
+describe('getGranteeFilterUrl', () => {
+  const directory = '/grant/grantee-directory'
+
+  it('returns the directory path when nothing is selected', () => {
+    expect(getGranteeFilterUrl(directory)).toBe(directory)
+  })
+
+  it('nests a year under /year/', () => {
+    expect(getGranteeFilterUrl(directory, '2024')).toBe(
+      '/grant/grantee-directory/year/2024'
+    )
+  })
+
+  it('uses year/all when only a tag is selected', () => {
+    expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
+      '/grant/grantee-directory/year/all/tag/privacy'
+    )
+  })
+
+  it('combines year and tag', () => {
+    expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
+      '/grant/grantee-directory/year/2024/tag/privacy'
+    )
   })
 })

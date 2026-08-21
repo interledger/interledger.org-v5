@@ -132,9 +132,10 @@ export const ui = {
     'grantee.subtitle': 'The Work in Practice',
     'grantee.intro':
       'Interledger grantees work across the world in different financial environments, from regions with limited infrastructure to highly connected digital economies. They include community-based organizations, researchers, technologists, and advocates who build infrastructure, advance research, shape policy, and expand how financial systems work in practice.',
+    'grantee.search.label': 'Search grantees',
+    'grantee.search.placeholder': 'Search',
     'grantee.filter.year': 'Year',
     'grantee.filter.program': 'Program',
-    'grantee.filter.region': 'Region',
     'grantee.filter.all': 'All',
     'grantee.amount_label': 'Total amount awarded',
     'grantee.currency': 'USD',
@@ -470,9 +471,10 @@ export const ui = {
     'grantee.subtitle': 'El trabajo en la práctica',
     'grantee.intro':
       'Los beneficiarios de Interledger trabajan en todo el mundo en distintos entornos financieros, desde regiones con infraestructura limitada hasta economías digitales altamente conectadas. Incluyen organizaciones comunitarias, investigadores, tecnólogos y defensores que construyen infraestructura, impulsan la investigación, dan forma a las políticas y amplían el funcionamiento práctico de los sistemas financieros.',
+    'grantee.search.label': 'Buscar beneficiarios',
+    'grantee.search.placeholder': 'Buscar',
     'grantee.filter.year': 'Año',
     'grantee.filter.program': 'Programa',
-    'grantee.filter.region': 'Región',
     'grantee.filter.all': 'Todos',
     'grantee.amount_label': 'Monto total otorgado',
     'grantee.currency': 'USD',

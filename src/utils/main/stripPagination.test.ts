@@ -103,25 +103,49 @@ describe('stripPagination', () => {
     expect(stripPagination('/es/summit/2025')).toBe('/es/summit/2025')
   })
 
-  it('drops the page number for the grantee database listing', () => {
-    expect(stripPagination('/grant/grantee-database/2')).toBe(
-      '/grant/grantee-database'
+  it('drops the page number for the grantee directory listing', () => {
+    expect(stripPagination('/grant/grantee-directory/2')).toBe(
+      '/grant/grantee-directory'
     )
   })
 
-  it('does not strip the unpaginated grantee database path', () => {
-    expect(stripPagination('/grant/grantee-database')).toBe(
-      '/grant/grantee-database'
+  it('does not strip the unpaginated grantee directory path', () => {
+    expect(stripPagination('/grant/grantee-directory')).toBe(
+      '/grant/grantee-directory'
     )
   })
 
-  it('drops the page number for locale-prefixed grantee database pages', () => {
-    expect(stripPagination('/es/grant/grantee-database/3')).toBe(
-      '/es/grant/grantee-database'
+  it('drops the page number for locale-prefixed grantee directory pages', () => {
+    expect(stripPagination('/es/grant/grantee-directory/3')).toBe(
+      '/es/grant/grantee-directory'
     )
   })
 
   it('does not treat a grant program slug digit as a listing page', () => {
     expect(stripPagination('/grant/fellowship/2')).toBe('/grant/fellowship/2')
+  })
+
+  it('does not strip a grantee year that looks like a page number', () => {
+    expect(stripPagination('/grant/grantee-directory/year/2024')).toBe(
+      '/grant/grantee-directory/year/2024'
+    )
+  })
+
+  it('drops the page number from a grantee year listing', () => {
+    expect(stripPagination('/grant/grantee-directory/year/2024/2')).toBe(
+      '/grant/grantee-directory/year/2024'
+    )
+  })
+
+  it('drops the page number from a grantee year and tag listing', () => {
+    expect(
+      stripPagination('/grant/grantee-directory/year/2024/tag/privacy/3')
+    ).toBe('/grant/grantee-directory/year/2024/tag/privacy')
+  })
+
+  it('drops the page number from a locale-prefixed grantee year listing', () => {
+    expect(stripPagination('/es/grant/grantee-directory/year/2024/2')).toBe(
+      '/es/grant/grantee-directory/year/2024'
+    )
   })
 })

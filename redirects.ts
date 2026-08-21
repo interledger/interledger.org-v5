@@ -19,7 +19,8 @@ export const redirects = {
   '/grant': '/grant/our-grantmaking',
   '/grants': '/grant/our-grantmaking',
   '/grants/our-grantmaking': '/grant/our-grantmaking',
-  '/grantee-directory': '/grant/grantee-database',
+  '/grantee-directory': '/grant/grantee-directory',
+  '/grant/grantee-database': '/grant/grantee-directory',
 
   // Foundation + site pages (Spanish)
   '/es/open-payments-es': '/es/open-payments',
@@ -34,7 +35,8 @@ export const redirects = {
   '/es/grant': '/es/grant/our-grantmaking',
   '/es/grants': '/es/grant/our-grantmaking',
   '/es/grants/our-grantmaking': '/es/grant/our-grantmaking',
-  '/es/grantee-directory': '/es/grant/grantee-database',
+  '/es/grantee-directory': '/es/grant/grantee-directory',
+  '/es/grant/grantee-database': '/es/grant/grantee-directory',
   '/es/contacto': '/es/contact',
 
   // News + blog content

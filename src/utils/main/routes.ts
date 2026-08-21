@@ -6,8 +6,8 @@ export const HACKATHON_HOME_SLUG = 'overview'
 /** pathSlug for the primary grant overview at `/grant/our-grantmaking`. */
 export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 
-/** Dedicated Astro route (not a CMS grant page) at `/grant/grantee-database`. */
-export const GRANT_GRANTEE_DATABASE_SLUG = 'grantee-database'
+/** Dedicated Astro route (not a CMS grant page) at `/grant/grantee-directory`. */
+export const GRANT_GRANTEE_DIRECTORY_SLUG = 'grantee-directory'
 
 /**
  * pathSlug for the single podcast landing page at `/podcast`.
@@ -49,9 +49,9 @@ export function grantOverviewHubPath(): string {
   return grantOverviewRouteParam(GRANT_OVERVIEW_PRIMARY_SLUG)
 }
 
-/** URL path (no locale prefix) for the public grantee database. */
-export function grantGranteeDatabasePath(): string {
-  return grantOverviewRouteParam(GRANT_GRANTEE_DATABASE_SLUG)
+/** URL path (no locale prefix) for the public grantee directory. */
+export function grantGranteeDirectoryPath(): string {
+  return grantOverviewRouteParam(GRANT_GRANTEE_DIRECTORY_SLUG)
 }
 
 export function localizeRoute(basePath: string, locale: Locale): string {

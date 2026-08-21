@@ -1,3 +1,4 @@
+import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
@@ -8,12 +9,33 @@ import {
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 export const GRANTEE_PAGE_SIZE = 10
+export const GRANTEE_YEAR_SEGMENT = 'year'
+export const GRANTEE_TAG_SEGMENT = 'tag'
+export const ALL_GRANTEE_YEAR_SLUG = 'all'
 
 export const granteeRouteShape: PaginatedRouteShape = {
   matches: (basePath, parts) =>
-    basePath === '/grant' && parts[0] === 'grantee-database',
-  isValidListingPrefix: (prefixParts) =>
-    prefixParts.length === 1 && prefixParts[0] === 'grantee-database'
+    basePath === '/grant' && parts[0] === 'grantee-directory',
+  isValidListingPrefix: (prefixParts) => {
+    if (prefixParts[0] !== 'grantee-directory') return false
+    if (prefixParts.length === 1) return true
+    if (prefixParts[1] !== GRANTEE_YEAR_SEGMENT) return false
+    if (prefixParts.length === 3) return true
+    return prefixParts.length === 5 && prefixParts[3] === GRANTEE_TAG_SEGMENT
+  }
+}
+
+/** Builds a directory listing URL, e.g. `/grant/grantee-directory/year/2024`. */
+export function getGranteeFilterUrl(
+  directoryPath: string,
+  year?: string,
+  tag?: string
+): string {
+  if (!year && !tag) return directoryPath
+  const yearSlug = year || ALL_GRANTEE_YEAR_SLUG
+  const yearPath = `${directoryPath}/${GRANTEE_YEAR_SEGMENT}/${yearSlug}`
+  if (!tag) return yearPath
+  return `${yearPath}/${GRANTEE_TAG_SEGMENT}/${tag}`
 }
 
 export interface Grantee {
@@ -36,9 +58,9 @@ export interface Grantee {
 }
 
 export interface GranteeFilters {
+  q?: string
   year: string
-  program: string
-  country: string
+  tag: string
 }
 
 export interface GranteeFilterOption {
@@ -207,17 +229,18 @@ export function parseGranteeRecords(
 
 export function uniqueFilterOptions(
   grantees: Grantee[],
-  key: 'year' | 'program' | 'country'
+  key: 'year' | 'tag'
 ): GranteeFilterOption[] {
   const seen = new Map<string, string>()
 
   for (const grantee of grantees) {
     if (key === 'year' && grantee.year) {
       seen.set(grantee.year, grantee.year)
-    } else if (key === 'program' && grantee.programKey && grantee.program) {
-      seen.set(grantee.programKey, grantee.program)
-    } else if (key === 'country' && grantee.countryKey && grantee.country) {
-      seen.set(grantee.countryKey, grantee.country)
+    } else if (key === 'tag') {
+      for (const tag of grantee.tags) {
+        const slug = generateSlug(tag)
+        if (slug) seen.set(slug, tag)
+      }
     }
   }
 
@@ -233,12 +256,18 @@ export function uniqueFilterOptions(
 }
 
 export function matchesGranteeFilters(
-  grantee: Pick<Grantee, 'year' | 'programKey' | 'countryKey'>,
+  grantee: Pick<Grantee, 'year' | 'tags' | 'searchText'>,
   filters: GranteeFilters
 ): boolean {
   if (filters.year && grantee.year !== filters.year) return false
-  if (filters.program && grantee.programKey !== filters.program) return false
-  if (filters.country && grantee.countryKey !== filters.country) return false
+  if (
+    filters.tag &&
+    !grantee.tags.some((tag) => generateSlug(tag) === filters.tag)
+  ) {
+    return false
+  }
+  const query = filters.q?.trim().toLowerCase() ?? ''
+  if (query && !grantee.searchText.includes(query)) return false
   return true
 }
 
@@ -247,4 +276,95 @@ export function filterGrantees(
   filters: GranteeFilters
 ): Grantee[] {
   return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
+}
+
+export function getGranteeListingData(data: unknown, locale: Locale) {
+  const grantees = parseGranteeRecords(data, locale)
+  if (grantees instanceof Error) throw grantees
+  return {
+    grantees,
+    years: uniqueFilterOptions(grantees, 'year'),
+    tags: uniqueFilterOptions(grantees, 'tag')
+  }
+}
+
+interface GranteeListingPageProps {
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+  selectedYear?: string
+  selectedTag?: string
+}
+
+function listingProps(
+  years: GranteeFilterOption[],
+  tags: GranteeFilterOption[],
+  selectedYear: string | undefined,
+  selectedTag: string | undefined
+): GranteeListingPageProps {
+  return {
+    years,
+    tags,
+    selectedYear,
+    selectedTag
+  }
+}
+
+export function paginateGranteesByYear({
+  paginate,
+  grantees,
+  years,
+  tags
+}: {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}) {
+  return years.flatMap((year) => {
+    const entries = filterGrantees(grantees, {
+      q: '',
+      year: year.value,
+      tag: ''
+    })
+    return paginate(entries, {
+      params: { year: year.value },
+      pageSize: GRANTEE_PAGE_SIZE,
+      props: listingProps(years, tags, year.value, undefined)
+    })
+  })
+}
+
+export function paginateGranteesByYearAndTag({
+  paginate,
+  grantees,
+  years,
+  tags
+}: {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}) {
+  const yearSlugs = [
+    ALL_GRANTEE_YEAR_SLUG,
+    ...years.map((option) => option.value)
+  ]
+
+  return yearSlugs.flatMap((yearSlug) => {
+    const yearFilter = yearSlug === ALL_GRANTEE_YEAR_SLUG ? '' : yearSlug
+
+    return tags.flatMap((tag) => {
+      const entries = filterGrantees(grantees, {
+        q: '',
+        year: yearFilter,
+        tag: tag.value
+      })
+
+      return paginate(entries, {
+        params: { year: yearSlug, tag: tag.value },
+        pageSize: GRANTEE_PAGE_SIZE,
+        props: listingProps(years, tags, yearFilter || undefined, tag.value)
+      })
+    })
+  })
 }
