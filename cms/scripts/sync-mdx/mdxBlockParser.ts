@@ -132,7 +132,7 @@ const COMPONENT_HANDLERS: Record<string, ComponentHandler> = {}
  * paragraph. This helper detects that pattern and returns the inner element
  * so the main loop can dispatch it to the handler registry.
  */
-function unwrapTextElement(
+export function unwrapTextElement(
   node: Root['children'][number]
 ): JsxBlockNode | undefined {
   if (

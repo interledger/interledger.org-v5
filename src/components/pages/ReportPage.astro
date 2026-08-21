@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import ReportIntro from '@/components/blocks/ReportIntro.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
 import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
@@ -10,7 +11,6 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
-  parseMarkdown,
   getSectionPageLayout
 } from '@/utils'
 
@@ -40,8 +40,12 @@ const entry = allReports.find(
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent, headings } = await render(entry)
-const { title, heading, description, introParagraph, date } = entry.data
+const { title, heading, description, date } = entry.data
 const hasBody = Boolean(entry.body?.trim())
+// generateReportMdx/reportIntroHandler guarantee <ReportIntro> is always the
+// leading element when present — see ReportIntro.astro's comment for why
+// this offsets ReportSectionsNav's grid row below.
+const hasIntro = Boolean(entry.body?.trim().startsWith('<ReportIntro'))
 const sections = headings
   .filter(
     (h) =>
@@ -49,12 +53,6 @@ const sections = headings
       h.slug !== FOOTNOTES_HEADING_ID
   )
   .map((h) => ({ id: h.slug, heading: h.text }))
-const introParagraphHtml = introParagraph
-  ? await parseMarkdown(introParagraph, {
-      pathname: Astro.url.pathname,
-      lang: contentLocale
-    })
-  : null
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -107,38 +105,36 @@ const Layout = getSectionPageLayout(entry.data.section)
         )
       }
       {
-        introParagraphHtml && (
-          <section aria-label={t('report.introduction')}>
-            <div
-              class="mb-4xl text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:mb-6xl desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
-              set:html={introParagraphHtml}
-            />
-          </section>
-        )
-      }
-      {
         hasBody && (
           <section data-prose aria-label={t('report.body')}>
             {sections.length > 0 ? (
               // CSS grid, not flex, so the auto-generated footnotes section
-              // (a sibling of <ReportSection> we don't control) can span both
-              // columns instead of being squeezed into the content column —
-              // MdxContent's children must be direct grid items (no wrapping
-              // div) for that breakout to work.
-              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl">
+              // (a sibling of <ReportSection> we don't control) and the
+              // optional <ReportIntro> can both span both columns instead of
+              // being squeezed into the content column — MdxContent's
+              // children must be direct grid items (no wrapping div) for
+              // that breakout to work. When an intro is present it occupies
+              // row 1, so the nav's row span starts one row later.
+              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full">
                 <div
                   class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
-                  style={{ gridRow: `1 / span ${sections.length}` }}
+                  style={{
+                    gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
+                  }}
                 >
                   <ReportSectionsNav
                     sections={sections}
                     uiLocale={routeLocale}
                   />
                 </div>
-                <MdxContent components={{ ReportSection, ReportText }} />
+                <MdxContent
+                  components={{ ReportIntro, ReportSection, ReportText }}
+                />
               </div>
             ) : (
-              <MdxContent components={{ ReportSection, ReportText }} />
+              <MdxContent
+                components={{ ReportIntro, ReportSection, ReportText }}
+              />
             )}
           </section>
         )

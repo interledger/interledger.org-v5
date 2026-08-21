@@ -2306,13 +2306,11 @@ describe('buildReportPayload', () => {
       )
     })
 
-    it('includes introParagraph when present', async () => {
+    it('includes introParagraph when present as a leading <ReportIntro>', async () => {
       const mdx = createMdxFile({
         pathSlug: 'policy-and-advocacy/role-stablecoins',
-        frontmatter: {
-          ...baseReportFrontmatter,
-          introParagraph: 'A short intro.'
-        }
+        frontmatter: baseReportFrontmatter,
+        content: '<ReportIntro>\n\nA short intro.\n\n</ReportIntro>'
       })
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)

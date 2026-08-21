@@ -28,6 +28,7 @@ import type {
   podcastPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { extractReportIntro } from './reportIntroHandler'
 import type { ParsedBlock } from './types.blocks'
 import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -954,7 +955,23 @@ export async function buildReportPayload(
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
-    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    const introExtraction = extractReportIntro(mdx.content || '')
+    if (introExtraction instanceof MdxParserError) {
+      throw new MdxParserError({
+        code: introExtraction.code,
+        message: `[${mdx.pathSlug}] ${introExtraction.message}`,
+        component: introExtraction.component,
+        prop: introExtraction.prop,
+        line: introExtraction.line,
+        column: introExtraction.column
+      })
+    }
+
+    const content = await buildContentFromMdxBody(
+      { ...mdx, content: introExtraction.remainingContent },
+      existingEntry,
+      parserCtx
+    )
 
     return {
       title: parsed.title,
@@ -962,7 +979,7 @@ export async function buildReportPayload(
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
-      introParagraph: nullOrValue(parsed.introParagraph),
+      introParagraph: nullOrValue(introExtraction.introParagraph),
       date: reportDatePayload(parsed.date),
       ...(content !== undefined ? { content } : {}),
       publishedAt: new Date().toISOString()
