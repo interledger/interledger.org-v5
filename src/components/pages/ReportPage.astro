@@ -5,6 +5,8 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
 import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
+import AuthorByline from '@/components/shared/AuthorByline.astro'
+import AuthorBio from '@/components/shared/AuthorBio.astro'
 import {
   type Locale,
   useTranslations,
@@ -40,7 +42,8 @@ const entry = allReports.find(
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent, headings } = await render(entry)
-const { title, heading, description, introParagraph, date } = entry.data
+const { title, heading, description, introParagraph, date, authorBios } =
+  entry.data
 const hasBody = Boolean(entry.body?.trim())
 const sections = headings
   .filter(
@@ -79,6 +82,7 @@ const Layout = getSectionPageLayout(entry.data.section)
       >
         {heading}
       </h1>
+      {authorBios?.length > 0 && <AuthorByline authors={authorBios} />}
       {
         date && (
           <div class="flex items-center gap-sm mb-xl tablet:mb-3xl">
@@ -141,6 +145,11 @@ const Layout = getSectionPageLayout(entry.data.section)
               <MdxContent components={{ ReportSection, ReportText }} />
             )}
           </section>
+        )
+      }
+      {
+        authorBios.filter((bio) => bio.text).length > 0 && (
+          <AuthorBio bios={authorBios.filter((bio) => bio.text)} />
         )
       }
     </div>
