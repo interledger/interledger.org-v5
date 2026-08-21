@@ -134,50 +134,42 @@
  * Dark footnote list still hard-codes charcoal in the layered rules above.
  * Unlayered so list copy, numbers, and links pick up --color-link from
  * .hackathon-main instead of the layout's previous currentColor/apricot.
+ *
+ * [data-prose] only, unlike the light rules above. Blog prose lives on the
+ * foundation site, which is light only, so [data-prose-blog] can never be dark.
  */
-html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref] {
+html[data-theme='dark'] [data-prose] a[data-footnote-ref] {
   color: var(--color-link, var(--color-lavender-100));
 }
 
-html[data-theme='dark'] :is([data-prose], [data-prose-blog]) a[data-footnote-ref]:hover {
+html[data-theme='dark'] [data-prose] a[data-footnote-ref]:hover {
   color: var(--color-link-hover, var(--color-lavender-150));
 }
 
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes]) {
+html[data-theme='dark'] [data-prose] :is(.footnotes, [data-footnotes]) {
   border-block-start-color: var(--color-neutral-75);
   color: var(--color-prose);
 }
 
 html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
+  [data-prose]
   :is(.footnotes, [data-footnotes])
   :is(p, li) {
   color: var(--color-prose);
 }
 
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  p {
+html[data-theme='dark'] [data-prose] :is(.footnotes, [data-footnotes]) p {
   margin-block: 0;
 }
 
+html[data-theme='dark'] [data-prose] :is(.footnotes, [data-footnotes]) a,
 html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  a,
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
+  [data-prose]
   :is(.footnotes, [data-footnotes])
   li::before {
   color: var(--color-link, var(--color-lavender-100));
 }
 
-html[data-theme='dark']
-  :is([data-prose], [data-prose-blog])
-  :is(.footnotes, [data-footnotes])
-  a:hover {
+html[data-theme='dark'] [data-prose] :is(.footnotes, [data-footnotes]) a:hover {
   color: var(--color-link-hover, var(--color-lavender-150));
 }
