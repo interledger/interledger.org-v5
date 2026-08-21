@@ -253,25 +253,51 @@ export async function deleteOrphanedEntries(
     }
   }
 
+  // Tracks whether the merged fetch above may have missed entries (e.g. a
+  // transient 5xx/network/auth error, as opposed to a "not found" response
+  // that just means this locale has no entries). If the fetch is unreliable,
+  // allLocalesByDocument below can undercount a document's real locales, so
+  // we must not trust it to decide whether a document root is safe to delete.
+  let fetchIncomplete = false
+
   // locale=all first (catches entries per-locale queries may miss).
-  // An error here is non-fatal: locale=all may not be supported, so we
-  // fall through to per-locale queries.
+  // An error here is non-fatal to the sync: locale=all may not be supported,
+  // so we fall through to per-locale queries — but if it's not a "not found"
+  // response, it still means we can't be sure we've seen every entry.
   const allLocaleResult = await ctx.strapi.getAllEntries(config.apiId, 'all')
   if (!(allLocaleResult instanceof Error)) {
     addBatch(allLocaleResult, 'en')
+  } else if (!isNotFoundError(allLocaleResult.message)) {
+    fetchIncomplete = true
   }
 
-  // Per-locale queries as safety net. Per-locale errors are also non-fatal:
-  // a locale may not exist for this content type.
+  // Per-locale queries as safety net. Per-locale errors are also non-fatal
+  // to the sync (a locale may not exist for this content type), but a
+  // non-404 error here likewise means the fetch may be incomplete.
   const locales = getLocalesToCheck(contentType, contentTypes)
   for (const locale of locales) {
     const localeResult = await ctx.strapi.getAllEntries(config.apiId, locale)
     if (!(localeResult instanceof Error)) {
       addBatch(localeResult, locale)
+    } else if (!isNotFoundError(localeResult.message)) {
+      fetchIncomplete = true
     }
   }
 
   // --- 2. Identify orphans and group by documentId ---
+  // Track every locale seen per document (not just orphaned ones) so we can
+  // tell a full-document orphan (safe to delete the document root) apart
+  // from a partial orphan (a sibling locale's MDX file still exists).
+  const allLocalesByDocument = new Map<string, Set<string>>()
+  for (const entry of allEntries) {
+    let locales = allLocalesByDocument.get(entry.documentId)
+    if (!locales) {
+      locales = new Set()
+      allLocalesByDocument.set(entry.documentId, locales)
+    }
+    locales.add(entry.locale)
+  }
+
   const orphansByDocument = new Map<
     string,
     { locales: Set<string>; slugs: Map<string, string> }
@@ -329,8 +355,17 @@ export async function deleteOrphanedEntries(
       deletedAny = true
     }
 
-    // Clean up document root
-    if (deletedAny) {
+    // Clean up document root — only when every locale this document has in
+    // Strapi was orphaned. A partial orphan (e.g. only 'es' has no MDX file
+    // while 'en' still does) must leave the document root alone, since an
+    // unscoped deleteEntry removes ALL locales, not just the orphaned ones.
+    // If the fetch that built allLocalesByDocument was incomplete, we can't
+    // trust it to represent every locale, so skip the root cleanup entirely.
+    const isFullDocumentOrphan =
+      !fetchIncomplete &&
+      doc.locales.size === (allLocalesByDocument.get(documentId)?.size ?? 0)
+
+    if (deletedAny && isFullDocumentOrphan) {
       const result = await ctx.strapi.deleteEntry(config.apiId, documentId)
       if (result instanceof Error && !isNotFoundError(result.message)) {
         // 404 = document was already fully removed by locale deletes. Expected.
