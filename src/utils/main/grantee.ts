@@ -1,6 +1,7 @@
 import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
+import { truncateText } from './text'
 import {
   ensureAbsoluteUrl,
   isExternalHref,
@@ -161,6 +162,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+// Strips markdown syntax markers so searchText/search snippets read as plain
+// prose — otherwise "**Payments**" only matches a query typed with asterisks.
+function stripMarkdownSyntax(text: string): string {
+  return text
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`#>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null
   if (!isRecord(value.fields)) return null
@@ -185,7 +196,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     country,
     ...leaders,
     ...tags,
-    description ?? ''
+    description ? stripMarkdownSyntax(description) : ''
   ]
     .join(' ')
     .toLowerCase()
@@ -299,6 +310,69 @@ export function getGranteeListingData(
     years: uniqueFilterOptions(grantees, 'year'),
     tags: uniqueFilterOptions(grantees, 'tag')
   }
+}
+
+/**
+ * A single grantee's fields as shipped in the client-side search catalog
+ * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
+ * Trimmed to what a slim search-result row needs — no raw markdown, no
+ * derived slugs that the full `GranteeCard` computes for itself.
+ */
+export interface GranteeSearchEntry {
+  id: string
+  name: string
+  program: string
+  year: string
+  country: string
+  startLabel: string
+  leaders: string[]
+  tags: string[]
+  descriptionSnippet: string | null
+  projectUrl: string | null
+  budgetLabel: string | null
+  searchText: string
+}
+
+const SEARCH_SNIPPET_MAX_LENGTH = 160
+
+function toSearchSnippet(description: string | null): string | null {
+  if (!description) return null
+  return truncateText(
+    stripMarkdownSyntax(description),
+    SEARCH_SNIPPET_MAX_LENGTH
+  )
+}
+
+function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
+  return {
+    id: grantee.id,
+    name: grantee.name,
+    program: grantee.program,
+    year: grantee.year,
+    country: grantee.country,
+    startLabel: grantee.startLabel,
+    leaders: grantee.leaders,
+    tags: grantee.tags,
+    descriptionSnippet: toSearchSnippet(grantee.description),
+    projectUrl: grantee.projectUrl,
+    budgetLabel: grantee.budgetLabel,
+    searchText: grantee.searchText
+  }
+}
+
+/**
+ * Build-time catalog for client-side grantee search. Small and locale-scoped
+ * so it can be fetched once (lazily, on first search interaction) and reused
+ * across every paginated/filtered directory route — see
+ * `src/pages/grantee-search-index.json.ts`.
+ */
+export function getGranteeSearchIndex(
+  data: unknown,
+  locale: Locale
+): GranteeSearchEntry[] {
+  const grantees = parseGranteeRecords(data, locale)
+  if (grantees instanceof Error) throw grantees
+  return grantees.map(toGranteeSearchEntry)
 }
 
 interface GranteeListingPageProps {

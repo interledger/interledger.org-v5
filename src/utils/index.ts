@@ -138,6 +138,7 @@ export {
   ALL_GRANTEE_YEAR_SLUG,
   getGranteeFilterUrl,
   getGranteeListingData,
+  getGranteeSearchIndex,
   paginateGranteesByYear,
   paginateGranteesByYearAndTag,
   parseGranteeRecords,
@@ -150,7 +151,8 @@ export {
   type Grantee,
   type GranteeFilters,
   type GranteeFilterOption,
-  type GranteeListingData
+  type GranteeListingData,
+  type GranteeSearchEntry
 } from './main/grantee'
 
 // Main site: Text
