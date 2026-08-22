@@ -110,6 +110,12 @@ function isLocalAssetPath(url: string): boolean {
   return url.startsWith('/img/') || url.startsWith('/uploads/')
 }
 
+// Mirrors TECH_BLOG_FALLBACK_THUMBNAIL in src/utils/main/blog.ts (not imported
+// directly: that module pulls in Astro-only ambient types unresolvable here).
+// Keeps `featureMedia` populated for legacy posts synced with no featureImage,
+// since Strapi's schema marks it required.
+const LEGACY_BLOG_FALLBACK_IMAGE = '/img/tech-thumbnail.svg'
+
 // Returns an existing Strapi upload ID for a referenced image.
 // Local assets must already exist in Strapi media records; this function never uploads.
 // Throws on resolution failure so the surrounding tryCatchAsync wrap converts
@@ -1108,7 +1114,9 @@ export async function buildBlogPayload(
 
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.featureImage
+      image:
+        parsed.featureImage ??
+        (parsed.legacy ? LEGACY_BLOG_FALLBACK_IMAGE : undefined)
     })
     const featureImageMobile = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.featureImageMobile
