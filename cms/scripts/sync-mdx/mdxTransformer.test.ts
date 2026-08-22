@@ -3375,6 +3375,27 @@ describe('buildBlogPayload', () => {
       })
     })
 
+    it('falls back to the tech-thumbnail image when a legacy post has an empty-string featureImage', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/img/tech-thumbnail.svg': 7
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: { ...baseBlogFrontmatter, legacy: true, featureImage: '' }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).featureMedia).toEqual({
+        image: 7,
+        alternativeText: null
+      })
+    })
+
     it('resolves thumbnailImage and thumbnailImageAlt into thumbnailMedia', async () => {
       const { strapiUploadContext, updatedAltIds } =
         createMockStrapiUploadContext({

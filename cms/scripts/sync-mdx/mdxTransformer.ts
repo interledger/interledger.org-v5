@@ -1115,7 +1115,7 @@ export async function buildBlogPayload(
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
       image:
-        parsed.featureImage ??
+        nullOrValue(parsed.featureImage) ??
         (parsed.legacy ? LEGACY_BLOG_FALLBACK_IMAGE : undefined)
     })
     const featureImageMobile = await getImageFromStrapi(strapiUploadContext, {
