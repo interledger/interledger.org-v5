@@ -9,17 +9,29 @@
       "type": "enumeration",
       "required": true,
       "default": "Paragraph",
-      "enum": ["Paragraph", "Disclaimer"]
+      "enum": ["Paragraph", "Disclaimer", "References"]
     },
     "textContent": {
       "type": "customField",
       "conditions": {
         "visible": {
-          "==": [
+          "or": [
             {
-              "var": "textType"
+              "==": [
+                {
+                  "var": "textType"
+                },
+                "Paragraph"
+              ]
             },
-            "Paragraph"
+            {
+              "==": [
+                {
+                  "var": "textType"
+                },
+                "References"
+              ]
+            }
           ]
         }
       },

@@ -3,6 +3,7 @@ import {
   SerializerFieldError,
   htmlFieldToMarkdown,
   isReportTextType,
+  REPORT_TEXT_TYPES,
   type FieldError,
   type ReportTextType
 } from '../../utils'
@@ -13,9 +14,9 @@ interface ReportTextItem {
   textDisclaimer?: string
 }
 
-/** Paragraph items store their text in `textContent`; Disclaimer item uses `textDisclaimer`. */
+/** Paragraph and References items store their text in `textContent`; Disclaimer uses `textDisclaimer`. */
 function textField(textType: ReportTextType): 'textContent' | 'textDisclaimer' {
-  return textType === 'Paragraph' ? 'textContent' : 'textDisclaimer'
+  return textType === 'Disclaimer' ? 'textDisclaimer' : 'textContent'
 }
 
 /**
@@ -31,7 +32,7 @@ function validateReportTextItem(
   if (!item.textType || !isReportTextType(item.textType)) {
     return [
       {
-        message: `Content Block ${position}: Block Type must be Paragraph or Disclaimer`,
+        message: `Content Block ${position}: Block Type must be one of ${REPORT_TEXT_TYPES.join(', ')}`,
         path: ['reportText', index, 'textType']
       }
     ]
@@ -41,7 +42,11 @@ function validateReportTextItem(
   const value = item[field]
   if (!value || !value.trim()) {
     const label =
-      field === 'textContent' ? 'Paragraph Content' : 'Disclaimer Text'
+      item.textType === 'Disclaimer'
+        ? 'Disclaimer Text'
+        : item.textType === 'References'
+          ? 'References Content'
+          : 'Paragraph Content'
     return [
       {
         message: `Content Block ${position}: ${label} is required`,
