@@ -1,7 +1,5 @@
 ---
-import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import FaqPage from '@/components/pages/FaqPage.astro'
-import ReportPage from '@/components/pages/ReportPage.astro'
+import SectionEntryPage from '@/components/pages/SectionEntryPage.astro'
 import HackathonContentPage from '@/components/pages/HackathonContentPage.astro'
 import { getLocalizedPaths, getCrossSectionPaths } from '@/utils'
 
@@ -17,33 +15,10 @@ export async function getStaticPaths() {
   return [...crossSectionPaths, ...pages]
 }
 
-const { slug, locale: contentLocale, kind, isFallback } = Astro.props
+const { slug, locale: contentLocale, kind, isFallback, section } = Astro.props
+const commonProps = { slug, contentLocale, isFallback }
 ---
 
-{
-  kind === 'faq' ? (
-    <FaqPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  ) : kind === 'report' ? (
-    <ReportPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  ) : kind === 'profile' ? (
-    <ProfileDetailPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  ) : (
-    <HackathonContentPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  )
-}
+<SectionEntryPage kind={kind} section={section} {...commonProps}>
+  <HackathonContentPage {...commonProps} />
+</SectionEntryPage>
