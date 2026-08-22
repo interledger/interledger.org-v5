@@ -58,7 +58,7 @@ const detailsAttrs = grantee.projectUrl
   data-grantee-card
   data-year={grantee.year}
   data-program={grantee.programKey}
-  class="m-0 rounded-3xl border border-neutral-50 bg-white p-xl"
+  class="m-0 rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl"
 >
   <article class="flex flex-col gap-lg">
     <div
@@ -81,9 +81,9 @@ const detailsAttrs = grantee.projectUrl
       {
         grantee.budgetLabel && (
           <div class="shrink-0 desktop:text-right">
-            <p class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg">
+            <p class="m-0 flex items-start gap-sm font-poppins font-semibold text-h2 text-neutral-150 tablet:text-h2-md desktop:justify-end desktop:text-h2-lg">
               <span>{grantee.budgetLabel}</span>
-              <span class="ms-xs align-super text-body-sm-standard text-neutral-75">
+              <span class="self-end mb-sm whitespace-nowrap text-h3 font-normal tablet:text-h3-md desktop:text-h3-lg">
                 {t('grantee.currency')}
               </span>
             </p>
@@ -152,7 +152,7 @@ const detailsAttrs = grantee.projectUrl
             class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
           >
             {leadersLabel && (
-              <div class:list={[metaItemClasses, description && 'mb-xl']}>
+              <div class:list={[metaItemClasses, description && 'mb-lg']}>
                 <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
                 <span>
                   <span class="sr-only">{t('grantee.project_lead')}: </span>
