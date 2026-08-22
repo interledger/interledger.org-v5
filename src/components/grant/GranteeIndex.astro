@@ -2,6 +2,7 @@
 import type { Grantee, GranteeFilterOption } from '@/utils'
 import { useTranslations, buildUmamiAttrs, getGranteeFilterUrl } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
+import PillLink from '@/components/shared/PillLink.astro'
 import GranteeCard from './GranteeCard.astro'
 
 interface Props {
@@ -49,16 +50,6 @@ hover:bg-neutral-25 hover:text-neutral-100
 focus-visible:outline-none focus-visible:border focus-visible:border-link
 [&[aria-current='page']]:text-neutral-100
 `
-const pillClasses = `
-  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
-  border border-neutral-50 rounded-full bg-transparent
-  transition-colors duration-200 ease-in-out
-  hover:border-neutral-75 hover:text-neutral-150
-  focus-visible:outline-none focus-visible:border-link
-  [&[aria-current='page']]:text-link [&[aria-current='page']]:border-2 [&[aria-current='page']]:border-link
-  [&[aria-current='page']]:px-[calc(var(--spacing-sm)-1px)] [&[aria-current='page']]:py-[calc(var(--spacing-xs)-1px)]
-`
-
 const filterAttrs = (label: string, action: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
@@ -172,32 +163,30 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
       aria-label={t('aria.grantee.tags')}
     >
       <li class="m-0">
-        <a
+        <PillLink
           href={getGranteeFilterUrl(directoryPath, selectedYear, undefined)}
-          class={pillClasses}
-          aria-current={!selectedTag ? 'page' : undefined}
+          active={!selectedTag}
           {...filterAttrs(allLabel, 'filter_tag_all')}
         >
           {allLabel}
-        </a>
+        </PillLink>
       </li>
       {
         tags.map((option) => {
           const isActive = selectedTag === option.value
           return (
             <li class="m-0">
-              <a
+              <PillLink
                 href={getGranteeFilterUrl(
                   directoryPath,
                   selectedYear,
                   option.value
                 )}
-                class={pillClasses}
-                aria-current={isActive ? 'page' : undefined}
+                active={isActive}
                 {...filterAttrs(option.label, 'filter_tag')}
               >
                 {option.label}
-              </a>
+              </PillLink>
             </li>
           )
         })
@@ -212,7 +201,7 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
 
 {
   grantees.length === 0 ? (
-    <p class="my-5xl text-h3 text-neutral-75 text-center tablet:text-h3-md">
+    <p class="my-5xl text-h5-lg text-neutral-75 text-center tablet:text-h4-lg">
       {t('grantee.empty')}
     </p>
   ) : (

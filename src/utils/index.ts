@@ -124,8 +124,6 @@ export {
 } from './main/podcastPagination'
 export {
   GRANTEE_PAGE_SIZE,
-  GRANTEE_YEAR_SEGMENT,
-  GRANTEE_TAG_SEGMENT,
   ALL_GRANTEE_YEAR_SLUG,
   getGranteeFilterUrl,
   getGranteeListingData,

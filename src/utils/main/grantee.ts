@@ -9,33 +9,37 @@ import {
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 export const GRANTEE_PAGE_SIZE = 10
-export const GRANTEE_YEAR_SEGMENT = 'year'
-export const GRANTEE_TAG_SEGMENT = 'tag'
 export const ALL_GRANTEE_YEAR_SLUG = 'all'
 
+function isGranteeYearSlug(value: string): boolean {
+  return value === ALL_GRANTEE_YEAR_SLUG || /^\d{4}$/.test(value)
+}
+
 export const granteeRouteShape: PaginatedRouteShape = {
-  matches: (basePath, parts) =>
-    basePath === '/grant' && parts[0] === 'grantee-directory',
+  matches: (basePath, parts) => {
+    if (basePath !== '/grant' || parts[0] !== 'grantee-directory') return false
+    const last = parts.at(-1)
+    // Years are 4-digit values in the path, not listing page numbers.
+    return !last || !/^\d{4}$/.test(last)
+  },
   isValidListingPrefix: (prefixParts) => {
     if (prefixParts[0] !== 'grantee-directory') return false
     if (prefixParts.length === 1) return true
-    if (prefixParts[1] !== GRANTEE_YEAR_SEGMENT) return false
-    if (prefixParts.length === 3) return true
-    return prefixParts.length === 5 && prefixParts[3] === GRANTEE_TAG_SEGMENT
+    if (!isGranteeYearSlug(prefixParts[1])) return false
+    return prefixParts.length === 2 || prefixParts.length === 3
   }
 }
 
-/** Builds a directory listing URL, e.g. `/grant/grantee-directory/year/2024`. */
+/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
 export function getGranteeFilterUrl(
   directoryPath: string,
   year?: string,
   tag?: string
 ): string {
   if (!year && !tag) return directoryPath
-  const yearSlug = year || ALL_GRANTEE_YEAR_SLUG
-  const yearPath = `${directoryPath}/${GRANTEE_YEAR_SEGMENT}/${yearSlug}`
+  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
   if (!tag) return yearPath
-  return `${yearPath}/${GRANTEE_TAG_SEGMENT}/${tag}`
+  return `${yearPath}/${tag}`
 }
 
 export interface Grantee {

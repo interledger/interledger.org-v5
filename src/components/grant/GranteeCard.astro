@@ -9,6 +9,7 @@ import {
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import PillLink from '@/components/shared/PillLink.astro'
 
 interface Props {
   grantee: Grantee
@@ -28,14 +29,6 @@ const description = grantee.description
   : null
 const descriptionId = `grantee-desc-${grantee.id}`
 const leadersLabel = grantee.leaders.join(', ')
-
-const tagClasses = `
-  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
-  border border-neutral-50 rounded-full
-  transition-all duration-200 ease-in-out
-  hover:border-neutral-75 hover:text-neutral-150
-  focus-visible:outline-none focus-visible:border-link
-`
 
 const tagAttrs = (tag: string) =>
   buildUmamiAttrs({
@@ -110,17 +103,16 @@ const detailsAttrs = grantee.projectUrl
         >
           {grantee.tags.map((tag) => (
             <li class="m-0">
-              <a
+              <PillLink
                 href={getGranteeFilterUrl(
                   directoryPath,
                   selectedYear,
                   generateSlug(tag)
                 )}
-                class={tagClasses}
                 {...tagAttrs(tag)}
               >
                 {tag}
-              </a>
+              </PillLink>
             </li>
           ))}
         </ul>
@@ -152,62 +144,64 @@ const detailsAttrs = grantee.projectUrl
       )
     }
 
-    {
-      (leadersLabel || description) && (
-        <div
-          data-grantee-description
-          class="flex flex-col gap-sm rounded-2xl bg-ice-indigo-50 p-lg"
-        >
-          {leadersLabel && (
-            <div class={metaItemClasses}>
-              <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
-              <span>
-                <span class="sr-only">{t('grantee.project_lead')}: </span>
-                {leadersLabel}
-              </span>
-            </div>
-          )}
-          {description && (
-            <p
-              id={descriptionId}
-              data-grantee-description-text
-              class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
-              set:html={description}
-            />
-          )}
-          {description && (
-            <button
-              type="button"
-              hidden
-              data-grantee-description-toggle
-              class="self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
-              aria-expanded="false"
-              aria-controls={descriptionId}
-            >
-              {t('grantee.read_more')}
-              <Icon name="arrow-down" class="size-4" />
-            </button>
-          )}
-        </div>
-      )
-    }
-
-    {
-      grantee.projectUrl && (
-        <div class="flex flex-wrap gap-md">
-          <LinkButton
-            href={grantee.projectUrl}
-            external
-            variant="primary"
-            size="sm"
-            iconSide="right"
-            {...detailsAttrs}
+    <div class="flex flex-col gap-xl">
+      {
+        (leadersLabel || description) && (
+          <div
+            data-grantee-description
+            class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
           >
-            {t('grantee.view_details')}
-            <Icon slot="icon-right" name="external-link" class="size-4" />
-          </LinkButton>
-        </div>
-      )
-    }
+            {leadersLabel && (
+              <div class:list={[metaItemClasses, description && 'mb-xl']}>
+                <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+                <span>
+                  <span class="sr-only">{t('grantee.project_lead')}: </span>
+                  {leadersLabel}
+                </span>
+              </div>
+            )}
+            {description && (
+              <p
+                id={descriptionId}
+                data-grantee-description-text
+                class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
+                set:html={description}
+              />
+            )}
+            {description && (
+              <button
+                type="button"
+                hidden
+                data-grantee-description-toggle
+                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+                aria-expanded="false"
+                aria-controls={descriptionId}
+              >
+                {t('grantee.read_more')}
+                <Icon name="arrow-down" class="size-4" />
+              </button>
+            )}
+          </div>
+        )
+      }
+
+      {
+        grantee.projectUrl && (
+          <div class="flex flex-wrap gap-md">
+            <LinkButton
+              href={grantee.projectUrl}
+              external
+              variant="primary"
+              size="sm"
+              iconSide="right"
+              {...detailsAttrs}
+            >
+              {t('grantee.view_details')}
+              <Icon slot="icon-right" name="external-link" class="size-4" />
+            </LinkButton>
+          </div>
+        )
+      }
+    </div>
   </article>
 </li>

@@ -126,26 +126,26 @@ describe('stripPagination', () => {
   })
 
   it('does not strip a grantee year that looks like a page number', () => {
-    expect(stripPagination('/grant/grantee-directory/year/2024')).toBe(
-      '/grant/grantee-directory/year/2024'
+    expect(stripPagination('/grant/grantee-directory/2024')).toBe(
+      '/grant/grantee-directory/2024'
     )
   })
 
   it('drops the page number from a grantee year listing', () => {
-    expect(stripPagination('/grant/grantee-directory/year/2024/2')).toBe(
-      '/grant/grantee-directory/year/2024'
+    expect(stripPagination('/grant/grantee-directory/2024/2')).toBe(
+      '/grant/grantee-directory/2024'
     )
   })
 
   it('drops the page number from a grantee year and tag listing', () => {
-    expect(
-      stripPagination('/grant/grantee-directory/year/2024/tag/privacy/3')
-    ).toBe('/grant/grantee-directory/year/2024/tag/privacy')
+    expect(stripPagination('/grant/grantee-directory/2024/privacy/3')).toBe(
+      '/grant/grantee-directory/2024/privacy'
+    )
   })
 
   it('drops the page number from a locale-prefixed grantee year listing', () => {
-    expect(stripPagination('/es/grant/grantee-directory/year/2024/2')).toBe(
-      '/es/grant/grantee-directory/year/2024'
+    expect(stripPagination('/es/grant/grantee-directory/2024/2')).toBe(
+      '/es/grant/grantee-directory/2024'
     )
   })
 })

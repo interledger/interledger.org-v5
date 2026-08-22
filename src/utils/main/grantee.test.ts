@@ -309,21 +309,21 @@ describe('getGranteeFilterUrl', () => {
     expect(getGranteeFilterUrl(directory)).toBe(directory)
   })
 
-  it('nests a year under /year/', () => {
+  it('appends the year value', () => {
     expect(getGranteeFilterUrl(directory, '2024')).toBe(
-      '/grant/grantee-directory/year/2024'
+      '/grant/grantee-directory/2024'
     )
   })
 
-  it('uses year/all when only a tag is selected', () => {
+  it('uses all/<tag> when only a tag is selected', () => {
     expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/year/all/tag/privacy'
+      '/grant/grantee-directory/all/privacy'
     )
   })
 
-  it('combines year and tag', () => {
+  it('combines year and tag values', () => {
     expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
-      '/grant/grantee-directory/year/2024/tag/privacy'
+      '/grant/grantee-directory/2024/privacy'
     )
   })
 })
