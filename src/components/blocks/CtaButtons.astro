@@ -37,11 +37,6 @@ interface Props {
   buttons?: CtaButtonProp[]
   /** Template surfaces (event card, hackathon hero) can drop the trailing icon. */
   hideIcons?: boolean
-  /**
-   * Override the default button_cta/primary_cta (or secondary_cta) analytics
-   * tracking. A card template (event card) reports as button_card/event_cards
-   * instead, matching ResourceCard/TitleCard's card taxonomy (INTORG-862).
-   */
   umamiLabel?: UmamiLabel
   umamiBaseComponent?: string
 }

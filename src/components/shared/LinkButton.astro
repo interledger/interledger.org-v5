@@ -33,12 +33,6 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   document?: boolean
   ariaDisabled?: boolean
   class?: string
-  /**
-   * Umami event label/base_component for this button. Required unless the
-   * caller already supplies pre-built `data-umami-event*`/`data-track-event*`
-   * props (e.g. from its own `buildUmamiAttrs`/`buildDeferredUmamiAttrs`
-   * call) — in that case, omit both and the pre-built attrs win.
-   */
   umamiLabel?: UmamiLabel
   umamiBaseComponent?: string
 }

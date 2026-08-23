@@ -20,13 +20,6 @@ export interface BuildUmamiAttrsInput {
   baseComponent: string
   href?: string | null
   linkText?: string | null
-  /**
-   * Fallback source for `link_text` when there's no visible text (icon-only
-   * links/buttons). Only ever read as an input here — `buildUmamiAttrs` never
-   * emits an `aria-label` HTML attribute itself, so callers still need to set
-   * the real `aria-label` on the element separately for accessibility. Reuse
-   * one local value for both rather than computing/typing it twice.
-   */
   ariaLabel?: string | null
   lang?: string
   pathname?: string
@@ -196,11 +189,7 @@ function getDestination(href: string | null | undefined): {
   // below collapse to `<section>_home`.
   if (normalized.startsWith('#')) return null
 
-  // Anything else carrying a scheme (`mailto:`, `tel:`, `https:`, …) or a
-  // protocol-relative `//host` href is never a site-relative path.
-  // `isExternalHref` only recognises http(s), so a bare scheme check here
-  // catches the rest before they fall into the internal segment parser below
-  // and get misread as internal content (INTORG-862).
+  // Anything else carrying a scheme (`mailto:`, `tel:`, `https:`, …) should register as external
   if (hasUrlScheme(normalized)) return getExternalDestination(normalized)
 
   const delocaled = stripLocalePrefix(getPathSegments(normalized))
@@ -271,12 +260,6 @@ export function buildDeferredUmamiAttrs(
   return trackAttrs as unknown as UmamiTrackAttrs
 }
 
-/**
- * Shared Umami attrs for a desktop nav submenu's open/close toggle button,
- * used by both `FoundationNavMenu.astro` and `MicrositeNavMenu.astro` — kept
- * in one place so the two don't drift on label/base_component. No `href`:
- * toggling a submenu open/closed has no destination.
- */
 export function buildSubmenuToggleUmamiAttrs(
   pathname: string,
   lang: string,
@@ -291,11 +274,6 @@ export function buildSubmenuToggleUmamiAttrs(
   })
 }
 
-/**
- * Shared Umami attrs for a summit session-title link, used by both
- * `SessionCard.astro` (single card) and `SessionsList.astro` (full listing) —
- * kept in one place so the two don't drift on base_component.
- */
 export function buildSessionCardUmamiAttrs(
   pathname: string,
   lang: string,
@@ -313,22 +291,82 @@ export function buildSessionCardUmamiAttrs(
 }
 
 /**
- * Serialise umami attributes as an HTML attribute string (leading space).
- * Used by the markdown renderer; everything is HTML-escaped.
+ * Shared Umami attrs for a top-level site-nav link (logo, menu item,
+ * language toggle, submenu item) — used by `FoundationHeader.astro`,
+ * `MicrositeHeader.astro`, `HackathonHeader.astro`, `MicrositeNavMenu.astro`,
+ * and `NavMenuLink.astro` (which `FoundationNavMenu.astro` renders through).
+ * Kept in one place so a header can't drift onto a made-up field name
+ * instead of `label`/`baseComponent` (INTORG-862).
  */
+export function buildNavLinkUmamiAttrs(
+  pathname: string,
+  lang: string,
+  href: string,
+  linkText?: string,
+  ariaLabel?: string
+): UmamiTrackAttrs {
+  return buildDeferredUmamiAttrs({
+    pathname,
+    lang,
+    label: 'nav',
+    baseComponent: 'menu',
+    href,
+    linkText,
+    ariaLabel
+  })
+}
+
+/**
+ * Shared Umami attrs for a header/nav's CTA button — used by
+ * `FoundationHeader.astro`, `MicrositeHeader.astro`, `HackathonHeader.astro`,
+ * `FoundationNavActions.astro`, and `MicrositeNavActions.astro`. Kept
+ * separate from `buildNavLinkUmamiAttrs` so a header's plain nav links and
+ * its CTA are never tracked under the same bucket by accident.
+ */
+export function buildNavCtaUmamiAttrs(
+  pathname: string,
+  lang: string,
+  href: string,
+  linkText?: string
+): UmamiTrackAttrs {
+  return buildDeferredUmamiAttrs({
+    pathname,
+    lang,
+    label: 'button_cta',
+    baseComponent: 'menu',
+    href,
+    linkText
+  })
+}
+
+/**
+ * Shared Umami attrs for an in-page section-nav link (`FaqSectionsNav.astro`,
+ * `ReportSectionsNav.astro`) — same `#id` anchor shape, distinguished by
+ * `baseComponent` per content domain (`faq`, `report`).
+ */
+export function buildSectionNavLinkUmamiAttrs(
+  pathname: string,
+  lang: string,
+  baseComponent: string,
+  id: string,
+  heading: string
+): UmamiAttrs {
+  return buildUmamiAttrs({
+    pathname,
+    lang,
+    label: 'link',
+    baseComponent,
+    href: `#${id}`,
+    linkText: heading
+  })
+}
+
 export function umamiAttrsToHtml(attrs: UmamiAttrs): string {
   return Object.entries(attrs)
     .map(([key, value]) => ` ${key}="${escapeHtml(value as string)}"`)
     .join('')
 }
 
-/**
- * Extract a `label:foo` directive from a markdown link title, used to
- * override the rendered link's `base_component` (defaulting otherwise to
- * `inline_link`). Returns the override and the cleaned title (which is
- * `undefined` if the directive was the entire title, so it doesn't leak onto
- * the rendered `<a>`).
- */
 export function extractTitleLabel(title: string | null | undefined): {
   label?: string
   title?: string

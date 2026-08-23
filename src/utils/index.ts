@@ -203,6 +203,9 @@ export {
   buildUmamiAttrs,
   buildSubmenuToggleUmamiAttrs,
   buildSessionCardUmamiAttrs,
+  buildNavLinkUmamiAttrs,
+  buildNavCtaUmamiAttrs,
+  buildSectionNavLinkUmamiAttrs,
   escapeHtml,
   umamiAttrsToHtml
 } from './main/umami'

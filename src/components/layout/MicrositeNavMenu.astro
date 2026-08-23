@@ -1,7 +1,7 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
 import type { MenuGroup } from '@/types/navigation'
-import { buildDeferredUmamiAttrs, buildSubmenuToggleUmamiAttrs } from '@/utils'
+import { buildNavLinkUmamiAttrs, buildSubmenuToggleUmamiAttrs } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
@@ -11,14 +11,7 @@ const { menuGroups } = Astro.props
 const { routeLocale } = Astro.locals
 
 const navLinkAttrs = (href: string, linkText?: string) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    label: 'nav',
-    baseComponent: 'menu',
-    href,
-    linkText
-  })
+  buildNavLinkUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 
 const submenuToggleAttrs = (groupLabel: string) =>
   buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)

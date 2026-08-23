@@ -1,5 +1,9 @@
 ---
-import { useTranslations, buildUmamiAttrs, type Locale } from '@/utils'
+import {
+  useTranslations,
+  buildSectionNavLinkUmamiAttrs,
+  type Locale
+} from '@/utils'
 
 interface FaqNavSection {
   id: string
@@ -16,14 +20,13 @@ const t = useTranslations(uiLocale)
 const { routeLocale } = Astro.locals
 
 const sectionNavAttrs = (id: string, heading: string) =>
-  buildUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    label: 'link',
-    baseComponent: 'faq',
-    href: `#${id}`,
-    linkText: heading
-  })
+  buildSectionNavLinkUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
+    'faq',
+    id,
+    heading
+  )
 ---
 
 <nav

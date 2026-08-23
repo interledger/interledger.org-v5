@@ -1,7 +1,7 @@
 ---
 import type { MenuItem } from '@/types/navigation'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
-import { buildDeferredUmamiAttrs } from '@/utils'
+import { buildNavCtaUmamiAttrs } from '@/utils'
 
 interface Props {
   ctaButton?: MenuItem
@@ -15,14 +15,12 @@ const ctaLinkClass =
 
 const ctaAttrs =
   ctaButton &&
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    label: 'button_cta',
-    baseComponent: 'menu',
-    href: ctaButton.href || '#',
-    linkText: ctaButton.label
-  })
+  buildNavCtaUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
+    ctaButton.href || '#',
+    ctaButton.label
+  )
 ---
 
 <div

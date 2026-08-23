@@ -11,11 +11,8 @@ import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { wrapScrollableTables } from './wrapScrollableTables'
 
 export interface UmamiContext {
-  /** Pathname (e.g. `Astro.url.pathname`) used to derive `current_path`/`current_section`. */
   pathname?: string
-  /** CMS-authored override for the computed `current_path` group value. */
   page?: string
-  /** Locale code emitted as `lang`. */
   lang?: string
 }
 
