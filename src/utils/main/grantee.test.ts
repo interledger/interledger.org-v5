@@ -361,9 +361,9 @@ describe('getGranteeFilterUrl', () => {
     )
   })
 
-  it('uses all/<tag> when only a tag is selected', () => {
+  it('appends only the tag when no year is selected', () => {
     expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/all/privacy'
+      '/grant/grantee-directory/privacy'
     )
   })
 

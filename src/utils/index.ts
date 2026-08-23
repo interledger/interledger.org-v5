@@ -140,6 +140,7 @@ export {
   getGranteeListingData,
   getGranteeSearchIndex,
   paginateGranteesByYear,
+  paginateGranteesByTag,
   paginateGranteesByYearAndTag,
   parseGranteeRecords,
   uniqueFilterOptions,

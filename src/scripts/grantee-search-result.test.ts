@@ -7,8 +7,8 @@ describe('withSearchQuery', () => {
   })
 
   it('returns the href unchanged when the query is empty', () => {
-    expect(withSearchQuery('/grant/grantee-directory/all/privacy', '')).toBe(
-      '/grant/grantee-directory/all/privacy'
+    expect(withSearchQuery('/grant/grantee-directory/privacy', '')).toBe(
+      '/grant/grantee-directory/privacy'
     )
   })
 

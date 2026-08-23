@@ -8,10 +8,12 @@ export function getGranteeFilterUrl(
   year?: string,
   tag?: string
 ): string {
-  if (!year && !tag) return directoryPath
-  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
-  if (!tag) return yearPath
-  return `${yearPath}/${tag}`
+  const yearSegment = year?.trim() || undefined
+  const tagSegment = tag?.trim() || undefined
+  if (!yearSegment && !tagSegment) return directoryPath
+  if (!yearSegment) return `${directoryPath}/${tagSegment}`
+  if (!tagSegment) return `${directoryPath}/${yearSegment}`
+  return `${directoryPath}/${yearSegment}/${tagSegment}`
 }
 
 export interface GranteeFilters {

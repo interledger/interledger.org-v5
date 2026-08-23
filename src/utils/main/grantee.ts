@@ -35,8 +35,10 @@ export const granteeRouteShape: PaginatedRouteShape = {
   isValidListingPrefix: (prefixParts) => {
     if (prefixParts[0] !== 'grantee-directory') return false
     if (prefixParts.length === 1) return true
-    if (!isGranteeYearSlug(prefixParts[1])) return false
-    return prefixParts.length === 2 || prefixParts.length === 3
+    // Second segment is a year or an all-years tag slug.
+    if (prefixParts.length === 2) return true
+    // Third segment is only a tag when the second is a year.
+    return prefixParts.length === 3 && isGranteeYearSlug(prefixParts[1])
   }
 }
 
@@ -390,6 +392,34 @@ export function paginateGranteesByYear({
   })
 }
 
+export function paginateGranteesByTag({
+  paginate,
+  grantees,
+  years,
+  tags
+}: {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}) {
+  return tags.flatMap((tag) => {
+    // Tag-only URLs live at /grantee-directory/<tag>, same slot as a year.
+    // Skip slugs that would collide with a year route.
+    if (isGranteeYearSlug(tag.value)) return []
+    const entries = filterGrantees(grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    return paginate(entries, {
+      params: { year: tag.value },
+      pageSize: GRANTEE_PAGE_SIZE,
+      props: listingProps(years, tags, undefined, tag.value)
+    })
+  })
+}
+
 export function paginateGranteesByYearAndTag({
   paginate,
   grantees,
@@ -401,26 +431,19 @@ export function paginateGranteesByYearAndTag({
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
 }) {
-  const yearSlugs = [
-    ALL_GRANTEE_YEAR_SLUG,
-    ...years.map((option) => option.value)
-  ]
-
-  return yearSlugs.flatMap((yearSlug) => {
-    const yearFilter = yearSlug === ALL_GRANTEE_YEAR_SLUG ? '' : yearSlug
-
-    return tags.flatMap((tag) => {
+  return years.flatMap((year) =>
+    tags.flatMap((tag) => {
       const entries = filterGrantees(grantees, {
         q: '',
-        year: yearFilter,
+        year: year.value,
         tag: tag.value
       })
 
       return paginate(entries, {
-        params: { year: yearSlug, tag: tag.value },
+        params: { year: year.value, tag: tag.value },
         pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, yearFilter || undefined, tag.value)
+        props: listingProps(years, tags, year.value, tag.value)
       })
     })
-  })
+  )
 }
