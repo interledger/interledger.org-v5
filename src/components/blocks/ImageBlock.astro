@@ -2,7 +2,8 @@
 import {
   getOptimizedImage,
   hasOptimizedVariants,
-  isOptimizableSource
+  isOptimizableSource,
+  buildUmamiAttrs
 } from '@/utils'
 import ResponsiveSources from '@/components/shared/ResponsiveSources.astro'
 
@@ -48,6 +49,17 @@ const alt =
   altProp ?? media?.alternativeText ?? media?.image?.alternativeText ?? ''
 const tabletSrc = tabletSrcProp ?? tabletImage?.url
 const mobileSrc = mobileSrcProp ?? mobileImage?.url
+
+const { routeLocale } = Astro.locals
+
+const fullImageAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  label: 'link',
+  baseComponent: 'image_block',
+  href: src,
+  linkText: 'View full image'
+})
 
 const desktop = src ? getOptimizedImage(src) : null
 const tablet = tabletSrc ? getOptimizedImage(tabletSrc) : null
@@ -103,6 +115,7 @@ const TABLET_MQ = '(max-width: 1199px)'
             target="_blank"
             rel="noopener noreferrer"
             class="inline-flex items-center gap-xs text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg text-neutral-75 hover:text-link underline-offset-2 hover:underline transition-colors"
+            {...fullImageAttrs}
           >
             View full image
             <svg

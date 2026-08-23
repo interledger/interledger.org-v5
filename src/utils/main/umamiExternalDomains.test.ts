@@ -11,6 +11,9 @@ describe('getExternalGroupName', () => {
     expect(getExternalGroupName('learn.interledger.org')).toBe(
       'learn_interledger'
     )
+    expect(getExternalGroupName('community.interledger.org')).toBe(
+      'community_interledger'
+    )
     expect(getExternalGroupName('slack.com')).toBe('slack')
     expect(getExternalGroupName('x.com')).toBe('x')
     expect(getExternalGroupName('linkedin.com')).toBe('linkedin')

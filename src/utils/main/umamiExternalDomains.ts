@@ -12,6 +12,7 @@ const EXTERNAL_DOMAIN_GROUPS: Record<string, string> = {
   'openpayments.dev': 'openpayments',
   'rafiki.dev': 'rafiki',
   'learn.interledger.org': 'learn_interledger',
+  'community.interledger.org': 'community_interledger',
   'wallet.interledger-test.dev': 'wallet', // test wallet
   'interledger.app': 'wallet', // prod wallet
   'slack.com': 'slack', // seen as join.slack.com

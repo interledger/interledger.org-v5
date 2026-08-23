@@ -1,4 +1,4 @@
-import { isExternalHref, getHostname } from '../shared/url'
+import { hasUrlScheme, getHostname } from '../shared/url'
 import { isPreviewPathname } from '../shared/demoPaths'
 import { getExternalGroupName, OTHER_EXTERNAL } from './umamiExternalDomains'
 import { LOCALE_CODES } from './localeCodes'
@@ -189,7 +189,19 @@ function getDestination(href: string | null | undefined): {
   if (!trimmed) return null
 
   const normalized = stripKnownOrigin(trimmed)
-  if (isExternalHref(normalized)) return getExternalDestination(normalized)
+
+  // A hash-only href (`#section`, e.g. FaqSectionsNav's in-page jumps) is a
+  // same-page anchor, not a navigation destination — treat it like a
+  // destination-less interaction rather than letting the empty remainder
+  // below collapse to `<section>_home`.
+  if (normalized.startsWith('#')) return null
+
+  // Anything else carrying a scheme (`mailto:`, `tel:`, `https:`, …) or a
+  // protocol-relative `//host` href is never a site-relative path.
+  // `isExternalHref` only recognises http(s), so a bare scheme check here
+  // catches the rest before they fall into the internal segment parser below
+  // and get misread as internal content (INTORG-862).
+  if (hasUrlScheme(normalized)) return getExternalDestination(normalized)
 
   const delocaled = stripLocalePrefix(getPathSegments(normalized))
   const section = classifySectionFromSegments(delocaled)

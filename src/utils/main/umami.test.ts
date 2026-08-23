@@ -226,6 +226,61 @@ describe('buildUmamiAttrs — destination_path / destination_section', () => {
       'data-umami-event-destination-section': 'foundation'
     })
   })
+
+  it('omits destination properties for a hash-only in-page anchor', () => {
+    // FaqSectionsNav links to `#section` on the same page — that's not a
+    // navigation destination, so it must not collapse to `foundation_home`.
+    const attrs = buildUmamiAttrs({
+      label: 'nav',
+      baseComponent: 'faq_nav',
+      pathname: '/faq',
+      href: '#pricing'
+    })
+    expect(attrs).not.toHaveProperty('data-umami-event-destination-path')
+    expect(attrs).not.toHaveProperty('data-umami-event-destination-section')
+  })
+
+  it('classifies a mailto: link as external instead of a fake internal path', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        href: 'mailto:hi@example.com'
+      })
+    ).toMatchObject({
+      'data-umami-event-destination-path': 'other_external',
+      'data-umami-event-destination-section': 'external'
+    })
+  })
+
+  it('classifies a tel: link as external instead of a fake internal path', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        href: 'tel:+15551234567'
+      })
+    ).toMatchObject({
+      'data-umami-event-destination-path': 'other_external',
+      'data-umami-event-destination-section': 'external'
+    })
+  })
+
+  it('classifies a protocol-relative host as external, grouped by hostname', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        href: '//github.com/interledger/rafiki'
+      })
+    ).toMatchObject({
+      'data-umami-event-destination-path': 'github',
+      'data-umami-event-destination-section': 'external'
+    })
+  })
 })
 
 describe('buildUmamiAttrs — event name and other properties', () => {
