@@ -1,7 +1,7 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { parseMarkdown, resolveCtaLink } from '@/utils'
+import { parseMarkdown, resolveCtaLink, buildUmamiAttrs } from '@/utils'
 
 interface FaqItem {
   question: string
@@ -33,6 +33,15 @@ const {
   items
 } = Astro.props
 const { routeLocale } = Astro.locals
+
+const faqToggleUmamiAttrs = (question: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'toggle',
+    baseComponent: 'faq',
+    ariaLabel: question
+  })
 
 // Whitespace-only values are treated as absent, matching
 // validateGrantPageFaqSection and generateGrantPageMDX — otherwise a " "
@@ -122,7 +131,10 @@ const renderedItems = await Promise.all(
             open={index === 0}
             class="group border-b border-neutral-200 py-2xl first:pt-0 "
           >
-            <summary class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden">
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
+              {...faqToggleUmamiAttrs(item.question)}
+            >
               <span class="font-poppins text-base font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
                 {item.question}
               </span>
