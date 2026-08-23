@@ -1,5 +1,10 @@
 ---
-import { useTranslations, localizeRoute, type BreadcrumbItem } from '@/utils'
+import {
+  useTranslations,
+  localizeRoute,
+  buildUmamiAttrs,
+  type BreadcrumbItem
+} from '@/utils'
 import { buttonVariants } from '@/components/shared/buttonVariants'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
@@ -14,6 +19,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 ]
 
 const currentPath = Astro.url.pathname
+
+const submitButtonUmamiAttrs = buildUmamiAttrs({
+  pathname: currentPath,
+  lang: routeLocale,
+  label: 'button_form',
+  baseComponent: 'form',
+  linkText: t('contact.submit')
+})
 
 const topics = [
   { value: 'Grants', label: t('contact.topic.grants') },
@@ -258,12 +271,7 @@ const optionClasses = [
                     })}
                     data-label-default={t('contact.submit')}
                     data-label-busy={t('contact.submitting')}
-                    data-umami-event="button_form"
-                    data-umami-event-base-component="form"
-                    data-umami-event-link-text={t('contact.submit')}
-                    data-umami-event-lang={routeLocale}
-                    data-umami-event-current-path={currentPath}
-                    data-umami-event-current-section="contact"
+                    {...submitButtonUmamiAttrs}
                   >
                     <span id="contact-submit-label">{t('contact.submit')}</span>
                     <Icon

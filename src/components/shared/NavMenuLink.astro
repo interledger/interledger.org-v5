@@ -25,7 +25,8 @@ const t = useTranslations(routeLocale)
 const umamiAttrs = buildDeferredUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'nav',
+  label: 'nav',
+  baseComponent: 'menu',
   href,
   linkText: label
 })

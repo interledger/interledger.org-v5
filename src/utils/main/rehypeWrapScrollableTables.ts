@@ -3,9 +3,10 @@ import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { TABLE_SCROLL_CLASS } from './wrapScrollableTables'
+import { LOCALE_CODES } from './localeCodes'
 
 const CONTENT_FILE_RE = /\/src\/content\/([^/]+)\/(.+)\.(?:mdx?|md)$/
-const LOCALE_CODES = new Set(['en', 'es'])
+const localeSet = new Set<string>(LOCALE_CODES)
 
 function isTableParent(parent: Parents | null | undefined): parent is Parents {
   if (!parent || !('children' in parent)) return false
@@ -50,7 +51,7 @@ const rehypeWrapScrollableTables: Plugin<[], Root> = () => (tree, file) => {
     .split('/')
     .filter(Boolean)
   const locale =
-    slugSegments[0] && LOCALE_CODES.has(slugSegments[0])
+    slugSegments[0] && localeSet.has(slugSegments[0])
       ? slugSegments[0]
       : undefined
 

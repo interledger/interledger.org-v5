@@ -8,17 +8,17 @@ interface Props {
   year: string
 }
 
-const { speaker, basePath, year } = Astro.props
+const { speaker, basePath } = Astro.props
 const { routeLocale } = Astro.locals
 const href = `${basePath}/${generateSlug(speaker.name)}`
 
 const attrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'card',
+  label: 'button_card',
+  baseComponent: 'speaker_cards',
   href,
-  linkText: speaker.name,
-  action: `${year}_speaker_name`
+  linkText: speaker.name
 })
 ---
 

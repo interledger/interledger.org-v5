@@ -99,7 +99,7 @@ export function isExternalHref(href: string): boolean {
 }
 
 /** The host of `url`, lowercased, or null if it can't be parsed. */
-function getHostname(url: string): string | null {
+export function getHostname(url: string): string | null {
   try {
     return new URL(ensureAbsoluteUrl(url)).hostname.toLowerCase()
   } catch {

@@ -15,7 +15,8 @@ const pillarUmamiAttrs = (href: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'card',
+    label: 'button_card',
+    baseComponent: 'card',
     href
   })
 

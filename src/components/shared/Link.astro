@@ -1,6 +1,6 @@
 ---
-import { buildUmamiAttrs, resolveCtaLink, type UmamiSection } from '@/utils'
 import Icon from './Icon.astro'
+import { buildUmamiAttrs, resolveCtaLink, type UmamiLabel } from '@/utils'
 
 interface Props {
   href?: string
@@ -10,10 +10,10 @@ interface Props {
   external?: boolean
   /** Downloadable file: shows the download icon and sets `download`. */
   document?: boolean
-  /** Umami section context. Defaults to `cta` since this is a CTA-style button. */
-  section?: UmamiSection
-  /** Override the derived Umami action segment (e.g. `cta_button`). */
-  action?: string
+  /** Umami event label for this link. */
+  umamiLabel: UmamiLabel
+  /** Umami base_component for this link, e.g. `primary_cta`. */
+  umamiBaseComponent: string
 }
 
 const {
@@ -23,8 +23,8 @@ const {
   document: isDocument,
   text,
   variant,
-  section = 'cta',
-  action
+  umamiLabel,
+  umamiBaseComponent
 } = Astro.props as Props
 const { routeLocale } = Astro.locals
 
@@ -65,10 +65,10 @@ const key =
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section,
+  label: umamiLabel,
+  baseComponent: umamiBaseComponent,
   linkText: text,
-  href,
-  action
+  href
 })
 ---
 

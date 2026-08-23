@@ -1,7 +1,8 @@
 ---
 /**
  * Event card "Apply" column — title, optional body text, and a CtaButtons
- * primary with no trailing icon.
+ * primary with no trailing icon, tracked as button_card/event_cards
+ * (INTORG-862) to match ResourceCard/TitleCard's card taxonomy.
  */
 import CtaButtons from '@/components/blocks/CtaButtons.astro'
 
@@ -48,6 +49,8 @@ const hasText = Boolean(text) || Astro.slots.has('default')
   <div class="[&_[data-component='CtaButtons']]:m-0">
     <CtaButtons
       hideIcons
+      umamiLabel="button_card"
+      umamiBaseComponent="event_cards"
       buttons={[
         {
           text: buttonText,

@@ -10,7 +10,8 @@ import {
   buildQuarterHeaders,
   createPositioner,
   buildGridItems,
-  computeProjectBarProps
+  computeProjectBarProps,
+  buildUmamiAttrs
 } from '@/utils'
 
 interface Props {
@@ -19,6 +20,16 @@ interface Props {
 }
 
 const { projects = [], teams = [] }: Props = Astro.props
+const { routeLocale } = Astro.locals
+
+const milestonePinUmamiAttrs = (ariaLabel: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'toggle',
+    baseComponent: 'milestone_pin',
+    ariaLabel
+  })
 
 const now = new Date()
 const nowYear = now.getUTCFullYear()
@@ -362,13 +373,14 @@ let projectRowIndex = -1
                         const left = pos
                           .pctLeft(new Date(ms.targetDate!))
                           .toFixed(2)
+                        const milestoneLabel = `${ms.name}, target ${fmtDate(ms.targetDate)}`
                         return (
                           <button
                             type="button"
                             class="ms-pin"
-                            aria-label={`${ms.name}, target ${fmtDate(ms.targetDate)}`}
+                            aria-label={milestoneLabel}
                             style={`left: ${left}%`}
-                            data-umami-event="developers_roadmap:milestone:open"
+                            {...milestonePinUmamiAttrs(milestoneLabel)}
                             data-umami-event-project={proj.name}
                             data-umami-event-milestone={ms.name}
                           >

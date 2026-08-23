@@ -12,7 +12,12 @@
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { isExternalHref, isSafeMarkdownHref, useTranslations } from '@/utils'
+import {
+  buildUmamiAttrs,
+  isExternalHref,
+  isSafeMarkdownHref,
+  useTranslations
+} from '@/utils'
 
 interface StrapiMedia {
   url?: string
@@ -61,6 +66,17 @@ const image = resolveImage(authorImage)
 // deciding layout so an unsafe link cannot open an empty attribution row.
 const safeAuthorLink =
   authorLink && isSafeMarkdownHref(authorLink) ? authorLink.trim() : undefined
+const quoteAuthorUmamiAttrs = (linkText?: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    currentPath: umamiContext,
+    label: 'link',
+    baseComponent: 'quote',
+    href: safeAuthorLink,
+    linkText,
+    ariaLabel
+  })
 // Image-2 layout: portrait and/or safe link sit above the quote.
 const authorAbove = Boolean(image || safeAuthorLink)
 // Image-1 layout: name-only attribution under the quote with an en dash.
@@ -101,8 +117,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
                   : undefined
               }
               target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
-              data-umami-event="quote-author-link"
-              data-umami-event-page={umamiContext}
+              {...quoteAuthorUmamiAttrs(authorName)}
             >
               <span>{authorName}</span>
               <Icon
@@ -128,8 +143,7 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
             }
             target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
             aria-label={t('quote.author_link_label')}
-            data-umami-event="quote-author-link"
-            data-umami-event-page={umamiContext}
+            {...quoteAuthorUmamiAttrs(undefined, t('quote.author_link_label'))}
           >
             <Icon
               name="link-rounded"

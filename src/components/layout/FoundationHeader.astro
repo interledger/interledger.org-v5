@@ -56,10 +56,21 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'nav',
+    label: 'nav',
+    baseComponent: 'menu',
     href,
     linkText,
     ariaLabel
+  })
+
+const ctaLink = (href: string, linkText?: string) =>
+  buildDeferredUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_cta',
+    baseComponent: 'menu',
+    href,
+    linkText
   })
 
 const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
@@ -135,7 +146,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
               size="sm"
               external={ctaButton.openInNewTab}
               class="w-full"
-              {...navLink(ctaButton.href || '#', ctaButton.label)}
+              {...ctaLink(ctaButton.href || '#', ctaButton.label)}
             >
               {ctaButton.label}
               <Icon slot="icon-right" name="arrow-right" />

@@ -23,7 +23,7 @@
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { buildUmamiAttrs, resolveCtaLink } from '@/utils'
+import { buildUmamiAttrs, resolveCtaLink, type UmamiLabel } from '@/utils'
 
 interface CtaButtonProp {
   text: string
@@ -37,9 +37,21 @@ interface Props {
   buttons?: CtaButtonProp[]
   /** Template surfaces (event card, hackathon hero) can drop the trailing icon. */
   hideIcons?: boolean
+  /**
+   * Override the default button_cta/primary_cta (or secondary_cta) analytics
+   * tracking. A card template (event card) reports as button_card/event_cards
+   * instead, matching ResourceCard/TitleCard's card taxonomy (INTORG-862).
+   */
+  umamiLabel?: UmamiLabel
+  umamiBaseComponent?: string
 }
 
-const { buttons = [], hideIcons = false } = Astro.props
+const {
+  buttons = [],
+  hideIcons = false,
+  umamiLabel,
+  umamiBaseComponent
+} = Astro.props
 const { routeLocale, site } = Astro.locals
 
 // A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
@@ -103,7 +115,12 @@ const resolved = buttons
           {...buildUmamiAttrs({
             pathname: Astro.url.pathname,
             lang: routeLocale,
-            section: 'cta',
+            label: umamiLabel ?? 'button_cta',
+            baseComponent:
+              umamiBaseComponent ??
+              (button.variant === 'secondary'
+                ? 'secondary_cta'
+                : 'primary_cta'),
             href: button.href,
             linkText: button.text
           })}

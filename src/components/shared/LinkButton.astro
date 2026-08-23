@@ -4,7 +4,9 @@ import {
   twMerge,
   useTranslations,
   buildUmamiAttrs,
-  resolveDownloadName
+  resolveDownloadName,
+  isPreviewPathname,
+  type UmamiLabel
 } from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
 
@@ -31,6 +33,14 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   document?: boolean
   ariaDisabled?: boolean
   class?: string
+  /**
+   * Umami event label/base_component for this button. Required unless the
+   * caller already supplies pre-built `data-umami-event*`/`data-track-event*`
+   * props (e.g. from its own `buildUmamiAttrs`/`buildDeferredUmamiAttrs`
+   * call) — in that case, omit both and the pre-built attrs win.
+   */
+  umamiLabel?: UmamiLabel
+  umamiBaseComponent?: string
 }
 
 const {
@@ -44,6 +54,8 @@ const {
   iconOnly,
   iconSide,
   class: className,
+  umamiLabel,
+  umamiBaseComponent,
   ...rest
 } = Astro.props
 
@@ -108,12 +120,25 @@ const callerProvidesTracking =
   typeof restRecord['data-umami-event'] === 'string' ||
   typeof restRecord['data-track-event'] === 'string'
 
+const onPreviewRoute = isPreviewPathname(Astro.url.pathname)
+
+if (
+  !callerProvidesTracking &&
+  !onPreviewRoute &&
+  (!umamiLabel || !umamiBaseComponent)
+) {
+  throw new Error(
+    '[LinkButton] umamiLabel and umamiBaseComponent are required when no data-umami-event*/data-track-event* props are provided'
+  )
+}
+
 const umamiAttrs = callerProvidesTracking
   ? {}
   : buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
-      section: 'link',
+      label: umamiLabel as UmamiLabel,
+      baseComponent: umamiBaseComponent as string,
       href: resolvedHref,
       ariaLabel: ariaLabel
     })

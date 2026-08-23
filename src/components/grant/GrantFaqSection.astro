@@ -100,6 +100,8 @@ const renderedItems = await Promise.all(
                 variant="secondary"
                 external={resolvedCta!.external}
                 document={resolvedCta!.document}
+                umamiLabel="button_cta"
+                umamiBaseComponent="faq"
               >
                 {trimmedCtaText}
                 {resolvedCta!.icon && (
@@ -162,6 +164,8 @@ const renderedItems = await Promise.all(
               external={resolvedCta!.external}
               document={resolvedCta!.document}
               class="w-full mx-auto"
+              umamiLabel="button_cta"
+              umamiBaseComponent="faq"
             >
               {trimmedCtaText}
               {resolvedCta!.icon && (

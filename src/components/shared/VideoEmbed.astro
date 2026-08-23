@@ -31,10 +31,10 @@ const posterSrc = poster
 const videoAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'link',
+  label: 'link',
+  baseComponent: 'video_embed',
   href: url,
-  linkText: title,
-  label: 'video'
+  linkText: title
 })
 
 const embedWrapperClass = 'video-embed w-full overflow-hidden rounded-3xl'

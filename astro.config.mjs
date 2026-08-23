@@ -14,6 +14,7 @@ import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from
 import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
+import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,7 +24,7 @@ export default defineConfig({
     inlineStylesheets: 'always'
   },
   i18n: {
-    locales: ['es', 'en'],
+    locales: [...LOCALE_CODES],
     defaultLocale: 'en',
     routing: {
       prefixDefaultLocale: false,

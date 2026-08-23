@@ -18,7 +18,8 @@ const ctaAttrs =
   buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'nav',
+    label: 'button_cta',
+    baseComponent: 'menu',
     href: ctaButton.href || '#',
     linkText: ctaButton.label
   })

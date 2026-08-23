@@ -135,10 +135,10 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
               {...buildUmamiAttrs({
                 pathname: Astro.url.pathname,
                 lang: contentLocale,
-                section: 'cta',
+                label: 'button_cta',
+                baseComponent: 'profile',
                 href: cta!.link,
-                linkText: cta!.text,
-                action: 'cta_button'
+                linkText: cta!.text
               })}
             >
               {cta!.text}

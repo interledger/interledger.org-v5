@@ -1,30 +1,58 @@
-// Mirrors astro.config.mjs `i18n.locales`. Kept inline to avoid pulling the
-// astro virtual modules into the unit-test runtime.
-const LOCALE_CODES = ['en', 'es'] as const
+import { isExternalHref, getHostname } from '../shared/url'
+import { isPreviewPathname } from '../shared/demoPaths'
+import { getExternalGroupName, OTHER_EXTERNAL } from './umamiExternalDomains'
+import { LOCALE_CODES } from './localeCodes'
 
-export type UmamiSection =
-  | 'hero'
+export type UmamiLabel =
+  | 'button_cta'
+  | 'button_card'
+  | 'button_form'
+  | 'button_ui'
   | 'nav'
-  | 'footer'
-  | 'card'
-  | 'cta'
+  | 'toggle'
   | 'link'
-  | 'featured_content'
 
-export interface UmamiContext {
-  /** Override the page segment directly (e.g. `home`, `foundation`). */
-  page?: string
-  /** Pathname used to derive the page segment when `page` is omitted. */
-  pathname?: string
-  /** Locale code emitted as `data-umami-event-lang`. */
+export type UmamiSection = 'foundation' | 'summit' | 'hackathon'
+export type UmamiDestinationSection = UmamiSection | 'external'
+
+export interface BuildUmamiAttrsInput {
+  label: UmamiLabel
+  baseComponent: string
+  href?: string | null
+  linkText?: string | null
+  /**
+   * Fallback source for `link_text` when there's no visible text (icon-only
+   * links/buttons). Only ever read as an input here — `buildUmamiAttrs` never
+   * emits an `aria-label` HTML attribute itself, so callers still need to set
+   * the real `aria-label` on the element separately for accessibility. Reuse
+   * one local value for both rather than computing/typing it twice.
+   */
+  ariaLabel?: string | null
   lang?: string
+  pathname?: string
+  currentPath?: string
 }
 
 export interface UmamiAttrs {
-  'data-umami-event': string
+  'data-umami-event': UmamiLabel
+  'data-umami-event-base-component': string
   'data-umami-event-link-text'?: string
   'data-umami-event-lang'?: string
-  'data-umami-event-label'?: string
+  'data-umami-event-current-path': string
+  'data-umami-event-current-section': UmamiSection
+  'data-umami-event-destination-path'?: string
+  'data-umami-event-destination-section'?: UmamiDestinationSection
+}
+
+export interface UmamiTrackAttrs {
+  'data-track-event': UmamiLabel
+  'data-track-event-base-component': string
+  'data-track-event-link-text'?: string
+  'data-track-event-lang'?: string
+  'data-track-event-current-path': string
+  'data-track-event-current-section': UmamiSection
+  'data-track-event-destination-path'?: string
+  'data-track-event-destination-section'?: UmamiDestinationSection
 }
 
 const UNSAFE_LABEL_CHARS = /[<>`"'{}[\]]/g
@@ -35,45 +63,19 @@ const HTML_ESCAPE: Record<string, string> = {
   '"': '&quot;',
   "'": '&#39;'
 }
-const MICROSITES = ['summit', 'hackathon'] as const
 const HOME_SUFFIX = '_home'
 const TITLE_LABEL_PREFIX = 'label:'
-const UMAMI_EVENT_NAME_MAX = 50
+export const DEFAULT_INLINE_LINK_BASE_COMPONENT = 'inline_link'
+
+// Absolute links to the site's own domain must classify as internal
+const SITE_HOSTNAMES = new Set(['interledger.org', 'www.interledger.org'])
+
+const MICROSITE_SEGMENTS = new Set(['summit', 'hackathon'])
+// Purely-numeric or date-shaped segments (2026, 2026-01, 2026-01-07)
+// identify an edition, not content, and are dropped during grouping.
+const NUMERIC_OR_DATE_SEGMENT = /^\d+(-\d+)*$/
 
 const localeSet = new Set<string>(LOCALE_CODES)
-const micrositeSet = new Set<string>(MICROSITES)
-
-/**
- * Detail-page route rules. Each rule receives the URL's path segments
- * (locale-stripped, lowercased) and returns a stable page-type segment.
- * Collapses high-cardinality detail routes so the page dimension stays
- * low-cardinality and event names stay within Umami's 50-char cap.
- */
-interface DetailPageRule {
-  match: (segments: string[]) => boolean
-  page: string
-}
-
-const DETAIL_PAGE_RULES: DetailPageRule[] = [
-  // /blog/<slug> → blog_post
-  { match: (s) => s.length === 2 && s[0] === 'blog', page: 'blog_post' },
-  // /grant/fellowship/<slug> → fellowship
-  {
-    match: (s) => s.length === 3 && s[0] === 'grant' && s[1] === 'fellowship',
-    page: 'fellowship'
-  }
-]
-
-function getDelocaledSegments(pathname: string): string[] {
-  const raw = pathname.split('?')[0].split('#')[0]
-  const segments = raw
-    .split('/')
-    .filter(Boolean)
-    .map((s) => s.toLowerCase())
-  return segments.length > 0 && localeSet.has(segments[0])
-    ? segments.slice(1)
-    : segments
-}
 
 function sanitizeText(value: string): string {
   return value.replace(UNSAFE_LABEL_CHARS, '').replace(/\s+/g, ' ').trim()
@@ -90,166 +92,146 @@ function normaliseSegment(value: string): string {
     .replace(/[^\w]/g, '')
 }
 
-/**
- * Convert an href or path into a stable label segment.
- * External URLs collapse to host (sans `www.` and TLD); github gets
- * `github_org_repo`. Internal paths drop the locale prefix, then either
- * resolve to `{microsite}_home` / `foundation_home` or reduce to the last
- * two path segments joined with `_`.
- */
-export function deriveLabel(href: string): string {
-  if (/^https?:\/\//i.test(href)) {
-    let url: URL
-    try {
-      url = new URL(href)
-    } catch {
-      return normaliseSegment(href)
-    }
-    const hostname = url.hostname.toLowerCase()
-    if (hostname === 'github.com') {
-      const parts = url.pathname.split('/').filter(Boolean)
-      return ['github', ...parts.map(normaliseSegment)].join('_')
-    }
-    const hostParts = hostname.replace(/^www\./, '').split('.')
-    return hostParts.slice(0, -1).map(normaliseSegment).join('_')
-  }
-
-  const raw = href.split('?')[0].split('#')[0]
-  const segments = raw.split('/').filter(Boolean)
-  const delocaled =
-    segments.length > 0 && localeSet.has(segments[0].toLowerCase())
-      ? segments.slice(1)
-      : segments
-
-  if (delocaled.length === 0) return 'foundation_home'
-
-  if (delocaled.length === 1) {
-    const seg = normaliseSegment(delocaled[0])
-    return micrositeSet.has(delocaled[0].toLowerCase()) ? `${seg}_home` : seg
-  }
-
-  return delocaled.slice(-2).map(normaliseSegment).join('_')
-}
-
-/**
- * Resolve the `page` segment for an event. Foundation root collapses to
- * `foundation`; any microsite home (e.g. `summit_home`) collapses to `home`
- * since the microsite is implicit from the URL dimension.
- *
- * Known detail-/listing-page routes (see `DETAIL_PAGE_RULES`) collapse to a
- * stable type-name segment (`summit_speaker`, `blog_post`, …) so the page
- * dimension stays low-cardinality and the event name doesn't blow past
- * Umami's 50-char limit on long slugs.
- *
- * When `page` is omitted, `undefined`, or only whitespace (e.g. optional CMS
- * `umamiContext` not set), the segment is derived from `pathname` only — never
- * from the literal string "undefined" or other placeholder text.
- */
-export function derivePage({ page, pathname }: UmamiContext = {}): string {
-  const override =
-    page != null && String(page).trim() !== '' ? String(page).trim() : ''
-  if (override) return normaliseSegment(override)
-
-  const segments = getDelocaledSegments(pathname ?? '/')
-  for (const rule of DETAIL_PAGE_RULES) {
-    if (rule.match(segments)) return rule.page
-  }
-
-  const raw = deriveLabel(pathname ?? '/')
-  if (raw === 'foundation_home') return 'foundation_home'
-  if (raw.endsWith(HOME_SUFFIX)) return 'home'
-  return raw
-}
-
-/**
- * Identify the microsite a pathname lives in (`summit`, `hackathon`, or
- * `foundation` as the default). Each microsite is a separate top-level path
- * (`/summit`, `/hackathon`). Used to disambiguate microsite-home links.
- */
-export function getMicrosite(pathname: string | undefined): string {
-  if (!pathname) return 'foundation'
-  const segments = pathname
+/** Splits a path/href into lowercased, non-empty segments (drops query/hash). */
+function getPathSegments(rawPath: string): string[] {
+  return rawPath
     .split('?')[0]
     .split('#')[0]
     .split('/')
     .filter(Boolean)
-    .filter((s) => !localeSet.has(s.toLowerCase()))
-  if (segments.length === 0) return 'foundation'
-  const first = segments[0].toLowerCase()
-  return micrositeSet.has(first) ? first : 'foundation'
+    .map((s) => s.toLowerCase())
+}
+
+/** Drops a leading segment only if it's an exact match in `locales`. */
+function stripLocalePrefix(segments: string[]): string[] {
+  return segments.length > 0 && localeSet.has(segments[0])
+    ? segments.slice(1)
+    : segments
 }
 
 /**
- * Resolve the `action` segment for an event. The foundation root always reads
- * as `home`. A microsite root reads as `home` from inside that microsite, or
- * as `{microsite}_home` from outside (e.g. foundation → summit link).
+ * Classifies which section a set of (locale-stripped) segments belongs to.
+ * `hackathon` nests under `summit` in the URL (`/summit/hackathon/...`), so
+ * its presence must win over a bare `summit` segment.
  */
-export function deriveAction(href: string, currentPath?: string): string {
-  if (!href) return 'unknown'
-  const raw = deriveLabel(href)
-  if (raw === 'foundation_home') return 'home'
-  if (raw.endsWith(HOME_SUFFIX)) {
-    const dest = raw.slice(0, -HOME_SUFFIX.length)
-    return getMicrosite(currentPath) === dest ? 'home' : raw
-  }
-  return raw
+function classifySectionFromSegments(segments: string[]): UmamiSection {
+  if (segments.includes('hackathon')) return 'hackathon'
+  if (segments.includes('summit')) return 'summit'
+  return 'foundation'
 }
 
-export interface BuildUmamiAttrsInput extends UmamiContext {
+function stripMicrositeSegments(segments: string[]): string[] {
+  return segments.filter((s) => !MICROSITE_SEGMENTS.has(s))
+}
+
+function dropDateSegments(segments: string[]): string[] {
+  return segments.filter((s) => !NUMERIC_OR_DATE_SEGMENT.test(s))
+}
+
+/** Reduces delocaled, microsite-stripped segments to one grouped value. */
+function groupContentSegments(
+  segments: string[],
   section: UmamiSection
-  href?: string | null
-  linkText?: string | null
-  ariaLabel?: string | null
-  /**
-   * Override for the action segment, used when the element has no `href`
-   * (e.g. menu-toggle buttons) or when auto-derivation is undesirable.
-   */
-  action?: string | null
-  /** Manual override for the `data-umami-event-label` property. Only meaningful when `section === 'link'`. */
-  label?: string | null
+): string {
+  const content = dropDateSegments(segments)
+  if (content.length === 0) return `${section}${HOME_SUFFIX}`
+  return normaliseSegment(content[0])
 }
 
 /**
- * Build the full set of `data-umami-event*` attributes for a link.
+ * Rewrites an absolute link to the site's own domain into a relative path,
+ * so it flows through the internal classification pipeline instead of the
+ * external one. Non-matching or unparseable hrefs are returned unchanged.
+ */
+function stripKnownOrigin(href: string): string {
+  try {
+    const url = new URL(href)
+    return SITE_HOSTNAMES.has(url.hostname.toLowerCase())
+      ? `${url.pathname}${url.search}${url.hash}`
+      : href
+  } catch {
+    return href
+  }
+}
+
+/** Always-internal: the current page's grouped path + section. */
+function getCurrentPath(pathname: string): {
+  path: string
+  section: UmamiSection
+} {
+  const delocaled = stripLocalePrefix(getPathSegments(pathname))
+  const section = classifySectionFromSegments(delocaled)
+  const path = groupContentSegments(stripMicrositeSegments(delocaled), section)
+  return { path, section }
+}
+
+function getExternalDestination(href: string): {
+  path: string
+  section: 'external'
+} {
+  const hostname = getHostname(href)
+  return {
+    path: hostname ? getExternalGroupName(hostname) : OTHER_EXTERNAL,
+    section: 'external'
+  }
+}
+
+/**
+ * Destination classification for a link's `href`. Returns `null` for
+ * destination-less interactions (e.g. `toggle`-style state changes with no
+ * href at all).
+ */
+function getDestination(href: string | null | undefined): {
+  path: string
+  section: UmamiDestinationSection
+} | null {
+  const trimmed = (href ?? '').trim()
+  if (!trimmed) return null
+
+  const normalized = stripKnownOrigin(trimmed)
+  if (isExternalHref(normalized)) return getExternalDestination(normalized)
+
+  const delocaled = stripLocalePrefix(getPathSegments(normalized))
+  const section = classifySectionFromSegments(delocaled)
+  const path = groupContentSegments(stripMicrositeSegments(delocaled), section)
+  return { path, section }
+}
+
+/**
+ * Build the full set of `data-umami-event*` attributes for an interaction.
  *
- * - Component-anchored links (`section !== 'link'`) emit `{page}:{section}:{action}`.
- * - Inline content links (`section === 'link'`) emit `{page}:link:{action}` by
- *   default. Authors may override the action with a `label:foo` markdown
- *   directive, which produces `{page}:link` plus `data-umami-event-label="foo"`.
+ * `current_path`/`current_section` are always present. `destination_path`/
+ * `destination_section` are present only when `href` resolves to a real
+ * destination — omitted for destination-less `toggle` interactions.
  */
 export function buildUmamiAttrs(input: BuildUmamiAttrsInput): UmamiAttrs {
-  const page = derivePage(input)
+  // Preview/QA routes (design-system previews, draft-content previews) are
+  // never real traffic — never emit tracking attributes for them. Checked
+  // here, once, so every call site is covered automatically instead of each
+  // needing its own opt-out.
+  if (isPreviewPathname(input.pathname ?? '')) return {} as UmamiAttrs
+
+  const { path: derivedPath, section } = getCurrentPath(input.pathname ?? '/')
+  const currentPath = input.currentPath?.trim() || derivedPath
+
   const text =
     sanitizeText(input.linkText ?? '') || sanitizeText(input.ariaLabel ?? '')
   const lang = input.lang?.trim() || undefined
-  const label = input.label ? sanitizeText(input.label) : ''
+  const destination = getDestination(input.href)
 
-  const actionOverride = input.action ? normaliseSegment(input.action) : ''
-  const action =
-    actionOverride || deriveAction(input.href ?? '', input.pathname)
-  const prefix =
-    input.section === 'link' && label
-      ? `${page}:link`
-      : `${page}:${input.section}:`
-  const eventFull =
-    input.section === 'link' && label ? prefix : `${prefix}${action}`
-  const event =
-    eventFull.length <= UMAMI_EVENT_NAME_MAX
-      ? eventFull
-      : `${prefix}${action}`.slice(0, UMAMI_EVENT_NAME_MAX)
-
-  const attrs: UmamiAttrs = { 'data-umami-event': event }
+  const attrs: UmamiAttrs = {
+    'data-umami-event': input.label,
+    'data-umami-event-base-component': normaliseSegment(input.baseComponent),
+    'data-umami-event-current-path': currentPath,
+    'data-umami-event-current-section': section
+  }
   if (text) attrs['data-umami-event-link-text'] = text
   if (lang) attrs['data-umami-event-lang'] = lang
-  if (label) attrs['data-umami-event-label'] = label
+  if (destination) {
+    attrs['data-umami-event-destination-path'] = destination.path
+    attrs['data-umami-event-destination-section'] = destination.section
+  }
   return attrs
-}
-
-export interface UmamiTrackAttrs {
-  'data-track-event': string
-  'data-track-event-link-text'?: string
-  'data-track-event-lang'?: string
-  'data-track-event-label'?: string
 }
 
 /**
@@ -269,20 +251,53 @@ export function buildDeferredUmamiAttrs(
   input: BuildUmamiAttrsInput
 ): UmamiTrackAttrs {
   const attrs = buildUmamiAttrs(input)
-  const trackAttrs: UmamiTrackAttrs = {
-    'data-track-event': attrs['data-umami-event']
+  const trackAttrs: Record<string, string> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    trackAttrs[key.replace('data-umami-event', 'data-track-event')] =
+      value as string
   }
-  if (attrs['data-umami-event-link-text']) {
-    trackAttrs['data-track-event-link-text'] =
-      attrs['data-umami-event-link-text']
-  }
-  if (attrs['data-umami-event-lang']) {
-    trackAttrs['data-track-event-lang'] = attrs['data-umami-event-lang']
-  }
-  if (attrs['data-umami-event-label']) {
-    trackAttrs['data-track-event-label'] = attrs['data-umami-event-label']
-  }
-  return trackAttrs
+  return trackAttrs as unknown as UmamiTrackAttrs
+}
+
+/**
+ * Shared Umami attrs for a desktop nav submenu's open/close toggle button,
+ * used by both `FoundationNavMenu.astro` and `MicrositeNavMenu.astro` — kept
+ * in one place so the two don't drift on label/base_component. No `href`:
+ * toggling a submenu open/closed has no destination.
+ */
+export function buildSubmenuToggleUmamiAttrs(
+  pathname: string,
+  lang: string,
+  groupLabel: string
+): UmamiTrackAttrs {
+  return buildDeferredUmamiAttrs({
+    pathname,
+    lang,
+    label: 'toggle',
+    baseComponent: 'submenu',
+    linkText: groupLabel
+  })
+}
+
+/**
+ * Shared Umami attrs for a summit session-title link, used by both
+ * `SessionCard.astro` (single card) and `SessionsList.astro` (full listing) —
+ * kept in one place so the two don't drift on base_component.
+ */
+export function buildSessionCardUmamiAttrs(
+  pathname: string,
+  lang: string,
+  href: string,
+  title: string
+): UmamiAttrs {
+  return buildUmamiAttrs({
+    pathname,
+    lang,
+    label: 'button_card',
+    baseComponent: 'session_cards',
+    href,
+    linkText: title
+  })
 }
 
 /**
@@ -296,9 +311,11 @@ export function umamiAttrsToHtml(attrs: UmamiAttrs): string {
 }
 
 /**
- * Extract a `label:foo` directive from a markdown link title. Returns the
- * label and the cleaned title (which is `undefined` if the directive was the
- * entire title, so it doesn't leak onto the rendered `<a>`).
+ * Extract a `label:foo` directive from a markdown link title, used to
+ * override the rendered link's `base_component` (defaulting otherwise to
+ * `inline_link`). Returns the override and the cleaned title (which is
+ * `undefined` if the directive was the entire title, so it doesn't leak onto
+ * the rendered `<a>`).
  */
 export function extractTitleLabel(title: string | null | undefined): {
   label?: string

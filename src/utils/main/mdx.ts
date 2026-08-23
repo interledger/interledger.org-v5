@@ -1,15 +1,23 @@
 import { Marked, type RendererObject, type Tokens } from 'marked'
 import { isSafeMarkdownHref } from '../shared/url'
 import {
-  type UmamiContext,
   buildUmamiAttrs,
-  derivePage,
   escapeHtml,
   extractTitleLabel,
-  umamiAttrsToHtml
+  umamiAttrsToHtml,
+  DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { wrapScrollableTables } from './wrapScrollableTables'
+
+export interface UmamiContext {
+  /** Pathname (e.g. `Astro.url.pathname`) used to derive `current_path`/`current_section`. */
+  pathname?: string
+  /** CMS-authored override for the computed `current_path` group value. */
+  page?: string
+  /** Locale code emitted as `lang`. */
+  lang?: string
+}
 
 const HTML_TAG = /<[^>]*>/g
 
@@ -25,9 +33,10 @@ const markedCache = new Map<string, Marked>()
  * `isSafeMarkdownHref`) rather than rendering it.
  */
 export function createMarked(context: UmamiContext = {}): Marked {
-  const page = derivePage(context)
+  const pathname = context.pathname ?? '/'
+  const currentPath = context.page?.trim() || undefined
   const lang = context.lang?.trim() || ''
-  const cacheKey = `${page}|${lang}`
+  const cacheKey = `${pathname}|${currentPath ?? ''}|${lang}`
   const cached = markedCache.get(cacheKey)
   if (cached) return cached
 
@@ -45,14 +54,17 @@ export function createMarked(context: UmamiContext = {}): Marked {
       // the link (keep the text) rather than emitting a javascript:/data:
       // href from editor-supplied markdown.
       if (!isSafeMarkdownHref(href ?? '')) return innerHtml
-      const { label, title: cleanedTitle } = extractTitleLabel(title)
+      const { label: baseComponentOverride, title: cleanedTitle } =
+        extractTitleLabel(title)
       const attrs = buildUmamiAttrs({
-        page,
+        pathname,
+        currentPath,
         lang,
-        section: 'link',
+        label: 'link',
+        baseComponent:
+          baseComponentOverride || DEFAULT_INLINE_LINK_BASE_COMPONENT,
         linkText: stripTags(innerHtml),
-        href,
-        label
+        href
       })
       const titleAttr = cleanedTitle
         ? ` title="${escapeHtml(cleanedTitle)}"`
