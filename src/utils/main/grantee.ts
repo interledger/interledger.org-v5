@@ -162,12 +162,24 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-// Strips markdown syntax markers so searchText/search snippets read as plain
-// prose — otherwise "**Payments**" only matches a query typed with asterisks.
+/**
+ * Turns markdown into the visible prose for searchText and snippets.
+ *
+ * Unwraps syntax constructs only. A character-class wipe of `*_`#>` would
+ * also eat literal prose (`C#`, `A_B`), and matchesGranteeFilters compares
+ * the user's query as typed — so those terms would never match.
+ */
 function stripMarkdownSyntax(text: string): string {
   return text
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/[*_`#>]/g, '')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/(?<!\*)\*([^\s*](?:[^*]*[^\s*])?)\*(?!\*)/g, '$1')
+    .replace(/(?<![A-Za-z0-9])_([^_\s](?:[^_]*[^_\s])?)_(?![A-Za-z0-9])/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/^>\s+/gm, '')
     .replace(/\s+/g, ' ')
     .trim()
 }
