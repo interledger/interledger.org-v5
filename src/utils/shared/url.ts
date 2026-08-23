@@ -103,7 +103,7 @@ export function getHostname(url: string): string | null {
   const trimmed = url.trim()
   // `new URL` can't resolve a protocol-relative `//host` without a base —
   // give it an explicit scheme so the host still parses instead of always
-  // failing (INTORG-862).
+  // failing.
   const parsable = trimmed.startsWith('//')
     ? `https:${trimmed}`
     : ensureAbsoluteUrl(trimmed)

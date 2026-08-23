@@ -213,7 +213,15 @@ export function buildUmamiAttrs(input: BuildUmamiAttrsInput): UmamiAttrs {
   if (isPreviewPathname(input.pathname ?? '')) return {} as UmamiAttrs
 
   const { path: derivedPath, section } = getCurrentPath(input.pathname ?? '/')
-  const currentPath = input.currentPath?.trim() || derivedPath
+  // Run the override through the same normaliser the derived path's leaf
+  // segment gets (see `groupContentSegments`), so a caller passing a
+  // human-readable string (a section title, a CMS-authored context field)
+  // still lands as one lowercase/underscored group instead of high-cardinality
+  // free text alongside every derived `current_path` value.
+  const trimmedOverride = input.currentPath?.trim()
+  const currentPath = trimmedOverride
+    ? normaliseSegment(trimmedOverride)
+    : derivedPath
 
   const text =
     sanitizeText(input.linkText ?? '') || sanitizeText(input.ariaLabel ?? '')
@@ -296,7 +304,7 @@ export function buildSessionCardUmamiAttrs(
  * `MicrositeHeader.astro`, `HackathonHeader.astro`, `MicrositeNavMenu.astro`,
  * and `NavMenuLink.astro` (which `FoundationNavMenu.astro` renders through).
  * Kept in one place so a header can't drift onto a made-up field name
- * instead of `label`/`baseComponent` (INTORG-862).
+ * instead of `label`/`baseComponent`.
  */
 export function buildNavLinkUmamiAttrs(
   pathname: string,

@@ -135,6 +135,23 @@ describe('buildUmamiAttrs — current_path / current_section', () => {
     })
   })
 
+  it('normalises a human-readable currentPath override the same way as a derived path', () => {
+    // RichTextSection passes its section title, rehypeUmamiLinks passes a
+    // CMS-authored `umamiContext` field — both free text — into currentPath.
+    // Without normalisation these would land as high-cardinality noise
+    // alongside every other, snake_case current_path value.
+    expect(
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        currentPath: 'The Advantages of Stablecoins (footnotes)'
+      })
+    ).toMatchObject({
+      'data-umami-event-current-path': 'the_advantages_of_stablecoins_footnotes'
+    })
+  })
+
   it('treats a whitespace-only currentPath override as absent', () => {
     expect(
       buildUmamiAttrs({
