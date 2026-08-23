@@ -13,15 +13,15 @@ const EXTERNAL_DOMAIN_GROUPS: Record<string, string> = {
   'rafiki.dev': 'rafiki',
   'learn.interledger.org': 'learn_interledger',
   'community.interledger.org': 'community_interledger',
-  'wallet.interledger-test.dev': 'wallet', // test wallet
-  'interledger.app': 'wallet', // prod wallet
-  'slack.com': 'slack', // seen as join.slack.com
+  'wallet.interledger-test.dev': 'wallet',
+  'slack.com': 'slack',
   'x.com': 'x',
   'linkedin.com': 'linkedin',
   'youtube.com': 'youtube',
   'youtu.be': 'youtube',
   'instagram.com': 'instagram',
-  'facebook.com': 'facebook'
+  'facebook.com': 'facebook',
+  'podcast.interledger.org': 'podcast_interledger'
 }
 
 // Mastodon is federated (no shared hostname across instances), except

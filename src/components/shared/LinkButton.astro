@@ -35,6 +35,14 @@ interface Props extends Omit<HTMLAttributes<'a'>, 'class' | 'href'> {
   class?: string
   umamiLabel?: UmamiLabel
   umamiBaseComponent?: string
+  /**
+   * Visible button text for `link_text` tracking (ADR-006). The button's
+   * content arrives via `<slot />`, which isn't introspectable as a string,
+   * so a caller relying on `umamiLabel`/`umamiBaseComponent` must repeat its
+   * slotted text here — otherwise `link_text` falls back to `aria-label`,
+   * which most buttons don't set, and silently omits it.
+   */
+  linkText?: string
 }
 
 const {
@@ -50,6 +58,7 @@ const {
   class: className,
   umamiLabel,
   umamiBaseComponent,
+  linkText,
   ...rest
 } = Astro.props
 
@@ -134,6 +143,7 @@ const umamiAttrs = callerProvidesTracking
       label: umamiLabel as UmamiLabel,
       baseComponent: umamiBaseComponent as string,
       href: resolvedHref,
+      linkText,
       ariaLabel: ariaLabel
     })
 ---

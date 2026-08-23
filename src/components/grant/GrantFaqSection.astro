@@ -109,6 +109,7 @@ const renderedItems = await Promise.all(
                 variant="secondary"
                 external={resolvedCta!.external}
                 document={resolvedCta!.document}
+                linkText={trimmedCtaText}
                 umamiLabel="button_cta"
                 umamiBaseComponent="faq"
               >
@@ -176,6 +177,7 @@ const renderedItems = await Promise.all(
               external={resolvedCta!.external}
               document={resolvedCta!.document}
               class="w-full mx-auto"
+              linkText={trimmedCtaText}
               umamiLabel="button_cta"
               umamiBaseComponent="faq"
             >

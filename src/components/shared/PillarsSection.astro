@@ -11,13 +11,18 @@ import { useTranslations, buildUmamiAttrs } from '@/utils'
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const pillarUmamiAttrs = (href: string) =>
+// Icon-only button (an arrow, no visible text) — its accessible name is the
+// `aria-label={title}` PillarCard sets directly on the element, so that same
+// title has to flow into tracking as `ariaLabel` too, or link_text silently
+// drops per ADR-006's "falls back to aria-label" rule.
+const pillarUmamiAttrs = (href: string, title: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     label: 'button_card',
     baseComponent: 'card',
-    href
+    href,
+    ariaLabel: title
   })
 
 const sectionClasses = `
@@ -95,7 +100,7 @@ const threePillars = [
               description={pillar.description}
               href={pillar.href}
               class={pillar.bg}
-              umamiAttr={pillarUmamiAttrs(pillar.href)}
+              umamiAttr={pillarUmamiAttrs(pillar.href, pillar.title)}
             />
           </li>
         ))
