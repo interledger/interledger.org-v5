@@ -73,13 +73,12 @@ function createMetaIcon(icon: {
 const META_ITEM_CLASSES =
   'flex items-center gap-sm text-body-sm-standard text-neutral-100'
 
-function createMetaItem(
+function fillMetaRow(
+  row: HTMLElement,
   icon: { viewBox: string; path: string },
   label: string,
   text: string
-): HTMLLIElement {
-  const item = document.createElement('li')
-  item.className = `m-0 ${META_ITEM_CLASSES}`
+): void {
   const span = document.createElement('span')
   if (label) {
     const srLabel = document.createElement('span')
@@ -88,8 +87,29 @@ function createMetaItem(
     span.append(srLabel)
   }
   span.append(document.createTextNode(text))
-  item.append(createMetaIcon(icon), span)
+  row.append(createMetaIcon(icon), span)
+}
+
+function createMetaItem(
+  icon: { viewBox: string; path: string },
+  label: string,
+  text: string
+): HTMLLIElement {
+  const item = document.createElement('li')
+  item.className = `m-0 ${META_ITEM_CLASSES}`
+  fillMetaRow(item, icon, label, text)
   return item
+}
+
+function createMetaBlock(
+  icon: { viewBox: string; path: string },
+  label: string,
+  text: string
+): HTMLDivElement {
+  const block = document.createElement('div')
+  block.className = META_ITEM_CLASSES
+  fillMetaRow(block, icon, label, text)
+  return block
 }
 
 function createTagPill(tag: string): HTMLLIElement {
@@ -193,12 +213,11 @@ function createResultRow(
     box.className = 'flex flex-col rounded-2xl bg-ice-indigo-50 p-lg'
 
     if (entry.leaders.length > 0) {
-      const leaders = createMetaItem(
+      const leaders = createMetaBlock(
         USER_ICON,
         labels.projectLead,
         entry.leaders.join(', ')
       )
-      leaders.className = META_ITEM_CLASSES
       if (entry.descriptionSnippet) leaders.classList.add('mb-lg')
       box.append(leaders)
     }
@@ -334,7 +353,9 @@ function initGranteeSearch(): void {
     }
 
     // A newer search superseded this one while the index was in flight.
-    if (myRequestId !== requestId) return
+    // Also bail if the field was cleared (Escape / empty input) without
+    // bumping requestId — otherwise the old query paints over showStatic().
+    if (myRequestId !== requestId || input.value.trim() !== trimmed) return
 
     const matches = index.filter((entry) =>
       matchesGranteeFilters(entry, { q: trimmed, year, tag })
