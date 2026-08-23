@@ -125,6 +125,7 @@ function createTagPill(tag: string): HTMLLIElement {
 
 interface ResultRowLabels {
   viewDetails: string
+  opensNewTab: string
   projectLead: string
   location: string
   date: string
@@ -239,7 +240,13 @@ function createResultRow(
     link.rel = 'noopener noreferrer'
     link.className =
       'self-start text-body-sm-standard text-link underline underline-offset-2 hover:text-link-hover'
-    link.textContent = labels.viewDetails
+    link.append(document.createTextNode(labels.viewDetails))
+    if (labels.opensNewTab) {
+      const srOnly = document.createElement('span')
+      srOnly.className = 'sr-only'
+      srOnly.textContent = labels.opensNewTab
+      link.append(srOnly)
+    }
     item.append(link)
   }
 
@@ -295,6 +302,7 @@ function initGranteeSearch(): void {
   const resultsTemplate = root.dataset.resultsTemplate ?? '{count}'
   const labels: ResultRowLabels = {
     viewDetails: root.dataset.labelViewDetails ?? '',
+    opensNewTab: root.dataset.labelOpensNewTab ?? '',
     projectLead: root.dataset.labelProjectLead ?? '',
     location: root.dataset.labelLocation ?? '',
     date: root.dataset.labelDate ?? '',
