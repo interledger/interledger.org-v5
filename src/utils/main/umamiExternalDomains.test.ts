@@ -21,11 +21,19 @@ describe('getExternalGroupName', () => {
     expect(getExternalGroupName('youtu.be')).toBe('youtube')
     expect(getExternalGroupName('instagram.com')).toBe('instagram')
     expect(getExternalGroupName('facebook.com')).toBe('facebook')
+    expect(getExternalGroupName('podcast.interledger.org')).toBe(
+      'podcast_interledger'
+    )
   })
 
-  it('groups both the test and prod wallet hosts under one name', () => {
+  it('groups the test wallet host under its own name', () => {
     expect(getExternalGroupName('wallet.interledger-test.dev')).toBe('wallet')
-    expect(getExternalGroupName('interledger.app')).toBe('wallet')
+  })
+
+  it('falls back to other_external for the discontinued prod wallet domain', () => {
+    // interledger.app is no longer a supported product, so unlike the test
+    // host above it isn't special-cased anymore.
+    expect(getExternalGroupName('interledger.app')).toBe(OTHER_EXTERNAL)
   })
 
   it('groups a subdomain of a known domain via endsWith', () => {
