@@ -100,6 +100,14 @@ function initGranteeSearch(): void {
 
   let debounceHandle: number | undefined
   let requestId = 0
+  let lastTrackedQuery = ''
+
+  function trackCommittedSearch() {
+    const trimmed = input.value.trim()
+    if (!trimmed || trimmed === lastTrackedQuery) return
+    lastTrackedQuery = trimmed
+    trackSearch(trimmed)
+  }
 
   function setResultsCount(count: number) {
     resultsCount.textContent = resultsTemplate.replace('{count}', String(count))
@@ -171,7 +179,6 @@ function initGranteeSearch(): void {
     debounceHandle = window.setTimeout(() => {
       void runSearch(query)
       updateUrlQuery(query.trim())
-      trackSearch(query.trim())
     }, DEBOUNCE_MS)
   }
 
@@ -179,14 +186,25 @@ function initGranteeSearch(): void {
     scheduleSearch(input.value)
   })
 
+  // Analytics on commit (Enter/blur), not each debounce, so Umami does not
+  // store a typing transcript.
   input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      trackCommittedSearch()
+      return
+    }
     if (event.key === 'Escape' && input.value) {
       event.preventDefault()
       input.value = ''
+      lastTrackedQuery = ''
       window.clearTimeout(debounceHandle)
       showStatic()
       updateUrlQuery('')
     }
+  })
+
+  input.addEventListener('blur', () => {
+    trackCommittedSearch()
   })
 
   root.addEventListener('click', (event) => {
