@@ -2,12 +2,20 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
+import { createExcerpt } from './create-excerpt'
+import {
+  filterGrantees,
+  matchesGranteeFilters,
+  type GranteeFilters
+} from './granteeFilters'
 import {
   ensureAbsoluteUrl,
   isExternalHref,
   isSafeMarkdownHref
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
+
+export { filterGrantees, matchesGranteeFilters, type GranteeFilters }
 
 export const GRANTEE_PAGE_SIZE = 10
 export const ALL_GRANTEE_YEAR_SLUG = 'all'
@@ -60,12 +68,6 @@ export interface Grantee {
   budget: number | null
   budgetLabel: string | null
   searchText: string
-}
-
-export interface GranteeFilters {
-  q?: string
-  year: string
-  tag: string
 }
 
 export interface GranteeFilterOption {
@@ -162,26 +164,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/**
- * Turns markdown into the visible prose for searchText and snippets.
- *
- * Unwraps syntax constructs only. A character-class wipe of `*_`#>` would
- * also eat literal prose (`C#`, `A_B`), and matchesGranteeFilters compares
- * the user's query as typed — so those terms would never match.
- */
+// Visible prose for searchText/snippets. createExcerpt is the shared
+// markdown-it → html-to-text path (blog excerpts); collapsing whitespace
+// keeps searchText a single haystack. matchesGranteeFilters stays in
+// granteeFilters.ts so this markdown-it import never reaches the client
+// search bundle.
 function stripMarkdownSyntax(text: string): string {
-  return text
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/__([^_]+)__/g, '$1')
-    .replace(/(?<!\*)\*([^\s*](?:[^*]*[^\s*])?)\*(?!\*)/g, '$1')
-    .replace(/(?<![A-Za-z0-9])_([^_\s](?:[^_]*[^_\s])?)_(?![A-Za-z0-9])/g, '$1')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/^>\s+/gm, '')
-    .replace(/\s+/g, ' ')
-    .trim()
+  return createExcerpt(text).replace(/\s+/g, ' ').trim()
 }
 
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
@@ -280,29 +269,6 @@ export function uniqueFilterOptions(
     return options.sort((a, b) => b.label.localeCompare(a.label))
   }
   return options.sort((a, b) => a.label.localeCompare(b.label))
-}
-
-export function matchesGranteeFilters(
-  grantee: Pick<Grantee, 'year' | 'tags' | 'searchText'>,
-  filters: GranteeFilters
-): boolean {
-  if (filters.year && grantee.year !== filters.year) return false
-  if (
-    filters.tag &&
-    !grantee.tags.some((tag) => generateSlug(tag) === filters.tag)
-  ) {
-    return false
-  }
-  const query = filters.q?.trim().toLowerCase() ?? ''
-  if (query && !grantee.searchText.includes(query)) return false
-  return true
-}
-
-export function filterGrantees(
-  grantees: Grantee[],
-  filters: GranteeFilters
-): Grantee[] {
-  return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
 }
 
 export interface GranteeListingData {
