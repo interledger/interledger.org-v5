@@ -1,6 +1,9 @@
 import { matchesGranteeFilters } from '@/utils/main/granteeFilters'
 import type { GranteeSearchEntry } from '@/utils/main/grantee'
-import { createSearchResultRow } from './grantee-search-result'
+import {
+  createSearchResultRow,
+  type SearchResultContext
+} from './grantee-search-result'
 
 // Not the `@/utils` barrel (astro:content) and not grantee.ts (createExcerpt /
 // markdown-it). matchesGranteeFilters is the client-safe filter; the search
@@ -111,12 +114,24 @@ function initGranteeSearch(): void {
     resultsCount.textContent = initialResultsText
   }
 
+  function searchResultContext(): SearchResultContext {
+    return {
+      directoryPath: root.dataset.directoryPath ?? '',
+      selectedYear: year,
+      searchQuery: input.value.trim(),
+      pathname: root.dataset.pathname ?? window.location.pathname,
+      lang: root.dataset.lang ?? '',
+      viewDetailsLabel: root.dataset.labelViewDetails ?? ''
+    }
+  }
+
   function showSearchResults(entries: GranteeSearchEntry[]) {
     staticList.hidden = true
     if (pagination) pagination.hidden = true
+    const context = searchResultContext()
     searchResults.replaceChildren(
       ...entries.map((entry) =>
-        createSearchResultRow(entry, rowTemplate, tagTemplate)
+        createSearchResultRow(entry, rowTemplate, tagTemplate, context)
       )
     )
     const hasResults = entries.length > 0

@@ -108,6 +108,10 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
   data-search-index-url={searchIndexUrl}
   data-selected-year={selectedYear ?? ''}
   data-selected-tag={selectedTag ?? ''}
+  data-directory-path={directoryPath}
+  data-pathname={Astro.url.pathname}
+  data-lang={routeLocale}
+  data-label-view-details={t('grantee.view_details')}
   data-results-template={t('grantee.results')}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >

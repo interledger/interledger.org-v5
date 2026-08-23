@@ -3,11 +3,7 @@ import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
 import { createExcerpt } from './create-excerpt'
-import {
-  filterGrantees,
-  matchesGranteeFilters,
-  type GranteeFilters
-} from './granteeFilters'
+import { ALL_GRANTEE_YEAR_SLUG, filterGrantees } from './granteeFilters'
 import {
   ensureAbsoluteUrl,
   isExternalHref,
@@ -15,10 +11,15 @@ import {
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
-export { filterGrantees, matchesGranteeFilters, type GranteeFilters }
+export {
+  ALL_GRANTEE_YEAR_SLUG,
+  filterGrantees,
+  getGranteeFilterUrl,
+  matchesGranteeFilters,
+  type GranteeFilters
+} from './granteeFilters'
 
 export const GRANTEE_PAGE_SIZE = 10
-export const ALL_GRANTEE_YEAR_SLUG = 'all'
 
 function isGranteeYearSlug(value: string): boolean {
   return value === ALL_GRANTEE_YEAR_SLUG || /^\d{4}$/.test(value)
@@ -37,18 +38,6 @@ export const granteeRouteShape: PaginatedRouteShape = {
     if (!isGranteeYearSlug(prefixParts[1])) return false
     return prefixParts.length === 2 || prefixParts.length === 3
   }
-}
-
-/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
-export function getGranteeFilterUrl(
-  directoryPath: string,
-  year?: string,
-  tag?: string
-): string {
-  if (!year && !tag) return directoryPath
-  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
-  if (!tag) return yearPath
-  return `${yearPath}/${tag}`
 }
 
 export interface Grantee {

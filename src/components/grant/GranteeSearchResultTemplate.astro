@@ -2,8 +2,8 @@
 /**
  * Markup source for client-side grantee search rows. grantee-search.ts clones
  * this template and fills [data-grantee-search-*] slots — keep structure and
- * Tailwind classes aligned with GranteeCard.astro (search omits clickable tag
- * pills, read-more, and LinkButton; those stay browse-only).
+ * Tailwind classes aligned with GranteeCard.astro (search omits read-more and
+ * full markdown descriptions; tag pills and view-details match browse mode).
  */
 import Icon from '@/components/shared/Icon.astro'
 import { buttonVariants } from '@/components/shared/buttonVariants'
@@ -148,8 +148,8 @@ const detailsLinkClass = buttonVariants({
 
 <template data-grantee-search-tag-template>
   <li class="m-0">
-    <span
-      class="inline-block px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full bg-transparent"
-    ></span>
+    <a
+      class="inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full bg-transparent transition-colors duration-200 ease-in-out hover:border-neutral-75 hover:text-neutral-150 focus-visible:outline-none focus-visible:border-link"
+    ></a>
   </li>
 </template>

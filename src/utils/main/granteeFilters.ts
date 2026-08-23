@@ -1,5 +1,19 @@
 import { generateSlug } from './slug'
 
+export const ALL_GRANTEE_YEAR_SLUG = 'all'
+
+/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
+export function getGranteeFilterUrl(
+  directoryPath: string,
+  year?: string,
+  tag?: string
+): string {
+  if (!year && !tag) return directoryPath
+  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
+  if (!tag) return yearPath
+  return `${yearPath}/${tag}`
+}
+
 export interface GranteeFilters {
   q?: string
   year: string

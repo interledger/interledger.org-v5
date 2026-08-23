@@ -1,4 +1,24 @@
 import type { GranteeSearchEntry } from '@/utils/main/grantee'
+import { getGranteeFilterUrl } from '@/utils/main/granteeFilters'
+import { generateSlug } from '@/utils/main/slug'
+import {
+  buildDeferredUmamiAttrs,
+  buildUmamiAttrs,
+  type UmamiAttrs,
+  type UmamiTrackAttrs
+} from '@/utils/main/umami'
+
+const SEARCH_QUERY_PARAM = 'q'
+
+/** Context the populate script needs but the JSON catalog does not carry. */
+export interface SearchResultContext {
+  directoryPath: string
+  selectedYear: string
+  searchQuery: string
+  pathname: string
+  lang: string
+  viewDetailsLabel: string
+}
 
 function requireElement<T extends Element>(
   root: ParentNode,
@@ -23,15 +43,56 @@ function hide(el: HTMLElement | null): void {
   if (el) el.hidden = true
 }
 
+function applyUmamiAttrs(
+  el: HTMLElement,
+  attrs: UmamiAttrs | UmamiTrackAttrs
+): void {
+  for (const [key, value] of Object.entries(attrs)) {
+    if (value) el.setAttribute(key, value)
+  }
+}
+
+/** Preserve an active directory search when navigating via a result pill. */
+export function withSearchQuery(href: string, query: string): string {
+  const trimmed = query.trim()
+  if (!trimmed) return href
+  const url = new URL(href, window.location.origin)
+  url.searchParams.set(SEARCH_QUERY_PARAM, trimmed)
+  return `${url.pathname}${url.search}`
+}
+
 function appendTagPill(
   list: HTMLElement,
   tagTemplate: HTMLTemplateElement,
-  tag: string
+  tag: string,
+  context: SearchResultContext
 ): void {
   const fragment = tagTemplate.content.cloneNode(true) as DocumentFragment
-  const pill = fragment.querySelector('span')
+  const pill = fragment.querySelector('a')
   if (!pill) return
+
+  const tagSlug = generateSlug(tag)
+  const href = withSearchQuery(
+    getGranteeFilterUrl(
+      context.directoryPath,
+      context.selectedYear || undefined,
+      tagSlug
+    ),
+    context.searchQuery
+  )
+
+  pill.href = href
   pill.textContent = tag
+  applyUmamiAttrs(
+    pill,
+    buildDeferredUmamiAttrs({
+      pathname: context.pathname,
+      lang: context.lang,
+      section: 'cta',
+      linkText: `#${tag}`,
+      action: 'grantee_tag'
+    })
+  )
   list.append(fragment)
 }
 
@@ -42,7 +103,8 @@ function appendTagPill(
 export function createSearchResultRow(
   entry: GranteeSearchEntry,
   rowTemplate: HTMLTemplateElement,
-  tagTemplate: HTMLTemplateElement
+  tagTemplate: HTMLTemplateElement,
+  context: SearchResultContext
 ): HTMLLIElement {
   const fragment = rowTemplate.content.cloneNode(true) as DocumentFragment
   const row = requireElement<HTMLLIElement>(fragment, 'li')
@@ -79,7 +141,9 @@ export function createSearchResultRow(
     '[data-grantee-search-tags-wrap]'
   )
   if (entry.tags.length > 0) {
-    entry.tags.forEach((tag) => appendTagPill(tagsWrap, tagTemplate, tag))
+    entry.tags.forEach((tag) =>
+      appendTagPill(tagsWrap, tagTemplate, tag, context)
+    )
     show(tagsWrap)
   } else {
     hide(tagsWrap)
@@ -177,6 +241,17 @@ export function createSearchResultRow(
   )
   if (entry.projectUrl) {
     detailsLink.href = entry.projectUrl
+    applyUmamiAttrs(
+      detailsLink,
+      buildUmamiAttrs({
+        pathname: context.pathname,
+        lang: context.lang,
+        section: 'card',
+        href: entry.projectUrl,
+        linkText: context.viewDetailsLabel,
+        action: 'grantee_details'
+      })
+    )
     show(detailsWrap)
   } else {
     hide(detailsWrap)
