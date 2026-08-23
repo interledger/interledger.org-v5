@@ -407,6 +407,8 @@ describe('getGranteeSearchIndex', () => {
       program: 'Digital Financial Services',
       year: '2024',
       country: 'United States',
+      startMonth: '2024-09',
+      startLabel: 'September 2024',
       tags: ['Financial Services', 'OpenSource'],
       projectUrl: 'https://community.interledger.org/example',
       budgetLabel: '750 000'

@@ -291,6 +291,7 @@ export interface GranteeSearchEntry {
   program: string
   year: string
   country: string
+  startMonth: string
   startLabel: string
   leaders: string[]
   tags: string[]
@@ -317,6 +318,7 @@ function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
     program: grantee.program,
     year: grantee.year,
     country: grantee.country,
+    startMonth: grantee.startMonth,
     startLabel: grantee.startLabel,
     leaders: grantee.leaders,
     tags: grantee.tags,

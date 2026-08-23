@@ -179,6 +179,11 @@ export function createSearchResultRow(
       requireElement(row, '[data-grantee-search-date-text]'),
       entry.startLabel
     )
+    const timeEl = requireElement<HTMLTimeElement>(
+      row,
+      '[data-grantee-search-date]'
+    )
+    if (entry.startMonth) timeEl.dateTime = entry.startMonth
     show(dateWrap)
     hasMeta = true
   } else {
