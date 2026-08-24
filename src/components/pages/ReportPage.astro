@@ -13,13 +13,15 @@ import {
   buildSectionEntryBreadcrumbs,
   formatDate,
   parseMarkdown,
-  getSectionPageLayout
+  getSectionPageLayout,
+  type SiteSection
 } from '@/utils'
 
 interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  section: SiteSection
 }
 
 // Section headings are authored as markdown `##` inside <ReportSection> (see
@@ -30,13 +32,17 @@ const REPORT_SECTION_HEADING_DEPTH = 2
 // authored section, so it must be excluded from the nav.
 const FOOTNOTES_HEADING_ID = 'footnote-label'
 
-const { slug, contentLocale, isFallback = false } = Astro.props
+const { slug, contentLocale, isFallback = false, section } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+// See FaqPage: pathSlug is only unique within a section.
 const allReports = await getCollection('reports')
 const entry = allReports.find(
-  (r) => r.data.pathSlug === slug && r.data.locale === contentLocale
+  (r) =>
+    r.data.pathSlug === slug &&
+    r.data.locale === contentLocale &&
+    r.data.section === section
 )
 
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)

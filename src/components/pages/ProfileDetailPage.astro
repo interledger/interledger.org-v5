@@ -18,22 +18,28 @@ import {
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
   getSectionPageLayout,
-  isDemoPathSlug
+  isDemoPathSlug,
+  type SiteSection
 } from '@/utils'
 
 interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  section: SiteSection
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
+const { slug, contentLocale, isFallback = false, section } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+// See FaqPage: pathSlug is only unique within a section.
 const allProfiles = await getCollection('profiles')
 const entry = allProfiles.find(
-  (p) => p.data.pathSlug === slug && p.data.locale === contentLocale
+  (p) =>
+    p.data.pathSlug === slug &&
+    p.data.locale === contentLocale &&
+    p.data.section === section
 )
 
 if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)

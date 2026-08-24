@@ -116,19 +116,25 @@ type CrossSectionPath = {
     locale: Locale
     isFallback: boolean
     kind: CrossSectionKind
+    section: SiteSection
   }
 }
 
+// `section` travels with the path because `pathSlug` alone does not identify an
+// entry. One flat collection holds every section's entries, and two sections
+// may both use the slug `faq`. The renderer needs the section to pick the right
+// one (Sarah, INTORG-1060).
 function toCrossSectionPath(
   paramName: string,
   slug: string,
   locale: Locale,
   isFallback: boolean,
-  kind: CrossSectionKind
+  kind: CrossSectionKind,
+  section: SiteSection
 ): CrossSectionPath {
   return {
     params: { [paramName]: slug },
-    props: { slug, locale, isFallback, kind }
+    props: { slug, locale, isFallback, kind, section }
   }
 }
 
@@ -164,7 +170,8 @@ async function getSectionFilteredPaths(
         routeSegmentForCollection(e.data),
         defaultLocale,
         false,
-        kind
+        kind,
+        section
       )
     )
   }
@@ -183,9 +190,17 @@ async function getSectionFilteredPaths(
           routeSegmentForCollection(localizedEntry.data),
           lang,
           false,
-          kind
+          kind,
+          section
         )
-      : toCrossSectionPath(paramName, enSlug, defaultLocale, true, kind)
+      : toCrossSectionPath(
+          paramName,
+          enSlug,
+          defaultLocale,
+          true,
+          kind,
+          section
+        )
   })
 }
 
