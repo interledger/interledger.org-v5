@@ -188,13 +188,20 @@ const detailsAttrs = grantee.projectUrl
                 type="button"
                 hidden
                 data-grantee-description-toggle
-                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+                data-label-more={t('grantee.read_more')}
+                data-label-less={t('grantee.read_less')}
+                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link aria-expanded:[&_svg]:rotate-180"
                 aria-expanded="false"
                 aria-controls={descriptionId}
                 {...readMoreAttrs}
               >
-                {readMoreLabel}
-                <Icon name="arrow-down" class="size-4" />
+                <span data-grantee-description-toggle-label>
+                  {readMoreLabel}
+                </span>
+                <Icon
+                  name="arrow-down"
+                  class="size-4 transition-transform duration-200"
+                />
               </button>
             )}
           </div>

@@ -18,19 +18,32 @@ function queryDescription(
   return { text, toggle }
 }
 
-function expandDescription(root: HTMLElement) {
+function isExpanded(toggle: HTMLButtonElement): boolean {
+  return toggle.getAttribute('aria-expanded') === 'true'
+}
+
+function setExpanded(root: HTMLElement, expanded: boolean) {
   const parts = queryDescription(root)
   if (!parts) return
 
-  parts.text.classList.remove(LINE_CLAMP_CLASS)
-  parts.toggle.setAttribute('aria-expanded', 'true')
-  parts.toggle.hidden = true
+  parts.text.classList.toggle(LINE_CLAMP_CLASS, !expanded)
+  parts.toggle.setAttribute('aria-expanded', String(expanded))
+  parts.toggle.hidden = false
+
+  const label = parts.toggle.querySelector(
+    '[data-grantee-description-toggle-label]'
+  )
+  const more = parts.toggle.dataset.labelMore
+  const less = parts.toggle.dataset.labelLess
+  if (label && more && less) {
+    label.textContent = expanded ? less : more
+  }
 }
 
 function syncToggle(root: HTMLElement) {
   const parts = queryDescription(root)
   if (!parts) return
-  if (parts.toggle.getAttribute('aria-expanded') === 'true') return
+  if (isExpanded(parts.toggle)) return
   parts.toggle.hidden = !descriptionOverflows(parts.text)
 }
 
@@ -42,7 +55,7 @@ function bindDescription(root: HTMLElement) {
   if (!parts) return
 
   parts.toggle.addEventListener('click', () => {
-    expandDescription(root)
+    setExpanded(root, !isExpanded(parts.toggle))
   })
 
   const reveal = () => syncToggle(root)
