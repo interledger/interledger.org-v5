@@ -1,0 +1,34 @@
+---
+import FaqPage from './FaqPage.astro'
+import GrantOverviewPage from './GrantOverviewPage.astro'
+import GrantPage from './GrantPage.astro'
+import ProfileDetailPage from './ProfileDetailPage.astro'
+import ReportPage from './ReportPage.astro'
+import type { Locale } from '@/utils'
+
+interface Props {
+  kind: string
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { kind, slug, contentLocale, isFallback } = Astro.props
+const commonProps = { slug, contentLocale, isFallback }
+---
+
+{
+  kind === 'profile' ? (
+    <ProfileDetailPage {...commonProps} />
+  ) : kind === 'faq' ? (
+    <FaqPage {...commonProps} />
+  ) : kind === 'report' ? (
+    <ReportPage {...commonProps} />
+  ) : kind === 'grant-page' ? (
+    <GrantPage {...commonProps} />
+  ) : kind === 'grant-overview-page' ? (
+    <GrantOverviewPage {...commonProps} />
+  ) : (
+    <slot />
+  )
+}
