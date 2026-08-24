@@ -18,6 +18,7 @@ import FeaturedPosts from '@/components/blog/FeaturedPosts.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import ContentGutter from '@/components/shared/ContentGutter.astro'
 
 interface Props {
   page: Page
@@ -86,46 +87,45 @@ const featuredPosts = showFeatured
   description={description}
   ogImageUrl={new URL('/img/og-blog.png', Astro.site).href}
 >
-  <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  <ContentGutter
+    as="main"
+    class="flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <div class="w-full max-w-content m-auto">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <BlogIndexFoundation
-        posts={page.data || []}
-        totalEntries={totalEntries}
-        allTerms={allTerms}
-        selectedTerm={selectedTerm}
-        enabledTerms={enabledTerms}
-        blogIndexHref={blogPath}
-        contentLang={contentLang}
-        isTermFallback={isTermFallback}
-      >
-        {
-          featuredPosts.length > 0 && (
-            <div slot="featured">
-              <FeaturedPosts posts={featuredPosts} />
-            </div>
-          )
-        }
-      </BlogIndexFoundation>
-      <Pagination
-        baseUrl={basePath}
-        length={page.lastPage}
-        currentPage={page.currentPage}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        label={title}
-        class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+    <Breadcrumbs breadcrumbs={breadcrumbs} />
+    <BlogIndexFoundation
+      posts={page.data || []}
+      totalEntries={totalEntries}
+      allTerms={allTerms}
+      selectedTerm={selectedTerm}
+      enabledTerms={enabledTerms}
+      blogIndexHref={blogPath}
+      contentLang={contentLang}
+      isTermFallback={isTermFallback}
+    >
+      {
+        featuredPosts.length > 0 && (
+          <div slot="featured">
+            <FeaturedPosts posts={featuredPosts} />
+          </div>
+        )
+      }
+    </BlogIndexFoundation>
+    <Pagination
+      baseUrl={basePath}
+      length={page.lastPage}
+      currentPage={page.currentPage}
+      prevUrl={page.url.prev}
+      nextUrl={page.url.next}
+      label={title}
+      class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+    />
+    <div class="mt-4xl desktop:mt-5xl">
+      <CtaStrip
+        heading={t('blog.cta.heading')}
+        description={t('blog.cta.description')}
+        primaryButtonText={t('blog.cta.link_text')}
+        primaryButtonLink={subscribePath}
       />
-      <div class="mt-4xl desktop:mt-5xl">
-        <CtaStrip
-          heading={t('blog.cta.heading')}
-          description={t('blog.cta.description')}
-          primaryButtonText={t('blog.cta.link_text')}
-          primaryButtonLink={subscribePath}
-        />
-      </div>
     </div>
-  </main>
+  </ContentGutter>
 </FoundationPageLayout>

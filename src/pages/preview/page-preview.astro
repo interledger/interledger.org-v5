@@ -9,6 +9,7 @@ import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+import Section from '@/components/shared/Section.astro'
 
 interface HeroCta {
   text?: string
@@ -127,11 +128,11 @@ const content = page.content || []
 
     {
       content.length > 0 && (
-        <section class="px-content py-4xl">
-          <div class="content-column min-w-0" data-prose-blog>
+        <Section class="py-4xl">
+          <div data-prose-blog>
             <DynamicZone blocks={content} />
           </div>
-        </section>
+        </Section>
       )
     }
   </main>

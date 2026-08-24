@@ -16,6 +16,7 @@ import {
   formatDate,
   getSectionPageLayout
 } from '@/utils'
+import ContentGutter from '@/components/shared/ContentGutter.astro'
 
 interface Props {
   slug: string
@@ -80,112 +81,111 @@ const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
-  <main
-    class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  <ContentGutter
+    as="main"
+    class="flex flex-col pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <div class="content-column">
-      <Breadcrumbs breadcrumbs={breadcrumbs}>
-        <TranslationDisclaimer isVisible={isFallback} />
-      </Breadcrumbs>
-      <h1
-        class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
-      >
-        {heading}
-      </h1>
-      {
-        authorBios?.length > 0 && (
-          <div class="mb-xl">
-            <AuthorByline authors={authorBios} />
-          </div>
-        )
-      }
-      {
-        date && (
-          <div class="flex items-center gap-sm">
-            <time
-              datetime={date.publishDate.toISOString()}
-              class="text-body-lg-standard text-neutral-900 tablet:text-body-lg-standard-md"
-            >
-              {t('report.published', {
-                date: formatDate(date.publishDate, contentLocale)
-              })}
-            </time>
-            {date.lastUpdated && (
-              <>
-                <span class="h-6.5 w-px bg-neutral-75" />
-                <time
-                  datetime={date.lastUpdated.toISOString()}
-                  class="text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
-                >
-                  {t('report.updated', {
-                    date: formatDate(date.lastUpdated, contentLocale)
-                  })}
-                </time>
-              </>
-            )}
-          </div>
-        )
-      }
-      {
-        (hasBody || hasAuthorBios) && (
-          <section
-            data-prose
-            aria-label={t('report.body')}
-            class="flex flex-col gap-3xl mt-4xl *:data-footnotes:order-last"
+    <Breadcrumbs breadcrumbs={breadcrumbs}>
+      <TranslationDisclaimer isVisible={isFallback} />
+    </Breadcrumbs>
+    <h1
+      class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
+    >
+      {heading}
+    </h1>
+    {
+      authorBios?.length > 0 && (
+        <div class="mb-xl">
+          <AuthorByline authors={authorBios} />
+        </div>
+      )
+    }
+    {
+      date && (
+        <div class="flex items-center gap-sm">
+          <time
+            datetime={date.publishDate.toISOString()}
+            class="text-body-lg-standard text-neutral-900 tablet:text-body-lg-standard-md"
           >
-            {sections.length > 0 ? (
-              // CSS grid, not flex, so the auto-generated footnotes section
-              // (a sibling of <ReportSection> we don't control) and the
-              // optional <ReportIntro> can both span both columns instead of
-              // being squeezed into the content column — MdxContent's
-              // children must be direct grid items (no wrapping div) for
-              // that breakout to work. When an intro is present it occupies
-              // row 1, so the nav's row span starts one row later. AuthorBio
-              // is a grid item here (not rendered after this whole div, like
-              // it used to be) so that footnotes' order-last below can push
-              // footnotes after it — order only reorders siblings within the
-              // same flex/grid container, and footnotes is nested inside
-              // this grid, not the outer <section> above.
-              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:order-last *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full">
-                <div
-                  class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
-                  style={{
-                    gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
-                  }}
-                >
-                  <ReportSectionsNav
-                    sections={sections}
-                    uiLocale={routeLocale}
-                  />
-                </div>
-                <MdxContent
-                  components={{ ReportIntro, ReportSection, ReportText }}
+            {t('report.published', {
+              date: formatDate(date.publishDate, contentLocale)
+            })}
+          </time>
+          {date.lastUpdated && (
+            <>
+              <span class="h-6.5 w-px bg-neutral-75" />
+              <time
+                datetime={date.lastUpdated.toISOString()}
+                class="text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+              >
+                {t('report.updated', {
+                  date: formatDate(date.lastUpdated, contentLocale)
+                })}
+              </time>
+            </>
+          )}
+        </div>
+      )
+    }
+    {
+      (hasBody || hasAuthorBios) && (
+        <section
+          data-prose
+          aria-label={t('report.body')}
+          class="flex flex-col gap-3xl mt-4xl *:data-footnotes:order-last"
+        >
+          {sections.length > 0 ? (
+            // CSS grid, not flex, so the auto-generated footnotes section
+            // (a sibling of <ReportSection> we don't control) and the
+            // optional <ReportIntro> can both span both columns instead of
+            // being squeezed into the content column — MdxContent's
+            // children must be direct grid items (no wrapping div) for
+            // that breakout to work. When an intro is present it occupies
+            // row 1, so the nav's row span starts one row later. AuthorBio
+            // is a grid item here (not rendered after this whole div, like
+            // it used to be) so that footnotes' order-last below can push
+            // footnotes after it — order only reorders siblings within the
+            // same flex/grid container, and footnotes is nested inside
+            // this grid, not the outer <section> above.
+            <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:order-last *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full">
+              <div
+                class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
+                style={{
+                  gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
+                }}
+              >
+                <ReportSectionsNav
+                  sections={sections}
+                  uiLocale={routeLocale}
                 />
-                {hasAuthorBios && (
-                  <div class="tablet:col-span-full">
-                    <AuthorBio bios={bioTextEntries} />
-                  </div>
-                )}
-                {hasReferencesSection && (
-                  <div
-                    data-report-references-target
-                    class="tablet:col-span-full"
-                  />
-                )}
               </div>
-            ) : (
-              <>
-                <MdxContent
-                  components={{ ReportIntro, ReportSection, ReportText }}
+              <MdxContent
+                components={{ ReportIntro, ReportSection, ReportText }}
+              />
+              {hasAuthorBios && (
+                <div class="tablet:col-span-full">
+                  <AuthorBio bios={bioTextEntries} />
+                </div>
+              )}
+              {hasReferencesSection && (
+                <div
+                  data-report-references-target
+                  class="tablet:col-span-full"
                 />
-                {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
-                {hasReferencesSection && <div data-report-references-target />}
-              </>
-            )}
-          </section>
-        )
-      }
-    </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <MdxContent
+                components={{ ReportIntro, ReportSection, ReportText }}
+              />
+              {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
+              {hasReferencesSection && <div data-report-references-target />}
+            </>
+          )}
+        </section>
+      )
+    }
     <script>
       // The References <ReportText> renders in place server-side (so it's
       // never missing with JS disabled) inside its <ReportSection>, next to
@@ -201,5 +201,5 @@ const Layout = getSectionPageLayout(section)
           .forEach((el) => target.appendChild(el))
       }
     </script>
-  </main>
+  </ContentGutter>
 </Layout>

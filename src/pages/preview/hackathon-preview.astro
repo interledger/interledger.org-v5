@@ -8,6 +8,7 @@ import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import HackathonHero from '@/components/pages/HackathonHero.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+import Section from '@/components/shared/Section.astro'
 
 interface HeroCta {
   text?: string
@@ -135,11 +136,11 @@ const content = page.content || []
 
   {
     content.length > 0 && (
-      <section class="px-content py-4xl">
-        <div class="content-column min-w-0" data-prose>
+      <Section class="py-4xl">
+        <div data-prose>
           <DynamicZone blocks={content} />
         </div>
-      </section>
+      </Section>
     )
   }
 </HackathonPageLayout>

@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
+import ContentGutter from '@/components/shared/ContentGutter.astro'
 import {
   type Locale,
   type SiteSection,
@@ -53,42 +54,38 @@ const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
-  <main
-    class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  <ContentGutter
+    as="main"
+    class="flex flex-col pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <div class="content-column">
-      {
-        section !== 'hackathon' ? (
-          <Breadcrumbs breadcrumbs={breadcrumbs}>
-            <TranslationDisclaimer isVisible={isFallback} />
-          </Breadcrumbs>
-        ) : (
-          <div class="flex justify-end">
-            <TranslationDisclaimer isVisible={isFallback} />
-          </div>
-        )
-      }
-      <h1
-        class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
-      >
-        {heading}
-      </h1>
-      {
-        introParagraphHtml && (
-          <section
-            aria-label={t('faq.introduction')}
-            class="mt-xl tablet:mt-3xl"
-          >
-            <div
-              class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
-              set:html={introParagraphHtml}
-            />
-          </section>
-        )
-      }
-      <section class="mt-4xl desktop:mt-6xl">
-        <FaqSections sections={faqSections} uiLocale={routeLocale} />
-      </section>
-    </div>
-  </main>
+    {
+      section !== 'hackathon' ? (
+        <Breadcrumbs breadcrumbs={breadcrumbs}>
+          <TranslationDisclaimer isVisible={isFallback} />
+        </Breadcrumbs>
+      ) : (
+        <div class="flex justify-end">
+          <TranslationDisclaimer isVisible={isFallback} />
+        </div>
+      )
+    }
+    <h1
+      class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
+    >
+      {heading}
+    </h1>
+    {
+      introParagraphHtml && (
+        <section aria-label={t('faq.introduction')} class="mt-xl tablet:mt-3xl">
+          <div
+            class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+            set:html={introParagraphHtml}
+          />
+        </section>
+      )
+    }
+    <section class="mt-4xl desktop:mt-6xl">
+      <FaqSections sections={faqSections} uiLocale={routeLocale} />
+    </section>
+  </ContentGutter>
 </Layout>

@@ -10,8 +10,8 @@
 
 /*
  * Horizontal gutter around the max-w-content column.
- * 16 / 24 / 60 so the 1440px column never sits flush to the viewport —
- * desktop 4xl keeps ≥60px between 1200px and 1560px.
+ * 16 / 24 / 80 so the 1440px column never sits flush to the viewport.
+ * Prefer ContentGutter / Section over applying these two classes by hand.
  */
 @utility px-content {
   padding-inline: var(--spacing-lg);
@@ -25,7 +25,8 @@
   }
 }
 
-/* Centered content column used inside px-content. */
+/* Centered content column used inside px-content. min-w-0 so the gutter
+   is not eaten by a 360px floor on small phones. */
 @utility content-column {
-  @apply mx-auto w-full max-w-content min-w-[360px];
+  @apply mx-auto w-full max-w-content min-w-0;
 }

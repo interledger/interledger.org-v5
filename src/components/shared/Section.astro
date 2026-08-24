@@ -1,9 +1,20 @@
 ---
-const { class: className, id } = Astro.props
+import ContentGutter from './ContentGutter.astro'
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props extends HTMLAttributes<'section'> {
+  columnClass?: string
+}
+
+const { class: className, columnClass, id, ...rest } = Astro.props
 ---
 
-<section class:list={[className, 'px-content']} id={id}>
-  <div class="content-column">
-    <slot />
-  </div>
-</section>
+<ContentGutter
+  as="section"
+  class={className}
+  columnClass={columnClass}
+  id={id}
+  {...rest}
+>
+  <slot />
+</ContentGutter>

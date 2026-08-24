@@ -19,6 +19,7 @@ import PodcastList from '@/components/shared/PodcastList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import TaxonomyFilter from '@/components/shared/TaxonomyFilter.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Section from '@/components/shared/Section.astro'
 
 interface Props {
   page: Page<Podcast>
@@ -108,72 +109,56 @@ const textSectionHtml =
 
     {
       isLandingPage && (
-        <section class="pt-4xl px-lg tablet:px-xl">
-          {textSectionHtml && (
-            <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
-              <div data-prose set:html={textSectionHtml} />
-            </div>
-          )}
-          <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
-            <CardGrid
-              ariaLabel={titleCards.ariaLabel}
-              columns={titleCards.columns}
-              variant="Title"
-              titleCards={titleCards.cards}
-            />
-          </div>
-        </section>
+        <Section class="pt-4xl">
+          {textSectionHtml && <div data-prose set:html={textSectionHtml} />}
+          <CardGrid
+            ariaLabel={titleCards.ariaLabel}
+            columns={titleCards.columns}
+            variant="Title"
+            titleCards={titleCards.cards}
+          />
+        </Section>
       )
     }
 
-    <section
+    <Section
       aria-label={t('aria.podcast.filters_label')}
-      class="px-lg min-w-90 mb-3xl tablet:px-xl tablet:mb-4xl"
+      class="mb-3xl tablet:mb-4xl"
     >
-      <div class="mx-auto max-w-content desktop:max-w-content">
-        <TaxonomyFilter
-          collection="podcast-pages"
-          terms={allTerms}
-          selectedTerm={selectedTerm}
-          href={podcastPath}
-        />
-      </div>
-    </section>
+      <TaxonomyFilter
+        collection="podcast-pages"
+        terms={allTerms}
+        selectedTerm={selectedTerm}
+        href={podcastPath}
+      />
+    </Section>
 
-    <section class="py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
-      >
-        <PodcastList podcasts={page.data} />
-        <Pagination
-          baseUrl={basePath}
-          length={page.lastPage}
-          currentPage={page.currentPage}
-          prevUrl={page.url.prev}
-          nextUrl={page.url.next}
-          label={heroTitle ?? title}
-          class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
-        />
-      </div>
-    </section>
+    <Section class="py-4xl">
+      <PodcastList podcasts={page.data} />
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        label={heroTitle ?? title}
+        class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+      />
+    </Section>
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
-      >
-        <CtaStrip
-          heading={ctaStrip.heading}
-          description={ctaStrip.description}
-          primaryButtonText={ctaStrip.buttonText}
-          primaryButtonLink={ctaStrip.buttonLink}
-          primaryButtonExternal={ctaStrip.buttonExternal}
-          primaryButtonDocument={ctaStrip.buttonDocument}
-          secondaryButtonText={ctaStrip.secondaryButtonText}
-          secondaryButtonLink={ctaStrip.secondaryButtonLink}
-          secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
-          secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
-        />
-      </div>
-    </section>
+    <Section class="tablet:py-4xl">
+      <CtaStrip
+        heading={ctaStrip.heading}
+        description={ctaStrip.description}
+        primaryButtonText={ctaStrip.buttonText}
+        primaryButtonLink={ctaStrip.buttonLink}
+        primaryButtonExternal={ctaStrip.buttonExternal}
+        primaryButtonDocument={ctaStrip.buttonDocument}
+        secondaryButtonText={ctaStrip.secondaryButtonText}
+        secondaryButtonLink={ctaStrip.secondaryButtonLink}
+        secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
+        secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
+      />
+    </Section>
   </main>
 </FoundationPageLayout>

@@ -3,6 +3,8 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
 import { roadmapWindow, projectOverlapsWindow, buildUmamiAttrs } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
+import ContentGutter from '@/components/shared/ContentGutter.astro'
+import Section from '@/components/shared/Section.astro'
 
 interface Props {
   snapshot: Snapshot | null
@@ -38,7 +40,7 @@ const githubFallbackAttrs = buildUmamiAttrs({
     <section
       class="bg-gradient-primary-fallback bg-gradient-primary py-2xl text-white"
     >
-      <div class="mx-auto max-w-content min-w-[360px] px-[5%]">
+      <ContentGutter>
         <h1
           class="text-h2 tablet:text-h2-md desktop:text-h2-lg font-semibold text-white"
         >
@@ -48,15 +50,15 @@ const githubFallbackAttrs = buildUmamiAttrs({
           Track milestones, active work, and shipped items across the
           Interledger open-source ecosystem.
         </p>
-      </div>
+      </ContentGutter>
     </section>
 
-    <section class="px-[5%] pt-md">
+    <Section class="pt-md">
       {
         hasData ? (
           <RoadmapBoard projects={projects} teams={teams} />
         ) : (
-          <div class="mx-auto max-w-content py-xl text-gray-600">
+          <div class="py-xl text-gray-600">
             <p>
               The roadmap could not be loaded right now. Please check back
               shortly or visit our{' '}
@@ -74,16 +76,16 @@ const githubFallbackAttrs = buildUmamiAttrs({
           </div>
         )
       }
-    </section>
+    </Section>
 
     {
       generatedAt && (
-        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
+        <ContentGutter class="pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
           Roadmap data refreshed at:{' '}
           <time class="roadmap-refreshed" datetime={generatedAt}>
             {new Date(generatedAt).toUTCString()}
           </time>
-        </div>
+        </ContentGutter>
       )
     }
   </main>

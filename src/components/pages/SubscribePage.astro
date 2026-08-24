@@ -7,6 +7,7 @@ import {
   type BreadcrumbItem
 } from '@/utils'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import ContentGutter from '@/components/shared/ContentGutter.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Button from '@/components/shared/Button.astro'
@@ -75,7 +76,7 @@ const secondaryTextClasses = 'text-neutral-75'
   description={t('subscribe.description')}
 >
   <main class="pt-2xl pb-4xl desktop:min-h-screen">
-    <div class="mx-auto max-w-content min-w-90 px-lg tablet:px-xl">
+    <ContentGutter>
       <div class="mb-xl">
         <Breadcrumbs breadcrumbs={breadcrumbs} />
       </div>
@@ -372,7 +373,7 @@ const secondaryTextClasses = 'text-neutral-75'
           </div>
         </div>
       </div>
-    </div>
+    </ContentGutter>
   </main>
 </FoundationPageLayout>
 

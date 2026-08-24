@@ -85,85 +85,89 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
     <header
       class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
     >
-      <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
-        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem>
-          <TranslationDisclaimer isVisible={isFallback} />
-        </Breadcrumbs>
+      <div class="px-content pt-2xl tablet:pt-4xl desktop:pt-5xl">
+        <div class="mx-auto w-full min-w-0 max-w-250">
+          <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem>
+            <TranslationDisclaimer isVisible={isFallback} />
+          </Breadcrumbs>
+        </div>
       </div>
     </header>
-    <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
-      <div
-        class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
-      >
+    <div class="px-content -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
+      <div class="mx-auto w-full min-w-0 max-w-250">
+        <div
+          class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
+        >
+          {
+            photo ? (
+              <OptimizedImage
+                src={photo}
+                alt={photoAlt ?? name}
+                width={240}
+                height={240}
+                loading="eager"
+                fetchpriority="high"
+                class="absolute inset-0 h-full w-full scale-[0.94] object-cover object-[center_18%] translate-y-[4%]"
+              />
+            ) : (
+              <div class="absolute inset-0">
+                <ProfileAvatarFallback />
+              </div>
+            )
+          }
+        </div>
+        <div
+          class="mt-xl flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
+        >
+          <h1 class={nameClass}>{name}</h1>
+          {displayRole && <h4 class={roleClass}>{displayRole}</h4>}
+        </div>
         {
-          photo ? (
-            <OptimizedImage
-              src={photo}
-              alt={photoAlt ?? name}
-              width={240}
-              height={240}
-              loading="eager"
-              fetchpriority="high"
-              class="absolute inset-0 h-full w-full scale-[0.94] object-cover object-[center_18%] translate-y-[4%]"
-            />
-          ) : (
-            <div class="absolute inset-0">
-              <ProfileAvatarFallback />
+          description && (
+            <section
+              data-prose
+              aria-label={t('profile.description')}
+              class="mb-2xl"
+            >
+              <Paragraph content={description} />
+            </section>
+          )
+        }
+        {
+          hasCta && (
+            <div class="mb-2xl">
+              <LinkButton
+                href={cta!.link}
+                variant={cta!.style === 'secondary' ? 'secondary' : 'primary'}
+                size="lg"
+                external={cta!.external}
+                {...buildUmamiAttrs({
+                  pathname: Astro.url.pathname,
+                  lang: contentLocale,
+                  label: 'button_cta',
+                  baseComponent: 'profile',
+                  href: cta!.link,
+                  linkText: cta!.text
+                })}
+              >
+                {cta!.text}
+                <Icon name="arrow-right" slot="icon-right" />
+              </LinkButton>
             </div>
           )
         }
-      </div>
-      <div
-        class="mt-xl flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
-      >
-        <h1 class={nameClass}>{name}</h1>
-        {displayRole && <h4 class={roleClass}>{displayRole}</h4>}
-      </div>
-      {
-        description && (
-          <section
-            data-prose
-            aria-label={t('profile.description')}
-            class="mb-2xl"
-          >
-            <Paragraph content={description} />
-          </section>
-        )
-      }
-      {
-        hasCta && (
-          <div class="mb-2xl">
-            <LinkButton
-              href={cta!.link}
-              variant={cta!.style === 'secondary' ? 'secondary' : 'primary'}
-              size="lg"
-              external={cta!.external}
-              {...buildUmamiAttrs({
-                pathname: Astro.url.pathname,
-                lang: contentLocale,
-                label: 'button_cta',
-                baseComponent: 'profile',
-                href: cta!.link,
-                linkText: cta!.text
-              })}
+        {
+          hasBody && (
+            <section
+              data-prose
+              aria-label={t('profile.biography')}
+              class="mb-2xl"
             >
-              {cta!.text}
-              <Icon name="arrow-right" slot="icon-right" />
-            </LinkButton>
-          </div>
-        )
-      }
-      {
-        hasBody && (
-          <section
-            data-prose
-            aria-label={t('profile.biography')}
-            class="mb-2xl"
-          >
-            <MdxContent components={{ Paragraph }} />
-          </section>
-        )
-      }
+              <MdxContent components={{ Paragraph }} />
+            </section>
+          )
+        }
+      </div>
     </div>
   </main>
 </Layout>

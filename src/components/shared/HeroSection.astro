@@ -5,6 +5,7 @@
  * (Grant-style white/parallax heroes use PageHero instead.)
  */
 import Link from './Link.astro'
+import ContentGutter from './ContentGutter.astro'
 
 export interface HeroSectionCta {
   text?: string
@@ -39,7 +40,7 @@ const resolvedCtas = ctas.filter(
   ]}
   style={sectionStyle}
 >
-  <div class="mx-auto w-full max-w-content px-2xl">
+  <ContentGutter>
     <h1
       class="text-white max-w-[14em] leading-[1.2] font-semibold mb-lg text-[clamp(2rem,5vw,3rem)]"
     >
@@ -68,5 +69,5 @@ const resolvedCtas = ctas.filter(
         </div>
       )
     }
-  </div>
+  </ContentGutter>
 </section>

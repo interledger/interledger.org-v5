@@ -22,6 +22,7 @@ import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
+import Section from '@/components/shared/Section.astro'
 
 interface Props {
   slug: string
@@ -98,55 +99,49 @@ const breadcrumbs = [
 
     {
       hasBody && (
-        <section class="px-content py-4xl">
-          <div class="content-column">
-            <div data-prose>
-              <MdxContent
-                components={{
-                  Paragraph,
-                  SplitLayout,
-                  Blockquote: BlockquoteBlock,
-                  CalloutText: CalloutTextBlock,
-                  VideoEmbed: VideoEmbedBlock,
-                  ImageBlock,
-                  CtaStrip,
-                  LogoCarousel,
-                  NumberTiles,
-                  // Grant overview only allows CardGrid variant="Title" (enforced in CMS).
-                  CardGrid,
-                  TitleCard
-                }}
-              />
-            </div>
+        <Section class="py-4xl">
+          <div data-prose>
+            <MdxContent
+              components={{
+                Paragraph,
+                SplitLayout,
+                Blockquote: BlockquoteBlock,
+                CalloutText: CalloutTextBlock,
+                VideoEmbed: VideoEmbedBlock,
+                ImageBlock,
+                CtaStrip,
+                LogoCarousel,
+                NumberTiles,
+                // Grant overview only allows CardGrid variant="Title" (enforced in CMS).
+                CardGrid,
+                TitleCard
+              }}
+            />
           </div>
-        </section>
+        </Section>
       )
     }
 
-    <section class="px-content tablet:py-4xl">
-      <div class="content-column">
-        <CtaStrip
-          heading={ctaStrip.heading}
-          description={ctaStrip.description}
-          primaryButtonText={ctaStrip.buttonText}
-          primaryButtonLink={ctaStrip.buttonLink}
-          primaryButtonExternal={ctaStrip.buttonExternal}
-          primaryButtonDocument={ctaStrip.buttonDocument}
-          secondaryButtonText={ctaStrip.secondaryButtonText}
-          secondaryButtonLink={ctaStrip.secondaryButtonLink}
-          secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
-          secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
-        />
-      </div>
-    </section>
+    <Section class="tablet:py-4xl">
+      <CtaStrip
+        heading={ctaStrip.heading}
+        description={ctaStrip.description}
+        primaryButtonText={ctaStrip.buttonText}
+        primaryButtonLink={ctaStrip.buttonLink}
+        primaryButtonExternal={ctaStrip.buttonExternal}
+        primaryButtonDocument={ctaStrip.buttonDocument}
+        secondaryButtonText={ctaStrip.secondaryButtonText}
+        secondaryButtonLink={ctaStrip.secondaryButtonLink}
+        secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
+        secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
+      />
+    </Section>
 
     {
       followUpHtml && (
-        <section class="px-content pt-4xl pb-4xl">
-          <div class="content-column">
-            <div data-prose set:html={followUpHtml} />
-          </div>
-        </section>
+        <Section class="pt-4xl pb-4xl">
+          <div data-prose set:html={followUpHtml} />
+        </Section>
       )
     }
   </main>

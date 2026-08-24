@@ -17,6 +17,7 @@ import GrantFaqSection from '@/components/grant/GrantFaqSection.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Section from '@/components/shared/Section.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import BlockquoteBlock from '@/components/blocks/BlockquoteBlock.astro'
@@ -116,94 +117,82 @@ const breadcrumbs = [
     </PageHero>
     {
       programOverviewHtml && (
-        <section class="pt-4xl">
-          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
-            <div data-prose set:html={programOverviewHtml} />
-          </div>
-        </section>
+        <Section class="pt-4xl">
+          <div data-prose set:html={programOverviewHtml} />
+        </Section>
       )
     }
 
     {
       primaryCta && resolvedPrimaryCta && (
-        <section class="">
-          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
-            <LinkButton
-              href={resolvedPrimaryCta.href}
-              variant="primary"
-              external={resolvedPrimaryCta.external}
-              document={resolvedPrimaryCta.document}
-              linkText={primaryCta.text}
-              umamiLabel="button_cta"
-              umamiBaseComponent="primary_cta"
-            >
-              {primaryCta.text}
-              <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
-            </LinkButton>
-          </div>
-        </section>
+        <Section>
+          <LinkButton
+            href={resolvedPrimaryCta.href}
+            variant="primary"
+            external={resolvedPrimaryCta.external}
+            document={resolvedPrimaryCta.document}
+            linkText={primaryCta.text}
+            umamiLabel="button_cta"
+            umamiBaseComponent="primary_cta"
+          >
+            {primaryCta.text}
+            <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
+          </LinkButton>
+        </Section>
       )
     }
 
     {
       infoCards && (
-        <section class="py-4xl">
+        <Section class="py-4xl">
           <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
-        </section>
+        </Section>
       )
     }
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
-      >
-        <div data-prose>
-          <MdxContent
-            components={{
-              Paragraph,
-              SplitLayout,
-              Blockquote: BlockquoteBlock,
-              CalloutText: CalloutTextBlock,
-              VideoEmbed: VideoEmbedBlock,
-              ImageBlock,
-              CtaStrip,
-              ProfileGrid,
-              LogoCarousel,
-              CtaLink,
-              // Grant pages only allow CardGrid variant="Info" (enforced in CMS).
-              CardGrid,
-              InfoCard
-            }}
-          />
-        </div>
+    <Section class="tablet:py-4xl">
+      <div data-prose>
+        <MdxContent
+          components={{
+            Paragraph,
+            SplitLayout,
+            Blockquote: BlockquoteBlock,
+            CalloutText: CalloutTextBlock,
+            VideoEmbed: VideoEmbedBlock,
+            ImageBlock,
+            CtaStrip,
+            ProfileGrid,
+            LogoCarousel,
+            CtaLink,
+            // Grant pages only allow CardGrid variant="Info" (enforced in CMS).
+            CardGrid,
+            InfoCard
+          }}
+        />
       </div>
-    </section>
+    </Section>
 
     {
       faqSection && (
-        <section class="pt-0 pb-4xl px-lg tablet:py-4xl tablet:px-xl">
+        <Section class="pt-0 pb-4xl tablet:py-4xl">
           <GrantFaqSection {...faqSection} />
-        </section>
+        </Section>
       )
     }
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto px-lg max-w-content min-w-90 tablet:px-xl desktop:px-0 desktop:max-w-content"
-      >
-        <CtaStrip
-          heading={ctaStrip.heading}
-          description={ctaStrip.description}
-          primaryButtonText={ctaStrip.buttonText}
-          primaryButtonLink={ctaStrip.buttonLink}
-          primaryButtonExternal={ctaStrip.buttonExternal}
-          primaryButtonDocument={ctaStrip.buttonDocument}
-          secondaryButtonText={ctaStrip.secondaryButtonText}
-          secondaryButtonLink={ctaStrip.secondaryButtonLink}
-          secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
-          secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
-        />
-      </div>
-    </section>
+    <Section class="tablet:py-4xl">
+      <CtaStrip
+        heading={ctaStrip.heading}
+        description={ctaStrip.description}
+        primaryButtonText={ctaStrip.buttonText}
+        primaryButtonLink={ctaStrip.buttonLink}
+        primaryButtonExternal={ctaStrip.buttonExternal}
+        primaryButtonDocument={ctaStrip.buttonDocument}
+        secondaryButtonText={ctaStrip.secondaryButtonText}
+        secondaryButtonLink={ctaStrip.secondaryButtonLink}
+        secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
+        secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
+      />
+    </Section>
   </main>
 </FoundationPageLayout>

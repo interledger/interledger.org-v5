@@ -1,0 +1,27 @@
+---
+/**
+ * Shared 16 / 24 / 80px page gutter around the 1440px content column.
+ * Use this (or Section, which is this as a <section>) instead of one-off
+ * px-4 / px-lg / desktop:px-0 recipes.
+ */
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props extends HTMLAttributes<'div'> {
+  as?: 'div' | 'section' | 'main'
+  columnClass?: string
+}
+
+const {
+  as: Tag = 'div',
+  class: className,
+  columnClass,
+  id,
+  ...rest
+} = Astro.props
+---
+
+<Tag class:list={['px-content', className]} id={id} {...rest}>
+  <div class:list={['content-column', columnClass]}>
+    <slot />
+  </div>
+</Tag>
