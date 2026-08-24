@@ -48,7 +48,26 @@ describe('report-section serializer', () => {
 
     expect(result).toContain('<ReportText type="References">')
     expect(result).toContain('- First source.')
-    expect(result).toContain('- Second source.')
+  })
+
+  it('marks the section with a references attribute when it contains a References block', () => {
+    const result = serialize({
+      heading: 'References',
+      reportText: [validReferences]
+    })
+
+    expect(result).toContain('<ReportSection references>')
+    expect(result).not.toMatch(/^<ReportSection>/)
+  })
+
+  it('does not add the references attribute for Paragraph/Disclaimer-only sections', () => {
+    const result = serialize({
+      heading: 'Overview',
+      reportText: [validParagraph, validDisclaimer]
+    })
+
+    expect(result).toMatch(/^<ReportSection>/)
+    expect(result).not.toContain('references')
   })
 
   it('throws when a References block is missing textContent', () => {

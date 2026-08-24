@@ -50,6 +50,12 @@ const hasAuthorBios = bioTextEntries.length > 0
 // leading element when present — see ReportIntro.astro's comment for why
 // this offsets ReportSectionsNav's grid row below.
 const hasIntro = Boolean(entry.body?.trim().startsWith('<ReportIntro'))
+// A References ReportSection breaks out to full width (see
+// data-report-references-section below), so it no longer occupies a row in
+// the narrow nav column — the nav's row span below excludes it. Assumes at
+// most one such section (not CMS-enforced); if that's ever violated the
+// sticky nav is at worst one grid row off, not broken.
+const hasReferencesSection = Boolean(entry.body?.includes('type="References"'))
 const sections = headings
   .filter(
     (h) =>
@@ -120,21 +126,29 @@ const Layout = getSectionPageLayout(entry.data.section)
           <section
             data-prose
             aria-label={t('report.body')}
-            class="flex flex-col gap-3xl mt-4xl desktop:mt-6xl"
+            class="flex flex-col gap-3xl mt-4xl *:data-footnotes:order-last"
           >
             {sections.length > 0 ? (
               // CSS grid, not flex, so the auto-generated footnotes section
-              // (a sibling of <ReportSection> we don't control) and the
-              // optional <ReportIntro> can both span both columns instead of
-              // being squeezed into the content column — MdxContent's
-              // children must be direct grid items (no wrapping div) for
-              // that breakout to work. When an intro is present it occupies
-              // row 1, so the nav's row span starts one row later.
-              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full">
+              // (a sibling of <ReportSection> we don't control), the
+              // optional <ReportIntro>, a References <ReportSection>, and
+              // AuthorBio can all span both columns instead of being
+              // squeezed into the content column — MdxContent's children
+              // must be direct grid items (no wrapping div) for that
+              // breakout to work. When an intro is present it occupies row
+              // 1, so the nav's row span starts one row later; a References
+              // section doesn't occupy a row in the nav's column at all, so
+              // it's excluded from the span. AuthorBio is a grid item here
+              // (not rendered after this whole div, like it used to be) so
+              // that footnotes' order-last below can push footnotes after
+              // it — order only reorders siblings within the same flex/grid
+              // container, and footnotes is nested inside this grid, not
+              // the outer <section> above.
+              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:order-last *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full tablet:*:data-report-references-section:col-span-full *:data-report-references-section:mt-2xl *:data-report-references-section:desktop:mt-5xl">
                 <div
                   class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
                   style={{
-                    gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
+                    gridRow: `${hasIntro ? 2 : 1} / span ${Math.max(1, sections.length - (hasReferencesSection ? 1 : 0))}`
                   }}
                 >
                   <ReportSectionsNav
@@ -145,13 +159,20 @@ const Layout = getSectionPageLayout(entry.data.section)
                 <MdxContent
                   components={{ ReportIntro, ReportSection, ReportText }}
                 />
+                {hasAuthorBios && (
+                  <div class="tablet:col-span-full">
+                    <AuthorBio bios={bioTextEntries} />
+                  </div>
+                )}
               </div>
             ) : (
-              <MdxContent
-                components={{ ReportIntro, ReportSection, ReportText }}
-              />
+              <>
+                <MdxContent
+                  components={{ ReportIntro, ReportSection, ReportText }}
+                />
+                {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
+              </>
             )}
-            {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
           </section>
         )
       }

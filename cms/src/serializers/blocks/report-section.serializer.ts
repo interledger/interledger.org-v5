@@ -104,6 +104,15 @@ export function serialize(block: {
   })
 
   const heading = esc(block.heading!.trim())
+  // Rendering hint only, not stored Strapi data — derived fresh from
+  // reportText on every serialize, so it round-trips safely even though
+  // reportSectionHandler.ts never reads it back. See ReportSection.astro.
+  const hasReferences = block.reportText!.some(
+    (item) => item.textType === 'References'
+  )
+  const openTag = hasReferences
+    ? '<ReportSection references>'
+    : '<ReportSection>'
 
-  return `<ReportSection>\n\n## ${heading}\n\n${items.join('\n\n')}\n\n</ReportSection>`
+  return `${openTag}\n\n## ${heading}\n\n${items.join('\n\n')}\n\n</ReportSection>`
 }
