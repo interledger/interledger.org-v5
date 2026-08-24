@@ -7,14 +7,25 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
-import HeroSection from '@/components/shared/HeroSection.astro'
+import PageHero from '@/components/shared/PageHero.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
 interface HeroCta {
   text?: string
   link?: string
-  style?: string
+  style?: 'primary' | 'secondary'
   external?: boolean
+  document?: boolean
+}
+
+interface MediaFile {
+  url?: string
+  alternativeText?: string | null
+}
+
+interface LocalizedMedia {
+  image?: MediaFile | null
+  alternativeText?: string | null
 }
 
 interface FoundationPagePreview {
@@ -23,7 +34,9 @@ interface FoundationPagePreview {
   hero?: {
     title?: string
     description?: string
-    hero_call_to_action?: HeroCta[]
+    media?: LocalizedMedia | null
+    backgroundImageMobile?: MediaFile | null
+    hero_call_to_action?: HeroCta | null
   }
   content?: Array<{ __component: string; [key: string]: unknown }>
 }
@@ -41,7 +54,9 @@ if (!documentId) {
 // requires listing ALL component types — unlisted types are excluded.
 const populateParams = new URLSearchParams({
   status: 'draft',
-  'populate[hero][populate]': '*',
+  'populate[hero][populate][media][populate]': 'image',
+  'populate[hero][populate][backgroundImageMobile]': 'true',
+  'populate[hero][populate][hero_call_to_action]': 'true',
   'populate[content][on][blocks.paragraph][populate]': '*',
   'populate[content][on][blocks.agenda][populate][items]': '*',
   'populate[content][on][blocks.blockquote][populate]': '*',
@@ -75,7 +90,12 @@ const title = page.title || 'Preview'
 const metaDescription = page.description || undefined
 const heroTitle = page.hero?.title || page.title
 const heroDescription = page.hero?.description
-const heroCtas = page.hero?.hero_call_to_action ?? []
+const heroImage = page.hero?.media?.image?.url
+const heroImageAlt =
+  page.hero?.media?.alternativeText ?? page.hero?.media?.image?.alternativeText
+const heroImageMobile = page.hero?.backgroundImageMobile?.url
+const heroImageMobileAlt = page.hero?.backgroundImageMobile?.alternativeText
+const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
 ---
 
@@ -89,10 +109,14 @@ const content = page.content || []
 
     {
       heroTitle && (
-        <HeroSection
+        <PageHero
           title={heroTitle}
           description={heroDescription}
-          ctas={heroCtas}
+          image={heroImage}
+          imageMobile={heroImageMobile}
+          imageAlt={heroImageAlt}
+          imageMobileAlt={heroImageMobileAlt}
+          cta={heroCta}
         />
       )
     }
