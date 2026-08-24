@@ -34,10 +34,11 @@ const sectionPrefix = section && section !== 'foundation' ? `/${section}` : ''
 const profileLink = `${langPrefix}${sectionPrefix}/${pathSlug}`
 
 const umamiBase = {
-  page: umamiContext,
+  currentPath: umamiContext,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'card' as const
+  label: 'button_card' as const,
+  baseComponent: 'profile_grid'
 }
 ---
 

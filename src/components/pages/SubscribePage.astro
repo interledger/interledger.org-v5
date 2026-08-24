@@ -3,6 +3,7 @@ import {
   useTranslations,
   localizeRoute,
   translatePath,
+  buildUmamiAttrs,
   type BreadcrumbItem
 } from '@/utils'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
@@ -19,7 +20,14 @@ const breadcrumbs: BreadcrumbItem[] = [
   { name: t('subscribe.title'), href: localizeRoute('subscribe', routeLocale) }
 ]
 
-const currentPath = Astro.url.pathname
+const subscribeFormUmamiAttrs = (linkText: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_form',
+    baseComponent: 'form',
+    linkText
+  })
 
 const expectPoints = [
   t('subscribe.expect.grants'),
@@ -237,6 +245,7 @@ const secondaryTextClasses = 'text-neutral-75'
                       variant="primary"
                       iconSide="right"
                       size="lg"
+                      {...subscribeFormUmamiAttrs(t('subscribe.next'))}
                     >
                       {t('subscribe.next')}
                       <Icon
@@ -331,6 +340,7 @@ const secondaryTextClasses = 'text-neutral-75'
                         id="subscribe-back"
                         variant="secondary"
                         size="lg"
+                        {...subscribeFormUmamiAttrs(t('subscribe.back'))}
                       >
                         {t('subscribe.back')}
                       </Button>
@@ -342,12 +352,7 @@ const secondaryTextClasses = 'text-neutral-75'
                         size="lg"
                         data-label-default={t('subscribe.submit')}
                         data-label-busy={t('subscribe.submitting')}
-                        data-umami-event="button_form"
-                        data-umami-event-base-component="form"
-                        data-umami-event-link-text={t('subscribe.submit')}
-                        data-umami-event-lang={routeLocale}
-                        data-umami-event-current-path={currentPath}
-                        data-umami-event-current-section="foundation"
+                        {...subscribeFormUmamiAttrs(t('subscribe.submit'))}
                       >
                         <span id="subscribe-submit-label"
                           >{t('subscribe.submit')}</span

@@ -3,6 +3,7 @@ import {
   getLanguageSwitcherHrefs,
   switcherLocales,
   useTranslations,
+  buildDeferredUmamiAttrs,
   type Locale,
   type UiKey
 } from '@/utils'
@@ -29,6 +30,16 @@ const { class: className } = Astro.props
 const t = useTranslations(routeLocale)
 
 const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
+
+const switcherUmamiAttrs = (locale: Locale) =>
+  buildDeferredUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_ui',
+    baseComponent: 'language_switcher',
+    href: hrefs[locale],
+    linkText: locale.toUpperCase()
+  })
 ---
 
 <ul
@@ -57,6 +68,7 @@ const hrefs = getLanguageSwitcherHrefs(currentSlug, currentBasePath)
               'focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link',
               isActive ? 'bg-neutral-100 text-apricot-50' : 'text-neutral-50'
             ]}
+            {...switcherUmamiAttrs(locale)}
           >
             <span aria-hidden="true">{locale.toUpperCase()}</span>
             <span class="sr-only">{t(localeNameKeys[locale])}</span>

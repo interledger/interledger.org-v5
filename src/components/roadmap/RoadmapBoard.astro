@@ -10,7 +10,8 @@ import {
   buildQuarterHeaders,
   createPositioner,
   buildGridItems,
-  computeProjectBarProps
+  computeProjectBarProps,
+  buildUmamiAttrs
 } from '@/utils'
 
 interface Props {
@@ -19,6 +20,24 @@ interface Props {
 }
 
 const { projects = [], teams = [] }: Props = Astro.props
+const { routeLocale } = Astro.locals
+
+const milestonePinUmamiAttrs = (ariaLabel: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'toggle',
+    baseComponent: 'milestone_pin',
+    ariaLabel
+  })
+
+const mobileToggleUmamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  label: 'toggle',
+  baseComponent: 'roadmap_mobile_toggle',
+  linkText: 'Full timeline'
+})
 
 const now = new Date()
 const nowYear = now.getUTCFullYear()
@@ -83,6 +102,7 @@ let projectRowIndex = -1
       type="button"
       class="mobile-toggle-btn cursor-pointer rounded border border-gray-200 bg-gray-50 px-md py-xs text-caption text-gray-600 hover:bg-gray-200"
       aria-pressed="false"
+      {...mobileToggleUmamiAttrs}
     >
       Full timeline
     </button>
@@ -362,13 +382,14 @@ let projectRowIndex = -1
                         const left = pos
                           .pctLeft(new Date(ms.targetDate!))
                           .toFixed(2)
+                        const milestoneLabel = `${ms.name}, target ${fmtDate(ms.targetDate)}`
                         return (
                           <button
                             type="button"
                             class="ms-pin"
-                            aria-label={`${ms.name}, target ${fmtDate(ms.targetDate)}`}
+                            aria-label={milestoneLabel}
                             style={`left: ${left}%`}
-                            data-umami-event="developers_roadmap:milestone:open"
+                            {...milestonePinUmamiAttrs(milestoneLabel)}
                             data-umami-event-project={proj.name}
                             data-umami-event-milestone={ms.name}
                           >

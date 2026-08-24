@@ -15,7 +15,8 @@ const id = `pdf-${Math.random().toString(36).slice(2, 9)}`
 const downloadAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'cta',
+  label: 'button_cta',
+  baseComponent: 'download_button',
   href: url,
   linkText: label
 })

@@ -43,7 +43,8 @@ const {
 const overlayUmamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'card',
+  label: 'button_card',
+  baseComponent: 'nav_cards',
   href,
   linkText: buttonText
 })
@@ -71,6 +72,9 @@ const overlayUmamiAttrs = buildUmamiAttrs({
       external={external}
       document={buttonDocument}
       class="self-start z-[1]"
+      linkText={buttonText}
+      umamiLabel="button_card"
+      umamiBaseComponent="nav_cards"
     >
       {buttonText}
       {

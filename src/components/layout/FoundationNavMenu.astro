@@ -2,7 +2,7 @@
 import Icon from '@/components/shared/Icon.astro'
 import NavMenuLink from '@/components/shared/NavMenuLink.astro'
 import type { MenuGroup } from '@/types/navigation'
-import { buildDeferredUmamiAttrs, useTranslations } from '@/utils'
+import { buildSubmenuToggleUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
@@ -23,19 +23,8 @@ const toSlug = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-const navAttrs = (
-  href: string | null | undefined,
-  linkText?: string,
-  action?: string
-) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    section: 'nav',
-    href,
-    linkText,
-    action
-  })
+const submenuToggleAttrs = (groupLabel: string) =>
+  buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)
 
 const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-xl px-lg text-[1.25rem] desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
 
@@ -102,7 +91,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
             aria-expanded="false"
             aria-controls={panelId}
             aria-label={t('nav.submenu_toggle', { label: group.label })}
-            {...navAttrs(undefined, group.label, `${group.label}_menu`)}
+            {...submenuToggleAttrs(group.label)}
             class={navButtonClass}
             data-submenu-button
             data-open="false"

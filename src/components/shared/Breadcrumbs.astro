@@ -1,6 +1,6 @@
 ---
 import {
-  buildUmamiAttrs,
+  buildDeferredUmamiAttrs,
   useTranslations,
   stripTrailingSlash,
   twMerge,
@@ -105,10 +105,11 @@ function getNameClasses(isLast: boolean): string {
                 itemprop="item"
                 href={crumb.href}
                 class={getLinkClasses()}
-                {...buildUmamiAttrs({
+                {...buildDeferredUmamiAttrs({
                   pathname: Astro.url.pathname,
                   lang: routeLocale,
-                  section: 'nav',
+                  label: 'nav',
+                  baseComponent: 'breadcrumbs',
                   href: crumb.href,
                   linkText: crumb.name
                 })}

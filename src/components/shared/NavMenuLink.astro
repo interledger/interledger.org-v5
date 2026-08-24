@@ -1,6 +1,6 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
-import { buildDeferredUmamiAttrs, useTranslations } from '@/utils'
+import { buildNavLinkUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   href: string
@@ -22,13 +22,12 @@ const isDark = theme === 'dark'
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const umamiAttrs = buildDeferredUmamiAttrs({
-  pathname: Astro.url.pathname,
-  lang: routeLocale,
-  section: 'nav',
+const umamiAttrs = buildNavLinkUmamiAttrs(
+  Astro.url.pathname,
+  routeLocale,
   href,
-  linkText: label
-})
+  label
+)
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
 

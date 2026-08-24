@@ -9,7 +9,7 @@ import {
 /** Base fields passed into `buildUmamiAttrs` for Strapi section links (explicit, not closed over). */
 type LinkUmamiCtx = Omit<
   BuildUmamiAttrsInput,
-  'href' | 'linkText' | 'ariaLabel' | 'action' | 'label'
+  'href' | 'linkText' | 'ariaLabel'
 >
 
 interface TextNode {
@@ -46,12 +46,13 @@ interface Props {
 const { title, content } = Astro.props
 const { routeLocale } = Astro.locals
 
-/** Passed into every renderer so link analytics (`page`) stay testable/refactor‑safe vs Astro scope. */
+/** Passed into every renderer so link analytics (`currentPath`) stay testable/refactor‑safe vs Astro scope. */
 const linkUmamiCtx: LinkUmamiCtx = {
-  page: title,
+  currentPath: title,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'link'
+  label: 'link',
+  baseComponent: 'inline_link'
 }
 
 const renderTextNode = (node: TextNode) => {

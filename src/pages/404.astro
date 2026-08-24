@@ -67,6 +67,9 @@ const CARDS = [
           href={homeHref}
           variant="primary"
           class="w-full tablet:max-w-fit"
+          umamiLabel="button_cta"
+          umamiBaseComponent="primary_cta"
+          linkText={t('not_found.cta_home')}
         >
           {t('not_found.cta_home')}
           <Icon name="return-home" slot="icon-right" />
@@ -89,6 +92,9 @@ const CARDS = [
                 href={card.href}
                 variant="secondary"
                 class="w-full tablet:max-w-fit"
+                umamiLabel="button_cta"
+                umamiBaseComponent="secondary_cta"
+                linkText={card.cta}
               >
                 {card.cta}
               </LinkButton>

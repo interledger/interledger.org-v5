@@ -5,6 +5,7 @@ import {
   hasUrlScheme,
   isSafeMarkdownHref,
   isExternalHref,
+  getHostname,
   getSocialIconName
 } from './url'
 
@@ -170,6 +171,28 @@ describe('isExternalHref', () => {
     expect(isExternalHref('/grants/apply')).toBe(false)
     expect(isExternalHref('#section')).toBe(false)
     expect(isExternalHref('mailto:jane@example.com')).toBe(false)
+  })
+})
+
+describe('getHostname', () => {
+  it('parses the host of an absolute http(s) URL', () => {
+    expect(getHostname('https://example.com/path')).toBe('example.com')
+  })
+
+  it('resolves a protocol-relative URL by assuming an https scheme', () => {
+    expect(getHostname('//cdn.example.com/a.js')).toBe('cdn.example.com')
+  })
+
+  it('normalizes a bare host before parsing', () => {
+    expect(getHostname('example.com/path')).toBe('example.com')
+  })
+
+  it('returns an empty string for a scheme with no host, like mailto:', () => {
+    expect(getHostname('mailto:jane@example.com')).toBe('')
+  })
+
+  it('returns null for unparseable input', () => {
+    expect(getHostname('')).toBeNull()
   })
 })
 
