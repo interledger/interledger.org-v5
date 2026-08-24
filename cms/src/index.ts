@@ -1154,32 +1154,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       question: 'Question',
       answer: 'Answer'
     },
-    'blocks.cards-grid': {
-      heading: 'Section Heading',
-      subheading: 'Section Description',
-      cards: 'Cards',
-      columns: 'Number of Columns'
-    },
-    'blocks.card': {
-      title: 'Card Title',
-      description: 'Card Description',
-      link: 'Link URL',
-      linkText: 'Link Text',
-      icon: 'Icon',
-      openInNewTab: 'Open in New Tab'
-    },
-    'blocks.card-links-grid': {
-      heading: 'Section Heading',
-      subheading: 'Section Description',
-      cards: 'Cards',
-      columns: 'Number of Columns'
-    },
-    'blocks.card-link': {
-      title: 'Card Title',
-      description: 'Card Description',
-      href: 'Link URL',
-      openInNewTab: 'Open in New Tab'
-    },
     'blocks.info-cards': {
       heading: 'Section Heading',
       card1: 'Card 1',
@@ -1254,13 +1228,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonLink: 'Secondary Button URL',
       secondaryButtonExternal: 'Secondary External Link',
       secondaryButtonDocument: 'Secondary Document Download'
-    },
-    'blocks.image-row': {
-      heading: 'Heading',
-      content: 'Content',
-      media: 'Image',
-      imagePosition: 'Image Position',
-      attribution: 'Image Attribution'
     },
     'blocks.image-block': {
       media: 'Image',
@@ -1451,12 +1418,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
-    },
-    'blocks.card': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
-    },
-    'blocks.card-link': {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.grant-faq-section': {
@@ -1821,18 +1782,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'url', size: 12 }],
       [{ name: 'description', size: 12 }]
     ],
-    'blocks.cards-grid': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'subheading', size: 12 }],
-      [{ name: 'cards', size: 12 }],
-      [{ name: 'columns', size: 4 }]
-    ],
-    'blocks.card-links-grid': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'subheading', size: 12 }],
-      [{ name: 'cards', size: 12 }],
-      [{ name: 'columns', size: 4 }]
-    ],
     'blocks.carousel': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
@@ -1888,15 +1837,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'title', size: 12 }],
       [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
-    ],
-    'blocks.image-row': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'media', size: 12 }],
-      [
-        { name: 'attribution', size: 6 },
-        { name: 'imagePosition', size: 6 }
-      ],
-      [{ name: 'content', size: 12 }]
     ],
     'blocks.image-block': [
       [{ name: 'media', size: 12 }],
