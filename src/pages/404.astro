@@ -1,12 +1,18 @@
 ---
 /**
  * Custom 404 page for static hosting (Netlify serves 404.html).
+ *
+ * This file is one static document. Middleware never sees `/hackathon/missing`;
+ * the browser URL still does. A blocking head script reads `location.pathname`
+ * and paints the dark microsite theme before first paint.
  */
 import FoundationPageLayout from '../layouts/FoundationPageLayout.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import {
   HOME_CONTENT_SLUG,
+  HACKATHON_HOME_SLUG,
+  getApply404ThemeScript,
   grantOverviewHubPath,
   localizeRoute,
   translatePath,
@@ -18,6 +24,16 @@ const t = useTranslations(routeLocale)
 
 const homeHref = translatePath(
   'foundation-pages',
+  routeLocale,
+  HOME_CONTENT_SLUG
+)
+const hackathonHomeHref = translatePath(
+  'hackathon-pages',
+  routeLocale,
+  HACKATHON_HOME_SLUG
+)
+const summitHomeHref = translatePath(
+  'summit-pages',
   routeLocale,
   HOME_CONTENT_SLUG
 )
@@ -47,14 +63,16 @@ const CARDS = [
 <FoundationPageLayout
   title={t('not_found.meta_title')}
   description={t('not_found.meta_description')}
+  bodyClass="flex flex-col min-h-full min-w-[360px] overflow-x-clip dark:bg-neutral-150 dark:text-neutral-50"
 >
+  <script is:inline slot="head" set:html={getApply404ThemeScript()} />
   <main
     class="flex mx-auto min-h-96 max-w-content px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(14rem-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <div class="max-w-content flex flex-col gap-3xl">
       <div>
         <h1
-          class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-150"
+          class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-150 dark:text-neutral-0"
         >
           {t('not_found.title')}
         </h1>
@@ -66,10 +84,15 @@ const CARDS = [
         <LinkButton
           href={homeHref}
           variant="primary"
+          mode="auto"
           class="w-full tablet:max-w-fit"
           umamiLabel="button_cta"
           umamiBaseComponent="primary_cta"
           linkText={t('not_found.cta_home')}
+          data-404-home
+          data-home-foundation={homeHref}
+          data-home-hackathon={hackathonHomeHref}
+          data-home-summit={summitHomeHref}
         >
           {t('not_found.cta_home')}
           <Icon name="return-home" slot="icon-right" />
@@ -82,15 +105,16 @@ const CARDS = [
         {
           CARDS.map((card) => (
             <div class="flex flex-col gap-lg">
-              <h2 class="text-h4 tablet:text-h4-md mb-0 desktop:text-h4-lg text-neutral-150">
+              <h2 class="text-h4 tablet:text-h4-md mb-0 desktop:text-h4-lg text-neutral-150 dark:text-neutral-0">
                 {card.title}
               </h2>
-              <p class="mb-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75">
+              <p class="mb-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75 dark:text-neutral-50">
                 {card.description}
               </p>
               <LinkButton
                 href={card.href}
                 variant="secondary"
+                mode="auto"
                 class="w-full tablet:max-w-fit"
                 umamiLabel="button_cta"
                 umamiBaseComponent="secondary_cta"

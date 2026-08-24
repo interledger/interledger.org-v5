@@ -50,6 +50,10 @@ export {
   localizeRoute
 } from './main/routes'
 export { routeContextFromPathname } from './main/routeContext'
+export {
+  siteSectionFromPathname,
+  getApply404ThemeScript
+} from './main/siteSection'
 export { default as stripPagination } from './main/stripPagination'
 
 // Main site: Internationalisation
