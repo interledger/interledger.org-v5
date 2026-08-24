@@ -4,31 +4,26 @@ import GrantOverviewPage from './GrantOverviewPage.astro'
 import GrantPage from './GrantPage.astro'
 import ProfileDetailPage from './ProfileDetailPage.astro'
 import ReportPage from './ReportPage.astro'
-import type { Locale, SiteSection } from '@/utils'
+import type { Locale } from '@/utils'
 
 interface Props {
   kind: string
   slug: string
   contentLocale: Locale
-  // Only 'profile'/'faq'/'report' entries carry a section (getCrossSectionPaths
-  // attaches it; getLocalizedPaths's plain 'page' entries don't), so callers
-  // may not have one to pass — the non-null assertions below encode that the
-  // three branches that need it only ever match when it's present.
-  section?: SiteSection
   isFallback?: boolean
 }
 
-const { kind, slug, contentLocale, section, isFallback } = Astro.props
+const { kind, slug, contentLocale, isFallback } = Astro.props
 const commonProps = { slug, contentLocale, isFallback }
 ---
 
 {
   kind === 'profile' ? (
-    <ProfileDetailPage section={section!} {...commonProps} />
+    <ProfileDetailPage {...commonProps} />
   ) : kind === 'faq' ? (
-    <FaqPage section={section!} {...commonProps} />
+    <FaqPage {...commonProps} />
   ) : kind === 'report' ? (
-    <ReportPage section={section!} {...commonProps} />
+    <ReportPage {...commonProps} />
   ) : kind === 'grant-page' ? (
     <GrantPage {...commonProps} />
   ) : kind === 'grant-overview-page' ? (

@@ -15,10 +15,10 @@ export async function getStaticPaths() {
   return [...crossSectionPaths, ...pages]
 }
 
-const { slug, locale: contentLocale, kind, isFallback, section } = Astro.props
+const { slug, locale: contentLocale, kind, isFallback } = Astro.props
 const commonProps = { slug, contentLocale, isFallback }
 ---
 
-<SectionEntryPage kind={kind} section={section} {...commonProps}>
+<SectionEntryPage kind={kind} {...commonProps}>
   <HackathonContentPage {...commonProps} />
 </SectionEntryPage>
