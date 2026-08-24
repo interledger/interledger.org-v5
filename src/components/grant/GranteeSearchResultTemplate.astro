@@ -106,17 +106,14 @@ const detailsLinkClass = buttonVariants({
           data-grantee-search-description-panel
           hidden
         >
-          <div
-            class:list={[metaItemClasses]}
+          <p
+            class="m-0 text-body-sm-standard text-neutral-100"
             data-grantee-search-leaders-wrap
             hidden
           >
-            <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
-            <span>
-              <span class="sr-only">{t('grantee.project_lead')}: </span>
-              <span data-grantee-search-leaders></span>
-            </span>
-          </div>
+            <span class="sr-only">{t('grantee.project_lead')}: </span>
+            <span data-grantee-search-leaders></span>
+          </p>
           <p
             class="m-0 text-body-lg-standard text-neutral-100"
             data-grantee-search-snippet
