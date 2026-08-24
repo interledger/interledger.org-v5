@@ -2,7 +2,7 @@ export const ui = {
   en: {
     'site.title.foundation': 'Interledger Foundation',
     'site.title.summit': 'Interledger Summit',
-    'site.title.hackathon': 'Interledger Hackathon',
+    'site.title.hackathon': 'Interledger Hackathons',
     'site.description': 'Making payments as easy as sending an email',
     'nav.home': 'Home',
     'nav.breadcrumb': 'Breadcrumb',

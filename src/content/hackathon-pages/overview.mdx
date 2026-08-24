@@ -1,14 +1,15 @@
 ---
-title: 'Hackathon Overview'
+title: 'Overview'
 pathSlug: 'overview'
 description: 'Everything you need to know about the Interledger hackathon — how it works, who can take part, and what to expect.'
-heroTitle: 'Build the Future of Finance in 24 hours'
+heroTitle: 'Build the Future of Finance'
 heroDescription: "Next Hackathon:\n16-17 October 2026 – Medellín, Colombia"
 heroImage: '/img/hackathon/hero.webp'
-heroImageAlt: 'A participant coding at a laptop during an Interledger hackathon'
+heroImageAlt: null
 heroCtas:
-  - text: 'Register your interest'
-    link: '/hackathon/signup'
+  - text: '<apply_now>'
+    link: 'https://live.eventtia.com/en/build-the-future-of-finance'
+    external: true
 locale: 'en'
 ---
 
@@ -16,11 +17,11 @@ locale: 'en'
   title="Overview"
   tiles={[
     { number: '150', suffix: '+', description: 'Builders' },
-    { number: '24', suffix: 'H', description: 'Code Rush' },
+    { number: '2', suffix: '-Day', description: 'Code Rush' },
     {
       number: '20000',
       prefix: '$',
-      suffix: '+',
+      suffix: ' USD',
       description: 'Cash Prizes'
     },
     { number: '4', description: 'Winning Categories' }
@@ -29,7 +30,7 @@ locale: 'en'
 
 <Paragraph>
 
-During a 24-hour Interledger Open Payments Hackathon, you'll take on a real
+During an Interledger Open Payments Hackathon, you'll take on a real
 financial challenge, build a working prototype, and pitch it to a panel of
 industry leaders, investors and ecosystem partners. You build on Open
 Payments: an open API standard that lets applications send, receive and
@@ -37,15 +38,14 @@ manage payments across networks through one interoperable interface.
 
 </Paragraph>
 
-<CtaButtons
-  buttons={[
-    {
-      text: 'Register your interest',
-      link: '/hackathon/signup',
-      style: 'primary'
-    }
-  ]}
-/>
+<Paragraph variant="lead">
+
+Registration to our Ecosystem hackathons is open to students, professionals,
+and hobbyists alike and no prior Interledger experience required. We also
+support Student Hackathons through our NextGen Higher Education Grantees and
+partners.
+
+</Paragraph>
 
 <ImageBlock
   src="/img/hackathon/2025-hackathon-collection-desktop.webp"
@@ -56,36 +56,52 @@ manage payments across networks through one interoperable interface.
 
 <HackathonAnimation />
 
-<Paragraph>
+<EventCard title="Upcoming Hackathons">
 
-Registration is open to students, professionals, and hobbyists alike — no prior Interledger experience required. Check back here for updates on dates, themes, and how to sign up.
+<EventWhen title="When?" date="October 16 and 17, 2026" time="2 days" />
 
-</Paragraph>
+<EventWhere title="Where?" location="Medellín, Colombia">
+
+Ruta-N, Medellín, Colombia
+Complejo Ruta N, Calle 67 Nº 52-20, Piso 2, Torre A, Medellín, Antioquia,
+Colombia
+
+</EventWhere>
+
+<EventApply title="Apply Today!" buttonText="&lt;apply&gt;" buttonUrl="https://live.eventtia.com/en/build-the-future-of-finance" buttonExternal={true}>
+
+2 days of experimenting with Open Payments alongside developers, builders and
+entrepreneurs. Join us to create something worth sharing. The next
+breakthrough in payments could start with you.
+
+</EventApply>
+
+</EventCard>
 
 <CardGrid title="Why Participate?" ariaLabel="Reasons to participate" variant="Info" columns="Three">
 <InfoCard heading="Build Something Real">
 
-Turn a real financial challenge into a working prototype in 24 hours — not a
-mock problem, not a slide deck.
+Turn a real financial challenge into a working prototype in 2 days — not an
+imaginary problem, not a slide deck.
 
 </InfoCard>
 <InfoCard heading="A hackathon participant coding on a laptop" imageSrc="/img/hackathon/participate.webp" imageAlt="A hackathon participant coding on a laptop" />
+<InfoCard heading="Find Your People">
+
+Connect, collaborate and build with people as passionate about open tech as
+you!
+
+</InfoCard>
 <InfoCard heading="Prove it to Everyone">
 
 Pitch a working prototype to people who build and fund payments technology
 for a living.
 
 </InfoCard>
-<InfoCard heading="Find your People">
-
-A room full of builders and entrepreneurs who are just as excited as you are
-to spend an all-nighter coding.
-
-</InfoCard>
 <InfoCard heading="Get Coding Right Away">
 
-Learn in advance with our free Open Payments course on Platzi and our Open
-Payments Guide so you can get straight to coding.
+Learn Open Payments before you set a foot in the door with our course on
+Platzi and our Open Payments Guide.
 
 </InfoCard>
 <InfoCard heading="Leave with Real Results">
@@ -96,26 +112,44 @@ take your project beyond the hackathon.
 </InfoCard>
 </CardGrid>
 
-<EventCard title="Upcoming Hackathons">
+<Paragraph>
 
-<EventWhen title="When?" date="Sep 11-12, 2026" time="24h" />
+## New to Open Payments? Start here.
 
-<EventWhere title="Where?" location="Medellín, Colombia">
+### Complete the free Open Payments course on Platzi
 
-InSpark C. Lago Zurich 119, Granad Miguel Hidalgo, 11529 Ciudad de Mexico,
-CDM
+Take our beginner Open Payments course and start the hackathon already
+knowing the technology.
 
-</EventWhere>
+#### How to Access the Course
 
-<EventApply title="Apply" buttonText="&lt;register_today&gt;" buttonUrl="/hackathon/signup">
+1. Go to [platzi.com](https://platzi.com) and create a free account or log
+   in.
+2. Access the course:
+   [Open Payments with Interledger](https://platzi.com/cursos/interledger-openpayments/).
+3. Complete the lessons and pass the final exam. (If you fail the exam, you
+   must wait 6 hours before retrying.)
+4. Afterwards, you can join our community on Slack:
+   [bit.ly/ilfslackcommunity](https://bit.ly/ilfslackcommunity) and introduce
+   yourself in the #interledger-platzi channel and share your certificate
+   (optional).
 
-A 24h Hackathon especially for students in Mérida, introducing students to
-Open Payments through hands-on challenges, mentoring, creation and
-collaboration.
+### Additional Support
 
-</EventApply>
+We have a wealth of Open Payments resources, from documentation, to guides,
+to video series.
 
-</EventCard>
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: '<learn_open_payments>',
+      link: '/hackathon/open-payments',
+      style: 'primary'
+    }
+  ]}
+/>
 
 <SplitLayout layoutType="video-text" displayRatio="1:1" videoUrl="https://www.youtube.com/watch?v=gj4uXQ1MmG4">
 ## See what 24 hours hacking looks like
