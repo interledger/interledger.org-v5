@@ -50,16 +50,18 @@ hover:bg-neutral-25 hover:text-neutral-100
 focus-visible:outline-none focus-visible:border focus-visible:border-link
 [&[aria-current='page']]:text-neutral-100
 `
-const filterAttrs = (label: string, action: string) =>
+const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'cta',
-    linkText: label,
-    action
+    label: 'button_ui',
+    baseComponent,
+    linkText,
+    href
   })
 
 const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
+const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
 ---
 
 <h1
@@ -124,7 +126,7 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
                 href={allYearsHref}
                 class={optionClasses}
                 aria-current={!selectedYear ? 'page' : undefined}
-                {...filterAttrs(allLabel, 'filter_year_all')}
+                {...filterAttrs(allLabel, allYearsHref, 'filter_year_all')}
               >
                 {allLabel}
                 {!selectedYear && <Icon name="check" class="size-2.5" />}
@@ -133,17 +135,18 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
             {
               years.map((option) => {
                 const isActive = selectedYear === option.value
+                const href = getGranteeFilterUrl(
+                  directoryPath,
+                  option.value,
+                  selectedTag
+                )
                 return (
                   <li>
                     <a
-                      href={getGranteeFilterUrl(
-                        directoryPath,
-                        option.value,
-                        selectedTag
-                      )}
+                      href={href}
                       class={optionClasses}
                       aria-current={isActive ? 'page' : undefined}
-                      {...filterAttrs(option.label, 'filter_year')}
+                      {...filterAttrs(option.label, href, 'filter_year')}
                     >
                       {option.label}
                       {isActive && <Icon name="check" class="size-2.5" />}
@@ -164,9 +167,9 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
     >
       <li class="m-0">
         <PillLink
-          href={getGranteeFilterUrl(directoryPath, selectedYear, undefined)}
+          href={allTagsHref}
           active={!selectedTag}
-          {...filterAttrs(allLabel, 'filter_tag_all')}
+          {...filterAttrs(allLabel, allTagsHref, 'filter_tag_all')}
         >
           {allLabel}
         </PillLink>
@@ -174,16 +177,17 @@ const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
       {
         tags.map((option) => {
           const isActive = selectedTag === option.value
+          const href = getGranteeFilterUrl(
+            directoryPath,
+            selectedYear,
+            option.value
+          )
           return (
             <li class="m-0">
               <PillLink
-                href={getGranteeFilterUrl(
-                  directoryPath,
-                  selectedYear,
-                  option.value
-                )}
+                href={href}
                 active={isActive}
-                {...filterAttrs(option.label, 'filter_tag')}
+                {...filterAttrs(option.label, href, 'filter_tag')}
               >
                 {option.label}
               </PillLink>

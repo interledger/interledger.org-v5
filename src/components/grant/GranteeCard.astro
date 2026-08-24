@@ -30,13 +30,14 @@ const description = grantee.description
 const descriptionId = `grantee-desc-${grantee.id}`
 const leadersLabel = grantee.leaders.join(', ')
 
-const tagAttrs = (tag: string) =>
+const tagAttrs = (tag: string, href: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'cta',
+    label: 'button_ui',
+    baseComponent: 'grantee_tag',
     linkText: `#${tag}`,
-    action: 'grantee_tag'
+    href
   })
 
 const metaItemClasses =
@@ -46,10 +47,10 @@ const detailsAttrs = grantee.projectUrl
   ? buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
-      section: 'card',
+      label: 'button_cta',
+      baseComponent: 'grantee_details',
       href: grantee.projectUrl,
-      linkText: t('grantee.view_details'),
-      action: 'grantee_details'
+      linkText: t('grantee.view_details')
     })
   : {}
 ---
@@ -101,20 +102,20 @@ const detailsAttrs = grantee.projectUrl
           class="flex flex-wrap gap-xs list-none m-0 p-0"
           aria-label={t('aria.grantee.tags')}
         >
-          {grantee.tags.map((tag) => (
-            <li class="m-0">
-              <PillLink
-                href={getGranteeFilterUrl(
-                  directoryPath,
-                  selectedYear,
-                  generateSlug(tag)
-                )}
-                {...tagAttrs(tag)}
-              >
-                {tag}
-              </PillLink>
-            </li>
-          ))}
+          {grantee.tags.map((tag) => {
+            const href = getGranteeFilterUrl(
+              directoryPath,
+              selectedYear,
+              generateSlug(tag)
+            )
+            return (
+              <li class="m-0">
+                <PillLink href={href} {...tagAttrs(tag, href)}>
+                  {tag}
+                </PillLink>
+              </li>
+            )
+          })}
         </ul>
       )
     }
