@@ -84,14 +84,7 @@ const breadcrumbs = [
 <FoundationPageLayout title={title} description={description} noindex={noindex}>
   <main class="pb-3xl" data-pillar="mission">
     {
-      isFallback && (
-        <div class="flex justify-end px-content pt-xl">
-          <TranslationDisclaimer isVisible={isFallback} />
-        </div>
-      )
-    }
-    {
-      heroTitle && (
+      heroTitle ? (
         <PageHero
           title={heroTitle ?? title}
           description={heroDescription ?? description}
@@ -102,7 +95,20 @@ const breadcrumbs = [
           cta={heroCtas?.[0]}
           breadcrumbs={breadcrumbs}
           imageBand="default"
-        />
+        >
+          <TranslationDisclaimer
+            slot="after-breadcrumbs"
+            isVisible={isFallback}
+          />
+        </PageHero>
+      ) : (
+        isFallback && (
+          <div class="px-content pt-xl">
+            <div class="content-column flex justify-end">
+              <TranslationDisclaimer isVisible={isFallback} />
+            </div>
+          </div>
+        )
       )
     }
     <section class="px-content py-4xl">

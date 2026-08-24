@@ -24,7 +24,7 @@ const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
 const rowClasses = twMerge(
-  'mb-2xl flex w-full min-w-0 flex-col gap-2xl tablet:mb-3xl tablet:flex-row tablet:items-center tablet:gap-lg',
+  'mb-2xl flex w-full min-w-0 flex-col items-start gap-2xl tablet:mb-3xl tablet:flex-row tablet:items-center tablet:gap-lg',
   className
 )
 const breadcrumbClasses = twMerge(
