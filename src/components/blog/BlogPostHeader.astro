@@ -43,7 +43,9 @@ const blogPath = translatePath(
 )
 ---
 
-<div class="flex flex-col gap-2xl desktop:gap-3xl">
+<div
+  class="flex flex-col gap-2xl mb-3xl tablet:mb-4xl desktop:mb-5xl desktop:gap-3xl"
+>
   <h1
     itemprop="headline"
     class="text-neutral-900 text-h2 tablet:text-h2-md desktop:text-h2-lg break-words"
@@ -80,7 +82,7 @@ const blogPath = translatePath(
   </div>
   {
     frontmatter.featureImage && (
-      <div class="mb-3xl tablet:mb-4xl desktop:mb-5xl">
+      <div>
         {
           // Separate OptimizedImages (not one <picture>) so mobile can carry
           // its own alt when the crop/content differs from desktop.
