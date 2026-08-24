@@ -83,7 +83,13 @@ const breadcrumbs = [
 
 <FoundationPageLayout title={title} description={description} noindex={noindex}>
   <main class="pb-3xl" data-pillar="mission">
-    <TranslationDisclaimer isVisible={isFallback} />
+    {
+      isFallback && (
+        <div class="flex justify-end px-content pt-xl">
+          <TranslationDisclaimer isVisible={isFallback} />
+        </div>
+      )
+    }
     {
       heroTitle && (
         <PageHero

@@ -13,11 +13,9 @@ const spanishDisclaimer = 'Esta página aún no está disponible en español.'
 
 {
   isVisible && routeLocale === 'es' && (
-    <section class="flex justify-center px-content py-xl">
-      <p class="inline-flex max-w-fit items-center gap-sm rounded-full bg-ice-mint-100 px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100">
-        <Icon name="language" class="size-4 shrink-0" />
-        {spanishDisclaimer}
-      </p>
-    </section>
+    <p class="mb-0 inline-flex max-w-full shrink-0 items-center gap-sm self-end rounded-full bg-ice-mint-100 px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100">
+      <Icon name="language" class="size-4 shrink-0" />
+      {spanishDisclaimer}
+    </p>
   )
 }

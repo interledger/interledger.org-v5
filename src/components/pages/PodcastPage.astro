@@ -92,8 +92,6 @@ const textSectionHtml =
 
 <FoundationPageLayout title={pageTitle} description={pageDescription}>
   <main class="pb-3xl">
-    <TranslationDisclaimer isVisible={isFallback} />
-
     <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
       title={heroTitle ?? title}
@@ -104,7 +102,9 @@ const textSectionHtml =
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
-    />
+    >
+      <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
+    </PageHero>
 
     {
       isLandingPage && (

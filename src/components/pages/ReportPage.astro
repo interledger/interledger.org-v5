@@ -83,9 +83,10 @@ const Layout = getSectionPageLayout(entry.data.section)
   <main
     class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
       <h1
         class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
       >

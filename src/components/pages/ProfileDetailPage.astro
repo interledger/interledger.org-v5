@@ -82,12 +82,13 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
   noindex={noindex}
 >
   <main class="pb-3xl" data-pillar="mission">
-    <TranslationDisclaimer isVisible={isFallback} />
     <header
       class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
     >
       <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
-        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem />
+        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem>
+          <TranslationDisclaimer isVisible={isFallback} />
+        </Breadcrumbs>
       </div>
     </header>
     <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">

@@ -30,7 +30,13 @@ const bio = translation?.bio ?? entry.bio
 
 <SummitPageLayout title={entry.name}>
   <main>
-    <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    {
+      isFallback && (
+        <div class="flex justify-end">
+          <TranslationDisclaimer isVisible={isFallback} style="summit" />
+        </div>
+      )
+    }
     <header class="bg-black/20">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>

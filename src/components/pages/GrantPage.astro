@@ -102,8 +102,6 @@ const breadcrumbs = [
   canonicalURL={canonicalUrl}
 >
   <main class="pb-3xl">
-    <TranslationDisclaimer isVisible={isFallback} />
-
     <PageHero
       title={resolvedHeroTitle}
       description={heroDescription ?? description}
@@ -113,7 +111,9 @@ const breadcrumbs = [
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
-    />
+    >
+      <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
+    </PageHero>
     {
       programOverviewHtml && (
         <section class="pt-4xl">

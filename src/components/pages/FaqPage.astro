@@ -56,11 +56,16 @@ const Layout = getSectionPageLayout(entry.data.section)
   <main
     class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
       {
-        entry.data.section !== 'hackathon' && (
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        entry.data.section !== 'hackathon' ? (
+          <Breadcrumbs breadcrumbs={breadcrumbs}>
+            <TranslationDisclaimer isVisible={isFallback} />
+          </Breadcrumbs>
+        ) : (
+          <div class="flex justify-end">
+            <TranslationDisclaimer isVisible={isFallback} />
+          </div>
         )
       }
       <h1
