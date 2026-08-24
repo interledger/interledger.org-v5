@@ -99,9 +99,16 @@ export function isExternalHref(href: string): boolean {
 }
 
 /** The host of `url`, lowercased, or null if it can't be parsed. */
-function getHostname(url: string): string | null {
+export function getHostname(url: string): string | null {
+  const trimmed = url.trim()
+  // `new URL` can't resolve a protocol-relative `//host` without a base —
+  // give it an explicit scheme so the host still parses instead of always
+  // failing.
+  const parsable = trimmed.startsWith('//')
+    ? `https:${trimmed}`
+    : ensureAbsoluteUrl(trimmed)
   try {
-    return new URL(ensureAbsoluteUrl(url)).hostname.toLowerCase()
+    return new URL(parsable).hostname.toLowerCase()
   } catch {
     return null
   }

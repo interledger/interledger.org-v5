@@ -94,10 +94,11 @@ const resolvedSecondary = secondaryButtonLink
 // auto-derived from each button's href and the label is carried in
 // `data-umami-event-link-text` (consistent with the other blocks).
 const umamiBase = {
-  page: umamiContext,
+  currentPath: umamiContext,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'cta' as const
+  label: 'button_cta' as const,
+  baseComponent: 'cta_strip'
 }
 
 // `description` arrives as a markdown string prop from the Strapi dynamic-zone

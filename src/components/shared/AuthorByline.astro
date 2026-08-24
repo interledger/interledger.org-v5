@@ -17,7 +17,8 @@ const umamiAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'link',
+    label: 'link',
+    baseComponent: 'blog',
     href,
     linkText
   })

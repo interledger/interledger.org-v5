@@ -21,7 +21,8 @@ import {
   HOME_CONTENT_SLUG,
   useTranslations,
   getNavigation,
-  buildDeferredUmamiAttrs,
+  buildNavLinkUmamiAttrs,
+  buildNavCtaUmamiAttrs,
   getAlternateLocale,
   getAlternateLocaleHref
 } from '@/utils'
@@ -53,14 +54,16 @@ const navLabel = t('nav.main')
 const logoLabel = t('aria.logo.foundation')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    section: 'nav',
+  buildNavLinkUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
     href,
     linkText,
     ariaLabel
-  })
+  )
+
+const ctaLink = (href: string, linkText?: string) =>
+  buildNavCtaUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 
 const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
 ---
@@ -135,7 +138,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
               size="sm"
               external={ctaButton.openInNewTab}
               class="w-full"
-              {...navLink(ctaButton.href || '#', ctaButton.label)}
+              {...ctaLink(ctaButton.href || '#', ctaButton.label)}
             >
               {ctaButton.label}
               <Icon slot="icon-right" name="arrow-right" />

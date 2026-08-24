@@ -46,13 +46,14 @@ const linkClasses = `
   [&[aria-disabled='true']]:hover:border-neutral-50 [&[aria-disabled='true']]:hover:text-neutral-50
 `
 
-const filterAttrs = (action: string, label: string) =>
+const filterAttrs = (linkText: string, href?: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'cta',
-    linkText: label,
-    action
+    label: 'button_ui',
+    baseComponent: 'taxonomy_filter',
+    linkText,
+    href
   })
 ---
 
@@ -66,7 +67,7 @@ const filterAttrs = (action: string, label: string) =>
       href={allHref}
       class={linkClasses}
       aria-current={!selectedTerm ? 'page' : undefined}
-      {...filterAttrs('filter_all', t(taxonomy.allLabelKey))}
+      {...filterAttrs(t('blog.filter.all'), allHref)}
     >
       {t(taxonomy.allLabelKey)}
     </a>
@@ -87,9 +88,7 @@ const filterAttrs = (action: string, label: string) =>
             class={linkClasses}
             aria-current={isActive ? 'page' : undefined}
             aria-disabled={!isEnabled ? 'true' : undefined}
-            {...(isEnabled
-              ? filterAttrs(`filter_${taxonomy.segment}`, label)
-              : {})}
+            {...(isEnabled ? filterAttrs(label, termHref) : {})}
           >
             {label}
           </a>

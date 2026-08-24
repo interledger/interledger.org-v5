@@ -55,10 +55,21 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'footer',
+    label: 'nav',
+    baseComponent: 'footer',
     href,
     ariaLabel,
     linkText
+  })
+
+const footerSocialLink = (href: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_cta',
+    baseComponent: 'footer',
+    href,
+    ariaLabel
   })
 
 const currentPath = Astro.url.pathname.replace(/\/$/, '')
@@ -104,7 +115,14 @@ const navigationUlClass = twMerge(
           size="lg"
           iconSide={subscribeIcon ? 'right' : 'none'}
           class="w-full tablet:w-auto"
-          {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: routeLocale,
+            label: 'button_cta',
+            baseComponent: 'footer',
+            href: subscribeHref,
+            linkText: t('footer.subscribe')
+          })}
         >
           {t('footer.subscribe')}
           {subscribeIcon && <Icon slot="icon-right" name={subscribeIcon} />}
@@ -130,7 +148,14 @@ const navigationUlClass = twMerge(
           variant="secondary"
           size="lg"
           class="w-full tablet:max-w-fit"
-          {...footerLink(contactHref, undefined, t('footer.contact_us'))}
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: routeLocale,
+            label: 'button_cta',
+            baseComponent: 'footer',
+            href: contactHref,
+            linkText: t('footer.contact_us')
+          })}
         >
           {t('footer.contact_us')}
         </LinkButton>
@@ -162,7 +187,7 @@ const navigationUlClass = twMerge(
                   iconOnly
                   external
                   aria-label={t(link.labelKey)}
-                  {...footerLink(link.href, t(link.labelKey))}
+                  {...footerSocialLink(link.href, t(link.labelKey))}
                 >
                   <Icon name={link.icon} class="size-6" />
                 </LinkButton>

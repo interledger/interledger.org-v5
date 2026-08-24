@@ -1,5 +1,9 @@
 ---
-import { useTranslations, type Locale } from '@/utils'
+import {
+  useTranslations,
+  buildSectionNavLinkUmamiAttrs,
+  type Locale
+} from '@/utils'
 
 interface ReportNavSection {
   id: string
@@ -13,6 +17,16 @@ interface Props {
 
 const { sections, uiLocale } = Astro.props
 const t = useTranslations(uiLocale)
+const { routeLocale } = Astro.locals
+
+const sectionNavAttrs = (id: string, heading: string) =>
+  buildSectionNavLinkUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
+    'report',
+    id,
+    heading
+  )
 ---
 
 <nav
@@ -31,6 +45,7 @@ const t = useTranslations(uiLocale)
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
             class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-link"
+            {...sectionNavAttrs(section.id, section.heading)}
           >
             <span class="flex items-start gap-md pl-xs">
               <span

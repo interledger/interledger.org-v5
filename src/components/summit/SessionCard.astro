@@ -5,7 +5,7 @@ import {
   truncateText,
   type Locale,
   getTranslation,
-  buildUmamiAttrs
+  buildSessionCardUmamiAttrs
 } from '@/utils'
 import SessionSubheader from './SessionSubheader.astro'
 
@@ -16,20 +16,13 @@ interface Props {
   year: string
 }
 
-const { talkPreview, basePath, lang, year } = Astro.props
+const { talkPreview, basePath, lang } = Astro.props
 const href = `${basePath}/${generateSlug(talkPreview.title)}`
 const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
 const title = translation?.title ?? talkPreview.title
 
-const attrs = buildUmamiAttrs({
-  pathname: Astro.url.pathname,
-  lang,
-  section: 'card',
-  href,
-  linkText: title,
-  action: `${year}_session_title`
-})
+const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
 <li class="flex flex-col gap-2xl mb-6 md:flex-row">

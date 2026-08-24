@@ -9,7 +9,8 @@ import {
   useTranslations,
   translatePath,
   HOME_CONTENT_SLUG,
-  buildDeferredUmamiAttrs
+  buildNavLinkUmamiAttrs,
+  buildNavCtaUmamiAttrs
 } from '@/utils'
 import MicrositeNavMenu from '@/components/layout/MicrositeNavMenu.astro'
 import MicrositeNavActions from '@/components/layout/MicrositeNavActions.astro'
@@ -30,14 +31,16 @@ const navLabel = t('nav.summit')
 const logoLabel = t('aria.logo.summit')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    section: 'nav',
+  buildNavLinkUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
     href,
     linkText,
     ariaLabel
-  })
+  )
+
+const ctaLink = (href: string, linkText?: string) =>
+  buildNavCtaUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 ---
 
 <header
@@ -73,7 +76,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
           <a
             class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
             href={ctaButton.href || '#'}
-            {...navLink(ctaButton.href || '#', ctaButton.label)}
+            {...ctaLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}

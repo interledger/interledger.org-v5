@@ -9,20 +9,26 @@ describe('createMarked', () => {
     }).parseInline(
       'See [Open Payments Docs](https://docs.interledger.org/) for more.'
     ) as string
-    expect(html).toContain('data-umami-event="resources:link:docs_interledger"')
+    expect(html).toContain('data-umami-event="link"')
+    expect(html).toContain('data-umami-event-base-component="inline_link"')
     expect(html).toContain('data-umami-event-link-text="Open Payments Docs"')
     expect(html).toContain('data-umami-event-lang="en"')
+    expect(html).toContain('data-umami-event-current-path="resources"')
+    expect(html).toContain('data-umami-event-current-section="foundation"')
+    expect(html).toContain('data-umami-event-destination-path="other_external"')
+    expect(html).toContain('data-umami-event-destination-section="external"')
   })
 
-  it('honours a label directive in the link title', () => {
+  it('honours a label directive in the link title as a base_component override', () => {
     const html = createMarked({
       pathname: '/get-involved',
       lang: 'en'
     }).parseInline(
       '[Community Forum](https://forum.interledger.org/ "label:community")'
     ) as string
-    expect(html).toContain('data-umami-event="get_involved:link"')
-    expect(html).toContain('data-umami-event-label="community"')
+    expect(html).toContain('data-umami-event="link"')
+    expect(html).toContain('data-umami-event-base-component="community"')
+    expect(html).toContain('data-umami-event-current-path="get_involved"')
     expect(html).not.toContain('title="label:community"')
   })
 
@@ -31,7 +37,9 @@ describe('createMarked', () => {
       '[hi](https://example.com "real title")'
     )
     expect(html).toContain('title="real title"')
-    expect(html).toContain('data-umami-event="foundation_home:link:example"')
+    expect(html).toContain('data-umami-event-base-component="inline_link"')
+    expect(html).toContain('data-umami-event-current-path="foundation_home"')
+    expect(html).toContain('data-umami-event-destination-path="other_external"')
   })
 
   it('handles inline markdown inside link text', () => {
@@ -39,15 +47,15 @@ describe('createMarked', () => {
       'Try [**bold** link](https://example.com)'
     ) as string
     expect(html).toContain('<strong>bold</strong>')
-    expect(html).toContain('data-umami-event="foundation_home:link:example"')
+    expect(html).toContain('data-umami-event="link"')
     expect(html).toContain('data-umami-event-link-text="bold link"')
   })
 
-  it('derives page from pathname when rendering markdown links', async () => {
+  it('derives current_path from pathname when rendering markdown links', async () => {
     const html = await createMarked({ pathname: '/ambassadors' }).parse(
       '[Site](https://example.com)'
     )
-    expect(html).toContain('data-umami-event="ambassadors:link:example"')
+    expect(html).toContain('data-umami-event-current-path="ambassadors"')
     expect(html).toContain('data-umami-event-link-text="Site"')
   })
 
@@ -55,11 +63,11 @@ describe('createMarked', () => {
     const html = (await createMarked({}).parse(
       '[docs](https://example.com/docs)'
     )) as string
-    expect(html).toContain('data-umami-event="foundation_home:link:example"')
+    expect(html).toContain('data-umami-event-current-path="foundation_home"')
     expect(html).toContain('data-umami-event-link-text="docs"')
     expect(html).not.toContain('undefined')
     expect(html).not.toContain('data-umami-event=""')
-    expect(html.match(/data-umami-event="/g)).toHaveLength(1)
+    expect(html.match(/data-umami-event="link"/g)).toHaveLength(1)
   })
 
   it('does not use a junk segment when page is explicitly undefined (optional umamiContext)', async () => {
@@ -68,8 +76,9 @@ describe('createMarked', () => {
       pathname: '/education',
       lang: 'en'
     }).parse('[Overview](/policy-and-advocacy)')
+    expect(html).toContain('data-umami-event-current-path="education"')
     expect(html).toContain(
-      'data-umami-event="education:link:policy_and_advocacy"'
+      'data-umami-event-destination-path="policy_and_advocacy"'
     )
     expect(html).not.toMatch(/:undefined|undefined:/)
   })
@@ -79,7 +88,7 @@ describe('createMarked', () => {
       '[hi](https://example.com "a title with \\"quotes\\"")'
     )
     expect(html).toContain('title="a title with &quot;quotes&quot;"')
-    expect(html).toContain('data-umami-event="foundation_home:link:example"')
+    expect(html).toContain('data-umami-event-current-path="foundation_home"')
     expect(html).toContain('data-umami-event-link-text="hi"')
     expect(html).not.toContain('data-umami-event=""')
   })
@@ -88,7 +97,7 @@ describe('createMarked', () => {
     const html = await createMarked({ pathname: '/about-us' }).parse(
       '[one](https://a.com) and [two](https://b.com)'
     )
-    expect(html.match(/data-umami-event="/g)).toHaveLength(2)
+    expect(html.match(/data-umami-event="link"/g)).toHaveLength(2)
     expect(html).toContain('data-umami-event-link-text="one"')
     expect(html).toContain('data-umami-event-link-text="two"')
   })

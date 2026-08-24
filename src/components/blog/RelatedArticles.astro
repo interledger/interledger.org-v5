@@ -21,10 +21,10 @@ const linkAttrs = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'card',
+    label: 'button_card',
+    baseComponent: 'blog_card',
     href,
-    linkText,
-    action: 'related_post'
+    linkText
   })
 ---
 

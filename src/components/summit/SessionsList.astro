@@ -5,7 +5,7 @@ import {
   generateSlug,
   truncateText,
   getTranslation,
-  buildUmamiAttrs
+  buildSessionCardUmamiAttrs
 } from '@/utils'
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
   lang: Locale
   year: string
 }
-const { sessions, sessionBaseHref, lang, year } = Astro.props
+const { sessions, sessionBaseHref, lang } = Astro.props
 
 const sessionsWithLinks = sessions.map((session) => {
   const translation = getTranslation(session, lang)
@@ -29,14 +29,7 @@ const sessionsWithLinks = sessions.map((session) => {
 })
 
 const sessionAttrs = (title: string, href: string) =>
-  buildUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang,
-    section: 'card',
-    href,
-    linkText: title,
-    action: `${year}_session_title`
-  })
+  buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
 <ul>

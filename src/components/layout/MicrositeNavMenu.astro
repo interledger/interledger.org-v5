@@ -1,7 +1,7 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
 import type { MenuGroup } from '@/types/navigation'
-import { buildDeferredUmamiAttrs } from '@/utils'
+import { buildNavLinkUmamiAttrs, buildSubmenuToggleUmamiAttrs } from '@/utils'
 
 interface Props {
   menuGroups: MenuGroup[]
@@ -10,19 +10,11 @@ interface Props {
 const { menuGroups } = Astro.props
 const { routeLocale } = Astro.locals
 
-const navAttrs = (
-  href: string | null | undefined,
-  linkText?: string,
-  action?: string
-) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    section: 'nav',
-    href,
-    linkText,
-    action
-  })
+const navLinkAttrs = (href: string, linkText?: string) =>
+  buildNavLinkUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
+
+const submenuToggleAttrs = (groupLabel: string) =>
+  buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)
 
 const navItemBase =
   'text-current whitespace-nowrap py-xl px-md transition-colors duration-150 max-desktop:px-lg'
@@ -53,7 +45,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
         {group.href ? (
           <a
             href={group.href}
-            {...navAttrs(group.href, group.label)}
+            {...navLinkAttrs(group.href, group.label)}
             class={topNavLinkClass}
           >
             {group.label}
@@ -62,7 +54,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
           <>
             <button
               aria-expanded="false"
-              {...navAttrs(undefined, group.label, `${group.label}_menu`)}
+              {...submenuToggleAttrs(group.label)}
               class={topNavButtonClass}
               data-submenu-button
               data-open="false"
@@ -78,7 +70,7 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
                   <li data-menu-level="2">
                     <a
                       href={item.href || '#'}
-                      {...navAttrs(item.href || '#', item.label)}
+                      {...navLinkAttrs(item.href || '#', item.label)}
                       class={submenuItemClass}
                       {...(item.openInNewTab
                         ? { target: '_blank', rel: 'noopener noreferrer' }

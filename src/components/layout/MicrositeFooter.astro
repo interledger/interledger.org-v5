@@ -27,10 +27,21 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'footer',
+    label: 'nav',
+    baseComponent: 'footer',
     href,
     ariaLabel,
     linkText
+  })
+
+const footerSocialLink = (href: string, ariaLabel?: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_cta',
+    baseComponent: 'footer',
+    href,
+    ariaLabel
   })
 ---
 
@@ -48,7 +59,14 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
       <a
         class="mx-auto mb-xl flex max-w-[10em] items-center justify-center rounded border border-white/30 bg-white/10 px-lg py-xs text-body-sm-standard text-[var(--color-text)] no-underline transition-all duration-200 hover:scale-[1.05] hover:bg-white/20"
         href={subscribeHref}
-        {...footerLink(subscribeHref, undefined, t('footer.subscribe'))}
+        {...buildUmamiAttrs({
+          pathname: Astro.url.pathname,
+          lang: routeLocale,
+          label: 'button_cta',
+          baseComponent: 'footer',
+          href: subscribeHref,
+          linkText: t('footer.subscribe')
+        })}
       >
         {t('footer.subscribe')}
       </a>
@@ -64,7 +82,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://www.youtube.com/@InterledgerFoundation"
             aria-label={t('footer.youtube')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://www.youtube.com/@InterledgerFoundation',
               t('footer.youtube')
             )}
@@ -83,7 +101,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://interledger.social/@Interledger"
             aria-label={t('footer.mastodon')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://interledger.social/@Interledger',
               t('footer.mastodon')
             )}
@@ -103,7 +121,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://x.com/interledger"
             aria-label={t('footer.x')}
-            {...footerLink('https://x.com/interledger', t('footer.x'))}
+            {...footerSocialLink('https://x.com/interledger', t('footer.x'))}
           >
             <svg
               role="img"
@@ -119,7 +137,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://github.com/interledger"
             aria-label={t('footer.github')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://github.com/interledger',
               t('footer.github')
             )}
@@ -138,7 +156,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://www.instagram.com/interledgerfoundation/"
             aria-label={t('footer.instagram')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://www.instagram.com/interledgerfoundation/',
               t('footer.instagram')
             )}
@@ -160,7 +178,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://www.linkedin.com/company/interledger-foundation/"
             aria-label={t('footer.linkedin')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://www.linkedin.com/company/interledger-foundation/',
               t('footer.linkedin')
             )}
@@ -179,7 +197,7 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
           <a
             href="https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA"
             aria-label={t('footer.slack')}
-            {...footerLink(
+            {...footerSocialLink(
               'https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA',
               t('footer.slack')
             )}
@@ -227,7 +245,14 @@ const footerLink = (href: string, ariaLabel?: string, linkText?: string) =>
       <LinkButton
         href={contactHref}
         variant="secondary"
-        {...footerLink(contactHref, undefined, t('footer.contact_us'))}
+        {...buildUmamiAttrs({
+          pathname: Astro.url.pathname,
+          lang: routeLocale,
+          label: 'button_cta',
+          baseComponent: 'footer',
+          href: contactHref,
+          linkText: t('footer.contact_us')
+        })}
       >
         {t('footer.contact_us')}
       </LinkButton>

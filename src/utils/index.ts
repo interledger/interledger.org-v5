@@ -14,6 +14,7 @@ export {
   ensureAbsoluteUrl,
   isSafeMarkdownHref,
   isExternalHref,
+  getHostname,
   getSocialIconName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
@@ -192,16 +193,19 @@ export {
 
 // Main site: Analytics
 export {
+  type UmamiLabel,
   type UmamiAttrs,
-  type UmamiContext,
   type UmamiSection,
+  type UmamiDestinationSection,
   type UmamiTrackAttrs,
   type BuildUmamiAttrsInput,
   buildDeferredUmamiAttrs,
   buildUmamiAttrs,
-  deriveAction,
-  deriveLabel,
-  derivePage,
+  buildSubmenuToggleUmamiAttrs,
+  buildSessionCardUmamiAttrs,
+  buildNavLinkUmamiAttrs,
+  buildNavCtaUmamiAttrs,
+  buildSectionNavLinkUmamiAttrs,
   escapeHtml,
   umamiAttrsToHtml
 } from './main/umami'
@@ -212,7 +216,11 @@ export {
   type CanonicalMeta,
   type HreflangMeta
 } from './main/seoMeta'
-export { isDemoPathSlug, isDemoPathname } from './shared/demoPaths'
+export {
+  isDemoPathSlug,
+  isDemoPathname,
+  isPreviewPathname
+} from './shared/demoPaths'
 
 // Main site: Footer
 export {
