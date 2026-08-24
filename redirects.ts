@@ -256,52 +256,85 @@ export const redirects = {
   // Summit pages
   '/summit/key-information': '/summit/media-kit',
   '/summit/2025-summit-schedule': '/summit/schedule',
-  '/summit/code-of-conduct': '/summit/code-conduct',
+  '/summit/code-of-conduct': '/hackathon/code-conduct',
 
   // Summit pages (Spanish)
   '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
 
-  // Summit hackathon
-  '/summit/hackathon': '/hackathon/overview',
+  // Hackathon microsite.
+  //
+  // Every hackathon path from the old site lands on one of the five live pages:
+  // overview, participation, faq, open-payments, code-conduct. Targets are
+  // checked against those routes on purpose. Astro does not follow a redirect
+  // chain, so a redirect whose target is itself a redirect serves a 404.
+  //
+  // The 2024 and 2025 event resource pages (venue, schedule, judging,
+  // submission, presentations, ideation framework, use cases, glossary) are all
+  // gone. Their nearest live equivalent is the resources page or the FAQ.
   '/hackathon': '/hackathon/overview',
+  '/hackathons': '/hackathon/overview',
+  '/hackathons/overview': '/hackathon/overview',
+  '/hackathon/faqs': '/hackathon/faq',
+  '/hackathons/faqs': '/hackathon/faq',
+  '/hackathon/participation-requirements': '/hackathon/participation',
+  '/hackathons/participation': '/hackathon/participation',
+  '/hackathon/resources': '/hackathon/open-payments',
+  '/hackathons/resources': '/hackathon/open-payments',
+  '/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/hackathon/code-of-conduct': '/hackathon/code-conduct',
+  '/hackathons/code-conduct': '/hackathon/code-conduct',
+  '/summit/hackathon': '/hackathon/overview',
+  '/summit/hackathon-2024': '/hackathon/overview',
+  '/summit/hackathon-venue': '/hackathon/overview',
+  '/summit/hackathon/schedule': '/hackathon/overview',
   '/summit/hackathon/participation': '/hackathon/participation',
   '/summit/hackathon/faqs': '/hackathon/faq',
-  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
   '/summit/hackathon/resources': '/hackathon/open-payments',
-  '/summit/code-conduct': '/hackathon/code-conduct',
-  '/summit/hackathon-2024': '/summit/hackathon/resources',
-  '/summit/hackathon-venue': '/summit/hackathon/resources/venue',
-  '/summit/hackathon/schedule': '/summit/2024/hackathon/schedule',
-  '/summit/hackathon/resources/glossary':
-    '/summit/hackathon/resources/documentation/glossary',
-  '/summit/hackathon-glossary-documentation':
-    '/summit/hackathon/resources/documentation/glossary',
-  '/summit/open-payments-and-hackathon-resources':
-    '/summit/hackathon/resources/documentation',
+  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/summit/hackathon/resources/glossary': '/hackathon/open-payments',
+  '/summit/hackathon/resources/documentation/glossary':
+    '/hackathon/open-payments',
+  '/summit/hackathon-glossary-documentation': '/hackathon/open-payments',
+  '/summit/open-payments-and-hackathon-resources': '/hackathon/open-payments',
   '/summit/open-payments-and-hackathon-documentation':
-    '/summit/hackathon/resources/documentation',
-  '/summit/openai-api-onboarding-guide':
-    '/summit/hackathon/resources/openai-api-onboarding-guide',
-  '/summit/open-payments-use-cases': '/summit/hackathon/resources/use-cases',
-  '/summit/2025-judging-process-and-criteria':
-    '/summit/hackathon/resources/judging',
-  '/summit/judging-process-and-criteria':
-    '/summit/2024/hackathon/resources/judging',
-  '/summit/submitting-your-solution': '/summit/hackathon/resources/submission',
-  '/summit/presentations': '/summit/hackathon/resources/presentations',
-  '/summit/ideation-framework':
-    '/summit/hackathon/resources/ideation-framework',
+    '/hackathon/open-payments',
+  '/summit/open-payments-use-cases': '/hackathon/open-payments',
+  '/summit/openai-api-onboarding-guide': '/hackathon/open-payments',
+  '/summit/presentations': '/hackathon/open-payments',
+  '/summit/ideation-framework': '/hackathon/open-payments',
+  '/summit/2025-judging-process-and-criteria': '/hackathon/faq',
+  '/summit/judging-process-and-criteria': '/hackathon/faq',
+  '/summit/submitting-your-solution': '/hackathon/faq',
+  '/summit/code-conduct': '/hackathon/code-conduct',
 
-  // Summit hackathon (Spanish)
-  '/es/summit/hackathon': '/es/hackathon/overview',
+  // Hackathon microsite (Spanish).
+  //
+  // Spanish URLs no longer carry Spanish words. Every ES path is
+  // /es/<the same EN pathname>, so the old hackaton/programa and
+  // preguntas-frecuentes forms redirect into the EN slug under /es.
   '/es/hackathon': '/es/hackathon/overview',
-  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
+  '/es/hackathons': '/es/hackathon/overview',
+  '/es/hackathons/overview': '/es/hackathon/overview',
+  '/es/hackaton': '/es/hackathon/overview',
+  '/es/hackaton/overview': '/es/hackathon/overview',
+  '/es/hackathon/faqs': '/es/hackathon/faq',
+  '/es/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackathon/requisitos-de-participacion': '/es/hackathon/participation',
+  '/es/hackaton/programa': '/es/hackathon/overview',
+  '/es/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/hackathon/recursos': '/es/hackathon/open-payments',
+  '/es/hackathon/codigo-de-conducta': '/es/hackathon/code-conduct',
+  '/es/summit/hackathon': '/es/hackathon/overview',
+  '/es/summit/hackathon/schedule': '/es/hackathon/overview',
+  '/es/summit/hackaton/programa': '/es/hackathon/overview',
   '/es/summit/hackathon/participation': '/es/hackathon/participation',
-  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
-  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
-  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
-  '/es/summit/hackathon/schedule': '/es/summit/hackaton/programa',
+  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
   '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
+  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
+  '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
 
   // Summit talks and speakers
   // Old singular routes (redirect directly to final destination)
