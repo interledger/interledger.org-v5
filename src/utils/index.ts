@@ -138,7 +138,8 @@ export {
   formatStartMonth,
   type Grantee,
   type GranteeFilters,
-  type GranteeFilterOption
+  type GranteeFilterOption,
+  type GranteeListingData
 } from './main/grantee'
 
 // Main site: Text

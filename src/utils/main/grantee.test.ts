@@ -4,6 +4,7 @@ import {
   formatBudgetAmount,
   formatStartMonth,
   getGranteeFilterUrl,
+  getGranteeListingData,
   matchesGranteeFilters,
   normalizeCountry,
   parseGranteeRecords,
@@ -325,5 +326,24 @@ describe('getGranteeFilterUrl', () => {
     expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
       '/grant/grantee-directory/2024/privacy'
     )
+  })
+})
+
+describe('getGranteeListingData', () => {
+  it('returns an Error instead of throwing when the dump is malformed', () => {
+    const result = getGranteeListingData({ records: [] }, 'en')
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('returns grantees plus derived year/tag filter options', () => {
+    const result = getGranteeListingData([sample], 'en')
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.grantees).toHaveLength(1)
+    expect(result.years).toEqual([{ value: '2024', label: '2024' }])
+    expect(result.tags.map((t) => t.value)).toEqual([
+      'financial-services',
+      'opensource'
+    ])
   })
 })

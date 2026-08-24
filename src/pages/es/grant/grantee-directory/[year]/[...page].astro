@@ -11,6 +11,7 @@ import {
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const listing = getGranteeListingData(rawGranteeData, 'es')
+  if (listing instanceof Error) throw listing
   return paginateGranteesByYear({ paginate, ...listing })
 }
 

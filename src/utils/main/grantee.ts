@@ -282,9 +282,18 @@ export function filterGrantees(
   return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
 }
 
-export function getGranteeListingData(data: unknown, locale: Locale) {
+export interface GranteeListingData {
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}
+
+export function getGranteeListingData(
+  data: unknown,
+  locale: Locale
+): GranteeListingData | Error {
   const grantees = parseGranteeRecords(data, locale)
-  if (grantees instanceof Error) throw grantees
+  if (grantees instanceof Error) return grantees
   return {
     grantees,
     years: uniqueFilterOptions(grantees, 'year'),

@@ -10,7 +10,9 @@ import {
 } from '@/utils'
 
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
-  const { grantees, years, tags } = getGranteeListingData(rawGranteeData, 'es')
+  const listing = getGranteeListingData(rawGranteeData, 'es')
+  if (listing instanceof Error) throw listing
+  const { grantees, years, tags } = listing
 
   return paginate(grantees, {
     pageSize: GRANTEE_PAGE_SIZE,
