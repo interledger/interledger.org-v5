@@ -52,7 +52,8 @@ const ctaUmami = cta
   ? buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
-      section: 'hero',
+      label: 'button_cta',
+      baseComponent: 'hero',
       href: cta.link,
       linkText: cta.text
     })

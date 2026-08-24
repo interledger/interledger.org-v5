@@ -30,14 +30,18 @@ const t = useTranslations(routeLocale)
 
 const pages = getVisiblePages(currentPage, length)
 
-const pageAttrs = (action: string, ariaLabel: string) =>
+const pageAttrs = (ariaLabel: string, href?: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'cta',
+    label: 'button_ui',
+    baseComponent: 'pagination',
     ariaLabel,
-    action
+    href
   })
+const pageLabel = t('pagination.pages', { label })
+const prevLabel = t('pagination.previous')
+const nextLabel = t('pagination.next')
 const paginationClasses = twMerge('flex justify-center', className)
 const listClasses =
   'flex flex-row flex-wrap gap-sm items-center m-0 p-0 list-none [&_li]:mb-0 [&_li]:flex'
@@ -59,15 +63,15 @@ focus-visible:bg-link focus-visible:text-neutral-0 focus-visible:outline-none
 `
 ---
 
-<nav aria-label={t('pagination.pages', { label })} class={paginationClasses}>
+<nav aria-label={pageLabel} class={paginationClasses}>
   <ul class={listClasses}>
     <li>
       <a
         href={prevUrl}
         aria-disabled={!prevUrl || undefined}
-        aria-label={t('pagination.previous')}
+        aria-label={prevLabel}
         class={twMerge(linkClasses, iconLinkClasses)}
-        {...pageAttrs('pagination_prev', t('pagination.previous'))}
+        {...pageAttrs(prevLabel, prevUrl)}
       >
         <Icon name="arrow-right-keyboard" class="rotate-180 size-6" />
       </a>
@@ -88,11 +92,11 @@ focus-visible:bg-link focus-visible:text-neutral-0 focus-visible:outline-none
             <a
               href={`${baseUrl}${page === 1 ? '' : '/' + page}`}
               aria-current={currentPage === page ? 'page' : undefined}
-              aria-label={`${t('pagination.pages', { label })} ${page}`}
+              aria-label={`${pageLabel} ${page}`}
               class={linkClasses}
               {...pageAttrs(
-                `pagination_${page}`,
-                `${t('pagination.pages', { label })} ${page}`
+                `${pageLabel} ${page}`,
+                `${baseUrl}${page === 1 ? '' : '/' + page}`
               )}
             >
               <span>{page}</span>
@@ -105,9 +109,9 @@ focus-visible:bg-link focus-visible:text-neutral-0 focus-visible:outline-none
       <a
         href={nextUrl}
         aria-disabled={!nextUrl || undefined}
-        aria-label={t('pagination.next')}
+        aria-label={nextLabel}
         class={twMerge(linkClasses, iconLinkClasses)}
-        {...pageAttrs('pagination_next', t('pagination.next'))}
+        {...pageAttrs(nextLabel, nextUrl)}
       >
         <Icon name="arrow-right-keyboard" class="size-6" />
       </a>

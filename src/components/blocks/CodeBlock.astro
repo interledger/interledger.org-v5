@@ -1,7 +1,7 @@
 ---
 import { bundledThemes, codeToHtml } from 'shiki'
 import type { ThemeRegistration } from 'shiki'
-import { tryCatchAsync, useTranslations } from '@/utils'
+import { tryCatchAsync, useTranslations, buildUmamiAttrs } from '@/utils'
 
 const FALLBACK_LANGUAGE = 'text'
 
@@ -82,6 +82,15 @@ const { code, language, title } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+const copyLabel = t('codeBlock.copy')
+const copyButtonUmamiAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  label: 'toggle',
+  baseComponent: 'code_block',
+  ariaLabel: copyLabel
+})
+
 // Raw markdown fences can carry a language Shiki doesn't bundle. Fall back to
 // plain text, and if even that fails, render the escaped source, so an unknown
 // (or broken) language degrades gracefully instead of failing the build.
@@ -118,12 +127,12 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
              transition-colors focus-visible:outline focus-visible:outline-2
              focus-visible:outline-offset-2 focus-visible:outline-neutral-900/40"
       data-code={code}
-      data-copy-label={t('codeBlock.copy')}
+      data-copy-label={copyLabel}
       data-copied-label={t('codeBlock.copied')}
-      data-umami-event="button"
-      aria-label={t('codeBlock.copy')}
+      {...copyButtonUmamiAttrs}
+      aria-label={copyLabel}
     >
-      <span data-copy-label-text>{t('codeBlock.copy')}</span>
+      <span data-copy-label-text>{copyLabel}</span>
       <svg
         aria-hidden="true"
         viewBox="0 0 16 16"

@@ -52,12 +52,13 @@ no-underline text-body-sm-standard text-neutral-75
 hover:bg-neutral-25 hover:text-neutral-100
 focus-visible:outline-none focus-visible:border focus-visible:border-link
 `
-const btnAttrs = (lang: string) =>
+const btnAttrs = (href: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
-    section: 'cta',
-    action: `lang_filter_${lang}`
+    label: 'button_ui',
+    baseComponent: 'content_lang_filter',
+    href
   })
 ---
 
@@ -76,7 +77,7 @@ const btnAttrs = (lang: string) =>
             href={enHref}
             class={linkClasses}
             aria-current={isEnActive ? 'page' : undefined}
-            {...btnAttrs('en')}
+            {...btnAttrs(enHref)}
           >
             {t('blog.lang_filter.english')}
             {isEnActive && <Icon name="check" class="size-2.5" />}
@@ -87,7 +88,7 @@ const btnAttrs = (lang: string) =>
             href={esHref}
             class={linkClasses}
             aria-current={isEsActive ? 'page' : undefined}
-            {...btnAttrs('es')}
+            {...btnAttrs(esHref)}
           >
             {t('blog.lang_filter.spanish')}
             {isEsActive && <Icon name="check" class="size-2.5" />}

@@ -1,7 +1,7 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
-import { roadmapWindow, projectOverlapsWindow } from '@/utils'
+import { roadmapWindow, projectOverlapsWindow, buildUmamiAttrs } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
 
 interface Props {
@@ -12,11 +12,22 @@ const { snapshot } = Astro.props
 const projects = snapshot?.projects ?? []
 const teams = snapshot?.teams ?? []
 const generatedAt = snapshot?.generatedAt ?? null
+const { routeLocale } = Astro.locals
 
 // Mirror RoadmapBoard's windowing so the empty state shows when no project falls
 // in the visible window (otherwise the board would render with zero rows).
 const { start, end } = roadmapWindow(new Date())
 const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
+
+const GITHUB_FALLBACK_HREF = 'https://github.com/interledger'
+const githubFallbackAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  label: 'link',
+  baseComponent: 'roadmap_empty_state',
+  href: GITHUB_FALLBACK_HREF,
+  linkText: 'GitHub organisation'
+})
 ---
 
 <FoundationPageLayout
@@ -51,9 +62,10 @@ const hasData = projects.some((p) => projectOverlapsWindow(p, start, end))
               shortly or visit our{' '}
               <a
                 class="text-link underline"
-                href="https://github.com/interledger"
+                href={GITHUB_FALLBACK_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
+                {...githubFallbackAttrs}
               >
                 GitHub organisation
               </a>{' '}

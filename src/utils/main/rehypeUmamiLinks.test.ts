@@ -21,15 +21,20 @@ async function run(
 }
 
 describe('rehypeUmamiLinks', () => {
-  it('emits page:link:action plus link-text and lang on anchors', async () => {
+  it('emits the flat link label with inline_link, plus current/destination path properties', async () => {
     const out = await run(
       '<p>Visit <a href="/policy-and-advocacy">advocate</a> today.</p>'
     )
-    expect(out).toContain(
-      'data-umami-event="about_us:link:policy_and_advocacy"'
-    )
+    expect(out).toContain('data-umami-event="link"')
+    expect(out).toContain('data-umami-event-base-component="inline_link"')
     expect(out).toContain('data-umami-event-link-text="advocate"')
     expect(out).toContain('data-umami-event-lang="en"')
+    expect(out).toContain('data-umami-event-current-path="about_us"')
+    expect(out).toContain('data-umami-event-current-section="foundation"')
+    expect(out).toContain(
+      'data-umami-event-destination-path="policy_and_advocacy"'
+    )
+    expect(out).toContain('data-umami-event-destination-section="foundation"')
     expect(out).toContain('href="/policy-and-advocacy"')
   })
 
@@ -39,25 +44,27 @@ describe('rehypeUmamiLinks', () => {
       '/repo/src/content/foundation-pages/es/about-us.mdx'
     )
     expect(out).toContain('data-umami-event-lang="es"')
-    expect(out).toContain('data-umami-event="about_us:link:grant_fellowship"')
+    expect(out).toContain('data-umami-event-current-path="about_us"')
+    expect(out).toContain('data-umami-event-destination-path="grant"')
   })
 
-  it('honours frontmatter umamiContext as the page override', async () => {
+  it('honours frontmatter umamiContext as the current_path override, never the section', async () => {
     const out = await run(
       '<a href="/x">See docs</a>',
       '/repo/src/content/foundation-pages/about-us.mdx',
       { umamiContext: 'custom_page' }
     )
-    expect(out).toContain('data-umami-event="custom_page:link:x"')
+    expect(out).toContain('data-umami-event-current-path="custom_page"')
+    expect(out).toContain('data-umami-event-current-section="foundation"')
   })
 
-  it('extracts a label directive from the title and drops the title attr', async () => {
+  it('extracts a label directive from the title as a base_component override, and drops the title attr', async () => {
     const out = await run(
       '<a href="https://forum.interledger.org/" title="label:community">Community Forum</a>',
       '/repo/src/content/foundation-pages/get-involved.mdx'
     )
-    expect(out).toContain('data-umami-event="get_involved:link"')
-    expect(out).toContain('data-umami-event-label="community"')
+    expect(out).toContain('data-umami-event="link"')
+    expect(out).toContain('data-umami-event-base-component="community"')
     expect(out).toContain('data-umami-event-link-text="Community Forum"')
     expect(out).not.toContain('title="label:community"')
   })
@@ -68,21 +75,22 @@ describe('rehypeUmamiLinks', () => {
       '/repo/src/content/foundation-pages/about-us.mdx'
     )
     expect(out).toContain('title="real title"')
-    expect(out).toContain('data-umami-event="about_us:link:x"')
+    expect(out).toContain('data-umami-event-base-component="inline_link"')
   })
 
-  it('when frontmatter umamiContext is omitted, uses path-derived labels and does not emit malformed data-umami-event', async () => {
+  it('classifies internal and external destinations independently, with no malformed attributes', async () => {
     const out = await run(
       '<p><a href="/policy">advocate</a> and <a href="https://example.org/">external</a></p>',
       '/repo/src/content/foundation-pages/about-us.mdx',
       {}
     )
-    expect(out).toContain('data-umami-event="about_us:link:policy"')
-    expect(out).toContain('data-umami-event="about_us:link:example"')
+    expect(out).toContain('data-umami-event-destination-path="policy"')
+    expect(out).toContain('data-umami-event-destination-section="foundation"')
+    expect(out).toContain('data-umami-event-destination-path="other_external"')
+    expect(out).toContain('data-umami-event-destination-section="external"')
     expect(out).not.toContain('undefined')
     expect(out).not.toContain('data-umami-event=""')
-    expect(out).not.toMatch(/data-umami-event="\s*link -/)
-    expect(out.match(/data-umami-event=/g)).toHaveLength(2)
+    expect(out.match(/data-umami-event="link"/g)).toHaveLength(2)
   })
 
   it('leaves existing data-umami-event attributes untouched', async () => {
@@ -90,7 +98,7 @@ describe('rehypeUmamiLinks', () => {
       '<a href="/x" data-umami-event="Existing event">kept</a>'
     )
     expect(out).toContain('data-umami-event="Existing event"')
-    expect(out).not.toContain('about_us:link')
+    expect(out).not.toContain('data-umami-event-base-component')
   })
 
   it('skips Starlight docs content', async () => {

@@ -21,10 +21,11 @@ interface Props {
 const { heading, subheading, cards, columns = '3', umamiContext } = Astro.props
 const { routeLocale } = Astro.locals
 const umamiBase = {
-  page: umamiContext,
+  currentPath: umamiContext,
   pathname: Astro.url.pathname,
   lang: routeLocale,
-  section: 'card' as const
+  label: 'button_card' as const,
+  baseComponent: 'card'
 }
 
 const gridClass =

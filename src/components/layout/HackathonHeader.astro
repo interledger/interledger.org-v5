@@ -12,7 +12,8 @@ import {
   translatePath,
   useTranslations,
   getNavigation,
-  buildDeferredUmamiAttrs,
+  buildNavLinkUmamiAttrs,
+  buildNavCtaUmamiAttrs,
   getAlternateLocale,
   getAlternateLocaleHref
 } from '@/utils'
@@ -34,14 +35,16 @@ const navLabel = t('nav.hackathon')
 const logoLabel = t('aria.logo.hackathon')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
-  buildDeferredUmamiAttrs({
-    pathname: Astro.url.pathname,
-    lang: routeLocale,
-    section: 'nav',
+  buildNavLinkUmamiAttrs(
+    Astro.url.pathname,
+    routeLocale,
     href,
     linkText,
     ariaLabel
-  })
+  )
+
+const ctaLink = (href: string, linkText?: string) =>
+  buildNavCtaUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 ---
 
 <header
@@ -111,7 +114,7 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
               size="sm"
               external={ctaButton.openInNewTab}
               class="w-full"
-              {...navLink(ctaButton.href || '#', ctaButton.label)}
+              {...ctaLink(ctaButton.href || '#', ctaButton.label)}
             >
               {ctaButton.label}
             </LinkButton>

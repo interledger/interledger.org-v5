@@ -60,6 +60,8 @@ const htmlBios = await Promise.all(
                 author: bio.author,
                 newTab: t('aria.opens_new_tab')
               })}
+              umamiLabel="link"
+              umamiBaseComponent="blog"
             >
               <Icon name={getSocialIconName(bio.link)} />
             </LinkButton>

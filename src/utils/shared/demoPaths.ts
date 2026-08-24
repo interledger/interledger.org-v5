@@ -21,3 +21,15 @@ export function isDemoPathname(pathname: string): boolean {
     .filter(Boolean)
     .some((segment) => segment === 'demo' || segment.startsWith('demo-'))
 }
+
+/**
+ * Preview/QA routes (design-system previews, draft-content previews like
+ * `page-preview`/`profile-preview`/`blog/preview`) aren't real traffic —
+ * used to gate analytics so QA clicks never mix into production data.
+ */
+export function isPreviewPathname(pathname: string): boolean {
+  return pathname
+    .split('/')
+    .filter(Boolean)
+    .some((segment) => segment === 'preview' || segment.endsWith('-preview'))
+}

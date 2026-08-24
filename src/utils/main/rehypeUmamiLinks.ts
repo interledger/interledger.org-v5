@@ -2,20 +2,25 @@ import type { Element, Root, Text } from 'hast'
 import type { Plugin } from 'unified'
 import type { VFile } from 'vfile'
 import { visit } from 'unist-util-visit'
-import { buildUmamiAttrs, extractTitleLabel } from './umami'
+import {
+  buildUmamiAttrs,
+  extractTitleLabel,
+  DEFAULT_INLINE_LINK_BASE_COMPONENT
+} from './umami'
+import { LOCALE_CODES } from './localeCodes'
 
 /**
  * Adds umami event attributes to every `<a>` rendered from Markdown/MDX.
  *
- * Page is derived from the source file's locale-aware path (or
- * `frontmatter.umamiContext` if set). Section is always `link` for
- * authored content. Authors can supply a `label:foo` markdown link title
- * to override the action segment (`{page}:link` + `data-umami-event-label`).
- * Starlight `docs` content is skipped.
+ * `current_path` is derived from the source file's locale-aware path (or
+ * `frontmatter.umamiContext` if set). Every link emits the flat `link` label
+ * with `inline_link` as its `base_component`, unless authors supply a
+ * `label:foo` markdown link title to override the base_component. Starlight
+ * `docs` content is skipped.
  */
 
 const CONTENT_FILE_RE = /\/src\/content\/([^/]+)\/(.+)\.(?:mdx?|md)$/
-const LOCALE_CODES = new Set(['en', 'es'])
+const localeSet = new Set<string>(LOCALE_CODES)
 
 interface AstroFileData {
   astro?: { frontmatter?: Record<string, unknown> }
@@ -39,7 +44,7 @@ const rehypeUmamiLinks: Plugin<[], Root> = () => (tree, file: VFile) => {
   const cleanedSlug = slug.replace(/\/index$/, '')
   const slugSegments = cleanedSlug.split('/').filter(Boolean)
   const lang =
-    slugSegments.length > 0 && LOCALE_CODES.has(slugSegments[0].toLowerCase())
+    slugSegments.length > 0 && localeSet.has(slugSegments[0].toLowerCase())
       ? slugSegments[0].toLowerCase()
       : 'en'
   const pathname = `/${cleanedSlug}`
@@ -59,21 +64,23 @@ const rehypeUmamiLinks: Plugin<[], Root> = () => (tree, file: VFile) => {
     })
 
     const rawTitle = typeof props.title === 'string' ? props.title : undefined
-    const { label, title: cleanedTitle } = extractTitleLabel(rawTitle)
-    if (label) {
+    const { label: baseComponentOverride, title: cleanedTitle } =
+      extractTitleLabel(rawTitle)
+    if (baseComponentOverride) {
       delete props.title
     } else if (cleanedTitle !== undefined) {
       props.title = cleanedTitle
     }
 
     const attrs = buildUmamiAttrs({
-      page: overridePage,
+      currentPath: overridePage,
       pathname,
       lang,
-      section: 'link',
+      label: 'link',
+      baseComponent:
+        baseComponentOverride || DEFAULT_INLINE_LINK_BASE_COMPONENT,
       linkText: text.trim(),
-      href: typeof props.href === 'string' ? props.href : undefined,
-      label
+      href: typeof props.href === 'string' ? props.href : undefined
     })
 
     for (const [key, value] of Object.entries(attrs)) {
