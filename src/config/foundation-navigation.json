@@ -146,6 +146,10 @@
             {
               "label": "Fellowships",
               "href": "/grant/fellowship"
+            },
+            {
+              "label": "Local Impact Grants",
+              "href": "/local-impact-grant"
             }
           ]
         }
