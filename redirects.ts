@@ -10,7 +10,7 @@ export const redirects = {
   '/terms-service': '/terms-of-service',
   '/financial-services': '/grant/financial-services',
   '/education': '/grant/education',
-  '/ambassadors': '/grant/ambassadors',
+  '/ambassadors': '/grant/fellowship',
   '/grant-web': '/grant/grant-web',
   '/hacktoberfest-0': '/hacktoberfest',
   '/hacktoberfest-2023': '/hacktoberfest',
