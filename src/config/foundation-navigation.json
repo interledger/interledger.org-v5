@@ -29,11 +29,11 @@
           "items": [
             {
               "label": "Interledger Tech",
-              "href": "/interledger"
+              "href": "/tech/overview"
             },
             {
-              "label": "Join the network",
-              "href": "/join-network"
+              "label": "Developer Portal",
+              "href": "/tech/dev-portal/"
             }
           ]
         },
@@ -41,16 +41,16 @@
           "label": "Standards",
           "items": [
             {
-              "label": "ILP",
-              "href": "/interledger-protocol"
+              "label": "Interledger Protocol",
+              "href": "/tech/interledger-protocol"
             },
             {
               "label": "Open Payments",
-              "href": "/open-payments"
+              "href": "/tech/open-payments"
             },
             {
               "label": "Web Monetization",
-              "href": "/web-monetization"
+              "href": "/tech/web-monetization"
             }
           ]
         },
@@ -59,21 +59,11 @@
           "items": [
             {
               "label": "Rafiki",
-              "href": "https://rafiki.dev/",
-              "openInNewTab": true
-            },
-            {
-              "label": "Wallet",
-              "href": "https://wallet.interledger-test.dev/",
-              "openInNewTab": true
-            },
-            {
-              "label": "Cards",
-              "href": "/cards"
+              "href": "/tech/rafiki"
             },
             {
               "label": "Test Tools",
-              "href": "/test-tools"
+              "href": "/tech/test-tools"
             },
             {
               "label": "Web Monetization",
@@ -91,12 +81,12 @@
           "label": "Our Grantmaking",
           "items": [
             {
-              "label": "Grantmaking overview",
-              "href": "/grant"
+              "label": "Overview",
+              "href": "/grant/our-grantmaking"
             },
             {
               "label": "Grantee Directory",
-              "href": "/grantee-directory"
+              "href": "/grant/grantee-directory"
             }
           ]
         },
