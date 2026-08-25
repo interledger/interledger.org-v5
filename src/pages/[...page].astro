@@ -33,8 +33,13 @@ export async function getStaticPaths() {
   ]
 }
 
-const { slug, locale: contentLocale, kind, isFallback, section } = Astro.props
-const commonProps = { slug, contentLocale, isFallback, section }
+const { slug, locale: contentLocale, kind, isFallback } = Astro.props
+const commonProps = {
+  slug,
+  contentLocale,
+  isFallback,
+  section: 'foundation' as const
+}
 ---
 
 <SectionEntryPage kind={kind} {...commonProps}>

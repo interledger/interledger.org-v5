@@ -174,7 +174,8 @@ async function getSectionFilteredPaths(
 
   const localizedByLocalizes = indexLocalizedEntriesByLocalizes(
     allEntries,
-    lang
+    lang,
+    section
   )
 
   return enEntries.map((enEntry) => {
@@ -268,13 +269,16 @@ function getEntriesForDefaultLocale(
  */
 function indexLocalizedEntriesByLocalizes(
   entries: Entry[],
-  lang: Locale
+  lang: Locale,
+  section?: SiteSection
 ): Map<string, Entry> {
   const map = new Map<string, Entry>()
   for (const entry of entries) {
-    if (entry.data.locale === lang && entry.data.localizes) {
-      map.set(entry.data.localizes, entry)
+    if (entry.data.locale !== lang || !entry.data.localizes) continue
+    if (section && 'section' in entry.data && entry.data.section !== section) {
+      continue
     }
+    map.set(entry.data.localizes, entry)
   }
   return map
 }
