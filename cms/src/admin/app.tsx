@@ -27,6 +27,10 @@ interface CKEditorInsertionData {
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
+// Private tag used to mark a table-cell <br> for keepHtml (see
+// preserveTableCellLineBreaks) without also keeping <br> outside tables.
+const TABLE_BR_PLACEHOLDER_TAG = 'ilf-keep-br'
+
 const headingOptionsWithoutH1: HeadingOption[] = [
   { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
   {
@@ -156,11 +160,12 @@ const markdownPresetNoH1: Preset = {
       // Even a single <br> — Shift+Enter, since hard Enter is disabled in
       // cells — degrades to a bare `\n` by default, just as invalid mid-row.
       //
-      // Fix: merge sibling <p>s via a real <br>, kept as literal HTML
-      // through the processor's public `keepHtml` API instead of
-      // markdown's hard-break syntax. Not table-scoped, but an improvement
-      // regardless: Astro has no remark-breaks, so Shift+Enter's bare `\n`
-      // outside a table already rendered as nothing.
+      // Fix: merge sibling <p>s via a real <br>, kept as literal HTML only
+      // inside table cells. `keepHtml` matches by tag name only, so
+      // table-cell <br>s are renamed to a private placeholder tag first,
+      // only the placeholder is registered with `keepHtml`, and it's
+      // swapped back to <br/> after the writer runs. A <br> outside a table
+      // keeps its real tag name and falls back to a bare `\n`.
       function preserveTableCellLineBreaks(editor: Editor) {
         const processor = editor.data.processor as unknown as {
           keepHtml?: (tag: string) => void
@@ -168,24 +173,28 @@ const markdownPresetNoH1: Preset = {
         }
 
         if (typeof processor.keepHtml === 'function') {
-          processor.keepHtml('br')
+          processor.keepHtml(TABLE_BR_PLACEHOLDER_TAG)
         } else {
           warnOnceAboutBrokenGfmShape(
-            'processor.keepHtml is missing — <br> line breaks (Shift+Enter, and merged table-cell paragraphs) will no longer survive the markdown round-trip.'
+            'processor.keepHtml is missing — table-cell <br> line breaks (Shift+Enter, and merged table-cell paragraphs) will no longer survive the markdown round-trip.'
           )
         }
 
         const html2markdown = processor._html2markdown
         if (!html2markdown || typeof html2markdown.parse !== 'function') {
           warnOnceAboutBrokenGfmShape(
-            'processor._html2markdown.parse is missing — multi-paragraph table cells will flatten with no separator again.'
+            'processor._html2markdown.parse is missing — multi-paragraph table cells will flatten with no separator again, and table-cell <br> will no longer survive the markdown round-trip.'
           )
           return
         }
 
         const originalParse = html2markdown.parse.bind(html2markdown)
         html2markdown.parse = (html: string) =>
-          originalParse(mergeMultiParagraphTableCells(html))
+          restoreTableCellBreaks(
+            originalParse(
+              markTableCellBreaksForKeeping(mergeMultiParagraphTableCells(html))
+            )
+          )
       }
     ]
   }
@@ -230,6 +239,32 @@ function mergeMultiParagraphTableCells(html: string): string {
   }
 
   return doc.body.innerHTML
+}
+
+// Renames every <br> inside a td/th to the placeholder tag, so `keepHtml`
+// — which matches by tag name only — only ever keeps a table-cell <br>.
+function markTableCellBreaksForKeeping(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const cells = doc.querySelectorAll('td, th')
+
+  for (const cell of cells) {
+    for (const br of cell.querySelectorAll('br')) {
+      br.replaceWith(doc.createElement(TABLE_BR_PLACEHOLDER_TAG))
+    }
+  }
+
+  return doc.body.innerHTML
+}
+
+// Matches the placeholder's serialized tag pair and swaps it for the
+// literal <br/> that keepHtml('br') would have produced directly.
+const TABLE_BR_PLACEHOLDER_PATTERN = new RegExp(
+  `<${TABLE_BR_PLACEHOLDER_TAG}(?:\\s[^>]*)?>(?:</${TABLE_BR_PLACEHOLDER_TAG}>)?`,
+  'gi'
+)
+
+function restoreTableCellBreaks(markdown: string): string {
+  return markdown.replace(TABLE_BR_PLACEHOLDER_PATTERN, '<br/>')
 }
 
 // Minimal editor for short rich-text fields (e.g. author bios):

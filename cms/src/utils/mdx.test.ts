@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   ckeditorFieldToMarkdown,
+  collapseNonTableLineBreaks,
   formatBlockquote,
   formatMdx,
   htmlFieldToMarkdown,
@@ -25,6 +26,14 @@ describe('looksLikeHtmlField', () => {
   it('is true for a genuine HTML blob that also contains other tags', () => {
     expect(looksLikeHtmlField('<p>hello<br/>world</p>')).toBe(true)
   })
+
+  it('is true for plain prose with a bare <br/> and no table', () => {
+    expect(
+      looksLikeHtmlField(
+        "During a hackathon, you'll take on a real<br />financial challenge."
+      )
+    ).toBe(true)
+  })
 })
 
 describe('htmlFieldToMarkdown', () => {
@@ -35,6 +44,14 @@ describe('htmlFieldToMarkdown', () => {
 
   it('still converts a genuine HTML field', () => {
     expect(htmlFieldToMarkdown('<p>hello<br/>world</p>')).toBe('hello  \nworld')
+  })
+
+  it('converts a bare <br/> in plain prose (no table) to a hard break', () => {
+    expect(
+      htmlFieldToMarkdown(
+        "During a hackathon, you'll take on a real<br />financial challenge."
+      )
+    ).toBe("During a hackathon, you'll take on a real  \nfinancial challenge.")
   })
 })
 
@@ -48,6 +65,33 @@ describe('ckeditorFieldToMarkdown', () => {
     expect(ckeditorFieldToMarkdown('<p>hello<br/>world</p>')).toBe(
       'hello  \nworld'
     )
+  })
+
+  it('converts a bare <br/> in plain prose (no table) to a hard break', () => {
+    expect(
+      ckeditorFieldToMarkdown(
+        "During a hackathon, you'll take on a real<br />financial challenge."
+      )
+    ).toBe("During a hackathon, you'll take on a real  \nfinancial challenge.")
+  })
+})
+
+describe('collapseNonTableLineBreaks', () => {
+  it('collapses a bare <br/> outside a table into a single space', () => {
+    expect(collapseNonTableLineBreaks('real<br />financial challenge')).toBe(
+      'real financial challenge'
+    )
+  })
+
+  it('does not leave a double space when <br/> already has surrounding space', () => {
+    expect(collapseNonTableLineBreaks('real <br/> financial challenge')).toBe(
+      'real financial challenge'
+    )
+  })
+
+  it('leaves a table-cell <br/> untouched', () => {
+    const markdown = '| a<br/>b | c |\n| --- | --- |\n| d | e |'
+    expect(collapseNonTableLineBreaks(markdown)).toBe(markdown)
   })
 })
 

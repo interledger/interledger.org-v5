@@ -342,3 +342,56 @@ describe('mixed content with Paragraph', () => {
     expect(content).toContain('\\[submitted')
   })
 })
+
+// ---------------------------------------------------------------------------
+// <br/> normalization: outside a table it's collapsed, inside one it stays
+// ---------------------------------------------------------------------------
+
+describe('Paragraph handler — <br/> normalization', () => {
+  it('collapses a bare <br/> outside a table (AST fallback path)', async () => {
+    const mdx =
+      '<Paragraph>\nWe take on a real<br />financial challenge together.\n</Paragraph>'
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.paragraph',
+      content: 'We take on a real financial challenge together.'
+    })
+  })
+
+  it('collapses a bare <br/> outside a table (raw-slice path)', async () => {
+    const mdx =
+      '<Paragraph>\nWe take on a real<br />financial challenge together.\n</Paragraph>'
+
+    const blocks = await parseMdxToBlocks(mdx, {
+      locale: 'en',
+      sourceText: mdx
+    })
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.paragraph',
+      content: 'We take on a real financial challenge together.'
+    })
+  })
+
+  it('preserves a <br/> inside a table cell (raw-slice path)', async () => {
+    const mdx = [
+      '<Paragraph>',
+      '| a<br/>b | c |',
+      '| --- | --- |',
+      '| d | e |',
+      '</Paragraph>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, {
+      locale: 'en',
+      sourceText: mdx
+    })
+
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.paragraph',
+      content: '| a<br/>b | c |\n| --- | --- |\n| d | e |'
+    })
+  })
+})
