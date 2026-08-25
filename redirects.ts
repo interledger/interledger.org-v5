@@ -298,6 +298,8 @@ export const redirects = {
   '/summit/hackathon-venue': '/hackathon/overview',
   '/summit/hackathon/schedule': '/hackathon/overview',
   '/summit/hackathon/participation': '/hackathon/participation',
+  // The summit nav still links this exact path in both locales.
+  '/summit/hackathon/participation-requirements': '/hackathon/participation',
   '/summit/hackathon/faqs': '/hackathon/faq',
   '/summit/hackathon/resources': '/hackathon/open-payments',
   '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
@@ -339,6 +341,8 @@ export const redirects = {
   '/es/summit/hackathon/schedule': '/es/hackathon/overview',
   '/es/summit/hackaton/programa': '/es/hackathon/overview',
   '/es/summit/hackathon/participation': '/es/hackathon/participation',
+  '/es/summit/hackathon/participation-requirements':
+    '/es/hackathon/participation',
   '/es/summit/hackathon/faqs': '/es/hackathon/faq',
   '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
   '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
