@@ -1,7 +1,7 @@
 export const redirects = {
   // Foundation + site pages
   '/community': '/get-involved',
-  '/today': 'https://interledger.org/developers/rfcs/interledger-protocol/',
+  '/today': '/developers/rfcs/interledger-protocol/',
   '/about': '/about-us',
   '/overview': '/technology',
   '/mission': '/about-us',
@@ -10,7 +10,7 @@ export const redirects = {
   '/terms-service': '/terms-of-service',
   '/financial-services': '/grant/financial-services',
   '/education': '/grant/education',
-  '/ambassadors': '/grant/ambassadors',
+  '/ambassadors': '/grant/fellowship',
   '/grant-web': '/grant/grant-web',
   '/hacktoberfest-0': '/hacktoberfest',
   '/hacktoberfest-2023': '/hacktoberfest',
@@ -371,20 +371,6 @@ export const redirects = {
   '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
   '/summit/2025/speaker/alejandra-cullen':
     '/summit/2025/speakers/alejandra-cullen-benitez',
-
-  // Team profile redirects
-  '/team/team-member-alex-lakatos':
-    '/team/team-member-hackathon-2025-judge-alex-lakatos',
-  '/team/team-member-roberto-valdavinhos':
-    '/team/team-member-hackathon-2025-judge-roberto-valdavinhos',
-  '/team/team-member-afua-bruce':
-    '/team/team-member-hackathon-2025-judge-afua-bruce',
-  '/team/team-member-dr-andrew-mangle':
-    '/team/team-member-hackathon-2025-judge-dr-andrew-mangle',
-  '/team/chris-lawrence': '/team/team-member-es-chris-lawrence',
-  '/team/alex-shin': '/team/team-member-es-alex-shin',
-  '/team/team-member-hackathon-2025-judge-sabine-schaller':
-    '/team/team-member-hackathon-2025-judge-sabine-schaller',
 
   // Policy and advocacy pages
   '/security-profile-interledger-open-source-technologies':

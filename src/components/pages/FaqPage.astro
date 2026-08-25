@@ -5,27 +5,24 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
 import {
   type Locale,
+  type SiteSection,
   useTranslations,
   buildSectionEntryBreadcrumbs,
   parseMarkdown,
-  getSectionPageLayout,
-  type SiteSection
+  getSectionPageLayout
 } from '@/utils'
 
 interface Props {
   slug: string
   contentLocale: Locale
-  isFallback?: boolean
   section: SiteSection
+  isFallback?: boolean
 }
 
-const { slug, contentLocale, isFallback = false, section } = Astro.props
+const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-// Match on section as well as slug. Two sections can share a pathSlug — both
-// the foundation and the hackathon FAQ use `faq` — so slug alone returns
-// whichever entry the collection happens to list first.
 const allFaqs = await getCollection('faqs')
 const entry = allFaqs.find(
   (f) =>
@@ -57,13 +54,18 @@ const Layout = getSectionPageLayout(entry.data.section)
 
 <Layout title={title} description={description}>
   <main
-    class="px-content flex flex-col pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
       {
-        entry.data.section !== 'hackathon' && (
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
+        entry.data.section !== 'hackathon' ? (
+          <Breadcrumbs breadcrumbs={breadcrumbs}>
+            <TranslationDisclaimer isVisible={isFallback} />
+          </Breadcrumbs>
+        ) : (
+          <div class="flex justify-end">
+            <TranslationDisclaimer isVisible={isFallback} />
+          </div>
         )
       }
       <h1

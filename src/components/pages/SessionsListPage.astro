@@ -23,7 +23,13 @@ const label = t('summit.talks_pagination', { year })
 
 <SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
-    <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    {
+      isFallback && (
+        <div class="flex justify-end">
+          <TranslationDisclaimer isVisible={isFallback} style="summit" />
+        </div>
+      )
+    }
     <h1>{title}</h1>
     <section>
       {

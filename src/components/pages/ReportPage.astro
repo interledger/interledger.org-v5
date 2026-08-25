@@ -10,18 +10,18 @@ import AuthorByline from '@/components/shared/AuthorByline.astro'
 import AuthorBio from '@/components/shared/AuthorBio.astro'
 import {
   type Locale,
+  type SiteSection,
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
-  getSectionPageLayout,
-  type SiteSection
+  getSectionPageLayout
 } from '@/utils'
 
 interface Props {
   slug: string
   contentLocale: Locale
-  isFallback?: boolean
   section: SiteSection
+  isFallback?: boolean
 }
 
 // Section headings are authored as markdown `##` inside <ReportSection> (see
@@ -32,11 +32,10 @@ const REPORT_SECTION_HEADING_DEPTH = 2
 // authored section, so it must be excluded from the nav.
 const FOOTNOTES_HEADING_ID = 'footnote-label'
 
-const { slug, contentLocale, isFallback = false, section } = Astro.props
+const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-// See FaqPage: pathSlug is only unique within a section.
 const allReports = await getCollection('reports')
 const entry = allReports.find(
   (r) =>
@@ -84,9 +83,10 @@ const Layout = getSectionPageLayout(entry.data.section)
   <main
     class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
       <h1
         class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
       >

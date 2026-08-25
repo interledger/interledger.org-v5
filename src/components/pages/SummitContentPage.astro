@@ -72,7 +72,15 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
   <main
     class="summit-content relative z-0 pb-3xl text-neutral-0 before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
   >
-    <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    {
+      isFallback && (
+        <div class="px-content pt-xl">
+          <div class="content-column flex justify-end">
+            <TranslationDisclaimer isVisible={isFallback} style="summit" />
+          </div>
+        </div>
+      )
+    }
     {
       mdxHeroTitle && (
         <HeroSection

@@ -11,26 +11,21 @@ interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
-  /**
-   * Which site section the entry belongs to. Only the cross-section templates
-   * need it: `pathSlug` is unique within a section, not across the whole
-   * collection, so the foundation and hackathon FAQ both answer to `faq`.
-   */
-  section: SiteSection
+  section?: SiteSection
 }
 
 const { kind, slug, contentLocale, isFallback, section } = Astro.props
 const commonProps = { slug, contentLocale, isFallback }
-const crossSectionProps = { ...commonProps, section }
+const sectionEntryProps = { ...commonProps, section }
 ---
 
 {
   kind === 'profile' ? (
-    <ProfileDetailPage {...crossSectionProps} />
+    <ProfileDetailPage {...sectionEntryProps} />
   ) : kind === 'faq' ? (
-    <FaqPage {...crossSectionProps} />
+    <FaqPage {...sectionEntryProps} />
   ) : kind === 'report' ? (
-    <ReportPage {...crossSectionProps} />
+    <ReportPage {...sectionEntryProps} />
   ) : kind === 'grant-page' ? (
     <GrantPage {...commonProps} />
   ) : kind === 'grant-overview-page' ? (

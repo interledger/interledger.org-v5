@@ -60,14 +60,14 @@ Note that in the case that a cryptocurrency is used for settlement between two p
 
 The link layer defines how two peered connectors communicate. There are currently two main protocols used in this layer:
 
-- [Bilateral Transport Protocol](https://interledger.org/developers/rfcs/bilateral-transfer-protocol/) (BTP): Uses WebSocket-based communication between connectors.
-- [ILPoverHTTP](https://interledger.org/developers/rfcs/ilp-over-http/): Utilizes HTTPS for communication between connectors.
+- [Bilateral Transport Protocol](/developers/rfcs/bilateral-transfer-protocol/) (BTP): Uses WebSocket-based communication between connectors.
+- [ILPoverHTTP](/developers/rfcs/ilp-over-http/): Utilizes HTTPS for communication between connectors.
 
 These protocols establish the connection needed for the higher layers to function.
 
 ### Protocol Layer - The Interledger Protocol (ILP)
 
-The core of the Interledger stack is the [Interledger Protocol](https://interledger.org/developers/rfcs/interledger-protocol/) (ILP). This protocol splits larger payments into smaller packets, whose content it prescribes, and defines a two-phase transfer protocol.
+The core of the Interledger stack is the [Interledger Protocol](/developers/rfcs/interledger-protocol/) (ILP). This protocol splits larger payments into smaller packets, whose content it prescribes, and defines a two-phase transfer protocol.
 
 Why are we using a two-phase rather than a single phase transfer protocol? Let us have a look at an example of a single-phase transfer.
 
@@ -93,7 +93,7 @@ Note that the protocol is specifically designed for very low value packets. If c
 
 ### Interlude: ILP addresses and Payment Pointers
 
-[ILP addresses](https://interledger.org/developers/rfcs/ilp-addresses/) are a fundamental part of the Interledger Protocol, serving as unique identifiers for accounts within the Interledger network. These addresses follow a hierarchical format, similar to IP addresses on the internet, enabling efficient routing of payment packets across different ledgers.
+[ILP addresses](/developers/rfcs/ilp-addresses/) are a fundamental part of the Interledger Protocol, serving as unique identifiers for accounts within the Interledger network. These addresses follow a hierarchical format, similar to IP addresses on the internet, enabling efficient routing of payment packets across different ledgers.
 
 The structure of an ILP address consists of several components:
 
@@ -116,7 +116,7 @@ We will come back to payment pointers in the section on the Application Layer, s
 
 ### Transport Layer - The STREAM Protocol
 
-The transport layer builds on ILP by providing additional functionalities for managing value transfer. The only supported protocol at the moment is the [STREAM Protocol](https://interledger.org/developers/rfcs/stream-protocol/) (Streaming Transport for Real-time Exchange of Assets and Messages).
+The transport layer builds on ILP by providing additional functionalities for managing value transfer. The only supported protocol at the moment is the [STREAM Protocol](/developers/rfcs/stream-protocol/) (Streaming Transport for Real-time Exchange of Assets and Messages).
 
 ![STREAM protocol animation](/img/foundation-blog/2024-08-13/stream.gif)
 
@@ -139,7 +139,7 @@ Note that a STREAM packet is included in the data field of an ILP packet.
 
 The application layer is the final layer of the Interledger stack, defining developer-facing functionalities and enabling various applications. The two supported protocols at this layer are SPSP (Simple Payment Setup Protocol) and Open Payments.
 
-[SPSP](https://interledger.org/developers/rfcs/simple-payment-setup-protocol/) simplifies the process of setting up payments. When a GET request is made to a URL associated with a payment pointer using the SPSP request headers, SPSP defines what needs to be returned.
+[SPSP](/developers/rfcs/simple-payment-setup-protocol/) simplifies the process of setting up payments. When a GET request is made to a URL associated with a payment pointer using the SPSP request headers, SPSP defines what needs to be returned.
 
 </Paragraph>
 
@@ -156,7 +156,7 @@ These include the `destination_account`, which is the ILP address of the recipie
 
 [Open Payments](https://openpayments.dev/overview/getting-started/) is an API standard for account servicing entities, allowing third parties to securely access digital accounts for viewing account information and initiating payments. Open Payments supports complex payment scenarios, such as e-commerce or recurring payments, by providing a robust framework for authorizing and initiating digital payments. It employs the [Grant Negotiation and Authorization Protocol (GNAP)](https://datatracker.ietf.org/doc/html/draft-ietf-gnap-core-protocol-20) for fine-grained access control and secure authorization.
 
-For an in-depth introduction to Open Payments, check out [Sarah’s fantastic blog post](https://interledger.org/blog/simple-open-payments-guide/). If you would like a more high level overview of GNAP and why we are using it with Open Payments, check out [Nathan's Cinderella Story of Finding a Fitting Authorization Method](https://interledger.org/blog/open-payments-cinderella-story/).
+For an in-depth introduction to Open Payments, check out [Sarah’s fantastic blog post](/blog/simple-open-payments-guide/). If you would like a more high level overview of GNAP and why we are using it with Open Payments, check out [Nathan's Cinderella Story of Finding a Fitting Authorization Method](/blog/open-payments-cinderella-story/).
 
 ## Where is Web Monetization in this stack?
 
