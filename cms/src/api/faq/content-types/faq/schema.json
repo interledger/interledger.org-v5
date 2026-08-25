@@ -30,13 +30,12 @@
     "pathSlug": {
       "type": "string",
       "required": true,
-      "unique": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Path relative to the chosen Section. For section: foundation, this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix — it's added automatically based on Section."
+      "description": "Path relative to the chosen Section. For section: foundation, this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix, it is added automatically based on Section. Must be unique within a Section, not across the whole site: /faq and /hackathon/faq are both pathSlug 'faq'."
     },
     "section": {
       "type": "enumeration",

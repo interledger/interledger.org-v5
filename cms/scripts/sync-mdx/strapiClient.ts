@@ -13,10 +13,17 @@ export interface StrapiClient {
     apiId: string,
     locale?: string
   ) => Promise<StrapiEntry[] | Error>
+  /**
+   * Look up one entry by pathSlug, optionally narrowed to a locale and a
+   * `section`. Pass `section` for cross-section content types: their pathSlug
+   * is section-relative, so pathSlug alone matches more than one entry
+   * (see entryIdentity.ts).
+   */
   findByPathSlug: (
     apiId: string,
     pathSlug: string,
-    locale?: string
+    locale?: string,
+    section?: string | null
   ) => Promise<StrapiEntry | undefined | Error>
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, null if absent, or Error on transport failure. */
   findUploadByUrl: (url: string) => Promise<number | null | Error>
@@ -170,10 +177,14 @@ export function createStrapiClient({
   async function findByPathSlug(
     apiId: string,
     pathSlug: string,
-    locale?: string
+    locale?: string,
+    section?: string | null
   ): Promise<StrapiEntry | undefined | Error> {
     return tryCatchAsync(async () => {
       let endpoint = `${apiId}?filters[pathSlug][$eq]=${pathSlug}`
+      if (section) {
+        endpoint += `&filters[section][$eq]=${section}`
+      }
       if (locale) {
         endpoint += `&locale=${locale}`
       }

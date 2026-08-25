@@ -14,6 +14,8 @@ import {
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
   validateFaqSections,
+  validateSectionScopedSlug,
+  type SectionScopedSlugFinder,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -92,7 +94,12 @@ function copySchemas() {
 interface DocumentValidationContext {
   uid: string
   action: string
-  params: { data?: Record<string, unknown>; [key: string]: unknown }
+  params: {
+    data?: Record<string, unknown>
+    documentId?: string
+    locale?: string
+    [key: string]: unknown
+  }
 }
 
 type DocumentValidationMiddleware = (
@@ -130,6 +137,39 @@ export function registerDocumentValidation(
       (ctx.action === 'create' || ctx.action === 'update')
     ) {
       const validationErr = validate(ctx.params.data ?? {})
+      if (validationErr) throw validationErr
+    }
+    return next()
+  })
+}
+
+/**
+ * Same as {@link registerDocumentValidation} for a check that has to query the
+ * database, e.g. "is this pathSlug already taken inside this section?".
+ * The validator receives the write's documentId and locale as well as the body,
+ * because a partial admin patch does not carry every field it needs.
+ */
+export function registerAsyncDocumentValidation(
+  strapi: {
+    documents: { use: (middleware: DocumentValidationMiddleware) => void }
+  },
+  uid: string,
+  validate: (args: {
+    data: Record<string, unknown>
+    documentId?: string
+    locale?: string
+  }) => Promise<errors.ValidationError | undefined>
+) {
+  strapi.documents.use(async (ctx, next) => {
+    if (
+      ctx.uid === uid &&
+      (ctx.action === 'create' || ctx.action === 'update')
+    ) {
+      const validationErr = await validate({
+        data: ctx.params.data ?? {},
+        documentId: ctx.params.documentId,
+        locale: ctx.params.locale
+      })
       if (validationErr) throw validationErr
     }
     return next()
@@ -2253,6 +2293,17 @@ export default {
     )
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
       validateFaqSections(body)
+    )
+    // pathSlug on a FAQ is relative to its Section, so it cannot carry a plain
+    // `unique` constraint: /faq and /hackathon/faq are both `faq`
+    // (INTORG-1132). Enforce the real rule instead, unique per Section.
+    registerAsyncDocumentValidation(strapi, 'api::faq.faq', (args) =>
+      validateSectionScopedSlug({
+        documents: strapi.documents(
+          'api::faq.faq'
+        ) as unknown as SectionScopedSlugFinder,
+        ...args
+      })
     )
     registerDocumentValidation(
       strapi,

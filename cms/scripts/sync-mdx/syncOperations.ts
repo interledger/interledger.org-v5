@@ -18,6 +18,12 @@ import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
 import { hasMdxFile } from './localeMatch'
+import {
+  formatIdentity,
+  identityForEntry,
+  identityForMdx,
+  identityKey
+} from './entryIdentity'
 
 /** Sync a single English entry (create or update). Returns the entry, or Error on failure. */
 export async function syncEnglishEntry(
@@ -28,10 +34,14 @@ export async function syncEnglishEntry(
   results: SyncResults,
   dryRun: boolean
 ): Promise<StrapiEntry | undefined | Error> {
+  const identity = identityForMdx(config, englishMdx)
+  const label = formatIdentity(identity)
+
   const existingByIdentifier = await ctx.strapi.findByPathSlug(
     config.apiId,
-    englishMdx.pathSlug,
-    'en'
+    identity.pathSlug,
+    'en',
+    identity.section
   )
   if (existingByIdentifier instanceof Error) return existingByIdentifier
 
@@ -45,7 +55,7 @@ export async function syncEnglishEntry(
 
   if (existingByIdentifier) {
     if (dryRun) {
-      console.log(`   🔄 [DRY-RUN] Would update: ${englishMdx.pathSlug} (en)`)
+      console.log(`   🔄 [DRY-RUN] Would update: ${label} (en)`)
       results.updated++
       return existingByIdentifier
     }
@@ -55,23 +65,24 @@ export async function syncEnglishEntry(
       englishData
     )
     if (result instanceof Error) return result
-    console.log(`   🔄 Updated: ${englishMdx.pathSlug} (en)`)
+    console.log(`   🔄 Updated: ${label} (en)`)
     results.updated++
     return result.data || existingByIdentifier
   }
 
   if (dryRun) {
-    console.log(`   ✅ [DRY-RUN] Would create: ${englishMdx.pathSlug} (en)`)
+    console.log(`   ✅ [DRY-RUN] Would create: ${label} (en)`)
     results.created++
     return {
       documentId: 'dry-run-id',
-      pathSlug: englishMdx.pathSlug
+      pathSlug: identity.pathSlug,
+      ...(identity.section !== null && { section: identity.section })
     }
   }
 
   const result = await ctx.strapi.createEntry(config.apiId, englishData)
   if (result instanceof Error) return result
-  console.log(`   ✅ Created: ${englishMdx.pathSlug} (en)`)
+  console.log(`   ✅ Created: ${label} (en)`)
   results.created++
   return result.data
 }
@@ -87,11 +98,14 @@ export async function syncLocaleEntry(
   dryRun: boolean
 ): Promise<void | Error> {
   const localeCode = localeMdx.locale || 'en'
+  const identity = identityForMdx(config, localeMdx)
+  const label = formatIdentity(identity)
 
   const existingLocale = await ctx.strapi.findByPathSlug(
     config.apiId,
-    localeMdx.pathSlug,
-    localeCode
+    identity.pathSlug,
+    localeCode,
+    identity.section
   )
   if (existingLocale instanceof Error) return existingLocale
 
@@ -106,7 +120,7 @@ export async function syncLocaleEntry(
   if (existingLocale) {
     if (dryRun) {
       console.log(
-        `      🌍 [DRY-RUN] Would update localization: ${localeMdx.pathSlug} (${localeCode})`
+        `      🌍 [DRY-RUN] Would update localization: ${label} (${localeCode})`
       )
     } else {
       const result = await ctx.strapi.updateLocalization(
@@ -116,15 +130,13 @@ export async function syncLocaleEntry(
         localeData
       )
       if (result instanceof Error) return result
-      console.log(
-        `      🌍 Updated localization: ${localeMdx.pathSlug} (${localeCode})`
-      )
+      console.log(`      🌍 Updated localization: ${label} (${localeCode})`)
     }
     results.updated++
   } else {
     if (dryRun) {
       console.log(
-        `      🌍 [DRY-RUN] Would create localization: ${localeMdx.pathSlug} (${localeCode})`
+        `      🌍 [DRY-RUN] Would create localization: ${label} (${localeCode})`
       )
     } else {
       const result = await ctx.strapi.createLocalization(
@@ -134,9 +146,7 @@ export async function syncLocaleEntry(
         localeData
       )
       if (result instanceof Error) return result
-      console.log(
-        `      🌍 Created localization: ${localeMdx.pathSlug} (${localeCode})`
-      )
+      console.log(`      🌍 Created localization: ${label} (${localeCode})`)
     }
     results.created++
   }
@@ -147,15 +157,15 @@ export async function syncUnmatchedLocales(
   contentType: keyof ContentTypes,
   config: ContentTypes[keyof ContentTypes],
   localeFiles: MDXFile[],
-  matchedPathSlugs: Set<string>,
+  matchedIdentityKeys: Set<string>,
   ctx: SyncContext,
   results: SyncResults,
   dryRun: boolean
 ): Promise<void> {
   const unmatchedLocales = localeFiles.filter((localeMdx) => {
     const localeCode = localeMdx.locale || 'en'
-    const pathSlugKey = `${localeCode}:${localeMdx.pathSlug}`
-    return !matchedPathSlugs.has(pathSlugKey)
+    const key = `${localeCode}:${identityKey(identityForMdx(config, localeMdx))}`
+    return !matchedIdentityKeys.has(key)
   })
 
   if (unmatchedLocales.length === 0) return
@@ -176,16 +186,23 @@ export async function syncUnmatchedLocales(
   for (const localeMdx of unmatchedLocales) {
     const localeCode = localeMdx.locale || 'en'
     const localeLocalizes = localeMdx.localizes
+    const identity = identityForMdx(config, localeMdx)
 
+    // For a section-scoped type `localizes` names the English pathSlug, which
+    // is section-relative, so the English entry must also match on section.
     const matchedEnglishEntry = localeLocalizes
-      ? allStrapiEntries.find((entry) => entry.pathSlug === localeLocalizes)
+      ? allStrapiEntries.find(
+          (entry) =>
+            entry.pathSlug === localeLocalizes &&
+            identityForEntry(config, entry).section === identity.section
+        )
       : undefined
 
     if (matchedEnglishEntry) {
       console.log(
-        `   Found match in Strapi: ${localeMdx.pathSlug} (${localeCode}) -> ${matchedEnglishEntry.pathSlug} (via localizes)`
+        `   Found match in Strapi: ${formatIdentity(identity)} (${localeCode}) -> ${matchedEnglishEntry.pathSlug} (via localizes)`
       )
-      matchedPathSlugs.add(`${localeCode}:${localeMdx.pathSlug}`)
+      matchedIdentityKeys.add(`${localeCode}:${identityKey(identity)}`)
 
       const result = await syncLocaleEntry(
         contentType,
@@ -304,7 +321,14 @@ export async function deleteOrphanedEntries(
   >()
 
   for (const entry of allEntries) {
-    if (hasMdxFile(mdxSlugsByLocale, entry.locale, entry.pathSlug)) continue
+    if (
+      hasMdxFile(
+        mdxSlugsByLocale,
+        entry.locale,
+        identityForEntry(config, entry)
+      )
+    )
+      continue
 
     let doc = orphansByDocument.get(entry.documentId)
     if (!doc) {

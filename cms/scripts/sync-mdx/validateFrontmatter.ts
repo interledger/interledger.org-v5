@@ -10,6 +10,8 @@ import type { MDXFile } from './mdxTypes'
 interface ValidationErrorContext {
   filepath: string
   pathSlug: string
+  /** `section` frontmatter, needed to build the entry identity. */
+  section: string | null
   locale: string
   errors: string[]
 }
@@ -23,6 +25,7 @@ interface ValidationErrorContext {
 export class ValidationError extends Error {
   public readonly filepath: string
   public readonly pathSlug: string
+  public readonly section: string | null
   public readonly locale: string
   public readonly errors: string[]
 
@@ -31,6 +34,7 @@ export class ValidationError extends Error {
     this.name = 'ValidationError'
     this.filepath = ctx.filepath
     this.pathSlug = ctx.pathSlug
+    this.section = ctx.section
     this.locale = ctx.locale
     this.errors = ctx.errors
   }
@@ -62,6 +66,7 @@ export function validateFrontmatter(
     return new ValidationError({
       filepath: mdx.filepath,
       pathSlug: mdx.pathSlug,
+      section: mdx.section,
       locale: mdx.locale,
       errors
     })

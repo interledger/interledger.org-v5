@@ -71,6 +71,15 @@ export interface ContentTypeConfig {
   /** Optional schema for frontmatter validation. Absent = validation skipped. */
   schema?: FrontmatterSchema
   /**
+   * True when `pathSlug` is relative to the `section` field, so an entry is
+   * identified by (locale, section, pathSlug) rather than (locale, pathSlug).
+   * See entryIdentity.ts. Only enable this for a content type whose Strapi
+   * schema has a required, non-localized `section` attribute AND whose
+   * `pathSlug` is NOT declared unique, otherwise the second section's entry
+   * fails to create.
+   */
+  sectionScopedIdentity?: boolean
+  /**
    * Builds the Strapi payload from an MDX file. Returns an Error on
    * frontmatter validation failure, missing Strapi upload, parser failure,
    * or transport failure. Callers narrow with `instanceof Error`.
@@ -174,6 +183,12 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'faqs'),
       apiId: 'faqs',
       schema: faqFrontmatterSchema,
+      // The foundation FAQ and the hackathon FAQ both use pathSlug 'faq'
+      // (INTORG-1132). profiles and reports carry the same section-relative
+      // pathSlug and share the latent bug, but they do not collide today.
+      // Switching their identity needs a dry run against the live Strapi
+      // first, so they stay keyed on pathSlug alone for now.
+      sectionScopedIdentity: true,
       // faqSections is fully specified frontmatter — no MDX body, relation,
       // or media resolution needed.
       buildPayload: (mdx) => buildFaqPayload(faqFrontmatterSchema, mdx)

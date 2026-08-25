@@ -8,6 +8,12 @@ export interface MDXFile {
   file: string
   filepath: string
   pathSlug: string
+  /**
+   * `section` frontmatter, or null when the content type has no such field.
+   * Cross-section collections store a section-relative pathSlug, so section
+   * is part of an entry's identity. See entryIdentity.ts.
+   */
+  section: string | null
   locale: string
   frontmatter: Record<string, unknown>
   content: string

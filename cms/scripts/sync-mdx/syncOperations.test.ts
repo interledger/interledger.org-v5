@@ -374,7 +374,8 @@ describe('syncLocaleEntry', () => {
     expect(strapi.findByPathSlug).toHaveBeenCalledWith(
       'foundation-pages',
       'some-page',
-      'en'
+      'en',
+      null
     )
   })
 
@@ -666,11 +667,10 @@ describe('deleteOrphanedEntries', () => {
       false
     )
 
-    expect(mockedHasMdxFile).toHaveBeenCalledWith(
-      mdxSlugsByLocale,
-      'fr',
-      'test'
-    )
+    expect(mockedHasMdxFile).toHaveBeenCalledWith(mdxSlugsByLocale, 'fr', {
+      pathSlug: 'test',
+      section: null
+    })
     expect(strapi.deleteLocalization).toHaveBeenCalledWith(
       'foundation-pages',
       '1',
