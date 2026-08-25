@@ -28,6 +28,7 @@ import type {
   podcastPageFrontmatterSchema
 } from '@site/schemas/content'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
+import { extractReportIntro } from './reportIntroHandler'
 import type { ParsedBlock } from './types.blocks'
 import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -109,6 +110,12 @@ function normalizeStrapiFilename(filename: string) {
 function isLocalAssetPath(url: string): boolean {
   return url.startsWith('/img/') || url.startsWith('/uploads/')
 }
+
+// Mirrors TECH_BLOG_FALLBACK_THUMBNAIL in src/utils/main/blog.ts (not imported
+// directly: that module pulls in Astro-only ambient types unresolvable here).
+// Keeps `featureMedia` populated for legacy posts synced with no featureImage,
+// since Strapi's schema marks it required.
+const LEGACY_BLOG_FALLBACK_IMAGE = '/img/tech-thumbnail.svg'
 
 // Returns an existing Strapi upload ID for a referenced image.
 // Local assets must already exist in Strapi media records; this function never uploads.
@@ -997,7 +1004,23 @@ export async function buildReportPayload(
   return tryCatchAsync(async () => {
     const parsed = schema.parse({ ...mdx.frontmatter, pathSlug: mdx.pathSlug })
 
-    const content = await buildContentFromMdxBody(mdx, existingEntry, parserCtx)
+    const introExtraction = extractReportIntro(mdx.content || '')
+    if (introExtraction instanceof MdxParserError) {
+      throw new MdxParserError({
+        code: introExtraction.code,
+        message: `[${mdx.pathSlug}] ${introExtraction.message}`,
+        component: introExtraction.component,
+        prop: introExtraction.prop,
+        line: introExtraction.line,
+        column: introExtraction.column
+      })
+    }
+
+    const content = await buildContentFromMdxBody(
+      { ...mdx, content: introExtraction.remainingContent },
+      existingEntry,
+      parserCtx
+    )
     const authorBio = await buildAuthorBiosPayload(
       parsed.authorBios,
       strapiUploadContext
@@ -1009,7 +1032,7 @@ export async function buildReportPayload(
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
-      introParagraph: nullOrValue(parsed.introParagraph),
+      introParagraph: nullOrValue(introExtraction.introParagraph),
       date: reportDatePayload(parsed.date),
       author_bio: authorBio,
       ...(content !== undefined ? { content } : {}),
@@ -1108,7 +1131,9 @@ export async function buildBlogPayload(
 
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
-      image: parsed.featureImage
+      image:
+        nullOrValue(parsed.featureImage) ??
+        (parsed.legacy ? LEGACY_BLOG_FALLBACK_IMAGE : undefined)
     })
     const featureImageMobile = await getImageFromStrapi(strapiUploadContext, {
       image: parsed.featureImageMobile

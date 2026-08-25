@@ -1,8 +1,6 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
-import FaqPage from '@/components/pages/FaqPage.astro'
-import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import ReportPage from '@/components/pages/ReportPage.astro'
+import SectionEntryPage from '@/components/pages/SectionEntryPage.astro'
 import {
   getLocalizedPaths,
   getCrossSectionPaths,
@@ -20,31 +18,9 @@ export async function getStaticPaths() {
 }
 
 const { slug, locale: contentLocale, kind, isFallback, section } = Astro.props
+const commonProps = { slug, contentLocale, isFallback }
 ---
 
-{
-  kind === 'profile' ? (
-    <ProfileDetailPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : kind === 'faq' ? (
-    <FaqPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : kind === 'report' ? (
-    <ReportPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : (
-    <SummitContentPage slug={slug} contentLocale={contentLocale} />
-  )
-}
+<SectionEntryPage kind={kind} section={section} {...commonProps}>
+  <SummitContentPage {...commonProps} />
+</SectionEntryPage>

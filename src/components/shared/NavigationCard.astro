@@ -58,7 +58,7 @@ const overlayUmamiAttrs = buildUmamiAttrs({
     aria-hidden="true"
   >
   </div>
-  <div class="flex min-w-0 flex-1 flex-col justify-between gap-xl">
+  <div class="flex min-w-0 flex-1 flex-col justify-between gap-2xl">
     <h3
       class="m-0 text-h4 text-neutral-900 dark:text-neutral-25 tablet:text-h4-md desktop:text-h4-lg"
     >
@@ -71,7 +71,7 @@ const overlayUmamiAttrs = buildUmamiAttrs({
       size="lg"
       external={external}
       document={buttonDocument}
-      class="self-start z-[1]"
+      class="z-[1] w-full tablet:w-fit tablet:self-start"
       linkText={buttonText}
       umamiLabel="button_card"
       umamiBaseComponent="nav_cards"

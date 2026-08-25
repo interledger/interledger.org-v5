@@ -1293,7 +1293,9 @@ export interface BlocksReportText extends Struct.ComponentSchema {
           preset: 'basicMarkdownPreset'
         }
       >
-    textType: Schema.Attribute.Enumeration<['Paragraph', 'Disclaimer']> &
+    textType: Schema.Attribute.Enumeration<
+      ['Paragraph', 'Disclaimer', 'References']
+    > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Paragraph'>
   }

@@ -1,5 +1,10 @@
 ---
-import { type Locale, getHeroSectionStyle, isDemoPathSlug } from '@/utils'
+import {
+  type Locale,
+  isDemoPathSlug,
+  useTranslations,
+  localizeRoute
+} from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
@@ -16,7 +21,7 @@ import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import HeroSection from '@/components/shared/HeroSection.astro'
+import PageHero from '@/components/shared/PageHero.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
@@ -48,32 +53,49 @@ const mdxPage = pages.find(
 if (!mdxPage) return Astro.redirect('/404')
 
 Astro.locals.profileEntries = await getCollection('profiles')
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const { Content: MdxContent } = await render(mdxPage)
-const mdxData = mdxPage.data
 
-const title = mdxData?.title
-const description = mdxData?.description || undefined
-const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
-const mdxHeroDescription = mdxData?.heroDescription || ''
-const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
-const heroCtas = mdxData?.heroCtas ?? []
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCtas
+} = mdxPage.data
+
 const isNotFound = !MdxContent
-const noindex = isDemoPathSlug(mdxData?.pathSlug)
+const noindex = isDemoPathSlug(mdxPage.data.pathSlug)
 
 if (isNotFound) return Astro.redirect('/404')
+
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
+]
 ---
 
 <FoundationPageLayout title={title} description={description} noindex={noindex}>
   <main class="pb-3xl" data-pillar="mission">
     <TranslationDisclaimer isVisible={isFallback} />
     {
-      mdxHeroTitle && (
-        <HeroSection
-          title={mdxHeroTitle}
-          description={mdxHeroDescription}
-          ctas={heroCtas}
-          sectionStyle={heroSectionStyle}
+      heroTitle && (
+        <PageHero
+          title={heroTitle ?? title}
+          description={heroDescription ?? description}
+          image={heroImage}
+          imageMobile={heroImageMobile}
+          imageAlt={heroImageAlt}
+          imageMobileAlt={heroImageMobileAlt}
+          cta={heroCtas?.[0]}
+          breadcrumbs={breadcrumbs}
+          imageBand="default"
         />
       )
     }

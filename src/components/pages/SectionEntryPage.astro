@@ -1,0 +1,41 @@
+---
+import FaqPage from './FaqPage.astro'
+import GrantOverviewPage from './GrantOverviewPage.astro'
+import GrantPage from './GrantPage.astro'
+import ProfileDetailPage from './ProfileDetailPage.astro'
+import ReportPage from './ReportPage.astro'
+import type { Locale, SiteSection } from '@/utils'
+
+interface Props {
+  kind: string
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+  /**
+   * Which site section the entry belongs to. Only the cross-section templates
+   * need it: `pathSlug` is unique within a section, not across the whole
+   * collection, so the foundation and hackathon FAQ both answer to `faq`.
+   */
+  section: SiteSection
+}
+
+const { kind, slug, contentLocale, isFallback, section } = Astro.props
+const commonProps = { slug, contentLocale, isFallback }
+const crossSectionProps = { ...commonProps, section }
+---
+
+{
+  kind === 'profile' ? (
+    <ProfileDetailPage {...crossSectionProps} />
+  ) : kind === 'faq' ? (
+    <FaqPage {...crossSectionProps} />
+  ) : kind === 'report' ? (
+    <ReportPage {...crossSectionProps} />
+  ) : kind === 'grant-page' ? (
+    <GrantPage {...commonProps} />
+  ) : kind === 'grant-overview-page' ? (
+    <GrantOverviewPage {...commonProps} />
+  ) : (
+    <slot />
+  )
+}

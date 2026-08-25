@@ -77,53 +77,56 @@ const parallaxImgClass = isWideBand
 ---
 
 <!--
-  Content column is max-w-content (1440px) with no horizontal padding so title
-  and description span the full content width.
+  Outer div spans full width for the white background; px-content applies the
+  standard gutter and content-column caps the inner content at max-w-content
+  (1440px), matching every other section on the page.
 -->
 <div
-  class="mx-auto w-full max-w-content bg-white pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
+  class="bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
 >
-  {
-    breadcrumbs && breadcrumbs.length > 0 && (
-      <div class="mb-xl tablet:mb-2xl">
-        <Breadcrumbs
-          breadcrumbs={breadcrumbs}
-          class="[&_a]:text-body-sm-standard"
-        />
-      </div>
-    )
-  }
+  <div class="content-column">
+    {
+      breadcrumbs && breadcrumbs.length > 0 && (
+        <div class="mb-xl tablet:mb-2xl">
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            class="[&_a]:text-body-sm-standard"
+          />
+        </div>
+      )
+    }
 
-  <h1
-    class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
-  >
-    {title}
-  </h1>
+    <h1
+      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
+    >
+      {title}
+    </h1>
 
-  {
-    description && (
-      <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line">
-        {description}
-      </p>
-    )
-  }
-  {
-    cta && resolvedCta && (
-      <LinkButton
-        href={resolvedCta.href}
-        variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-        external={resolvedCta.external}
-        document={resolvedCta.document}
-        class="w-full tablet:w-auto"
-        linkText={cta.text}
-        umamiLabel="button_cta"
-        umamiBaseComponent="hero"
-      >
-        {cta.text}
-        <Icon name={resolvedCta.icon} slot="icon-right" />
-      </LinkButton>
-    )
-  }
+    {
+      description && (
+        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line">
+          {description}
+        </p>
+      )
+    }
+    {
+      cta && resolvedCta && (
+        <LinkButton
+          href={resolvedCta.href}
+          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+          external={resolvedCta.external}
+          document={resolvedCta.document}
+          class="w-full tablet:w-auto"
+          linkText={cta.text}
+          umamiLabel="button_cta"
+          umamiBaseComponent="hero"
+        >
+          {cta.text}
+          <Icon name={resolvedCta.icon} slot="icon-right" />
+        </LinkButton>
+      )
+    }
+  </div>
 </div>
 
 <!-- Parallax image: image is taller than the frame so we can pan as you scroll -->

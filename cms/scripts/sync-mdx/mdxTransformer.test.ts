@@ -2306,13 +2306,11 @@ describe('buildReportPayload', () => {
       )
     })
 
-    it('includes introParagraph when present', async () => {
+    it('includes introParagraph when present as a leading <ReportIntro>', async () => {
       const mdx = createMdxFile({
         pathSlug: 'policy-and-advocacy/role-stablecoins',
-        frontmatter: {
-          ...baseReportFrontmatter,
-          introParagraph: 'A short intro.'
-        }
+        frontmatter: baseReportFrontmatter,
+        content: '<ReportIntro>\n\nA short intro.\n\n</ReportIntro>'
       })
 
       const payload = await buildReportPayload(reportFrontmatterSchema, mdx)
@@ -3352,6 +3350,48 @@ describe('buildBlogPayload', () => {
       )
 
       expect(payload).not.toHaveProperty('featureMedia')
+    })
+
+    it('falls back to the tech-thumbnail image when a legacy post has no featureImage', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/img/tech-thumbnail.svg': 7
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: { ...baseBlogFrontmatter, legacy: true }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).featureMedia).toEqual({
+        image: 7,
+        alternativeText: null
+      })
+    })
+
+    it('falls back to the tech-thumbnail image when a legacy post has an empty-string featureImage', async () => {
+      const { strapiUploadContext } = createMockStrapiUploadContext({
+        '/img/tech-thumbnail.svg': 7
+      })
+      const mdx = createMdxFile({
+        pathSlug: 'test-post',
+        frontmatter: { ...baseBlogFrontmatter, legacy: true, featureImage: '' }
+      })
+
+      const payload = await buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        mdx,
+        strapiUploadContext
+      )
+
+      expect((payload as Record<string, unknown>).featureMedia).toEqual({
+        image: 7,
+        alternativeText: null
+      })
     })
 
     it('resolves thumbnailImage and thumbnailImageAlt into thumbnailMedia', async () => {

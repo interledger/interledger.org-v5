@@ -31,8 +31,9 @@ const sectionNavAttrs = (id: string, heading: string) =>
 
 <nav
   data-report-nav
+  data-lenis-prevent
   aria-label={t('report.sections_nav')}
-  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))]"
+  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
 >
   <ul class="flex list-none flex-col gap-2xl m-0 p-0">
     {

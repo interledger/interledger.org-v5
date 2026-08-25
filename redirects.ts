@@ -74,6 +74,8 @@ export const redirects = {
     '/blog/are-financial-rights-human-rights',
   '/news/banking-without-banks-what-africa-can-teach-us-about-financial-access':
     '/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access',
+  '/news/beyond-hackathon-building-future-open-payments-through-collaboration':
+    '/blog/beyond-hackathon-building-future-open-payments-through-collaboration',
   '/news/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives':
     '/blog/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives',
   '/news/bridging-technology-and-policy':
@@ -129,6 +131,8 @@ export const redirects = {
     '/blog/history-and-promise-interledger-qa-co-founder-stefan-thomas',
   '/news/how-interledger-protocol-ilp-powers-web-monetization':
     '/blog/how-interledger-protocol-ilp-powers-web-monetization',
+  '/news/inside-usiu-africa-open-payments-workshop-what-students-built':
+    '/blog/inside-usiu-africa-open-payments-workshop-what-students-built',
   '/news/insights-futuremoney-podcast-interledger-campus':
     '/blog/insights-futuremoney-podcast-interledger-campus',
   '/news/interledger-campus': '/blog/interledger-campus',
@@ -148,6 +152,8 @@ export const redirects = {
     '/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web',
   '/news/interledger-foundation-launches-interledger-campus-grant-program-support-student-led':
     '/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led',
+  '/news/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation':
+    '/blog/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation',
   '/news/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial':
     '/blog/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial',
   '/news/interledger-foundation-partners-bowie-state-university':
@@ -215,6 +221,8 @@ export const redirects = {
     '/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure',
   '/news/shaping-future-digital-finance':
     '/blog/shaping-future-digital-finance',
+  '/news/strategic-shift-interledger-foundation':
+    '/blog/strategic-shift-interledger-foundation',
   '/news/transforming-financial-access': '/blog/transforming-financial-access',
   '/news/turning-headlines-backyard-conversations-lessons-2025-ofn-conference':
     '/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference',
@@ -235,6 +243,8 @@ export const redirects = {
     '/blog/whats-happened-march-news-updates-global-trends',
   '/news/whats-happened-may': '/blog/whats-happened-may',
   '/news/whats-happened-september': '/blog/whats-happened-september',
+  '/news/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia':
+    '/blog/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia',
   '/news/why-campuses-are-becoming-testbeds-digital-finance':
     '/blog/why-campuses-are-becoming-testbeds-digital-finance',
   '/news/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic':
@@ -468,6 +478,8 @@ export const redirects = {
     '/blog/web-monetization-work-week',
   '/developers/blog/ilf-and-hsms': '/blog/ilf-and-hsms',
   '/developers/blog/wallet-work-week': '/blog/wallet-work-week',
+  '/developers/blog/rafiki-cards-work-week-2026':
+    '/blog/rafiki-cards-work-week-2026',
   '/es/developers/blog/el-universo-interledger':
     '/es/blog/el-universo-interledger'
 }

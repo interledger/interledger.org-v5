@@ -1,10 +1,6 @@
 ---
-import FaqPage from '@/components/pages/FaqPage.astro'
 import FoundationContentPage from '@/components/pages/FoundationContentPage.astro'
-import GrantOverviewPage from '@/components/pages/GrantOverviewPage.astro'
-import GrantPage from '@/components/pages/GrantPage.astro'
-import ProfileDetailPage from '@/components/pages/ProfileDetailPage.astro'
-import ReportPage from '@/components/pages/ReportPage.astro'
+import SectionEntryPage from '@/components/pages/SectionEntryPage.astro'
 import {
   getLocalizedPaths,
   getCrossSectionPaths,
@@ -38,43 +34,9 @@ export async function getStaticPaths() {
 }
 
 const { slug, locale: contentLocale, kind, isFallback, section } = Astro.props
+const commonProps = { slug, contentLocale, isFallback }
 ---
 
-{
-  kind === 'profile' ? (
-    <ProfileDetailPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : kind === 'faq' ? (
-    <FaqPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : kind === 'report' ? (
-    <ReportPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-      section={section}
-    />
-  ) : kind === 'grant-page' ? (
-    <GrantPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  ) : kind === 'grant-overview-page' ? (
-    <GrantOverviewPage
-      slug={slug}
-      contentLocale={contentLocale}
-      isFallback={isFallback}
-    />
-  ) : (
-    <FoundationContentPage slug={slug} contentLocale={contentLocale} />
-  )
-}
+<SectionEntryPage kind={kind} section={section} {...commonProps}>
+  <FoundationContentPage {...commonProps} />
+</SectionEntryPage>

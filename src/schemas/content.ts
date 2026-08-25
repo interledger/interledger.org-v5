@@ -85,7 +85,10 @@ export const foundationPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
-  heroCtas: z.array(heroCtaSchema).optional(),
+  heroImageAlt: z.string().nullable().optional(),
+  heroImageMobile: z.string().optional(),
+  heroImageMobileAlt: z.string().nullable().optional(),
+  heroCtas: z.array(heroCtaSchema).max(1).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
 })
@@ -330,7 +333,6 @@ export const reportFrontmatterSchema = z.object({
   section: sectionSchema,
   heading: z.string().min(1, 'heading is required'),
   description: z.string().min(1, 'description is required'),
-  introParagraph: z.string().nullable().optional(),
   date: reportDateSchema.optional(),
   authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),

@@ -42,16 +42,41 @@ describe('generateReportMdx', () => {
     expect(content.trim()).toContain('The full report body.')
   })
 
-  it('writes introParagraph to frontmatter when provided', () => {
-    const { data } = matter(
+  it('writes introParagraph as a leading <ReportIntro> body block, not frontmatter', () => {
+    const { data, content } = matter(
       generateReportMdx(makeReport({ introParagraph: 'A short intro.' }))
     )
-    expect(data.introParagraph).toBe('A short intro.')
+    expect(data.introParagraph).toBeUndefined()
+    expect(content.trim()).toMatch(/^<ReportIntro>/)
+    expect(content).toContain('A short intro.')
+    expect(content).toContain('</ReportIntro>')
   })
 
-  it('omits introParagraph when not provided', () => {
-    const { data } = matter(generateReportMdx(makeReport()))
-    expect(data.introParagraph).toBeUndefined()
+  it('omits <ReportIntro> when introParagraph is not provided', () => {
+    const { content } = matter(generateReportMdx(makeReport()))
+    expect(content).not.toContain('ReportIntro')
+  })
+
+  it('places <ReportIntro> ahead of the report-section body', () => {
+    const { content } = matter(
+      generateReportMdx(
+        makeReport({
+          introParagraph: 'A short intro.',
+          content: [
+            {
+              __component: 'blocks.report-section',
+              heading: 'Introduction',
+              reportText: [
+                { textType: 'Paragraph', textContent: 'The full report body.' }
+              ]
+            }
+          ]
+        })
+      )
+    )
+    expect(content.indexOf('<ReportIntro>')).toBeLessThan(
+      content.indexOf('<ReportSection>')
+    )
   })
 
   it('serializes report-section blocks from the content dynamic zone', () => {
