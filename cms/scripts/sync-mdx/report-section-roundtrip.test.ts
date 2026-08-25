@@ -153,22 +153,6 @@ describe('ReportSection round-trip (serialize → parse)', () => {
     ])
   })
 
-  it('keeps the references attribute stable across export/import/export', async () => {
-    const original = {
-      heading: 'References',
-      reportText: [{ textType: 'References', textContent: '- First source.' }]
-    }
-
-    const once = serialize(original)
-    expect(once).toContain('<ReportSection references>')
-
-    const blocks = await parseMdxToBlocks(once, enCtx)
-    if (!Array.isArray(blocks)) throw blocks
-
-    const twice = serialize(blocks[0] as typeof original)
-    expect(twice).toBe(once)
-  })
-
   it('round-trips a markdown link in the content', async () => {
     const original = {
       heading: 'Overview',

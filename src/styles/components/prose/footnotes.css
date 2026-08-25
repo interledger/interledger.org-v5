@@ -5,24 +5,11 @@
  * Design: link-colored superscript markers at caption size (13px / 0.8125rem);
  * body copy stays neutral; links use --color-link with underline.
  *
- * `[data-report-text="references"]` (ReportText.astro) and
- * `[data-report-references-section]` (ReportSection.astro, its ancestor)
- * together reuse every one of these rules for hand-authored bibliography/
- * reference lists that have no in-text `[^n]` marker to link back to — same
- * numbered-list look, deliberately without the `a[data-footnote-ref]` marker
- * or `.data-footnote-backref` rules below, since there's nothing to
- * reference or link back from.
- *
- * The two References attributes are split deliberately: the "whole block"
- * container rule (border/padding/margin/font-size baseline, right below)
- * targets `[data-report-references-section]` — the outer ReportSection —
- * because unlike GFM's own hidden `<h2>`, a References section has a
- * *visible* "## References" heading; putting the separator on the inner
- * `[data-report-text="references"]` wrapper would land it between that
- * heading and its own list instead of above the whole section. The
- * list-specific rules (`ol`/`li`/`li::before`/`li p`/`a` below) stay on the
- * inner `[data-report-text="references"]`, since that's where the actual
- * `<ol>`/`<ul>` lives.
+ * `[data-report-text="references"]` (ReportText.astro) reuses every one of
+ * these rules for hand-authored bibliography/reference lists that have no
+ * in-text `[^n]` marker to link back to — same numbered-list look, deliberately
+ * without the `a[data-footnote-ref]` marker or `.data-footnote-backref` rules
+ * below, since there's nothing to reference or link back from.
  */
 
 @layer components {
@@ -40,7 +27,7 @@
     /* Footnote list at end of article */
     .footnotes,
     [data-footnotes],
-    [data-report-references-section] {
+    [data-report-text='references'] {
       margin-block-start: var(--spacing-3xl);
       padding-block-start: var(--spacing-3xl);
       border-block-start: 2px solid var(--color-neutral-50);
@@ -157,21 +144,21 @@
  */
 html[data-theme='dark']
   [data-prose]
-  :is(.footnotes, [data-footnotes], [data-report-references-section]) {
+  :is(.footnotes, [data-footnotes], [data-report-text='references']) {
   border-block-start-color: var(--color-neutral-75);
   color: var(--color-prose);
 }
 
 html[data-theme='dark']
   [data-prose]
-  :is(.footnotes, [data-footnotes], [data-report-references-section])
+  :is(.footnotes, [data-footnotes], [data-report-text='references'])
   :is(p, li) {
   color: var(--color-prose);
 }
 
 html[data-theme='dark']
   [data-prose]
-  :is(.footnotes, [data-footnotes], [data-report-references-section])
+  :is(.footnotes, [data-footnotes], [data-report-text='references'])
   p {
   margin-block: 0;
 }

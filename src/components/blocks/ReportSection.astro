@@ -9,23 +9,10 @@
  * <h2> into a <summary> at runtime to build the mobile accordion.
  */
 import Icon from '@/components/shared/Icon.astro'
-
-interface Props {
-  /**
-   * Set by report-section.serializer.ts when this section's reportText
-   * contains a References block — spans the section full width below the
-   * two-column grid, matching GFM's own auto-generated footnotes section.
-   * See ReportPage.astro's `data-report-references-section` grid rules.
-   */
-  references?: boolean
-}
-
-const { references = false } = Astro.props
 ---
 
 <section
   data-component="report-section"
-  data-report-references-section={references ? '' : undefined}
   class="flex flex-col gap-xl [&_h2]:m-0 [&_h2]:min-w-0 [&_h2]:text-neutral-100 [&_h2]:text-h3 [&_h2]:scroll-mt-(--site-header-height-desktop) tablet:[&_h2]:text-neutral-900 tablet:[&_h2]:text-h3-md desktop:[&_h2]:text-h3-lg"
 >
   <span data-report-section-icon class="hidden">
