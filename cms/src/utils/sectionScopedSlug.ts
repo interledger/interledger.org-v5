@@ -82,11 +82,15 @@ export async function validateSectionScopedSlug(
   // A missing pathSlug or section is the `required` validator's job, not ours.
   if (!pathSlug || !section) return undefined
 
+  // No `status` filter: these content types set draftAndPublish false, so
+  // every row is the stored row and a status would only narrow the search
+  // that has to see everything. `documentId` comes back regardless of
+  // `fields`, which is what lets an entry recognize itself below.
+  // Two rows are enough: at most one of them can be this entry.
   const conflicts = (await check.documents.findMany({
     filters: { pathSlug, section },
     locale: check.locale,
     fields: ['pathSlug', 'section'],
-    status: 'draft',
     limit: 2
   })) as SlugAndSection[]
 

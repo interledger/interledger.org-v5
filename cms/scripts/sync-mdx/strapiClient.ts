@@ -181,12 +181,16 @@ export function createStrapiClient({
     section?: string | null
   ): Promise<StrapiEntry | undefined | Error> {
     return tryCatchAsync(async () => {
-      let endpoint = `${apiId}?filters[pathSlug][$eq]=${pathSlug}`
+      // Encode the filter values. Nothing restricts the characters in a
+      // pathSlug beyond trimming slashes, so a raw `&` or `#` would split the
+      // query string or truncate it. Slashes survive as %2F, which Strapi
+      // decodes back, so a nested slug still resolves.
+      let endpoint = `${apiId}?filters[pathSlug][$eq]=${encodeURIComponent(pathSlug)}`
       if (section) {
-        endpoint += `&filters[section][$eq]=${section}`
+        endpoint += `&filters[section][$eq]=${encodeURIComponent(section)}`
       }
       if (locale) {
-        endpoint += `&locale=${locale}`
+        endpoint += `&locale=${encodeURIComponent(locale)}`
       }
       const data = (await request(endpoint)) as { data: StrapiEntry[] }
       return data.data?.[0]

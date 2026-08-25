@@ -108,6 +108,20 @@ describe('validateSectionScopedSlug', () => {
     expect(details.errors[0].path).toEqual(['pathSlug'])
   })
 
+  // The FAQ content type sets draftAndPublish false, so a `status` filter
+  // would narrow the very search that has to see every stored row.
+  it('does not narrow the conflict search by publication status', async () => {
+    const documents = createDocuments()
+
+    await validateSectionScopedSlug({
+      documents,
+      data: { pathSlug: 'faq', section: 'foundation' }
+    })
+
+    const options = documents.findMany.mock.calls[0][0]
+    expect(options).not.toHaveProperty('status')
+  })
+
   it('scopes the lookup to the locale being written', async () => {
     const documents = createDocuments()
 
