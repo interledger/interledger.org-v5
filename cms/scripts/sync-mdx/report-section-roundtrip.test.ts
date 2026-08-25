@@ -135,6 +135,24 @@ describe('ReportSection round-trip (serialize → parse)', () => {
     ])
   })
 
+  it('round-trips a References block as a bullet list, using textContent', async () => {
+    const original = {
+      heading: 'References',
+      reportText: [
+        {
+          textType: 'References',
+          textContent: '- First source.\n- Second source.'
+        }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.report-section', ...original }
+    ])
+  })
+
   it('round-trips a markdown link in the content', async () => {
     const original = {
       heading: 'Overview',

@@ -1,0 +1,21 @@
+---
+// Always the first node in a report's MDX body when present — enforced on
+// export (generateReportMdx, cms/src/utils/reportMdx.ts) and on import
+// (extractReportIntro, cms/scripts/sync-mdx/reportIntroHandler.ts). Rendered
+// inside the same two-column grid as the rest of the body (ReportPage.astro),
+// this element occupies row 1 and is given `col-span-full`, which is why
+// ReportPage.astro offsets ReportSectionsNav's grid row by one when an intro
+// is present — that offset would be wrong if this invariant ever broke.
+import { useTranslations } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+---
+
+<section aria-label={t('report.introduction')} data-report-intro>
+  <div
+    class="mb-4xl text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:mb-6xl desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
+  >
+    <slot />
+  </div>
+</section>

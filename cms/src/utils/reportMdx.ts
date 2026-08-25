@@ -11,6 +11,7 @@ import {
   defaultLang,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
+import { escMdxBraces } from '../serializers/shared'
 import { serializeContent } from '../serializers/blocks'
 import type { AuthorBio } from './contentTypes'
 
@@ -80,9 +81,6 @@ export function generateReportMdx(
   const isLocalized = resolvedLocale !== defaultLang
   const date = dateFrontmatter(report.date)
   const authorBios = authorBiosFrontmatter(report.author_bio)
-  const introParagraph = report.introParagraph
-    ? ckeditorFieldToMarkdown(report.introParagraph)
-    : null
 
   const frontmatter: Record<string, unknown> = {
     title: report.title,
@@ -90,18 +88,26 @@ export function generateReportMdx(
     ...(report.section ? { section: report.section } : {}),
     heading: report.heading,
     description: report.description,
-    ...(introParagraph ? { introParagraph } : {}),
     ...(date ? { date } : {}),
     ...(authorBios ? { authorBios } : {}),
     locale: resolvedLocale,
     ...(isLocalized && englishSlug ? { localizes: englishSlug } : {})
   }
 
+  // Rendered as part of the MDX body (not frontmatter) so it flows through
+  // Astro's remark-gfm pipeline along with the rest of the report — this is
+  // what gives an intro-authored footnote ([^1]) the same numbering/anchor
+  // handling as the report's body sections. See ReportPage.astro.
+  const introBlock = report.introParagraph
+    ? `<ReportIntro>\n\n${escMdxBraces(ckeditorFieldToMarkdown(report.introParagraph))}\n\n</ReportIntro>`
+    : ''
   const blocksBody = report.content?.length
     ? serializeContent(report.content)
     : ''
+  const body = [introBlock, blocksBody].filter(Boolean).join('\n\n')
+
   return matter.stringify(
-    blocksBody ? `\n${blocksBody}\n` : '',
+    body ? `\n${body}\n` : '',
     frontmatter,
     MATTER_STRINGIFY_OPTIONS
   )

@@ -10,6 +10,10 @@ const validDisclaimer = {
   textType: 'Disclaimer',
   textDisclaimer: 'For informational purposes only.'
 }
+const validReferences = {
+  textType: 'References',
+  textContent: '- First source.\n- Second source.'
+}
 
 describe('report-section serializer', () => {
   it('serializes a block with a heading and a single paragraph content block', () => {
@@ -34,6 +38,25 @@ describe('report-section serializer', () => {
 
     expect(result).toContain('<ReportText type="Disclaimer">')
     expect(result).toContain('For informational purposes only.')
+  })
+
+  it('serializes a references content block using textContent, not textDisclaimer', () => {
+    const result = serialize({
+      heading: 'References',
+      reportText: [validReferences]
+    })
+
+    expect(result).toContain('<ReportText type="References">')
+    expect(result).toContain('- First source.')
+  })
+
+  it('throws when a References block is missing textContent', () => {
+    expect(() =>
+      serialize({
+        heading: 'References',
+        reportText: [{ textType: 'References', textContent: '  ' }]
+      })
+    ).toThrow(SerializerFieldError)
   })
 
   it('serializes multiple content blocks in order', () => {

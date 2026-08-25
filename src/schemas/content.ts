@@ -333,7 +333,6 @@ export const reportFrontmatterSchema = z.object({
   section: sectionSchema,
   heading: z.string().min(1, 'heading is required'),
   description: z.string().min(1, 'description is required'),
-  introParagraph: z.string().nullable().optional(),
   date: reportDateSchema.optional(),
   authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),

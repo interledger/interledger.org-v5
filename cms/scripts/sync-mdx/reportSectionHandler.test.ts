@@ -56,6 +56,29 @@ describe('ReportSection handler', () => {
     ])
   })
 
+  it('parses a References content block into textContent, not textDisclaimer', async () => {
+    const blocks = await parseMdxToBlocks(
+      reportSection(
+        [textItem('References', '- First source.\n- Second source.')],
+        '## References'
+      ),
+      ctx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.report-section',
+        heading: 'References',
+        reportText: [
+          {
+            textType: 'References',
+            textContent: '- First source.\n- Second source.'
+          }
+        ]
+      }
+    ])
+  })
+
   it('parses multiple content blocks, preserving order', async () => {
     const blocks = await parseMdxToBlocks(
       reportSection([

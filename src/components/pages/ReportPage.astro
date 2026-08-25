@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import ReportIntro from '@/components/blocks/ReportIntro.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
 import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
@@ -12,7 +13,6 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
-  parseMarkdown,
   getSectionPageLayout
 } from '@/utils'
 
@@ -42,11 +42,19 @@ const entry = allReports.find(
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
 
 const { Content: MdxContent, headings } = await render(entry)
-const { title, heading, description, introParagraph, date, authorBios } =
-  entry.data
+const { title, heading, description, date, authorBios } = entry.data
 const hasBody = Boolean(entry.body?.trim())
 const bioTextEntries = authorBios?.filter((bio) => bio.text) ?? []
 const hasAuthorBios = bioTextEntries.length > 0
+// generateReportMdx/reportIntroHandler guarantee <ReportIntro> is always the
+// leading element when present — see ReportIntro.astro's comment for why
+// this offsets ReportSectionsNav's grid row below.
+const hasIntro = Boolean(entry.body?.trim().startsWith('<ReportIntro'))
+// Drives whether the references-relocation target/script render at all —
+// the ReportSection itself stays a normal row in the nav column; only its
+// <ReportText type="References"> child gets moved client-side (see the
+// <script> below) into the full-width slot near the footnotes.
+const hasReferencesSection = Boolean(entry.body?.includes('type="References"'))
 const sections = headings
   .filter(
     (h) =>
@@ -54,12 +62,6 @@ const sections = headings
       h.slug !== FOOTNOTES_HEADING_ID
   )
   .map((h) => ({ id: h.slug, heading: h.text }))
-const introParagraphHtml = introParagraph
-  ? await parseMarkdown(introParagraph, {
-      pathname: Astro.url.pathname,
-      lang: contentLocale
-    })
-  : null
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
@@ -74,10 +76,10 @@ const Layout = getSectionPageLayout(entry.data.section)
 
 <Layout title={title} description={description}>
   <main
-    class="flex flex-col mx-auto px-lg pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl tablet:px-xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <TranslationDisclaimer isVisible={isFallback} />
-    <div class="max-w-content">
+    <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
       <h1
         class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
@@ -119,57 +121,79 @@ const Layout = getSectionPageLayout(entry.data.section)
         )
       }
       {
-        introParagraphHtml && (
-          <section
-            aria-label={t('report.introduction')}
-            class="mt-xl mb-4xl tablet:mt-3xl desktop:mb-6xl "
-          >
-            <div
-              class="text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
-              set:html={introParagraphHtml}
-            />
-          </section>
-        )
-      }
-      {
         (hasBody || hasAuthorBios) && (
           <section
             data-prose
             aria-label={t('report.body')}
-            class="flex flex-col gap-3xl mt-4xl desktop:mt-6xl *:data-footnotes:order-last "
+            class="flex flex-col gap-3xl mt-4xl *:data-footnotes:order-last"
           >
             {sections.length > 0 ? (
-              // Grid (not flex) so the auto-generated footnotes section — a
-              // trailing sibling of <ReportSection> we don't control — can
-              // span both columns; MdxContent's children must be direct grid
-              // items for that to work. order-last reorders it after
-              // AuthorBio regardless of DOM position.
-              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:order-last">
+              // CSS grid, not flex, so the auto-generated footnotes section
+              // (a sibling of <ReportSection> we don't control) and the
+              // optional <ReportIntro> can both span both columns instead of
+              // being squeezed into the content column — MdxContent's
+              // children must be direct grid items (no wrapping div) for
+              // that breakout to work. When an intro is present it occupies
+              // row 1, so the nav's row span starts one row later. AuthorBio
+              // is a grid item here (not rendered after this whole div, like
+              // it used to be) so that footnotes' order-last below can push
+              // footnotes after it — order only reorders siblings within the
+              // same flex/grid container, and footnotes is nested inside
+              // this grid, not the outer <section> above.
+              <div class="flex flex-col gap-3xl tablet:grid tablet:grid-cols-[4fr_6fr] tablet:gap-x-2xl desktop:grid-cols-[3fr_7fr] desktop:gap-x-4xl tablet:*:data-footnotes:col-span-full *:data-footnotes:order-last *:data-footnotes:mt-2xl *:data-footnotes:desktop:mt-5xl tablet:*:data-report-intro:col-span-full">
                 <div
                   class="hidden tablet:block tablet:col-start-1 tablet:border-r tablet:border-neutral-25 tablet:pr-2xl"
-                  style={{ gridRow: `1 / span ${sections.length}` }}
+                  style={{
+                    gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
+                  }}
                 >
                   <ReportSectionsNav
                     sections={sections}
                     uiLocale={routeLocale}
                   />
                 </div>
-                <MdxContent components={{ ReportSection, ReportText }} />
+                <MdxContent
+                  components={{ ReportIntro, ReportSection, ReportText }}
+                />
                 {hasAuthorBios && (
-                  <div class="-my-2xl tablet:col-span-full tablet:-my-xl">
+                  <div class="tablet:col-span-full">
                     <AuthorBio bios={bioTextEntries} />
                   </div>
+                )}
+                {hasReferencesSection && (
+                  <div
+                    data-report-references-target
+                    class="tablet:col-span-full"
+                  />
                 )}
               </div>
             ) : (
               <>
-                <MdxContent components={{ ReportSection, ReportText }} />
+                <MdxContent
+                  components={{ ReportIntro, ReportSection, ReportText }}
+                />
                 {hasAuthorBios && <AuthorBio bios={bioTextEntries} />}
+                {hasReferencesSection && <div data-report-references-target />}
               </>
             )}
           </section>
         )
       }
     </div>
+    <script>
+      // The References <ReportText> renders in place server-side (so it's
+      // never missing with JS disabled) inside its <ReportSection>, next to
+      // the section's own visible heading. Relocate it client-side into the
+      // full-width slot near the footnotes — same DOM-relocation technique
+      // ReportSection.astro's own accordion script uses, just moving a
+      // different node for a different reason (layout, not disclosure).
+      // No-op when the page has no References section (target is absent).
+      const target = document.querySelector('[data-report-references-target]')
+      if (target) {
+        document
+          .querySelectorAll('[data-report-text="references"]')
+          .forEach((el) => target.appendChild(el))
+      }
+    </script>
   </main>
 </Layout>
