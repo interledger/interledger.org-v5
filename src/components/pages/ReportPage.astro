@@ -154,10 +154,7 @@ const Layout = getSectionPageLayout(section)
                   gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
                 }}
               >
-                <ReportSectionsNav
-                  sections={sections}
-                  uiLocale={routeLocale}
-                />
+                <ReportSectionsNav sections={sections} uiLocale={routeLocale} />
               </div>
               <MdxContent
                 components={{ ReportIntro, ReportSection, ReportText }}
