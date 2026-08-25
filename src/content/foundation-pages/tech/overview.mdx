@@ -27,26 +27,3 @@ Today’s payment systems run on separate networks, different rules, and disconn
 Interledger is a stack of open protocols that work in layers, modeled on the architecture of the internet. Each layer has one delegated responsibility and knows how to communicate with the layers directly above and below it. That structure is what makes the technology adaptable, because a layer can be improved or replaced without disrupting the others.
 
 </Paragraph>
-
-<SplitLayout imagePosition="left" displayRatio="1:1" imageSrc="/uploads/img/original/2_interledger_tech_stack_2_760f2426ca.jpg" ctaText="Explore Open Payments" ctaLink="/open-payments" ctaStyle="secondary">
-### Application Protocols (Open Payments and Simple Payments Setup Protocol)
-
-Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
-
-### Transport Protocols (STREAM)
-
-Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
-
-### The Interledger Protocol (ILP)
-
-Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
-
-### Link Layer Protocols
-
-Provide two-way authenticated communication between account holders or their financial service providers.
-
-### Ledgers and Payment Systems
-
-The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
-
-</SplitLayout>
