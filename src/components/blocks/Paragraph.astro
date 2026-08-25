@@ -4,21 +4,10 @@ import { parseMarkdown } from '@/utils'
 interface Props {
   content?: string
   alignment?: 'left' | 'center' | 'right'
-  /**
-   * `lead` sets the block in the display face at semibold, for a standfirst
-   * that carries more weight than body copy but is not a heading. Asked for on
-   * the hackathon overview page (Jessica, INTORG-1060).
-   */
-  variant?: 'default' | 'lead'
   umamiContext?: string
 }
 
-const {
-  content,
-  alignment = 'left',
-  variant = 'default',
-  umamiContext
-} = Astro.props
+const { content, alignment = 'left', umamiContext } = Astro.props
 const { routeLocale } = Astro.locals
 
 const alignmentClass =
@@ -45,17 +34,8 @@ const alignmentClass =
 const CTA_PAIR_SPACING =
   '[&:has(+.cta-link)]:mb-xl desktop:[&:has(+.cta-link)]:mb-2xl [&:has(+.cta-link)>*:last-child]:mb-0'
 
-// Targets the descendant paragraphs, not the wrapper: `parseMarkdown` and the
-// MDX slot both emit their own <p> elements inside it.
-const LEAD_CLASS = '[&_p]:font-poppins [&_p]:font-semibold'
-
 const hasContent = content != null && content !== ''
-const className = [
-  alignmentClass,
-  'mb-6xl',
-  CTA_PAIR_SPACING,
-  variant === 'lead' ? LEAD_CLASS : ''
-]
+const className = [alignmentClass, 'mb-6xl', CTA_PAIR_SPACING]
   .filter(Boolean)
   .join(' ')
 const htmlContent = hasContent

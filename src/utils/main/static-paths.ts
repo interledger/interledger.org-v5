@@ -176,8 +176,12 @@ async function getSectionFilteredPaths(
     )
   }
 
+  // Index only this section's translations. `localizes` holds an EN pathSlug,
+  // which is unique within a section and not across the collection, so an
+  // unfiltered index can hand back another section's entry for the slug `faq`
+  // (Copilot, #563).
   const localizedByLocalizes = indexLocalizedEntriesByLocalizes(
-    allEntries,
+    allEntries.filter((e) => e.data.section === section),
     lang
   )
 

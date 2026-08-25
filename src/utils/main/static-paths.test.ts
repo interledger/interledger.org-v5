@@ -16,7 +16,17 @@ vi.mock('astro:i18n', () => ({
 const collections: Record<string, { data: Record<string, unknown> }[]> = {
   faqs: [
     { data: { pathSlug: 'faq', section: 'foundation', locale: 'en' } },
-    { data: { pathSlug: 'faq', section: 'hackathon', locale: 'en' } }
+    { data: { pathSlug: 'faq', section: 'hackathon', locale: 'en' } },
+    // Only the foundation FAQ is translated. Its `localizes` key is the EN
+    // pathSlug `faq`, which the hackathon FAQ also uses.
+    {
+      data: {
+        pathSlug: 'preguntas',
+        section: 'foundation',
+        locale: 'es',
+        localizes: 'faq'
+      }
+    }
   ],
   profiles: [],
   reports: []
@@ -59,6 +69,26 @@ describe('getCrossSectionPaths', () => {
       locale: 'en',
       isFallback: true,
       section: 'hackathon'
+    })
+  })
+
+  it("does not borrow another section's translation for the same slug", async () => {
+    const paths = await getCrossSectionPaths('hackathon', 'es', 'page')
+
+    // The foundation ES entry localizes the slug `faq`. The hackathon route
+    // must not pick it up and serve /es/hackathon/preguntas.
+    expect(paths[0].params.page).toBe('faq')
+  })
+
+  it('uses its own section translation when there is one', async () => {
+    const paths = await getCrossSectionPaths('foundation', 'es', 'page')
+
+    expect(paths).toHaveLength(1)
+    expect(paths[0].params.page).toBe('preguntas')
+    expect(paths[0].props).toMatchObject({
+      locale: 'es',
+      isFallback: false,
+      section: 'foundation'
     })
   })
 })
