@@ -220,7 +220,7 @@
     }
   ],
   "ctaButton": {
-    "label": "Support us",
-    "href": "/summit"
+    "label": "Hackathons",
+    "href": "/hackathon/overview"
   }
 }
