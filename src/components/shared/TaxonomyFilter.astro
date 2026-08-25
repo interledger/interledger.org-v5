@@ -8,6 +8,7 @@ import {
   ALL_TERM_SLUG
 } from '@/utils'
 import type { Locale, TaxonomyCollection } from '@/utils'
+import PillLink from './PillLink.astro'
 interface Props {
   collection: TaxonomyCollection
   terms: string[]
@@ -36,16 +37,6 @@ const allHref = getTermUrl(
   contentLangOverride
 )
 
-const linkClasses = `
-  inline-block py-xs px-sm text-body-sm-standard text-neutral-100 
-  rounded-full no-underline border border-neutral-50 transition-all duration-200
-  hover:text-neutral-150 hover:border-neutral-75 
-  focus-visible:outline-none focus-visible:border-link
-  [&[aria-current='page']]:text-link [&[aria-current='page']]:border-2 [&[aria-current='page']]:border-link
-  [&[aria-disabled='true']]:text-neutral-50 [&[aria-disabled='true']]:cursor-not-allowed 
-  [&[aria-disabled='true']]:hover:border-neutral-50 [&[aria-disabled='true']]:hover:text-neutral-50
-`
-
 const filterAttrs = (linkText: string, href?: string) =>
   buildUmamiAttrs({
     pathname: Astro.url.pathname,
@@ -63,14 +54,13 @@ const filterAttrs = (linkText: string, href?: string) =>
   class="flex flex-wrap gap-x-xs gap-y-md list-none m-0 p-0 [&_li]:m-0 [&_li]:bg-neutral-0"
 >
   <li>
-    <a
+    <PillLink
       href={allHref}
-      class={linkClasses}
-      aria-current={!selectedTerm ? 'page' : undefined}
+      active={!selectedTerm}
       {...filterAttrs(t('blog.filter.all'), allHref)}
     >
       {t(taxonomy.allLabelKey)}
-    </a>
+    </PillLink>
   </li>
   {
     terms.map((term) => {
@@ -83,15 +73,14 @@ const filterAttrs = (linkText: string, href?: string) =>
 
       return (
         <li>
-          <a
+          <PillLink
             href={termHref}
-            class={linkClasses}
-            aria-current={isActive ? 'page' : undefined}
-            aria-disabled={!isEnabled ? 'true' : undefined}
+            active={isActive}
+            disabled={!isEnabled}
             {...(isEnabled ? filterAttrs(label, termHref) : {})}
           >
             {label}
-          </a>
+          </PillLink>
         </li>
       )
     })
