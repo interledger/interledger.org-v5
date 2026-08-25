@@ -33,4 +33,20 @@ Interledger is a stack of open protocols that work in layers, modeled on the arc
 
 Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
 
+### Transport Protocols (STREAM)
+
+Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
+
+### The Interledger Protocol (ILP)
+
+Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
+
+### Link Layer Protocols
+
+Provide two-way authenticated communication between account holders or their financial service providers.
+
+### Ledgers and Payment Systems
+
+The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
+
 </SplitLayout>
