@@ -46,7 +46,7 @@ if (!entry) throw new Error(`Profile not found: ${slug} (${contentLocale})`)
 const { Content: MdxContent } = await render(entry)
 const { name, photo, photoAlt, tagline, role, cta, description } = entry.data
 
-const isHackathon = entry.data.section === 'hackathon'
+const isHackathon = section === 'hackathon'
 const title = isHackathon ? name : `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
@@ -63,13 +63,13 @@ const avatarSizeClass =
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
-  entry.data.section,
+  section,
   name,
   routeLocale,
   t('nav.home')
 )
 
-const Layout = getSectionPageLayout(entry.data.section)
+const Layout = getSectionPageLayout(section)
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 const textColorClass = isHackathon ? 'text-neutral-0' : 'text-neutral-900'
 const nameClass = `text-h2 ${textColorClass} tablet:text-h2-md desktop:text-h2-lg`
