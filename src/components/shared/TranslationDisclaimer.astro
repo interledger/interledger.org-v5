@@ -1,29 +1,21 @@
 ---
+import Icon from '@/components/shared/Icon.astro'
+
 interface Props {
   isVisible?: boolean
   style?: 'foundation' | 'summit'
 }
 
 const { routeLocale } = Astro.locals
-const { isVisible = false, style = 'foundation' } = Astro.props
+const { isVisible = false } = Astro.props
 const spanishDisclaimer = 'Esta página aún no está disponible en español.'
-
-const styleClass = {
-  foundation: 'text-primary',
-  summit: 'text-white/80'
-}[style]
 ---
 
 {
   isVisible && routeLocale === 'es' && (
-    <section class="py-xl">
-      <div class="mx-auto w-full max-w-wide px-2xl">
-        <p
-          class={`translation-disclaimer max-w-fit px-xl py-s text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg ${styleClass}`}
-        >
-          {spanishDisclaimer}
-        </p>
-      </div>
-    </section>
+    <p class="mb-0 inline-flex max-w-full shrink-0 items-center gap-sm rounded-full bg-ice-mint-100 px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100">
+      <Icon name="language" class="size-4 shrink-0" />
+      {spanishDisclaimer}
+    </p>
   )
 }

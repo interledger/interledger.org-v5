@@ -4,26 +4,28 @@ import GrantOverviewPage from './GrantOverviewPage.astro'
 import GrantPage from './GrantPage.astro'
 import ProfileDetailPage from './ProfileDetailPage.astro'
 import ReportPage from './ReportPage.astro'
-import type { Locale } from '@/utils'
+import type { Locale, SiteSection } from '@/utils'
 
 interface Props {
   kind: string
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  section?: SiteSection
 }
 
-const { kind, slug, contentLocale, isFallback } = Astro.props
+const { kind, slug, contentLocale, isFallback, section } = Astro.props
 const commonProps = { slug, contentLocale, isFallback }
+const sectionEntryProps = { ...commonProps, section }
 ---
 
 {
   kind === 'profile' ? (
-    <ProfileDetailPage {...commonProps} />
+    <ProfileDetailPage {...sectionEntryProps} />
   ) : kind === 'faq' ? (
-    <FaqPage {...commonProps} />
+    <FaqPage {...sectionEntryProps} />
   ) : kind === 'report' ? (
-    <ReportPage {...commonProps} />
+    <ReportPage {...sectionEntryProps} />
   ) : kind === 'grant-page' ? (
     <GrantPage {...commonProps} />
   ) : kind === 'grant-overview-page' ? (

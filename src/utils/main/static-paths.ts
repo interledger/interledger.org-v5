@@ -116,6 +116,7 @@ type CrossSectionPath = {
     locale: Locale
     isFallback: boolean
     kind: CrossSectionKind
+    section: SiteSection
   }
 }
 
@@ -124,11 +125,12 @@ function toCrossSectionPath(
   slug: string,
   locale: Locale,
   isFallback: boolean,
-  kind: CrossSectionKind
+  kind: CrossSectionKind,
+  section: SiteSection
 ): CrossSectionPath {
   return {
     params: { [paramName]: slug },
-    props: { slug, locale, isFallback, kind }
+    props: { slug, locale, isFallback, kind, section }
   }
 }
 
@@ -164,7 +166,8 @@ async function getSectionFilteredPaths(
         routeSegmentForCollection(e.data),
         defaultLocale,
         false,
-        kind
+        kind,
+        section
       )
     )
   }
@@ -183,9 +186,17 @@ async function getSectionFilteredPaths(
           routeSegmentForCollection(localizedEntry.data),
           lang,
           false,
-          kind
+          kind,
+          section
         )
-      : toCrossSectionPath(paramName, enSlug, defaultLocale, true, kind)
+      : toCrossSectionPath(
+          paramName,
+          enSlug,
+          defaultLocale,
+          true,
+          kind,
+          section
+        )
   })
 }
 

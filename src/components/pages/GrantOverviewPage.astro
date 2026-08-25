@@ -82,8 +82,6 @@ const breadcrumbs = [
   canonicalURL={canonicalUrl}
 >
   <main class="pb-3xl">
-    <TranslationDisclaimer isVisible={isFallback} />
-
     <PageHero
       title={heroTitle ?? title}
       description={heroDescription ?? description}
@@ -94,7 +92,9 @@ const breadcrumbs = [
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
       imageBand="default"
-    />
+    >
+      <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
+    </PageHero>
 
     {
       hasBody && (
