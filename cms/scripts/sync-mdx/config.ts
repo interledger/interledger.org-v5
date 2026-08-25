@@ -159,6 +159,9 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'profiles'),
       apiId: 'profile-pages',
       schema: profileFrontmatterSchema,
+      // Same section-relative pathSlug as faqs: a hackathon speaker and a
+      // foundation fellow could both be `speakers/jane-doe` (INTORG-1132).
+      sectionScopedIdentity: true,
       buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
         return buildProfilePayload(
@@ -184,10 +187,7 @@ export function buildContentTypes(
       apiId: 'faqs',
       schema: faqFrontmatterSchema,
       // The foundation FAQ and the hackathon FAQ both use pathSlug 'faq'
-      // (INTORG-1132). profiles and reports carry the same section-relative
-      // pathSlug and share the latent bug, but they do not collide today.
-      // Switching their identity needs a dry run against the live Strapi
-      // first, so they stay keyed on pathSlug alone for now.
+      // (INTORG-1132).
       sectionScopedIdentity: true,
       // faqSections is fully specified frontmatter — no MDX body, relation,
       // or media resolution needed.
@@ -197,6 +197,8 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'reports'),
       apiId: 'reports',
       schema: reportFrontmatterSchema,
+      // Same section-relative pathSlug as faqs (INTORG-1132).
+      sectionScopedIdentity: true,
       buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
         // Report content blocks don't resolve relations/media, but

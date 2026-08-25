@@ -25,6 +25,17 @@ export interface StrapiClient {
     locale?: string,
     section?: string | null
   ) => Promise<StrapiEntry | undefined | Error>
+  /**
+   * Every entry matching a pathSlug, so a caller that has no section can tell
+   * "one match" from "several". Relations are referenced by pathSlug alone
+   * (ProfileCard has no section prop), and picking the first of several would
+   * silently link the wrong entry.
+   */
+  findAllByPathSlug: (
+    apiId: string,
+    pathSlug: string,
+    locale?: string
+  ) => Promise<StrapiEntry[] | Error>
   /** Look up a Strapi upload file by URL. Returns the file's integer ID, null if absent, or Error on transport failure. */
   findUploadByUrl: (url: string) => Promise<number | null | Error>
   /** Update the alternativeText (alt text) on a Strapi upload file record. */
@@ -174,6 +185,28 @@ export function createStrapiClient({
     })
   }
 
+  /**
+   * Encode the filter values. Nothing restricts the characters in a pathSlug
+   * beyond trimming slashes, so a raw `&` or `#` would split the query string
+   * or truncate it. Slashes survive as %2F, which Strapi decodes back, so a
+   * nested slug still resolves.
+   */
+  function pathSlugQuery(
+    apiId: string,
+    pathSlug: string,
+    locale?: string,
+    section?: string | null
+  ): string {
+    let endpoint = `${apiId}?filters[pathSlug][$eq]=${encodeURIComponent(pathSlug)}`
+    if (section) {
+      endpoint += `&filters[section][$eq]=${encodeURIComponent(section)}`
+    }
+    if (locale) {
+      endpoint += `&locale=${encodeURIComponent(locale)}`
+    }
+    return endpoint
+  }
+
   async function findByPathSlug(
     apiId: string,
     pathSlug: string,
@@ -181,19 +214,21 @@ export function createStrapiClient({
     section?: string | null
   ): Promise<StrapiEntry | undefined | Error> {
     return tryCatchAsync(async () => {
-      // Encode the filter values. Nothing restricts the characters in a
-      // pathSlug beyond trimming slashes, so a raw `&` or `#` would split the
-      // query string or truncate it. Slashes survive as %2F, which Strapi
-      // decodes back, so a nested slug still resolves.
-      let endpoint = `${apiId}?filters[pathSlug][$eq]=${encodeURIComponent(pathSlug)}`
-      if (section) {
-        endpoint += `&filters[section][$eq]=${encodeURIComponent(section)}`
-      }
-      if (locale) {
-        endpoint += `&locale=${encodeURIComponent(locale)}`
-      }
+      const endpoint = pathSlugQuery(apiId, pathSlug, locale, section)
       const data = (await request(endpoint)) as { data: StrapiEntry[] }
       return data.data?.[0]
+    })
+  }
+
+  async function findAllByPathSlug(
+    apiId: string,
+    pathSlug: string,
+    locale?: string
+  ): Promise<StrapiEntry[] | Error> {
+    return tryCatchAsync(async () => {
+      const endpoint = pathSlugQuery(apiId, pathSlug, locale)
+      const data = (await request(endpoint)) as { data: StrapiEntry[] }
+      return data.data ?? []
     })
   }
 
@@ -391,6 +426,7 @@ export function createStrapiClient({
       tryCatchAsync(() => request(endpoint, options)),
     getAllEntries,
     findByPathSlug,
+    findAllByPathSlug,
     findUploadByUrl,
     updateUploadAlt,
     findUploadByName,

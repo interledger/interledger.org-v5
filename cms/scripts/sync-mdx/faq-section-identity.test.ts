@@ -142,18 +142,49 @@ function realFaqFiles() {
 }
 
 function faqContentTypes(sectionScopedIdentity: boolean): ContentTypes {
+  const buildPayload = vi.fn(async (mdx) => ({
+    title: mdx.frontmatter.title,
+    pathSlug: mdx.pathSlug,
+    section: mdx.section
+  }))
   return {
     faqs: {
       dir: '/content/faqs',
       apiId: 'faqs',
       sectionScopedIdentity,
-      buildPayload: vi.fn(async (mdx) => ({
-        title: mdx.frontmatter.title,
-        pathSlug: mdx.pathSlug,
-        section: mdx.section
-      }))
+      buildPayload
+    },
+    profiles: {
+      dir: '/content/profiles',
+      apiId: 'profile-pages',
+      sectionScopedIdentity,
+      buildPayload
     }
   } as unknown as ContentTypes
+}
+
+/**
+ * A hackathon speaker and a foundation fellow under one pathSlug. Profiles
+ * carry the same section-relative pathSlug as faqs, so they need the same
+ * treatment even though nothing collides in the repo today.
+ */
+function collidingProfiles() {
+  return [
+    createMdxFile({
+      file: 'speakers-jane-doe.mdx',
+      filepath: '/content/profiles/speakers-jane-doe.mdx',
+      pathSlug: 'speakers/jane-doe',
+      section: 'foundation',
+      frontmatter: { title: 'Jane Doe, fellow' }
+    }),
+    createMdxFile({
+      file: 'hackathon-speakers-jane-doe.mdx',
+      filepath: '/content/profiles/hackathon-speakers-jane-doe.mdx',
+      pathSlug: 'speakers/jane-doe',
+      section: 'hackathon',
+      frontmatter: { title: 'Jane Doe, speaker' }
+    })
+  ]
 }
 
 beforeEach(() => {
@@ -217,6 +248,21 @@ describe('faq sync with section-scoped identity', () => {
     expect(second.deleted).toBe(0)
     expect(strapi.deleteEntry).not.toHaveBeenCalled()
     expect(entries).toHaveLength(3)
+  })
+
+  it('keeps two profiles that share a pathSlug across sections apart', async () => {
+    const { strapi, entries } = createFakeStrapi()
+    const ctx: SyncContext = { contentTypes: faqContentTypes(true), strapi }
+    scanned.files = collidingProfiles()
+
+    const results = await syncContentType('profiles', ctx, false)
+
+    expect(results.errors).toBe(0)
+    expect(results.created).toBe(2)
+    expect(entries.map((e) => e.title).sort()).toEqual([
+      'Jane Doe, fellow',
+      'Jane Doe, speaker'
+    ])
   })
 
   // The pre-fix behavior, kept as a guard: without section in the identity the

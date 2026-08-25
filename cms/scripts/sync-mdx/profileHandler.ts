@@ -54,8 +54,24 @@ export function createRelationResolver(
   dryRunPathSlugs?: Set<string>
 ): (apiId: string, pathSlug: string) => Promise<{ documentId: string }> {
   return async (apiId: string, pathSlug: string) => {
-    const entry = await strapi.findByPathSlug(apiId, pathSlug, locale)
-    if (entry instanceof Error) throw entry
+    const matches = await strapi.findAllByPathSlug(apiId, pathSlug, locale)
+    if (matches instanceof Error) throw matches
+
+    // A relation names a pathSlug and nothing else, but pathSlug on a
+    // cross-section type is section-relative, so it can match more than one
+    // entry (INTORG-1132). Picking the first would silently link whichever
+    // Strapi happened to return, so refuse and say which sections collide.
+    if (matches.length > 1) {
+      const sections = matches
+        .map((m) => (m.section as string | undefined) ?? 'no section')
+        .join(', ')
+      throw new MdxParserError({
+        code: ParserErrorCode.UNRESOLVED_RELATION,
+        message: `pathSlug "${pathSlug}" matches ${matches.length} "${apiId}" entries in locale "${locale}" (sections: ${sections}). A relation cannot say which one it means, so give them distinct pathSlug values.`
+      })
+    }
+
+    const entry = matches[0]
     if (entry) return { documentId: entry.documentId }
 
     // Strapi rejects connecting an EN-only document into a non-EN entry.

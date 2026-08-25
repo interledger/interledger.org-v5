@@ -85,3 +85,43 @@ describe('findByPathSlug', () => {
     expect(params.get('filters[pathSlug][$eq]')).toBe('a b#c')
   })
 })
+
+describe('findAllByPathSlug', () => {
+  const client = () =>
+    createStrapiClient({ baseUrl: 'http://strapi.test', token: 't' })
+
+  it('never filters by section, so every section shows up', async () => {
+    await client().findAllByPathSlug('profile-pages', 'speakers/jane-doe', 'en')
+
+    const params = new URLSearchParams(requestedQuery(fetchMock))
+    expect(params.get('filters[pathSlug][$eq]')).toBe('speakers/jane-doe')
+    expect(params.has('filters[section][$eq]')).toBe(false)
+  })
+
+  it('returns every match so a caller can spot an ambiguous slug', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            data: [
+              { documentId: 'a', pathSlug: 'faq', section: 'foundation' },
+              { documentId: 'b', pathSlug: 'faq', section: 'hackathon' }
+            ]
+          })
+      }))
+    )
+
+    const result = await client().findAllByPathSlug('faqs', 'faq', 'en')
+
+    expect(Array.isArray(result) && result).toHaveLength(2)
+  })
+
+  it('returns an empty array when nothing matches', async () => {
+    const result = await client().findAllByPathSlug('faqs', 'ghost', 'en')
+
+    expect(result).toEqual([])
+  })
+})

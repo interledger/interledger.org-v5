@@ -176,6 +176,18 @@ export function registerAsyncDocumentValidation(
   })
 }
 
+/**
+ * Content types whose `pathSlug` is relative to their `section`, so the slug
+ * alone does not identify an entry. Keep in step with `sectionScopedIdentity`
+ * in cms/scripts/sync-mdx/config.ts: the sync and the admin have to agree on
+ * what makes two entries the same one.
+ */
+const SECTION_SCOPED_SLUG_UIDS = [
+  'api::faq.faq',
+  'api::profile-page.profile-page',
+  'api::report.report'
+] as const
+
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
   findMany: (options: Record<string, unknown>) => Promise<unknown[]>
@@ -2294,17 +2306,19 @@ export default {
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
       validateFaqSections(body)
     )
-    // pathSlug on a FAQ is relative to its Section, so it cannot carry a plain
-    // `unique` constraint: /faq and /hackathon/faq are both `faq`
-    // (INTORG-1132). Enforce the real rule instead, unique per Section.
-    registerAsyncDocumentValidation(strapi, 'api::faq.faq', (args) =>
-      validateSectionScopedSlug({
-        documents: strapi.documents(
-          'api::faq.faq'
-        ) as unknown as SectionScopedSlugFinder,
-        ...args
-      })
-    )
+    // pathSlug on these three is relative to its Section, so none of them can
+    // carry a plain `unique` constraint: /faq and /hackathon/faq are both
+    // `faq` (INTORG-1132). Enforce the real rule instead, unique per Section.
+    for (const uid of SECTION_SCOPED_SLUG_UIDS) {
+      registerAsyncDocumentValidation(strapi, uid, (args) =>
+        validateSectionScopedSlug({
+          documents: strapi.documents(
+            uid
+          ) as unknown as SectionScopedSlugFinder,
+          ...args
+        })
+      )
+    }
     registerDocumentValidation(
       strapi,
       'api::foundation-page.foundation-page',
