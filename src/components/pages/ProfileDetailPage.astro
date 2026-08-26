@@ -51,6 +51,10 @@ const title = isHackathon ? name : `${name} | Interledger Foundation`
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
 const hasBody = Boolean(entry.body?.trim())
+const hasIntro = Boolean(description || hasCta)
+const dividerClass = isHackathon
+  ? 'm-0 mb-2xl border-0 border-t border-neutral-75'
+  : 'm-0 mb-2xl border-0 border-t border-neutral-25'
 const colorIndex = await getProfileColorIndex(
   entry.data.pathSlug,
   contentLocale
@@ -151,6 +155,11 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
               <Icon name="arrow-right" slot="icon-right" />
             </LinkButton>
           </div>
+        )
+      }
+      {
+        hasIntro && hasBody && (
+          <hr class={dividerClass} />
         )
       }
       {
