@@ -23,6 +23,7 @@ export const buttonVariants = cva(
     'inline-flex items-center justify-center',
     'font-poppins text-body-sm-standard',
     'rounded-lg select-none cursor-pointer no-underline hover:no-underline',
+    '[-webkit-tap-highlight-color:transparent]',
     'motion-safe:transition motion-safe:duration-200',
     'disabled:cursor-not-allowed aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none'
   ],
@@ -50,17 +51,20 @@ export const buttonVariants = cva(
         // Footer ghost button. Inline text-with-padding link, no fill, no
         // border by default. Mobile uses h4 typography + black text;
         // tablet/desktop step down to body-sm-standard + neutral-75. Hover
-        // deepens to black. The "active" state in Figma is the
-        // currently-on-this-page indicator for a footer nav link, surfaced
-        // via aria-current="page" (not the CSS :active pseudoclass).
+        // deepens to black, but only for hover-capable pointers — a tap on
+        // touch would otherwise stick :hover and look blacked-out (INTORG-1140).
+        // `:visited` is pinned to the same colours: UA visited styles beat a
+        // single utility class and turn internal footer links near-black.
+        // The "active" state in Figma is the currently-on-this-page
+        // indicator, surfaced via aria-current="page" (not :active).
         // Focus draws a 1px orchid-100 border; the transparent default
         // border keeps layout stable. Disabled state is not in Figma.
         ghost: [
           'bg-transparent border border-transparent',
-          'text-h4 text-neutral-900',
-          'tablet:text-body-sm-standard tablet:text-neutral-75',
-          'hover:text-neutral-900',
-          'aria-[current=page]:text-orchid-100',
+          'text-h4 text-neutral-900 visited:text-neutral-900',
+          'tablet:text-body-sm-standard tablet:text-neutral-75 tablet:visited:text-neutral-75',
+          '[@media(hover:hover)]:hover:text-neutral-900',
+          'aria-[current=page]:text-orchid-100 aria-[current=page]:visited:text-orchid-100',
           // The 1px orchid border is the entire focus indicator;
           // suppress the browser's default blue focus ring.
           'focus-visible:border-orchid-100 focus-visible:outline-none'
@@ -106,10 +110,10 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'light',
         class: [
-          'border-neutral-75 text-neutral-100',
+          'border-neutral-75 text-neutral-100 visited:text-neutral-100',
           // Hover: border colour darkens to black and text deepens to black.
-          // Fill stays transparent.
-          'hover:border-neutral-900 hover:text-neutral-900',
+          // Fill stays transparent. Hover-media so a tap does not stick black.
+          '[@media(hover:hover)]:hover:border-neutral-900 [@media(hover:hover)]:hover:text-neutral-900',
           // Focus uses the "filled + 2px contrast inset" pattern. Outline
           // (with -2px offset) stands in for Figma's 2px border so the
           // 1px default border doesn't trigger a layout shift on focus.
@@ -123,9 +127,9 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'dark',
         class: [
-          'border-neutral-75 text-neutral-25',
+          'border-neutral-75 text-neutral-25 visited:text-neutral-25',
           // Hover: border colour only changes to white; bg and text stay put.
-          'hover:border-neutral-0',
+          '[@media(hover:hover)]:hover:border-neutral-0',
           // Focus: neutral-75 fill, 2px white inset, white text.
           'focus-visible:bg-neutral-75 focus-visible:text-neutral-0',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-0',
@@ -140,8 +144,8 @@ export const buttonVariants = cva(
         variant: 'secondary',
         mode: 'auto',
         class: [
-          'border-neutral-50 text-neutral-100',
-          'hover:border-neutral-900 hover:text-neutral-900',
+          'border-neutral-50 text-neutral-100 visited:text-neutral-100',
+          '[@media(hover:hover)]:hover:border-neutral-900 [@media(hover:hover)]:hover:text-neutral-900',
           'focus-visible:bg-neutral-25 focus-visible:text-neutral-900',
           'focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-2 focus-visible:outline-neutral-900',
           'disabled:border-neutral-50 disabled:text-neutral-50',
@@ -151,8 +155,8 @@ export const buttonVariants = cva(
           // measures 2.82:1 against neutral-150 and fails the 3:1 minimum for a
           // control boundary. neutral-50 measures 11.74:1 and matches the
           // hackathon prototype (INTORG-1083).
-          'dark:border-neutral-50 dark:text-neutral-25',
-          'dark:hover:border-neutral-0 dark:hover:text-neutral-0',
+          'dark:border-neutral-50 dark:text-neutral-25 dark:visited:text-neutral-25',
+          '[@media(hover:hover)]:dark:hover:border-neutral-0 [@media(hover:hover)]:dark:hover:text-neutral-0',
           'dark:focus-visible:bg-neutral-75 dark:focus-visible:text-neutral-0',
           'dark:focus-visible:outline-neutral-0',
           'dark:disabled:border-neutral-100 dark:disabled:text-neutral-75',

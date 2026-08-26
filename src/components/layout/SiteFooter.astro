@@ -79,7 +79,7 @@ const isHackathonSite = site === 'hackathon'
 
 const footerExternalLinkIconClass = 'size-4 shrink-0 translate-y-[-1px]'
 const footerLogoLinkClass =
-  'inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none'
+  'inline-block rounded-sm text-neutral-100 visited:text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none [-webkit-tap-highlight-color:transparent]'
 const navigationUlClass = twMerge(
   'm-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6',
   isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : ''
