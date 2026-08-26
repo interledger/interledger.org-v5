@@ -36,9 +36,14 @@ Interledger is a stack of open protocols that work in layers, modeled on the arc
 />
 
 <CardGrid ariaLabel="A grid of cards that give an overview of each layer of the Interledger Tech Stack." variant="Title" columns="Three">
-<TitleCard heading="Application Protocols (Open Payments and Simple Payments Setup Protocol)" buttonUrl="/open-payments" buttonText="Explore Open Payments" buttonExternal={false}>
+<TitleCard heading="Application Protocols (Open Payments and Simple Payments Setup Protocol)" buttonUrl="/tech/open-payments" buttonText="Explore Open Payments" buttonExternal={false}>
 
 Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
+
+</TitleCard>
+<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="https://interledger.org/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={true}>
+
+Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
 
 </TitleCard>
 </CardGrid>
