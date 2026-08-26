@@ -343,7 +343,7 @@ export const ui = {
     'not_found.card1_title': 'Explore our Grants',
     'not_found.card1_description':
       'Explore grant opportunities, from tech innovation and education, to research, policy and local impact.',
-    'not_found.card1_cta': 'Our Grant-making',
+    'not_found.card1_cta': 'Our Grantmaking',
     'not_found.card2_title': 'Build on open tech',
     'not_found.card2_description':
       'Explore our standards, protocol, and developer tools, and join our community of testers and builders.',
