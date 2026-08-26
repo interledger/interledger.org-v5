@@ -76,4 +76,29 @@ describe('code-block serializer', () => {
     expect(result).toContain('title="hello.py"')
     expect(result).toContain('def hello()')
   })
+
+  it('pads continuation lines by 2 spaces to offset the MDX attribute-template-literal indentation strip', () => {
+    // MDX strips a fixed 2 columns of leading whitespace from every
+    // continuation line of a `code={`...`}` JSX attribute template literal.
+    // The serializer must compensate so the rendered code keeps its original
+    // indentation; the first line is untouched since it isn't a continuation
+    // line (it shares a physical line with the opening backtick).
+    const result = serialize({
+      code: 'def hello():\n    print("world")\n\n    return 1',
+      language: 'python'
+    })
+
+    expect(result).toContain(
+      'def hello():\n      print("world")\n\n      return 1'
+    )
+  })
+
+  it('does not pad blank continuation lines', () => {
+    const result = serialize({
+      code: 'const x = 1\n\nconst y = 2',
+      language: 'javascript'
+    })
+
+    expect(result).toContain('const x = 1\n\n  const y = 2')
+  })
 })

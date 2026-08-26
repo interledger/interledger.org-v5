@@ -27,6 +27,19 @@ export const escDouble = (v: string): string =>
 export const escSingle = (v: string): string =>
   v ? escapeForAttr(v).replace(/'/g, '&#39;') : ''
 
+// MDX (`@mdx-js/mdx` v3) strips a fixed 2 columns of leading whitespace from
+// every continuation line of a multi-line template literal used as a JSX
+// attribute value (e.g. `code={`...`}`), regardless of that line's actual
+// indentation. Prepending 2 spaces to every non-blank continuation line
+// exactly cancels the strip: max(0, (n + 2) - 2) === n for any n >= 0. The
+// first line is untouched — it shares a physical source line with the
+// opening backtick, so MDX doesn't treat it as a continuation line.
+export const padMdxAttrTemplateLiteral = (code: string): string =>
+  code
+    .split('\n')
+    .map((line, i) => (i > 0 && line.trim().length > 0 ? `  ${line}` : line))
+    .join('\n')
+
 export const escMdxBraces = (v: string): string =>
   v ? v.trim().replace(/\{/g, '\\{').replace(/\}/g, '\\}') : ''
 
