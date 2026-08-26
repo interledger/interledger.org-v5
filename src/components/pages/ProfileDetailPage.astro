@@ -157,11 +157,7 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
           </div>
         )
       }
-      {
-        hasIntro && hasBody && (
-          <hr class={dividerClass} />
-        )
-      }
+      {hasIntro && hasBody && <hr class={dividerClass} />}
       {
         hasBody && (
           <section
