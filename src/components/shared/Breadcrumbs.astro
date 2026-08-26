@@ -50,7 +50,7 @@ function getLinkClasses(): string {
 }
 
 function getCurrentClasses(isLast: boolean): string {
-  const base = `${crumbPaddingClass} text-body-lg-standard text-link dark:text-tangerine-100`
+  const base = `${crumbPaddingClass} text-body-lg-standard text-link`
   if (isLast) {
     return `${base} block min-w-0 flex-1 truncate`
   }
