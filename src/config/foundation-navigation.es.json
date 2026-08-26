@@ -1,79 +1,69 @@
 {
   "mainMenu": [
     {
-      "label": "Acerca de",
+      "label": "About",
       "items": [
         {
-          "label": "Nuestra historia",
-          "href": "/about-us"
+          "label": "Our Journey",
+          "href": "/es/about-us"
         },
         {
-          "label": "Cómo funciona Interledger",
-          "href": "/how-interledger-works"
+          "label": "How Interledger Works",
+          "href": "/es/how-interledger-works"
         },
         {
-          "label": "Nuestro equipo",
-          "href": "/team"
+          "label": "Our Team",
+          "href": "/es/team"
         },
         {
-          "label": "Política e incidencia",
-          "href": "/policy-and-advocacy"
+          "label": "Policy & Advocacy",
+          "href": "/es/policy-and-advocacy"
         }
       ]
     },
     {
-      "label": "Tecnología",
+      "label": "Tech",
       "subGroups": [
         {
-          "label": "Nuestra tecnología",
+          "label": "Our Technology",
           "items": [
             {
-              "label": "Tecnología Interledger",
-              "href": "/interledger"
+              "label": "Interledger Tech",
+              "href": "/es/tech/overview"
             },
             {
-              "label": "Únete a la red",
-              "href": "/join-network"
+              "label": "Developer Portal",
+              "href": "/es/tech/dev-portal/"
             }
           ]
         },
         {
-          "label": "Estándares",
+          "label": "Standards",
           "items": [
             {
-              "label": "ILP",
-              "href": "/interledger-protocol"
+              "label": "Interledger Protocol",
+              "href": "/es/tech/interledger-protocol"
             },
             {
               "label": "Open Payments",
-              "href": "/open-payments"
+              "href": "/es/tech/open-payments"
             },
             {
               "label": "Web Monetization",
-              "href": "/web-monetization"
+              "href": "/es/tech/web-monetization"
             }
           ]
         },
         {
-          "label": "Herramientas y productos",
+          "label": "Tools & Products",
           "items": [
             {
               "label": "Rafiki",
-              "href": "https://rafiki.dev/",
-              "openInNewTab": true
+              "href": "/es/tech/rafiki"
             },
             {
-              "label": "Wallet",
-              "href": "https://wallet.interledger-test.dev/",
-              "openInNewTab": true
-            },
-            {
-              "label": "Tarjetas",
-              "href": "/cards"
-            },
-            {
-              "label": "Herramientas de prueba",
-              "href": "/test-tools"
+              "label": "Test Tools",
+              "href": "/es/tech/test-tools"
             },
             {
               "label": "Web Monetization",
@@ -85,132 +75,132 @@
       ]
     },
     {
-      "label": "Subvenciones",
+      "label": "Grants",
       "subGroups": [
         {
-          "label": "Nuestras subvenciones",
+          "label": "Our Grantmaking",
           "items": [
             {
-              "label": "Descripción general",
-              "href": "/grant"
+              "label": "Overview",
+              "href": "/es/grant/our-grantmaking"
             },
             {
-              "label": "Directorio de beneficiarios",
-              "href": "/grant/grantee-directory"
+              "label": "Grantee Directory",
+              "href": "/es/grant/grantee-directory"
             }
           ]
         },
         {
-          "label": "Subvenciones educativas",
+          "label": "Education Grants",
           "items": [
             {
-              "label": "Descripción general",
-              "href": "/grant/education"
+              "label": "Overview",
+              "href": "/es/grant/education"
             },
             {
               "label": "NextGen",
-              "href": "/grant/education/on-campus"
+              "href": "/es/grant/education/next-gen"
             },
             {
-              "label": "Interledger en el campus",
-              "href": "/grant/education/next-gen"
+              "label": "Interledger on Campus",
+              "href": "/es/grant/education/on-campus"
             }
           ]
         },
         {
-          "label": "Subvenciones de innovación",
+          "label": "Innovation Grants",
           "items": [
             {
-              "label": "Descripción general",
-              "href": "/grant/innovation"
+              "label": "Overview",
+              "href": "/es/grant/innovation"
             },
             {
-              "label": "Servicios financieros digitales",
-              "href": "/grant/innovation/financial-services"
+              "label": "Digital Financial Services",
+              "href": "/es/grant/innovation/financial-services"
             },
             {
               "label": "Open Payments Accelerator",
-              "href": "/grant/innovation/accelerator"
+              "href": "/es/grant/innovation/accelerator"
             },
             {
               "label": "Open Payments SDK",
-              "href": "/grant/innovation/sdk"
+              "href": "/es/grant/innovation/sdk"
             },
             {
               "label": "Grant for the Web",
-              "href": "/grant/innovation/grant-web"
+              "href": "/es/grant/innovation/grant-web"
             }
           ]
         },
         {
-          "label": "Subvenciones de incidencia",
+          "label": "Advocacy Grants",
           "items": [
             {
-              "label": "Subvenciones de investigación",
-              "href": "/grant/call-for-papers"
+              "label": "Research Grants",
+              "href": "/es/grant/call-for-papers"
             },
             {
-              "label": "Subvenciones de política",
-              "href": "/grant/public-policy-activation"
+              "label": "Policy Grants",
+              "href": "/es/grant/public-policy-activation"
             },
             {
-              "label": "Becas",
-              "href": "/grant/fellowship"
+              "label": "Fellowships",
+              "href": "/es/grant/fellowship"
+            },
+            {
+              "label": "Local Impact Grants",
+              "href": "/es/grant/local-impact-grant"
             }
           ]
         }
       ]
     },
     {
-      "label": "Aprender",
+      "label": "Learn",
       "items": [
         {
           "label": "Blog",
-          "href": "/blog"
+          "href": "/es/blog"
         },
         {
           "label": "Podcasts",
-          "href": "/podcast"
+          "href": "/es/podcast"
         },
         {
-          "label": "Investigación e informes",
-          "href": "/research-and-reports"
+          "label": "Research & Reports",
+          "href": "/es/research-and-reports"
         }
       ]
     },
     {
-      "label": "Participa",
+      "label": "Get Involved",
       "subGroups": [
         {
-          "label": "Eventos",
+          "label": "Events",
           "items": [
             {
-              "label": "Calendario",
-              "href": "/events"
+              "label": "Calendar",
+              "href": "/es/events"
             },
             {
               "label": "Interledger Summit",
-              "href": "/summit"
+              "href": "/es/summit"
             },
             {
               "label": "Hackathons",
-              "href": "/hackathon/overview"
+              "href": "/es/hackathon/overview"
             }
           ]
         },
         {
-          "label": "Únete a la comunidad",
+          "label": "Join the Community",
           "items": [
             {
-              "label": "Empieza aquí",
-              "href": "/community"
+              "label": "Start Here",
+              "href": "/es/community"
             },
             {
-              "label": "Apoya a Interledger",
-              "href": "/support-us"
-            },
-            {
-              "label": "Foro comunitario",
+              "label": "Community Forum",
               "href": "https://community.interledger.org/",
               "openInNewTab": true
             }
@@ -220,7 +210,7 @@
     }
   ],
   "ctaButton": {
-    "label": "Apóyanos",
-    "href": "/summit"
+    "label": "Hackathons",
+    "href": "/es/hackathon/overview"
   }
 }

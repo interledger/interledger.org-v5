@@ -149,7 +149,7 @@
             },
             {
               "label": "Local Impact Grants",
-              "href": "/local-impact-grant"
+              "href": "/grant/local-impact-grant"
             }
           ]
         }
@@ -198,10 +198,6 @@
             {
               "label": "Start Here",
               "href": "/community"
-            },
-            {
-              "label": "Support Interledger",
-              "href": "/support-us"
             },
             {
               "label": "Community Forum",
