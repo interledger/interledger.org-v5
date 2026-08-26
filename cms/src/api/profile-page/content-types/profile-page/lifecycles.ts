@@ -14,7 +14,7 @@ import {
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
   generateProfileMdx,
-  pathSlugToMdxFilename,
+  sectionScopedMdxFilename,
   PROFILE_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import type { ProfilePageBase } from '../../types'
@@ -33,7 +33,7 @@ export default createFlatLocaleMdxLifecycle<
   label: 'profile-page',
   getBaseDir: (locale) =>
     getContentPath(getTargetRepoRoot(), 'profiles', locale),
-  toMdxFilename: pathSlugToMdxFilename,
+  toMdxFilename: sectionScopedMdxFilename,
   generateContent: generateProfileMdx,
   populate: {
     media: { populate: { image: true } },

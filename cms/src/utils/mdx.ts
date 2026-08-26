@@ -56,6 +56,34 @@ export function pathSlugToMdxFilename(pathSlug: string): string {
   return pathSlug.replace(/^\/+|\/+$/g, '').replace(/\//g, '-')
 }
 
+/**
+ * The one section whose entries route from the site root, so their pathSlug
+ * is already the full path and needs no prefix.
+ */
+const ROOT_SECTION = 'foundation'
+
+/**
+ * Flat MDX filename stem for a cross-section entry (no extension).
+ *
+ * `pathSlug` on faqs, profiles and reports is relative to the `section` field,
+ * so two sections can hold the same slug and `pathSlugToMdxFilename` alone
+ * would send both to one file (INTORG-1132). The stem therefore mirrors the
+ * public URL: `foundation` routes from the root and takes no prefix, every
+ * other section is prefixed with its own name.
+ *
+ * ('faq', 'hackathon') -> 'hackathon-faq'
+ * ('faq', 'foundation') -> 'faq'
+ * ('grant/grantmaking-faq', 'foundation') -> 'grant-grantmaking-faq'
+ */
+export function sectionScopedMdxFilename(
+  pathSlug: string,
+  section?: string | null
+): string {
+  const slug = pathSlug.replace(/^\/+|\/+$/g, '')
+  const needsPrefix = Boolean(section) && section !== ROOT_SECTION
+  return pathSlugToMdxFilename(needsPrefix ? `${section}/${slug}` : slug)
+}
+
 /** Derive log label from Strapi UID: 'api::foundation-page.foundation-page' -> 'foundation-page' */
 export function uidToLogLabel(uid: string): string {
   const parts = uid.split('.')

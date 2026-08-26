@@ -7,6 +7,7 @@ import {
   htmlFieldToMarkdown,
   looksLikeHtmlField,
   pathSlugToMdxFilename,
+  sectionScopedMdxFilename,
   resolveFilenameSlug
 } from './mdx'
 
@@ -161,6 +162,38 @@ describe('pathSlugToMdxFilename', () => {
     expect(pathSlugToMdxFilename('/summit/2025/speakers/jane-doe/')).toBe(
       'summit-2025-speakers-jane-doe'
     )
+  })
+})
+
+describe('sectionScopedMdxFilename', () => {
+  // The bug in INTORG-1132: both FAQs are pathSlug 'faq', so the stem has to
+  // carry the section or the hackathon export overwrites faq.mdx.
+  it('gives the two FAQs different filenames', () => {
+    expect(sectionScopedMdxFilename('faq', 'foundation')).toBe('faq')
+    expect(sectionScopedMdxFilename('faq', 'hackathon')).toBe('hackathon-faq')
+  })
+
+  it('leaves foundation entries unprefixed, since they route from the root', () => {
+    expect(
+      sectionScopedMdxFilename('grant/grantmaking-faq', 'foundation')
+    ).toBe('grant-grantmaking-faq')
+  })
+
+  it('flattens a nested slug under its section prefix', () => {
+    expect(sectionScopedMdxFilename('2025/speakers/jane-doe', 'summit')).toBe(
+      'summit-2025-speakers-jane-doe'
+    )
+  })
+
+  // Leading and trailing slashes must not produce a doubled separator.
+  it('normalizes surrounding slashes before prefixing', () => {
+    expect(sectionScopedMdxFilename('/faq/', 'hackathon')).toBe('hackathon-faq')
+  })
+
+  it('falls back to the bare stem when there is no section', () => {
+    expect(sectionScopedMdxFilename('faq')).toBe('faq')
+    expect(sectionScopedMdxFilename('faq', null)).toBe('faq')
+    expect(sectionScopedMdxFilename('faq', '')).toBe('faq')
   })
 })
 

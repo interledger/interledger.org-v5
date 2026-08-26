@@ -52,8 +52,9 @@ const breadcrumbs = [
 
 <SummitPageLayout title={entry.title}>
   <main class="max-w-275 m-auto p-4">
-    <TranslationDisclaimer isVisible={isFallback} style="summit" />
-    <Breadcrumbs breadcrumbs={breadcrumbs} />
+    <Breadcrumbs breadcrumbs={breadcrumbs}>
+      <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    </Breadcrumbs>
     <article>
       <header class="mb-8">
         <h1>{title}</h1>

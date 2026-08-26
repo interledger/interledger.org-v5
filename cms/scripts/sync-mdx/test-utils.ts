@@ -10,6 +10,7 @@ export function createMdxFile(overrides: MdxFileOverrides = {}): MDXFile {
     file: 'test.mdx',
     filepath: '/content/test.mdx',
     pathSlug: 'test',
+    section: null,
     locale: 'en',
     frontmatter: {},
     content: '',

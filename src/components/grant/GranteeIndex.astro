@@ -1,0 +1,252 @@
+---
+import type { Grantee, GranteeFilterOption } from '@/utils'
+import { useTranslations, buildUmamiAttrs, getGranteeFilterUrl } from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
+import PillLink from '@/components/shared/PillLink.astro'
+import GranteeCard from './GranteeCard.astro'
+
+interface Props {
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+  totalCount: number
+  directoryPath: string
+  selectedYear?: string
+  selectedTag?: string
+}
+
+const {
+  grantees,
+  years,
+  tags,
+  totalCount,
+  directoryPath,
+  selectedYear,
+  selectedTag
+} = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const allLabel = t('grantee.filter.all')
+const selectedYearLabel =
+  years.find((option) => option.value === selectedYear)?.label ?? allLabel
+
+const summaryClasses = `
+list-none flex gap-xs items-center cursor-pointer
+p-xs rounded-lg border border-transparent
+group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
+[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
+focus-visible:outline-none focus-visible:border focus-visible:border-primary
+`
+const dropdownClasses = `
+list-none m-0 p-sm [&_li]:m-0
+absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))] z-1
+bg-neutral-0 rounded-xl border border-neutral-25
+min-w-[8rem]
+`
+const optionClasses = `
+flex gap-md items-center w-full px-sm py-xs rounded-lg border border-transparent
+no-underline text-left text-body-sm-standard text-neutral-75
+hover:bg-neutral-25 hover:text-neutral-100
+focus-visible:outline-none focus-visible:border focus-visible:border-link
+[&[aria-current='page']]:text-neutral-100
+`
+const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_ui',
+    baseComponent,
+    linkText,
+    href
+  })
+
+const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
+const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
+---
+
+<h1
+  class="my-xl text-neutral-900 text-h2 tablet:text-h2-md desktop:my-3xl desktop:text-h2-lg"
+>
+  {t('grantee.title')}
+</h1>
+
+<div class="flex w-full flex-col">
+  <p class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-75">
+    {t('grantee.description')}
+  </p>
+  <div class="mt-3xl flex flex-col gap-sm">
+    <h2
+      class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-150"
+    >
+      {t('grantee.subtitle')}
+    </h2>
+    <p
+      class="m-0 text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+    >
+      {t('grantee.intro')}
+    </p>
+  </div>
+</div>
+
+<section
+  aria-label={t('aria.grantee.filters_label')}
+  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+>
+  <div class="flex flex-col gap-xl">
+    <div
+      class="flex flex-col gap-md tablet:flex-row tablet:items-center tablet:gap-xl"
+    >
+      {/* Search UI parked until INTORG-1112 lands again. */}
+      {
+        /*
+      <div class="relative w-full max-w-[400px] tablet:w-[400px]">
+        <label for="grantee-search" class="sr-only">
+          {t('grantee.search.label')}
+        </label>
+        <Icon
+          name="search"
+          class="pointer-events-none absolute top-1/2 left-lg size-5 -translate-y-1/2 text-neutral-75"
+        />
+        <input
+          id="grantee-search"
+          type="search"
+          placeholder={t('grantee.search.placeholder')}
+          autocomplete="off"
+          class="w-full rounded-xl border border-neutral-50 bg-white py-md ps-3xl pe-lg text-body-sm-standard text-neutral-100 outline-none transition-colors placeholder:text-neutral-75 focus-visible:border-link"
+        />
+      </div>
+      */
+      }
+      <div
+        class="flex shrink-0 flex-wrap items-center gap-md text-body-sm-emphasis text-neutral-75"
+      >
+        <details data-grantee-year-details class="group relative">
+          <summary class={summaryClasses}>
+            {t('grantee.filter.year')}
+            <Icon name="arrow-right-keyboard" class="rotate-90" />
+          </summary>
+          <ul class={dropdownClasses}>
+            <li>
+              <a
+                href={allYearsHref}
+                class={optionClasses}
+                aria-current={!selectedYear ? 'page' : undefined}
+                {...filterAttrs(allLabel, allYearsHref, 'filter_year_all')}
+              >
+                {allLabel}
+                {!selectedYear && <Icon name="check" class="size-2.5" />}
+              </a>
+            </li>
+            {
+              years.map((option) => {
+                const isActive = selectedYear === option.value
+                const href = getGranteeFilterUrl(
+                  directoryPath,
+                  option.value,
+                  selectedTag
+                )
+                return (
+                  <li>
+                    <a
+                      href={href}
+                      class={optionClasses}
+                      aria-current={isActive ? 'page' : undefined}
+                      {...filterAttrs(option.label, href, 'filter_year')}
+                    >
+                      {option.label}
+                      {isActive && <Icon name="check" class="size-2.5" />}
+                    </a>
+                  </li>
+                )
+              })
+            }
+          </ul>
+        </details>
+        <span class="text-primary">{selectedYearLabel}</span>
+      </div>
+    </div>
+    <ul
+      class="flex flex-wrap gap-xs list-none m-0 p-0"
+      role="list"
+      aria-label={t('aria.grantee.tags')}
+    >
+      <li class="m-0">
+        <PillLink
+          href={allTagsHref}
+          active={!selectedTag}
+          {...filterAttrs(allLabel, allTagsHref, 'filter_tag_all')}
+        >
+          {allLabel}
+        </PillLink>
+      </li>
+      {
+        tags.map((option) => {
+          const isActive = selectedTag === option.value
+          const href = getGranteeFilterUrl(
+            directoryPath,
+            selectedYear,
+            option.value
+          )
+          return (
+            <li class="m-0">
+              <PillLink
+                href={href}
+                active={isActive}
+                {...filterAttrs(option.label, href, 'filter_tag')}
+              >
+                {option.label}
+              </PillLink>
+            </li>
+          )
+        })
+      }
+    </ul>
+  </div>
+
+  <p class="m-0 text-body-sm-emphasis text-primary">
+    {t('grantee.results', { count: totalCount })}
+  </p>
+</section>
+
+{
+  grantees.length === 0 ? (
+    <p class="my-5xl text-h5-lg text-neutral-75 text-center tablet:text-h4-lg">
+      {t('grantee.empty')}
+    </p>
+  ) : (
+    <ol
+      class="list-none p-0 m-0 flex flex-col gap-2xl"
+      aria-label={t('aria.grantee.list')}
+    >
+      {grantees.map((grantee) => (
+        <GranteeCard
+          grantee={grantee}
+          directoryPath={directoryPath}
+          selectedYear={selectedYear}
+        />
+      ))}
+    </ol>
+  )
+}
+
+<script>
+  import '@/scripts/grantee-description'
+
+  const details = document.querySelector<HTMLDetailsElement>(
+    '[data-grantee-year-details]'
+  )
+  const summary = details?.querySelector<HTMLElement>('summary')
+
+  details?.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && details.open) {
+      details.open = false
+      summary?.focus()
+    }
+  })
+
+  details?.addEventListener('focusout', (event: FocusEvent) => {
+    if (!details.contains(event.relatedTarget as Node)) {
+      details.open = false
+    }
+  })
+</script>

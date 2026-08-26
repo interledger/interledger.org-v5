@@ -1,5 +1,6 @@
 import { scanMDXFiles } from './scan'
 import type { ContentTypes } from './config'
+import type { MDXFile } from './mdxTypes'
 import type { SyncContext, SyncResults } from './types'
 import { findMatchingLocales, buildMdxSlugsByLocale } from './localeMatch'
 import {
@@ -9,6 +10,50 @@ import {
   deleteOrphanedEntries
 } from './syncOperations'
 import { validateMdxFiles } from './validateFrontmatter'
+import { formatIdentity, identityForMdx, identityKey } from './entryIdentity'
+
+/**
+ * Reject MDX files that resolve to the same Strapi entry.
+ *
+ * Two files with one identity silently overwrite each other: the sync looks
+ * the entry up, finds the one the earlier file just wrote, and updates it
+ * again. That is how the foundation FAQ disappeared (INTORG-1132). Fail the
+ * content type loudly instead, naming both files.
+ *
+ * Returns the files that are safe to sync.
+ */
+function rejectDuplicateIdentities(
+  config: ContentTypes[keyof ContentTypes],
+  mdxFiles: MDXFile[],
+  results: SyncResults
+): MDXFile[] {
+  const seen = new Map<string, MDXFile>()
+  const unique: MDXFile[] = []
+
+  for (const mdx of mdxFiles) {
+    const identity = identityForMdx(config, mdx)
+    const key = `${mdx.locale || 'en'}:${identityKey(identity)}`
+    const first = seen.get(key)
+
+    if (first) {
+      console.error(
+        `   ❌ Duplicate entry ${formatIdentity(identity)} (${mdx.locale || 'en'})`
+      )
+      console.error(`      - ${first.filepath}`)
+      console.error(`      - ${mdx.filepath}`)
+      console.error(
+        '      Both files map to one Strapi entry. Give them different pathSlug values.'
+      )
+      results.errors++
+      continue
+    }
+
+    seen.set(key, mdx)
+    unique.push(mdx)
+  }
+
+  return unique
+}
 
 export async function syncContentType(
   contentType: keyof ContentTypes,
@@ -19,7 +64,7 @@ export async function syncContentType(
   console.log(`\n📁 Syncing ${contentType}...`)
 
   const scanned = scanMDXFiles(contentType, ctx.contentTypes)
-  const { valid: mdxFiles, invalid } = validateMdxFiles(config, scanned)
+  const { valid: validated, invalid } = validateMdxFiles(config, scanned)
 
   if (invalid.length > 0) {
     for (const err of invalid) {
@@ -31,7 +76,7 @@ export async function syncContentType(
   }
 
   console.log(
-    `   Found ${mdxFiles.length} MDX files (${invalid.length} invalid skipped)`
+    `   Found ${validated.length} MDX files (${invalid.length} invalid skipped)`
   )
 
   const results: SyncResults = {
@@ -41,19 +86,26 @@ export async function syncContentType(
     errors: invalid.length
   }
 
-  // Build map of all MDX pathSlugs by locale (valid + invalid) to prevent deletion
-  const mdxSlugsByLocale = buildMdxSlugsByLocale(mdxFiles)
+  const mdxFiles = rejectDuplicateIdentities(config, validated, results)
+
+  // Build map of all MDX identities by locale (valid + invalid) to prevent deletion
+  const mdxSlugsByLocale = buildMdxSlugsByLocale(mdxFiles, config)
   // Add invalid MDX pathSlugs so we don't delete Strapi entries that have MDX files (even if invalid)
   for (const err of invalid) {
     const locale = err.locale || 'en'
     const slugSet = mdxSlugsByLocale.get(locale) ?? new Set()
-    slugSet.add(err.pathSlug)
+    slugSet.add(
+      identityKey({
+        pathSlug: err.pathSlug,
+        section: config.sectionScopedIdentity ? (err.section ?? null) : null
+      })
+    )
     mdxSlugsByLocale.set(locale, slugSet)
   }
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
-  const processedLocalePathSlugs = new Set<string>()
+  const processedLocaleIdentities = new Set<string>()
 
   for (const englishMdx of englishFiles) {
     const englishEntry = await syncEnglishEntry(
@@ -67,19 +119,23 @@ export async function syncContentType(
 
     if (englishEntry instanceof Error) {
       console.error(
-        `   ❌ Error processing ${englishMdx.pathSlug} (${englishMdx.locale || 'en'}): ${englishEntry.message}`
+        `   ❌ Error processing ${formatIdentity(identityForMdx(config, englishMdx))} (${englishMdx.locale || 'en'}): ${englishEntry.message}`
       )
       results.errors++
       continue
     }
 
     if (englishEntry && englishEntry.documentId) {
-      const matchingLocales = findMatchingLocales(englishMdx, localeFiles)
+      const matchingLocales = findMatchingLocales(
+        englishMdx,
+        localeFiles,
+        config
+      )
 
       for (const candidate of matchingLocales) {
         const localeCode = candidate.localeMdx.locale || 'en'
-        processedLocalePathSlugs.add(
-          `${localeCode}:${candidate.localeMdx.pathSlug}`
+        processedLocaleIdentities.add(
+          `${localeCode}:${identityKey(identityForMdx(config, candidate.localeMdx))}`
         )
 
         console.log(
@@ -120,7 +176,7 @@ export async function syncContentType(
     contentType,
     config,
     localeFiles,
-    processedLocalePathSlugs,
+    processedLocaleIdentities,
     ctx,
     results,
     dryRun

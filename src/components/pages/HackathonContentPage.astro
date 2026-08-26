@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
-import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
@@ -71,10 +70,10 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
       imageMobile={heroImageMobile}
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
+      isFallback={isFallback}
     />
     <section class="px-content py-4xl">
       <div class="content-column">
-        <TranslationDisclaimer isVisible={isFallback} />
         <div data-prose>
           <MdxContent
             components={{

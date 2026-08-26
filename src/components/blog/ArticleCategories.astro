@@ -7,6 +7,7 @@ import {
   useTranslations,
   CATEGORY_SEGMENT
 } from '@/utils'
+import PillLink from '@/components/shared/PillLink.astro'
 interface Props {
   categories: BlogCategory[]
   path: string
@@ -24,13 +25,6 @@ const categoryAttrs = (label: string, href: string) =>
     linkText: `#${label}`,
     href
   })
-const categoryClasses = `
-  inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
-  border border-neutral-50 rounded-full 
-  transition-all duration-200 ease-in-out
-  hover:border-neutral-75 hover:text-neutral-150
-  focus-visible:outline-none focus-visible:border-link
-`
 ---
 
 <nav aria-label={t('aria.article_categories')}>
@@ -41,13 +35,9 @@ const categoryClasses = `
         const href = getTermUrl(path, CATEGORY_SEGMENT, category)
         return (
           <li class="m-0">
-            <a
-              href={href}
-              class={categoryClasses}
-              {...categoryAttrs(label, href)}
-            >
+            <PillLink href={href} {...categoryAttrs(label, href)}>
               {label}
-            </a>
+            </PillLink>
           </li>
         )
       })

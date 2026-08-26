@@ -76,7 +76,8 @@ export {
   formatBlockquote,
   uidToLogLabel,
   resolveFilenameSlug,
-  pathSlugToMdxFilename
+  pathSlugToMdxFilename,
+  sectionScopedMdxFilename
 } from './mdx'
 export {
   validateNoNestedJsx,
@@ -99,6 +100,13 @@ export {
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
+
+// Section-relative pathSlug uniqueness (cross-section content types)
+export {
+  validateSectionScopedSlug,
+  type SectionScopedSlugFinder,
+  type SectionScopedSlugCheck
+} from './sectionScopedSlug'
 
 // Card grid variants (serializers, sync handlers, admin picker)
 export {

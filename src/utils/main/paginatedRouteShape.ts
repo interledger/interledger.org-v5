@@ -1,6 +1,7 @@
 import { blogRouteShape } from './tagFilter'
 import { podcastRouteShape } from './podcastPagination'
 import { summitRouteShape } from './summit-talks-speakers'
+import { granteeRouteShape } from './grantee'
 
 /**
  * How to recognize a paginated URL for one section and safely strip its
@@ -25,7 +26,8 @@ export interface PaginatedRouteShape {
 export const PAGINATED_ROUTE_SHAPES: PaginatedRouteShape[] = [
   blogRouteShape,
   podcastRouteShape,
-  summitRouteShape
+  summitRouteShape,
+  granteeRouteShape
 ]
 
 /**

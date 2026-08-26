@@ -10,6 +10,7 @@ import AuthorByline from '@/components/shared/AuthorByline.astro'
 import AuthorBio from '@/components/shared/AuthorBio.astro'
 import {
   type Locale,
+  type SiteSection,
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
@@ -19,6 +20,7 @@ import {
 interface Props {
   slug: string
   contentLocale: Locale
+  section: SiteSection
   isFallback?: boolean
 }
 
@@ -30,13 +32,16 @@ const REPORT_SECTION_HEADING_DEPTH = 2
 // authored section, so it must be excluded from the nav.
 const FOOTNOTES_HEADING_ID = 'footnote-label'
 
-const { slug, contentLocale, isFallback = false } = Astro.props
+const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const allReports = await getCollection('reports')
 const entry = allReports.find(
-  (r) => r.data.pathSlug === slug && r.data.locale === contentLocale
+  (r) =>
+    r.data.pathSlug === slug &&
+    r.data.locale === contentLocale &&
+    r.data.section === section
 )
 
 if (!entry) throw new Error(`Report not found: ${slug} (${contentLocale})`)
@@ -65,22 +70,23 @@ const sections = headings
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
-  entry.data.section,
+  section,
   heading,
   routeLocale,
   t('nav.home')
 )
 
-const Layout = getSectionPageLayout(entry.data.section)
+const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
   <main
     class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
       <h1
         class="text-neutral-900 my-xl text-h2 tablet:my-3xl tablet:text-h2-md desktop:text-h2-lg"
       >

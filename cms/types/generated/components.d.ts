@@ -111,55 +111,6 @@ export interface BlocksCalloutText extends Struct.ComponentSchema {
   }
 }
 
-export interface BlocksCard extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_cards'
-  info: {
-    description: 'Single card with title, description, and optional link'
-    displayName: 'Card'
-    icon: 'dashboard'
-  }
-  attributes: {
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    icon: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    link: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    linkText: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    openInNewTab: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<false>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
 export interface BlocksCardGrid extends Struct.ComponentSchema {
   collectionName: 'components_blocks_card_grids'
   info: {
@@ -196,116 +147,6 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'Info'>
-  }
-}
-
-export interface BlocksCardLink extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_card_links'
-  info: {
-    description: 'Simple link card with title and arrow'
-    displayName: 'Card Link'
-    icon: 'link'
-  }
-  attributes: {
-    description: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    href: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    openInNewTab: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<false>
-    title: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
-export interface BlocksCardLinksGrid extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_card_links_grids'
-  info: {
-    description: 'Grid of clickable card links'
-    displayName: 'Card Links Grid'
-    icon: 'th-large'
-  }
-  attributes: {
-    cards: Schema.Attribute.Component<'blocks.card-link', true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'3'>
-    heading: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    subheading: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
-export interface BlocksCardsGrid extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_cards_grids'
-  info: {
-    description: 'Grid of cards with title and description'
-    displayName: 'Cards Grid'
-    icon: 'apps'
-  }
-  attributes: {
-    cards: Schema.Attribute.Component<'blocks.card', true> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    columns: Schema.Attribute.Enumeration<['2', '3', '4']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'3'>
-    heading: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    subheading: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
   }
 }
 
@@ -884,57 +725,6 @@ export interface BlocksImageBlock extends Struct.ComponentSchema {
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<false>
     tabletImage: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-  }
-}
-
-export interface BlocksImageRow extends Struct.ComponentSchema {
-  collectionName: 'components_blocks_image_rows'
-  info: {
-    description: 'Image with text content, image can be positioned left or right'
-    displayName: 'Image Row'
-    icon: 'picture'
-  }
-  attributes: {
-    attribution: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    content: Schema.Attribute.RichText &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<
-        'plugin::ckeditor5.CKEditor',
-        {
-          preset: 'defaultMarkdown'
-        }
-      > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    heading: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<'right'>
-    media: Schema.Attribute.Component<'shared.localized-media', false> &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1906,11 +1696,7 @@ declare module '@strapi/strapi' {
       'blocks.agenda-item': BlocksAgendaItem
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText
-      'blocks.card': BlocksCard
       'blocks.card-grid': BlocksCardGrid
-      'blocks.card-link': BlocksCardLink
-      'blocks.card-links-grid': BlocksCardLinksGrid
-      'blocks.cards-grid': BlocksCardsGrid
       'blocks.carousel': BlocksCarousel
       'blocks.carousel-logo': BlocksCarouselLogo
       'blocks.code-block': BlocksCodeBlock
@@ -1927,7 +1713,6 @@ declare module '@strapi/strapi' {
       'blocks.grant-faq-section': BlocksGrantFaqSection
       'blocks.hackathon-animation': BlocksHackathonAnimation
       'blocks.image-block': BlocksImageBlock
-      'blocks.image-row': BlocksImageRow
       'blocks.info-card': BlocksInfoCard
       'blocks.info-cards': BlocksInfoCards
       'blocks.navigation-card': BlocksNavigationCard

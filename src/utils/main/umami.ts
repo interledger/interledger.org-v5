@@ -78,8 +78,8 @@ export function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => HTML_ESCAPE[char])
 }
 
-function normaliseSegment(value: string): string {
-  return value
+function normaliseSegment(value: string | undefined): string {
+  return (value ?? '')
     .toLowerCase()
     .replace(/[\s-]+/g, '_')
     .replace(/[^\w]/g, '')

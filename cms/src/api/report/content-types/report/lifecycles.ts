@@ -3,7 +3,7 @@ import {
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
   generateReportMdx,
-  pathSlugToMdxFilename,
+  sectionScopedMdxFilename,
   REPORT_CONTENT_POPULATE
 } from '../../../../utils'
 import type { ReportBase } from '../../types'
@@ -19,7 +19,7 @@ export default createFlatLocaleMdxLifecycle<Report, 'api::report.report'>({
   label: 'report',
   getBaseDir: (locale) =>
     getContentPath(getTargetRepoRoot(), 'reports', locale),
-  toMdxFilename: pathSlugToMdxFilename,
+  toMdxFilename: sectionScopedMdxFilename,
   generateContent: generateReportMdx,
   populate: {
     content: REPORT_CONTENT_POPULATE,

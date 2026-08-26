@@ -20,7 +20,7 @@ legacy: true
 
 <Paragraph>
 
-At the beginning of the year, we were in contact with a security and penetration testing company to do an audit of Rafiki. Even though the software is still in its early stages, it is essential to gather feedback early to build a strong foundation for the software's security. The primary goals of the assessment were to evaluate several Rafiki components: the GraphQL Admin APIs, the frontend Admin UI component, as well as our underlying [ILPv4 protocol](https://interledger.org/developers/get-started/). The assessment was done using Rafiki’s local playground, based on the [Open Source Security Testing Methodology Manual (OSSTMM)](https://www.isecom.org/research.html) and [Open Source Web Application Security Project (OWASP)](https://owasp.org/) methodologies.
+At the beginning of the year, we were in contact with a security and penetration testing company to do an audit of Rafiki. Even though the software is still in its early stages, it is essential to gather feedback early to build a strong foundation for the software's security. The primary goals of the assessment were to evaluate several Rafiki components: the GraphQL Admin APIs, the frontend Admin UI component, as well as our underlying [ILPv4 protocol](/developers/get-started/). The assessment was done using Rafiki’s local playground, based on the [Open Source Security Testing Methodology Manual (OSSTMM)](https://www.isecom.org/research.html) and [Open Source Web Application Security Project (OWASP)](https://owasp.org/) methodologies.
 
 The audit presented eight vulnerabilities in total, with different risk levels:
 
@@ -107,7 +107,7 @@ Given we use a lot of different published libraries in Rafiki, we are vulnerable
 
 ## ILP & STREAM
 
-Rafiki runs an ILP connector (using [STREAM](https://interledger.org/developers/rfcs/stream-protocol/) as the transport protocol) as part of its software. This is how two peered Rafiki instances interact and make payments between one another.
+Rafiki runs an ILP connector (using [STREAM](/developers/rfcs/stream-protocol/) as the transport protocol) as part of its software. This is how two peered Rafiki instances interact and make payments between one another.
 One of the questions we wanted to ask the auditors during the assessment was, _"if you intercept an ILP packet, could you get any useful information out of it?"_. Using the local playground, we worked together with the auditors to capture ILP (STREAM) packets between the ILP connectors of two Rafiki instances. In the local playground, these requests are done over HTTP. Even though in a production environment the connector-to-connector communication would be done over HTTPS, it gave us visibility into what the requests & responses look like over an insecure protocol. The auditors observed that the ILP STREAM packets were properly encrypted in transit:
 
 ![Inspected ILP Packet](/img/foundation-blog/2024-10-25/packet.png)

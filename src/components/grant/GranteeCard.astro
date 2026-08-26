@@ -1,0 +1,208 @@
+---
+import type { Grantee } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  parseMarkdownInline,
+  generateSlug,
+  getGranteeFilterUrl
+} from '@/utils'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import PillLink from '@/components/shared/PillLink.astro'
+
+interface Props {
+  grantee: Grantee
+  directoryPath: string
+  selectedYear?: string
+}
+
+const { grantee, directoryPath, selectedYear } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const description = grantee.description
+  ? parseMarkdownInline(grantee.description, {
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : null
+const descriptionId = `grantee-desc-${grantee.id}`
+const leadersLabel = grantee.leaders.join(', ')
+
+const tagAttrs = (tag: string, href: string) =>
+  buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'button_ui',
+    baseComponent: 'grantee_tag',
+    linkText: `#${tag}`,
+    href
+  })
+
+const metaItemClasses =
+  'flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0'
+
+const detailsAttrs = grantee.projectUrl
+  ? buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      label: 'button_cta',
+      baseComponent: 'grantee_details',
+      href: grantee.projectUrl,
+      linkText: t('grantee.view_details')
+    })
+  : {}
+---
+
+<li
+  data-grantee-card
+  data-year={grantee.year}
+  data-program={grantee.programKey}
+  class="m-0 rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl"
+>
+  <article class="flex flex-col gap-lg">
+    <div
+      class="flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl"
+    >
+      <div class="flex min-w-0 flex-col gap-sm">
+        <h3
+          class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg"
+        >
+          {grantee.name}
+        </h3>
+        {
+          grantee.program && (
+            <p class="m-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75">
+              {grantee.program}
+            </p>
+          )
+        }
+      </div>
+      {
+        grantee.budgetLabel && (
+          <div class="shrink-0 desktop:text-right">
+            <p class="m-0 flex items-start gap-sm font-poppins font-semibold text-h2 text-neutral-150 tablet:text-h2-md desktop:justify-end desktop:text-h2-lg">
+              <span>{grantee.budgetLabel}</span>
+              <span class="self-end mb-sm whitespace-nowrap text-h3 font-normal tablet:text-h3-md desktop:text-h3-lg">
+                {t('grantee.currency')}
+              </span>
+            </p>
+            <p class="m-0 text-body-sm-standard text-neutral-75">
+              {t('grantee.amount_label')}
+            </p>
+          </div>
+        )
+      }
+    </div>
+
+    {
+      grantee.tags.length > 0 && (
+        <ul
+          class="flex flex-wrap gap-xs list-none m-0 p-0"
+          aria-label={t('aria.grantee.tags')}
+        >
+          {grantee.tags.map((tag) => {
+            const href = getGranteeFilterUrl(
+              directoryPath,
+              selectedYear,
+              generateSlug(tag)
+            )
+            return (
+              <li class="m-0">
+                <PillLink href={href} {...tagAttrs(tag, href)}>
+                  {tag}
+                </PillLink>
+              </li>
+            )
+          })}
+        </ul>
+      )
+    }
+
+    {
+      (grantee.country || grantee.startLabel) && (
+        <ul class="flex flex-col gap-sm list-none m-0 p-0">
+          {grantee.country && (
+            <li class:list={[metaItemClasses, 'm-0']}>
+              <Icon name="map-pin" class="size-5 shrink-0 text-neutral-75" />
+              <span>
+                <span class="sr-only">{t('aria.grantee.location')}: </span>
+                {grantee.country}
+              </span>
+            </li>
+          )}
+          {grantee.startLabel && (
+            <li class:list={[metaItemClasses, 'm-0']}>
+              <Icon name="calendar" class="size-5 shrink-0 text-neutral-75" />
+              <time datetime={grantee.startMonth}>
+                <span class="sr-only">{t('aria.grantee.date')}: </span>
+                {grantee.startLabel}
+              </time>
+            </li>
+          )}
+        </ul>
+      )
+    }
+
+    <div class="flex flex-col gap-xl">
+      {
+        (leadersLabel || description) && (
+          <div
+            data-grantee-description
+            class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
+          >
+            {leadersLabel && (
+              <div class:list={[metaItemClasses, description && 'mb-lg']}>
+                <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+                <span>
+                  <span class="sr-only">{t('grantee.project_lead')}: </span>
+                  {leadersLabel}
+                </span>
+              </div>
+            )}
+            {description && (
+              <p
+                id={descriptionId}
+                data-grantee-description-text
+                class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
+                set:html={description}
+              />
+            )}
+            {description && (
+              <button
+                type="button"
+                hidden
+                data-grantee-description-toggle
+                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+                aria-expanded="false"
+                aria-controls={descriptionId}
+              >
+                {t('grantee.read_more')}
+                <Icon name="arrow-down" class="size-4" />
+              </button>
+            )}
+          </div>
+        )
+      }
+
+      {
+        grantee.projectUrl && (
+          <div class="flex flex-wrap gap-md">
+            <LinkButton
+              href={grantee.projectUrl}
+              external
+              variant="primary"
+              size="sm"
+              iconSide="right"
+              {...detailsAttrs}
+            >
+              {t('grantee.view_details')}
+              <Icon slot="icon-right" name="external-link" class="size-4" />
+            </LinkButton>
+          </div>
+        )
+      }
+    </div>
+  </article>
+</li>

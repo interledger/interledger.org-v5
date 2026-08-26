@@ -61,14 +61,14 @@ Cabe señalar que, cuando se utiliza una criptomoneda para la liquidación entre
 
 La capa de enlace define la forma en que dos conectores interconectados se comunican entre sí. En esta capa, actualmente se emplean dos protocolos principales:
 
-- [Protocolo de Transporte Bilateral](https://interledger.org/developers/rfcs/bilateral-transfer-protocol/) (BTP): se basa en comunicación mediante WebSocket entre conectores.
-- [ILP sobre HTTP](https://interledger.org/developers/rfcs/ilp-over-http/): utiliza HTTPS para la comunicación entre conectores.
+- [Protocolo de Transporte Bilateral](/developers/rfcs/bilateral-transfer-protocol/) (BTP): se basa en comunicación mediante WebSocket entre conectores.
+- [ILP sobre HTTP](/developers/rfcs/ilp-over-http/): utiliza HTTPS para la comunicación entre conectores.
 
 Estos protocolos establecen la conexión necesaria para que las capas superiores puedan operar.
 
 ### Capa de protocolo: Protocolo Interledger (ILP)
 
-En el núcleo de la pila Interledger se encuentra el [Protocolo Interledger](https://interledger.org/developers/rfcs/interledger-protocol/) (ILP). Este protocolo divide los pagos de mayor tamaño en paquetes más pequeños, define el contenido de dichos paquetes y establece un modelo de transferencia en dos fases.
+En el núcleo de la pila Interledger se encuentra el [Protocolo Interledger](/developers/rfcs/interledger-protocol/) (ILP). Este protocolo divide los pagos de mayor tamaño en paquetes más pequeños, define el contenido de dichos paquetes y establece un modelo de transferencia en dos fases.
 
 ¿Por qué se utiliza un modelo de dos fases en lugar de uno de una sola fase? Para comprenderlo, conviene analizar un ejemplo de transferencia de una sola fase.
 
@@ -94,7 +94,7 @@ Cabe destacar que el protocolo está diseñado específicamente para operar con 
 
 ### Interludio: direcciones ILP y Payment Pointers
 
-Dentro del Protocolo Interledger, las [direcciones ILP](https://interledger.org/developers/rfcs/ilp-addresses/) constituyen un elemento fundamental, ya que funcionan como identificadores únicos de las cuentas dentro de la red. Estas direcciones adoptan una estructura jerárquica, similar a la de las direcciones IP en Internet, lo que permite enrutar paquetes de pago de manera eficiente entre distintos libros contables.
+Dentro del Protocolo Interledger, las [direcciones ILP](/developers/rfcs/ilp-addresses/) constituyen un elemento fundamental, ya que funcionan como identificadores únicos de las cuentas dentro de la red. Estas direcciones adoptan una estructura jerárquica, similar a la de las direcciones IP en Internet, lo que permite enrutar paquetes de pago de manera eficiente entre distintos libros contables.
 
 Una dirección ILP se compone de varios elementos:
 
@@ -117,7 +117,7 @@ Más adelante retomaremos el concepto de Payment Pointers en la sección dedicad
 
 ### Capa de transporte: Protocolo STREAM
 
-Sobre la base del ILP, la capa de transporte incorpora funcionalidades adicionales para la gestión de la transferencia de valor. En la actualidad, el único protocolo compatible es el [Protocolo STREAM](https://interledger.org/developers/rfcs/stream-protocol/) (Streaming Transport for Real-time Exchange of Assets and Messages).
+Sobre la base del ILP, la capa de transporte incorpora funcionalidades adicionales para la gestión de la transferencia de valor. En la actualidad, el único protocolo compatible es el [Protocolo STREAM](/developers/rfcs/stream-protocol/) (Streaming Transport for Real-time Exchange of Assets and Messages).
 
 ![Animación del protocolo STREAM](/developers/img/blog/2024-08-13/stream.gif)
 
@@ -140,7 +140,7 @@ Cabe señalar que un paquete STREAM se incluye dentro del campo de datos de un p
 
 La capa de aplicación constituye el nivel final de la pila Interledger y define las funcionalidades orientadas a desarrolladores, lo que permite la creación de diversas aplicaciones. En esta capa, se admiten dos protocolos: SPSP (Protocolo de Configuración de Pagos Simples) y Open Payments.
 
-El protocolo [SPSP](https://interledger.org/developers/rfcs/simple-payment-setup-protocol/) simplifica el proceso de configuración de pagos. Cuando se realiza una solicitud GET a una URL asociada a un Payment Pointer mediante los encabezados correspondientes de SPSP, el protocolo establece la información que debe devolverse.
+El protocolo [SPSP](/developers/rfcs/simple-payment-setup-protocol/) simplifica el proceso de configuración de pagos. Cuando se realiza una solicitud GET a una URL asociada a un Payment Pointer mediante los encabezados correspondientes de SPSP, el protocolo establece la información que debe devolverse.
 
 </Paragraph>
 
@@ -157,7 +157,7 @@ Entre ellos se encuentran la `destination_account`, que es la dirección de ILP 
 
 Por su parte, [Open Payments](https://openpayments.dev/overview/getting-started/) constituye un estándar de API destinado a entidades proveedoras de servicios de cuentas, que permite a terceros acceder de forma segura a cuentas digitales tanto para consultar información como para iniciar pagos. Mediante un marco sólido para la autorización y ejecución de pagos digitales, Open Payments admite escenarios complejos, como el comercio electrónico o los pagos recurrentes. Para lograr un control de acceso granular y una autorización segura, emplea el [Protocolo de Negociación y Autorización de Concesiones (GNAP)](https://datatracker.ietf.org/doc/html/draft-ietf-gnap-core-protocol-20).
 
-Si desea profundizar en Open Payments, puede consultar la [fantástica publicación de blog de Sarah](https://interledger.org/developers/blog/simple-open-payments-guide/). Si desea obtener una visión general más detallada de GNAP y de por qué lo utilizamos con Open Payments, consulte la [Historia de Cenicienta de Nathan sobre cómo encontrar un método de autorización adecuado](https://interledger.org/developers/blog/open-payments-cinderella-story/).
+Si desea profundizar en Open Payments, puede consultar la [fantástica publicación de blog de Sarah](/developers/blog/simple-open-payments-guide/). Si desea obtener una visión general más detallada de GNAP y de por qué lo utilizamos con Open Payments, consulte la [Historia de Cenicienta de Nathan sobre cómo encontrar un método de autorización adecuado](/developers/blog/open-payments-cinderella-story/).
 
 ## ¿Dónde se ubica Web Monetization dentro de esta arquitectura?
 

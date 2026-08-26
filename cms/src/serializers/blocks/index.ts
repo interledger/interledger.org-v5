@@ -8,10 +8,7 @@ import {
   SerializerFieldError,
   type FieldError
 } from '../../utils'
-import { serialize as cardsGrid } from './cards-grid.serializer'
-import { serialize as cardLinksGrid } from './card-links-grid.serializer'
 import { serialize as carousel } from './carousel.serializer'
-import { serialize as imageRow } from './image-row.serializer'
 import { serialize as paragraph } from './paragraph.serializer'
 import { serialize as profile } from './profile.serializer'
 import { serialize as profileGrid } from './profile-grid.serializer'
@@ -41,13 +38,9 @@ import { serialize as hackathonAnimation } from './hackathon-animation.serialize
 export { sanitizeCardGridsInDocumentData }
 
 const SERIALIZERS: Record<string, (block: unknown) => string> = {
-  'blocks.cards-grid': cardsGrid,
-  'blocks.card-links-grid': cardLinksGrid,
   'blocks.carousel': carousel,
   'blocks.number-tiles': numberTiles,
   'blocks.agenda': agenda,
-
-  'blocks.image-row': imageRow,
   'blocks.paragraph': paragraph,
   'blocks.profile': profile,
   'blocks.profile-grid': profileGrid,

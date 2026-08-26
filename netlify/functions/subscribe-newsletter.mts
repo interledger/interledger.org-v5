@@ -48,7 +48,10 @@ async function verifyRecaptcha(token: string): Promise<boolean | Error> {
     const res = await fetch(RECAPTCHA_VERIFY_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: RECAPTCHA_SECRET_KEY, response: token })
+      body: new URLSearchParams({
+        secret: RECAPTCHA_SECRET_KEY,
+        response: token
+      })
     })
     if (!res.ok) {
       throw new Error(`reCAPTCHA verify HTTP ${res.status}`)
@@ -60,10 +63,11 @@ async function verifyRecaptcha(token: string): Promise<boolean | Error> {
   return result.success
 }
 
-// Verifies the client's reCAPTCHA token server-side, then forwards the
-// newsletter submission to HubSpot's Forms API. The client never talks to
-// HubSpot directly so the portal/form ids and the recaptcha secret stay
-// server-only — see the "reCAPTCHA approach" decision for the subscribe page.
+// The subscribe page uses Netlify Forms reCAPTCHA (same as contact): the
+// widget is injected at deploy from `data-netlify-recaptcha`. The token is
+// still sent here so empty/missing challenges are rejected. Google siteverify
+// only runs when RECAPTCHA_SECRET_KEY is set and matches that widget; Netlify's
+// injected site key has no app-side secret, so staging can leave it unset.
 export default async function handler(
   req: Request,
   _ctx: Context
@@ -72,9 +76,9 @@ export default async function handler(
     return jsonResponse({ error: 'Method Not Allowed' }, 405, { Allow: 'POST' })
   }
 
-  if (!HUBSPOT_PORTAL_ID || !HUBSPOT_FORM_ID || !RECAPTCHA_SECRET_KEY) {
+  if (!HUBSPOT_PORTAL_ID || !HUBSPOT_FORM_ID) {
     console.error(
-      '[subscribe-newsletter] Missing HUBSPOT_PORTAL_ID, HUBSPOT_FORM_ID, or RECAPTCHA_SECRET_KEY'
+      '[subscribe-newsletter] Missing HUBSPOT_PORTAL_ID or HUBSPOT_FORM_ID'
     )
     return jsonResponse({ error: 'Server misconfigured' }, 500)
   }
@@ -89,13 +93,18 @@ export default async function handler(
     return jsonResponse({ error: 'Missing recaptchaToken or fields' }, 400)
   }
 
-  const recaptchaOk = await verifyRecaptcha(recaptchaToken)
-  if (recaptchaOk instanceof Error) {
-    console.error('[subscribe-newsletter] reCAPTCHA verify failed', recaptchaOk)
-    return jsonResponse({ error: 'reCAPTCHA verification failed' }, 502)
-  }
-  if (!recaptchaOk) {
-    return jsonResponse({ error: 'reCAPTCHA challenge not passed' }, 400)
+  if (RECAPTCHA_SECRET_KEY) {
+    const recaptchaOk = await verifyRecaptcha(recaptchaToken)
+    if (recaptchaOk instanceof Error) {
+      console.error(
+        '[subscribe-newsletter] reCAPTCHA verify failed',
+        recaptchaOk
+      )
+      return jsonResponse({ error: 'reCAPTCHA verification failed' }, 502)
+    }
+    if (!recaptchaOk) {
+      return jsonResponse({ error: 'reCAPTCHA challenge not passed' }, 400)
+    }
   }
 
   const endpoint = `https://api-eu1.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_ID}`
@@ -108,7 +117,10 @@ export default async function handler(
   )
 
   if (hubspotResult instanceof Error) {
-    console.error('[subscribe-newsletter] HubSpot request failed', hubspotResult)
+    console.error(
+      '[subscribe-newsletter] HubSpot request failed',
+      hubspotResult
+    )
     return jsonResponse({ error: 'HubSpot submission failed' }, 502)
   }
 

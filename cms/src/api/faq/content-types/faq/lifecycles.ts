@@ -5,6 +5,11 @@
  * under src/content/faqs/ (and src/content/faqs/es/ for non-default locales),
  * regardless of pathSlug depth. pathSlug drives the public URL only.
  *
+ * pathSlug is relative to `section`, so the foundation FAQ and the hackathon
+ * FAQ can both use `faq`. The filename therefore carries the section prefix
+ * (`faq.mdx` vs `hackathon-faq.mdx`), or the two would overwrite each other
+ * (INTORG-1132).
+ *
  * Uses createFlatLocaleMdxLifecycle: on any save, every locale is fetched from
  * Strapi and all locale MDX files are rewritten in one pass.
  */
@@ -14,7 +19,7 @@ import {
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
   generateFaqMdx,
-  pathSlugToMdxFilename
+  sectionScopedMdxFilename
 } from '../../../../utils'
 import type { FaqBase } from '../../types'
 
@@ -28,7 +33,7 @@ export default createFlatLocaleMdxLifecycle<Faq, 'api::faq.faq'>({
   contentTypeUid: 'api::faq.faq',
   label: 'faq',
   getBaseDir: (locale) => getContentPath(getTargetRepoRoot(), 'faqs', locale),
-  toMdxFilename: pathSlugToMdxFilename,
+  toMdxFilename: sectionScopedMdxFilename,
   generateContent: generateFaqMdx,
   populate: { faqSections: { populate: { items: true } } }
 })

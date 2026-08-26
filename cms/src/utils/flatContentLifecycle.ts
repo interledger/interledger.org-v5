@@ -41,6 +41,7 @@ declare const strapi: Core.Strapi
 export interface FlatLocaleMdxLifecycleConfig<
   T extends {
     pathSlug: string
+    section?: string | null
     name?: string
     locale?: string
     documentId?: string
@@ -53,8 +54,12 @@ export interface FlatLocaleMdxLifecycleConfig<
   getBaseDir: (locale?: string) => string
   /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
   generateContent: (entry: T, englishSlug?: string) => string
-  /** Maps pathSlug to a flat filename stem (no .mdx). Defaults to identity. */
-  toMdxFilename?: (pathSlug: string) => string
+  /**
+   * Maps pathSlug to a flat filename stem (no .mdx). Defaults to identity.
+   * `section` is passed for cross-section content types, whose pathSlug is
+   * section-relative and so does not identify a file on its own.
+   */
+  toMdxFilename?: (pathSlug: string, section?: string | null) => string
   populate?: Modules.Documents.Params.Populate.Any<U>
 }
 
@@ -66,6 +71,7 @@ export interface FlatLocaleMdxLifecycleConfig<
 export function createFlatLocaleMdxLifecycle<
   T extends {
     pathSlug: string
+    section?: string | null
     name?: string
     locale?: string
     documentId?: string
@@ -79,15 +85,19 @@ export function createFlatLocaleMdxLifecycle<
     getBaseDir,
     generateContent,
     populate,
-    toMdxFilename = (pathSlug) => pathSlug
+    toMdxFilename = (pathSlug: string) => pathSlug
   } = config
 
   function resolveFileSlug(
     locale: string,
     pathSlug: string,
+    section: string | null,
     englishSlug?: string
   ): string {
-    return toMdxFilename(resolveFilenameSlug(locale, pathSlug, englishSlug))
+    return toMdxFilename(
+      resolveFilenameSlug(locale, pathSlug, englishSlug),
+      section
+    )
   }
 
   async function fetchPublished(
@@ -116,6 +126,7 @@ export function createFlatLocaleMdxLifecycle<
     const slug = resolveFileSlug(
       entry.locale ?? defaultLang,
       entry.pathSlug,
+      entry.section ?? null,
       englishSlug
     )
     const filepath = path.join(baseDir, `${slug}.mdx`)
@@ -156,8 +167,15 @@ export function createFlatLocaleMdxLifecycle<
     return filepaths
   }
 
-  function getFilePath(locale: string, pathSlug: string): string {
-    return path.join(getBaseDir(locale), `${toMdxFilename(pathSlug)}.mdx`)
+  function getFilePath(
+    locale: string,
+    pathSlug: string,
+    section: string | null
+  ): string {
+    return path.join(
+      getBaseDir(locale),
+      `${toMdxFilename(pathSlug, section)}.mdx`
+    )
   }
 
   function deleteMdxIfExists(filepath: string, locale: string): void {
@@ -171,12 +189,13 @@ export function createFlatLocaleMdxLifecycle<
   }
 
   /**
-   * Delete old MDX files for all locales when EN slug changes.
-   * All locale filenames use the EN slug (via resolveFilenameSlug).
+   * Delete old MDX files for all locales when the EN slug or the section
+   * changes. All locale filenames use the EN slug (via resolveFilenameSlug),
+   * and for cross-section types the section is part of the filename too.
    */
-  function deleteOldFiles(oldEnSlug: string): void {
+  function deleteOldFiles(oldEnSlug: string, oldSection: string | null): void {
     for (const locale of LOCALES) {
-      const filepath = getFilePath(locale, oldEnSlug)
+      const filepath = getFilePath(locale, oldEnSlug, oldSection)
       deleteMdxIfExists(filepath, locale)
     }
   }
@@ -205,35 +224,45 @@ export function createFlatLocaleMdxLifecycle<
         data?: { documentId?: string; locale?: string }
         where?: Record<string, unknown>
       }
-      state: { oldPathSlug?: string }
+      state: { oldPathSlug?: string; oldSection?: string | null }
     }) {
       if (shouldSkipMdxExport()) return
       const documentId =
         event.params?.documentId ?? event.params?.data?.documentId
       if (!documentId) return
 
-      // Stash the EN slug — all locale filenames depend on it
+      // Stash the EN slug and section: both feed the locale filenames.
       const enEntry = await fetchPublished(documentId, defaultLang)
       if (!enEntry?.pathSlug) return
 
       event.state.oldPathSlug = enEntry.pathSlug
+      event.state.oldSection = enEntry.section ?? null
     },
-    async afterUpdate(event: { result?: T; state: { oldPathSlug?: string } }) {
+    async afterUpdate(event: {
+      result?: T
+      state: { oldPathSlug?: string; oldSection?: string | null }
+    }) {
       const { result } = event
       if (shouldSkipMdxExport()) return
       if (!result?.documentId || !result.publishedAt) return
 
-      const { oldPathSlug } = event.state
+      const { oldPathSlug, oldSection = null } = event.state
 
-      // Re-fetch EN to get the current slug
+      // Re-fetch EN to get the current slug and section
       const enEntry = await fetchPublished(result.documentId, defaultLang)
       const currentEnSlug = enEntry?.pathSlug
+      const currentSection = enEntry?.section ?? null
 
-      if (oldPathSlug && currentEnSlug && oldPathSlug !== currentEnSlug) {
+      const filenameChanged =
+        Boolean(oldPathSlug) &&
+        Boolean(currentEnSlug) &&
+        (oldPathSlug !== currentEnSlug || oldSection !== currentSection)
+
+      if (filenameChanged && oldPathSlug) {
         console.log(
-          `🗑️  ${label} pathSlug changed from "${oldPathSlug}" to "${currentEnSlug}", deleting old MDX files`
+          `🗑️  ${label} moved from "${toMdxFilename(oldPathSlug, oldSection)}" to "${toMdxFilename(currentEnSlug!, currentSection)}", deleting old MDX files`
         )
-        deleteOldFiles(oldPathSlug)
+        deleteOldFiles(oldPathSlug, oldSection)
       }
 
       console.log(
@@ -254,6 +283,8 @@ export function createFlatLocaleMdxLifecycle<
 
       const locale = result.locale || defaultLang
 
+      const section = result.section ?? null
+
       if (locale === defaultLang) {
         // Non-English files are named after the English slug, so this cascades to them too.
         console.log(
@@ -262,15 +293,20 @@ export function createFlatLocaleMdxLifecycle<
         removeLocalizesFromLocaleFiles(
           result.pathSlug,
           (loc) => getBaseDir(loc),
+          label,
+          section
+        )
+        deleteLocaleMdxFiles(
+          (loc) => getFilePath(loc, result.pathSlug, section),
           label
         )
-        deleteLocaleMdxFiles((loc) => getFilePath(loc, result.pathSlug), label)
       } else {
         // Non-English files are named after the English slug, not their own.
         const enEntry = await fetchPublished(result.documentId, defaultLang)
         const filenameSlug = resolveFileSlug(
           locale,
           result.pathSlug,
+          section,
           enEntry?.pathSlug
         )
         const filepath = path.join(getBaseDir(locale), `${filenameSlug}.mdx`)

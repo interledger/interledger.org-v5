@@ -322,6 +322,17 @@ describe('buildUmamiAttrs — event name and other properties', () => {
     ).toMatchObject({ 'data-umami-event-base-component': 'resource_cards' })
   })
 
+  it('does not throw when baseComponent is missing at runtime', () => {
+    expect(() =>
+      buildUmamiAttrs({
+        label: 'button_ui',
+        baseComponent: undefined as unknown as string,
+        pathname: '/es/grant/grantee-directory/all/accessibility',
+        linkText: 'Accessibility'
+      })
+    ).not.toThrow()
+  })
+
   it('falls back to aria-label when link text is empty', () => {
     expect(
       buildUmamiAttrs({

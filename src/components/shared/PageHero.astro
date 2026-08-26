@@ -87,12 +87,12 @@ const parallaxImgClass = isWideBand
   <div class="content-column">
     {
       breadcrumbs && breadcrumbs.length > 0 && (
-        <div class="mb-xl tablet:mb-2xl">
-          <Breadcrumbs
-            breadcrumbs={breadcrumbs}
-            class="[&_a]:text-body-sm-standard"
-          />
-        </div>
+        <Breadcrumbs
+          breadcrumbs={breadcrumbs}
+          class="[&_a]:text-body-sm-standard"
+        >
+          <slot name="after-breadcrumbs" />
+        </Breadcrumbs>
       )
     }
 

@@ -1,0 +1,75 @@
+---
+import type { Page } from 'astro'
+import '@/styles/tailwind.css'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import GranteeIndex from '@/components/grant/GranteeIndex.astro'
+import Pagination from '@/components/shared/Pagination.astro'
+import {
+  type Grantee,
+  type GranteeFilterOption,
+  useTranslations,
+  localizeRoute,
+  grantOverviewHubPath,
+  grantGranteeDirectoryPath,
+  stripPagination
+} from '@/utils'
+
+interface Props {
+  page: Page<Grantee>
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+  selectedYear?: string
+  selectedTag?: string
+}
+
+const { page, years, tags, selectedYear, selectedTag } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const pageHref = localizeRoute(grantGranteeDirectoryPath(), routeLocale)
+const basePath = stripPagination(Astro.url.pathname)
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  {
+    name: t('nav.grants'),
+    href: localizeRoute(grantOverviewHubPath(), routeLocale)
+  },
+  { name: t('grantee.title'), href: pageHref }
+]
+---
+
+<FoundationPageLayout
+  title={t('grantee.title')}
+  description={t('grantee.meta_description')}
+>
+  <main
+    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+  >
+    <div class="w-full max-w-content m-auto">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <GranteeIndex
+        grantees={page.data}
+        years={years}
+        tags={tags}
+        totalCount={page.total}
+        directoryPath={pageHref}
+        selectedYear={selectedYear}
+        selectedTag={selectedTag}
+      />
+      {
+        page.lastPage > 1 && (
+          <Pagination
+            baseUrl={basePath}
+            length={page.lastPage}
+            currentPage={page.currentPage}
+            prevUrl={page.url.prev}
+            nextUrl={page.url.next}
+            label={t('grantee.title')}
+            class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+          />
+        )
+      }
+    </div>
+  </main>
+</FoundationPageLayout>

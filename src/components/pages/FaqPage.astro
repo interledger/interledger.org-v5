@@ -5,6 +5,7 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
 import {
   type Locale,
+  type SiteSection,
   useTranslations,
   buildSectionEntryBreadcrumbs,
   parseMarkdown,
@@ -14,16 +15,20 @@ import {
 interface Props {
   slug: string
   contentLocale: Locale
+  section: SiteSection
   isFallback?: boolean
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
+const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const allFaqs = await getCollection('faqs')
 const entry = allFaqs.find(
-  (f) => f.data.pathSlug === slug && f.data.locale === contentLocale
+  (f) =>
+    f.data.pathSlug === slug &&
+    f.data.locale === contentLocale &&
+    f.data.section === section
 )
 
 if (!entry) throw new Error(`Faq not found: ${slug} (${contentLocale})`)
@@ -38,26 +43,23 @@ const introParagraphHtml = introParagraph
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
-  entry.data.section,
+  section,
   heading,
   routeLocale,
   t('nav.home')
 )
 
-const Layout = getSectionPageLayout(entry.data.section)
+const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
   <main
-    class="px-content flex flex-col pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
-    <TranslationDisclaimer isVisible={isFallback} />
     <div class="content-column">
-      {
-        entry.data.section !== 'hackathon' && (
-          <Breadcrumbs breadcrumbs={breadcrumbs} />
-        )
-      }
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
       <h1
         class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
       >

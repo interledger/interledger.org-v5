@@ -58,7 +58,7 @@ const hubspotCommunicationSubscriptionTypeId = 2514113604
 const consentProcessingLabel = t('subscribe.consent_processing_label')
 const consentCommunicationsLabel = t('subscribe.consent_communications_label')
 
-const recaptchaSiteKey = import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY
+const currentPath = Astro.url.pathname
 
 const inputClasses =
   'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary'
@@ -138,9 +138,19 @@ const secondaryTextClasses = 'text-neutral-75'
             <div id="form-wrapper">
               <form
                 id="subscribe-form"
+                name="subscribe"
+                method="POST"
+                action={currentPath}
+                data-netlify="true"
+                data-netlify-honeypot="bot-field"
+                data-netlify-recaptcha="true"
                 aria-labelledby="subscribe-title"
                 class="flex flex-col gap-xl"
               >
+                <input type="hidden" name="form-name" value="subscribe" />
+                <p class="hidden">
+                  <label>Don't fill this out: <input name="bot-field" /></label>
+                </p>
                 <span id="subscribe-title" class="sr-only">
                   {t('subscribe.title')}
                 </span>
@@ -317,7 +327,7 @@ const secondaryTextClasses = 'text-neutral-75'
                   </div>
 
                   <div class="flex flex-col gap-sm">
-                    <div id="recaptcha-container"></div>
+                    <div data-netlify-recaptcha="true"></div>
                     <p
                       id="captcha-error"
                       class={errorClasses}
@@ -376,24 +386,12 @@ const secondaryTextClasses = 'text-neutral-75'
   </main>
 </FoundationPageLayout>
 
-{
-  recaptchaSiteKey && (
-    <script
-      is:inline
-      src="https://www.google.com/recaptcha/api.js?onload=onSubscribeRecaptchaLoad&render=explicit"
-      async
-      defer
-    />
-  )
-}
-
 <script
   is:inline
   define:vars={{
     hubspotCommunicationSubscriptionTypeId,
     consentProcessingLabel,
-    consentCommunicationsLabel,
-    recaptchaSiteKey
+    consentCommunicationsLabel
   }}
 >
   const successEl = document.getElementById('success-message')
@@ -413,26 +411,12 @@ const secondaryTextClasses = 'text-neutral-75'
   )
   const consentProcessing = document.getElementById('consent-processing')
 
-  let recaptchaWidgetId = null
-  let recaptchaLoaded = false
-
-  function renderRecaptcha() {
-    if (recaptchaWidgetId !== null || !recaptchaSiteKey) return
-    if (!recaptchaLoaded || !window.grecaptcha) return
-    // Rendering onto a display:none container sizes the iframe incorrectly,
-    // so only render once step 2 is actually visible.
-    if (step2El?.classList.contains('hidden')) return
-    recaptchaWidgetId = window.grecaptcha.render('recaptcha-container', {
-      sitekey: recaptchaSiteKey
-    })
-  }
-
-  // Fired by the recaptcha/api.js `onload` query param once the library is
-  // ready. If the user already reached step 2 before this fired, render now;
-  // otherwise goToStep(2) triggers the render when the user gets there.
-  window.onSubscribeRecaptchaLoad = function () {
-    recaptchaLoaded = true
-    renderRecaptcha()
+  function recaptchaResponse() {
+    return (
+      document
+        .querySelector('textarea[name="g-recaptcha-response"]')
+        ?.value?.trim() ?? ''
+    )
   }
 
   function showError(el) {
@@ -460,7 +444,7 @@ const secondaryTextClasses = 'text-neutral-75'
     // Disabling it while off-screen excludes it from validation reliably.
     if (consentCommunications) consentCommunications.disabled = !showStep2
     if (consentProcessing) consentProcessing.disabled = !showStep2
-    if (showStep2) renderRecaptcha()
+    if (showStep2) window.grecaptcha?.reset?.()
     const target = showStep2
       ? step2El?.querySelector('input, button')
       : step1El?.querySelector('input')
@@ -522,11 +506,7 @@ const secondaryTextClasses = 'text-neutral-75'
       return
     }
 
-    const recaptchaToken =
-      recaptchaWidgetId !== null
-        ? window.grecaptcha?.getResponse(recaptchaWidgetId)
-        : ''
-
+    const recaptchaToken = recaptchaResponse()
     if (!recaptchaToken) {
       showError(captchaError)
       return
@@ -540,7 +520,10 @@ const secondaryTextClasses = 'text-neutral-75'
       const excludedFieldNames = new Set([
         'im_interested_in',
         'consent_communications',
-        'consent_processing'
+        'consent_processing',
+        'form-name',
+        'bot-field',
+        'g-recaptcha-response'
       ])
       const formData = new FormData(form)
       const fields = []
@@ -593,8 +576,7 @@ const secondaryTextClasses = 'text-neutral-75'
     } catch (err) {
       console.error(err)
       setSubmitting(false)
-      if (recaptchaWidgetId !== null)
-        window.grecaptcha?.reset(recaptchaWidgetId)
+      window.grecaptcha?.reset?.()
       showError(submitError)
     }
   })
