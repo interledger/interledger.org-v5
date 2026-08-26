@@ -96,8 +96,13 @@ const parallaxImgClass = isWideBand
       )
     }
 
+    <!--
+      Mobile drops to the H2 text style (32/40). At the H1 mobile size (56/68) a
+      long single word such as "Grantmaking" is wider than the phone gutter, so
+      it overflowed in Chrome and broke mid-word in Safari (INTORG-1149, Radu).
+    -->
     <h1
-      class="text-h1 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
+      class="text-h2 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
     >
       {title}
     </h1>
