@@ -86,4 +86,19 @@ describe('getCrossSectionPaths', () => {
       section: 'hackathon'
     })
   })
+
+  // The section filter must not go so far that a section stops seeing its own
+  // translation. Foundation owns the only ES entry, so it gets the real slug.
+  it('still uses a section its own ES translation', async () => {
+    const paths = await getCrossSectionPaths('foundation', 'es', 'page')
+    const faqPaths = paths.filter((p) => p.props.kind === 'faq')
+
+    expect(faqPaths).toHaveLength(1)
+    expect(faqPaths[0]?.params.page).toBe('preguntas-frecuentes')
+    expect(faqPaths[0]?.props).toMatchObject({
+      locale: 'es',
+      isFallback: false,
+      section: 'foundation'
+    })
+  })
 })
