@@ -34,7 +34,7 @@
         }
       },
       "required": true,
-      "unique": true
+      "description": "Must be unique within a Section, not across the whole site: two sections may hold the same pathSlug."
     },
     "section": {
       "type": "enumeration",

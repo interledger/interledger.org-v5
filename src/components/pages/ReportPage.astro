@@ -70,13 +70,13 @@ const sections = headings
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
-  entry.data.section,
+  section,
   heading,
   routeLocale,
   t('nav.home')
 )
 
-const Layout = getSectionPageLayout(entry.data.section)
+const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>

@@ -118,14 +118,14 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     const data = {
       content: [
         { __component: 'shared.cta-link', link: 'contact', text: 'Go' },
-        { __component: 'blocks.card-link', href: '#section', title: 'Jump' },
+        { __component: 'blocks.quote', quote: 'Hi', authorLink: '#section' },
         { __component: 'blocks.paragraph', content: 'Unrelated text' }
       ]
     }
     normalizeRelativeLinksInDocumentData(data)
     expect(data.content).toEqual([
       { __component: 'shared.cta-link', link: '/contact', text: 'Go' },
-      { __component: 'blocks.card-link', href: '#section', title: 'Jump' },
+      { __component: 'blocks.quote', quote: 'Hi', authorLink: '#section' },
       { __component: 'blocks.paragraph', content: 'Unrelated text' }
     ])
   })

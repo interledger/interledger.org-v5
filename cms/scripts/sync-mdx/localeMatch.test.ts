@@ -6,6 +6,11 @@ import {
 } from './localeMatch'
 import { createMdxFile } from './test-utils'
 
+/** Content type keyed on pathSlug alone (the default). */
+const BY_SLUG = {}
+/** Cross-section content type keyed on (section, pathSlug). */
+const BY_SECTION_AND_SLUG = { sectionScopedIdentity: true }
+
 beforeEach(() => {
   vi.spyOn(console, 'log').mockImplementation(() => {})
   vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -15,7 +20,7 @@ beforeEach(() => {
 // before deleting Strapi entries. Without this, we'd have to scan the file list on every check.
 describe('buildMdxSlugsByLocale', () => {
   it('returns empty map for empty input', () => {
-    const map = buildMdxSlugsByLocale([])
+    const map = buildMdxSlugsByLocale([], BY_SLUG)
 
     expect(map.size).toBe(0)
   })
@@ -23,7 +28,7 @@ describe('buildMdxSlugsByLocale', () => {
   it('groups single file by locale', () => {
     const mdx = createMdxFile({ pathSlug: 'about-us' })
 
-    const map = buildMdxSlugsByLocale([mdx])
+    const map = buildMdxSlugsByLocale([mdx], BY_SLUG)
 
     expect(map.get('en')?.has('about-us')).toBe(true)
   })
@@ -35,7 +40,7 @@ describe('buildMdxSlugsByLocale', () => {
       createMdxFile({ pathSlug: 'sobre-nosotros', locale: 'es' })
     ]
 
-    const map = buildMdxSlugsByLocale(files)
+    const map = buildMdxSlugsByLocale(files, BY_SLUG)
 
     expect(map.get('en')?.has('about')).toBe(true)
     expect(map.get('en')?.has('home')).toBe(true)
@@ -47,7 +52,7 @@ describe('buildMdxSlugsByLocale', () => {
   it('defaults locale to en when locale is empty string', () => {
     const mdx = createMdxFile({ pathSlug: 'page', locale: '' })
 
-    const map = buildMdxSlugsByLocale([mdx])
+    const map = buildMdxSlugsByLocale([mdx], BY_SLUG)
 
     expect(map.get('en')?.has('page')).toBe(true)
     // Should not create an empty-string key — that would cause lookups to fail
@@ -58,9 +63,43 @@ describe('buildMdxSlugsByLocale', () => {
   it('defaults locale to en when locale is undefined', () => {
     const mdx = createMdxFile({ pathSlug: 'page', locale: undefined })
 
-    const map = buildMdxSlugsByLocale([mdx])
+    const map = buildMdxSlugsByLocale([mdx], BY_SLUG)
 
     expect(map.get('en')?.has('page')).toBe(true)
+  })
+
+  // The foundation FAQ and the hackathon FAQ share pathSlug 'faq'. Keyed on
+  // pathSlug alone they collapse into one entry, which is INTORG-1132.
+  it('keeps two sections that share a pathSlug apart when section-scoped', () => {
+    const files = [
+      createMdxFile({ pathSlug: 'faq', section: 'foundation' }),
+      createMdxFile({ pathSlug: 'faq', section: 'hackathon' })
+    ]
+
+    const map = buildMdxSlugsByLocale(files, BY_SECTION_AND_SLUG)
+
+    expect(map.get('en')?.size).toBe(2)
+    expect(
+      hasMdxFile(map, 'en', { pathSlug: 'faq', section: 'foundation' })
+    ).toBe(true)
+    expect(
+      hasMdxFile(map, 'en', { pathSlug: 'faq', section: 'hackathon' })
+    ).toBe(true)
+    expect(hasMdxFile(map, 'en', { pathSlug: 'faq', section: 'summit' })).toBe(
+      false
+    )
+  })
+
+  it('ignores section when the content type is not section-scoped', () => {
+    const files = [
+      createMdxFile({ pathSlug: 'faq', section: 'foundation' }),
+      createMdxFile({ pathSlug: 'faq', section: 'hackathon' })
+    ]
+
+    const map = buildMdxSlugsByLocale(files, BY_SLUG)
+
+    expect(map.get('en')?.size).toBe(1)
+    expect(hasMdxFile(map, 'en', { pathSlug: 'faq', section: null })).toBe(true)
   })
 
   it('handles multiple slugs in same locale', () => {
@@ -70,7 +109,7 @@ describe('buildMdxSlugsByLocale', () => {
       createMdxFile({ pathSlug: 'page-3', locale: 'de' })
     ]
 
-    const map = buildMdxSlugsByLocale(files)
+    const map = buildMdxSlugsByLocale(files, BY_SLUG)
 
     expect(map.get('de')?.size).toBe(3)
   })
@@ -84,13 +123,17 @@ describe('hasMdxFile', () => {
       ['es', new Set(['sobre-nosotros'])]
     ])
 
-    expect(hasMdxFile(map, 'es', 'sobre-nosotros')).toBe(true)
+    expect(
+      hasMdxFile(map, 'es', { pathSlug: 'sobre-nosotros', section: null })
+    ).toBe(true)
   })
 
   it('returns false when locale does not exist in map', () => {
     const map = new Map<string, Set<string>>()
 
-    expect(hasMdxFile(map, 'es', 'any-slug')).toBe(false)
+    expect(hasMdxFile(map, 'es', { pathSlug: 'any-slug', section: null })).toBe(
+      false
+    )
   })
 
   it('returns false when slug does not exist in locale', () => {
@@ -98,13 +141,17 @@ describe('hasMdxFile', () => {
       ['es', new Set(['existing-slug'])]
     ])
 
-    expect(hasMdxFile(map, 'es', 'different-slug')).toBe(false)
+    expect(
+      hasMdxFile(map, 'es', { pathSlug: 'different-slug', section: null })
+    ).toBe(false)
   })
 
   it('returns false for empty set', () => {
     const map = new Map<string, Set<string>>([['en', new Set()]])
 
-    expect(hasMdxFile(map, 'en', 'any-slug')).toBe(false)
+    expect(hasMdxFile(map, 'en', { pathSlug: 'any-slug', section: null })).toBe(
+      false
+    )
   })
 })
 
@@ -122,7 +169,7 @@ describe('findMatchingLocales', () => {
       })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(1)
     expect(matches[0].localeMdx.pathSlug).toBe('sobre-nosotros')
@@ -141,7 +188,7 @@ describe('findMatchingLocales', () => {
       })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(0)
   })
@@ -156,7 +203,7 @@ describe('findMatchingLocales', () => {
       })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(0)
   })
@@ -164,7 +211,7 @@ describe('findMatchingLocales', () => {
   it('returns empty array for empty locale files', () => {
     const englishMdx = createMdxFile({ pathSlug: 'about-us' })
 
-    const matches = findMatchingLocales(englishMdx, [])
+    const matches = findMatchingLocales(englishMdx, [], BY_SLUG)
 
     expect(matches).toHaveLength(0)
   })
@@ -190,7 +237,7 @@ describe('findMatchingLocales', () => {
       })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(3)
     expect(matches.map((m) => m.localeMdx.pathSlug)).toEqual([
@@ -217,10 +264,42 @@ describe('findMatchingLocales', () => {
       })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(1)
     expect(matches[0].localeMdx.pathSlug).toBe('match')
+  })
+
+  // Two sections share pathSlug 'faq', so both their ES files say
+  // `localizes: faq`. Each must attach to its own section's English entry.
+  it('requires a matching section when the content type is section-scoped', () => {
+    const englishMdx = createMdxFile({
+      pathSlug: 'faq',
+      section: 'foundation'
+    })
+    const localeFiles = [
+      createMdxFile({
+        pathSlug: 'preguntas-frecuentes',
+        section: 'foundation',
+        locale: 'es',
+        localizes: 'faq'
+      }),
+      createMdxFile({
+        pathSlug: 'preguntas-hackathon',
+        section: 'hackathon',
+        locale: 'es',
+        localizes: 'faq'
+      })
+    ]
+
+    const matches = findMatchingLocales(
+      englishMdx,
+      localeFiles,
+      BY_SECTION_AND_SLUG
+    )
+
+    expect(matches).toHaveLength(1)
+    expect(matches[0].localeMdx.pathSlug).toBe('preguntas-frecuentes')
   })
 
   // Locale files without localizes are "orphans" — they'll be handled separately
@@ -231,7 +310,7 @@ describe('findMatchingLocales', () => {
       createMdxFile({ pathSlug: 'orphan', locale: 'es', localizes: undefined })
     ]
 
-    const matches = findMatchingLocales(englishMdx, localeFiles)
+    const matches = findMatchingLocales(englishMdx, localeFiles, BY_SLUG)
 
     expect(matches).toHaveLength(0)
   })

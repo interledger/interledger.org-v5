@@ -723,7 +723,7 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 ## Grantee Data (Airtable Integration)
 
-To make the work funded through Interledger Foundation grants easier to explore, the website will host a publicly accessible grantee database sourced from Airtable. A sync script fetches approved records into a local JSON file; rendering the data on the site will follow in a later phase.
+To make the work funded through Interledger Foundation grants easier to explore, the website hosts a publicly accessible grantee directory sourced from Airtable. A sync script fetches approved records into a local JSON file that the `/grant/grantee-directory` page renders.
 
 ### Syncing Data from Airtable
 

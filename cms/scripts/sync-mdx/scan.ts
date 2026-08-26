@@ -94,11 +94,14 @@ export function scanMDXFiles(
     }
 
     const localizesValue = (frontmatter.localizes as string) || null
+    const section =
+      typeof frontmatter.section === 'string' ? frontmatter.section : null
 
     mdxFiles.push({
       file: rel.split(/[/\\]/).join('/'),
       filepath,
       pathSlug,
+      section,
       locale: fileLocale,
       frontmatter,
       content: trimmedContent,

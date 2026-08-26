@@ -71,6 +71,15 @@ export interface ContentTypeConfig {
   /** Optional schema for frontmatter validation. Absent = validation skipped. */
   schema?: FrontmatterSchema
   /**
+   * True when `pathSlug` is relative to the `section` field, so an entry is
+   * identified by (locale, section, pathSlug) rather than (locale, pathSlug).
+   * See entryIdentity.ts. Only enable this for a content type whose Strapi
+   * schema has a required, non-localized `section` attribute AND whose
+   * `pathSlug` is NOT declared unique, otherwise the second section's entry
+   * fails to create.
+   */
+  sectionScopedIdentity?: boolean
+  /**
    * Builds the Strapi payload from an MDX file. Returns an Error on
    * frontmatter validation failure, missing Strapi upload, parser failure,
    * or transport failure. Callers narrow with `instanceof Error`.
@@ -150,6 +159,9 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'profiles'),
       apiId: 'profile-pages',
       schema: profileFrontmatterSchema,
+      // Same section-relative pathSlug as faqs: a hackathon speaker and a
+      // foundation fellow could both be `speakers/jane-doe` (INTORG-1132).
+      sectionScopedIdentity: true,
       buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
         return buildProfilePayload(
@@ -174,6 +186,9 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'faqs'),
       apiId: 'faqs',
       schema: faqFrontmatterSchema,
+      // The foundation FAQ and the hackathon FAQ both use pathSlug 'faq'
+      // (INTORG-1132).
+      sectionScopedIdentity: true,
       // faqSections is fully specified frontmatter — no MDX body, relation,
       // or media resolution needed.
       buildPayload: (mdx) => buildFaqPayload(faqFrontmatterSchema, mdx)
@@ -182,6 +197,8 @@ export function buildContentTypes(
       dir: getContentPath(projectRoot, 'reports'),
       apiId: 'reports',
       schema: reportFrontmatterSchema,
+      // Same section-relative pathSlug as faqs (INTORG-1132).
+      sectionScopedIdentity: true,
       buildPayload: (mdx, strapi, existing, dryRun) => {
         const locale = mdx.locale || 'en'
         // Report content blocks don't resolve relations/media, but

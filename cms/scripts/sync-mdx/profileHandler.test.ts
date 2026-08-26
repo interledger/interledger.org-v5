@@ -7,21 +7,33 @@ import type { StrapiClient } from './strapiClient'
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Create a minimal mock StrapiClient with a controllable findByPathSlug. */
+type MockEntry = { documentId: string; locale: string; section?: string }
+
+/**
+ * Minimal mock StrapiClient keyed by `locale:pathSlug`. A value may be an
+ * array so a test can present the same pathSlug in two sections.
+ */
 function createMockStrapi(
-  entries: Record<string, { documentId: string; locale: string }>
+  entries: Record<string, MockEntry | MockEntry[]>
 ): StrapiClient {
+  const matchesFor = (pathSlug: string, locale?: string) => {
+    const found = entries[`${locale}:${pathSlug}`]
+    if (!found) return []
+    return (Array.isArray(found) ? found : [found]).map((entry) => ({
+      documentId: entry.documentId,
+      pathSlug,
+      ...(entry.section !== undefined && { section: entry.section })
+    }))
+  }
+
   return {
     findByPathSlug: vi.fn(
-      async (
-        _apiId: string,
-        pathSlug: string,
-        locale?: string
-      ): Promise<{ documentId: string; pathSlug: string } | undefined> => {
-        const key = `${locale}:${pathSlug}`
-        const entry = entries[key]
-        return entry ? { documentId: entry.documentId, pathSlug } : undefined
-      }
+      async (_apiId: string, pathSlug: string, locale?: string) =>
+        matchesFor(pathSlug, locale)[0]
+    ),
+    findAllByPathSlug: vi.fn(
+      async (_apiId: string, pathSlug: string, locale?: string) =>
+        matchesFor(pathSlug, locale)
     ),
     // Unused methods — stub to satisfy the interface
     request: vi.fn(),
@@ -57,7 +69,7 @@ describe('createRelationResolver', () => {
     const result = await resolve('profile-pages', 'alice')
 
     expect(result).toEqual({ documentId: 'doc-es-alice' })
-    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+    expect(strapi.findAllByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
       'es'
@@ -75,7 +87,7 @@ describe('createRelationResolver', () => {
     await expect(resolve('profile-pages', 'alice')).rejects.toMatchObject({
       code: ParserErrorCode.UNRESOLVED_RELATION
     })
-    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+    expect(strapi.findAllByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
       'es'
@@ -103,6 +115,50 @@ describe('createRelationResolver', () => {
     )
   })
 
+  // With pathSlug unique per section rather than globally, one slug can name
+  // two profiles. A relation carries no section, so the resolver must refuse
+  // instead of linking whichever entry Strapi returned first (INTORG-1132).
+  it('refuses an ambiguous pathSlug that matches two sections', async () => {
+    const strapi = createMockStrapi({
+      'en:speakers/jane-doe': [
+        { documentId: 'doc-foundation', locale: 'en', section: 'foundation' },
+        { documentId: 'doc-hackathon', locale: 'en', section: 'hackathon' }
+      ]
+    })
+    const resolve = createRelationResolver(strapi, 'en')
+
+    await expect(
+      resolve('profile-pages', 'speakers/jane-doe')
+    ).rejects.toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
+  })
+
+  it('names both sections so the author knows what collided', async () => {
+    const strapi = createMockStrapi({
+      'en:speakers/jane-doe': [
+        { documentId: 'doc-foundation', locale: 'en', section: 'foundation' },
+        { documentId: 'doc-hackathon', locale: 'en', section: 'hackathon' }
+      ]
+    })
+    const resolve = createRelationResolver(strapi, 'en')
+
+    await expect(resolve('profile-pages', 'speakers/jane-doe')).rejects.toThrow(
+      /foundation, hackathon/
+    )
+  })
+
+  it('still resolves when only one section holds the pathSlug', async () => {
+    const strapi = createMockStrapi({
+      'en:speakers/jane-doe': [
+        { documentId: 'doc-hackathon', locale: 'en', section: 'hackathon' }
+      ]
+    })
+    const resolve = createRelationResolver(strapi, 'en')
+
+    await expect(
+      resolve('profile-pages', 'speakers/jane-doe')
+    ).resolves.toEqual({ documentId: 'doc-hackathon' })
+  })
+
   it('throws UNRESOLVED_RELATION when not found in the target locale', async () => {
     const strapi = createMockStrapi({})
     const resolve = createRelationResolver(strapi, 'es')
@@ -122,8 +178,9 @@ describe('createRelationResolver', () => {
     await expect(resolve('profile-pages', 'ghost')).rejects.toThrow(
       MdxParserError
     )
-    // Should only call once (no fallback to same locale)
-    expect(strapi.findByPathSlug).toHaveBeenCalledTimes(1)
+    // Should only look once (no fallback to the same locale)
+    expect(strapi.findAllByPathSlug).toHaveBeenCalledTimes(1)
+    expect(strapi.findByPathSlug).not.toHaveBeenCalled()
   })
 
   it('dry-run: resolves with a placeholder when the pathSlug would be created by this same run', async () => {
@@ -408,7 +465,7 @@ describe('ProfileCard handler (locale import)', () => {
     expect(blocks).toBeInstanceOf(MdxParserError)
     expect(blocks).toMatchObject({ code: ParserErrorCode.UNRESOLVED_RELATION })
     // Live sync must not fall back to en documentIds
-    expect(strapi.findByPathSlug).toHaveBeenCalledWith(
+    expect(strapi.findAllByPathSlug).toHaveBeenCalledWith(
       'profile-pages',
       'alice',
       'es'

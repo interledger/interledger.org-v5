@@ -7,6 +7,7 @@
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import HackathonLogo from '@/components/logos/HackathonLogo.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { buildUmamiAttrs, useTranslations } from '@/utils'
 
 const HERO_IMAGE_WIDTH = 1588
@@ -29,6 +30,7 @@ interface Props {
   imageMobile?: string | null
   imageMobileAlt?: string | null
   cta?: HackathonHeroCta | null
+  isFallback?: boolean
 }
 
 const {
@@ -38,7 +40,8 @@ const {
   imageAlt,
   imageMobile,
   imageMobileAlt,
-  cta
+  cta,
+  isFallback = false
 } = Astro.props
 
 const { routeLocale } = Astro.locals
@@ -63,13 +66,21 @@ const ctaUmami = cta
 <section
   data-component="HackathonHero"
   data-umami-component="hackathon-hero"
-  class="flex items-start bg-royal-purple-100 text-neutral-0 -mt-(--site-header-height) pt-(--site-header-height) tablet:min-h-[80vh] tablet:items-center desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) desktop:min-h-[100vh]"
+  class="flex flex-col items-stretch bg-royal-purple-100 text-neutral-0 -mt-(--site-header-height) pt-(--site-header-height) tablet:min-h-[80vh] desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) desktop:min-h-[100vh]"
   aria-labelledby="hackathon-hero-title"
 >
+  {
+    isFallback && (
+      <div class="mx-auto flex w-full max-w-wide justify-end px-xl pt-xl desktop:px-5xl">
+        <TranslationDisclaimer isVisible={isFallback} />
+      </div>
+    )
+  }
   <div
     class:list={[
-      'mx-auto grid w-full max-w-wide items-center gap-3xl px-xl pt-xl pb-3xl tablet:py-5xl desktop:px-5xl',
-      hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : ''
+      'mx-auto grid w-full max-w-wide flex-1 items-center gap-3xl px-xl pt-xl pb-3xl tablet:py-5xl desktop:px-5xl',
+      hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : '',
+      isFallback ? 'tablet:pt-3xl' : ''
     ]}
   >
     <div

@@ -1,0 +1,39 @@
+---
+import { twMerge } from '@/utils'
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'class'> {
+  active?: boolean
+  disabled?: boolean
+  class?: string
+}
+
+const {
+  active = false,
+  disabled = false,
+  class: className,
+  ...rest
+} = Astro.props
+
+const classes = twMerge(
+  `inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100
+  border border-neutral-50 rounded-full bg-transparent
+  transition-colors duration-200 ease-in-out
+  hover:border-neutral-75 hover:text-neutral-150
+  focus-visible:outline-none focus-visible:border-link
+  [&[aria-current='page']]:text-link [&[aria-current='page']]:border-2 [&[aria-current='page']]:border-link
+  [&[aria-current='page']]:px-[calc(var(--spacing-sm)-1px)] [&[aria-current='page']]:py-[calc(var(--spacing-xs)-1px)]
+  [&[aria-disabled='true']]:text-neutral-50 [&[aria-disabled='true']]:cursor-not-allowed
+  [&[aria-disabled='true']]:hover:border-neutral-50 [&[aria-disabled='true']]:hover:text-neutral-50`,
+  className
+)
+---
+
+<a
+  {...rest}
+  class={classes}
+  aria-current={active ? 'page' : undefined}
+  aria-disabled={disabled ? 'true' : undefined}
+>
+  <slot />
+</a>

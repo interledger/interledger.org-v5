@@ -43,13 +43,13 @@ const introParagraphHtml = introParagraph
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,
-  entry.data.section,
+  section,
   heading,
   routeLocale,
   t('nav.home')
 )
 
-const Layout = getSectionPageLayout(entry.data.section)
+const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
@@ -57,17 +57,9 @@ const Layout = getSectionPageLayout(entry.data.section)
     class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
   >
     <div class="content-column">
-      {
-        entry.data.section !== 'hackathon' ? (
-          <Breadcrumbs breadcrumbs={breadcrumbs}>
-            <TranslationDisclaimer isVisible={isFallback} />
-          </Breadcrumbs>
-        ) : (
-          <div class="flex justify-end">
-            <TranslationDisclaimer isVisible={isFallback} />
-          </div>
-        )
-      }
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
       <h1
         class="text-neutral-900 text-h2 mt-xl tablet:mt-3xl tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
       >

@@ -1,0 +1,125 @@
+---
+pathSlug: 'tech/overview'
+title: 'Interledger Tech Stack'
+description: "Interledger's open technology stack lets banks, wallets, and financial institutions connect through shared protocols and open-source tools."
+heroTitle: 'Interledger Tech'
+heroDescription: 'An open technology stack for connected payments.'
+heroImage: '/uploads/img/original/1_interledger_tech_hero_large_e6a7d415fb.jpg'
+heroImageAlt: 'The People’s Clearing House presentation on the main stage on day one of the 2025 Interledger Summit in Mexico City.'
+heroCtas:
+  - text: 'Arrange an integration call'
+    link: '/contact'
+locale: 'en'
+---
+
+<Paragraph>
+
+Interledger technology lets banks, wallets, and financial institutions connect through shared standards, open protocols, and open-source tools built for real-world integration.
+
+Today’s payment systems run on separate networks, different rules, and disconnected infrastructure. Each new connection means custom integrations, separate agreements, and ongoing coordination, rebuilt from scratch every time. Interledger replaces that with one open protocol and a shared set of standards, so systems can work together without rebuilding integrations every time.
+
+</Paragraph>
+
+<Paragraph>
+
+## The Interledger Stack
+
+Interledger is a stack of open protocols that work in layers, modeled on the architecture of the internet. Each layer has one delegated responsibility and knows how to communicate with the layers directly above and below it. That structure is what makes the technology adaptable, because a layer can be improved or replaced without disrupting the others.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/2_interledger_tech_stack_2_760f2426ca.jpg"
+  alt="A visual depiction of the similarities between the Interledger Tech Stack layers and the architecture of the Internet."
+  needsFullView={true}
+  needsOutline={true}
+/>
+
+<CardGrid ariaLabel="A grid of cards that give an overview of each layer of the Interledger Tech Stack." variant="Title" columns="Three">
+<TitleCard heading="Application Protocols (Open Payments and Simple Payments Setup Protocol)" buttonUrl="/tech/open-payments" buttonText="Explore Open Payments" buttonExternal={false}>
+
+Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
+
+</TitleCard>
+<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="https://interledger.org/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={true}>
+
+Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
+
+</TitleCard>
+<TitleCard heading="The Interledger Protocol (ILP)" buttonUrl="/tech/interledger-protocol" buttonText="Learn more about ILP" buttonExternal={false}>
+
+Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
+
+</TitleCard>
+</CardGrid>
+
+<CardGrid ariaLabel="A grid of cards that give an overview of the bottom two layers shown on the Interledger Tech Stack image." variant="Info" columns="Two">
+<InfoCard heading="Link Layer Protocols">
+
+Provide two-way authenticated communication between account holders or their financial service providers.
+
+</InfoCard>
+<InfoCard heading="Ledgers and Payment Systems">
+
+The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+**Rafiki** is the open-source implementation that brings these layers together, so a regulated financial institution can adopt the whole stack without building each part itself.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[{ text: 'Explore Rafiki', link: '/tech/rafiki', style: 'primary' }]}
+/>
+
+<Paragraph>
+
+**Web Monetization** is the open web standard for browser-native payments and micropayments, made possible by ILP. It uses the Application Layer protocols to make these payments.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Discover Web Monetization',
+      link: '/tech/web-monetization',
+      style: 'primary'
+    }
+  ]}
+/>
+
+<CardGrid title="Why it is Built This Way" ariaLabel="A grid of cards explaining the design decisions behind the Interledger Stack" variant="Info" columns="Two">
+<InfoCard heading="Delegated responsibility">
+
+Each layer does one job and relies on the others to do theirs, which keeps every part simple.
+
+</InfoCard>
+<InfoCard heading="Clean interfaces">
+
+A layer only needs to understand the concepts of the layers directly above and below it, not the whole system.
+
+</InfoCard>
+</CardGrid>
+
+<CardGrid ariaLabel="An additional grid of cards explaining the design decisions behind the Interledger Stack" variant="Info" columns="Two">
+<InfoCard heading="Interchangeability">
+
+Layers can be swapped without disrupting the rest. A new ledger technology at the base, or a new application at the top, works without changing the protocol in the middle.
+
+</InfoCard>
+<InfoCard heading="Modularity and scale">
+
+Because the pieces are independent, the stack can grow and adapt over time while the core stays stable.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+Try it and build<br />All our tech is open source, with full documentation available, so there’s nothing stopping you from trying it out. Here are some key links, if you’re interested
+
+</Paragraph>

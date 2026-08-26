@@ -12,11 +12,16 @@ import { LOCALES, defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
  * Removes the `localizes` field from locale MDX files that reference the given
  * English slug. Call when the English version is deleted so locale files no
  * longer point to a non-existent source.
+ *
+ * Pass `section` for a cross-section content type. Its `pathSlug` is
+ * section-relative, so two sections can share one slug and matching on the
+ * slug alone would strip `localizes` from the wrong file (INTORG-1132).
  */
 export function removeLocalizesFromLocaleFiles(
   englishSlug: string,
   getLocaleDir: (locale: string) => string,
-  label: string
+  label: string,
+  section?: string | null
 ): void {
   const nonEnLocales = LOCALES.filter((l) => l !== defaultLang)
   for (const locale of nonEnLocales) {
@@ -30,7 +35,9 @@ export function removeLocalizesFromLocaleFiles(
         try {
           const raw = fs.readFileSync(filepath, 'utf-8')
           const { data: frontmatter, content } = matter(raw)
-          if (frontmatter.localizes === englishSlug) {
+          const sectionMatches =
+            section == null || frontmatter.section === section
+          if (frontmatter.localizes === englishSlug && sectionMatches) {
             const rest = { ...(frontmatter as Record<string, unknown>) }
             delete rest.localizes
             fs.writeFileSync(

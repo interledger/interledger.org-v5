@@ -1,9 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-// `./static-paths` reaches into Astro's virtual modules for the content
-// collections and the i18n config. Mock them with a minimal en/es setup so
-// this suite runs under plain vitest (see navigation.test.ts for the same
-// convention).
 vi.mock('astro:config/client', () => ({
   i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
 }))
@@ -11,60 +7,79 @@ vi.mock('astro:i18n', () => ({
   toCodes: (locales: string[]) => locales
 }))
 
-// Two FAQs share the pathSlug `faq` and differ only by section. That pair is
-// what makes the section field load-bearing.
-const collections: Record<string, { data: Record<string, unknown> }[]> = {
-  faqs: [
-    { data: { pathSlug: 'faq', section: 'foundation', locale: 'en' } },
-    { data: { pathSlug: 'faq', section: 'hackathon', locale: 'en' } },
-    // Only the foundation FAQ is translated. Its `localizes` key is the EN
-    // pathSlug `faq`, which the hackathon FAQ also uses.
-    {
-      data: {
-        pathSlug: 'preguntas',
-        section: 'foundation',
-        locale: 'es',
-        localizes: 'faq'
-      }
-    }
-  ],
-  profiles: [],
-  reports: []
-}
-
+const { getCollectionMock } = vi.hoisted(() => ({
+  getCollectionMock: vi.fn().mockResolvedValue([])
+}))
 vi.mock('astro:content', async () => {
   const { z } = await import('zod')
-  return {
-    z,
-    getCollection: (name: string) => Promise.resolve(collections[name] ?? [])
-  }
+  return { z, getCollection: getCollectionMock }
 })
 
 const { getCrossSectionPaths } = await import('./static-paths')
 
-describe('getCrossSectionPaths', () => {
-  it('carries the section so a shared pathSlug still resolves', async () => {
-    const paths = await getCrossSectionPaths('hackathon', 'en', 'page')
+function faq(data: {
+  locale?: string
+  pathSlug?: string
+  section: string
+  localizes?: string
+}) {
+  return {
+    data: {
+      locale: 'en',
+      pathSlug: 'faq',
+      localizes: undefined,
+      ...data
+    }
+  }
+}
 
-    expect(paths).toHaveLength(1)
-    expect(paths[0].props).toMatchObject({
-      slug: 'faq',
-      kind: 'faq',
-      section: 'hackathon'
+describe('getCrossSectionPaths', () => {
+  beforeEach(() => {
+    getCollectionMock.mockImplementation(async (name: string) => {
+      if (name !== 'faqs') return []
+      return [
+        faq({ section: 'foundation' }),
+        faq({ section: 'hackathon' }),
+        faq({
+          locale: 'es',
+          section: 'foundation',
+          localizes: 'faq',
+          pathSlug: 'preguntas-frecuentes'
+        })
+      ]
     })
   })
 
-  it('keeps the foundation FAQ on the foundation section', async () => {
-    const paths = await getCrossSectionPaths('foundation', 'en', 'page')
+  it('keeps same-slug FAQs on their own section routes', async () => {
+    const hackathon = await getCrossSectionPaths('hackathon', 'en', 'page')
+    const foundation = await getCrossSectionPaths('foundation', 'en', 'page')
 
-    expect(paths.map((p) => p.props.section)).toEqual(['foundation'])
+    const hackathonFaq = hackathon.filter((p) => p.props.kind === 'faq')
+    const foundationFaq = foundation.filter((p) => p.props.kind === 'faq')
+
+    expect(hackathonFaq).toHaveLength(1)
+    expect(hackathonFaq[0]?.props).toMatchObject({
+      slug: 'faq',
+      kind: 'faq',
+      section: 'hackathon',
+      locale: 'en',
+      isFallback: false
+    })
+    expect(foundationFaq).toHaveLength(1)
+    expect(foundationFaq[0]?.props).toMatchObject({
+      slug: 'faq',
+      kind: 'faq',
+      section: 'foundation',
+      locale: 'en'
+    })
   })
 
-  it('tags the section on an es path that falls back to en', async () => {
+  it('does not use a foundation ES translation for the hackathon FAQ', async () => {
     const paths = await getCrossSectionPaths('hackathon', 'es', 'page')
+    const faqPaths = paths.filter((p) => p.props.kind === 'faq')
 
-    expect(paths).toHaveLength(1)
-    expect(paths[0].props).toMatchObject({
+    expect(faqPaths).toHaveLength(1)
+    expect(faqPaths[0]?.props).toMatchObject({
       slug: 'faq',
       locale: 'en',
       isFallback: true,
@@ -72,20 +87,15 @@ describe('getCrossSectionPaths', () => {
     })
   })
 
-  it("does not borrow another section's translation for the same slug", async () => {
-    const paths = await getCrossSectionPaths('hackathon', 'es', 'page')
-
-    // The foundation ES entry localizes the slug `faq`. The hackathon route
-    // must not pick it up and serve /es/hackathon/preguntas.
-    expect(paths[0].params.page).toBe('faq')
-  })
-
-  it('uses its own section translation when there is one', async () => {
+  // The section filter must not go so far that a section stops seeing its own
+  // translation. Foundation owns the only ES entry, so it gets the real slug.
+  it('still uses a section its own ES translation', async () => {
     const paths = await getCrossSectionPaths('foundation', 'es', 'page')
+    const faqPaths = paths.filter((p) => p.props.kind === 'faq')
 
-    expect(paths).toHaveLength(1)
-    expect(paths[0].params.page).toBe('preguntas')
-    expect(paths[0].props).toMatchObject({
+    expect(faqPaths).toHaveLength(1)
+    expect(faqPaths[0]?.params.page).toBe('preguntas-frecuentes')
+    expect(faqPaths[0]?.props).toMatchObject({
       locale: 'es',
       isFallback: false,
       section: 'foundation'

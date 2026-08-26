@@ -90,9 +90,8 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
             />
           </summary>
           <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0 dark:border-neutral-75">
-            {section.items.map((item, itemIndex) => (
+            {section.items.map((item) => (
               <details
-                open={itemIndex === 0}
                 data-faq-mobile-item
                 class="group/item w-full border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl dark:border-neutral-75"
               >
@@ -126,14 +125,14 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
   // Mobile: FAQ sections themselves become an exclusive accordion (only one
   // open at a time, via the native <details name> group so the browser
   // handles closing the others for free) — first section open by default.
-  // Within an open section, its questions are ALSO an exclusive accordion
-  // (only one open at a time), scoped per-section via a unique group name so
+  // Within an open section, questions are ALSO an exclusive accordion (only
+  // one open at a time), scoped per-section via a unique group name so
   // opening a question in one section never affects another section's group.
+  // Questions start closed (INTORG-1153), matching the Faq block's FaqItem.
   // Tablet: every section stays open; the `toggle` guard below reasserts
   // `open` if a keyboard user still manages to collapse one (pointer-events
   // is disabled on the summary, but that doesn't block keyboard activation).
-  // Questions keep their independent (non-exclusive) toggling at tablet+, as
-  // before — only the section-level force-open applies there.
+  // Questions keep their independent (non-exclusive) toggling at tablet+.
   // 810px matches the `tablet:` breakpoint in tailwind.config.mjs (see the
   // same hardcoded value in src/scripts/header-nav.ts — no shared JS/CSS
   // breakpoint token exists in this codebase yet).
@@ -183,7 +182,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
         if (itemDetailsEls.length === 0) return
 
         const applyItemMode = (isTablet: boolean) => {
-          itemDetailsEls.forEach((itemDetails, itemIndex) => {
+          itemDetailsEls.forEach((itemDetails) => {
             if (isTablet) {
               itemDetails.removeAttribute('name')
             } else {
@@ -191,7 +190,6 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                 'name',
                 `faq-mobile-item-${sectionIndex}`
               )
-              itemDetails.open = itemIndex === 0
             }
           })
         }

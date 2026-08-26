@@ -14,6 +14,8 @@ import {
   validateGrantPagePrimaryCta,
   validateGrantPageFaqSection,
   validateFaqSections,
+  validateSectionScopedSlug,
+  type SectionScopedSlugFinder,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -92,7 +94,12 @@ function copySchemas() {
 interface DocumentValidationContext {
   uid: string
   action: string
-  params: { data?: Record<string, unknown>; [key: string]: unknown }
+  params: {
+    data?: Record<string, unknown>
+    documentId?: string
+    locale?: string
+    [key: string]: unknown
+  }
 }
 
 type DocumentValidationMiddleware = (
@@ -135,6 +142,51 @@ export function registerDocumentValidation(
     return next()
   })
 }
+
+/**
+ * Same as {@link registerDocumentValidation} for a check that has to query the
+ * database, e.g. "is this pathSlug already taken inside this section?".
+ * The validator receives the write's documentId and locale as well as the body,
+ * because a partial admin patch does not carry every field it needs.
+ */
+export function registerAsyncDocumentValidation(
+  strapi: {
+    documents: { use: (middleware: DocumentValidationMiddleware) => void }
+  },
+  uid: string,
+  validate: (args: {
+    data: Record<string, unknown>
+    documentId?: string
+    locale?: string
+  }) => Promise<errors.ValidationError | undefined>
+) {
+  strapi.documents.use(async (ctx, next) => {
+    if (
+      ctx.uid === uid &&
+      (ctx.action === 'create' || ctx.action === 'update')
+    ) {
+      const validationErr = await validate({
+        data: ctx.params.data ?? {},
+        documentId: ctx.params.documentId,
+        locale: ctx.params.locale
+      })
+      if (validationErr) throw validationErr
+    }
+    return next()
+  })
+}
+
+/**
+ * Content types whose `pathSlug` is relative to their `section`, so the slug
+ * alone does not identify an entry. Keep in step with `sectionScopedIdentity`
+ * in cms/scripts/sync-mdx/config.ts: the sync and the admin have to agree on
+ * what makes two entries the same one.
+ */
+const SECTION_SCOPED_SLUG_UIDS = [
+  'api::faq.faq',
+  'api::profile-page.profile-page',
+  'api::report.report'
+] as const
 
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
@@ -1154,32 +1206,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       question: 'Question',
       answer: 'Answer'
     },
-    'blocks.cards-grid': {
-      heading: 'Section Heading',
-      subheading: 'Section Description',
-      cards: 'Cards',
-      columns: 'Number of Columns'
-    },
-    'blocks.card': {
-      title: 'Card Title',
-      description: 'Card Description',
-      link: 'Link URL',
-      linkText: 'Link Text',
-      icon: 'Icon',
-      openInNewTab: 'Open in New Tab'
-    },
-    'blocks.card-links-grid': {
-      heading: 'Section Heading',
-      subheading: 'Section Description',
-      cards: 'Cards',
-      columns: 'Number of Columns'
-    },
-    'blocks.card-link': {
-      title: 'Card Title',
-      description: 'Card Description',
-      href: 'Link URL',
-      openInNewTab: 'Open in New Tab'
-    },
     'blocks.info-cards': {
       heading: 'Section Heading',
       card1: 'Card 1',
@@ -1254,13 +1280,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonLink: 'Secondary Button URL',
       secondaryButtonExternal: 'Secondary External Link',
       secondaryButtonDocument: 'Secondary Document Download'
-    },
-    'blocks.image-row': {
-      heading: 'Heading',
-      content: 'Content',
-      media: 'Image',
-      imagePosition: 'Image Position',
-      attribution: 'Image Attribution'
     },
     'blocks.image-block': {
       media: 'Image',
@@ -1451,12 +1470,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
-    },
-    'blocks.card': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
-    },
-    'blocks.card-link': {
       href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
     'blocks.grant-faq-section': {
@@ -1821,18 +1834,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'url', size: 12 }],
       [{ name: 'description', size: 12 }]
     ],
-    'blocks.cards-grid': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'subheading', size: 12 }],
-      [{ name: 'cards', size: 12 }],
-      [{ name: 'columns', size: 4 }]
-    ],
-    'blocks.card-links-grid': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'subheading', size: 12 }],
-      [{ name: 'cards', size: 12 }],
-      [{ name: 'columns', size: 4 }]
-    ],
     'blocks.carousel': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
@@ -1888,15 +1889,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'title', size: 12 }],
       [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
-    ],
-    'blocks.image-row': [
-      [{ name: 'heading', size: 12 }],
-      [{ name: 'media', size: 12 }],
-      [
-        { name: 'attribution', size: 6 },
-        { name: 'imagePosition', size: 6 }
-      ],
-      [{ name: 'content', size: 12 }]
     ],
     'blocks.image-block': [
       [{ name: 'media', size: 12 }],
@@ -2254,6 +2246,19 @@ export default {
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
       validateFaqSections(body)
     )
+    // pathSlug on these three is relative to its Section, so none of them can
+    // carry a plain `unique` constraint: /faq and /hackathon/faq are both
+    // `faq` (INTORG-1132). Enforce the real rule instead, unique per Section.
+    for (const uid of SECTION_SCOPED_SLUG_UIDS) {
+      registerAsyncDocumentValidation(strapi, uid, (args) =>
+        validateSectionScopedSlug({
+          documents: strapi.documents(
+            uid
+          ) as unknown as SectionScopedSlugFinder,
+          ...args
+        })
+      )
+    }
     registerDocumentValidation(
       strapi,
       'api::foundation-page.foundation-page',

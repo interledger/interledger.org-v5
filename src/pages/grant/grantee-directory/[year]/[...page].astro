@@ -1,0 +1,29 @@
+---
+import type { GetStaticPaths, Page } from 'astro'
+import rawGranteeData from '@/data/airtable/grantee-data.json'
+import GranteeDirectoryPage from '@/components/pages/GranteeDirectoryPage.astro'
+import {
+  getGranteeListingData,
+  paginateGranteesByYear,
+  type Grantee,
+  type GranteeFilterOption
+} from '@/utils'
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const listing = getGranteeListingData(rawGranteeData, 'en')
+  if (listing instanceof Error) throw listing
+  return paginateGranteesByYear({ paginate, ...listing })
+}
+
+interface Props {
+  page: Page<Grantee>
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+  selectedYear?: string
+  selectedTag?: string
+}
+
+const props = Astro.props
+---
+
+<GranteeDirectoryPage {...props} />
