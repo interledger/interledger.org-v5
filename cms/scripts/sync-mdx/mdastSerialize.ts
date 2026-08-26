@@ -6,7 +6,6 @@ import { toMarkdown } from 'mdast-util-to-markdown'
 import { mdxJsxToMarkdown } from 'mdast-util-mdx-jsx'
 import type { Root, RootContent } from 'mdast'
 import { unescapeMdxBraces } from '../../src/serializers/shared'
-import { collapseNonTableLineBreaks } from '../../src/utils/mdx'
 
 /**
  * Serialize mdast children to a trimmed markdown string.
@@ -17,12 +16,10 @@ import { collapseNonTableLineBreaks } from '../../src/utils/mdx'
  * - `bullet: '-'` so unordered lists always use `-` markers
  */
 export function childrenToMarkdown(children: RootContent[]): string {
-  return collapseNonTableLineBreaks(
-    toMarkdown({ type: 'root', children } as Root, {
-      extensions: [mdxJsxToMarkdown()],
-      bullet: '-'
-    })
-  ).trim()
+  return toMarkdown({ type: 'root', children } as Root, {
+    extensions: [mdxJsxToMarkdown()],
+    bullet: '-'
+  }).trim()
 }
 
 /** Minimal source-text context a handler needs to prefer raw slicing. */
@@ -59,7 +56,7 @@ export function extractChildrenContent(
       const raw = ctx.sourceText
         .slice(first.position.start.offset, last.position.end.offset)
         .trim()
-      if (raw) return unescapeMdxBraces(collapseNonTableLineBreaks(raw).trim())
+      if (raw) return unescapeMdxBraces(raw)
     }
   }
 

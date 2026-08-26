@@ -5,7 +5,8 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
-  GRANT_PAGE_CONTENT_POPULATE
+  GRANT_PAGE_CONTENT_POPULATE,
+  ckeditorBreaksToNewlines
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -101,7 +102,7 @@ export function generateGrantPageMDX(
     description: grantPage.description ?? '',
     ...heroFrontmatter(grantPage.hero),
     ...(grantPage.programOverview
-      ? { programOverview: grantPage.programOverview }
+      ? { programOverview: ckeditorBreaksToNewlines(grantPage.programOverview) }
       : {}),
     ...(primaryCta
       ? {
@@ -121,15 +122,15 @@ export function generateGrantPageMDX(
             cards: [
               {
                 heading: infoCards.card1?.heading ?? '',
-                body: infoCards.card1?.body ?? ''
+                body: ckeditorBreaksToNewlines(infoCards.card1?.body ?? '')
               },
               {
                 heading: infoCards.card2?.heading ?? '',
-                body: infoCards.card2?.body ?? ''
+                body: ckeditorBreaksToNewlines(infoCards.card2?.body ?? '')
               },
               {
                 heading: infoCards.card3?.heading ?? '',
-                body: infoCards.card3?.body ?? ''
+                body: ckeditorBreaksToNewlines(infoCards.card3?.body ?? '')
               }
             ]
           }
@@ -160,7 +161,7 @@ export function generateGrantPageMDX(
               : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
-              answer: i.answer ?? ''
+              answer: ckeditorBreaksToNewlines(i.answer ?? '')
             }))
           }
         }
@@ -172,7 +173,7 @@ export function generateGrantPageMDX(
             buttonLink: ctaStrip.primaryButtonLink ?? '',
             ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
             ...(ctaStrip.description
-              ? { description: ctaStrip.description }
+              ? { description: ckeditorBreaksToNewlines(ctaStrip.description) }
               : {}),
             // Both halves or neither, matching the serializer and renderer.
             // Compare and write the trimmed values: `validateCtaStrip` and the

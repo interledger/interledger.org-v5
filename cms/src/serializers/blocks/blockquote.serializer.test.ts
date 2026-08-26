@@ -41,6 +41,15 @@ describe('blockquote serializer', () => {
     expect(result).toContain('\\}')
   })
 
+  it('converts a CKEditor <br>/<br><br> in source to \\n/\\n\\n (entity-encoded in the attribute)', () => {
+    const result = serialize({
+      quote: 'A simple thought.',
+      source: 'One<br />Two<br /><br />Three'
+    })
+
+    expect(result).toContain('source="One&#10;Two&#10;&#10;Three"')
+  })
+
   it('serializes Spanish content identically', () => {
     const result = serialize({
       quote: 'La Internet es para todos.',

@@ -133,6 +133,17 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('Stale text body.')
   })
 
+  it('converts a CKEditor <br>/<br><br> in quoteSource to \\n/\\n\\n (entity-encoded in the attribute)', () => {
+    const result = serialize({
+      layoutType: 'image-quote',
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      quote: 'Quoted body.',
+      quoteSource: 'One<br />Two<br /><br />Three'
+    })
+
+    expect(result).toContain('quoteSource="One&#10;Two&#10;&#10;Three"')
+  })
+
   it('ignores a stale CTA left over from a text layout when switched to quote', () => {
     const result = serialize({
       layoutType: 'image-quote',

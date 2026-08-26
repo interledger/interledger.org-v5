@@ -65,6 +65,21 @@ describe('Blockquote round-trip (serialize → parse)', () => {
     expect((blocks[0] as { quote: string }).quote).not.toMatch(/[“”]/)
   })
 
+  it('converts a CKEditor <br>/<br><br> source to \\n/\\n\\n on export', async () => {
+    const original = {
+      quote: 'A simple thought.',
+      source: 'Soft break<br />then a real break<br /><br />after it'
+    }
+    const mdx = serialize(original)
+    const blocks = await parseMdxToBlocks(mdx, enCtx)
+
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({
+      __component: 'blocks.blockquote',
+      source: 'Soft break\nthen a real break\n\nafter it'
+    })
+  })
+
   it('strips legacy curly quotes from previously exported MDX', async () => {
     const blocks = await parseMdxToBlocks(
       '<Blockquote source="Author">\n“Money should move like data.”\n</Blockquote>',

@@ -25,14 +25,14 @@ const BR_TABLE = [
 ].join('\n')
 
 describe('childrenToMarkdown', () => {
-  it('collapses a bare <br/> outside a table into a single space', () => {
+  it('preserves a bare <br/> outside a table untouched', () => {
+    // mdxJsxToMarkdown() re-serializes the self-closing tag with a space (<br />)
     expect(childrenToMarkdown(parseJsxChildren(BR_PROSE))).toBe(
-      'We take on a real financial challenge together.'
+      'We take on a real<br />financial challenge together.'
     )
   })
 
   it('preserves a <br/> inside a table cell untouched', () => {
-    // mdxJsxToMarkdown() re-serializes the self-closing tag with a space (<br />)
     expect(childrenToMarkdown(parseJsxChildren(BR_TABLE))).toBe(
       '| a<br />b | c |\n| --- | --- |\n| d | e |'
     )
@@ -40,13 +40,13 @@ describe('childrenToMarkdown', () => {
 })
 
 describe('extractChildrenContent', () => {
-  it('collapses a bare <br/> outside a table on the raw-slice path', () => {
+  it('preserves a bare <br/> outside a table on the raw-slice path', () => {
     expect(
       extractChildrenContent(parseJsxChildren(BR_PROSE), {
         sourceText: BR_PROSE,
         sourceTextWasProvided: true
       })
-    ).toBe('We take on a real financial challenge together.')
+    ).toBe('We take on a real<br />financial challenge together.')
   })
 
   it('preserves a <br/> inside a table cell on the raw-slice path', () => {
@@ -56,11 +56,5 @@ describe('extractChildrenContent', () => {
         sourceTextWasProvided: true
       })
     ).toBe('| a<br/>b | c |\n| --- | --- |\n| d | e |')
-  })
-
-  it('collapses a bare <br/> outside a table on the AST fallback path', () => {
-    expect(extractChildrenContent(parseJsxChildren(BR_PROSE), {})).toBe(
-      'We take on a real financial challenge together.'
-    )
   })
 })

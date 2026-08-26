@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
+  ckeditorBreaksToNewlines,
   ckeditorFieldToMarkdown,
-  collapseNonTableLineBreaks,
   formatBlockquote,
   formatMdx,
   htmlFieldToMarkdown,
@@ -11,13 +11,9 @@ import {
 } from './mdx'
 
 describe('looksLikeHtmlField', () => {
-  it('is false for markdown that only carries an intentional <br/>', () => {
-    // Regression: this string is a valid GFM table whose only HTML is one
-    // intentional <br/> (e.g. a table-cell line break from
-    // cms/src/admin/app.tsx). A plain isHtml() check would see that <br/>,
-    // conclude the whole string is HTML, and send it through htmlToMarkdown
-    // — which parses it as HTML and treats the `| a | b |` pipes as literal
-    // text instead of a table, corrupting it.
+  it('is false for markdown that only carries an intentional <br/> in a table', () => {
+    // Table-cell <br/> is intentional (app.tsx) — must not trip isHtml and
+    // get corrupted by htmlToMarkdown's HTML parsing.
     expect(
       looksLikeHtmlField('| a<br/>b | c |\n| --- | --- |\n| d | e |')
     ).toBe(false)
@@ -27,12 +23,20 @@ describe('looksLikeHtmlField', () => {
     expect(looksLikeHtmlField('<p>hello<br/>world</p>')).toBe(true)
   })
 
-  it('is true for plain prose with a bare <br/> and no table', () => {
+  it('is false for plain prose with a bare <br/> and no table', () => {
+    // A <br/> outside a table is intentional too (Shift+Enter) — not
+    // evidence the field is HTML.
     expect(
       looksLikeHtmlField(
         "During a hackathon, you'll take on a real<br />financial challenge."
       )
-    ).toBe(true)
+    ).toBe(false)
+  })
+
+  it('is false for a malformed <br/ > tag that a stricter mask would miss', () => {
+    // is-html's own pattern (`<tag\b[^>]*>`) matches this malformed tag, so
+    // the mask must too, or it still misclassifies.
+    expect(looksLikeHtmlField('real<br/ >break')).toBe(false)
   })
 })
 
@@ -46,12 +50,16 @@ describe('htmlFieldToMarkdown', () => {
     expect(htmlFieldToMarkdown('<p>hello<br/>world</p>')).toBe('hello  \nworld')
   })
 
-  it('converts a bare <br/> in plain prose (no table) to a hard break', () => {
-    expect(
-      htmlFieldToMarkdown(
-        "During a hackathon, you'll take on a real<br />financial challenge."
-      )
-    ).toBe("During a hackathon, you'll take on a real  \nfinancial challenge.")
+  it('leaves a bare <br/> in plain prose (no table) unchanged', () => {
+    const markdown =
+      "During a hackathon, you'll take on a real<br />financial challenge."
+    expect(htmlFieldToMarkdown(markdown)).toBe(markdown)
+  })
+
+  it('does not corrupt already-valid markdown that also contains a <br/>', () => {
+    const input =
+      '**Bold** intro with a real<br />break\n\n- item one\n- item two\n\nSee [docs](https://x.com/a_b).'
+    expect(htmlFieldToMarkdown(input)).toBe(input)
   })
 })
 
@@ -67,31 +75,43 @@ describe('ckeditorFieldToMarkdown', () => {
     )
   })
 
-  it('converts a bare <br/> in plain prose (no table) to a hard break', () => {
-    expect(
-      ckeditorFieldToMarkdown(
-        "During a hackathon, you'll take on a real<br />financial challenge."
-      )
-    ).toBe("During a hackathon, you'll take on a real  \nfinancial challenge.")
+  it('leaves a bare <br/> in plain prose (no table) unchanged', () => {
+    const markdown =
+      "During a hackathon, you'll take on a real<br />financial challenge."
+    expect(ckeditorFieldToMarkdown(markdown)).toBe(markdown)
+  })
+
+  it('does not corrupt already-valid markdown that also contains a <br/>', () => {
+    const input =
+      '**Bold** intro with a real<br />break\n\n- item one\n- item two\n\nSee [docs](https://x.com/a_b).'
+    expect(ckeditorFieldToMarkdown(input)).toBe(input.trim())
   })
 })
 
-describe('collapseNonTableLineBreaks', () => {
-  it('collapses a bare <br/> outside a table into a single space', () => {
-    expect(collapseNonTableLineBreaks('real<br />financial challenge')).toBe(
-      'real financial challenge'
+describe('ckeditorBreaksToNewlines', () => {
+  it('converts a single <br/> to \\n', () => {
+    expect(ckeditorBreaksToNewlines('real<br />break')).toBe('real\nbreak')
+  })
+
+  it('converts a double <br/><br/> (real Enter) to \\n\\n, not two single replacements', () => {
+    expect(ckeditorBreaksToNewlines('para one<br /><br />para two')).toBe(
+      'para one\n\npara two'
     )
   })
 
-  it('does not leave a double space when <br/> already has surrounding space', () => {
-    expect(collapseNonTableLineBreaks('real <br/> financial challenge')).toBe(
-      'real financial challenge'
+  it('handles a double break with whitespace between the tags', () => {
+    expect(ckeditorBreaksToNewlines('para one<br/> <br/>para two')).toBe(
+      'para one\n\npara two'
     )
   })
 
-  it('leaves a table-cell <br/> untouched', () => {
-    const markdown = '| a<br/>b | c |\n| --- | --- |\n| d | e |'
-    expect(collapseNonTableLineBreaks(markdown)).toBe(markdown)
+  it('is idempotent on already-\\n content', () => {
+    const value = 'soft\nbreak\n\nnew paragraph'
+    expect(ckeditorBreaksToNewlines(value)).toBe(value)
+  })
+
+  it('leaves content with no <br> untouched', () => {
+    expect(ckeditorBreaksToNewlines('plain text')).toBe('plain text')
   })
 })
 

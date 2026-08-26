@@ -156,6 +156,61 @@ describe('generatePodcastPageMdx', () => {
     expect(data).not.toHaveProperty('textSection')
   })
 
+  it('converts a CKEditor <br>/<br><br> in textSection to \\n/\\n\\n', () => {
+    const { data } = matter(
+      generatePodcastPageMdx(
+        makePage({
+          textSection: 'Soft break<br />then a real break<br /><br />after it'
+        })
+      )
+    )
+
+    expect(data.textSection).toBe('Soft break\nthen a real break\n\nafter it')
+  })
+
+  it('converts a CKEditor <br>/<br><br> in a title card description', () => {
+    const { data } = matter(
+      generatePodcastPageMdx(
+        makePage({
+          titleCards: {
+            columns: 'Three',
+            ariaLabel: 'Featured podcast series',
+            titleCards: [
+              {
+                heading: 'Future Money',
+                description: 'One<br />Two<br /><br />Three',
+                secondaryCta: { text: 'Listen now', link: '/podcast' }
+              }
+            ]
+          }
+        })
+      )
+    )
+    const titleCards = data.titleCards as {
+      cards: Array<{ description: string }>
+    }
+
+    expect(titleCards.cards[0]?.description).toBe('One\nTwo\n\nThree')
+  })
+
+  it('converts a CKEditor <br>/<br><br> in ctaStrip.description', () => {
+    const { data } = matter(
+      generatePodcastPageMdx(
+        makePage({
+          ctaStrip: {
+            heading: 'Listen now',
+            description: 'One<br />Two<br /><br />Three',
+            primaryButtonText: 'Listen',
+            primaryButtonLink: '/podcast'
+          }
+        })
+      )
+    )
+    const ctaStrip = data.ctaStrip as { description: string }
+
+    expect(ctaStrip.description).toBe('One\nTwo\n\nThree')
+  })
+
   // Turndown escapes a literal underscore as `\_` so markdown renderers
   // don't misread it as emphasis. This locks in that yaml.dump/gray-matter
   // round-trips a multi-paragraph value containing that escape correctly.

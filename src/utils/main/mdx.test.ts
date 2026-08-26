@@ -150,4 +150,28 @@ describe('createMarked', () => {
     expect(html).not.toContain('<a href')
     expect(html).toContain('&lt;a href')
   })
+
+  it('renders a single \\n within a paragraph as a real line break (breaks: true)', async () => {
+    const html = await createMarked({ pathname: '/' }).parse(
+      'line one\nline two'
+    )
+    expect(html).toContain('<br>')
+    expect(html).toContain('<p>line one<br>line two</p>')
+  })
+
+  it('still splits a double \\n\\n into separate paragraphs', async () => {
+    const html = await createMarked({ pathname: '/' }).parse(
+      'para one\n\npara two'
+    )
+    expect(html).toContain('<p>para one</p>')
+    expect(html).toContain('<p>para two</p>')
+  })
+
+  it('breaks: true does not affect raw HTML tag escaping', () => {
+    const html = createMarked({ pathname: '/' }).parseInline(
+      'Hello <script>alert(1)</script> world'
+    ) as string
+    expect(html).not.toContain('<script>')
+    expect(html).toContain('&lt;script&gt;')
+  })
 })

@@ -69,7 +69,13 @@ export function createMarked(context: UmamiContext = {}): Marked {
       return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
     }
   }
-  const instance = new Marked()
+  // breaks: a bare \n within a paragraph renders as a real line break
+  // instead of collapsing to a space — the convention these markdown-string
+  // fields use for a soft-enter line break (see
+  // cms/src/utils/mdx.ts's ckeditorBreaksToNewlines). Doesn't affect the
+  // `html()` escaping above: a raw HTML tag is a separate token type,
+  // tokenized and escaped identically either way.
+  const instance = new Marked({ breaks: true })
   instance.use({ renderer })
   markedCache.set(cacheKey, instance)
   return instance

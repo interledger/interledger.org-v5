@@ -1,5 +1,6 @@
 import {
   ckeditorFieldToMarkdown,
+  ckeditorBreaksToNewlines,
   getImageUrl,
   hasMediaValue
 } from '../../utils'
@@ -99,7 +100,12 @@ export function serialize(block: {
   }
 
   if (isQuoteLayout && block.quoteSource) {
-    attrs.push(`quoteSource="${esc(block.quoteSource)}"`)
+    // quoteSource is forwarded to Blockquote.astro's `source` prop, parsed
+    // as markdown via parseMarkdownInline (marked) — see blockquote's own
+    // serializer for why this uses \n/\n\n instead of literal <br>.
+    attrs.push(
+      `quoteSource="${esc(ckeditorBreaksToNewlines(block.quoteSource))}"`
+    )
   }
 
   const cta = block.cta

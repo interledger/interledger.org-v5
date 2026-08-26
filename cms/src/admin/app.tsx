@@ -27,10 +27,6 @@ interface CKEditorInsertionData {
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
 const DOC_ID_TITLE_PATTERN = /^[a-z0-9]{20,26}\s*\|/
 
-// Private tag used to mark a table-cell <br> for keepHtml (see
-// preserveTableCellLineBreaks) without also keeping <br> outside tables.
-const TABLE_BR_PLACEHOLDER_TAG = 'ilf-keep-br'
-
 const headingOptionsWithoutH1: HeadingOption[] = [
   { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
   {
@@ -155,46 +151,38 @@ const markdownPresetNoH1: Preset = {
             .replace(ESCAPED_FOOTNOTE, '')
             .replace(BARE_URL, (url) => url.replace(/\\/g, ''))
       },
-      // GFM table cells only hold inline content, so a second <p> in one
-      // <td> (e.g. pasted multi-line content) flattens with no separator.
-      // Even a single <br> — Shift+Enter, since hard Enter is disabled in
-      // cells — degrades to a bare `\n` by default, just as invalid mid-row.
-      //
-      // Fix: merge sibling <p>s via a real <br>, kept as literal HTML only
-      // inside table cells. `keepHtml` matches by tag name only, so
-      // table-cell <br>s are renamed to a private placeholder tag first,
-      // only the placeholder is registered with `keepHtml`, and it's
-      // swapped back to <br/> after the writer runs. A <br> outside a table
-      // keeps its real tag name and falls back to a bare `\n`.
-      function preserveTableCellLineBreaks(editor: Editor) {
+      // Uniform save convention for every field, everywhere (not just table
+      // cells): Shift+Enter -> one <br>, real Enter -> two. keepHtml('br')
+      // preserves the tag; mergeAdjacentParagraphs (below) turns a real
+      // Enter's <p><p> into <br><br>, replacing the GFM writer's default
+      // paragraph break. What export does with that value (literal, or
+      // \n/\n\n for a `marked`-parsed field) is decided elsewhere — see
+      // cms/src/utils/mdx.ts's ckeditorBreaksToNewlines.
+      function preserveLineBreaks(editor: Editor) {
         const processor = editor.data.processor as unknown as {
           keepHtml?: (tag: string) => void
           _html2markdown?: { parse: (html: string) => string }
         }
 
         if (typeof processor.keepHtml === 'function') {
-          processor.keepHtml(TABLE_BR_PLACEHOLDER_TAG)
+          processor.keepHtml('br')
         } else {
           warnOnceAboutBrokenGfmShape(
-            'processor.keepHtml is missing — table-cell <br> line breaks (Shift+Enter, and merged table-cell paragraphs) will no longer survive the markdown round-trip.'
+            'processor.keepHtml is missing — <br> line breaks (Shift+Enter, and merged multi-paragraph fields) will no longer survive the markdown round-trip.'
           )
         }
 
         const html2markdown = processor._html2markdown
         if (!html2markdown || typeof html2markdown.parse !== 'function') {
           warnOnceAboutBrokenGfmShape(
-            'processor._html2markdown.parse is missing — multi-paragraph table cells will flatten with no separator again, and table-cell <br> will no longer survive the markdown round-trip.'
+            'processor._html2markdown.parse is missing — multi-paragraph fields will flatten with no separator again.'
           )
           return
         }
 
         const originalParse = html2markdown.parse.bind(html2markdown)
         html2markdown.parse = (html: string) =>
-          restoreTableCellBreaks(
-            originalParse(
-              markTableCellBreaksForKeeping(mergeMultiParagraphTableCells(html))
-            )
-          )
+          originalParse(mergeAdjacentParagraphs(html))
       }
     ]
   }
@@ -208,63 +196,51 @@ function warnOnceAboutBrokenGfmShape(message: string) {
   if (warnedGfmShapeMessages.has(message)) return
   warnedGfmShapeMessages.add(message)
   console.error(
-    `[CKEditor] ${message} This likely means a ckeditor5/strapi-plugin-ckeditor upgrade changed the GFM data processor's internal shape — update preserveTableCellLineBreaks in cms/src/admin/app.tsx.`
+    `[CKEditor] ${message} This likely means a ckeditor5/strapi-plugin-ckeditor upgrade changed the GFM data processor's internal shape — update preserveLineBreaks in cms/src/admin/app.tsx.`
   )
 }
 
-function mergeMultiParagraphTableCells(html: string): string {
+// Real Enter now means <br><br>, everywhere (see preserveLineBreaks), not
+// just table cells. Merges each run of 2+ sibling <p>s into one; a heading,
+// list, or blockquote breaks a run and stays untouched.
+function mergeAdjacentParagraphs(html: string): string {
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  const cells = doc.querySelectorAll('td, th')
+  const containers = [doc.body, ...Array.from(doc.body.querySelectorAll('*'))]
 
-  for (const cell of cells) {
-    const paragraphs = Array.from(cell.children).filter(
-      (el): el is HTMLParagraphElement => el.tagName === 'P'
-    )
-    if (paragraphs.length < 2) continue
-
-    // Two <br> per boundary, not one: a boundary here is hard Enter (a real
-    // paragraph break), which should read as a bigger visual gap than
-    // Shift+Enter's single <br> soft break — the closest a table cell can
-    // get to an actual paragraph break, since GFM can't represent one.
-    const merged = doc.createElement('p')
-    paragraphs.forEach((p, i) => {
-      if (i > 0) {
-        merged.appendChild(doc.createElement('br'))
-        merged.appendChild(doc.createElement('br'))
+  for (const container of containers) {
+    const children = Array.from(container.children)
+    let i = 0
+    while (i < children.length) {
+      if (children[i]!.tagName !== 'P') {
+        i++
+        continue
       }
-      while (p.firstChild) merged.appendChild(p.firstChild)
-    })
-    cell.replaceChild(merged, paragraphs[0])
-    paragraphs.slice(1).forEach((p) => cell.removeChild(p))
-  }
+      let j = i + 1
+      while (j < children.length && children[j]!.tagName === 'P') j++
+      if (j - i < 2) {
+        i = j
+        continue
+      }
 
-  return doc.body.innerHTML
-}
-
-// Renames every <br> inside a td/th to the placeholder tag, so `keepHtml`
-// — which matches by tag name only — only ever keeps a table-cell <br>.
-function markTableCellBreaksForKeeping(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const cells = doc.querySelectorAll('td, th')
-
-  for (const cell of cells) {
-    for (const br of cell.querySelectorAll('br')) {
-      br.replaceWith(doc.createElement(TABLE_BR_PLACEHOLDER_TAG))
+      const run = children.slice(i, j) as HTMLParagraphElement[]
+      // Two <br> per boundary, not one: a boundary here is hard Enter (a
+      // real paragraph break), which should read as a bigger visual gap
+      // than Shift+Enter's single <br> soft break.
+      const merged = doc.createElement('p')
+      run.forEach((p, idx) => {
+        if (idx > 0) {
+          merged.appendChild(doc.createElement('br'))
+          merged.appendChild(doc.createElement('br'))
+        }
+        while (p.firstChild) merged.appendChild(p.firstChild)
+      })
+      container.replaceChild(merged, run[0]!)
+      run.slice(1).forEach((p) => container.removeChild(p))
+      i = j
     }
   }
 
   return doc.body.innerHTML
-}
-
-// Matches the placeholder's serialized tag pair and swaps it for the
-// literal <br/> that keepHtml('br') would have produced directly.
-const TABLE_BR_PLACEHOLDER_PATTERN = new RegExp(
-  `<${TABLE_BR_PLACEHOLDER_TAG}(?:\\s[^>]*)?>(?:</${TABLE_BR_PLACEHOLDER_TAG}>)?`,
-  'gi'
-)
-
-function restoreTableCellBreaks(markdown: string): string {
-  return markdown.replace(TABLE_BR_PLACEHOLDER_PATTERN, '<br/>')
 }
 
 // Minimal editor for short rich-text fields (e.g. author bios):

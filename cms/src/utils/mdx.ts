@@ -157,79 +157,17 @@ export function htmlToMarkdown(html: string): string {
   return turndown.turndown(html.replace(/&nbsp;/gi, ' '))
 }
 
-// A table cell may deliberately carry a <br/> line break (see
-// cms/src/admin/app.tsx's preserveTableCellLineBreaks). Outside a table a
-// bare <br/> is real HTML, so only table-cell <br/> is hidden from isHtml.
-const INLINE_BREAK_TAG = /<br\s*\/?>/gi
+// <br> is always intentional now (see app.tsx), never proof the field is
+// HTML. Mask every variant is-html itself matches (`<tag\b[^>]*>`), so a
+// malformed one can't slip through.
+const BREAK_TAG = /<br\b[^>]*>/gi
 
-const TABLE_DELIMITER_ROW = /^[ \t:|-]+$/
-
-function isTableDelimiterRow(line: string): boolean {
-  // Require a literal '-' so a blank line isn't mistaken for a delimiter row.
-  return TABLE_DELIMITER_ROW.test(line) && line.includes('-')
-}
-
-/**
- * One boolean per line of `value.split('\n')`: true when that line belongs
- * to a GFM pipe-table block (a `|` line followed by a `-`/`:`/`|` delimiter
- * row, plus any further `|` lines until a blank/non-pipe line).
- */
-function markGfmTableLines(value: string): boolean[] {
-  const lines = value.split('\n')
-  const isTableLine = new Array<boolean>(lines.length).fill(false)
-
-  let i = 0
-  while (i < lines.length - 1) {
-    if (lines[i]!.includes('|') && isTableDelimiterRow(lines[i + 1]!)) {
-      isTableLine[i] = true
-      isTableLine[i + 1] = true
-      let j = i + 2
-      while (
-        j < lines.length &&
-        lines[j]!.trim() !== '' &&
-        lines[j]!.includes('|')
-      ) {
-        isTableLine[j] = true
-        j++
-      }
-      i = j
-    } else {
-      i++
-    }
-  }
-  return isTableLine
-}
-
-function maskTableLineBreaks(value: string): string {
-  const isTableLine = markGfmTableLines(value)
-  return value
-    .split('\n')
-    .map((line, i) =>
-      isTableLine[i] ? line.replace(INLINE_BREAK_TAG, '') : line
-    )
-    .join('\n')
+function maskBreakTags(value: string): string {
+  return value.replace(BREAK_TAG, '')
 }
 
 export function looksLikeHtmlField(value: string): boolean {
-  return isHtml(maskTableLineBreaks(value))
-}
-
-const NON_TABLE_BREAK = /\s*<br\s*\/?>\s*/gi
-
-/**
- * Collapses a bare <br/> outside a table into a single space, leaving a
- * table-cell <br/> untouched. Used on Astro -> Strapi import: a bare <br/>
- * outside a table in .mdx source is leftover export corruption, not an
- * intentional break.
- */
-export function collapseNonTableLineBreaks(value: string): string {
-  const isTableLine = markGfmTableLines(value)
-  return value
-    .split('\n')
-    .map((line, i) =>
-      isTableLine[i] ? line : line.replace(NON_TABLE_BREAK, ' ')
-    )
-    .join('\n')
+  return isHtml(maskBreakTags(value))
 }
 
 /** Converts a field to markdown only if it actually looks like HTML, leaving already-markdown text untouched. */
@@ -243,6 +181,19 @@ export function htmlFieldToMarkdown(value: string): string {
  */
 export function ckeditorFieldToMarkdown(value: string): string {
   return htmlFieldToMarkdown(value).trim()
+}
+
+const DOUBLE_BREAK = /(?:<br\s*\/?>\s*){2}/gi
+const SINGLE_BREAK = /<br\s*\/?>/gi
+
+/**
+ * Converts a CKEditor field's <br>/<br><br> to \n/\n\n, for fields parsed by
+ * `marked` at render time (which escapes raw <br> to plaintext) instead of
+ * compiled as MDX body children. Double breaks are collapsed first so a
+ * paragraph break isn't split into two single replacements.
+ */
+export function ckeditorBreaksToNewlines(value: string): string {
+  return value.replace(DOUBLE_BREAK, '\n\n').replace(SINGLE_BREAK, '\n')
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────

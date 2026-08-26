@@ -11,7 +11,6 @@
 import type { RootContent } from 'mdast'
 import type { ParsedBlock, ParagraphBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { collapseNonTableLineBreaks } from '../../src/utils/mdx'
 import { getStringAttr } from './jsxExtract'
 import {
   registerComponentHandler,
@@ -80,7 +79,7 @@ function extractChildrenContent(
       const raw = ctx.sourceText
         .slice(first.position.start.offset, last.position.end.offset)
         .trim()
-      if (raw) return collapseNonTableLineBreaks(raw).trim()
+      if (raw) return raw
     }
   }
 

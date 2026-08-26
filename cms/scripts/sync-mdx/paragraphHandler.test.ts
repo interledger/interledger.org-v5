@@ -344,11 +344,11 @@ describe('mixed content with Paragraph', () => {
 })
 
 // ---------------------------------------------------------------------------
-// <br/> normalization: outside a table it's collapsed, inside one it stays
+// <br/> normalization: preserved everywhere, both outside and inside a table
 // ---------------------------------------------------------------------------
 
 describe('Paragraph handler — <br/> normalization', () => {
-  it('collapses a bare <br/> outside a table (AST fallback path)', async () => {
+  it('preserves a bare <br/> outside a table (AST fallback path)', async () => {
     const mdx =
       '<Paragraph>\nWe take on a real<br />financial challenge together.\n</Paragraph>'
 
@@ -356,11 +356,11 @@ describe('Paragraph handler — <br/> normalization', () => {
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.paragraph',
-      content: 'We take on a real financial challenge together.'
+      content: 'We take on a real<br />financial challenge together.'
     })
   })
 
-  it('collapses a bare <br/> outside a table (raw-slice path)', async () => {
+  it('preserves a bare <br/> outside a table (raw-slice path)', async () => {
     const mdx =
       '<Paragraph>\nWe take on a real<br />financial challenge together.\n</Paragraph>'
 
@@ -371,7 +371,7 @@ describe('Paragraph handler — <br/> normalization', () => {
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.paragraph',
-      content: 'We take on a real financial challenge together.'
+      content: 'We take on a real<br />financial challenge together.'
     })
   })
 

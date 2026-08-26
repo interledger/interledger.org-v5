@@ -72,7 +72,7 @@ export {
   looksLikeHtmlField,
   htmlFieldToMarkdown,
   ckeditorFieldToMarkdown,
-  collapseNonTableLineBreaks,
+  ckeditorBreaksToNewlines,
   formatBlockquote,
   uidToLogLabel,
   resolveFilenameSlug,
