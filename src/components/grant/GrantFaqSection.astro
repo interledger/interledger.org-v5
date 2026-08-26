@@ -127,11 +127,8 @@ const renderedItems = await Promise.all(
     <!-- Right column: accordion -->
     <div class="flex-1">
       {
-        renderedItems.map((item, index) => (
-          <details
-            open={index === 0}
-            class="group border-b border-neutral-200 py-2xl first:pt-0 "
-          >
+        renderedItems.map((item) => (
+          <details class="group border-b border-neutral-200 py-2xl first:pt-0 ">
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
               {...faqToggleUmamiAttrs(item.question)}

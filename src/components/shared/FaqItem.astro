@@ -6,9 +6,10 @@
  * Strapi preview maps the block's `items` onto it. Native <details> keeps the
  * disclosure keyboard-operable and screen-reader-announced with no JS.
  *
- * Deliberately starts closed. The parent can't mark "first item" in the MDX
- * path (children arrive through a slot), so opening one by default would make
- * the Strapi preview diverge from the published page. See INTORG-909.
+ * Deliberately starts closed (INTORG-1153), same as FAQ page items. The
+ * parent also can't mark "first item" in the MDX path (children arrive
+ * through a slot), so opening one by default would make the Strapi preview
+ * diverge from the published page. See INTORG-909.
  *
  * The answer's type styles are scoped per element (`[&_p]`, `[&_li]`, `[&_a]`)
  * rather than set once on the wrapper and inherited. `src/styles/components/
