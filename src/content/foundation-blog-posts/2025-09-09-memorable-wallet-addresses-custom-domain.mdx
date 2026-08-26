@@ -79,10 +79,10 @@ With a server using NGINX, the configuration is straightforward:
 </Paragraph>
 
 <CodeBlock language="nginx" code={`# nginx.conf
-location ~ /.well-known/pay(.*) {
-  add_header Access-Control-Allow-Origin *; # enable cors
-  return 302 https://ilp.wallet.com/abc/xyz$1;  # do a 302 redirect to original wallet address
-}`} />
+  location ~ /.well-known/pay(.*) {
+    add_header Access-Control-Allow-Origin *; # enable cors
+    return 302 https://ilp.wallet.com/abc/xyz$1;  # do a 302 redirect to original wallet address
+  }`} />
 
 <Paragraph>
 
@@ -97,12 +97,12 @@ Static sites hosted on platforms like Netlify and Cloudflare can utilize this ap
 </Paragraph>
 
 <CodeBlock language="ini" code={`# _redirects
-/.well-known/pay https://ilp.wallet.com/abc/xyz 302
-/.well-known/pay/jwks.json https://ilp.wallet.com/abc/xyz/jwks.json 302`} />
+  /.well-known/pay https://ilp.wallet.com/abc/xyz 302
+  /.well-known/pay/jwks.json https://ilp.wallet.com/abc/xyz/jwks.json 302`} />
 
 <CodeBlock language="ini" code={`# _headers
-/.well-known/pay*
-  Access-Control-Allow-Origin: *`} />
+  /.well-known/pay*
+    Access-Control-Allow-Origin: *`} />
 
 <Paragraph>
 
@@ -117,19 +117,19 @@ If you have complete control over your website's routes, you'll get the best res
 </Paragraph>
 
 <CodeBlock language="javascript" code={`// app.js
-const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz';
+  const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz';
 
-app.get('/.well-known/pay', (req, res) => {
-  const json = await fetch(WALLET_ADDRESS).then(r => r.json())
-  res.json(json)
-})
-app.options('/.well-known/pay', (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-})
+  app.get('/.well-known/pay', (req, res) => {
+    const json = await fetch(WALLET_ADDRESS).then(r => r.json())
+    res.json(json)
+  })
+  app.options('/.well-known/pay', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*')
+  })
 
-app.get('/.well-known/pay/jwks.json', (req, res) => {
-  res.redirect(302, \`\${WALLET_ADDRESS}/jwks.json\`)
-});`} />
+  app.get('/.well-known/pay/jwks.json', (req, res) => {
+    res.redirect(302, \`\${WALLET_ADDRESS}/jwks.json\`)
+  });`} />
 
 <Paragraph>
 
@@ -140,19 +140,19 @@ Even if you don't host your entire website on Cloudflare, you can create a worke
 </Paragraph>
 
 <CodeBlock language="javascript" code={`// index.js
-const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz'
+  const WALLET_ADDRESS = 'https://ilp.wallet.com/abc/xyz'
 
-export default {
-  async fetch(request) {
-    const url = new URL(req.url)
-    if (url.pathname === '/.well-known/pay') {
-      const json = await fetch(WALLET_ADDRESS).then((r) => r.json())
-      return Response.json(json)
+  export default {
+    async fetch(request) {
+      const url = new URL(req.url)
+      if (url.pathname === '/.well-known/pay') {
+        const json = await fetch(WALLET_ADDRESS).then((r) => r.json())
+        return Response.json(json)
+      }
+      // ... handle other requests, or by default, return error
+      // return new Response('not found', { status: 404 })
     }
-    // ... handle other requests, or by default, return error
-    // return new Response('not found', { status: 404 })
-  }
-}`} />
+  }`} />
 
 <Paragraph>
 
@@ -176,9 +176,9 @@ In case you're wondering, no, the [`http-equiv` HTML meta tag](https://stackover
 </Paragraph>
 
 <CodeBlock language="bash" code={`# for example, with curl
-$ curl -sSL -H 'Accept: application/json' 'https://ilp.gatehub.net/981946513/eur' > pay.json
-$ cat pay.json
-# {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}`} />
+  $ curl -sSL -H 'Accept: application/json' 'https://ilp.gatehub.net/981946513/eur' > pay.json
+  $ cat pay.json
+  # {"id":"https://ilp.gatehub.net/981946513/eur","publicName":"981946513","assetCode":"EUR","assetScale":2,"authServer":"https://rafiki.gatehub.net","resourceServer":"https://ilp.gatehub.net"}`} />
 
 <Paragraph>
 
@@ -225,11 +225,11 @@ Thankfully, the [`MonetizationEvent`](https://webmonetization.org/specification/
 </Paragraph>
 
 <CodeBlock language="webidl" code={`interface MonetizationEvent : Event {
-  readonly attribute MonetizationCurrencyAmount amountSent;
-  readonly attribute USVString paymentPointer;
-  readonly attribute USVString? incomingPayment;
-  // other details not relevant in this context
-}`} />
+    readonly attribute MonetizationCurrencyAmount amountSent;
+    readonly attribute USVString paymentPointer;
+    readonly attribute USVString? incomingPayment;
+    // other details not relevant in this context
+  }`} />
 
 <Paragraph>
 
@@ -242,19 +242,19 @@ If you look closely, the `MonetizationEvent` inherits the `Event` interface. So,
 </Paragraph>
 
 <CodeBlock language="html" code={`<html>
-  <head>
-    <link rel="monetization" href="https://sidvishnoi.com/.well-known/pay" />
-  </head>
-</html>`} />
+    <head>
+      <link rel="monetization" href="https://sidvishnoi.com/.well-known/pay" />
+    </head>
+  </html>`} />
 
 <CodeBlock language="typescript" code={`window.addEventListener('monetization', (event) => {
-  const linkElement: HTMLLinkElement = event.target
-  const originalWalletAddress = linkElement.href
-  // -> https://sidvishnoi.com/.well-known/pay
+    const linkElement: HTMLLinkElement = event.target
+    const originalWalletAddress = linkElement.href
+    // -> https://sidvishnoi.com/.well-known/pay
 
-  const walletAddressThatGotPaid = event.paymentPointer
-  // -> https://ilp.gatehub.net/981946513/eur
-})`} />
+    const walletAddressThatGotPaid = event.paymentPointer
+    // -> https://ilp.gatehub.net/981946513/eur
+  })`} />
 
 <Paragraph>
 
