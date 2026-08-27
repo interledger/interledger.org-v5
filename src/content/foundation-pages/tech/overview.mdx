@@ -41,7 +41,7 @@ Interledger is a stack of open protocols that work in layers, modeled on the arc
 Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
 
 </TitleCard>
-<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="https://interledger.org/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={true}>
+<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={false}>
 
 Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
 
@@ -49,6 +49,16 @@ Breaks a payment into packets, encrypts and sends them across ILP, and reassembl
 <TitleCard heading="The Interledger Protocol (ILP)" buttonUrl="/tech/interledger-protocol" buttonText="Learn more about ILP" buttonExternal={false}>
 
 Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
+
+</TitleCard>
+<TitleCard heading="Link Layer Protocols" buttonUrl="/developers/rfcs/interledger-architecture/#link-protocols" buttonText="Explore link layer protocols" buttonExternal={false}>
+
+Provide two-way authenticated communication between account holders or their financial service providers.
+
+</TitleCard>
+<TitleCard heading="Ledgers and Payment Systems" buttonUrl="/developers/rfcs/interledger-architecture/#link-protocols" buttonText="Explore ledger protocols" buttonExternal={false}>
+
+The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
 
 </TitleCard>
 </CardGrid>
