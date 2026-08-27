@@ -33,6 +33,11 @@
       top: var(--site-header-height);
       max-height: calc(100dvh - var(--site-header-height));
       overflow-y: auto;
+      /* Keep a wheel or swipe over the open drawer inside the drawer. Without
+         this, reaching the end of the drawer hands the rest of the gesture to
+         the page behind it, which reads as "the menu will not scroll".
+         reset.css sets the same thing, but only while Lenis is smooth-scrolling. */
+      overscroll-behavior: contain;
       z-index: 0;
       clip-path: inset(0 0 0 0);
       visibility: visible;
