@@ -40,6 +40,17 @@ export const padMdxAttrTemplateLiteral = (code: string): string =>
     .map((line, i) => (i > 0 && line.trim().length > 0 ? `  ${line}` : line))
     .join('\n')
 
+// Inverse of padMdxAttrTemplateLiteral, for undoing it when a CodeBlock's
+// `code` attribute is read back out of raw `.mdx` source (see
+// cms/scripts/sync-mdx/codeBlockHandler.ts). Without this, re-importing an
+// exported `.mdx` file feeds the already-padded code back into Strapi, and
+// the next export pads it again — compounding 2 spaces per cycle.
+export const unpadMdxAttrTemplateLiteral = (code: string): string =>
+  code
+    .split('\n')
+    .map((line, i) => (i > 0 ? line.replace(/^ {1,2}/, '') : line))
+    .join('\n')
+
 export const escMdxBraces = (v: string): string =>
   v ? v.trim().replace(/\{/g, '\\{').replace(/\}/g, '\\}') : ''
 

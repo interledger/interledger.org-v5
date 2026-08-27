@@ -39,4 +39,19 @@ describe('CodeBlock round-trip (serialize → parse)', () => {
     const code = 'const s = "\\${not interpolated}"'
     expect(await roundTrip(code)).toBe(code)
   })
+
+  it('preserves indentation of multi-line, nested code', async () => {
+    const code = 'if (x) {\n  const y = 1\n  if (y) {\n    return y\n  }\n}'
+    expect(await roundTrip(code)).toBe(code)
+  })
+
+  it('is idempotent across repeated export/import cycles', async () => {
+    const code = 'if (x) {\n  const y = 1\n  if (y) {\n    return y\n  }\n}'
+
+    const afterFirstCycle = await roundTrip(code)
+    expect(afterFirstCycle).toBe(code)
+
+    const afterSecondCycle = await roundTrip(afterFirstCycle)
+    expect(afterSecondCycle).toBe(code)
+  })
 })
