@@ -132,16 +132,12 @@ const renderedItems = await Promise.all(
 
 <style>
   /*
-   * End spacing is 6xl after a day (or the last day in a run).
-   * Consecutive days: previous mb-6xl + this negative pull = 3xl gap.
-   * Uses adjacent sibling only (no :has) so MDX sibling days always match.
+   * The prose container gives every block the standard section gap. Two days
+   * of one agenda are one section, so they sit at the tighter heading gap
+   * instead. Adjacent sibling only (no :has), so MDX sibling days always match.
    */
-  :global([data-component='Agenda']) {
-    margin-block-end: var(--spacing-6xl);
-  }
-
   :global([data-component='Agenda'] + [data-component='Agenda']) {
-    margin-block-start: calc(var(--spacing-3xl) - var(--spacing-6xl));
+    margin-block-start: var(--space-block-heading);
   }
 
   /* Prefer real markdown lists for bullets (a11y); plain paragraphs stay paragraphs. */

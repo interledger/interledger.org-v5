@@ -101,7 +101,7 @@ const breadcrumbs = [
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
-  <main class="pb-3xl">
+  <main class="page-stack pb-section">
     <PageHero
       title={resolvedHeroTitle}
       description={heroDescription ?? description}
@@ -116,8 +116,8 @@ const breadcrumbs = [
     </PageHero>
     {
       programOverviewHtml && (
-        <section class="pt-4xl">
-          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
+        <section class="px-content">
+          <div class="content-column">
             <div data-prose set:html={programOverviewHtml} />
           </div>
         </section>
@@ -126,8 +126,8 @@ const breadcrumbs = [
 
     {
       primaryCta && resolvedPrimaryCta && (
-        <section class="">
-          <div class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content">
+        <section class="px-content">
+          <div class="content-column">
             <LinkButton
               href={resolvedPrimaryCta.href}
               variant="primary"
@@ -147,16 +147,16 @@ const breadcrumbs = [
 
     {
       infoCards && (
-        <section class="py-4xl">
-          <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
+        <section class="px-content">
+          <div class="content-column">
+            <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
+          </div>
         </section>
       )
     }
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto max-w-content px-4 min-w-90 tablet:px-xl desktop:max-w-content"
-      >
+    <section class="px-content">
+      <div class="content-column">
         <div data-prose>
           <MdxContent
             components={{
@@ -181,16 +181,16 @@ const breadcrumbs = [
 
     {
       faqSection && (
-        <section class="pt-0 pb-4xl px-lg tablet:py-4xl tablet:px-xl">
-          <GrantFaqSection {...faqSection} />
+        <section class="px-content">
+          <div class="content-column">
+            <GrantFaqSection {...faqSection} />
+          </div>
         </section>
       )
     }
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto px-lg max-w-content min-w-90 tablet:px-xl desktop:px-0 desktop:max-w-content"
-      >
+    <section class="px-content">
+      <div class="content-column">
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

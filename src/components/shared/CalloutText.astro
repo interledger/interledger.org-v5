@@ -19,7 +19,8 @@ const htmlContent = content
 ---
 
 <div
-  class="mb-xl text-h3-md tablet:text-h3-lg [&_p]:text-h3-md tablet:[&_p]:text-h3-lg [&_p]:mb-lg [&_strong]:font-semibold [&_em]:italic"
+  data-component="CalloutText"
+  class="text-h3-md tablet:text-h3-lg [&_p]:text-h3-md tablet:[&_p]:text-h3-lg [&_p]:mb-lg [&_strong]:font-semibold [&_em]:italic"
 >
   {htmlContent ? <Fragment set:html={htmlContent} /> : <slot />}
 </div>

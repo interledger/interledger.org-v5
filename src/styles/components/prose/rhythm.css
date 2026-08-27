@@ -1,0 +1,99 @@
+/**
+ * Vertical rhythm inside a prose container
+ *
+ * One standard gap between the top-level elements of a page (INTORG-1138).
+ * The container owns every gap. A block must not bring a margin of its own,
+ * because two blocks that each carry one stack their margins into a hole
+ * nobody asked for.
+ *
+ * Two values, and only two:
+ *
+ *   --space-section        between two top-level elements
+ *   --space-block-heading  between a heading and the content under it
+ *
+ * `--space-section` is the larger of the pair, so a section break always
+ * reads wider than a heading break.
+ *
+ * A "block" is any child carrying `data-component`. Block components set that
+ * attribute on their root element, so the rhythm reaches an MDX page (where a
+ * block is a direct child of the prose container) and a Strapi preview alike.
+ *
+ * All three prose variants share the rhythm. Each still keeps its own text
+ * flow. Blog and summit set their own heading and paragraph margins with
+ * utilities, which win over this layer.
+ *
+ * Text elements keep the tighter flow rhythm from prose/default.css. Margins
+ * of adjacent siblings collapse to the larger of the two, so a paragraph that
+ * meets a block still gets the full section gap.
+ */
+
+@layer components {
+  :is([data-prose], [data-prose-blog], [data-prose-summit]) {
+    /* A CTA belongs to the paragraph above it, not to the flow, so `CtaLink`
+       and `CtaButtons` own their spacing and sit out the rhythm. Each keeps a
+       tight top margin and a `mb-section` bottom margin, and
+       prose/default.css strips the bottom margin of the element above.
+       Keep all three in step. */
+    > [data-component]:not([data-component='CtaButtons'], .cta-link) {
+      margin-block: var(--space-section);
+    }
+
+    /* A markdown h2 opens a section: wide above, tight below.
+       Rendered markdown reaches the page two ways: as direct children of the
+       prose container, or wrapped in a `Paragraph` block. An h2 has to read
+       the same in both. A block's own heading is not in this flow. Those zero
+       their margins with a utility, which wins over this layer. */
+    > h2,
+    > [data-component='Paragraph'] > h2 {
+      margin-block-start: var(--space-section);
+      margin-block-end: var(--space-block-heading);
+    }
+
+    /* The heading owns the gap down to its content. Without this the block's
+       own top margin collapses in and wins, and the heading floats away from
+       what it titles. Radu reported that gap reading wider than the section
+       break above it at the bug bash on 2026-08-25.
+
+       The second selector is the same case one level down: a `Paragraph` that
+       ends on a heading is a title for the block that follows it. Zeroing the
+       wrapper's bottom margin lets the heading's own margin collapse out and
+       decide the gap.
+
+       The repeated `:not()` on the first selector is for specificity, not
+       meaning. Without it this rule scores one selector below the block rule
+       above and never applies. */
+    > h2 + [data-component]:not([data-component='CtaButtons'], .cta-link),
+    > [data-component='Paragraph']:has(> h2:last-child) + [data-component] {
+      margin-block-start: var(--space-block-heading);
+    }
+
+    > [data-component='Paragraph']:has(> h2:last-child) {
+      margin-block-end: 0;
+    }
+
+    /* Same idea for the CTA pair, one level up. prose/default.css already
+       zeroes the bottom margin of a bare `p` or heading that a `CtaButtons`
+       follows, but a `Paragraph` block wraps its markdown in a div, so that
+       rule cannot see it. Give up the block's bottom margin here and let the
+       CTA's own tight top margin decide the gap. */
+    > [data-component='Paragraph']:has(+ [data-component='CtaButtons']) {
+      margin-block-end: 0;
+    }
+
+    /* The stack around the prose already supplies the outer gap, and the page
+       supplies the bottom padding. A margin left on the first or last child
+       adds to that instead of collapsing into it, which is how a page ends up
+       with 160px of empty floor.
+
+       `:is()` is here for specificity, not brevity: these rules have to beat
+       the block rule above, and a bare `:first-child` scores one selector
+       lower and silently loses. */
+    > :is([data-component], h2):first-child {
+      margin-block-start: 0;
+    }
+
+    > :is([data-component], h2, p, ul, ol):last-child {
+      margin-block-end: 0;
+    }
+  }
+}

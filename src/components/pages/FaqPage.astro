@@ -54,7 +54,7 @@ const Layout = getSectionPageLayout(section)
 
 <Layout title={title} description={description}>
   <main
-    class="px-content flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="px-content pb-section flex flex-col pt-[calc(var(--spacing-5xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
   >
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
@@ -78,7 +78,7 @@ const Layout = getSectionPageLayout(section)
           </section>
         )
       }
-      <section class="mt-4xl desktop:mt-6xl">
+      <section class="mt-section">
         <FaqSections sections={faqSections} uiLocale={routeLocale} />
       </section>
     </div>

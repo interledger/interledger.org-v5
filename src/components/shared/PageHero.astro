@@ -77,111 +77,117 @@ const parallaxImgClass = isWideBand
 ---
 
 <!--
-  Outer div spans full width for the white background; px-content applies the
+  One root element, so a `page-stack` parent counts the hero as a single child.
+  The copy band and the image band below it are one unit. Without the wrapper
+  the stack would insert its gap between them.
+
+  Inner div spans full width for the white background; px-content applies the
   standard gutter and content-column caps the inner content at max-w-content
   (1440px), matching every other section on the page.
 -->
-<div
-  class="bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
->
-  <div class="content-column">
-    {
-      breadcrumbs && breadcrumbs.length > 0 && (
-        <Breadcrumbs
-          breadcrumbs={breadcrumbs}
-          class="[&_a]:text-body-sm-standard"
-        >
-          <slot name="after-breadcrumbs" />
-        </Breadcrumbs>
-      )
-    }
+<div data-component="PageHero">
+  <div
+    class="bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
+  >
+    <div class="content-column">
+      {
+        breadcrumbs && breadcrumbs.length > 0 && (
+          <Breadcrumbs
+            breadcrumbs={breadcrumbs}
+            class="[&_a]:text-body-sm-standard"
+          >
+            <slot name="after-breadcrumbs" />
+          </Breadcrumbs>
+        )
+      }
 
-    <!--
+      <!--
       Mobile drops to the H2 text style (32/40). At the H1 mobile size (56/68) a
       long single word such as "Grantmaking" is wider than the phone gutter, so
       it overflowed in Chrome and broke mid-word in Safari (INTORG-1149, Radu).
     -->
-    <h1
-      class="text-h2 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
-    >
-      {title}
-    </h1>
+      <h1
+        class="text-h2 tablet:text-h1-md desktop:text-h1-lg text-neutral-900 mb-2xl tablet:mb-3xl"
+      >
+        {title}
+      </h1>
 
-    {
-      description && (
-        <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line">
-          {description}
-        </p>
-      )
-    }
-    {
-      cta && resolvedCta && (
-        <LinkButton
-          href={resolvedCta.href}
-          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-          external={resolvedCta.external}
-          document={resolvedCta.document}
-          class="w-full tablet:w-auto"
-          linkText={cta.text}
-          umamiLabel="button_cta"
-          umamiBaseComponent="hero"
-        >
-          {cta.text}
-          <Icon name={resolvedCta.icon} slot="icon-right" />
-        </LinkButton>
-      )
-    }
+      {
+        description && (
+          <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line">
+            {description}
+          </p>
+        )
+      }
+      {
+        cta && resolvedCta && (
+          <LinkButton
+            href={resolvedCta.href}
+            variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+            external={resolvedCta.external}
+            document={resolvedCta.document}
+            class="w-full tablet:w-auto"
+            linkText={cta.text}
+            umamiLabel="button_cta"
+            umamiBaseComponent="hero"
+          >
+            {cta.text}
+            <Icon name={resolvedCta.icon} slot="icon-right" />
+          </LinkButton>
+        )
+      }
+    </div>
   </div>
-</div>
 
-<!-- Parallax image: image is taller than the frame so we can pan as you scroll -->
-{
-  (image || imageMobile) && (
-    <div
-      class:list={[
-        'parallax-wrapper relative w-full overflow-hidden bg-neutral-900',
-        bandClass
-      ]}
-      data-image-band={imageBand}
-    >
-      {imageMobile ? (
-        <>
+  <!-- Parallax image: image is taller than the frame so we can pan as you scroll -->
+  {
+    (image || imageMobile) && (
+      <div
+        class:list={[
+          'parallax-wrapper relative w-full overflow-hidden bg-neutral-900',
+          bandClass
+        ]}
+        data-image-band={imageBand}
+      >
+        {imageMobile ? (
+          <>
+            <OptimizedImage
+              src={imageMobile}
+              alt={resolvedMobileAlt ?? ''}
+              width={768}
+              height={480}
+              loading="eager"
+              fetchpriority="high"
+              pictureClass={parallaxPictureClass}
+              class:list={[parallaxImgClass, 'block tablet:hidden']}
+            />
+            <OptimizedImage
+              src={image ?? imageMobile!}
+              alt={imageAlt ?? ''}
+              width={1920}
+              height={940}
+              loading="eager"
+              fetchpriority="high"
+              pictureClass={parallaxPictureClass}
+              class:list={[parallaxImgClass, 'hidden tablet:block']}
+            />
+          </>
+        ) : (
           <OptimizedImage
-            src={imageMobile}
-            alt={resolvedMobileAlt ?? ''}
-            width={768}
-            height={480}
-            loading="eager"
-            fetchpriority="high"
-            pictureClass={parallaxPictureClass}
-            class:list={[parallaxImgClass, 'block tablet:hidden']}
-          />
-          <OptimizedImage
-            src={image ?? imageMobile!}
+            src={image}
             alt={imageAlt ?? ''}
             width={1920}
             height={940}
             loading="eager"
             fetchpriority="high"
             pictureClass={parallaxPictureClass}
-            class:list={[parallaxImgClass, 'hidden tablet:block']}
+            class={parallaxImgClass}
           />
-        </>
-      ) : (
-        <OptimizedImage
-          src={image}
-          alt={imageAlt ?? ''}
-          width={1920}
-          height={940}
-          loading="eager"
-          fetchpriority="high"
-          pictureClass={parallaxPictureClass}
-          class={parallaxImgClass}
-        />
-      )}
-    </div>
-  )
-}
+        )}
+      </div>
+    )
+  }
+</div>
 
 <script>
   // Image is 180% of the frame height — extra height gives room to pan on scroll.

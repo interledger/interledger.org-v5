@@ -81,7 +81,7 @@ const breadcrumbs = [
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
 >
-  <main class="pb-3xl">
+  <main class="page-stack pb-section">
     <PageHero
       title={heroTitle ?? title}
       description={heroDescription ?? description}
@@ -98,7 +98,7 @@ const breadcrumbs = [
 
     {
       hasBody && (
-        <section class="px-content py-4xl">
+        <section class="px-content">
           <div class="content-column">
             <div data-prose>
               <MdxContent
@@ -123,7 +123,7 @@ const breadcrumbs = [
       )
     }
 
-    <section class="px-content tablet:py-4xl">
+    <section class="px-content">
       <div class="content-column">
         <CtaStrip
           heading={ctaStrip.heading}
@@ -142,7 +142,7 @@ const breadcrumbs = [
 
     {
       followUpHtml && (
-        <section class="px-content pt-4xl pb-4xl">
+        <section class="px-content">
           <div class="content-column">
             <div data-prose set:html={followUpHtml} />
           </div>

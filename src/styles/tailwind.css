@@ -53,6 +53,7 @@
 /* Components layer - prose styles (by variant), navigation */
 @import './components/prose/default.css';
 @import './components/prose/base-typography.css';
+@import './components/prose/rhythm.css';
 @import './components/prose/foundation.css';
 @import './components/prose/blog.css';
 @import './components/prose/table.css';

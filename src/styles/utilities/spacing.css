@@ -29,3 +29,38 @@
 @utility content-column {
   @apply mx-auto w-full max-w-content min-w-[360px];
 }
+
+/*
+ * Vertical rhythm for a page's top-level elements. Put it on the element that
+ * owns the stack (usually `<main>`), not on the children.
+ *
+ * The gap is a top margin on every child after the first, so a child that
+ * genuinely needs its own spacing can still override it, and so the first
+ * child never pushes the stack away from whatever sits above it.
+ */
+@utility page-stack {
+  & > * + * {
+    margin-block-start: var(--space-section);
+  }
+}
+
+/* Single-side reads of the same rhythm, for the edges of a stack. */
+@utility mt-section {
+  margin-block-start: var(--space-section);
+}
+
+@utility mb-section {
+  margin-block-end: var(--space-section);
+}
+
+@utility pt-section {
+  padding-block-start: var(--space-section);
+}
+
+@utility pb-section {
+  padding-block-end: var(--space-section);
+}
+
+@utility gap-section {
+  gap: var(--space-section);
+}

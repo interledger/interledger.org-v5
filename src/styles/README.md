@@ -445,6 +445,29 @@ One scale, used by every spacing utility (`p-*`, `m-*`, `gap-*`, `w-*`, `h-*`, `
 - `3xl` (48px) → default. Use for gaps, margins, and most paddings.
 - `3xl-tight` (40px) → reserved for paddings that match Figma's `padding-3xl` spec specifically. Don't reach for it just because something looks crowded — `3xl` is the canonical 3xl unless Figma asks for the tighter value.
 
+#### Page rhythm: one gap between elements
+
+Every page except the home page uses **one** gap between its top-level elements, and **one** gap between a heading and the content under it. Nothing else. There is no per-component allowance for extra breathing room (Jessica and Briana, INTORG-1138).
+
+| Token                   | Value              | Use                                                    |
+| ----------------------- | ------------------ | ------------------------------------------------------ |
+| `--space-section`       | 60px, 80px desktop | Between two top-level elements: sections, prose blocks |
+| `--space-block-heading` | 48px               | Between a heading and the content it titles            |
+
+`--space-section` is always the larger of the two, so a section break reads wider than a heading break.
+
+**A block never carries its own vertical margin.** The container decides:
+
+- `page-stack` on `<main>` spaces the page's sections. Sections carry `px-content` for the gutter and nothing else.
+- `prose/rhythm.css` spaces the children of `[data-prose]`, `[data-prose-blog]`, and `[data-prose-summit]`. It targets any child with a `data-component` attribute, which is why a block component must set that attribute on its **root** element.
+- `DynamicZone.astro` applies the same value in the Strapi preview, so a block sits in the same place there as on the live page.
+
+Single-side reads, for the edges of a stack: `mt-section`, `mb-section`, `pt-section`, `pb-section`, `gap-section`.
+
+Two blocks own their spacing and sit out the rhythm, because a CTA belongs to the paragraph above it rather than to the flow: `CtaLink` (`.cta-link`) and `CtaButtons`. Each keeps a tight top margin and `mb-section` below. If you add a third, update the `:not()` list in `prose/rhythm.css` and the comment in `prose/default.css` together.
+
+**Adding a block component?** Put `data-component="Name"` on its root and give it no `margin-block`. A margin there fights the container and reintroduces the 120px-plus holes this replaced.
+
 #### Token collision: do not use `max-w-{md,lg,xl,2xl,3xl,4xl,5xl,6xl,7xl}` (or `min-w-*`, `w-*`, `h-*` with those keys)
 
 Tailwind v4 derives sizing utilities (`max-w-N`, `min-w-N`, `w-N`, `h-N`) from `--spacing-N` first, falling back to `--container-N` only when no `--spacing-N` is defined. The new design system defines `--spacing-{md..7xl}`, which silently shadows Tailwind's container scale.
