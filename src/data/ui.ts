@@ -144,6 +144,11 @@ export const ui = {
     'grantee.read_more': 'read more',
     'grantee.empty': 'No grantees match these filters.',
     'grantee.results': '{count} results',
+    'grantee.caveat.label': 'Grant amount caveat',
+    'grantee.caveat.amounts':
+      'Grant amounts shown reflect committed funding based on Interledger Foundation grant records and are contingent upon satisfactory progress by the grantee. Amounts presented may differ from those reported in audited financial statements prepared in accordance with U.S. GAAP or from figures disclosed in IRS Form 990 filings. Such differences may arise due to variations in timing of recognition, accounting treatment (including expense recognition versus conditional commitments), and grant disbursement schedules.',
+    'grantee.caveat.exclusions':
+      'This database includes grants only and excludes Program-Related Investments (PRIs).',
     'aria.grantee.filters_label': 'Filters',
     'aria.grantee.list': 'Grantee projects',
     'aria.grantee.tags': 'Thematic tags',
@@ -480,6 +485,11 @@ export const ui = {
     'grantee.read_more': '',
     'grantee.empty': '',
     'grantee.results': '',
+    'grantee.caveat.label': 'Aviso sobre los montos de las subvenciones',
+    'grantee.caveat.amounts':
+      'Los montos de las subvenciones mostrados reflejan el financiamiento comprometido según los registros de subvenciones de la Interledger Foundation y están sujetos al progreso satisfactorio del beneficiario. Los montos presentados pueden diferir de los reportados en los estados financieros auditados preparados de conformidad con los U.S. GAAP o de las cifras divulgadas en las declaraciones IRS Form 990. Tales diferencias pueden deberse a variaciones en el momento del reconocimiento, el tratamiento contable (incluido el reconocimiento de gastos frente a compromisos condicionales) y los calendarios de desembolso de las subvenciones.',
+    'grantee.caveat.exclusions':
+      'Esta base de datos incluye únicamente subvenciones y excluye las inversiones relacionadas con programas (PRI, por sus siglas en inglés).',
     'aria.grantee.filters_label': '',
     'aria.grantee.list': '',
     'aria.grantee.tags': '',
