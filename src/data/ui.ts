@@ -232,7 +232,7 @@ export const ui = {
     'subscribe.description':
       'Subscribe to the Interledger Foundation newsletter for grant opportunities, event access, and community updates.',
     'subscribe.intro':
-      'Join the Open Payments movement and subscribe to our monthly newsletter for access to opportunities, updates, and events!',
+      'Be part of the community building the future of open payments. Get monthly updates - from grants and events, to tech updates and stories from the ecosystem.',
     'subscribe.expect_heading': 'What to expect:',
     'subscribe.expect.grants':
       'Be the first to know about new grant opportunities.',
