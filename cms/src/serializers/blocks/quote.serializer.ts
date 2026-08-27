@@ -1,4 +1,8 @@
-import { getImageUrl, hasMediaValue, htmlFieldToMarkdown } from '../../utils'
+import {
+  getImageUrl,
+  hasMediaValue,
+  ckeditorFieldToCompiledMarkdown
+} from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 type ImageField = { url?: string; alternativeText?: string } | number
@@ -15,7 +19,7 @@ export function serialize(block: {
 
   // Escape { and } so MDX doesn't try to parse them as JS expressions.
   // CKEditor may hand back HTML; convert defensively like other text blocks.
-  const quote = escMdxBraces(htmlFieldToMarkdown(block.quote))
+  const quote = escMdxBraces(ckeditorFieldToCompiledMarkdown(block.quote))
 
   const attrs: string[] = []
   if (block.authorName?.trim()) {

@@ -1,5 +1,5 @@
 import {
-  ckeditorFieldToMarkdown,
+  ckeditorFieldToCompiledMarkdown,
   getImageUrl,
   hasMediaValue
 } from '../../utils'
@@ -124,7 +124,7 @@ export function serialize(block: {
   }
 
   const raw = isTextLayout ? (block.content ?? '') : ''
-  const body = raw ? ckeditorFieldToMarkdown(raw) : ''
+  const body = raw ? ckeditorFieldToCompiledMarkdown(raw) : ''
   if (isTextLayout && !body)
     throw new Error('Split layout text variants require content')
   const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''

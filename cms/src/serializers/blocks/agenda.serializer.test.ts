@@ -26,6 +26,15 @@ describe('agenda serializer', () => {
     expect(result).toContain(`items={${JSON.stringify(validItems)}}`)
   })
 
+  it('promotes a stray <br/> to a paragraph break — Agenda.astro has no MDX-children fallback', () => {
+    const result = serialize({
+      heading: 'Day one<br/>Day two',
+      items: validItems
+    })
+
+    expect(result).toContain('heading={"Day one\\n\\nDay two"}')
+  })
+
   it('omits the heading when it is empty', () => {
     const result = serialize({ items: validItems })
 

@@ -5,6 +5,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
+  ckeditorFieldToParsedMarkdown,
   GRANT_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
@@ -101,7 +102,11 @@ export function generateGrantPageMDX(
     description: grantPage.description ?? '',
     ...heroFrontmatter(grantPage.hero),
     ...(grantPage.programOverview
-      ? { programOverview: grantPage.programOverview }
+      ? {
+          programOverview: ckeditorFieldToParsedMarkdown(
+            grantPage.programOverview
+          )
+        }
       : {}),
     ...(primaryCta
       ? {
@@ -121,15 +126,21 @@ export function generateGrantPageMDX(
             cards: [
               {
                 heading: infoCards.card1?.heading ?? '',
-                body: infoCards.card1?.body ?? ''
+                body: infoCards.card1?.body
+                  ? ckeditorFieldToParsedMarkdown(infoCards.card1.body)
+                  : ''
               },
               {
                 heading: infoCards.card2?.heading ?? '',
-                body: infoCards.card2?.body ?? ''
+                body: infoCards.card2?.body
+                  ? ckeditorFieldToParsedMarkdown(infoCards.card2.body)
+                  : ''
               },
               {
                 heading: infoCards.card3?.heading ?? '',
-                body: infoCards.card3?.body ?? ''
+                body: infoCards.card3?.body
+                  ? ckeditorFieldToParsedMarkdown(infoCards.card3.body)
+                  : ''
               }
             ]
           }
@@ -160,7 +171,7 @@ export function generateGrantPageMDX(
               : {}),
             items: (faqSection.items ?? []).map((i) => ({
               question: i.question ?? '',
-              answer: i.answer ?? ''
+              answer: i.answer ? ckeditorFieldToParsedMarkdown(i.answer) : ''
             }))
           }
         }
@@ -172,7 +183,11 @@ export function generateGrantPageMDX(
             buttonLink: ctaStrip.primaryButtonLink ?? '',
             ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
             ...(ctaStrip.description
-              ? { description: ctaStrip.description }
+              ? {
+                  description: ckeditorFieldToParsedMarkdown(
+                    ctaStrip.description
+                  )
+                }
               : {}),
             // Both halves or neither, matching the serializer and renderer.
             // Compare and write the trimmed values: `validateCtaStrip` and the

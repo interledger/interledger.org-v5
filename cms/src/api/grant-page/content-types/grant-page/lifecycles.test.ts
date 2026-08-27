@@ -32,6 +32,32 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.content).not.toContain('Eligibility')
   })
 
+  it('promotes a stray <br/> in programOverview and ctaStrip.description to a paragraph break', () => {
+    const mdx = generateGrantPageMDX(
+      {
+        id: 1,
+        documentId: 'grant-1',
+        title: 'On-Campus Grant',
+        pathSlug: 'education/on-campus',
+        description: 'Funding for campus programmes.',
+        locale: 'en',
+        programOverview: '**Criteria for phase 1**\n\n<br />',
+        ctaStrip: {
+          heading: 'Apply now',
+          description: 'line one<br/>line two',
+          primaryButtonText: 'Start application',
+          primaryButtonLink: 'https://example.com/apply'
+        }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.programOverview).toBe('**Criteria for phase 1**')
+    expect(parsed.data.ctaStrip.description).toBe('line one\n\nline two')
+  })
+
   it('clears stale programOverview frontmatter when Strapi has none for the entry', () => {
     const mdx = generateGrantPageMDX(
       {

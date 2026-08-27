@@ -1,5 +1,5 @@
 import {
-  htmlFieldToMarkdown,
+  ckeditorFieldToParsedMarkdown,
   SerializerFieldError,
   type FieldError
 } from '../../utils'
@@ -17,8 +17,10 @@ interface AgendaBlock {
   items?: AgendaItem[]
 }
 
+// Agenda.astro has no MDX-children fallback — these always render via
+// parseMarkdown, so a stray `<br/>` needs promoting like frontmatter fields.
 function normalizeRichText(value: string | undefined): string {
-  return value ? htmlFieldToMarkdown(value).trim() : ''
+  return value ? ckeditorFieldToParsedMarkdown(value) : ''
 }
 
 export function serialize(block: AgendaBlock): string {

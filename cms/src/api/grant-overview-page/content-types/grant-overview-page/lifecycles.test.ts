@@ -63,4 +63,30 @@ describe('generateGrantOverviewPageMDX', () => {
     expect(parsed.data.ctaStrip.color).toBeUndefined()
     expect(parsed.content.trim()).toBe('')
   })
+
+  it('promotes a stray <br/> in followUpContent and ctaStrip.description to a paragraph break', () => {
+    const mdx = generateGrantOverviewPageMDX(
+      {
+        id: 1,
+        documentId: 'overview-1',
+        title: 'Our grantmaking',
+        pathSlug: 'our-grantmaking',
+        description: 'Funding overview.',
+        locale: 'en',
+        followUpContent: 'line one<br/>line two',
+        ctaStrip: {
+          heading: 'Get involved',
+          description: 'line one<br/>line two',
+          primaryButtonText: 'Subscribe',
+          primaryButtonLink: '/subscribe'
+        }
+      },
+      {}
+    )
+
+    const parsed = matter(mdx)
+
+    expect(parsed.data.followUpContent).toBe('line one\n\nline two')
+    expect(parsed.data.ctaStrip.description).toBe('line one\n\nline two')
+  })
 })

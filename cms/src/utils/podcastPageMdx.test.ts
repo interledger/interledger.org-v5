@@ -141,7 +141,7 @@ describe('generatePodcastPageMdx', () => {
     expect(data.localizes).toBeUndefined()
   })
 
-  it('converts textSection through ckeditorFieldToMarkdown when present', () => {
+  it('converts textSection through ckeditorFieldToParsedMarkdown when present', () => {
     const { data } = matter(
       generatePodcastPageMdx(
         makePage({ textSection: '<p>Hello <strong>world</strong></p>' })

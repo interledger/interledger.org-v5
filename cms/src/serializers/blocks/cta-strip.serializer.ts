@@ -1,4 +1,4 @@
-import { ckeditorFieldToMarkdown } from '../../utils'
+import { ckeditorFieldToCompiledMarkdown } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 /**
@@ -68,7 +68,7 @@ export function serialize(block: {
   // description is a Strapi text (markdown) field — render it as the children
   // and brace-escape so MDX doesn't parse { } as JS expressions.
   const description = block.description
-    ? escMdxBraces(ckeditorFieldToMarkdown(block.description))
+    ? escMdxBraces(ckeditorFieldToCompiledMarkdown(block.description))
     : ''
 
   return description
