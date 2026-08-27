@@ -1,0 +1,100 @@
+---
+pathSlug: 'tech/open-payments'
+title: 'Open Payments'
+description: 'A shared standard that lets apps request, approve, and complete payments across any bank, wallet, or mobile money account that adopts it.'
+heroTitle: 'Open Payments'
+heroDescription: 'The common interface for digital payments'
+heroImage: '/uploads/img/original/open_payments_hero.jpg'
+heroImageAlt: 'Developers reviewing code on a laptop during an Interledger workshop.'
+heroCtas:
+  - text: 'Read the docs'
+    link: 'https://openpayments.dev/'
+    external: true
+locale: 'en'
+---
+
+<Paragraph>
+
+Open Payments is a shared standard that lets applications interact directly with users’ accounts, simplifying how payments are requested, approved, and completed across systems.
+
+When an application wants to move money today, it has to negotiate separately with each payment provider, build custom connections, and handle every edge case on its own. There is no shared way for an app to ask whether it can initiate a payment, so every integration reinvents the interface, and the landscape fragments further each time a new provider enters the market. Open Payments replaces that with a common way for applications to request, approve, and initiate payments across any wallet, bank, or mobile money account that has adopted it.
+
+</Paragraph>
+
+<Paragraph>
+
+## It Starts with a Wallet Address
+
+Sending a payment with Open Payments does not require card numbers, bank details, or account credentials. One thing is enough: a wallet address - a public identifier for an account, like an email address for money.
+
+</Paragraph>
+
+<CardGrid ariaLabel="What a wallet address gives you" variant="Info" columns="Three">
+<InfoCard heading="Shareable and memorable">
+
+A readable URL such as https://wallet.com/alice, instead of long account numbers.
+
+</InfoCard>
+<InfoCard heading="Private by design">
+
+An alias for your account that does not expose sensitive financial details.
+
+</InfoCard>
+<InfoCard heading="Interoperable">
+
+It works the same across banks, mobile money services, and digital wallets, regardless of country, currency, or underlying technology.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+## How a Payment Moves
+
+The application uses the sender’s and recipient’s wallet addresses to reach each provider directly. The recipient’s provider is told a payment is expected. The sender’s provider prepares a quote showing the full amount, including fees and any conversion. The sender reviews and approves it, and their provider verifies their identity. Once consent is given, the two providers complete the transfer. Users stay in control throughout, and applications never touch funds directly.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/open_payments_transaction_flow_thumbnail_86435ee735.png"
+  alt="Diagram of an Open Payments transaction: the client sits between the sender’s financial service provider (identity provider, resource server, auth server) and the recipient’s financial service provider (wallet address URL, auth server, resource server)."
+  needsFullView={true}
+  needsOutline={true}
+/>
+
+<Paragraph>
+
+See the full diagram mapping an Open Payments transaction flow [here](/uploads/img/original/open_payments_transaction_flow_thumbnail_86435ee735.png).
+
+</Paragraph>
+
+<Paragraph>
+
+## Try it out
+
+Explore Open Payments in a safe test environment. Create a test wallet, get a wallet address, and simulate a payment flow from start to finish, with no risk.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Ways to try Open Payments" variant="Title" columns="Two">
+<TitleCard heading="Test Tools" buttonUrl="/tech/test-tools" buttonText="Try the Test Tools" buttonExternal={false}>
+
+Explore our suite of test tools - from our test wallet to the test boutique.
+
+</TitleCard>
+<TitleCard heading="GitHub" buttonUrl="https://github.com/interledger/open-payments" buttonText="Explore the Repo" buttonExternal={true}>
+
+Jump into our GitHub repo, explore the code, and try the SDKs.
+
+</TitleCard>
+<TitleCard heading="Documentation" buttonUrl="https://openpayments.dev/" buttonText="Read the Docs" buttonExternal={true}>
+
+Read our Open Payments Docs to truly understand the tech.
+
+</TitleCard>
+<TitleCard heading="Learn" buttonUrl="/hackathon/open-payments" buttonText="Resources" buttonExternal={false}>
+
+Learn Open Payments with our guides, courses and video series.
+
+</TitleCard>
+</CardGrid>
