@@ -1,0 +1,149 @@
+﻿---
+title: 'Presentación de Open Payments PHP: un nuevo puente para la interoperabilidad financiera'
+description: Explicación de las funciones de la biblioteca Open Payments PHP y cómo funciona
+date: 2025-05-06
+pathSlug: introducing-open-payments-php
+featured: false
+locale: es
+localizes: introducing-open-payments-php
+articleBios:
+  - author: Adi Boros
+    link: https://www.linkedin.com/in/adiboros/
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - go-further-with-open-payments
+  - open-payments-java
+  - simple-open-payments-guide
+legacy: true
+---
+
+## 🎯 Por qué Open Payments es importante
+
+El estándar de [**Open Payments**](https://openpayments.dev/) está redefiniendo la forma en que las aplicaciones inician, gestionan y completan las transacciones digitales, lo que permite sistemas financieros verdaderamente interoperables entre diferentes billeteras, servicios e instituciones financieras.
+
+Sin embargo, aunque la especificación ha tenido una adopción cada vez mayor en las plataformas JavaScript, existía una gran brecha: **Los desarrolladores de PHP**, que todavía impulsan una gran parte de la web, no contaban con una forma simple y nativa de implementar Open Payments en sus aplicaciones.
+
+Hoy, nos complace cambiar esa situación con el lanzamiento de Open Payments PHP, una biblioteca de código abierto que facilita que las aplicaciones en PHP participen en el futuro de la interoperabilidad financiera.
+
+## 💡 Lo que creamos: Open Payments PHP
+
+[interledger/open-payments-php](https://github.com/interledger/open-payments-php) es un paquete moderno para PHP, que se puede instalar con Composer y ofrece soporte completo para clientes de la API de Open Payments.
+Incluye:
+
+✅ Soporte completo para la gestión de [concesiones](https://openpayments.dev/introduction/grants/), [pagos entrantes](https://openpayments.dev/introduction/op-flow/#incoming-payment), [pagos salientes](https://openpayments.dev/introduction/op-flow/#outgoing-payment), [cotizaciones](https://openpayments.dev/introduction/op-flow/#quote) y [token](https://openpayments.dev/snippets/token-rotate/).
+
+✅ Desarrollado para PHP 8.3 o versiones posteriores, con tipado estricto, carga automática según PSR-4 y gestión de dependencias mediante Composer.
+
+✅ Arquitectura limpia y orientada a los servicios:
+
+- `Services/` : Interactúa con los puntos finales de Open Payments.
+- `Models/` : Representa recursos de API como concesiones, pagos y cotizaciones.
+- `Validators/` : Valida las cargas útiles de las solicitudes a la API antes de enviarlas.
+
+✅ Totalmente probado con PHPUnit y listo para su uso en producción.
+
+Así es como se solicita una concesión:
+
+<CodeBlock language="php" code={`
+use OpenPayments\AuthClient;
+use OpenPayments\Config\Config;
+
+$config = new Config(
+    $WALLET_ADDRESS, $PRIVATE_KEY, $KEY_ID
+);
+$opClient = new AuthClient($config);
+
+$wallet = $opClient->walletAddress()->get([
+    'url' => $config->getWalletAddressUrl()
+]);
+
+$grant = $opClient->grant()->request(
+    [
+        'url' => $wallet->authServer
+    ],
+    [
+        'access_token' => [
+            'access' => [
+                [
+                    'type' => 'incoming-payment',
+                    'actions' => ['read', 'complete', 'create', 'list' ]
+                ]
+              ]
+        ],
+        'client' => $config->getWalletAddressUrl()
+    ]
+);`} />
+
+Con solo unas pocas líneas de código, los desarrolladores de PHP ahora pueden crear concesiones, solicitar cotizaciones, iniciar pagos salientes o completar pagos entrantes, todo en total conformidad con las especificaciones de Open Payments (incluida la generación de encabezados de firma HTTP).
+
+En el repositorio [fragmentos de Open Payments en PHP](https://github.com/interledger/open-payments-php-snippets/) se pueden encontrar fragmentos de código detallados y totalmente funcionales que cubren todos los puntos finales.
+
+## 🛠️ Cómo funciona: Dentro de la biblioteca
+
+En esencia, **Open Payments PHP** está diseñado en torno a la simplicidad y la modularidad.
+La biblioteca está estructurada en capas definidas, lo que permite a los desarrolladores participar, ampliar o contribuir:
+
+## 📁 Estructura del proyecto
+
+| Carpeta       | Propósito                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| `Contracts/`  | Definiciones de interfaces (rutas) para servicios                                           |
+| `Services/`   | Interacción con los puntos finales de Open Payments, como concesiones, pagos y cotizaciones |
+| `Models/`     | Modelos de datos que representan recursos de Open Payments                                  |
+| `Validators/` | Lógica de validación de entrada antes de realizar llamadas a la API                         |
+| `Traits/`     | Funciones auxiliares como el análisis de identificadores y la extracción de URL             |
+| `Utils/`      | Funciones de utilidad utilizadas para la firma http                                         |
+
+Cada servicio corresponde directamente a partes de la API de Open Payments.
+Por ejemplo:
+
+- GrantService gestiona las solicitudes de concesiones y sus continuaciones.
+- QuoteService gestiona la creación y obtención de cotizaciones.
+- IncomingPaymentService gestiona la creación y consulta de IncomingPayments.
+- OutgoingPaymentService gestiona la creación y consulta de OutgoingPayments.
+
+Todos estos servicios están incorporados en el AuthClient principal y se pueden usar directamente desde el cliente, como en los ejemplos anteriores.
+Los desarrolladores interactúan principalmente a través de estas clases de servicio, sin preocuparse por las solicitudes HTTP de bajo nivel ni por los mecanismos internos de Open Payments, como las [firmas http](https://openpayments.dev/introduction/http-signatures/): la biblioteca elimina esa complejidad.
+
+## 🌎 Por qué es importante para la comunidad de PHP
+
+PHP sigue siendo uno de los lenguajes más utilizados en la web: impulsa plataformas como WordPress, Laravel, Drupal e innumerables aplicaciones personalizadas.
+
+Al ofrecer soporte de primer nivel para Open Payments en PHP, hacemos posible lo siguiente:
+
+🔗 Participación más amplia del ecosistema: más aplicaciones web, plataformas de comercio electrónico y servicios financieros pueden integrar Open Payments sin cambiar las pilas tecnológicas.
+
+🚀 Innovación más rápida: los desarrolladores pueden centrarse en crear productos orientados al usuario en lugar de volver a implementar protocolos financieros complejos.
+
+🛡️ Seguridad predeterminada: gracias al tipado estricto, la validación de solicitudes y el cumplimiento de la especificación de Open Payments.
+
+🤝 Mayor colaboración con la comunidad: incorporación más fácil para los equipos que ya utilizan PHP.
+
+Esto marca un avance significativo hacia una adopción verdaderamente universal de Open Payments en distintos lenguajes y plataformas.
+
+## 🚀 ¿Qué sigue?
+
+¡Esto es solo el comienzo!
+
+Esto llegará próximamente a Open Payments PHP:
+
+📚 [La documentación oficial de Open Payments](https://openpayments.dev/introduction/overview/) pronto incluirá también ejemplos de uso (fragmentos) para la biblioteca PHP.
+
+🔥 Proyectos de ejemplo: muestran la integración con marcos populares como Laravel, aplicaciones de Symfony Console ([biblioteca de fragmentos](https://github.com/interledger/open-payments-php-snippets/)) y complementos de comercio electrónico para WordPress.
+
+🤝 Desarrollo impulsado por la comunidad: ¡se aceptan solicitudes de cambios (pull requests), incidencias y debates sobre nuevas funcionalidades!
+
+Animamos a los desarrolladores a probar la biblioteca, proporcionar comentarios, abrir incidencias o enviar solicitudes de cambios.
+Juntos, podemos hacer crecer el ecosistema de Open Payments en todo el mundo PHP.
+
+## 🔗 Recursos
+
+GitHub: [interledger/open-payments-php](https://github.com/interledger/open-payments-php)
+
+GitHub: [interledger/open-payments-php-snippets](https://github.com/interledger/open-payments-php-snippets)
+
+[Especificación de Open Payments](https://openpayments.dev/)
+
+[Interledger Foundation](/es)

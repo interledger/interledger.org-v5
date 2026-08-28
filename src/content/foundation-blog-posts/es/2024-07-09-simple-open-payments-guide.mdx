@@ -1,0 +1,108 @@
+﻿---
+title: Una guía sencilla sobre el estándar de Open Payments
+description: Descubra cómo el estándar de Open Payments hace que los pagos en línea sean más fáciles y accesibles para todos.
+date: 2024-07-09
+pathSlug: simple-open-payments-guide
+featured: false
+locale: es
+localizes: simple-open-payments-guide
+articleBios:
+  - author: Sarah Jones
+    link: https://www.linkedin.com/in/sarah-jones-ba6bb6b9
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - introducing-open-payments-php
+  - go-further-with-open-payments
+  - memorable-wallet-addresses-custom-domain
+legacy: true
+---
+
+## El panorama actual de los pagos digitales
+
+La gestión de los pagos es una parte crucial de muchas aplicaciones móviles. Ya sea un sitio de comercio electrónico que vende productos, una plataforma de recaudación de fondos que acepta donaciones, un servicio de transmisión continua que cobra por su contenido o un servicio de suscripción con tarifas mensuales, los pagos digitales son fundamentales para sus operaciones.
+
+Muchos desarrolladores de aplicaciones dependen de pasarelas de pagos de terceros para gestionar estas transacciones. Empresas como PayPal, Stripe y Square ofrecen servicios para procesar pagos con tarjeta de crédito en nombre de la aplicación. A cambio de estos servicios, las aplicaciones incurren en diversos cargos, que pueden incluir tarifas mensuales, tarifas fijas por transacción o un porcentaje de los montos de las transacciones. Este enfoque, aunque es conveniente, implica gastos adicionales y hace que la aplicación dependa de un proveedor externo. Esta dependencia puede limitar el control sobre la experiencia del usuario, ya que obliga a los usuarios a confiar información confidencial, como los datos de su tarjeta de crédito, a proveedores externos.
+
+![La implementación de pagos de la mayoría de las aplicaciones en la actualidad](/img/foundation-blog/2024-06-20/credit-cards.png)
+
+Una alternativa es que las aplicaciones se integren directamente con los servicios de procesamiento de pagos de su banco. Este método puede ofrecer comisiones por transacción más bajas y un mayor control sobre el proceso de pago. Sin embargo, requiere un esfuerzo de desarrollo significativo y no siempre es posible. Además, cambiar a otro banco se vuelve muy difícil debido al extenso trabajo de integración ya realizado.
+
+Este problema se complica aún más cuando consideramos situaciones en las que el remitente o el destinatario de los fondos no tiene una cuenta bancaria. ¿Qué pasa si un pago debe realizarse entre un banco y un proveedor de dinero móvil? Ahora la aplicación también tendría que integrarse con el proveedor de dinero móvil. La integración personalizada se convierte en un problema cada vez más complejo.
+
+![Las integraciones personalizadas no son escalables](/img/foundation-blog/2024-06-20/custom-integration.png)
+
+¿Y si hubiera una forma de que una aplicación accediera a su cuenta de forma directa y segura? Actualmente, incluso si proporciona los datos de su cuenta a una aplicación, es probable que no pueda hacer mucho con ellos, incluso con su autorización. Como titular de una cuenta, ¿no debería tener el poder de decidir quién puede acceder a su cuenta y qué puede hacer con ella?
+
+## La promesa del estándar de Open Payments
+
+Open Payments busca cambiar esa situación al permitir que las aplicaciones accedan directamente a las cuentas de los usuarios sin necesidad de múltiples integraciones personalizadas. La estandarización es clave para eliminar estas integraciones personalizadas. Con un único punto de integración, las aplicaciones pueden acceder a cualquier cuenta que implemente el estándar, ya sea una cuenta bancaria, una billetera digital o una cuenta de dinero móvil. El único requisito es que tanto los proveedores de cuentas del remitente como del destinatario admitan el estándar de Open Payments.
+
+![Open Payments permite que las aplicaciones se comuniquen directamente con las entidades que administran cuentas](/img/foundation-blog/2024-06-20/open-payments.png)
+
+Piense en cómo funciona el correo electrónico: si usted tiene una cuenta de Gmail y otra persona tiene una cuenta de Outlook, no importa porque nuestros proveedores de correo electrónico se comunican utilizando un lenguaje compartido y estandarizado, lo que nos permite enviar correos electrónicos sin problemas entre proveedores. Para enviar un correo electrónico, no es necesario conocer el proveedor de correo electrónico de la otra persona; solo su dirección de correo electrónico.
+
+Así es como funciona el estándar de Open Payments. De manera similar a una dirección de correo electrónico, si un proveedor de cuentas implementa el estándar de Open Payments, le proporcionará una dirección de billetera. Esta dirección de billetera es legible para las personas (consta de palabras en lugar de una larga cadena de números) y se puede compartir públicamente (a diferencia de su número de tarjeta de crédito).
+
+Cuando quiera realizar un pago en línea, simplemente proporcione a la aplicación su dirección de billetera. Esta dirección de billetera también es una URL, lo que permite que la aplicación realice consultas directamente a la dirección de billetera. La aplicación puede entonces acceder a información sobre dónde ponerse en contacto con el proveedor de su cuenta. Mediante el estándar de Open Payments, la aplicación puede enviar una solicitud directamente a su cuenta para transferir el monto especificado desde su cuenta a la cuenta del destinatario.
+
+Como estándar abierto, Open Payments es de uso gratuito para cualquier persona, lo que garantiza una comunicación fluida entre las aplicaciones y los proveedores de cuentas de sus usuarios, independientemente de las instituciones financieras involucradas. Esta comunicación directa significa que no se generan cargos adicionales ni demoras.
+
+El protocolo de Open Payments también tiene como objetivo hacer que las transacciones sean más transparentes. Antes de confirmar un pago, sabe cuánto recibirá el destinatario y cuánto le cuesta esta operación en comisiones por transacción.
+
+El estándar de Open Payments aborda preguntas clave como:
+
+- ¿A dónde se debe enviar el dinero exactamente? Proporciona una forma estandarizada de identificar y localizar las cuentas de los usuarios en diferentes instituciones financieras.
+- ¿Están todas las partes de acuerdo con el monto final después de que se agregan las comisiones a una transacción?
+- ¿Cuál es el mejor método subyacente para utilizar en la transacción?
+
+Con el estándar de Open Payments, las aplicaciones no necesitan ser proveedores de servicios financieros (FSP) registrados para facilitar las transacciones. En lugar de mover o retener dinero, las aplicaciones envían obligaciones de pago. Esto significa que no transfieren dinero directamente, sino que envían instrucciones a su institución financiera para que transfiera los fondos en su nombre. Esta configuración elimina la necesidad de que la aplicación sea un proveedor de servicios financieros por sí misma, aunque tenga acceso de comunicación directa con su cuenta. Esto es beneficioso para las aplicaciones porque no necesitan lidiar con los obstáculos legales y de cumplimiento necesarios para ser un proveedor de servicios financieros. Pero también es ventajoso para usted, porque no necesita compartir información confidencial con aplicaciones en línea. Las aplicaciones que almacenan información como números de tarjetas de crédito y códigos CVV siempre suponen un riesgo de filtración de datos o hackeos, incluso con las mejores intenciones.
+
+Podría pensar: “Eso suena conveniente, pero ¿es seguro?” ¡No quiero que cualquiera pueda sacar dinero de mi cuenta!
+
+## Usted mantiene el control
+
+Con el estándar de Open Payments, usted mantiene el control total de sus transacciones financieras. Cuando una aplicación utiliza Open Payments, comparte de manera segura y criptográfica la información importante sobre la propia aplicación con las instituciones financieras con las que interactúa. Esta verificación garantiza que el proveedor de la cuenta sabe que la aplicación es legítima al efectuar una solicitud de pago en nombre del usuario.
+
+Cabe destacar que cualquier retiro de dinero de su cuenta exige su consentimiento explícito. Cuando otorga a una aplicación acceso a su cuenta, no le proporciona acceso sin restricciones. En cambio, usted controla los derechos de acceso: el monto exacto, el plazo y si puede acceder a su historial de transacciones o mover fondos. Open Payments también admite pagos recurrentes, lo que le permite definir con qué frecuencia, durante cuánto tiempo y hasta qué monto una aplicación puede acceder a su cuenta. Este control granular garantiza que usted siempre esté al tanto de las transacciones realizadas desde su cuenta y las autorice.
+
+## Hay algunos aspectos a tener en cuenta
+
+Para que este sistema funcione, tanto el remitente como el destinatario deben tener cuentas compatibles con Open Payments. Este requisito supone un obstáculo para la adopción, que Interledger Foundation está abordando activamente. Estamos comprometidos a hacer que la adopción sea lo más fluida posible para los proveedores de servicios financieros (FSP) y las aplicaciones al proporcionar un amplio soporte y recursos.
+
+Es importante tener en cuenta que la integración de Open Payments no garantiza una capa de liquidación compartida. Una capa de liquidación en un sistema de pago se refiere a la infraestructura y los procesos utilizados para transferir efectivamente los fondos entre las partes para finalizar las transacciones. Esto incluye los mecanismos que garantizan que el dinero se traslade del remitente al destinatario y que las cuentas de todas las partes se actualicen con precisión. Es el movimiento real de su dinero desde su cuenta hacia la cuenta de otra persona. Open Payments está diseñado para permitir que diferentes sistemas de pago se comuniquen y realicen transacciones entre sí. Sin embargo, al final del día, esos sistemas también deben estar conectados de tal manera que puedan liquidar el movimiento de fondos entre cuentas.
+
+Muchas instituciones financieras ya cuentan con mecanismos y procesos establecidos para transferir fondos entre cuentas. El [Interledger Protocol](/es/interledger) automatiza y optimiza la forma en que estas instituciones navegan por esta red. Si piensa en Open Payments como una forma de enviar obligaciones de pago directamente al proveedor de la cuenta correspondiente, entonces Interledger se encarga de encontrar la mejor ruta dentro de esa red existente que permita transferir fondos y completar los pagos. Si bien Open Payments simplifica el inicio de los pagos, no garantiza que siempre se encuentre una ruta para completarlos, lo que podría dar lugar a transacciones fallidas. Sin embargo, a medida que aumente la adopción del estándar, más personas tendrán acceso a una red de pagos interconectada y en expansión, lo que reducirá la probabilidad de que los pagos fallen.
+
+Si bien es posible que aún se apliquen algunos cargos, como las comisiones por conversión de divisas y las tarifas por transacciones bancarias, Open Payments busca eliminar las comisiones innecesarias de intermediarios, lo que reduce los costos generales de las transacciones. Sin embargo, es importante reconocer que no todos los intermediarios son innecesarios. Por ejemplo, los servicios de conversión de divisas son esenciales para las transacciones que involucran diferentes divisas. Supongamos que su proveedor de cuenta solo opera en euros y el mío solo en dólares. En ese caso, podríamos recurrir a un intermediario que maneje ambas divisas para facilitar la transacción de manera efectiva.
+
+Otro escenario se presenta cuando los proveedores de cuenta del remitente y del destinatario no están conectados directamente mediante una capa de liquidación compartida. En esos casos, siempre que haya uno o más intermediarios que compartan un sistema de liquidación común con cada institución, la liquidación aún puede ocurrir a través de estos intermediarios. Por ejemplo, si mi banco opera en dólares y no puede liquidar directamente con su billetera de criptomonedas, podría haber un intermediario de billetera digital capaz de liquidar entre moneda fiduciaria y criptomoneda. Por lo tanto, existe una capa de liquidación compartida indirectamente a través de intermediarios. El objetivo del Interledger Protocol es navegar por la red de instituciones financieras y sistemas de liquidación para encontrar las vías de liquidación más eficientes y rentables. Al aprovechar estas redes interconectadas, Interledger busca reducir al mínimo los costos y mejorar la confiabilidad.
+
+## ¿Qué está sucediendo actualmente en el ecosistema de Open Payments?
+
+Actualmente, la adopción del estándar de Open Payments aún está en curso. Algunas instituciones y servicios innovadores han comenzado a integrar este estándar, pero su uso generalizado aún está en desarrollo.
+
+[GateHub](https://gatehub.net/) es un proveedor de billetera digital que trabaja con el estándar de Open Payments a nivel mundial. Facilita algunas transacciones entre divisas, aunque pueden aplicarse limitaciones regulatorias según el país de residencia del usuario. Las billeteras digitales [Chimoney](https://chimoney.io/) y [Fynbos](https://wallet.fynbos.app) también implementaron las capacidades de Open Payments. Chimoney permite transferencias de Open Payments entre cuentas de Chimoney, y Fynbos admite pagos entre cuentas de Fynbos. Fynbos opera en América, Europa y Sudáfrica. Sin embargo, sus transacciones actualmente están limitadas a billeteras de la misma región debido a restricciones regulatorias y técnicas. Ya están en marcha los planes para establecer canales de pago entre los usuarios de Fynbos y GateHub, comenzando próximamente por Europa.
+
+Además de contar con los primeros proveedores de billeteras digitales compatibles con Open Payments, también tenemos una aplicación que ejecuta Open Payments. [Interledger Pay](https://interledgerpay.com/) es una plataforma de pago simplificada que le permite enviar o solicitar dinero fácilmente utilizando su dirección de billetera.
+
+Para la mayoría de las personas, el acceso a una cuenta compatible con Open Payments depende de que sus instituciones financieras adopten el estándar. A medida que más bancos, billeteras digitales y proveedores de dinero móvil incorporen Open Payments, los beneficios serán más accesibles.
+
+## ¿Cuáles son las posibilidades para el futuro?
+
+Un mundo con acceso directo a las cuentas a través del estándar de Open Payments fomenta la innovación y la inclusión al reducir las barreras de entrada para los desarrolladores, quienes pueden crear soluciones de pago directo más rápidamente y a un costo menor sin la necesidad de integraciones personalizadas. Esta democratización del desarrollo permite a las empresas más pequeñas y a las startups competir e innovar.
+
+Los usuarios tienen la facultad de otorgar a las aplicaciones acceso directo a sus cuentas. Pueden proporcionar acceso a quienes quieran, para que hagan lo que quieran dentro de los límites establecidos. Los usuarios también se benefician de transacciones sin complicaciones, transparencia con respecto a las comisiones en las que incurren y un mayor control sobre sus datos financieros, lo que mejora la confianza y la seguridad. La inclusión financiera aumenta significativamente al permitir el acceso a quienes no tienen cuentas bancarias tradicionales, así como al reducir los costos de realizar pagos mediante la eliminación de intermediarios innecesarios y reducir el esfuerzo de desarrollo de las integraciones de pagos.
+
+## Pruebe Open Payments usted mismo
+
+Si tiene curiosidad por saber cómo funciona en la práctica el estándar de Open Payments, puede explorarlo creando una cuenta en la [billetera de prueba de Interledger](https://rafiki.money/). Al crear una cuenta, se le proporcionará una dirección de billetera. Esto le permite obtener experiencia práctica en la simulación de transacciones mediante Open Payments. Una vez que haya configurado su cuenta y se haya otorgado una generosa cantidad de dinero ficticio, puede embarcarse en una experiencia de compras en [Interledger Boutique](https://rafiki.boutique) y adquirir algunos productos encantadores que van desde la suerte hasta la amabilidad.
+
+## Conclusiones clave
+
+La estandarización mejora la interoperabilidad al reducir el esfuerzo de desarrollo requerido para cada integración. Esto disminuye los costos y, al mismo tiempo, proporciona una solución escalable y eficiente para gestionar pagos digitales. Cuando la interoperabilidad es sencilla, se evita la participación de intermediarios innecesarios y las comisiones adicionales que encarecen las transacciones.
+
+Con Open Payments, los usuarios tienen la facultad de otorgar a las aplicaciones acceso directo a sus cuentas y decidir quién puede acceder a su dinero, por qué monto y con qué frecuencia. Los usuarios solo comparten información pública (en forma de direcciones de billetera) con las aplicaciones cuando realizan pagos, manteniendo la privacidad de sus datos financieros confidenciales.
+
+Las aplicaciones pueden gestionar pagos sin necesidad de estar registradas como proveedores de servicios financieros ni de afrontar los riesgos que conlleva la gestión de información confidencial, como los números de tarjetas de crédito.

@@ -1,0 +1,230 @@
+﻿---
+title: Llegue más lejos con Open Payments
+description: Anunciamos el SDK de Open Payments Go
+date: 2026-01-22
+pathSlug: go-further-with-open-payments
+featured: false
+locale: es
+localizes: go-further-with-open-payments
+articleBios:
+  - author: Blair Currey
+    link: https://www.linkedin.com/in/blair-currey/
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - introducing-open-payments-php
+  - open-payments-java
+  - simple-open-payments-guide
+legacy: true
+---
+
+## ¿Por qué Open Payments en Go?
+
+El estándar de [**Open Payments**](https://openpayments.dev/) está redefiniendo la forma en que las aplicaciones inician, gestionan y completan las transacciones digitales, lo que permite sistemas financieros verdaderamente interoperables entre diferentes billeteras, servicios e instituciones financieras.
+
+Interledger Foundation ha ido ampliando de manera constante el soporte de SDK para distintos lenguajes: [Node](https://github.com/interledger/open-payments-node) fue el primero, seguido de [PHP](https://github.com/interledger/open-payments-php) y [Rust](https://github.com/interledger/open-payments-rust). Pero faltaba un lenguaje en particular: **Go**.
+
+Según la [Encuesta de desarrolladores de Stack Overflow de 2025](https://survey.stackoverflow.co/2025/technology#worked-with-vs-want-to-work-with-language-worked-want), Go se encuentra entre los principales lenguajes de backend, junto con TypeScript y Python en términos de adopción por parte de los desarrolladores. Quizás lo más revelador sea que la encuesta señala que "los desarrolladores de Python aspiran a usar Rust y Go como camino hacia la programación de sistemas de alto rendimiento", lo que refleja el papel cada vez más importante de Go en la infraestructura en la nube, los microservicios y los backends donde el rendimiento es crucial.
+
+Hoy, nos complace cerrar esa brecha con [**Open Payments Go**](https://github.com/interledger/open-payments-go), un SDK de código abierto que brinda soporte de primera clase para Open Payments en el ecosistema de Go.
+
+## Lo que creamos
+
+[interledger/open-payments-go](https://github.com/interledger/open-payments-go) es un módulo de Go listo para producción que ofrece soporte completo para clientes de la API de Open Payments.
+
+Incluye:
+
+- Cobertura completa de la API: direcciones de billetera, concesiones, tókenes, cotizaciones, pagos entrantes y pagos salientes.
+- Desarrollado para Go 1.21 o versiones posteriores, aprovechando el tipado sólido de Go, sus interfaces y las convenciones de su biblioteca estándar.
+- **Tipos generados directamente desde las especificaciones de OpenAPI** mediante [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen), lo que garantiza que el SDK permanezca sincronizado con la especificación de Open Payments.
+- Utilidades integradas para firmas HTTP para la [autenticación GNAP](https://openpayments.dev/identity/http-signatures/), que simplifican la complejidad de las firmas Ed25519.
+- Pruebas de integración exhaustivas tanto en entornos locales de Rafiki como en la billetera de prueba.
+
+Así es como se solicita una concesión y se crea un pago entrante:
+
+<CodeBlock language="go" code={`package main
+
+  import (
+      "context"
+      "log"
+      "time"
+
+      openpayments "github.com/interledger/open-payments-go"
+      as "github.com/interledger/open-payments-go/generated/authserver"
+      rs "github.com/interledger/open-payments-go/generated/resourceserver"
+  )
+
+  func main() {
+      privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
+      keyId := os.Getenv("KEY_ID")
+
+      // Initialize the authenticated client
+      client, err := openpayments.NewAuthenticatedClient(
+          "https://wallet.example.com/alice",
+          privateKeyBase64,
+          keyId,
+      )
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Get wallet address info
+      wallet, err := client.WalletAddress.Get(context.Background(), openpayments.WalletAddressGetParams{
+          URL: "https://wallet.example.com/alice",
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Build the access request
+      incomingAccess := as.AccessIncoming{
+          Type: as.IncomingPayment,
+          Actions: []as.AccessIncomingActions{
+              as.AccessIncomingActionsCreate,
+              as.AccessIncomingActionsRead,
+              as.AccessIncomingActionsList,
+              as.AccessIncomingActionsComplete,
+          },
+      }
+      accessItem := as.AccessItem{}
+      accessItem.FromAccessIncoming(incomingAccess)
+
+      // Request a grant
+      grant, err := client.Grant.Request(context.Background(), openpayments.GrantRequestParams{
+          URL: *wallet.AuthServer,
+          RequestBody: as.GrantRequestWithAccessToken{
+              AccessToken: struct {
+                  Access as.Access \`json:"access"\`
+              }{
+                  Access: []as.AccessItem{accessItem},
+              },
+          },
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      // Create an incoming payment
+      expiresAt := time.Now().Add(24 * time.Hour)
+      payment, err := client.IncomingPayment.Create(context.Background(), openpayments.IncomingPaymentCreateParams{
+          BaseURL:     *wallet.ResourceServer,
+          AccessToken: grant.AccessToken.Value,
+          Payload: rs.CreateIncomingPaymentJSONBody{
+              WalletAddressSchema: *wallet.Id,
+              IncomingAmount: &rs.Amount{
+                  Value:      "1000",
+                  AssetCode:  wallet.AssetCode,
+                  AssetScale: wallet.AssetScale,
+              },
+              ExpiresAt: &expiresAt,
+          },
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
+
+      log.Printf("Created incoming payment: %s", *payment.Id)
+  }`} />
+
+Gracias al tipado sólido de Go y al diseño limpio de la API del SDK, los desarrolladores obtienen seguridad en tiempo de compilación y autocompletado en el IDE para todo el flujo de trabajo de Open Payments.
+
+## Detalles internos
+
+Estas son dos cosas que hicimos para ayudar a garantizar una buena experiencia para los desarrolladores.
+
+### Tipos generados con seguridad de tipos mediante OpenAPI Overlays
+
+Un desafío al que nos enfrentamos fue que las especificaciones de OpenAPI de origen no siempre producían tipos de Go ideales al procesarlas mediante generadores de código. Por ejemplo, los cuerpos de las solicitudes para concesiones de autorización y pagos salientes utilizaban uniones `oneOf` que generaban nombres de tipos poco adecuados, como `PostRequestJSONBody`.
+
+Para resolver esto, aprovechamos [OpenAPI Overlays](https://learn.openapis.org/overlay/), una poderosa técnica para modificar las especificaciones de OpenAPI sin tener que bifurcarlas. Nuestros archivos de superposición (`authserver.overlay.yaml`, `resourceserver.overlay.yaml`) agregan nombres de tipo explícitos y reestructuran las uniones para mejorar la ergonomía de Go:
+
+<CodeBlock language="yaml" code={`# resourceserver.overlay.yaml
+  actions:
+    - target: $.components.schemas
+      update:
+        CreateOutgoingPaymentWithQuote:
+          type: object
+          required: [walletAddress, quoteId]
+          properties:
+            walletAddress:
+              $ref: '#/components/schemas/walletAddress'
+            quoteId:
+              type: string
+            metadata:
+              type: object
+              additionalProperties: true
+
+        CreateOutgoingPaymentWithAmount:
+          type: object
+          required: [walletAddress, incomingPayment, debitAmount]
+          # ...`} />
+
+En lugar de lidiar con tipos anónimos, obtiene estructuras claras y autodocumentadas:
+
+<CodeBlock language="go" code={`// Without overlays: confusing generated names
+  var payload PostRequestJSONBody  // What is this?
+
+  // With overlays: intent is obvious
+  var payload rs.CreateOutgoingPaymentWithQuote
+  payload.WalletAddressSchema = walletAddress
+  payload.QuoteId = quoteId`} />
+
+Este enfoque nos mantiene en sintonía con las especificaciones de origen y nos permite generar tipos de Go limpios y bien definidos.
+
+### Firmas HTTP simplificadas
+
+Open Payments requiere [firmas de mensajes HTTP](https://openpayments.dev/introduction/http-signatures/) para las solicitudes autenticadas. El SDK maneja esta complejidad internamente a través del paquete `httpsignatureutils`:
+
+El SDK firma automáticamente las solicitudes cuando se utiliza `AuthenticatedClient`. Internamente, hace lo siguiente:
+
+1. Calcula `Content-Digest` para los cuerpos de las solicitudes
+2. Crea la cadena base de la firma según [RFC 9421](https://datatracker.ietf.org/doc/html/rfc9421)
+3. Firma con su clave privada Ed25519
+4. Establece los encabezados `Signature` y `Signature-Input`
+
+## Por qué es importante para la comunidad de Go
+
+Go impulsa una parte significativa de la infraestructura en la nube, los sistemas de pago y los backends de tecnología financiera. Al incorporar el soporte nativo de Open Payments a Go, permitimos:
+
+- **Integraciones de pago nativas de la nube**: Implemente clientes de Open Payments como microservicios, funciones sin servidor o integrados en aplicaciones Go existentes.
+
+- **Procesamiento de pagos de alto rendimiento**: El modelo de concurrencia de Go y su bajo consumo de recursos lo hacen ideal para escenarios de pago de alto rendimiento.
+
+- **Seguridad de tipos en tiempo de compilación**: Detecte los errores de integración antes del tiempo de ejecución gracias al tipado sólido de Go y a los tipos generados del SDK.
+
+- **Probado en la práctica**: Se realizan pruebas de integración exhaustivas tanto en entornos locales de Rafiki como en la billetera de prueba de Interledger, lo que garantiza la confiabilidad en situaciones reales.
+
+## Cómo empezar
+
+Instale el SDK:
+
+<CodeBlock language="bash" code={`go get github.com/interledger/open-payments-go`} />
+
+El SDK requiere Go 1.21 o versiones posteriores. Para el desarrollo, también deberá inicializar el submódulo de especificaciones de OpenAPI:
+
+<CodeBlock language="bash" code={`git submodule update --init`} />
+
+Para regenerar tipos a partir de las especificaciones (si está contribuyendo o personalizando):
+
+<CodeBlock language="bash" code={`go generate ./generated`} />
+
+## Involúcrese
+
+Open Payments Go está en desarrollo activo y listo para usarse hoy mismo.
+
+- **Documentación**: la documentación oficial de Open Payments incluyen ejemplos de Go junto con SDK en otros lenguajes, como JavaScript, TypeScript, PHP, Rust y Java. Explore la documentación del SDK aquí: https://openpayments.dev/sdk/before-you-begin/
+
+- **Comentarios de la comunidad**: nos encantaría conocer su opinión. Abra incidencias, envíe solicitudes de cambios (pull requests) o participe del debate en GitHub para ayudar a definir el futuro del SDK.
+
+- **Fuente y ecosistema**: Open Payments Go forma parte del ecosistema más amplio de Interledger y Open Payments:
+  - GitHub: https://github.com/interledger/open-payments-go
+  - Open Payments: https://openpayments.dev/
+  - Interledger Foundation: [https://interledger.org/](/es)
+  - Rafiki (implementación de referencia de Open Payments): https://github.com/interledger/rafiki
+
+---
+
+Nos entusiasma llevar Open Payments al ecosistema de Go y esperamos con interés ver qué construye la comunidad.
+
+¡Pruébelo y cuéntenos qué le parece! 🚀

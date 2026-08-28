@@ -1,0 +1,139 @@
+﻿---
+title: 'Equilibrando el libro mayor: la integración de TigerBeetle en Rafiki'
+description: Cómo TigerBeetle potencia el núcleo financiero de Rafiki.
+date: 2024-12-17
+pathSlug: rafiki-tigerbeetle-integration
+featured: false
+locale: es
+localizes: rafiki-tigerbeetle-integration
+articleBios:
+  - author: Jason Bruwer
+    link: https://github.com/koekiebox
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - rafiki-beta-release
+  - simple-rafiki-integration-guide
+  - rafiki-low-level-intro
+legacy: true
+---
+
+[Rafiki](https://rafiki.dev/) es una plataforma de código abierto que permite a las entidades que administran cuentas (ASE), como bancos y proveedores de billeteras digitales, integrar la funcionalidad de [Interledger Protocol](/es/developers/get-started) (ILP) en sus sistemas.
+
+Un componente fundamental de la arquitectura de Rafiki es su base de datos contable, que gestiona las transacciones financieras y los saldos de las cuentas. Para mejorar el rendimiento y la confiabilidad, Rafiki ofrece la opción de utilizar TigerBeetle, una base de datos contable financiera especializada, como su backend de contabilidad.
+
+![Tigerbeetle + Rafiki](/img/foundation-blog/2024-12-17/tigerbeetle.png)
+
+## ¿Qué es TigerBeetle?
+
+[TigerBeetle](https://tigerbeetle.com/) es una base de datos contable financiera diseñada para ofrecer seguridad y rendimiento de nivel crítico, con el objetivo de impulsar el futuro de los servicios financieros. Proporciona un procesamiento de transacciones de alto rendimiento y garantiza la integridad de los datos, por lo que resulta ideal para gestionar operaciones financieras complejas.
+
+#### ¿Por qué integrar TigerBeetle con Rafiki?
+
+La integración de TigerBeetle en Rafiki aporta varias ventajas:
+
+- **Alto rendimiento:** TigerBeetle está optimizado para cargas de trabajo de procesamiento de transacciones en línea (OLTP), lo que ofrece un rendimiento significativamente mayor en comparación con las bases de datos de uso general.
+- **Coherencia financiera:** Con su esquema integrado de débitos y créditos, TigerBeetle garantiza la coherencia financiera a nivel de base de datos, lo que reduce el riesgo de errores en el procesamiento de transacciones.
+- **Tolerancia a fallas:** TigerBeetle está diseñado para tolerar fallas y garantiza la durabilidad de los datos, lo cual es crucial para las aplicaciones financieras.
+
+## ¿Cómo utiliza Rafiki TigerBeetle?
+
+En Rafiki, el servicio de backend es responsable de gestionar la lógica empresarial y las comunicaciones externas, incluida la gestión de cuentas y el seguimiento de la liquidez.
+
+Para la base de datos contable, Rafiki ofrece la opción de usar TigerBeetle en lugar de PostgreSQL.
+Esta configuración permite a Rafiki aprovechar las capacidades de procesamiento de transacciones de alto rendimiento de TigerBeetle para administrar los saldos de las cuentas y las transacciones financieras.
+
+Es importante tener en cuenta que, si bien TigerBeetle se puede utilizar con fines contables, Rafiki aún requiere una instancia de PostgreSQL para los servicios de autenticación y los recursos de [Open Payments](https://openpayments.dev/).
+Por lo tanto, ambas bases de datos operan en conjunto dentro de la infraestructura de Rafiki.
+
+## Contabilidad por partida doble: la base de los sistemas financieros
+
+En el centro de cualquier sistema financiero se encuentra el principio de la **contabilidad por partida doble**.
+
+Este sistema, que se remonta al siglo XV, garantiza la precisión financiera al registrar cada transacción como dos asientos correspondientes: un **débito** en una cuenta y un **crédito** en otra.
+
+El total de débitos y créditos siempre se equilibra, lo que proporciona una visión clara de las transacciones financieras y reduce el riesgo de errores o fraude.
+
+### Cómo funciona la contabilidad por partida doble
+
+En la contabilidad por partida doble:
+
+- **Los asientos de débito** representan aumentos en los activos o gastos, y disminuciones en los pasivos, el patrimonio neto o los ingresos.
+- **Los asientos de crédito** representan aumentos en los pasivos, el patrimonio neto o los ingresos, y disminuciones en los activos o gastos.
+
+**Por ejemplo, si un cliente paga USD 100 en una billetera digital**:
+
+**1.** La cuenta de efectivo (un activo) se debita por USD 100.
+
+**2.** La cuenta de saldo del cliente (un pasivo) se acredita por USD 100.
+
+Este enfoque sistemático garantiza que los libros contables estén siempre equilibrados, lo que proporciona transparencia y coherencia en las operaciones financieras.
+
+### Por qué la contabilidad por partida doble es importante en Rafiki y TigerBeetle
+
+Tanto Rafiki como TigerBeetle adoptan la contabilidad por partida doble como un concepto fundamental, lo que garantiza que todas las transacciones financieras se registren y cuadren meticulosamente.
+
+Así es como se aplica a su integración:
+
+- **Integridad financiera a escala:** TigerBeetle incorpora de forma nativa un esquema de débitos y créditos que garantiza que todas las transacciones sigan los principios de la contabilidad por partida doble. Esto garantiza que los registros contables sean siempre precisos y coherentes, incluso en condiciones de alto rendimiento.
+- **Detección de errores:** Al exigir que cada transacción mantenga equilibrados los débitos y créditos, la contabilidad por partida doble facilita la identificación de discrepancias o anomalías, lo que mejora la confiabilidad general del sistema.
+- **Transparencia operativa:** Para las entidades que administran cuentas (ASE) que utilizan Rafiki, la contabilidad por partida doble proporciona información clara sobre los flujos financieros, lo que ayuda a los operadores a gestionar la liquidez, realizar un seguimiento de los saldos y garantizar el cumplimiento de las regulaciones financieras.
+
+### Funciones mejoradas con TigerBeetle
+
+TigerBeetle potencia la contabilidad por partida doble al incorporar estos principios directamente en su arquitectura:
+
+- **Transacciones atómicas:** TigerBeetle garantiza que las transacciones se completen en su totalidad o no se ejecuten en absoluto, lo que evita actualizaciones parciales que podrían generar discrepancias.
+- **Rendimiento y coherencia:** Al utilizar la contabilidad por partida doble, TigerBeetle puede procesar un volumen excepcionalmente alto de transacciones por segundo, al tiempo que garantiza la precisión financiera.
+
+### Ejemplo del mundo real
+
+Gracias a la contabilidad por partida doble, ambos lados de la transacción quedan registrados y equilibrados, lo que proporciona un registro de auditoría claro para la conciliación y el cumplimiento normativo.
+
+La contabilidad por partida doble es más que un método de registro contable, es la base de la confianza y la precisión en los sistemas financieros. Al integrar TigerBeetle, que implementa este principio a la perfección, Rafiki garantiza que sus usuarios dispongan de una plataforma sólida, confiable y de alto rendimiento para gestionar las operaciones financieras con precisión y confianza.
+
+#### Ejemplo detallado: Envío y recepción de instancias de Rafiki
+
+A continuación se muestra un ejemplo práctico con conectores de envío y recepción dentro de Rafiki, junto con el impacto que tienen en las cuentas subyacentes de TigerBeetle. En este ejemplo, un Rafiki emisor (donde se gestiona un [pago saliente](https://openpayments.dev/resources/glossary/#outgoing-payment-resource)) envía paquetes ILP a un Rafiki homólogo a través de ILP (abonando un [pago entrante](https://openpayments.dev/resources/glossary/#incoming-payment-resource)). La relación de interconexión se define utilizando USD por simplicidad en este ejemplo.
+
+Este proceso ocurre **para cada paquete ILP**, lo que puede suceder con una frecuencia extremadamente alta, en especial durante los pagos en tiempo real. La arquitectura de alto rendimiento de TigerBeetle es fundamental en este caso, ya que garantiza una contabilidad precisa y coherente para estos altos volúmenes de transacciones, al tiempo que mantiene la integridad financiera.
+
+##### Rafiki emisor
+
+El remitente crea un pago saliente de `100 USD` hacia un pago entrante en la instancia de Rafiki de un par. La relación de interconexión entre las instancias está denominada en USD.
+
+| Asiento del libro mayor de TigerBeetle n.º 1 | Débito | Crédito |
+| -------------------------------------------- | ------ | ------- |
+| Cuenta de liquidez de pagos salientes en USD | `100`  |         |
+| Cuenta de liquidez del par en USD            |        | `100`   |
+
+##### Rafiki receptor
+
+Un pago entrante en el extremo del destinatario recibe `100 USD` desde el pago saliente en la instancia de Rafiki del par.
+
+| Asiento del libro mayor de TigerBeetle n.º 2 | Débito | Crédito |
+| -------------------------------------------- | ------ | ------- |
+| Cuenta de liquidez del par en USD            | `100`  |         |
+| Cuenta de liquidez de pagos salientes en USD |        | `100`   |
+
+La documentación de Rafiki contiene más [explicaciones contables](https://rafiki.dev/overview/concepts/accounting).
+
+## Implementación de TigerBeetle en Rafiki
+
+Para implementar Rafiki con TigerBeetle, puede usar Docker Compose o Helm con Kubernetes.
+
+La [documentación de Rafiki](https://rafiki.dev/) proporciona configuraciones de ejemplo para estos métodos de implementación, incluida la forma de configurar TigerBeetle como base de datos contable.
+
+Por ejemplo, al utilizar Helm, puede especificar la versión de TigerBeetle ajustando la etiqueta correspondiente en el archivo `values.yaml`.
+Durante el proceso de implementación, es fundamental asegurarse de que las variables de entorno estén configuradas correctamente, sobre todo al preparar un entorno de producción.
+
+## Conclusión
+
+La integración de TigerBeetle en Rafiki mejora significativamente la capacidad de la plataforma para procesar transacciones financieras con un rendimiento y una confiabilidad excepcionales.
+
+Al aprovechar las funciones avanzadas de TigerBeetle, Rafiki ofrece a las entidades de administración de cuentas (ASE) una solución potente y confiable para implementar la funcionalidad de Interledger, lo que garantiza operaciones financieras fluidas y seguras.
+
+Más que un simple método de registro contable, la contabilidad por partida doble es la base de la confianza y la precisión en los sistemas financieros.
+
+Gracias a que TigerBeetle incorpora este principio sin inconvenientes, Rafiki ofrece una plataforma de alto rendimiento que permite a sus usuarios gestionar transacciones financieras con precisión, confianza y eficiencia.

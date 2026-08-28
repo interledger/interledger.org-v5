@@ -1,0 +1,155 @@
+﻿---
+title: 'Presentamos las herramientas para editores: monetización simple para propietarios y editores de contenido'
+description: Una descripción general del conjunto de herramientas y un adelanto de los planes futuros
+date: 2025-05-20
+pathSlug: introducing-publisher-tools
+featured: false
+locale: es
+localizes: introducing-publisher-tools
+articleBios:
+  - author: Arpad Lengyel
+    link: https://www.linkedin.com/in/lengyel-arpad85/
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - redesigned-publisher-tools-guide
+  - announcing-interledger-foundations-web-monetization-extension-beta-release
+  - paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time
+legacy: true
+---
+
+En un mundo digital donde apoyar a los propietarios y editores de contenido es cada vez más importante, quisimos crear algo que no solo destacara el valor de [Web Monetization](https://webmonetization.org/), sino que también lo hiciera accesible y fácil de usar para todos. Así surgieron nuestras [herramientas para editores](https://webmonetization.org/tools/).
+
+Este conjunto de herramientas surgió a partir de un simple objetivo de marketing: dar a conocer Web Monetization. En esencia, las herramientas para editores son un conjunto de elementos personalizables que los propietarios de sitios pueden integrar con una simple etiqueta de script, diseñados para promover Web Monetization como un modelo que permite a los visitantes apoyar sus sitios web.
+
+## Diseñado para la simplicidad y la flexibilidad
+
+Al diseñar las herramientas, nos inspiramos en sistemas populares de pagos únicos y modelos de donación, y nos preguntamos:  
+**¿Cómo podemos ofrecer una facilidad de uso similar, pero adaptada a Web Monetization?**
+
+Decidimos desde el principio que nuestras herramientas para editores se centrarían en un conjunto reducido de elementos:
+
+- **Banner**
+- **Widget**
+- **Botón**
+- **Contenido exclusivo**
+
+Cada elemento es totalmente personalizable mediante una interfaz de administración visual, donde los usuarios pueden configurar el texto, los colores, las fuentes y mucho más, con soporte de vista previa en vivo. _No se requieren conocimientos de programación._
+
+![Crear un banner](/img/foundation-blog/2025-05-20/pt_example_banner.png)
+
+## Diseñado para una experiencia de configurar y olvidar
+
+En lugar de actualizar manualmente cada elemento cada vez que se necesita un cambio (como modificar un color o un texto de llamada a la acción), los creadores simplemente pueden actualizar su configuración en el panel de administración.
+
+Dado que toda la personalización se almacena en el servidor, cualquier actualización se refleja de inmediato en todos los elementos integrados.
+
+> La etiqueta de script generada está diseñada para ser lo más simple posible: solo contiene la dirección de billetera y el tipo de elemento. Todas las demás configuraciones se extraen automáticamente en función de la dirección de billetera.
+
+Este enfoque reduce la barrera técnica y garantiza que los creadores puedan centrarse en su contenido, y no en el mantenimiento del sitio web.
+
+## Garantizar la propiedad y la seguridad de la billetera
+
+Para proteger a los usuarios y mantener la integridad, se integra la confirmación de la propiedad de la billetera.  
+Actualmente, esto se basa en una _concesión de autorización interactiva_; en el futuro, un mecanismo de verificación de billetera más ágil reemplazará este proceso.
+
+Antes de generar una etiqueta de script, se solicita a los usuarios que verifiquen que son los propietarios de sus billeteras.
+Sin la confirmación de la propiedad, sus personalizaciones no se guardan en el servidor. Los pasos de validación ayudan a mantener la integridad, proteger a los propietarios de la billetera y garantizar que solo el propietario legítimo de una billetera pueda actualizar la configuración.
+
+## Configuraciones predeterminadas
+
+Cada tipo de elemento incluye un valor predeterminado, lo que permite que cualquier persona pueda comenzar de inmediato.
+
+Si el propietario de un sitio integra un elemento sin realizar ninguna personalización, el estilo y el comportamiento predeterminados se aplicarán de forma automática.
+
+Además, todos los elementos integrados insertan automáticamente la etiqueta `<link rel="monetization">` necesaria, por lo que agregar el script es todo lo que se necesita para habilitar Web Monetization, lo que elimina otro paso técnico para los creadores.
+
+## Estilo flexible con control de versiones
+
+Una característica clave de las herramientas para editores es el **control de versiones**, que permite a los creadores tener mayor control sobre la apariencia de los elementos en diferentes contextos, sin necesidad de múltiples direcciones de billetera.
+
+### 💡 ¿Por qué el control de versiones?
+
+Muchos creadores publican contenido en múltiples plataformas o mantienen sitios web con diferentes estilos. Otros pueden operar un único sitio que admita varios temas (por ejemplo, modo claro y modo oscuro) o secciones con una identidad de marca diferente. Con el control de versiones, puede definir diversas configuraciones, cada una con su propio texto, colores y fuentes, para la misma dirección de billetera.
+
+Por ejemplo, un creador podría usar:
+
+- Un banner azul con un tono profesional para su sitio de portafolio
+- Un widget divertido y colorido en su blog personal
+- Un muro de pago con diseño de modo oscuro para una experiencia de lectura nocturna
+
+Todos pueden estar vinculados a la misma billetera, lo que mantiene un flujo de monetización unificado y permite personalizar por completo la presentación.
+
+### 🛠️ Cómo funciona
+
+En la interfaz de administración, los creadores pueden:
+
+- Crear nuevas versiones de la configuración de un elemento (por ejemplo, portafolio, blog, modo oscuro)
+- Editar las versiones existentes en cualquier momento
+
+En cuanto a la integración, el script sigue siendo sencillo. Al pasar un valor de `tag` junto con la dirección de billetera en la etiqueta del script, la versión correcta se selecciona y se muestra automáticamente.
+
+<CodeBlock language="html" code={`<script
+    id="wmt-init-script"
+    type="module"
+    src="https://cdn.webmonetization.org/init.js?wa=[user-wallet-address]&tag=blog&types=banner"
+  ></script>`} />
+
+Si no se proporciona ninguna etiqueta, se utiliza la versión predeterminada, lo que garantiza la compatibilidad con versiones anteriores y una configuración rápida para los usuarios que no necesitan varios estilos.
+
+![Visualización del banner](/img/foundation-blog/2025-05-20/pt_embedded_banner.png)
+
+## Análisis en profundidad: Los elementos
+
+### 🌎 Disponible ahora: **Banner**
+
+- **Visibilidad**: Se muestra a los visitantes que no tienen habilitada la extensión Web Monetization.
+- **Comportamiento**: Se muestra hasta que el visitante instala o habilita la extensión Web Monetization o cierra manualmente el banner (el cierre se mantiene durante toda la sesión).
+- **Personalización**: Los propietarios del sitio pueden definir el texto y los detalles visuales (color, fuente, etc.). El enlace de la tienda web para la extensión Web Monetization, que se basa en el navegador del visitante, se agrega automáticamente.
+- **Alternativa**: Si no se puede identificar el navegador, el enlace dirige al [sitio web de Web Monetization](https://webmonetization.org/).
+
+### 🔥 Próximamente: Widget, botón y contenido exclusivo
+
+Estas funciones están en desarrollo activo y pronto estarán disponibles:
+
+#### Widget
+
+- **Ubicación**: Posición fija en la esquina inferior derecha de la pantalla.
+- **Propósito**: Ícono siempre visible que, al hacer clic, abre un panel de pago.
+- **Funcionalidad**: Permite a los visitantes realizar un pago único, lo que permite apoyar a los creadores incluso sin la extensión instalada.
+- **Nota técnica**: La prueba de concepto de pagos utiliza un iframe seguro (mediante interledgerpay.com). Las futuras versiones tienen como objetivo integrar completamente Open Payments para ofrecer pagos sin interrupciones y sin redirecciones de página.
+
+![Ejemplo de widget](/img/foundation-blog/2025-05-20/pt_example_widget.png)
+
+#### Botón
+
+- **Flexibilidad**: Puede insertarse en línea dentro del contenido o de los componentes.
+- **Comportamiento**: Abre el mismo panel de pago que el widget.
+- **Extras**: Tiene la opción de agregar información sobre herramientas para explicaciones adicionales o llamadas a la acción.
+
+![Crear un botón](/img/foundation-blog/2025-05-20/pt_example_button.png)
+
+#### Contenido exclusivo
+
+- **Concepto**: Un sistema simple de muro de pago.
+- **Comportamiento**: Revela solo una vista previa (por ejemplo, los primeros párrafos) y requiere el pago para un acceso completo.
+- **Implementación**: Totalmente del lado del cliente para simplificar.
+- **Visitantes recurrentes**: Los visitantes que hayan pagado previamente pueden verificar su pago y obtener acceso sin volver a comprar durante el intervalo de tiempo establecido.
+- **Privacidad**: Los editores y los propietarios de contenido nunca ven ni almacenan los datos personales de un visitante: la privacidad se preserva por completo. La verificación se realiza comparando el pago con el historial de transacciones del visitante, según lo registrado por su billetera o proveedor de identidad.
+
+## ¿Qué sigue?
+
+Las **herramientas para editores** son un proyecto en constante evolución. Estamos observando cómo las personas las usan, escuchando sus comentarios y trabajando para lograr una mejor integración con Open Payments. Nuestro objetivo es lograr que apoyar a los creadores sea tan sencillo como leer su contenido.
+
+Con una configuración mínima, actualizaciones dinámicas y un enfoque centrado en la facilidad de uso, ofrece una forma sencilla de adoptar Web Monetization, tanto para desarrolladores expertos como para quienes recién comienzan.
+
+![herramientas para editores](/img/foundation-blog/2025-05-20/pt_tools_collection.png)
+
+## Recursos
+
+GitHub: [interledger/publisher-tools](https://github.com/interledger/publisher-tools/)
+
+[Web Monetization](https://webmonetization.org/)
+
+[Interledger Foundation](/es)

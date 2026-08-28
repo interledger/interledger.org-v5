@@ -1,0 +1,176 @@
+﻿---
+title: 'Cómo Web Monetization utiliza Open Payments - Parte 1: Conexión de la billetera'
+description: Comprender cómo la extensión del navegador utiliza Open Payments para conectar de forma segura su billetera con Web Monetization
+date: 2025-12-03
+pathSlug: web-monetization-open-payments-part-1-connecting-wallet
+featured: false
+locale: es
+localizes: web-monetization-open-payments-part-1-connecting-wallet
+articleBios:
+  - author: Sid Vishnoi
+    link: https://sidvishnoi.com?ref=ilf_engg_blog
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - web-monetization-open-payments-part-3-sending-money
+  - e2e-testing-wm-browser-extension
+  - announcing-interledger-foundations-web-monetization-extension-beta-release
+legacy: true
+---
+
+Bienvenido a la primera de una serie de tres partes sobre cómo Open Payments impulsa Web Monetization. También exploraremos la mecánica de la extensión del navegador Web Monetization, que sirve como agente temporal hasta que los navegadores web admitan esta tecnología de forma nativa.
+
+Asumo que ya tiene una comprensión conceptual de las tecnologías subyacentes, el estándar de [Web Monetization](https://webmonetization.org) y la [API de Open Payments](https://openpayments.dev) que lo respalda, ya que hablaré sobre la relación entre ambas a lo largo de la serie.
+
+Este artículo se centra en la configuración inicial de la extensión y la billetera. En este contexto, considero que usted, como lector, es la parte que realiza el pago para apoyar el contenido que le gusta.
+
+Los dos artículos siguientes profundizarán en la mecánica del envío de fondos y temas relacionados. Se abordarán desde la perspectiva del agente de Web Monetization (por ahora, la extensión del navegador), ya que este gestiona automáticamente los procesos de pago en su nombre.
+
+## Partes de la extensión
+
+Una extensión del navegador consta de varios componentes clave. La ventana emergente es la interfaz de usuario que aparece cuando los usuarios hacen clic en el ícono de la extensión en la barra de herramientas del navegador. La ventana emergente suele ser la interfaz principal con la que interactúan los usuarios. En la extensión Web Monetization, primero usará esta ventana emergente para ingresar su dirección de billetera y establecer un presupuesto como parte del proceso de conexión de la billetera, es decir, cuando la extensión obtenga permisos para realizar pagos en su nombre a través de su proveedor de billetera. Más adelante, podrá verificar el estado de monetización de un sitio web y enviar pagos únicos a través de la misma ventana emergente.
+
+El script en segundo plano (también conocido como el trabajador de servicio en segundo plano) funciona como un servidor backend seguro dentro de su navegador. Coordina las actividades y almacena de forma segura los datos confidenciales, como la información de pago, lejos de las páginas web. Aquí es donde se integran los componentes de Open Payments de la extensión.
+
+Los scripts de contenido se inyectan directamente en la página de un sitio web, lo que permite que la extensión lea o modifique el contenido de esa página. Nos centraremos en ellos en los próximos artículos.
+
+## Uso del SDK de Open Payments para Node.js en el navegador
+
+El SDK estándar de Open Payments para Node.js, como su nombre indica, está diseñado específicamente para un entorno Node.js. Para que funcione dentro de una extensión del navegador, es necesario abordar un par de diferencias clave.
+
+El primer obstáculo es que el SDK se basa en módulos de criptografía específicos de Node.js. Para que funcione en el entorno del navegador, debemos incorporar polyfills para estas dependencias. El paquete npm `crypto-browserify` funciona bien para este uso.
+
+Nuestro proceso de compilación [esbuild](https://esbuild.github.io/) simplifica este proceso de polyfilling: un [plugin](https://github.com/interledger/web-monetization-extension/blob/49f525f9ff3a82c935ad5dfb5320c4e9be7491e5/esbuild/plugins.ts#L32-L44) resuelve automáticamente todas las importaciones del módulo criptográfico de Node.js a una implementación compatible con navegadores:
+
+<CodeBlock language="javascript" code={`const esbuildNodeCryptoPlugin = {
+    name: 'crypto-for-extension',
+    setup(build) {
+      build.onResolve({ filter: /^crypto$/ }, () => ({
+        path: require.resolve('crypto-browserify')
+      }))
+    }
+  }`} />
+
+La API de Open Payments requiere que cada solicitud esté [firmada](https://openpayments.dev/identity/http-signatures/) mediante curvas criptográficas Ed25519. Desafortunadamente, los navegadores web no ofrecen un soporte adecuado para este algoritmo en operaciones de firma. El SDK proporciona convenientemente un hook `authenticatedRequestInterceptor`, que usaremos para insertar encabezados de firma mediante una implementación diferente compatible con navegadores.
+
+<CodeBlock language="typescript" code={`const client = await createAuthenticatedClient({
+    // ... regular options for creating authenticated client
+    async authenticatedRequestInterceptor(request) {
+      const headers = await createHeaders({ request, privateKey, keyId })
+
+      if (request.body) {
+        request.headers.set('Content-Type', headers['Content-Type'])
+        request.headers.set('Content-Digest', headers['Content-Digest'])
+      }
+      request.headers.set('Signature', headers['Signature'])
+      request.headers.set('Signature-Input', headers['Signature-Input'])
+
+      return request
+    }
+  })`} />
+
+Para comprender por completo estos matices y todas las configuraciones necesarias, puede explorarlos directamente en el [código fuente de la extensión](https://github.com/interledger/web-monetization-extension/blob/49f525f9ff3a82c935ad5dfb5320c4e9be7491e5/src/background/services/openPayments.ts#L164-L219).
+
+Es importante tener en cuenta que la necesidad de estas soluciones técnicas es temporal. Actualmente, [se están llevando a cabo esfuerzos](https://github.com/interledger/open-payments-node/issues/4) para adaptar el SDK para Node.js existente para que funcione sin problemas en diferentes entornos de JavaScript. Esta adaptación se centrará en reducir la necesidad de polyfills extensos y hooks personalizados, lo que permitirá una implementación más ligera y sencilla de Open Payments, no solo para la extensión del navegador, sino también en entornos de ejecución modernos como Cloudflare Workers (sin necesidad de la opción `nodejs_compat`).
+
+## Conexión de la billetera
+
+Conectar su billetera implica establecer un enlace seguro para futuras transacciones a través de una concesión de autorización interactiva de tipo "create `outgoing-payment`". Este proceso solicita su autorización “interactiva” explícita para que la extensión gestione los pagos en su nombre. Una vez que otorgue esta aprobación, la extensión recibe y almacena los tókenes de concesión de autorización necesarios. Estos tókenes sirven como credenciales esenciales, lo que permite que la extensión ejecute pagos a través de su billetera en el futuro.
+
+Repasemos cada uno de estos pasos:
+
+### Obtener información de la billetera
+
+El primer paso es obtener los datos esenciales de su billetera en función de la dirección de billetera ingresada en el formulario de conexión de la billetera en la ventana emergente de la extensión. El servidor de direcciones de billetera nos proporciona una respuesta que define dos puntos finales críticos: el servidor de autorización (al que se solicita la autorización de pago) y el servidor de recursos (al que se envían las solicitudes de pago). También incluye datos sobre su billetera, como la divisa (por ejemplo, USD, EUR) y su escala de activos para realizar cálculos precisos.
+
+### Presupuesto y tasa de pago
+
+Para controlar los gastos, puede establecer un presupuesto en la divisa de su billetera. Este presupuesto representa el monto máximo que la extensión puede gastar en su nombre.
+
+La extensión lo ayuda al obtener [recomendaciones de presupuesto predeterminadas de nuestro almacén de datos](https://github.com/interledger/web-monetization-budget-suggestions) para esa divisa. Si no hay ninguna recomendación específica disponible, calcula el equivalente a USD 5 en esa divisa y lo utiliza como valor predeterminado.
+
+Además, el sistema proporciona una tasa de pago predeterminada obtenida de nuestro almacén de datos, lo que limita la rapidez con la que se pueden gastar los fondos. Más adelante, puede ajustar esta tasa según considere conveniente.
+
+### Adición automática de claves
+
+Cada instancia de la extensión del navegador debe funcionar como un cliente de Open Payments independiente. No podemos usar un único par de claves compartido públicamente, ya que cualquier usuario malintencionado con conocimientos técnicos podría inspeccionar los datos locales del navegador y comprometerlo. Por lo tanto, debemos generar un par de claves único y criptográficamente seguro para cada instalación de la extensión. La clave privada, que es fundamental para firmar solicitudes, se guarda de forma segura en el almacenamiento aislado de la extensión. Los usuarios deben cargar la clave pública correspondiente a su proveedor de billetera.
+
+Agregar manualmente esta clave única a su billetera supondría un obstáculo técnico y engorroso para la mayoría de los usuarios. Para resolver esto, la extensión automatiza el proceso de carga de la clave. Aprovechando las capacidades de las extensiones del navegador, primero abre el sitio web de su billetera, en función de la URL derivada de su dirección de billetera. La extensión [inyecta un script de contenido](https://github.com/interledger/web-monetization-extension/tree/449aa9e7c15b1e91ebd1e3663f68cb5cd5565a6d/src/content/keyAutoAdd) en el sitio web de su billetera, que luego simula automáticamente las acciones que realizaría, como hacer clic automáticamente en los botones necesarios para agregar la nueva clave de cliente, mientras comunica las actualizaciones de estado a la extensión. Para mejorar el rendimiento y la confiabilidad, a menudo podemos omitir por completo el lento paso de hacer clic en los botones mediante la ingeniería inversa de las solicitudes de API que esos clics habrían activado, para invocarlas directamente. Esta automatización es opcional: si no se siente cómodo con ella, siempre puede agregar manualmente la clave pública generada a su billetera. Hasta que exista una [forma oficial de agregar la clave a las billeteras](https://github.com/interledger/web-monetization-extension/issues/1190), nuestro objetivo es ofrecer esta automatización para la mayoría de las billeteras más utilizadas.
+
+### Crear una concesión de autorización para un pago saliente
+
+A continuación, tenemos que crear la concesión de autorización `outgoing-payment`. Esta concesión autoriza a la extensión a realizar numerosos micropagos futuros en su nombre sin que tenga que aprobar cada uno individualmente.
+
+Esta concesión tiene un _límite_ superior en el monto total que la extensión puede debitar de su cuenta, al que nos referimos como el presupuesto. Es fundamental comprender que en esta etapa no se debita dinero de su billetera; la concesión de autorización es simplemente un permiso para gastar _hasta_ el monto del presupuesto especificado.
+
+Si su cuenta se queda sin fondos, los pagos no podrán realizarse. Sin embargo, la extensión reanudará sin problemas los pagos con cargo al mismo presupuesto una vez que agregue fondos adicionales.
+
+Puede optar por configurar su presupuesto para que se renueve automáticamente cada mes. Cuando habilita esta opción durante la conexión de la billetera, la extensión crea una concesión de autorización recurrente al agregar un parámetro de intervalo a la solicitud de concesión. Esta concesión de autorización restablecerá automáticamente su límite de gasto cada mes, lo que le permitirá gastar hasta el monto que haya elegido sin necesidad de una nueva aprobación cada vez que se utilicen sus fondos anteriores. Recuerde que el límite mensual es solo un límite superior; cualquier presupuesto restante al final del ciclo permanecerá en su billetera.
+
+Si elige no activar esta opción de renovación mensual, la concesión de autorización eventualmente se quedará sin fondos y deberá aprobar manualmente una nueva concesión para continuar enviando pagos.
+
+La solicitud de concesión de autorización incluye efectivamente los siguientes parámetros:
+
+<CodeBlock language="typescript" code={`declare const BUDGET = 7.5 // $7.5 when using USD
+  declare const RECURRING = true
+
+  const walletAddress = await fetchJSON(YOUR_WALLET_ADDRESS)
+
+  // Convert a human-friendly amount to format Open Payments expects
+  // $7.5 budget at asset scale 2 means value: "750"
+  const amount = BUDGET * Math.pow(10, walletAddress.assetScale)
+  // ISO8601 repeating interval, when RECURRING is true
+  const interval = \`R/\${new Date().toISOString()}/P1M\`
+
+  // partial grant request
+  const outgoingPaymentAccess = {
+    type: 'outgoing-payment',
+    actions: ['create', 'read'],
+    identifier: walletAddress.id,
+    limits: {
+      debitAmount: {
+        value: amount.toFixed(),
+        assetScale: walletAddress.assetScale,
+        assetCode: walletAddress.assetCode
+      },
+      interval: interval
+    }
+  }`} />
+
+### Esperar la aprobación de la concesión de autorización
+
+Una vez que la extensión crea la concesión de autorización para un pago saliente, se lo redirige a la página de consentimiento de la concesión de autorización de su proveedor de billetera. Ahora la extensión debe esperar pacientemente su decisión.
+
+En la solicitud de concesión de autorización, proporcionamos una URL de finalización de la interacción (`interact.finish.uri`). Una vez que apruebe o rechace la concesión de autorización, su proveedor de billetera redirige su navegador a esta página especificada. Es fundamental que el script en segundo plano de la extensión supervise constantemente que alguna pestaña llegue a esta URL exacta. Esta detección activa inmediatamente la extensión para emitir la solicitud final de continuación de la concesión de autorización y obtener los tókenes de acceso para todos sus futuros micropagos.
+
+<CodeBlock language="typescript" code={`const pendingGrant = await client.grant.request(
+    { url: walletAddress.authServer },
+    {
+      access_token: { access: [outgoingPaymentAccess] },
+      interact: {
+        // the wallet provider will return a URL where user can approve grant
+        start: ['redirect'],
+        // once the user approves/declines, the wallet provider redirects to REDIRECT_URL, which the extension monitors.
+        finish: { method: 'redirect', uri: REDIRECT_URL }
+      }
+    }
+  )`} />
+
+Dado que las políticas de seguridad de los navegadores modernos prohíben que los sitios externos (como su proveedor de billetera) redirijan directamente a las páginas internas de la extensión, la URL debe corresponder a una página `https://` externa (la extensión utiliza `https://webmonetization.org/welcome`). Al llegar a esta página, se muestra un mensaje claro que indica si la conexión con su billetera se realizó correctamente o si se produjo un error.
+
+Esta capacidad única de esperar la redirección es muy eficiente. Al detectar la confirmación de inmediato, la extensión evita consultar repetidamente el estado de la concesión de autorización cada pocos segundos.
+
+### Almacenamiento de tókenes de concesión de autorización
+
+Una vez que la solicitud de continuación de la concesión de autorización es exitosa, guardamos los tókenes de acceso finales en el almacenamiento local de la extensión. Es fundamental que los sitios web u otras extensiones no puedan acceder a estos datos.
+
+Los tókenes de acceso se almacenan sin cifrar, lo que se ajusta a nuestro modelo de amenaza actual. Si un atacante obtiene acceso físico a su computadora, es posible que pueda obtener estos tókenes; sin embargo, este nivel de vulneración del sistema representa un riesgo de seguridad mayor que queda fuera del alcance de protección de la extensión (consulte más información sobre los [ataques físicos locales](https://chromium.googlesource.com/chromium/src/+/refs/heads/main/docs/security/faq.md#Why-arent-physically_local-attacks-in-Chromes-threat-model)).
+
+Si bien podríamos cifrar los tókenes almacenados, esto implicaría pedirle que ingrese una contraseña para desbloquear la extensión cada vez que la use. Estamos siguiendo activamente el desarrollo de nuevas opciones de almacenamiento más seguras, como la [API `browser.secureStorage` propuesta](https://github.com/w3c/webextensions/issues/154).
+
+Si cree que sus tókenes están comprometidos, puede revocar la concesión de autorización de la extensión directamente desde su billetera. Esto invalida instantáneamente los tókenes, lo que evita cualquier otro pago no autorizado. Luego, puede volver a conectar su billetera con la extensión para obtener un conjunto nuevo y seguro de tókenes.
+
+## Siguiente paso: Enviar dinero
+
+¿Ya tiene conectada su billetera y a mano los tókenes de acceso? El [siguiente artículo](/es/blog/web-monetization-open-payments-part-2-payment-sessions) se centrará en la configuración de la sesión de pago, seguido de un análisis detallado de la función principal: exactamente cómo, cuándo y dónde la extensión activa los pagos a través de su billetera.
