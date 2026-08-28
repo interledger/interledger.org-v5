@@ -78,16 +78,14 @@ const heroUmami = (href: string, linkText: string) =>
 <section
   data-component="HomepageHero"
   data-umami-component="homepage-hero"
-  class="relative isolate -mt-(--site-header-height) bg-black pt-(--site-header-height) text-white desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) tablet:min-h-[90dvh] tablet:overflow-visible"
+  class="relative -mt-(--site-header-height) bg-black pt-(--site-header-height) text-white desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) tablet:min-h-[90dvh] tablet:overflow-visible"
   aria-labelledby="home-hero-title"
 >
   <div
-    class="pointer-events-none absolute top-full left-0 right-0 -z-10 bg-neutral-150"
+    class="pointer-events-none absolute top-full left-0 right-0 z-0 bg-neutral-150"
     aria-hidden="true"
   >
   </div>
-
-  <div class="bottom-mask" aria-hidden="true"></div>
 
   <figure
     class="hero-network-bg pointer-events-none absolute inset-0 overflow-hidden tablet:hidden"
@@ -112,7 +110,7 @@ const heroUmami = (href: string, linkText: string) =>
   </figure>
 
   <div
-    class="hero-stefan-wrap pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+    class="hero-stefan-wrap pointer-events-none absolute inset-0 z-0 overflow-hidden"
     aria-hidden="true"
   >
     <OptimizedImage
@@ -129,6 +127,16 @@ const heroUmami = (href: string, linkText: string) =>
       class="hero-stefan-photo h-full w-full object-cover"
     />
   </div>
+
+  <!--
+    The fades sit after the photo on purpose. The section is not a stacking
+    context (the copy has to outrank the AnimatedNetwork section that follows
+    it), so these share the photo's level and only tree order puts them on top.
+    As pseudo-elements they painted under it and the photo showed a hard edge.
+  -->
+  <div class="side-mask side-mask--left" aria-hidden="true"></div>
+  <div class="side-mask side-mask--right" aria-hidden="true"></div>
+  <div class="bottom-mask" aria-hidden="true"></div>
 
   <div
     class="relative z-[1] mx-auto flex w-full max-w-full items-center px-lg tablet:px-3xl-tight desktop:px-5xl pb-6xl pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:max-w-wide tablet:min-h-[90dvh] tablet:py-5xl"
@@ -166,11 +174,17 @@ const heroUmami = (href: string, linkText: string) =>
           {t('homepageHero.cta_explore_tech')}
           <Icon slot="icon-right" name="arrow-right" />
         </LinkButton>
+        <!--
+          Solid fill, not the variant's default transparent one. The network
+          artwork from the section below sweeps up behind this row on scroll,
+          and an outlined button lets it read straight through the label.
+          Scoped here on purpose: `secondary` stays outlined everywhere else.
+        -->
         <LinkButton
           href={exploreGrantsHref}
           variant="secondary"
           mode="dark"
-          class="w-full tablet:w-auto"
+          class="w-full bg-neutral-150 tablet:w-auto"
           {...heroUmami(
             exploreGrantsHref,
             t('homepageHero.cta_explore_grants')
@@ -190,9 +204,7 @@ const heroUmami = (href: string, linkText: string) =>
 
   /* Gradient masks fading neutral-150 in from left, right, and bottom.
      Hidden below tablet since the hero image only renders at 810px+. */
-  [data-component='HomepageHero']::before,
-  [data-component='HomepageHero']::after {
-    content: '';
+  [data-component='HomepageHero'] .side-mask {
     position: absolute;
     inset-block: 0;
     background-color: var(--hero-fade-fill);
@@ -201,14 +213,14 @@ const heroUmami = (href: string, linkText: string) =>
     z-index: 0;
   }
 
-  [data-component='HomepageHero']::before {
+  [data-component='HomepageHero'] .side-mask--left {
     left: 0;
     width: 60%;
     -webkit-mask: linear-gradient(270deg, #0000 3%, #000 100%);
     mask: linear-gradient(270deg, #0000 3%, #000 100%);
   }
 
-  [data-component='HomepageHero']::after {
+  [data-component='HomepageHero'] .side-mask--right {
     right: 0;
     width: 30%;
     -webkit-mask: linear-gradient(90deg, #0000 18%, #000 81%);
@@ -234,8 +246,7 @@ const heroUmami = (href: string, linkText: string) =>
       --hero-stefan-offset-y: 0;
     }
 
-    [data-component='HomepageHero']::before,
-    [data-component='HomepageHero']::after,
+    [data-component='HomepageHero'] .side-mask,
     [data-component='HomepageHero'] .bottom-mask {
       display: block;
     }
