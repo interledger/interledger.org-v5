@@ -29,13 +29,13 @@ const stats: StatItem[] = [
     ariaLabel: t('home.stats.grants_aria')
   },
   {
-    value: 300,
+    value: 270,
     suffix: '+',
     label: t('home.stats.projects_label'),
     ariaLabel: t('home.stats.projects_aria')
   },
   {
-    value: 45,
+    value: 40,
     suffix: '+',
     label: t('home.stats.countries_label'),
     ariaLabel: t('home.stats.countries_aria')
@@ -68,6 +68,7 @@ const stats: StatItem[] = [
       <h2 slot="heading">{t('home.making_money_move.heading')}</h2>
       <p>{t('home.making_money_move.body_1')}</p>
       <p>{t('home.making_money_move.body_2')}</p>
+      <p>{t('home.making_money_move.body_3')}</p>
       <LinkButton
         slot="cta"
         href="/about-us"
@@ -106,9 +107,11 @@ const stats: StatItem[] = [
     >
       <h2 slot="heading">{t('home.independent_by_design.heading')}</h2>
       <p>{t('home.independent_by_design.body_1')}</p>
+      <p>{t('home.independent_by_design.body_2')}</p>
+      <p>{t('home.independent_by_design.body_3')}</p>
       <LinkButton
         slot="cta"
-        href="/interledger"
+        href="/how-interledger-works/"
         variant="secondary"
         mode="light"
         size="lg"

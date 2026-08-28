@@ -3,7 +3,8 @@ export const ui = {
     'site.title.foundation': 'Interledger Foundation',
     'site.title.summit': 'Interledger Summit',
     'site.title.hackathon': 'Interledger Hackathons',
-    'site.description': 'Making payments as easy as sending an email',
+    'site.description':
+      'Interledger Foundation builds open payment infrastructure, funds innovators, and works to make financial systems work together, for everyone.',
     'nav.home': 'Home',
     'nav.breadcrumb': 'Breadcrumb',
     'nav.main': 'Main navigation',
@@ -278,20 +279,24 @@ export const ui = {
     'subscribe.error.submit':
       'Something went wrong subscribing you. Please try again.',
     'subscribe.error.captcha': 'Please complete the reCAPTCHA challenge.',
-    'homepageHero.title_lead': 'Financial Systems Should Work Together,',
-    'homepageHero.title_accent': 'for Everyone',
+    'homepageHero.title_lead': 'Rewriting the rules that move money',
+    'homepageHero.title_accent': '',
     'homepageHero.description':
-      'We build the open infrastructure, fund the innovators, and shape the conditions that make it possible.',
+      'We build open infrastructure, fund the people implementing it, and collaborate with regulators and institutions to make open financial systems work in the real world.',
     'homepageHero.cta_explore_tech': 'Explore our Tech',
     'homepageHero.cta_explore_grants': 'Explore our Grants',
     'homepageHero.cta_navigation': 'Featured actions',
     'hackathonHero.logo.alt': 'Open Payments Hackathon by Interledger',
     'hackathonHero.cta_navigation': 'Featured actions',
-    'animatedNetwork.problem.heading': "The Problem We're Solving",
+    'animatedNetwork.problem.heading':
+      "Our Financial Systems Weren't Built to Work Together",
     'animatedNetwork.problem.body_1':
-      "Financial systems were never made to work together. Different rules, different formats, and different ways of connecting - <em>if</em> they connect. For those running them, it's an operational nightmare. For everyone else, it means uncertainty, higher costs and denied opportunity.",
-    'animatedNetwork.problem.body_2':
-      'Interledger is designed to change that: open infrastructure that lets financial systems connect, and a foundation committed to making that infrastructure available to everyone.',
+      'Today, money runs on systems that were never designed to work together. Each has its own rules, formats, and ways of connecting.',
+    'animatedNetwork.problem.body_2': "That's if they connect at all.",
+    'animatedNetwork.problem.body_3':
+      "For the institutions trying to get these systems to talk to each other, it's expensive and slow. For the people those institutions serve, it's worse: higher costs, fewer options, and for over a billion people, no real access at all.",
+    'animatedNetwork.problem.body_4':
+      'The Interledger Foundation is changing that.',
     'animatedNetwork.problem.video_title': "The Problem We're Solving — video",
     'pillarsSection.heading':
       'We see a world where money moves freely and opportunity follows.',
@@ -306,16 +311,22 @@ export const ui = {
       'We work with regulators and institutions to create the conditions for open financial systems to operate and scale in practice.',
     'home.making_money_move.heading': 'Making Money Move like Data',
     'home.making_money_move.body_1':
-      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible. In our connected world, money should move in the same way: reliably, across systems, as one network.',
+      'The internet was built on open standards. Protocols that no single company owned, that anyone could build on, and that made global information exchange possible.',
     'home.making_money_move.body_2':
-      'We call this the Internet of Opportunity: an open, interconnected financial infrastructure that creates opportunities for people, businesses and economies across the globe.',
+      'Money should move the same way: reliably, across systems, using one set of rules.',
+    'home.making_money_move.body_3':
+      'No permission required at the center, no rebuilding the connection for every new partner. Just open infrastructure that creates opportunities for people, businesses and economies across the globe.',
     'home.making_money_move.image_alt':
       'Interconnected network paths illustration',
     'home.making_money_move.cta_label': 'About us',
     'home.independent_by_design.heading':
       'Open Standards, Independently Governed',
     'home.independent_by_design.body_1':
-      'Open standards only stay open if the organization behind them has no reason to close them. The Interledger Protocol and Open Payments are stewarded by a foundation with no commercial stake in either, no fees, no investors, and no business model that benefits from closing what was built openly. The standards exist for public benefit, and the Interledger Foundation was founded and structured to keep them that way.',
+      'Open standards only stay open if the organization behind them has no reason to close them.',
+    'home.independent_by_design.body_2':
+      'The Interledger Protocol and Open Payments are stewarded by a foundation with no commercial stake in either. We have no fees, no investors, and no business model that benefits from closing what was built openly.',
+    'home.independent_by_design.body_3':
+      'The standards exist for public benefit, and the Interledger Foundation was founded and structured to keep them that way.',
     'home.independent_by_design.cta_label': 'Our tech governance',
     'home.independent_by_design.image_alt': 'Speaker at a community event',
     'home.carousel.heading': 'In partnership with',
@@ -326,9 +337,9 @@ export const ui = {
     'home.stats.grants_label': 'In Grants',
     'home.stats.grants_aria': '21 million dollars in grants',
     'home.stats.projects_label': 'Projects worldwide',
-    'home.stats.projects_aria': '300 plus projects worldwide',
+    'home.stats.projects_aria': '270 plus projects worldwide',
     'home.stats.countries_label': 'Countries with active tech',
-    'home.stats.countries_aria': '45 plus countries with active tech',
+    'home.stats.countries_aria': '40 plus countries with active tech',
     'home.stats.students_label': 'Students skilled',
     'home.stats.students_aria': '1,000 plus students skilled',
     'codeBlock.copy': 'Copy',
@@ -606,6 +617,8 @@ export const ui = {
     'animatedNetwork.problem.heading': '',
     'animatedNetwork.problem.body_1': '',
     'animatedNetwork.problem.body_2': '',
+    'animatedNetwork.problem.body_3': '',
+    'animatedNetwork.problem.body_4': '',
     'animatedNetwork.problem.video_title': '',
     'pillarsSection.heading': '',
     'pillarsSection.card1_title': '',
@@ -617,10 +630,13 @@ export const ui = {
     'home.making_money_move.heading': '',
     'home.making_money_move.body_1': '',
     'home.making_money_move.body_2': '',
+    'home.making_money_move.body_3': '',
     'home.making_money_move.image_alt': '',
     'home.making_money_move.cta_label': '',
     'home.independent_by_design.heading': '',
     'home.independent_by_design.body_1': '',
+    'home.independent_by_design.body_2': '',
+    'home.independent_by_design.body_3': '',
     'home.independent_by_design.cta_label': '',
     'home.independent_by_design.image_alt': '',
     'home.carousel.heading': '',
