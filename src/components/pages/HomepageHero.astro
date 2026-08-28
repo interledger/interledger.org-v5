@@ -64,6 +64,8 @@ const exploreTechHref = translatePath(
 )
 const exploreGrantsHref = localizeRoute(grantOverviewHubPath(), pageLang)
 
+const titleAccent = t('homepageHero.title_accent')
+
 const heroUmami = (href: string, linkText: string) =>
   buildUmamiAttrs({
     pathname,
@@ -143,9 +145,13 @@ const heroUmami = (href: string, linkText: string) =>
         <span class="inline desktop:block"
           >{t('homepageHero.title_lead')}
         </span>
-        <span class="inline text-aqua-mint-100 desktop:block">
-          {t('homepageHero.title_accent')}
-        </span>
+        {
+          titleAccent && (
+            <span class="inline text-aqua-mint-100 desktop:block">
+              {titleAccent}
+            </span>
+          )
+        }
       </h1>
 
       <p
