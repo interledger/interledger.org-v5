@@ -190,23 +190,36 @@ export function htmlToMarkdown(html: string): string {
 // break (see cms/src/admin/app.tsx). Strip it first, so that doesn't
 // misclassify valid markdown and route it through htmlToMarkdown, mangling
 // markdown syntax around it. Real HTML still has other tags to catch it.
-const INLINE_BREAK_TAG = /<br\s*\/?>/gi
+export const INLINE_BREAK_TAG = /<br\s*\/?>/gi
 
 export function looksLikeHtmlField(value: string): boolean {
   return isHtml(value.replace(INLINE_BREAK_TAG, ''))
 }
 
-/** Converts a field to markdown only if it actually looks like HTML, leaving already-markdown text untouched. */
-export function htmlFieldToMarkdown(value: string): string {
-  return looksLikeHtmlField(value) ? htmlToMarkdown(value) : value
+/**
+ * Converts a CKEditor field to markdown for content the MDX pipeline compiles
+ * directly (MDX body text, or JSX children an Astro component slots in
+ * as-is): converts only if the value looks like HTML, leaving markdown
+ * untouched. A `<br/>` there already renders as a real line break, so it's
+ * left alone — use `ckeditorFieldToParsedMarkdown` for a value some Astro
+ * component instead feeds to `parseMarkdown`/`parseMarkdownInline` at render
+ * time (frontmatter, or a JSX prop with no MDX-children fallback).
+ */
+export function ckeditorFieldToCompiledMarkdown(value: string): string {
+  return (looksLikeHtmlField(value) ? htmlToMarkdown(value) : value).trim()
 }
 
 /**
- * CKEditor (basicMarkdownPreset) fields are usually already markdown, but
- * defensively convert if Strapi ever hands back HTML.
+ * Same as `ckeditorFieldToCompiledMarkdown`, for a value that will be
+ * re-parsed by `parseMarkdown`/`parseMarkdownInline` at render time instead
+ * of compiled by the MDX pipeline — promotes a stray `<br/>` to a paragraph
+ * break, since that renderer escapes raw HTML into literal text. Applies
+ * inside table rows too: table line breaks aren't supported here.
  */
-export function ckeditorFieldToMarkdown(value: string): string {
-  return htmlFieldToMarkdown(value).trim()
+export function ckeditorFieldToParsedMarkdown(value: string): string {
+  return ckeditorFieldToCompiledMarkdown(value)
+    .replace(INLINE_BREAK_TAG, '\n\n')
+    .trim()
 }
 
 // ── Text helpers ─────────────────────────────────────────────────────────────

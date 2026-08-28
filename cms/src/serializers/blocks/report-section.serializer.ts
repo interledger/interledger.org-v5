@@ -1,7 +1,7 @@
 import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
-  htmlFieldToMarkdown,
+  ckeditorFieldToCompiledMarkdown,
   isReportTextType,
   REPORT_TEXT_TYPES,
   type FieldError,
@@ -98,7 +98,7 @@ export function serialize(block: {
     const textType = item.textType as ReportTextType
     const raw = item[textField(textType)]!
 
-    const text = escMdxBraces(htmlFieldToMarkdown(raw))
+    const text = escMdxBraces(ckeditorFieldToCompiledMarkdown(raw))
 
     return `<ReportText type="${textType}">\n\n${text}\n\n</ReportText>`
   })

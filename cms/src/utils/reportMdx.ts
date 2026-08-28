@@ -7,7 +7,8 @@
 
 import matter from 'gray-matter'
 import {
-  ckeditorFieldToMarkdown,
+  ckeditorFieldToCompiledMarkdown,
+  ckeditorFieldToParsedMarkdown,
   defaultLang,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
@@ -56,7 +57,9 @@ function authorBiosFrontmatter(
   if (!bios || bios.length === 0) return undefined
   return bios.map((bio) => {
     if (!bio.author?.trim()) throw new Error('Author Bio: Name is required')
-    const text = bio.profileBio ? ckeditorFieldToMarkdown(bio.profileBio) : null
+    const text = bio.profileBio
+      ? ckeditorFieldToParsedMarkdown(bio.profileBio)
+      : null
     return {
       author: bio.author,
       ...(bio.link ? { link: bio.link } : {}),
@@ -99,7 +102,7 @@ export function generateReportMdx(
   // what gives an intro-authored footnote ([^1]) the same numbering/anchor
   // handling as the report's body sections. See ReportPage.astro.
   const introBlock = report.introParagraph
-    ? `<ReportIntro>\n\n${escMdxBraces(ckeditorFieldToMarkdown(report.introParagraph))}\n\n</ReportIntro>`
+    ? `<ReportIntro>\n\n${escMdxBraces(ckeditorFieldToCompiledMarkdown(report.introParagraph))}\n\n</ReportIntro>`
     : ''
   const blocksBody = report.content?.length
     ? serializeContent(report.content)

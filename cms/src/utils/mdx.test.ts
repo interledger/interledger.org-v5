@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import {
-  ckeditorFieldToMarkdown,
+  ckeditorFieldToCompiledMarkdown,
+  ckeditorFieldToParsedMarkdown,
   formatBlockquote,
   formatMdx,
-  htmlFieldToMarkdown,
   looksLikeHtmlField,
   pathSlugToMdxFilename,
   sectionScopedMdxFilename,
@@ -28,25 +28,37 @@ describe('looksLikeHtmlField', () => {
   })
 })
 
-describe('htmlFieldToMarkdown', () => {
-  it('leaves a table with an intentional <br/> untouched (no trim)', () => {
+describe('ckeditorFieldToCompiledMarkdown', () => {
+  it('leaves a table with an intentional <br/> untouched, trimmed', () => {
     const markdown = ' | a<br/>b | c |\n| --- | --- |\n| d | e | '
-    expect(htmlFieldToMarkdown(markdown)).toBe(markdown)
+    expect(ckeditorFieldToCompiledMarkdown(markdown)).toBe(
+      '| a<br/>b | c |\n| --- | --- |\n| d | e |'
+    )
   })
 
   it('still converts a genuine HTML field', () => {
-    expect(htmlFieldToMarkdown('<p>hello<br/>world</p>')).toBe('hello  \nworld')
+    expect(ckeditorFieldToCompiledMarkdown('<p>hello<br/>world</p>')).toBe(
+      'hello  \nworld'
+    )
   })
 })
 
-describe('ckeditorFieldToMarkdown', () => {
-  it('leaves a table with an intentional <br/> untouched', () => {
-    const markdown = '| a<br/>b | c |\n| --- | --- |\n| d | e |'
-    expect(ckeditorFieldToMarkdown(markdown)).toBe(markdown)
+describe('ckeditorFieldToParsedMarkdown', () => {
+  it('promotes a stray <br/> to a paragraph break', () => {
+    expect(ckeditorFieldToParsedMarkdown('line one<br/>line two')).toBe(
+      'line one\n\nline two'
+    )
   })
 
-  it('still converts a genuine HTML field', () => {
-    expect(ckeditorFieldToMarkdown('<p>hello<br/>world</p>')).toBe(
+  it('promotes a <br/> inside a table row too — table line breaks are not supported here', () => {
+    const markdown = '| a<br/>b | c |\n| --- | --- |\n| d | e |'
+    expect(ckeditorFieldToParsedMarkdown(markdown)).toBe(
+      '| a\n\nb | c |\n| --- | --- |\n| d | e |'
+    )
+  })
+
+  it('still converts a genuine HTML field, with no literal <br/> left to promote', () => {
+    expect(ckeditorFieldToParsedMarkdown('<p>hello<br/>world</p>')).toBe(
       'hello  \nworld'
     )
   })

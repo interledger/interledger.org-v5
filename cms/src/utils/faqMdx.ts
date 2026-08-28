@@ -7,7 +7,7 @@
 
 import matter from 'gray-matter'
 import {
-  ckeditorFieldToMarkdown,
+  ckeditorFieldToParsedMarkdown,
   defaultLang,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
@@ -42,7 +42,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const isLocalized = resolvedLocale !== defaultLang
 
   const introParagraph = faq.introParagraph
-    ? ckeditorFieldToMarkdown(faq.introParagraph)
+    ? ckeditorFieldToParsedMarkdown(faq.introParagraph)
     : null
 
   // Strapi's populated component rows carry their own internal `id` (and, for
@@ -57,7 +57,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
     heading: section.heading,
     items: section.items.map((item) => ({
       question: item.question,
-      answer: ckeditorFieldToMarkdown(item.answer)
+      answer: ckeditorFieldToParsedMarkdown(item.answer)
     }))
   }))
 

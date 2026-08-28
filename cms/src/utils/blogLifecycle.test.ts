@@ -1,3 +1,4 @@
+import matter from 'gray-matter'
 import { describe, expect, it } from 'vitest'
 import {
   generateBlogMDX,
@@ -308,5 +309,20 @@ describe('generateBlogMDX — article bios', () => {
     expect(mdx).toContain('articleBios:')
     expect(mdx).toContain("- author: 'Jane Doe'")
     expect(mdx).toContain("link: 'https://example.com'")
+  })
+
+  it('promotes a stray <br/> in profileBio to a paragraph break', () => {
+    const mdx = generateBlogMDX(
+      makePost({
+        articleBio: [
+          { author: 'Jane Doe', profileBio: 'line one<br/>line two' }
+        ]
+      })
+    )
+
+    const parsed = matter(mdx)
+
+    // YAML literal block scalars (`|`) always retain a trailing newline.
+    expect(parsed.data.articleBios[0].text).toBe('line one\n\nline two\n')
   })
 })

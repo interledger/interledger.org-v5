@@ -16,7 +16,7 @@ const validItems = [
 ]
 
 describe('agenda serializer', () => {
-  it('serializes an optional heading and rich-text item values', () => {
+  it('serializes an optional CKEditor heading and plain item values', () => {
     const result = serialize({
       heading: '<p>Day <strong>1</strong></p>',
       items: validItems
@@ -24,6 +24,74 @@ describe('agenda serializer', () => {
 
     expect(result).toContain('heading={"Day **1**"}')
     expect(result).toContain(`items={${JSON.stringify(validItems)}}`)
+  })
+
+  it('promotes a stray <br/> in heading to a markdown hard line break — Agenda.astro renders it via parseMarkdownInline', () => {
+    const result = serialize({
+      heading: 'Day one<br/>Day two',
+      items: validItems
+    })
+
+    expect(result).toContain('heading={"Day one  \\nDay two"}')
+  })
+
+  it('promotes a hard Enter (two <p>s) in heading to the same markdown hard line break as a <br/>', () => {
+    const result = serialize({
+      heading: '<p>Day one</p><p>Day two</p>',
+      items: validItems
+    })
+
+    expect(result).toContain('heading={"Day one  \\nDay two"}')
+  })
+
+  it('promotes a stray <br/> in additionalInfo to a paragraph break — Agenda.astro renders it via parseMarkdown', () => {
+    const result = serialize({
+      items: [
+        {
+          time: validItems[0]!.time,
+          activity: validItems[0]!.activity,
+          additionalInfo: 'Day one<br/>Day two'
+        },
+        validItems[1]!
+      ]
+    })
+
+    expect(result).toContain('"additionalInfo":"Day one\\n\\nDay two"')
+  })
+
+  it('trims time and activity and converts pasted HTML to markdown', () => {
+    const result = serialize({
+      items: [
+        {
+          time: '  8:30 am – 9:30 am  ',
+          activity: '  <p>Day <strong>one</strong></p>  '
+        },
+        validItems[1]!
+      ]
+    })
+
+    expect(result).toContain(
+      JSON.stringify([
+        { time: '8:30 am – 9:30 am', activity: 'Day **one**' },
+        validItems[1]
+      ])
+    )
+  })
+
+  it('does not promote a stray <br/> in time or activity — they are plain strings, unlike heading/additionalInfo', () => {
+    const result = serialize({
+      items: [
+        { time: '8:30 am', activity: 'Day one<br/>Day two' },
+        validItems[1]!
+      ]
+    })
+
+    expect(result).toContain(
+      JSON.stringify([
+        { time: '8:30 am', activity: 'Day one<br/>Day two' },
+        validItems[1]
+      ])
+    )
   })
 
   it('omits the heading when it is empty', () => {

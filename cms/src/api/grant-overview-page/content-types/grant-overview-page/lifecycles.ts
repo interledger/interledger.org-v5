@@ -8,6 +8,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
+  ckeditorFieldToParsedMarkdown,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
@@ -69,7 +70,11 @@ export function generateGrantOverviewPageMDX(
             buttonLink: ctaStrip.primaryButtonLink ?? '',
             ...(ctaStrip.heading ? { heading: ctaStrip.heading } : {}),
             ...(ctaStrip.description
-              ? { description: ctaStrip.description }
+              ? {
+                  description: ckeditorFieldToParsedMarkdown(
+                    ctaStrip.description
+                  )
+                }
               : {}),
             // Both halves or neither, matching the serializer and renderer.
             // Compare and write the trimmed values: `validateCtaStrip` and the
@@ -87,7 +92,11 @@ export function generateGrantOverviewPageMDX(
         }
       : {}),
     ...(overviewPage.followUpContent?.trim()
-      ? { followUpContent: overviewPage.followUpContent.trim() }
+      ? {
+          followUpContent: ckeditorFieldToParsedMarkdown(
+            overviewPage.followUpContent
+          )
+        }
       : {}),
     ...(localizesValue ? { localizes: localizesValue } : {}),
     locale

@@ -200,7 +200,7 @@ describe('generateReportMdx — author bios', () => {
     ])
   })
 
-  it('writes text from profileBio via ckeditorFieldToMarkdown', () => {
+  it('writes text from profileBio via ckeditorFieldToParsedMarkdown', () => {
     const { data } = matter(
       generateReportMdx(
         makeReport({

@@ -12,7 +12,7 @@
 import matter from 'gray-matter'
 import type { Hero } from '../../types/shared/types'
 import {
-  ckeditorFieldToMarkdown,
+  ckeditorFieldToParsedMarkdown,
   defaultLang,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter
@@ -66,7 +66,7 @@ function titleCardsFrontmatter(grid: PodcastPageTitleCardGrid) {
     cards: grid.titleCards.map((card) => ({
       heading: card.heading,
       ...(card.subHeading ? { subHeading: card.subHeading } : {}),
-      description: ckeditorFieldToMarkdown(card.description),
+      description: ckeditorFieldToParsedMarkdown(card.description),
       secondaryCta: {
         text: card.secondaryCta.text,
         link: card.secondaryCta.link,
@@ -84,7 +84,9 @@ function ctaStripFrontmatter(ctaStrip: PodcastPageCtaStrip) {
 
   return {
     heading: ctaStrip.heading ?? '',
-    description: ctaStrip.description ?? '',
+    description: ctaStrip.description
+      ? ckeditorFieldToParsedMarkdown(ctaStrip.description)
+      : '',
     buttonText: ctaStrip.primaryButtonText ?? '',
     buttonLink: ctaStrip.primaryButtonLink ?? '',
     ...(secondaryText && secondaryLink
@@ -122,7 +124,7 @@ export function generatePodcastPageMdx(
     description: page.description,
     ...heroFrontmatter(page.hero),
     ...(page.textSection
-      ? { textSection: ckeditorFieldToMarkdown(page.textSection) }
+      ? { textSection: ckeditorFieldToParsedMarkdown(page.textSection) }
       : {}),
     titleCards: titleCardsFrontmatter(page.titleCards),
     podcasts: podcastsFrontmatter(page.podcasts),

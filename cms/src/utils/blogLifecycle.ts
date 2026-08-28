@@ -9,7 +9,8 @@ import {
   formatMdx,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
-  resolveFilenameSlug
+  resolveFilenameSlug,
+  ckeditorFieldToParsedMarkdown
 } from './mdx'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
@@ -212,7 +213,7 @@ export function generateBlogMDX(
               `\n  - author: ${yqs(bio.author)}`,
               bio.link ? `\n    link: ${yqs(bio.link)}` : null,
               bio.profileBio
-                ? `\n${yamlLiteralBlockScalar('text', bio.profileBio, 4)}`
+                ? `\n${yamlLiteralBlockScalar('text', ckeditorFieldToParsedMarkdown(bio.profileBio), 4)}`
                 : null,
               bio.media?.image
                 ? `\n    image: ${yqs(bio.media.image.url)}`
