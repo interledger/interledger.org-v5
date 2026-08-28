@@ -190,7 +190,7 @@ export function htmlToMarkdown(html: string): string {
 // break (see cms/src/admin/app.tsx). Strip it first, so that doesn't
 // misclassify valid markdown and route it through htmlToMarkdown, mangling
 // markdown syntax around it. Real HTML still has other tags to catch it.
-const INLINE_BREAK_TAG = /<br\s*\/?>/gi
+export const INLINE_BREAK_TAG = /<br\s*\/?>/gi
 
 export function looksLikeHtmlField(value: string): boolean {
   return isHtml(value.replace(INLINE_BREAK_TAG, ''))
