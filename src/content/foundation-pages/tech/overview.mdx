@@ -41,7 +41,7 @@ Interledger is a stack of open protocols that work in layers, modeled on the arc
 Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
 
 </TitleCard>
-<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="https://interledger.org/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={true}>
+<TitleCard heading="Transport Protocols (STREAM)" buttonUrl="/developers/rfcs/stream-protocol/" buttonText="Learn more about STREAM" buttonExternal={false}>
 
 Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
 
@@ -51,19 +51,16 @@ Breaks a payment into packets, encrypts and sends them across ILP, and reassembl
 Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
 
 </TitleCard>
-</CardGrid>
-
-<CardGrid ariaLabel="A grid of cards that give an overview of the bottom two layers shown on the Interledger Tech Stack image." variant="Info" columns="Two">
-<InfoCard heading="Link Layer Protocols">
+<TitleCard heading="Link Layer Protocols" buttonUrl="/developers/rfcs/interledger-architecture/#link-protocols" buttonText="Explore link layer protocols" buttonExternal={false}>
 
 Provide two-way authenticated communication between account holders or their financial service providers.
 
-</InfoCard>
-<InfoCard heading="Ledgers and Payment Systems">
+</TitleCard>
+<TitleCard heading="Ledgers and Payment Systems" buttonUrl="/developers/rfcs/interledger-architecture/#link-protocols" buttonText="Explore ledger protocols" buttonExternal={false}>
 
 The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
 
-</InfoCard>
+</TitleCard>
 </CardGrid>
 
 <Paragraph>
@@ -126,6 +123,31 @@ All our tech is open source, with full documentation available, so there’s not
 
 </Paragraph>
 
+<CardGrid
+  ariaLabel="Developer resources and documentation links"
+  variant="Navigation"
+  columns="Three"
+>
+  <NavigationCard
+    heading="Experiment with test money and mock payment flows"
+    buttonUrl="/tech/test-tools"
+    buttonText="Go to Test Tools"
+    buttonExternal={false}
+  />
+  <NavigationCard
+    heading="Links to all our GitHub Repos and documentation sites"
+    buttonUrl="/tech/dev-portal"
+    buttonText="Visit Developers Portal"
+    buttonExternal={false}
+  />
+  <NavigationCard
+    heading="Check out our free Open Payments learning resources"
+    buttonUrl="/hackathon/open-payments"
+    buttonText="Learn Open Payments"
+    buttonExternal={false}
+  />
+</CardGrid>
+
 <Paragraph>
 
 ## Our Tech in Practice
@@ -133,3 +155,41 @@ All our tech is open source, with full documentation available, so there’s not
 As a grantmaking organization, we support and fund those who want to experiment with and implement all or part of the infrastructure stack. We also support the wider ecosystem exploring open payments as a means to furthering financial access, adoption, and agency.
 
 </Paragraph>
+
+<SplitLayout
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/3_our_tech_in_practice_1_064a7694e9.jpg"
+  imageAlt="People tapping their phones near a vendor's table while making a purchase."
+>
+  In Mexico, the People’s Clearinghouse is building infrastructure to support
+  interoperability across more than 140 credit unions, alongside a direct
+  remittance corridor from the United States, letting credit unions participate
+  in broader financial networks using the systems they already run.
+</SplitLayout>
+
+<SplitLayout
+  imagePosition="left"
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/3_our_tech_in_practice_UCT_Next_Gen2025_2_dfbc559b32.jpg"
+  imageAlt="Group photo of students smiling for the camera at a hackathon."
+>
+  At the University of Cape Town, one of our [NextGen Higher
+  Education](/grant/education/next-gen) grantees, student teams built
+  DigiStokvel and SecureLifeCover at a hackathon, prototypes bringing digital
+  interoperability to South Africa’s traditional community savings market.
+</SplitLayout>
+
+<Paragraph>
+
+## Two Ways to Build with Us
+
+You can build on Interledger on your own, using the open documentation, repositories, test tools, and with support from the community. You can also build with support: the Interledger Foundation funds teams and institutions integrating the Interledger stack or implementing Open Payments through its grant programs.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    { text: 'Start Building', link: '/tech/dev-portal', style: 'primary' },
+    { text: 'Explore Grants', link: '/grant/innovation', style: 'secondary' }
+  ]}
+/>

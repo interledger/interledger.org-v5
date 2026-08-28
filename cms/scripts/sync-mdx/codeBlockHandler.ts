@@ -1,4 +1,5 @@
 import { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from '@/utils'
+import { unpadMdxAttrTemplateLiteral } from '../../src/serializers/shared'
 import type { CodeBlockBlock, ParsedBlock } from './types.blocks'
 import { getStaticExpressionAttr, getStringAttr } from './jsxExtract'
 import {
@@ -19,10 +20,12 @@ async function handleCodeBlock(
   return tryCatchParserError(() => {
     const language = getStringAttr(node, 'language', { required: true })
     const title = getStringAttr(node, 'title')
-    const code = getStaticExpressionAttr(node, 'code', {
-      required: true,
-      sourceText: ctx.sourceText
-    })
+    const code = unpadMdxAttrTemplateLiteral(
+      getStaticExpressionAttr(node, 'code', {
+        required: true,
+        sourceText: ctx.sourceText
+      })
+    )
 
     if (!CODE_BLOCK_LANGUAGES.includes(language as CodeBlockLanguage)) {
       throw new MdxParserError({

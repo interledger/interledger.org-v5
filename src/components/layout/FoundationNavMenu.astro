@@ -35,10 +35,15 @@ const panelBgClass = isDark
   ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
   : 'desktop:bg-white desktop:border desktop:border-neutral-25'
 
+// In the drawer, header-nav.ts owns the open height: it sets the panel's
+// measured height inline and then drops the cap, because a fixed viewport cap
+// clipped any taller panel with no way to reach the rest of the list.
+// `max-h-screen` only covers the gap before that script runs, and stays scoped
+// to the drawer so it can't outrank `desktop:max-h-none` on the dropdown.
 const panelMobileClass =
   'block max-h-0 overflow-hidden border-0 bg-transparent shadow-none ' +
   'transition-[max-height] duration-500 ease-out motion-reduce:transition-none ' +
-  'peer-data-[open=true]:max-h-screen'
+  'max-desktop:peer-data-[open=true]:max-h-screen'
 
 const panelDesktopClass =
   'desktop:absolute desktop:invisible desktop:opacity-0 desktop:top-[calc(100%+1.5rem)] ' +

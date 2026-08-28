@@ -48,87 +48,87 @@ Here's what it looks like to request a grant and create an incoming payment:
 
 <CodeBlock language="go" code={`package main
 
-import (
-    "context"
-    "log"
-    "time"
+  import (
+      "context"
+      "log"
+      "time"
 
-    openpayments "github.com/interledger/open-payments-go"
-    as "github.com/interledger/open-payments-go/generated/authserver"
-    rs "github.com/interledger/open-payments-go/generated/resourceserver"
-)
+      openpayments "github.com/interledger/open-payments-go"
+      as "github.com/interledger/open-payments-go/generated/authserver"
+      rs "github.com/interledger/open-payments-go/generated/resourceserver"
+  )
 
-func main() {
-    privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
-    keyId := os.Getenv("KEY_ID")
+  func main() {
+      privateKeyBase64 := os.Getenv("BASE64_PRIVATE_KEY")
+      keyId := os.Getenv("KEY_ID")
 
-    // Initialize the authenticated client
-    client, err := openpayments.NewAuthenticatedClient(
-        "https://wallet.example.com/alice",
-        privateKeyBase64,
-        keyId,
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
+      // Initialize the authenticated client
+      client, err := openpayments.NewAuthenticatedClient(
+          "https://wallet.example.com/alice",
+          privateKeyBase64,
+          keyId,
+      )
+      if err != nil {
+          log.Fatal(err)
+      }
 
-    // Get wallet address info
-    wallet, err := client.WalletAddress.Get(context.Background(), openpayments.WalletAddressGetParams{
-        URL: "https://wallet.example.com/alice",
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
+      // Get wallet address info
+      wallet, err := client.WalletAddress.Get(context.Background(), openpayments.WalletAddressGetParams{
+          URL: "https://wallet.example.com/alice",
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
 
-    // Build the access request
-    incomingAccess := as.AccessIncoming{
-        Type: as.IncomingPayment,
-        Actions: []as.AccessIncomingActions{
-            as.AccessIncomingActionsCreate,
-            as.AccessIncomingActionsRead,
-            as.AccessIncomingActionsList,
-            as.AccessIncomingActionsComplete,
-        },
-    }
-    accessItem := as.AccessItem{}
-    accessItem.FromAccessIncoming(incomingAccess)
+      // Build the access request
+      incomingAccess := as.AccessIncoming{
+          Type: as.IncomingPayment,
+          Actions: []as.AccessIncomingActions{
+              as.AccessIncomingActionsCreate,
+              as.AccessIncomingActionsRead,
+              as.AccessIncomingActionsList,
+              as.AccessIncomingActionsComplete,
+          },
+      }
+      accessItem := as.AccessItem{}
+      accessItem.FromAccessIncoming(incomingAccess)
 
-    // Request a grant
-    grant, err := client.Grant.Request(context.Background(), openpayments.GrantRequestParams{
-        URL: *wallet.AuthServer,
-        RequestBody: as.GrantRequestWithAccessToken{
-            AccessToken: struct {
-                Access as.Access \`json:"access"\`
-            }{
-                Access: []as.AccessItem{accessItem},
-            },
-        },
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
+      // Request a grant
+      grant, err := client.Grant.Request(context.Background(), openpayments.GrantRequestParams{
+          URL: *wallet.AuthServer,
+          RequestBody: as.GrantRequestWithAccessToken{
+              AccessToken: struct {
+                  Access as.Access \`json:"access"\`
+              }{
+                  Access: []as.AccessItem{accessItem},
+              },
+          },
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
 
-    // Create an incoming payment
-    expiresAt := time.Now().Add(24 * time.Hour)
-    payment, err := client.IncomingPayment.Create(context.Background(), openpayments.IncomingPaymentCreateParams{
-        BaseURL:     *wallet.ResourceServer,
-        AccessToken: grant.AccessToken.Value,
-        Payload: rs.CreateIncomingPaymentJSONBody{
-            WalletAddressSchema: *wallet.Id,
-            IncomingAmount: &rs.Amount{
-                Value:      "1000",
-                AssetCode:  wallet.AssetCode,
-                AssetScale: wallet.AssetScale,
-            },
-            ExpiresAt: &expiresAt,
-        },
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
+      // Create an incoming payment
+      expiresAt := time.Now().Add(24 * time.Hour)
+      payment, err := client.IncomingPayment.Create(context.Background(), openpayments.IncomingPaymentCreateParams{
+          BaseURL:     *wallet.ResourceServer,
+          AccessToken: grant.AccessToken.Value,
+          Payload: rs.CreateIncomingPaymentJSONBody{
+              WalletAddressSchema: *wallet.Id,
+              IncomingAmount: &rs.Amount{
+                  Value:      "1000",
+                  AssetCode:  wallet.AssetCode,
+                  AssetScale: wallet.AssetScale,
+              },
+              ExpiresAt: &expiresAt,
+          },
+      })
+      if err != nil {
+          log.Fatal(err)
+      }
 
-    log.Printf("Created incoming payment: %s", *payment.Id)
-}`} />
+      log.Printf("Created incoming payment: %s", *payment.Id)
+  }`} />
 
 <Paragraph>
 
@@ -147,25 +147,25 @@ To solve this, we leveraged [OpenAPI Overlays](https://learn.openapis.org/overla
 </Paragraph>
 
 <CodeBlock language="yaml" code={`# resourceserver.overlay.yaml
-actions:
-  - target: $.components.schemas
-    update:
-      CreateOutgoingPaymentWithQuote:
-        type: object
-        required: [walletAddress, quoteId]
-        properties:
-          walletAddress:
-            $ref: '#/components/schemas/walletAddress'
-          quoteId:
-            type: string
-          metadata:
-            type: object
-            additionalProperties: true
+  actions:
+    - target: $.components.schemas
+      update:
+        CreateOutgoingPaymentWithQuote:
+          type: object
+          required: [walletAddress, quoteId]
+          properties:
+            walletAddress:
+              $ref: '#/components/schemas/walletAddress'
+            quoteId:
+              type: string
+            metadata:
+              type: object
+              additionalProperties: true
 
-      CreateOutgoingPaymentWithAmount:
-        type: object
-        required: [walletAddress, incomingPayment, debitAmount]
-        # ...`} />
+        CreateOutgoingPaymentWithAmount:
+          type: object
+          required: [walletAddress, incomingPayment, debitAmount]
+          # ...`} />
 
 <Paragraph>
 
@@ -174,12 +174,12 @@ Instead of wrestling with anonymous types, you get clear, self-documenting struc
 </Paragraph>
 
 <CodeBlock language="go" code={`// Without overlays: confusing generated names
-var payload PostRequestJSONBody  // What is this?
+  var payload PostRequestJSONBody  // What is this?
 
-// With overlays: intent is obvious
-var payload rs.CreateOutgoingPaymentWithQuote
-payload.WalletAddressSchema = walletAddress
-payload.QuoteId = quoteId`} />
+  // With overlays: intent is obvious
+  var payload rs.CreateOutgoingPaymentWithQuote
+  payload.WalletAddressSchema = walletAddress
+  payload.QuoteId = quoteId`} />
 
 <Paragraph>
 

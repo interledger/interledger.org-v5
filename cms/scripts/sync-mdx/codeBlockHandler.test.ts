@@ -25,10 +25,15 @@ describe('CodeBlock handler', () => {
     ])
   })
 
-  it('parses multiline code from a template literal', async () => {
+  it('parses multiline code from a template literal, undoing the export-time indentation compensation', async () => {
+    // The serializer pads every continuation line by 2 spaces on export (see
+    // code-block.serializer.ts / padMdxAttrTemplateLiteral) to offset MDX's
+    // own 2-column strip at Astro build time. Real `.mdx` source therefore
+    // always carries that +2 padding, so the fixture here mirrors serializer
+    // output rather than hand-typed indentation.
     const blocks = await parseMdxToBlocks(
       `<CodeBlock language="python" title="hello.py" code={\`def hello():
-    print("world")\`} />`,
+      print("world")\`} />`,
       ctx
     )
 
@@ -40,12 +45,12 @@ describe('CodeBlock handler', () => {
     })
   })
 
-  it('preserves source indentation as-is', async () => {
+  it('recovers original indentation by undoing the export-time +2 padding', async () => {
     const blocks = await parseMdxToBlocks(
       `<CodeBlock language="javascript" code={\`function run() {
-    if (true) {
-        return 1
-    }
+      if (true) {
+          return 1
+      }
 }\`} />`,
       ctx
     )
