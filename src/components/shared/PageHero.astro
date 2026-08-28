@@ -65,6 +65,13 @@ const resolvedCta = cta
 
 const resolvedMobileAlt = imageMobileAlt ?? imageAlt
 
+// The copy band's bottom padding separates the copy from the image band under
+// it. With no image there is nothing to separate, and that padding only adds
+// to the gap the page stack already supplies. On /about-us/ the two stacked
+// into 160px below the hero (Radu, 2026-08-28).
+const hasImageBand = Boolean(image || imageMobile)
+const copyBandPadding = hasImageBand ? 'pb-3xl tablet:pb-5xl' : ''
+
 const isWideBand = imageBand === 'wide'
 const bandClass = isWideBand
   ? 'w-full h-[28vh] tablet:h-[min(55vh,calc(100vw*9/21))]'
@@ -87,7 +94,10 @@ const parallaxImgClass = isWideBand
 -->
 <div data-component="PageHero">
   <div
-    class="bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-3xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-5xl desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]"
+    class:list={[
+      'bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]',
+      copyBandPadding
+    ]}
   >
     <div class="content-column">
       {
