@@ -1,0 +1,181 @@
+﻿---
+title: 'Open Payments: La historia de Cenicienta en busca de un método de autorización adecuado'
+description: Un desglose de las necesidades específicas que un método de autorización para Open Payments debe poder satisfacer.
+date: 2024-07-30
+pathSlug: open-payments-cinderella-story
+featured: false
+locale: es
+localizes: open-payments-cinderella-story
+articleBios:
+  - author: Nathan Lie
+    link: https://www.linkedin.com/in/nathan-lie-138a73121
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - subscriptions-with-open-payments-poc
+  - simple-open-payments-guide
+  - introducing-open-payments-php
+legacy: true
+---
+
+## Internet funciona con OAuth 2.0
+
+Si alguna vez accedió a un sitio web con su cuenta de Google, su ID de Apple o una cuenta de alguna red social, entonces ha formado parte de una larga tradición de delegación de acceso que comenzó en 2007, cuando se lanzó el protocolo central de la primera versión de OAuth. Desde entonces, el protocolo ha evolucionado hasta convertirse en el estándar que hoy vemos en toda la web: OAuth 2.0.
+
+En un determinado momento del desarrollo de [Rafiki](https://rafiki.dev/), fue necesario implementar un estándar que describiera cómo terceros podían iniciar pagos en nombre de otra persona. Este estándar pasó a conocerse como Open Payments, que no solo tendría que proporcionar un marco para describir esos pagos, sino también incorporar un método de delegación de acceso que esos terceros pudieran utilizar. Contar con un método de delegación de acceso tan consolidado como OAuth 2.0 hizo que pareciera una elección evidente como método de autorización para este estándar.
+
+Sin embargo, a medida que los métodos de [Open Payment](https://openpayments.dev/introduction/overview/) para describir y gestionar pagos fueron tomando forma, comenzaron a evidenciarse las limitaciones de OAuth 2.0 para ese caso de uso. Para entender cuáles son, repasemos primero las características de OAuth 2.0 que lo llevaron a alcanzar una gran popularidad.
+
+Aunque es un proceso simple para el usuario, la delegación de acceso a través de OAuth 2.0 se logra gracias a la interacción de muchos componentes y actores diferentes. Estos roles son los siguientes:
+
+- Cliente externo (o simplemente cliente)
+  - La parte que solicita acceso a un recurso que no le pertenece.
+  - En un ejemplo del tipo “Iniciar sesión con Google”, esta es la parte que redirige al usuario a Google para que otorgue al cliente acceso a la información de su cuenta de Google.
+- Propietario del recurso
+  - La entidad que posee uno o más recursos a los que se puede acceder mediante un flujo de autorización.
+  - En el ejemplo de “Iniciar sesión con Google”, sería el usuario propietario de la cuenta de Google.
+- Servidor de recursos
+  - El lugar donde se almacenan los recursos del propietario de un recurso (por ejemplo, la dirección de correo electrónico o el nombre de usuario de una cuenta).
+  - En el ejemplo de “Iniciar sesión con Google”, sería el servidor de Google donde se almacena la cuenta.
+- Proveedor de identidad
+  - La entidad que determina la identidad del propietario del recurso, para que pueda acceder a sus recursos.
+  - En el ejemplo de “Iniciar sesión con Google”, sería la página de inicio de sesión de Google a la que se dirige al propietario del recurso cuando selecciona la opción de iniciar sesión con Google en el sitio del cliente.
+  - La parte que controla esto a menudo coincide con la parte que controla el servidor de recursos, pero no siempre. Observe que en el ejemplo de “Iniciar sesión con Google”, Google es propietario tanto de la página de inicio de sesión como del servidor de recursos en el que se almacenan los recursos de la cuenta.
+- Servidor de autorización
+  - El servidor que delega el acceso a los recursos en un servidor de recursos determinado.
+  - El cliente realiza una solicitud al servidor de autorización para recibir un token de acceso a los recursos de un propietario de recursos en un servidor de recursos específico.
+  - El servidor de recursos realiza solicitudes al servidor de autorización para verificar que los tókenes de acceso presentados por un cliente sean válidos para el recurso al que el cliente solicita acceso.
+  - En el ejemplo de “Iniciar sesión con Google”, sería un servidor de Google que gestiona la autorización. El servidor de autorización no siempre es administrado por la misma entidad que el servidor de recursos, y puede ser proporcionado por un tercero.
+
+Cuando el cliente necesita realizar una acción utilizando un recurso alojado externamente (como iniciar sesión en su aplicación con la cuenta de Google de un usuario), solicita acceso enviando una solicitud al servidor de autorización correspondiente a ese recurso. El servidor de autorización responde con una URL de redirección que redirige al proveedor de identidad utilizado por el servidor de recursos. Esta redirección también contiene información que identifica al cliente y especifica a qué recursos quiere acceder.
+
+Luego, el cliente redirige al usuario a una página del proveedor de identidad con esa URL. Por lo general, esta página verificará la identidad del usuario solicitándole que proporcione sus credenciales de inicio de sesión y, posteriormente, le presentará una pantalla de consentimiento donde puede aprobar o denegar la solicitud de acceso del cliente.
+
+Una vez que el usuario completa el flujo en el proveedor de identidad, el servidor de autorización entrega al cliente un token que se utiliza para comunicarse con una API en el servidor de recursos y recuperar el recurso solicitado.
+
+Veamos todo esto resumido en un diagrama de secuencia.
+
+<ImageBlock
+  src="/img/foundation-blog/2024-07-30/oauth-sequence-diagram.png"
+  alt="El diagrama de secuencia de OAuth 2.0"
+  needsFullView={true}
+/>
+
+Si bien es extremadamente útil, OAuth 2.0 es más adecuado para delegar el acceso a la _información_. Lamentablemente, cuando se busca delegar el _control_, en lugar del acceso, OAuth 2.0 empieza a mostrar sus limitaciones. Una autorización típica de OAuth 2.0 se inicializa cuando un cliente externo genera un enlace para el propietario del recurso que contiene, entre otros elementos, un valor “scope” (alcance) que incluye una lista de los elementos a los que la autorización debe otorgar acceso. Por ejemplo:
+
+<CodeBlock language="javascript" code={`scope = 'email,username,channels:read'`} />
+
+En este ejemplo tomado de la API de OAuth de Slack, este valor scope otorgará acceso a la dirección de correo electrónico y al nombre de usuario del propietario del recurso. Además, permitirá que el cliente externo lea los canales de una instancia de Slack.
+
+Ahora bien, el problema de expresar el acceso solo como una cadena es que resulta difícil expresar los detalles específicos del acceso que se está concediendo. Slack intenta resolver esto concatenando distintos elementos, pero, en el caso de un pago, la cantidad de elementos hace que este enfoque resulte muy poco práctico. Imagínese cómo podría verse el scope de un pago con este modelo, teniendo en cuenta cuestiones como el monto de la transacción y una frecuencia de facturación mensual:
+
+<CodeBlock language="javascript" code={`scope = 'outgoing-payment:100:USD:P1M'`} />
+
+Este enfoque comienza a superar los límites de la conveniencia y la capacidad de interpretar el scope. ¿Es necesario imponer un orden en el que la información se agregue al scope para que pueda interpretarse correctamente? ¿Cómo manejaríamos los elementos opcionales? ¿Deberíamos simplemente convertir un objeto JSON en una cadena y usarlo como scope? Desde el punto de vista del desarrollo, la situación empieza a salirse de control.
+
+## Cómo intentar que funcione con OAuth 2.0
+
+Uno de los primeros intentos de incorporar este contexto a un pago autorizado fue mediante un mecanismo denominado “mandatos”. Se trataba de objetos que un cliente externo generaba en un servidor de recursos de Open Payments y que incluían la información de pago mencionada anteriormente. Ese mandato luego se incluiría como referencia dentro de un objeto Authorization Details, que luego se convertiría en una cadena y se enviaría como parámetro de consulta en una URL de autorización de OAuth:
+
+<CodeBlock language="bash" code={`GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=af0ifjsldkj
+    &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+    &authorization_details=%7B%0A%20%20%22open_payments%22%3A%7B%0A%20%20%20%20%20%22mandate%22%3A%7B%0A%20%20%20%20%20%20%20%20%22name%22%3A%20%22%2F%2Fissuer.wallet%2Fmandates%2F2fad69d0-7997-4543-8346-69b418c479a6%22%0A%20%20%20%20%20%7D%0A%20%20%7D%0A%7D HTTP/1.1
+  Host: wallet.example
+
+  //  URL contains stringified copy of the following object:
+  //  {
+  //    "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
+  //    "account": "https://wallet.example/bob",
+  //    "amount": 200,
+  //    "assetCode" : "USD",
+  //    "assetScale": 2,
+  //    "interval": "P1M",
+  //    "startAt": "2020-01-22T00:00:00Z",
+  //    "balance": 200
+  //  }`} />
+
+Ahora volvemos a complicarnos. De inmediato queda claro cuánto ruido hay en el parámetro de consulta “authorization_details” y, en un sentido más práctico, se agrega el paso adicional de crear el mandato antes de que un cliente pueda pedir autorización al propietario del recurso. Ni siquiera hemos abordado el hecho de que debe crearse otro objeto completamente diferente, un “cargo”, en el servidor de recursos para poder utilizar el mandato. **Esto supone una sobrecarga adicional para el servidor de recursos, que debe mantener todos esos mandatos, en un proceso que idealmente debería gestionarse por completo mediante el servidor de autorización encargado de delegar el acceso.**
+
+Compare este diagrama de secuencia con el diagrama de secuencia anterior y la mayor complejidad. Hay más interacciones con el servidor de recursos simplemente para configurar el flujo de autorización, y más trabajo después del flujo para poder iniciar el pago.
+
+<ImageBlock
+  src="/img/foundation-blog/2024-07-30/mandates-sequence-diagram.png"
+  alt="El diagrama de secuencia de los mandatos"
+  needsFullView={true}
+/>
+
+## Un nuevo enfoque
+
+Presentamos el Protocolo de Negociación y Autorización de Concesiones (GNAP), el sucesor natural de la línea evolutiva de OAuth. Si bien mantiene el estándar de seguridad establecido por OAuth, GNAP es capaz de autorizar una gama más amplia de acciones. Considere la autorización de un pago. No solo es necesario especificar la _capacidad_ de realizar un pago al autorizarlo, sino también el _destinatario_ y el _monto_ del pago. Esas complicaciones son difíciles de gestionar en OAuth, pero mucho más fáciles de abordar en GNAP.
+
+Al igual que ocurre con los mandatos, un cliente enviará una solicitud al servidor de autorización de Open Payments especificando qué permisos desea tener sobre un recurso. La diferencia aquí es que esta solicitud forma parte de la especificación, por lo que no es necesario que exista ni se mantenga en el servidor. Además, es capaz de expresar las limitaciones y advertencias sobre los permisos que solicita y que necesitamos para describir correctamente un pago. GNAP logra esto a través de la solicitud de concesión. Este ejemplo describe cómo un cliente que realiza esta solicitud puede crear o leer pagos salientes asociados a un pago entrante específico de 5 dólares:
+
+<CodeBlock language="json" code={`{
+    "access_token": {
+      "access": [
+        {
+          "type": "outgoing-payment",
+          "actions": ["create", "read"],
+          "identifier": "https://ilp.rafiki.money/alice",
+          "limits": {
+            "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
+            "interval": "R12/2019-08-24T14:15:22Z/P1M",
+            "debitAmount": {
+              "value": "500",
+              "assetCode": "USD",
+              "assetScale": 2
+            }
+          }
+        }
+      ]
+    },
+    "client": "https://webmonize.com/.well-known/pay",
+    "interact": {
+      "start": ["redirect"],
+      "finish": {
+        "method": "redirect",
+        "uri": "https://webmonize.com/return/876FGRD8VC",
+        "nonce": "4edb2194-dbdf-46bb-9397-d5fd57b7c8a7"
+      }
+    }
+  }`} />
+
+Una vez realizada la solicitud de concesión, el servidor de autorización de Open Payments responde con una URL que inicia un flujo de autorización, similar a cuando un cliente realiza una solicitud a un servidor de autorización de OAuth 2.0. La solicitud de concesión tiene muchos componentes, pero el más importante para describir un pago es el campo “access”:
+
+<CodeBlock language="json" code={`"access": [
+    {
+      "type": "outgoing-payment",
+      "actions": [
+        "create",
+        "read"
+      ],
+      "identifier": "https://ilp.rafiki.money/alice",
+      "limits": {
+        "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
+        "interval": "R12/2019-08-24T14:15:22Z/P1M",
+        "debitAmount": {
+          "value": "500",
+          "assetCode": "USD",
+          "assetScale": 2
+        }
+      }
+    }
+  ]`} />
+
+Observe cuánto más específica y legible puede ser una solicitud de concesión con sus intenciones para un pago. El campo “actions” puede contener las acciones que se pueden realizar en el recurso. Es importante destacar que el campo “limits” es lo suficientemente flexible como para especificar de forma comprensible el monto del pago, la divisa en la que se realiza y su frecuencia (si corresponde). Básicamente, es capaz de utilizar dos características importantes de OAuth 2.0 y el sistema de “mandatos” sin crear una sobrecarga significativa:
+
+Toda la delegación de acceso se mantiene dentro de un servidor de autorización, de modo que la única responsabilidad del servidor de recursos es llevar la contabilidad.
+Existe una forma clara de describir los parámetros de un pago.
+
+Como referencia, contamos con un diagrama de secuencia con GNAP mucho más sencillo. Está más cerca de la línea base establecida por el diagrama de secuencia de OAuth 2.0 y mantiene las responsabilidades del servidor de recursos debidamente separadas del flujo de autorización en general.
+
+<ImageBlock
+  src="/img/foundation-blog/2024-07-30/gnap-sequence-diagram.png"
+  alt="Diagrama de secuencia de GNAP"
+  needsFullView={true}
+/>
+
+Teniendo esto en cuenta, queda claro que GNAP es la opción más adecuada para enviar pagos a través de Open Payments. Aunque la especificación no es oficialmente definitiva, el avance es constante y el futuro parece prometedor: las especificaciones están bien encaminadas para convertirse en una RFC formal. [El protocolo central](https://datatracker.ietf.org/doc/draft-ietf-gnap-core-protocol/) fue aprobado recientemente por el IESG y ha ingresado en la cola del editor del IESG. [La especificación para servidores de recursos](https://datatracker.ietf.org/doc/draft-ietf-gnap-resource-servers/) también está a punto de presentarse al IESG para su publicación.
+
+Para obtener más información sobre Open Payments en general, considere consultar la [documentación](https://openpayments.dev/introduction/overview/).

@@ -1,0 +1,131 @@
+﻿---
+title: 'Anuncio del lanzamiento de la versión beta de la extensión Web Monetization de Interledger Foundation'
+description: 'La versión beta de Web Monetization permite a los usuarios apoyar más fácilmente a los sitios web mediante micropagos en tiempo real. Junto con la extensión, los nuevos documentos y herramientas ayudan a los creadores de contenido a promover la monetización y generar fuentes de ingresos sostenibles.'
+date: 2025-03-24
+pathSlug: announcing-interledger-foundations-web-monetization-extension-beta-release
+featured: false
+locale: es
+localizes: announcing-interledger-foundations-web-monetization-extension-beta-release
+featureImage: '/img/foundation-blog/wm-launch-feature.svg'
+featureImageAlt: ''
+articleBios:
+  - author: Rabeb Othmani
+    text: 'Rabeb es una destacada profesional de la tecnología y líder de producto, con 15 años de experiencia en la industria tecnológica. Rabeb se ha destacado en la elaboración de estrategias de producto, la gestión de equipos multidisciplinarios y la creación de soluciones innovadoras que resuelven problemas del mundo real. Rabeb es una defensora de la diversidad y la inclusión en la industria tecnológica. Trabaja para empoderar a otras personas y promover su desarrollo.'
+    image: '/img/foundation-blog/authors/rabeb.jpg'
+categories:
+  - Interledger Technology
+  - News
+relatedArticles:
+  - paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time
+  - web-monetization-meets-googles-offerwall
+  - ad-filtering-dev-summit-23-web-monetization-100-ad-filter
+---
+
+<Paragraph>
+
+## Por qué es importante
+
+La economía del contenido digital está evolucionando rápidamente y, según las proyecciones de Grand View Research, alcanzará los 69 800 millones de dólares para 2030. A medida que este panorama crece, tanto los creadores de contenido como los editores y los usuarios buscan formas más flexibles e intuitivas de conectarse y realizar transacciones.
+
+Si bien la publicidad, las suscripciones y los muros de pago siguen siendo herramientas esenciales, el futuro pasa por ampliar las posibilidades y ofrecer más opciones.
+
+Con [Web Monetization](https://webmonetization.org/), incorporamos una nueva forma sencilla de que los usuarios apoyen el contenido que les gusta, complementando los modelos existentes con micropagos continuos en tiempo real. La extensión Web Monetization permite a los usuarios contribuir de forma simple y según sus propias preferencias, mientras que ofrece a los propietarios de contenido más oportunidades para interactuar con sus audiencias y diversificar sus fuentes de ingresos.
+
+Todo esto forma parte de la creación de una web más abierta y centrada en el usuario, en la que apoyar contenido de calidad sea simple, flexible y accesible para todos.
+
+## ¿Qué novedades hay?
+
+### 1. La extensión Web Monetization (Beta)
+
+Nuestra nueva extensión para navegadores simplifica el proceso de pagos continuos a sitios web que utilizan Web Monetization. Con esta versión, los usuarios pueden:
+
+- **Apoyar sus sitios web favoritos compatibles con Web Monetization** directamente desde su navegador web de **forma rápida, no intrusiva y con protección de la privacidad**.
+- **Pagar solo por lo que consumen**, con micropagos en tiempo real.
+- **Apoyar directamente a los propietarios y editores de contenido**, fomentando un **ecosistema de contenidos más sostenible**.
+
+La extensión está disponible en:
+
+- [Chrome Web Store](https://chromewebstore.google.com/detail/web-monetization/oiabcfomehhigdepbbclppomkhlknpii?utm_source=devblog&utm_campaign=beta_announcement)
+- [Complementos del navegador Firefox](https://addons.mozilla.org/en-GB/firefox/addon/web-monetization-extension/?utm_source=devblog&utm_campaign=beta_announcement)
+- [Complementos de Edge](https://microsoftedge.microsoft.com/addons/detail/web-monetization/imjgemgmeoioefpmfefmffbboogighjl)
+
+Para comenzar a usar la extensión, los usuarios necesitan una billetera compatible con Web Monetization y una configuración rápida dentro de la extensión. Siga nuestra [guía de inicio](https://webmonetization.org/supporters/get-started/) detallada para obtener instrucciones paso a paso.
+
+![Captura de pantalla que muestra un paso de configuración para la extensión Web Monetization.](/img/foundation-blog/WM-onboarding.png)
+
+Una vez configurada, ¡la extensión está lista! Los usuarios pueden:
+
+- Configurar pagos continuos
+- Cómo efectuar un pago único
+- Cambiar la configuración, como ajustar el presupuesto
+
+![Captura de pantalla que muestra cómo editar la configuración de la tarifa por hora de la extensión Web Monetization y enviar un pago único.](/img/foundation-blog/WM-rate-and-otp.png)
+
+Si usted es propietario de contenido y desea beneficiarse de la extensión, monetizar su sitio web es fácil y puede hacerlo en unos pocos pasos:
+
+- Obtenga un Payment Pointer o una dirección de billetera.
+- Cree una etiqueta de enlace de Web Monetization utilizando la URL de pago.
+
+</Paragraph>
+
+<CodeBlock language="html" code={`<link rel="monetization" href="https://wallet.example.com/alice">`} />
+
+<Paragraph>
+
+- Agregue a la sección de la página.
+
+</Paragraph>
+
+<CodeBlock language="html" code={`<html>
+    <head>
+      <title>Mi sitio</title>
+      <link rel="monetization" href="https://wallet.example.com/alice">
+    </head>
+</html>`} />
+
+<Paragraph>
+
+Esta versión beta es solo el comienzo: estamos mejorando activamente la experiencia a partir de los comentarios de los usuarios.
+
+### 2. Documentación renovada
+
+Hemos rediseñado nuestra documentación para que sea más clara y práctica. Tanto si usted es un desarrollador que integra Web Monetization, un propietario de contenido que busca monetizar o un usuario que desea apoyar sitios web monetizados, nuestros nuevos documentos proporcionan:
+
+- **Guías paso a paso** para comenzar rápidamente
+- **Sección para desarrolladores mejorada** para una integración fluida
+- **Resúmenes mejorados** para una mejor comprensión de Web Monetization
+
+Consulte la nueva documentación [aquí](https://webmonetization.org/docs/).
+
+### 3. Nuevas herramientas para propietarios y editores de contenido
+
+Para impulsar la adopción, hemos incorporado nuevas herramientas para editores, un conjunto de componentes fáciles de personalizar que los propietarios de contenido pueden usar para informar a los visitantes de su sitio web sobre Web Monetization, comenzando con:
+
+- **Un banner** que informa a los visitantes que no tienen la extensión Web Monetization instalada o activa y los anima a apoyar el contenido que les gusta.
+
+![Captura de pantalla que muestra las opciones de configuración del banner de la extensión Web Monetization. Puede cambiar los colores, las fuentes, la posición, etc.](/img/foundation-blog/WM-banner-settings.png)
+
+![Ejemplo del aspecto del banner de la extensión Web Monetization en un sitio web.](/img/foundation-blog/WM-example-ext-banner.png)
+
+Siga este [espacio](https://webmonetization.org/tools/) para conocer las próximas herramientas.
+
+## ¿Qué sigue?
+
+Esta versión beta es solo el comienzo. Nos centramos en:
+
+- Recopilar [**comentarios de los usuarios**](https://docs.google.com/forms/d/e/1FAIpQLSfpyGBjwU2V6EpF1iLmmYxAJrq9Gmpa6vO-2okXnEqAWc6GXQ/viewform?usp=sharing) para perfeccionar la extensión
+- Ampliar el **soporte para proveedores de billeteras**
+- Presentar **más herramientas para editores**
+- Recopilar comentarios sobre las herramientas que le gustaría tener
+
+¡Nos encantaría saber de usted! Pruebe la versión beta y comparta sus opiniones en nuestro foro comunitario o en GitHub.
+
+## Comience hoy mismo
+
+- Instale y configure la [extensión Web Monetization](https://webmonetization.org/supporters/get-started/)
+- Explore la nueva [documentación](https://webmonetization.org/docs/)
+- Participe en la conversación en nuestra [comunidad](https://community.interledger.org/)
+
+Juntos, estamos construyendo un panorama más competitivo, con oportunidades equitativas para que grandes y pequeños propietarios y editores de contenido formen parte de la economía del contenido digital. ¡Gracias por ser parte del proceso!
+
+</Paragraph>
