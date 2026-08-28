@@ -6,7 +6,12 @@
 // Equal-height floor for cards lives in <style> as --card-min-h (see comment there for anchors).
 
 import PillarCard from '@/components/shared/PillarCard.astro'
-import { useTranslations, buildUmamiAttrs } from '@/utils'
+import {
+  useTranslations,
+  buildUmamiAttrs,
+  translatePath,
+  GRANT_OVERVIEW_PRIMARY_SLUG
+} from '@/utils'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -68,19 +73,23 @@ const threePillars = [
   {
     title: t('pillarsSection.card1_title'),
     description: t('pillarsSection.card1_description'),
-    href: '/interledger',
+    href: translatePath('foundation-pages', routeLocale, 'tech/overview'),
     bg: 'bg-aqua-mint-100'
   },
   {
     title: t('pillarsSection.card2_title'),
     description: t('pillarsSection.card2_description'),
-    href: '/grant/our-grantmaking',
+    href: translatePath(
+      'grant-overview-pages',
+      routeLocale,
+      GRANT_OVERVIEW_PRIMARY_SLUG
+    ),
     bg: 'bg-apricot-100'
   },
   {
     title: t('pillarsSection.card3_title'),
     description: t('pillarsSection.card3_description'),
-    href: '/policy-and-advocacy',
+    href: translatePath('foundation-pages', routeLocale, 'policy-and-advocacy'),
     bg: 'bg-soft-indigo-100'
   }
 ] as const

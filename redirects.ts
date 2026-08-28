@@ -3,6 +3,7 @@ export const redirects = {
   '/community': '/get-involved',
   '/today': '/developers/rfcs/interledger-protocol/',
   '/about': '/about-us',
+  '/interledger': '/tech/overview',
   '/overview': '/technology',
   '/mission': '/about-us',
   '/values': '/about-us',
