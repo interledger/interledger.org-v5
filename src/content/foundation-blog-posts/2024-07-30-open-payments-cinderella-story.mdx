@@ -94,21 +94,21 @@ An early attempt to add this context to an authorized payment was through someth
 </Paragraph>
 
 <CodeBlock language="bash" code={`GET /authorize?response_type=code&client_id=s6BhdRkqt3&state=af0ifjsldkj
-  &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
-  &authorization_details=%7B%0A%20%20%22open_payments%22%3A%7B%0A%20%20%20%20%20%22mandate%22%3A%7B%0A%20%20%20%20%20%20%20%20%22name%22%3A%20%22%2F%2Fissuer.wallet%2Fmandates%2F2fad69d0-7997-4543-8346-69b418c479a6%22%0A%20%20%20%20%20%7D%0A%20%20%7D%0A%7D HTTP/1.1
-Host: wallet.example
+    &redirect_uri=https%3A%2F%2Fclient%2Eexample%2Ecom%2Fcb
+    &authorization_details=%7B%0A%20%20%22open_payments%22%3A%7B%0A%20%20%20%20%20%22mandate%22%3A%7B%0A%20%20%20%20%20%20%20%20%22name%22%3A%20%22%2F%2Fissuer.wallet%2Fmandates%2F2fad69d0-7997-4543-8346-69b418c479a6%22%0A%20%20%20%20%20%7D%0A%20%20%7D%0A%7D HTTP/1.1
+  Host: wallet.example
 
-//  URL contains stringified copy of the following object:
-//  {
-//    "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
-//    "account": "https://wallet.example/bob",
-//    "amount": 200,
-//    "assetCode" : "USD",
-//    "assetScale": 2,
-//    "interval": "P1M",
-//    "startAt": "2020-01-22T00:00:00Z",
-//    "balance": 200
-//  }`} />
+  //  URL contains stringified copy of the following object:
+  //  {
+  //    "id": "https://wallet.example/mandates/2fad69d0-7997-4543-8346-69b418c479a6",
+  //    "account": "https://wallet.example/bob",
+  //    "amount": 200,
+  //    "assetCode" : "USD",
+  //    "assetScale": 2,
+  //    "interval": "P1M",
+  //    "startAt": "2020-01-22T00:00:00Z",
+  //    "balance": 200
+  //  }`} />
 
 <Paragraph>
 
@@ -135,34 +135,34 @@ Like mandates, a client will make a request to the Open Payments Auth Server spe
 </Paragraph>
 
 <CodeBlock language="json" code={`{
-  "access_token": {
-    "access": [
-      {
-        "type": "outgoing-payment",
-        "actions": ["create", "read"],
-        "identifier": "https://ilp.rafiki.money/alice",
-        "limits": {
-          "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
-          "interval": "R12/2019-08-24T14:15:22Z/P1M",
-          "debitAmount": {
-            "value": "500",
-            "assetCode": "USD",
-            "assetScale": 2
+    "access_token": {
+      "access": [
+        {
+          "type": "outgoing-payment",
+          "actions": ["create", "read"],
+          "identifier": "https://ilp.rafiki.money/alice",
+          "limits": {
+            "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
+            "interval": "R12/2019-08-24T14:15:22Z/P1M",
+            "debitAmount": {
+              "value": "500",
+              "assetCode": "USD",
+              "assetScale": 2
+            }
           }
         }
+      ]
+    },
+    "client": "https://webmonize.com/.well-known/pay",
+    "interact": {
+      "start": ["redirect"],
+      "finish": {
+        "method": "redirect",
+        "uri": "https://webmonize.com/return/876FGRD8VC",
+        "nonce": "4edb2194-dbdf-46bb-9397-d5fd57b7c8a7"
       }
-    ]
-  },
-  "client": "https://webmonize.com/.well-known/pay",
-  "interact": {
-    "start": ["redirect"],
-    "finish": {
-      "method": "redirect",
-      "uri": "https://webmonize.com/return/876FGRD8VC",
-      "nonce": "4edb2194-dbdf-46bb-9397-d5fd57b7c8a7"
     }
-  }
-}`} />
+  }`} />
 
 <Paragraph>
 
@@ -171,24 +171,24 @@ After the grant request is made, the Open Payments authorization server responds
 </Paragraph>
 
 <CodeBlock language="json" code={`"access": [
-  {
-    "type": "outgoing-payment",
-    "actions": [
-      "create",
-      "read"
-    ],
-    "identifier": "https://ilp.rafiki.money/alice",
-    "limits": {
-      "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
-      "interval": "R12/2019-08-24T14:15:22Z/P1M",
-      "debitAmount": {
-        "value": "500",
-        "assetCode": "USD",
-        "assetScale": 2
+    {
+      "type": "outgoing-payment",
+      "actions": [
+        "create",
+        "read"
+      ],
+      "identifier": "https://ilp.rafiki.money/alice",
+      "limits": {
+        "receiver": "https://ilp.rafiki.money/incoming-payments/45a0d0ee-26dc-4c66-89e0-01fbf93156f7",
+        "interval": "R12/2019-08-24T14:15:22Z/P1M",
+        "debitAmount": {
+          "value": "500",
+          "assetCode": "USD",
+          "assetScale": 2
+        }
       }
     }
-  }
-]`} />
+  ]`} />
 
 <Paragraph>
 

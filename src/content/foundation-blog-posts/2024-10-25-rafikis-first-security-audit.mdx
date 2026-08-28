@@ -52,25 +52,25 @@ Due to the structure of GraphQL APIs, it is sometimes not possible to avoid circ
 </Paragraph>
 
 <CodeBlock language="graphql" code={`query {
-  __schema {
-    types {
-      name
-      fields {
+    __schema {
+      types {
         name
-        type {
+        fields {
           name
-          fields {  <- recursing into the fields object
+          type {
             name
-            type {
+            fields {  <- recursing into the fields object
               name
-              ...
+              type {
+                name
+                ...
+              }
             }
           }
         }
       }
     }
-  }
-}`} />
+  }`} />
 
 <Paragraph>
 
@@ -81,16 +81,16 @@ In addition, there is a threat of field duplication attacks in GraphQL APIs: an 
 </Paragraph>
 
 <CodeBlock language="graphql" code={`query GetAsset($id: String!) {
-  asset(id: $id) {
-    id
-    code
-    scale
-    liquidity
-    liquidity
-    liquidity
-    ...
-  }
-}`} />
+    asset(id: $id) {
+      id
+      code
+      scale
+      liquidity
+      liquidity
+      liquidity
+      ...
+    }
+  }`} />
 
 <Paragraph>
 

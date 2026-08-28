@@ -43,8 +43,8 @@ Once the page loads, the injected content script immediately begins actively mon
 </Paragraph>
 
 <CodeBlock language="javascript" code={`function getLinkElements() {
-  return document.querySelector('link[rel="monetization"]')
-}`} />
+    return document.querySelector('link[rel="monetization"]')
+  }`} />
 
 <Paragraph>
 
@@ -57,21 +57,21 @@ The script uses the `MutationObserver` API to maintain a persistent, real-time a
 </Paragraph>
 
 <CodeBlock language="typescript" code={`function documentMutationCallback() {
-  const linkElements = getLinkElements()
-  const addedLinkElements = diff(linkElements, existingLinkElements)
-  const removedLinkElements = diff(existingLinkElements, linkElements)
+    const linkElements = getLinkElements()
+    const addedLinkElements = diff(linkElements, existingLinkElements)
+    const removedLinkElements = diff(existingLinkElements, linkElements)
 
-  addedLinkElements.forEach((elem) => {
-    const id = assignId(elem)
-    const walletAddressInfo = await validateAndFetch(elem.href)
-    dispatch('setup_monetization', { walletAddressInfo, id })
-  })
+    addedLinkElements.forEach((elem) => {
+      const id = assignId(elem)
+      const walletAddressInfo = await validateAndFetch(elem.href)
+      dispatch('setup_monetization', { walletAddressInfo, id })
+    })
 
-  removedLinkElements.forEach((elem) => {
-    const id = getAssignedId(elem)
-    dispatch('stop_monetization', { id })
-  })
-}`} />
+    removedLinkElements.forEach((elem) => {
+      const id = getAssignedId(elem)
+      dispatch('stop_monetization', { id })
+    })
+  }`} />
 
 <Paragraph>
 
