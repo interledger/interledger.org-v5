@@ -1,0 +1,141 @@
+---
+title: 'Cheaper Cross-Border Micropayments with Interledger'
+pathSlug: 'grant/call-for-papers/cross-border-micropayments-interledger'
+section: 'foundation'
+heading: 'Making Tiny Global Payments Actually Work: Smarter, Cheaper Routes with Interledger (vs. Lightning & Mobile Money)'
+description: 'Discover how Interledger enables faster, lower-cost cross-border micropayments, comparing its performance with Lightning Network and mobile money.'
+authorBios:
+  - author: 'Yash Sancheti'
+    text: 'Yash Sancheti is a cybersecurity professional with experience across penetration testing, secure development, and DevSecOps. He completed his Bachelor of Technology in Computer Science and Engineering from Jaypee Institute of Information Technology, where he built strong foundations in C/C++, JavaScript, data structures, algorithms, and secure coding practices. His security work includes contributing to Google Summer of Code as a Security Contributor for the Mifos Initiative, where he performed manual and automated security testing, implemented multiple fixes, and wrote CodeQL scripts to strengthen the security of the Apache Fineract and Mifos web platforms. He later worked with Crosslake Technologies as a Penetration Tester, conducting comprehensive assessments of client networks and applications and delivering detailed remediation reports. Beyond professional roles, he has reported vulnerabilities to organizations such as Rocket.Chat, Domino’s, Netgear, ESET, InfluxData, and Aditya Birla, receiving acknowledgments, Hall of Fame listings, and appreciation letters. He currently works as a DevSecOps Specialist at Nucleus Systems, where he focuses on integrating security into CI/CD pipelines, improving application security, and building automated tooling for proactive threat detection.'
+locale: 'en'
+---
+
+<ReportIntro>
+
+**Introduction: The Cost of a $5 Payment**
+
+Imagine completing an online gig task for $5, only to lose nearly $1.50 in fees just to receive it. Unfortunately, this is the reality for many digital freelancers and creators in the Global South. Cross-border payments—especially tiny “micropayments” under $10—often carry outsized costs and delays. In fact, sending money internationally still costs around 6.5% on average, more than double the 3% target set by the G20 and United Nations. For small payments of a few dollars, fixed fees and unfavorable exchange rates can eat up 10–30% of the value. As a result, a Kenyan microworker might have to wait weeks, accumulating earnings, just to avoid losing a huge chunk to transfer fees. This pain point in today’s gig and creator economy isn’t just about numbers—it directly impacts livelihoods. High fees mean less grocery money, delayed rent, and lost opportunities for the people who often need every dollar the most.
+
+The good news is that emerging payment technologies are poised to change this. Blockchain-based innovations like the Bitcoin Lightning Network already allow near-instant micropayments with minimal fees. Similarly, the Interledger Protocol (ILP)—an open protocol for routing money across different networks—has been used in Web Monetization trials (e.g. by Coil) to stream tiny payments to creators in real time. These new “digital payment rails” hint that sending $0.10 or $1 should be as easy and cheap as sending an email. Yet, despite this promise, there’s a lack of rigorous, apples-to-apples data on how they actually perform for cross-border micropayments. How does Lightning compare to ILP in practice? Can either truly outperform traditional mobile money or bank transfers for a $1 payment from, say, the US to Kenya?
+
+</ReportIntro>
+
+<ReportSection>
+
+## What My Research Aims to Solve
+
+<ReportText type="Paragraph">
+
+My research dives straight into this question: How can we make tiny global payments faster, cheaper, and more reliable—in a way that genuinely works for gig workers and creators around the world? To find out, I am conducting a side-by-side comparison of three payment pathways for micropayments:
+
+- **Interledger Protocol (ILP) connectors** — community-operated nodes that route payments across different currencies and ledgers.
+- **Bitcoin Lightning Network** — Bitcoin’s layer-2 network of payment channels known for instant, low-cost transactions.
+- **Traditional mobile money/banks (via SWIFT)** — for example sending to mobile wallets like M-Pesa or bank accounts, which is the status quo for many remittances.
+
+Over 300 test payments (amounts ranging from $0.10 to $10) will be sent from developed regions (the US, EU, and India) to emerging markets (Kenya and Mexico) using each of these channels. By carefully tracking the total fees, exchange rates, transfer speed, and success/failure rates for each $0.10, $1, and $10 transaction, we’ll get a clear benchmark of what each method offers in the real world. This will be one of the first empirical datasets comparing these next-gen rails (ILP and Lightning) against traditional options for very low-value transfers—filling a critical knowledge gap.
+
+Beyond comparing existing technologies, a core innovation of this work is the design of a smarter way to route payments on ILP. Today’s ILP routing is similar to early internet routing: it doesn’t always account for factors like a connector’s available liquidity or fluctuating currency exchange spreads.
+
+This research proposes a new “cost-aware routing algorithm” for ILP that will dynamically find the cheapest, most reliable path for a payment. In technical terms, it’s a variant of a k-shortest paths algorithm with penalty re-weighting. Simply put, it will analyze multiple routes and select the one that is least costly and most likely to succeed. As a key deliverable, this algorithm will be implemented in a prototype ILP connector (in Rust) and open-sourced for the community.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Why Does This Matter Now?
+
+<ReportText type="Paragraph">
+
+Despite fintech advances, sending small cross-border payments remains prohibitively expensive, with fees often far exceeding the UN's 3% target. For gig workers receiving tiny payouts, this is a critical issue. A recent Kenyan pilot showed that conventional fees on a $5 payment could reach nearly 29%, while an optimized digital route cut that to just 2%—a 93% reduction. This highlights a massive opportunity to increase creator incomes.
+
+The timing for this research is critical. Regulators like the FATF and central banks are actively shaping the future of digital payments and CBDCs. This research is positioned to provide a timely blueprint, demonstrating how to achieve ultra-low-cost, secure transfers that align with modern compliance standards, thereby influencing the development of a more equitable global payment system.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## How We’ll Do It: Methodology in Brief
+
+<ReportText type="Paragraph">
+
+1. **Real-world payment trials:** The empirical phase of this research will involve automating hundreds of micro-transactions across the three channels (ILP, Lightning, traditional). By sending small payments through corridors like US→Kenya and India→Mexico, the study will capture a broad view of performance. Each test will meticulously log the sent vs. received amount, total fees, transfer time, and any errors. Statistical analysis will then be used to determine significant differences in cost and speed between the methods.
+
+2. **Smarter ILP routing prototype:** The core technical component is to build and simulate the new ILP routing algorithm. This involves modeling the payment network as a graph where paths are weighted by fees, liquidity, and FX margins. The algorithm will then compute optimal routes that minimize a total "cost." This prototype will be tested in a controlled simulation of 400 micropayments to measure its performance against the status quo, focusing on fee reduction and success rates.
+
+3. **User and policy insights:** To ground the quantitative findings, the research will incorporate qualitative data by interviewing approximately 30 gig workers in Kenya and Mexico about their payment experiences. Additionally, a policy review will map each payment method against current regulations (like FATF guidance) to identify any compliance gaps and ensure the proposed solutions are responsible and secure.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Expected Impact: Faster Payments, Higher Incomes
+
+<ReportText type="Paragraph">
+
+A core hypothesis of this research is that an optimized ILP routing algorithm could significantly reduce transaction failures and costs. Under the working assumptions on fees of network fees and liquidity spreads, it is hypothesized that the proposed algorithm could reduce fees by an additional 35–50% on top of ILP’s existing low costs. These assumptions are based on publicly available fee structures for ILP connectors, typical liquidity spreads in the US→Kenya and IN→Mexico corridors, and remittance cost benchmarks from recent studies.
+
+If this hypothesis is validated by the research prototype, the potential impact is clear. When combined with the inherent efficiency of ILP and Lightning, we could see total fee reductions on the order of 50–80% compared to traditional methods. For a gig worker in Nairobi who currently loses, say, 10% of each $2 payment, cutting that to 2% effectively means an 8% raise in take-home pay. Aggregated over a year, it’s not trivial—it could mean $100+ more income for an individual, which might cover a month’s rent or enable investment in better tools for their work.
+
+Beyond cost, speed and reliability should improve. Lightning payments are near-instant, and ILP can achieve instant settlement by bridging networks. No more waiting 3–5 days for an international wire to clear. Imagine creators on a platform getting micropayments streaming in by the second as users consume their content—that’s a real possibility with ILP (as demonstrated in Web Monetization trials). Faster receipt of funds can smooth out income volatility for workers, helping them manage cash flow better in their daily lives.
+
+There’s also a broader inclusion win: lower fees make it viable for services to pay out smaller amounts more frequently. A common issue today is that platforms impose minimum payout thresholds (like “you must earn $50 before we pay you”) because doing a $5 international transfer isn’t worth it under current costs. If we prove that $0.50 transfers can be done cost-effectively, it could encourage a shift to more flexible payout models, benefitting those who need quick access to earnings.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Navigating Compliance and Interoperability
+
+<ReportText type="Paragraph">
+
+A key aspect is ensuring cheaper payments are not riskier. For adoption, new technology must align with regulations. This research will examine AML/CFT compliance in detail by evaluating these payment methods against current regulatory frameworks.
+
+Instead of treating compliance generically, this research will investigate several specific, practical questions:
+
+1. **Risk-based controls:** How can ILP connectors and Lightning nodes effectively implement proportionate, risk-based controls (e.g., transaction monitoring and velocity limits) for high-frequency, low-value micropayments without adding prohibitive operational costs that negate the savings? These questions will ensure that emerging payment technologies align with the evolving regulatory landscape and do not inadvertently introduce risks, particularly in areas like transaction monitoring and risk mitigation for cross-border micropayments.
+
+2. **The FATF Travel Rule:** What are the most viable technical and policy solutions for applying the FATF "Travel Rule" (which requires transmitting originator/beneficiary information) to decentralized or multi-hop networks like ILP and Lightning? We will explore models ranging from protocol-level metadata to out-of-band communication channels.
+
+3. **Custodial vs. non-custodial:** How do compliance obligations differ for actors in these corridors (e.g., a US-based platform paying a Kenyan freelancer) depending on whether they are using custodial or non-custodial wallets?
+
+The goal is to provide evidence and analysis that supports modern, risk-based oversight for small transactions.
+
+Instead of picking one network as the winner, we are examining how to make systems like ILP and Lightning work together. A key outcome will be a prototype allowing Interledger to intelligently route a payment through another network if it offers a cheaper or faster path. This interoperability is crucial for creating a unified payment ecosystem that delivers the lowest costs and broadest reach.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Conclusion: Towards Truly Inclusive Payments
+
+<ReportText type="Paragraph">
+
+This work tackles a pressing issue for digital financial inclusion: making micro-remittances viable for those who depend on them. By blending empirical tests, network optimization, and policy analysis, I aim to demonstrate a blueprint for cross-border micropayments that are fast, ultra-low-cost, and compliant. This work directly advances the Interledger Foundation’s mission by improving technology and addressing regulatory dimensions so innovations can flourish responsibly.
+
+If a freelancer in Mexico or a creator in Kenya can receive payments with only a penny on the dollar in fees—as opposed to losing dimes today—the impact is tangible: more stable incomes and progress toward the G20’s cost reduction goals. It’s about empowering people to participate in the global digital economy on fair terms. We’re upgrading the “financial internet” so value can flow as freely as information, no matter the amount.
+
+Financial inclusion is often discussed in big terms, but sometimes it’s the tiny payments that make the biggest difference. By making those tiny global payments work, we move a step closer to an equitable financial future for everyone.
+
+</ReportText>
+
+<ReportText type="References">
+
+- GPFI. (2024). _Update to Leaders on Progress Towards the G20 Remittance Target_. [https://www.gpfi.org/sites/default/files/NEW%202024%20Update%20to%20Leaders%20on%20Progress%20Towards%20the%20G20%20Remittance%20Target.pdf](https://www.gpfi.org/sites/default/files/NEW%202024%20Update%20to%20Leaders%20on%20Progress%20Towards%20the%20G20%20Remittance%20Target.pdf)
+- Mercy Corps Ventures. (2022). _Stablecoin Digital Microwork in Kenya: Pilot Insights Report_ (executive summary). [https://europe.mercycorps.org/sites/default/files/2022-02/Policy_Exec-Summary_MCV-Pilot-Insights-Report_Stablecoin-Digital-Microwork-in-Kenya-Web.pdf](https://europe.mercycorps.org/sites/default/files/2022-02/Policy_Exec-Summary_MCV-Pilot-Insights-Report_Stablecoin-Digital-Microwork-in-Kenya-Web.pdf)
+- Kenyan Wall Street. Crypto micropayments could save Kenyans USD 80 million by drastically reducing cost of cross-border remittances. [https://kenyanwallstreet.com/crypto-could-save-kenyans-usd-80-million-by-in-cross-border-remittances/](https://kenyanwallstreet.com/crypto-could-save-kenyans-usd-80-million-by-in-cross-border-remittances/)
+- Simplex. What is the Bitcoin Lightning Network? Instant, low-cost BTC payments explained. [https://www.simplex.com/what-is-the-bitcoin-lightning-network](https://www.simplex.com/what-is-the-bitcoin-lightning-network)
+- W3C. (2019). Interview: Coil on Interledger Protocol and Web Monetization. [https://www.w3.org/blog/2019/w3c-interview-coil-on-interledger-protocol-and-web-monetization/](https://www.w3.org/blog/2019/w3c-interview-coil-on-interledger-protocol-and-web-monetization/)
+
+</ReportText>
+
+</ReportSection>
