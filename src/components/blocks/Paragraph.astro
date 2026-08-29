@@ -17,10 +17,10 @@ const alignmentClass =
       ? 'text-right'
       : ''
 
-// A CTA that directly follows a paragraph belongs to that paragraph, so the
-// two sit closer together than two independent blocks do: 24px up to desktop
-// and 32px from there (Radu, 2026-08-12). The gap under the CTA stays the
-// standard 120px, which CtaLink supplies itself.
+// A CTA that directly follows a paragraph belongs to that paragraph, so
+// Paragraph tightens the pair (24px, 32px from desktop). CtaLink owns
+// mb-section below; the prose container only supplies the gap for
+// ordinary blocks.
 //
 // `:has(+ .cta-link)` lets the paragraph react to what follows it, so neither
 // the editor nor the MDX author has to mark the pair up. Written as a literal
@@ -35,9 +35,7 @@ const CTA_PAIR_SPACING =
   '[&:has(+.cta-link)]:mb-xl desktop:[&:has(+.cta-link)]:mb-2xl [&:has(+.cta-link)>*:last-child]:mb-0'
 
 const hasContent = content != null && content !== ''
-const className = [alignmentClass, 'mb-6xl', CTA_PAIR_SPACING]
-  .filter(Boolean)
-  .join(' ')
+const className = [alignmentClass, CTA_PAIR_SPACING].filter(Boolean).join(' ')
 const htmlContent = hasContent
   ? await parseMarkdown(content, {
       page: umamiContext,

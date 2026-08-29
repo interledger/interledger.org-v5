@@ -32,14 +32,16 @@ const {
 } = Astro.props
 
 // Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so that
-// gap is tight (24px, 32px from desktop) and the gap below is the full block
-// gap of 120px. `Paragraph` tightens its own bottom margin when it sees
-// `.cta-link` next to it, and the 120px below comes from here. Before this the
+// gap is tight (24px, 32px from desktop) and the gap below is the standard
+// section gap. `Paragraph` tightens its own bottom margin when it sees
+// `.cta-link` next to it, and the gap below comes from here. Before this the
 // CTA had no margin at all, so the following heading sat flush against it
 // (INTORG-1045).
 //
-// `cta-link` is the hook `Paragraph` matches on. Keep the two in step.
-const spacingClass = 'cta-link mb-6xl'
+// The block owns its spacing, so prose/rhythm.css skips `.cta-link` rather
+// than giving it the section gap on both sides. `cta-link` is also the hook
+// `Paragraph` matches on. Keep all three in step.
+const spacingClass = 'cta-link mb-section [&:last-child]:mb-0'
 
 const resolved = resolveCtaLink({
   url: link,

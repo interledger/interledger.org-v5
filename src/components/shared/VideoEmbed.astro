@@ -45,7 +45,7 @@ const embedPosterQuality = 'max' as const
 
 {
   provider === 'youtube' ? (
-    <div class={embedWrapperClass}>
+    <div class={embedWrapperClass} data-component="VideoEmbed">
       <YouTube
         id={url}
         playlabel={title}
@@ -54,7 +54,7 @@ const embedPosterQuality = 'max' as const
       />
     </div>
   ) : provider === 'vimeo' ? (
-    <div class={embedWrapperClass}>
+    <div class={embedWrapperClass} data-component="VideoEmbed">
       <Vimeo
         id={url}
         playlabel={title}
@@ -63,7 +63,7 @@ const embedPosterQuality = 'max' as const
       />
     </div>
   ) : provider === 'file' ? (
-    <div class={embedWrapperClass}>
+    <div class={embedWrapperClass} data-component="VideoEmbed">
       <video
         src={url}
         poster={posterSrc}

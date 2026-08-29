@@ -68,7 +68,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
   data-component="EventCard"
   aria-label={heading ? undefined : t('eventCard.block_label')}
   aria-labelledby={headingId}
-  class:list={['mb-6xl w-full', heading && 'flex flex-col gap-block-heading']}
+  class:list={['w-full', heading && 'flex flex-col gap-block-heading']}
 >
   {
     heading && headingId && (

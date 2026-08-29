@@ -56,8 +56,13 @@ const innerClasses = twMerge(
     'flex-col-reverse tablet:flex-col desktop:flex-row-reverse'
 )
 
+// `gap-xl` owns the space between the heading, the copy and the CTA. The
+// children must give up their own margins for that to hold: a flex gap does
+// not collapse with a margin, it adds to it. `prose/default.css` gives every
+// h2 and p a 32px bottom margin, so the column read 56px instead of 24px
+// (Radu, 2026-08-28).
 const textColumnClasses = twMerge(
-  'flex flex-col items-stretch gap-xl',
+  'flex flex-col items-stretch gap-xl [&>*]:my-0',
   'tablet:items-start',
   '[&>*]:tablet:animate-rise-in-view',
   'desktop:flex-1 desktop:min-w-0',

@@ -81,7 +81,7 @@ const Layout = getSectionPageLayout(section)
 
 <Layout title={title} description={description}>
   <main
-    class="flex flex-col px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] pb-6xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
   >
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
@@ -131,7 +131,7 @@ const Layout = getSectionPageLayout(section)
           <section
             data-prose
             aria-label={t('report.body')}
-            class="flex flex-col gap-3xl mt-4xl *:data-footnotes:order-last"
+            class="flex flex-col gap-3xl mt-section *:data-footnotes:order-last"
           >
             {sections.length > 0 ? (
               // CSS grid, not flex, so the auto-generated footnotes section
