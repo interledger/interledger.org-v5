@@ -36,7 +36,7 @@ const topics = [
 ] as const
 
 const inputClasses =
-  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors'
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
 
 const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 
@@ -157,11 +157,17 @@ const optionClasses = [
                   required
                   aria-required="true"
                   autocomplete="email"
+                  inputmode="email"
                   class={inputClasses}
                   aria-describedby="email-help"
+                  data-error-required={t('contact.error.email_required')}
+                  data-error-invalid={t('contact.error.email_invalid')}
                 />
                 <p id="email-help" class={helperClasses}>
                   {t('contact.email.placeholder')}
+                </p>
+                <p id="email-error" class={errorClasses} role="alert">
+                  {t('contact.error.email_invalid')}
                 </p>
               </div>
 
@@ -236,7 +242,11 @@ const optionClasses = [
                   rows="6"
                   maxlength="3000"
                   class={`${inputClasses} resize-y`}
-                  aria-describedby="message-help"></textarea>
+                  data-error-required={t('contact.error.message_required')}
+                ></textarea>
+                <p id="message-error" class={errorClasses} role="alert">
+                  {t('contact.error.message_required')}
+                </p>
               </div>
 
               <div class="flex flex-col gap-s">
@@ -291,6 +301,16 @@ const optionClasses = [
 </FoundationPageLayout>
 
 <script>
+  // Client script: the @/utils barrel re-exports astro:content modules
+  // (static-paths, translationMap) that Vite cannot bundle for the browser.
+  import {
+    bindEmailFieldValidation,
+    resolveRequiredFieldErrorMessage,
+    revealFormError,
+    setFieldInvalid,
+    setSubmitButtonBusy
+  } from '@/utils/shared/formFieldValidation'
+
   const successEl = document.getElementById('success-message')
   const formWrapper = document.getElementById('form-wrapper')
   const form = document.getElementById('contact-form') as HTMLFormElement | null
@@ -298,6 +318,13 @@ const optionClasses = [
     'contact-submit'
   ) as HTMLButtonElement | null
   const submitLabel = document.getElementById('contact-submit-label')
+  const emailInput = document.getElementById('email') as HTMLInputElement | null
+  const emailError = document.getElementById('email-error')
+  const messageInput = document.getElementById(
+    'message'
+  ) as HTMLTextAreaElement | null
+  const messageError = document.getElementById('message-error')
+  let attemptedSubmit = false
 
   // Success state
   const params = new URLSearchParams(window.location.search)
@@ -420,35 +447,45 @@ const optionClasses = [
     }
   })
 
-  function showError(el: HTMLElement | null) {
-    el?.classList.remove('hidden')
-    el?.focus()
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  const syncEmailError = emailInput
+    ? bindEmailFieldValidation({
+        input: emailInput,
+        errorEl: emailError,
+        getAttemptedSubmit: () => attemptedSubmit,
+        helpId: 'email-help'
+      })
+    : () => false
+
+  function syncMessageError(): boolean {
+    if (!messageInput) return false
+    const message = resolveRequiredFieldErrorMessage(
+      messageInput.validity,
+      messageInput.dataset.errorRequired ?? ''
+    )
+    return setFieldInvalid(messageInput, messageError, message)
   }
 
   function setSubmitting(busy: boolean) {
-    if (!submitBtn) return
-    submitBtn.disabled = busy
-    submitBtn.setAttribute('aria-busy', busy ? 'true' : 'false')
-    const defaultLabel = submitBtn.dataset.labelDefault ?? ''
-    const busyLabel = submitBtn.dataset.labelBusy ?? defaultLabel
-    if (submitLabel) {
-      submitLabel.textContent = busy ? busyLabel : defaultLabel
-    }
-    submitBtn.classList.toggle('opacity-70', busy)
-    submitBtn.classList.toggle('pointer-events-none', busy)
+    setSubmitButtonBusy(submitBtn, submitLabel, busy)
   }
+
+  messageInput?.addEventListener('input', () => {
+    if (attemptedSubmit) syncMessageError()
+  })
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
+    attemptedSubmit = true
     const recaptchaError = document.getElementById('recaptcha-error')
     const submitError = document.getElementById('submit-error')
 
     recaptchaError?.classList.add('hidden')
     submitError?.classList.add('hidden')
 
-    if (!form.checkValidity()) {
-      form.reportValidity()
+    const emailInvalid = syncEmailError()
+    const messageInvalid = syncMessageError()
+    if (emailInvalid || messageInvalid) {
+      ;(emailInvalid ? emailInput : messageInput)?.focus()
       return
     }
 
@@ -458,7 +495,7 @@ const optionClasses = [
       ) as HTMLTextAreaElement | null
     )?.value?.trim()
     if (!recaptchaDone) {
-      showError(recaptchaError)
+      revealFormError(recaptchaError)
       return
     }
 
@@ -480,7 +517,7 @@ const optionClasses = [
     } catch (err) {
       console.error(err)
       setSubmitting(false)
-      showError(submitError)
+      revealFormError(submitError)
     }
   })
 </script>

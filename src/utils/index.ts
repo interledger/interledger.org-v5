@@ -35,6 +35,16 @@ export {
   imageSizeLimitError,
   isImageOverSizeLimit
 } from './shared/uploadLimits'
+export {
+  constraintErrorKind,
+  emailConstraintErrorKind,
+  isValidEmailAddress,
+  type ConstraintErrorKind
+} from './shared/formConstraints'
+// formFieldValidation is DOM-only (client <script> tags), not exported here:
+// importing @/utils from a client script pulls in astro:content-dependent
+// main-lane modules and breaks the browser bundle. Import the subpath
+// directly (@/utils/shared/formFieldValidation) as ContactPage/SubscribePage do.
 
 // Main site: URL & routing
 export {

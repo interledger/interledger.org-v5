@@ -19,6 +19,7 @@ export default defineConfig({
         // Generated output and test fixtures aren't ours to test.
         'src/generated/**',
         'src/data/roadmap/fixture.ts',
+        'src/utils/shared/formValidity.fixture.ts',
         // Declarative Astro collection config, exercised by the build not by tests.
         'src/content.config.ts'
       ],

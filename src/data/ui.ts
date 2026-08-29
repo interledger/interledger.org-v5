@@ -234,6 +234,9 @@ export const ui = {
     'contact.error.captcha': 'Please complete the reCAPTCHA challenge.',
     'contact.error.submit':
       'Something went wrong sending your message. Please try again.',
+    'contact.error.email_required': 'Enter an email address.',
+    'contact.error.email_invalid': 'Enter a valid email address.',
+    'contact.error.message_required': 'Enter a message.',
     'subscribe.title': 'Subscribe to the Interledger Newsletter',
     'subscribe.description':
       'Subscribe to the Interledger Foundation newsletter for grant opportunities, event access, and community updates.',
@@ -262,6 +265,8 @@ export const ui = {
       'Policy, regulation, or governance of digital financial infrastructure',
     'subscribe.interest.grants': 'Interledger grants and funding opportunities',
     'subscribe.error.interest': 'Please select at least one area of interest.',
+    'subscribe.error.email_required': 'Enter your email address.',
+    'subscribe.error.email_invalid': 'Enter a valid email address.',
     'subscribe.consent_communications_intro':
       "Interledger Foundation is committed to protecting and respecting your privacy, and we'll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, and our partners as well as other content that may be of interest to you. If you consent to us contacting you for this purpose, please tick below to say how you would like us to contact you:",
     'subscribe.consent_communications_label':
@@ -580,6 +585,9 @@ export const ui = {
     'contact.success_thanks': '',
     'contact.error.captcha': '',
     'contact.error.submit': '',
+    'contact.error.email_required': '',
+    'contact.error.email_invalid': '',
+    'contact.error.message_required': '',
     'subscribe.title': '',
     'subscribe.description': '',
     'subscribe.intro': '',
@@ -599,6 +607,8 @@ export const ui = {
     'subscribe.interest.shift_system': '',
     'subscribe.interest.grants': '',
     'subscribe.error.interest': '',
+    'subscribe.error.email_required': '',
+    'subscribe.error.email_invalid': '',
     'subscribe.consent_communications_intro': '',
     'subscribe.consent_communications_label': '',
     'subscribe.consent_processing_intro': '',
