@@ -90,7 +90,12 @@
        hugs a heading or a list as closely as it hugs a paragraph.
 
        `[data-component]` is the block's own marker attribute, set in
-       `CtaButtons.astro`. Keep the two in step. */
+       `CtaButtons.astro`. Keep the two in step.
+
+       This rule only sees a bare element. When the markdown is wrapped in a
+       `Paragraph` block, `prose/rhythm.css` does the same job for the wrapper,
+       and it also keeps `CtaButtons` out of the section rhythm. Three places,
+       one behaviour. */
     :is(p, h2, h3, h4, h5, h6, ul, ol):has(
         + [data-component='CtaButtons']
       ) {

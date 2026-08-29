@@ -1,37 +1,70 @@
 export const redirects = {
   // Foundation + site pages
-  '/community': '/get-involved',
+  '/get-involved': '/community',
   '/today': '/developers/rfcs/interledger-protocol/',
   '/developers/roadmap': '/tech/roadmap',
   '/about': '/about-us',
-  '/open-standards': '/tech/overview',
   '/overview': '/tech/overview/',
   '/mission': '/about-us',
   '/values': '/about-us',
   '/vision': '/about-us',
   '/terms-service': '/terms-of-service',
-  '/financial-services': '/grant/financial-services',
+  '/financial-services': '/grant/innovation/financial-services',
+  '/grant/financial-services': '/grant/innovation/financial-services',
   '/education': '/grant/education',
+  '/grant-web': '/grant/innovation/grant-web',
+  '/grant/grant-web': '/grant/innovation/grant-web',
+  '/grant/open-payments-sdk': '/grant/innovation/sdk',
+  '/grant/open-payments-accelerator': '/grant/innovation/accelerator',
+  '/hacktoberfest-0': '/tech/hacktoberfest',
+  '/hacktoberfest-2023': '/tech/hacktoberfest',
+  '/hacktoberfest': '/tech/hacktoberfest',
   '/ambassadors': '/grant/fellowship',
-  '/grant-web': '/grant/grant-web',
-  '/hacktoberfest-0': '/hacktoberfest',
-  '/hacktoberfest-2023': '/hacktoberfest',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
-  '/grant': '/grant/our-grantmaking',
-  '/grants': '/grant/our-grantmaking',
-  '/grants/our-grantmaking': '/grant/our-grantmaking',
-  '/grantee-directory': '/grant/grantee-directory',
-  '/grant/grantee-database': '/grant/grantee-directory',
+  '/interledger': '/tech/interledger-protocol',
+  '/open-payments': '/tech/open-payments',
+  '/web-monetization': '/tech/web-monetization',
+  '/developers': '/tech/dev-portal',
+  '/developers/roadmap': '/tech/roadmap',
+  '/grant/local-impact': '/grant/local-impact-grant',
+  '/art': '/grant/future-money/',
+  '/media': '/press',
+  '/open-payments-accelerator': '/grant/innovation/accelerator',
+  '/team/team-member-hackathon-2025-judge-sabine-schaller': '/team',
+  '/team/chris-lawrence': '/team',
+  '/team/alex-shin': '/team',
+
+  // Policy and advocacy pages
+  '/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/network-fees-interledger-ecosystem':
+    '/policy-and-advocacy/network-fees-interledger-ecosystem',
+  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/es/policy-and-advocacy/security-profile-interledger',
+  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
 
   // Foundation + site pages (Spanish)
-  '/es/open-payments-es': '/es/open-payments',
-  '/es/servicios-financieros-digitales': '/es/grant/financial-services',
+  '/es/interledger': '/es/tech/interledger-protocol',
+  '/es/open-payments': '/es/tech/open-payments',
+  '/es/web-monetization': '/es/tech/web-monetization',
+  '/es/open-payments-es': '/es/tech/open-payments',
+  '/es/servicios-financieros-digitales':
+    '/es/grant/innovation/financial-services',
+  '/es/grant/servicios-financieros-digitales':
+    '/es/grant/innovation/financial-services',
   '/es/educacion': '/es/grant/education',
-  '/es/embajadores': '/es/grant/ambassadors',
-  '/es/grant-web': '/es/grant/grant-web',
+  '/es/embajadores': '/es/grant/fellowship',
+  '/es/grant-web': '/es/grant/innovation/grant-web',
   '/es/grant/educacion': '/es/grant/education',
-  '/es/grant/embajadores': '/es/grant/ambassadors',
+  '/es/grant/embajadores': '/es/grant/fellowship',
   '/es/grant/ambassadors': '/es/grant/fellowship',
   '/es/grant/ambassadors/faq': '/es/grant/fellowship/faq',
   '/es/grant': '/es/grant/our-grantmaking',
@@ -40,6 +73,21 @@ export const redirects = {
   '/es/grantee-directory': '/es/grant/grantee-directory',
   '/es/grant/grantee-database': '/es/grant/grantee-directory',
   '/es/contacto': '/es/contact',
+  '/es/grant/open-payments-sdk': '/es/grant/innovation/sdk',
+  '/es/node/1760': '/es/grant/innovation/accelerator',
+  '/es/grant/grant-web': '/es/grant/innovation/grant-web',
+  '/es/node/1774': '/es/grant/local-impact-grant',
+  '/es/art': '/es/grant/future-money/',
+  '/es/politica-y-defensa': '/es/policy-and-advocacy',
+  '/es/politica-defensa': '/es/policy-and-advocacy',
+  '/es/eventos': '/es/events',
+  '/es/hacktoberfest': '/es/tech/hacktoberfest',
+  '/es/equipo': '/es/team',
+  '/es/involucrese': '/es/community',
+  '/es/medios': '/es/press',
+  '/es/sobre-nosotros': '/about-us',
+  '/es/suscribase': '/es/subscribe',
+  '/es/estandares-abiertos': '/es/tech/overview',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
@@ -51,7 +99,9 @@ export const redirects = {
   '/news/village-banking-stokvels-and-saccos-are-transforming-financial-access':
     '/blog/transforming-financial-access',
   '/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
-    '/news/reflections-2025-payments-canada-summit',
+    '/blog/reflections-2025-payments-canada-summit',
+  '/news/construyendo-el-futuro-juntos-student-hacks-mexico-2026':
+    '/blog/building-future-together-student-hacks-mexico-2026',
 
   // Foundation blog: /news merged into /blog.
   '/news/2025-digital-financial-services-grant':
@@ -264,135 +314,231 @@ export const redirects = {
   '/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken':
     '/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken',
 
-  // Spanish developer blog content
-  '/developers/blog/es': '/es/blog',
-  '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
-    '/es/blog/el-universo-interledger',
+  // Foundation blog (Spanish): the site was translated, so every /news
+  // entry above needs a matching /es/news -> /es/blog redirect.
+  '/es/news/interledger-foundation-partners-here-support-waag':
+    '/es/blog/interledger-foundation-partners-waag-and-here-support',
+  '/es/news/interledger-foundation-accepting-letters-intent-loi-institutions-seeking-shape-future-digital':
+    '/es/blog/shaping-future-digital-finance',
+  '/es/news/village-banking-stokvels-and-saccos-are-transforming-financial-access':
+    '/es/blog/transforming-financial-access',
+  '/es/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
+    '/es/blog/reflections-2025-payments-canada-summit',
+  '/es/news/2025-digital-financial-services-grant':
+    '/es/blog/2025-digital-financial-services-grant',
+  '/es/news/2025-digital-financial-services-grant-recipient-miplata':
+    '/es/blog/2025-digital-financial-services-grant-recipient-miplata',
+  '/es/news/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations':
+    '/es/blog/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations',
+  '/es/news/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro':
+    '/es/blog/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro',
+  '/es/news/ad-filtering-dev-summit-23-web-monetization-100-ad-filter':
+    '/es/blog/ad-filtering-dev-summit-23-web-monetization-100-ad-filter',
+  '/es/news/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem':
+    '/es/blog/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem',
+  '/es/news/announcing-awardees-interledger-nextgen-higher-education-grant-program':
+    '/es/blog/announcing-awardees-interledger-nextgen-higher-education-grant-program',
+  '/es/news/announcing-formal-launch-interledger-foundation':
+    '/es/blog/announcing-formal-launch-interledger-foundation',
+  '/es/news/announcing-interledger-foundations-web-monetization-extension-beta-release':
+    '/es/blog/announcing-interledger-foundations-web-monetization-extension-beta-release',
+  '/es/news/announcing-new-ilp-testnet-wallet':
+    '/es/blog/announcing-new-ilp-testnet-wallet',
+  '/es/news/announcing-twelve-recipients-our-financial-services-awards':
+    '/es/blog/announcing-twelve-recipients-our-financial-services-awards',
+  '/es/news/are-financial-rights-human-rights':
+    '/es/blog/are-financial-rights-human-rights',
+  '/es/news/banking-without-banks-what-africa-can-teach-us-about-financial-access':
+    '/es/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access',
+  '/es/news/beyond-hackathon-building-future-open-payments-through-collaboration':
+    '/es/blog/beyond-hackathon-building-future-open-payments-through-collaboration',
+  '/es/news/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives':
+    '/es/blog/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives',
+  '/es/news/bridging-technology-and-policy':
+    '/es/blog/bridging-technology-and-policy',
+  '/es/news/building-future-cross-border-remittances-chimoney-and-interledger':
+    '/es/blog/building-future-cross-border-remittances-chimoney-and-interledger',
+  '/es/news/building-real-solutions-interledger-hackathon-winners-2025':
+    '/es/blog/building-real-solutions-interledger-hackathon-winners-2025',
+  '/es/news/call-papers-program': '/es/blog/call-papers-program',
+  '/es/news/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle':
+    '/es/blog/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle',
+  '/es/news/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems':
+    '/es/blog/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems',
+  '/es/news/collaborative-work-week-peoples-clearinghouse':
+    '/es/blog/collaborative-work-week-peoples-clearinghouse',
+  '/es/news/designing-digital-money-2026-blog-series':
+    '/es/blog/designing-digital-money-2026-blog-series',
+  '/es/news/digital-financial-inclusion-igniting-sustainable-development-goals':
+    '/es/blog/digital-financial-inclusion-igniting-sustainable-development-goals',
+  '/es/news/exploring-community-based-identification-systems':
+    '/es/blog/exploring-community-based-identification-systems',
+  '/es/news/financial-inclusion-20-financial-cooperatives-enabling-inclusivity':
+    '/es/blog/financial-inclusion-20-financial-cooperatives-enabling-inclusivity',
+  '/es/news/fliqa-integrates-interledger-power-open-interoperable-payments':
+    '/es/blog/fliqa-integrates-interledger-power-open-interoperable-payments',
+  '/es/news/future-banking-and-payments-digital':
+    '/es/blog/future-banking-and-payments-digital',
+  '/es/news/future-financial-inclusion-starts-trust':
+    '/es/blog/future-financial-inclusion-starts-trust',
+  '/es/news/get-hacking': '/es/blog/get-hacking',
+  '/es/news/grantee-report-quarterly-roundup':
+    '/es/blog/grantee-report-quarterly-roundup',
+  '/es/news/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions':
+    '/es/blog/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions',
+  '/es/news/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda':
+    '/es/blog/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda',
+  '/es/news/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions':
+    '/es/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions',
+  '/es/news/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon':
+    '/es/blog/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon',
+  '/es/news/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger':
+    '/es/blog/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger',
+  '/es/news/hacktoberfest-interledger-2025-open-source-celebration':
+    '/es/blog/hacktoberfest-interledger-2025-open-source-celebration',
+  '/es/news/hacktoberfest-interledger-join-open-payments-movement':
+    '/es/blog/hacktoberfest-interledger-join-open-payments-movement',
+  '/es/news/hacktoberfest-interledger-pay-web-forward':
+    '/es/blog/hacktoberfest-interledger-pay-web-forward',
+  '/es/news/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion':
+    '/es/blog/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion',
+  '/es/news/highlights-afrilabs-2024': '/es/blog/highlights-afrilabs-2024',
+  '/es/news/history-and-promise-interledger-qa-co-founder-stefan-thomas':
+    '/es/blog/history-and-promise-interledger-qa-co-founder-stefan-thomas',
+  '/es/news/how-interledger-protocol-ilp-powers-web-monetization':
+    '/es/blog/how-interledger-protocol-ilp-powers-web-monetization',
+  '/es/news/inside-usiu-africa-open-payments-workshop-what-students-built':
+    '/es/blog/inside-usiu-africa-open-payments-workshop-what-students-built',
+  '/es/news/insights-futuremoney-podcast-interledger-campus':
+    '/es/blog/insights-futuremoney-podcast-interledger-campus',
+  '/es/news/interledger-campus': '/es/blog/interledger-campus',
+  '/es/news/interledger-comes-colombia-help-build-internet-opportunity':
+    '/es/blog/interledger-comes-colombia-help-build-internet-opportunity',
+  '/es/news/interledger-foundation-and-bowie-state-create-new-partnership':
+    '/es/blog/interledger-foundation-and-bowie-state-create-new-partnership',
+  '/es/news/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital':
+    '/es/blog/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital',
+  '/es/news/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company':
+    '/es/blog/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company',
+  '/es/news/interledger-foundation-announces-newest-grantee-mifos-initiative':
+    '/es/blog/interledger-foundation-announces-newest-grantee-mifos-initiative',
+  '/es/news/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media':
+    '/es/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media',
+  '/es/news/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web':
+    '/es/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web',
+  '/es/news/interledger-foundation-launches-interledger-campus-grant-program-support-student-led':
+    '/es/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led',
+  '/es/news/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation':
+    '/es/blog/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation',
+  '/es/news/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial':
+    '/es/blog/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial',
+  '/es/news/interledger-foundation-partners-bowie-state-university':
+    '/es/blog/interledger-foundation-partners-bowie-state-university',
+  '/es/news/interledger-foundation-partners-chimoney':
+    '/es/blog/interledger-foundation-partners-chimoney',
+  '/es/news/interledger-foundation-partners-waag-and-here-support':
+    '/es/blog/interledger-foundation-partners-waag-and-here-support',
+  '/es/news/interledger-foundation-partners-wallet-guru':
+    '/es/blog/interledger-foundation-partners-wallet-guru',
+  '/es/news/interledger-hackathon-intro-open-payments-live-qa-ilf-experts':
+    '/es/blog/interledger-hackathon-intro-open-payments-live-qa-ilf-experts',
+  '/es/news/interledger-internet-governance-forum-2025':
+    '/es/blog/interledger-internet-governance-forum-2025',
+  '/es/news/interledger-summit-workshop-week':
+    '/es/blog/interledger-summit-workshop-week',
+  '/es/news/introducing-2024-digital-money-blog-series':
+    '/es/blog/introducing-2024-digital-money-blog-series',
+  '/es/news/introducing-2025-interledger-foundation-ambassadors-cohort':
+    '/es/blog/introducing-2025-interledger-foundation-ambassadors-cohort',
+  '/es/news/introducing-besspay-plugin-project':
+    '/es/blog/introducing-besspay-plugin-project',
+  '/es/news/introducing-parliamentarian-track-interledger-summit-2024':
+    '/es/blog/introducing-parliamentarian-track-interledger-summit-2024',
+  '/es/news/july-2025-quarterly-roundup':
+    '/es/blog/july-2025-quarterly-roundup',
+  '/es/news/kanzu-microloans-real-time-credit-access-underserved':
+    '/es/blog/kanzu-microloans-real-time-credit-access-underserved',
+  '/es/news/making-money-move-julaire-halls-mission-financial-inclusion':
+    '/es/blog/making-money-move-julaire-halls-mission-financial-inclusion',
+  '/es/news/mexico-joins-interledger-network':
+    '/es/blog/mexico-joins-interledger-network',
+  '/es/news/mobile-money-ecosystem-africa':
+    '/es/blog/mobile-money-ecosystem-africa',
+  '/es/news/mobile-money-ecosystem-asia-pacific':
+    '/es/blog/mobile-money-ecosystem-asia-pacific',
+  '/es/news/mobile-money-ecosystem-europe':
+    '/es/blog/mobile-money-ecosystem-europe',
+  '/es/news/mobile-money-ecosystem-latin-america-and-caribbean':
+    '/es/blog/mobile-money-ecosystem-latin-america-and-caribbean',
+  '/es/news/mobile-money-ecosystem-north-america':
+    '/es/blog/mobile-money-ecosystem-north-america',
+  '/es/news/multiple-sides-friction-good-bad-and-how-use-it':
+    '/es/blog/multiple-sides-friction-good-bad-and-how-use-it',
+  '/es/news/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico':
+    '/es/blog/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico',
+  '/es/news/open-design-confronting-harmful-patterns-digital-finance':
+    '/es/blog/open-design-confronting-harmful-patterns-digital-finance',
+  '/es/news/open-payments-help-roscas-modernise-global-impact':
+    '/es/blog/open-payments-help-roscas-modernise-global-impact',
+  '/es/news/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time':
+    '/es/blog/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time',
+  '/es/news/rafiki-remit-advancing-seamless-remittances-pakistan':
+    '/es/blog/rafiki-remit-advancing-seamless-remittances-pakistan',
+  '/es/news/redefining-financial-inclusion-chimoney':
+    '/es/blog/redefining-financial-inclusion-chimoney',
+  '/es/news/reflections-2025-payments-canada-summit':
+    '/es/blog/reflections-2025-payments-canada-summit',
+  '/es/news/reflections-un-open-source-week-2025':
+    '/es/blog/reflections-un-open-source-week-2025',
+  '/es/news/reimagining-e-commerce-and-social-media':
+    '/es/blog/reimagining-e-commerce-and-social-media',
+  '/es/news/revolutionizing-global-payouts-and-boosting-financial-inclusion':
+    '/es/blog/revolutionizing-global-payouts-and-boosting-financial-inclusion',
+  '/es/news/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota':
+    '/es/blog/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota',
+  '/es/news/shanghai-flip-phones-and-robots-interledger-engineering-adventure':
+    '/es/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure',
+  '/es/news/shaping-future-digital-finance':
+    '/es/blog/shaping-future-digital-finance',
+  '/es/news/strategic-shift-interledger-foundation':
+    '/es/blog/strategic-shift-interledger-foundation',
+  '/es/news/transforming-financial-access':
+    '/es/blog/transforming-financial-access',
+  '/es/news/turning-headlines-backyard-conversations-lessons-2025-ofn-conference':
+    '/es/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference',
+  '/es/news/uct-financial-innovation-hub-and-interledger-foundation-hackathon':
+    '/es/blog/uct-financial-innovation-hub-and-interledger-foundation-hackathon',
+  '/es/news/unleashing-real-time-potential-streaming-payments':
+    '/es/blog/unleashing-real-time-potential-streaming-payments',
+  '/es/news/web-isnt-free': '/es/blog/web-isnt-free',
+  '/es/news/web-monetization-meets-googles-offerwall':
+    '/es/blog/web-monetization-meets-googles-offerwall',
+  '/es/news/welcome-our-new-ambassadors':
+    '/es/blog/welcome-our-new-ambassadors',
+  '/es/news/whats-happened-april': '/es/blog/whats-happened-april',
+  '/es/news/whats-happened-august': '/es/blog/whats-happened-august',
+  '/es/news/whats-happened-december': '/es/blog/whats-happened-december',
+  '/es/news/whats-happened-july': '/es/blog/whats-happened-july',
+  '/es/news/whats-happened-june': '/es/blog/whats-happened-june',
+  '/es/news/whats-happened-march-news-updates-global-trends':
+    '/es/blog/whats-happened-march-news-updates-global-trends',
+  '/es/news/whats-happened-may': '/es/blog/whats-happened-may',
+  '/es/news/whats-happened-september': '/es/blog/whats-happened-september',
+  '/es/news/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia':
+    '/es/blog/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia',
+  '/es/news/why-campuses-are-becoming-testbeds-digital-finance':
+    '/es/blog/why-campuses-are-becoming-testbeds-digital-finance',
+  '/es/news/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic':
+    '/es/blog/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic',
+  '/es/news/why-we-funded-research-who-gets-left-out-instant-payments':
+    '/es/blog/why-we-funded-research-who-gets-left-out-instant-payments',
+  '/es/news/why-we-weighed-federal-reserves-payment-account-proposal':
+    '/es/blog/why-we-weighed-federal-reserves-payment-account-proposal',
+  '/es/news/work-weeks-2025-building-future-financial-interoperability-heart-transylvania':
+    '/es/blog/work-weeks-2025-building-future-financial-interoperability-heart-transylvania',
+  '/es/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken':
+    '/es/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken',
 
-  // Summit pages
-  '/summit/key-information': '/summit/media-kit',
-  '/summit/2025-summit-schedule': '/summit/schedule',
-  '/summit/code-of-conduct': '/hackathon/code-conduct',
-
-  // Summit pages (Spanish)
-  '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
-
-  // Hackathon microsite.
-  //
-  // Every hackathon path from the old site lands on one of the five live pages:
-  // overview, participation, faq, open-payments, code-conduct. Targets are
-  // checked against those routes on purpose. Astro does not follow a redirect
-  // chain, so a redirect whose target is itself a redirect serves a 404.
-  //
-  // The 2024 and 2025 event resource pages (venue, schedule, judging,
-  // submission, presentations, ideation framework, use cases, glossary) are all
-  // gone. Their nearest live equivalent is the resources page or the FAQ.
-  '/hackathon': '/hackathon/overview',
-  '/hackathons': '/hackathon/overview',
-  '/hackathons/overview': '/hackathon/overview',
-  '/hackathon/faqs': '/hackathon/faq',
-  '/hackathons/faqs': '/hackathon/faq',
-  '/hackathon/participation-requirements': '/hackathon/participation',
-  '/hackathons/participation': '/hackathon/participation',
-  '/hackathon/resources': '/hackathon/open-payments',
-  '/hackathons/resources': '/hackathon/open-payments',
-  '/hackathon/resources/documentation': '/hackathon/open-payments',
-  '/hackathon/code-of-conduct': '/hackathon/code-conduct',
-  '/hackathons/code-conduct': '/hackathon/code-conduct',
-  '/summit/hackathon': '/hackathon/overview',
-  '/summit/hackathon-2024': '/hackathon/overview',
-  '/summit/hackathon-venue': '/hackathon/overview',
-  '/summit/hackathon/schedule': '/hackathon/overview',
-  '/summit/hackathon/participation': '/hackathon/participation',
-  // The summit nav still links this exact path in both locales.
-  '/summit/hackathon/participation-requirements': '/hackathon/participation',
-  '/summit/hackathon/faqs': '/hackathon/faq',
-  '/summit/hackathon/resources': '/hackathon/open-payments',
-  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
-  '/summit/hackathon/resources/glossary': '/hackathon/open-payments',
-  '/summit/hackathon/resources/documentation/glossary':
-    '/hackathon/open-payments',
-  '/summit/hackathon-glossary-documentation': '/hackathon/open-payments',
-  '/summit/open-payments-and-hackathon-resources': '/hackathon/open-payments',
-  '/summit/open-payments-and-hackathon-documentation':
-    '/hackathon/open-payments',
-  '/summit/open-payments-use-cases': '/hackathon/open-payments',
-  '/summit/openai-api-onboarding-guide': '/hackathon/open-payments',
-  '/summit/presentations': '/hackathon/open-payments',
-  '/summit/ideation-framework': '/hackathon/open-payments',
-  '/summit/2025-judging-process-and-criteria': '/hackathon/faq',
-  '/summit/judging-process-and-criteria': '/hackathon/faq',
-  '/summit/submitting-your-solution': '/hackathon/faq',
-  '/summit/code-conduct': '/hackathon/code-conduct',
-
-  // Hackathon microsite (Spanish).
-  //
-  // Spanish URLs no longer carry Spanish words. Every ES path is
-  // /es/<the same EN pathname>, so the old hackaton/programa and
-  // preguntas-frecuentes forms redirect into the EN slug under /es.
-  '/es/hackathon': '/es/hackathon/overview',
-  '/es/hackathons': '/es/hackathon/overview',
-  '/es/hackathons/overview': '/es/hackathon/overview',
-  '/es/hackaton': '/es/hackathon/overview',
-  '/es/hackaton/overview': '/es/hackathon/overview',
-  '/es/hackathon/faqs': '/es/hackathon/faq',
-  '/es/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/hackathon/requisitos-de-participacion': '/es/hackathon/participation',
-  '/es/hackaton/programa': '/es/hackathon/overview',
-  '/es/hackathon/resources': '/es/hackathon/open-payments',
-  '/es/hackathon/recursos': '/es/hackathon/open-payments',
-  '/es/hackathon/codigo-de-conducta': '/es/hackathon/code-conduct',
-  '/es/summit/hackathon': '/es/hackathon/overview',
-  '/es/summit/hackathon/schedule': '/es/hackathon/overview',
-  '/es/summit/hackaton/programa': '/es/hackathon/overview',
-  '/es/summit/hackathon/participation': '/es/hackathon/participation',
-  '/es/summit/hackathon/participation-requirements':
-    '/es/hackathon/participation',
-  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
-  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
-  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
-  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
-  '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
-
-  // Summit talks and speakers
-  // Old singular routes (redirect directly to final destination)
-  '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
-    '/summit/2024/talks/future-payments-your-pocket',
-  '/summit/2024/talk/get-started-interledger-tech-stack':
-    '/summit/2024/talks/codius-fireside-chat',
-  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
-  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
-  '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
-    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
-  '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
-    '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
-  '/summit/2025/talk/miplata':
-    '/summit/2025/talks/miplata-payroll-reaches-home',
-  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
-    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
-  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
-  '/summit/2025/speaker/alejandra-cullen':
-    '/summit/2025/speakers/alejandra-cullen-benitez',
-
-  // Policy and advocacy pages
-  '/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger-open-source-technologies',
-  '/network-fees-interledger-ecosystem':
-    '/policy-and-advocacy/network-fees-interledger-ecosystem',
-  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
-
-  // Foundation blog: tags renamed to categories (INTORG-765).
-  // Explicit base-page redirects for the canonical term URLs (the links that
-  // existed in the wild — page 1 of each tag). Static→static so they resolve
-  // cleanly. Paginated old tag URLs (/2, /3, …) are intentionally not
-  // redirected: Astro's spread→Netlify mapping emits a literal `*` rather than
-  // a splat, so those would 301 to a 404. A tag needed >10 posts to ever have
-  // a page 2, so these barely existed; a clean 404 is preferable to a bad 301.
   '/blog/tag/announcements': '/blog/category/news',
   '/blog/tag/community-&-events': '/blog',
   '/blog/tag/grants-&-grantee-insights': '/blog/category/grantmaking',
@@ -416,7 +562,7 @@ export const redirects = {
   '/developers/blog': '/blog',
   '/es/developers/blog': '/es/blog',
 
-  // Individual tech posts (from cms/scripts/migrate-dev-blog-to-foundation.ts).
+  // Individual tech posts
   '/developers/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features':
     '/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features',
   '/developers/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks':
@@ -477,5 +623,122 @@ export const redirects = {
   '/developers/blog/rafiki-cards-work-week-2026':
     '/blog/rafiki-cards-work-week-2026',
   '/es/developers/blog/el-universo-interledger':
-    '/es/blog/el-universo-interledger'
+    '/es/blog/el-universo-interledger',
+
+  // Spanish developer blog content
+  '/developers/blog/es': '/es/blog',
+  '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
+    '/es/blog/el-universo-interledger',
+
+  // Summit pages
+  '/summit/key-information': '/summit/media-kit',
+  '/summit/2025-summit-schedule': '/summit/schedule',
+  '/summit/code-of-conduct': '/hackathon/code-conduct',
+
+  // Summit pages (Spanish)
+  '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
+
+  // Hackathon microsite.
+  '/hackathon': '/hackathon/overview',
+  '/hackathons': '/hackathon/overview',
+  '/hackathons/overview': '/hackathon/overview',
+  '/hackathon/faqs': '/hackathon/faq',
+  '/hackathons/faqs': '/hackathon/faq',
+  '/hackathon/participation-requirements': '/hackathon/participation',
+  '/hackathons/participation': '/hackathon/participation',
+  '/hackathon/resources': '/hackathon/open-payments',
+  '/hackathons/resources': '/hackathon/open-payments',
+  '/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/hackathon/code-of-conduct': '/hackathon/code-conduct',
+  '/hackathons/code-conduct': '/hackathon/code-conduct',
+  '/summit/hackathon': '/hackathon/overview',
+  '/summit/hackathon-2024': '/hackathon/overview',
+  '/summit/hackathon-venue': '/hackathon/overview',
+  '/summit/hackathon/schedule': '/hackathon/overview',
+  '/summit/hackathon/participation': '/hackathon/participation',
+  '/summit/hackathon/participation-requirements': '/hackathon/participation',
+  '/summit/hackathon/faqs': '/hackathon/faq',
+  '/summit/hackathon/resources': '/hackathon/open-payments',
+  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/summit/hackathon/resources/glossary': '/hackathon/open-payments',
+  '/summit/hackathon/resources/documentation/glossary':
+    '/hackathon/open-payments',
+  '/summit/hackathon-glossary-documentation': '/hackathon/open-payments',
+  '/summit/open-payments-and-hackathon-resources': '/hackathon/open-payments',
+  '/summit/open-payments-and-hackathon-documentation':
+    '/hackathon/open-payments',
+  '/summit/open-payments-use-cases': '/hackathon/open-payments',
+  '/summit/openai-api-onboarding-guide': '/hackathon/open-payments',
+  '/summit/presentations': '/hackathon/open-payments',
+  '/summit/ideation-framework': '/hackathon/open-payments',
+  '/summit/2025-judging-process-and-criteria': '/hackathon/faq',
+  '/summit/judging-process-and-criteria': '/hackathon/faq',
+  '/summit/submitting-your-solution': '/hackathon/faq',
+  '/summit/code-conduct': '/hackathon/code-conduct',
+  '/hackathon/schedule': '/hackathon/overview',
+  '/summit/interledger-foundation-hackathons': '/hackathon/overview',
+  '/summit/hackathons/terms-conditions': '/hackathon/code-conduct',
+
+  // Hackathon microsite (Spanish).
+  '/es/hackathon': '/es/hackathon/overview',
+  '/es/hackathons': '/es/hackathon/overview',
+  '/es/hackathons/overview': '/es/hackathon/overview',
+  '/es/hackaton': '/es/hackathon/overview',
+  '/es/hackaton/overview': '/es/hackathon/overview',
+  '/es/hackathon/faqs': '/es/hackathon/faq',
+  '/es/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackathon/requisitos-de-participacion': '/es/hackathon/participation',
+  '/es/hackaton/programa': '/es/hackathon/overview',
+  '/es/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/hackathon/recursos': '/es/hackathon/open-payments',
+  '/es/hackathon/codigo-de-conducta': '/es/hackathon/code-conduct',
+  '/es/summit/hackathon': '/es/hackathon/overview',
+  '/es/summit/hackathon/schedule': '/es/hackathon/overview',
+  '/es/summit/hackaton/programa': '/es/hackathon/overview',
+  '/es/summit/hackathon/participation': '/es/hackathon/participation',
+  '/es/summit/hackathon/participation-requirements':
+    '/es/hackathon/participation',
+  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
+  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
+  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
+  '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
+  '/es/summit/documentacion-del-glosario-del-hackaton':
+    '/es/hackathon/open-payments',
+  '/es/summit/hackaton/recursos/glosario': '/es/hackathon/open-payments',
+  '/es/summit/hackaton/recursos': '/es/hackathon/open-payments',
+  '/es/summit/hackaton/recursos/open-payments': '/es/hackathon/open-payments',
+  '/es/summit/hackaton/requisitos-para-participar':
+    '/es/hackathon/participation',
+  '/es/summit/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/summit//hackathons/faqs': '/es/hackathon/faq',
+  '/es/summit/hackaton': '/es/hackathon/overview',
+
+  // Summit talks and speakers
+  // Old singular routes (redirect directly to final destination)
+  '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
+    '/summit/2024/talks/future-payments-your-pocket',
+  '/summit/2024/talk/get-started-interledger-tech-stack':
+    '/summit/2024/talks/codius-fireside-chat',
+  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
+  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
+  '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
+    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
+  '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
+    '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
+  '/summit/2025/talk/miplata':
+    '/summit/2025/talks/miplata-payroll-reaches-home',
+  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
+    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
+  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
+  '/summit/2025/speaker/alejandra-cullen':
+    '/summit/2025/speakers/alejandra-cullen-benitez',
+  '/summit/2025/talk/rafiki-open-payments':
+    '/summit/2025/talks/evolution-rafiki-open-payments-2025',
+  '/summit/2025/talk/evolutio-rafiki-open-payments-2025':
+    '/summit/2025/talks/evolution-rafiki-open-payments-2025'
 }

@@ -77,17 +77,18 @@ const resolvedBlocks = blocks
   })
   .filter((item): item is NonNullable<typeof item> => item !== null)
 
-// Blocks are separated by `mt-4xl` on every item after the first, which is
-// exactly what the previous `gap-4xl` on the flex container produced. It is
-// written per item so a block can opt out and own its spacing instead.
+// Blocks are separated by the standard section gap on every item after the
+// first. That is the same value `page-stack` and prose/rhythm.css apply on a
+// live page, so a block sits in the same place in the preview and the export.
+// It is written per item so a block can opt out and own its spacing instead.
 //
-// A block only belongs here if it renders in both the Strapi preview (this
-// file) and in an exported MDX page. In MDX there is no wrapper, so the
-// component's own margin is the only spacing it gets. Leaving the wrapper
-// margin in place as well would make the same block sit further down in the
-// preview than on the live page.
+// A block only belongs in OWNS_ITS_SPACING if it renders in both the Strapi
+// preview (this file) and in an exported MDX page. In MDX there is no wrapper,
+// so the component's own margin is the only spacing it gets. Leaving the
+// wrapper margin in place as well would make the same block sit further down
+// in the preview than on the live page.
 const OWNS_ITS_SPACING = new Set(['blocks.cta-buttons'])
-const BLOCK_GAP = 'mt-4xl'
+const BLOCK_GAP = 'mt-section'
 ---
 
 <div class="flex flex-col">

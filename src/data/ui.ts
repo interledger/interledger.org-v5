@@ -145,6 +145,11 @@ export const ui = {
     'grantee.read_more': 'read more',
     'grantee.empty': 'No grantees match these filters.',
     'grantee.results': '{count} results',
+    'grantee.caveat.label': 'Grant amount caveat',
+    'grantee.caveat.amounts':
+      'Grant amounts shown reflect committed funding based on Interledger Foundation grant records and are contingent upon satisfactory progress by the grantee. Amounts presented may differ from those reported in audited financial statements prepared in accordance with U.S. GAAP or from figures disclosed in IRS Form 990 filings. Such differences may arise due to variations in timing of recognition, accounting treatment (including expense recognition versus conditional commitments), and grant disbursement schedules.',
+    'grantee.caveat.exclusions':
+      'This database includes grants only and excludes Program-Related Investments (PRIs).',
     'aria.grantee.filters_label': 'Filters',
     'aria.grantee.list': 'Grantee projects',
     'aria.grantee.tags': 'Thematic tags',
@@ -501,6 +506,9 @@ export const ui = {
     'grantee.read_more': '',
     'grantee.empty': '',
     'grantee.results': '',
+    'grantee.caveat.label': '',
+    'grantee.caveat.amounts': '',
+    'grantee.caveat.exclusions': '',
     'aria.grantee.filters_label': '',
     'aria.grantee.list': '',
     'aria.grantee.tags': '',

@@ -91,7 +91,7 @@ const textSectionHtml =
 ---
 
 <FoundationPageLayout title={pageTitle} description={pageDescription}>
-  <main class="pb-3xl">
+  <main class="page-stack pb-section">
     <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
       title={heroTitle ?? title}
@@ -108,29 +108,30 @@ const textSectionHtml =
 
     {
       isLandingPage && (
-        <section class="pt-4xl px-lg tablet:px-xl">
-          {textSectionHtml && (
-            <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
-              <div data-prose set:html={textSectionHtml} />
+        <section class="px-content">
+          {/*
+            The intro text and the cards share one prose flow, so the standard
+            rhythm decides the gap between them. The text ends on the heading
+            that titles the cards, and prose/rhythm.css gives that pair the
+            tighter heading gap instead of a full section break.
+          */}
+          <div class="content-column">
+            <div data-prose>
+              {textSectionHtml && <Fragment set:html={textSectionHtml} />}
+              <CardGrid
+                ariaLabel={titleCards.ariaLabel}
+                columns={titleCards.columns}
+                variant="Title"
+                titleCards={titleCards.cards}
+              />
             </div>
-          )}
-          <div class="mx-auto max-w-content min-w-90 desktop:max-w-content">
-            <CardGrid
-              ariaLabel={titleCards.ariaLabel}
-              columns={titleCards.columns}
-              variant="Title"
-              titleCards={titleCards.cards}
-            />
           </div>
         </section>
       )
     }
 
-    <section
-      aria-label={t('aria.podcast.filters_label')}
-      class="px-lg min-w-90 mb-3xl tablet:px-xl tablet:mb-4xl"
-    >
-      <div class="mx-auto max-w-content desktop:max-w-content">
+    <section aria-label={t('aria.podcast.filters_label')} class="px-content">
+      <div class="content-column">
         <TaxonomyFilter
           collection="podcast-pages"
           terms={allTerms}
@@ -140,10 +141,8 @@ const textSectionHtml =
       </div>
     </section>
 
-    <section class="py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
-      >
+    <section class="px-content">
+      <div class="content-column">
         <PodcastList podcasts={page.data} />
         <Pagination
           baseUrl={basePath}
@@ -152,15 +151,13 @@ const textSectionHtml =
           prevUrl={page.url.prev}
           nextUrl={page.url.next}
           label={heroTitle ?? title}
-          class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+          class="mt-section"
         />
       </div>
     </section>
 
-    <section class="tablet:py-4xl">
-      <div
-        class="mx-auto max-w-content px-lg min-w-90 tablet:px-xl desktop:max-w-content desktop:px-0"
-      >
+    <section class="px-content">
+      <div class="content-column">
         <CtaStrip
           heading={ctaStrip.heading}
           description={ctaStrip.description}

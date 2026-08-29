@@ -44,7 +44,7 @@ const breadcrumbs = [
   description={t('grantee.meta_description')}
 >
   <main
-    class="flex flex-col px-lg pt-[calc(var(--spacing-5xl)-var(--site-header-height))] pb-5xl tablet:px-xl tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pb-6xl desktop:px-5xl desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))] desktop:pb-7xl"
+    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
   >
     <div class="w-full max-w-content m-auto">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
@@ -66,10 +66,18 @@ const breadcrumbs = [
             prevUrl={page.url.prev}
             nextUrl={page.url.next}
             label={t('grantee.title')}
-            class="mt-3xl tablet:mt-4xl desktop:mt-5xl"
+            class="mt-section"
           />
         )
       }
+      <footer
+        role="note"
+        aria-label={t('grantee.caveat.label')}
+        class="mt-5xl border-t border-neutral-25 pt-xl text-caption leading-normal text-neutral-75 tablet:mt-6xl tablet:pt-2xl [&_p]:text-caption [&_p]:leading-normal"
+      >
+        <p class="m-0 mb-md">{t('grantee.caveat.amounts')}</p>
+        <p class="m-0">{t('grantee.caveat.exclusions')}</p>
+      </footer>
     </div>
   </main>
 </FoundationPageLayout>

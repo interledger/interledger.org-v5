@@ -74,81 +74,80 @@ const renderedItems = await Promise.all(
 )
 ---
 
-<div class="mx-auto max-w-content min-w-90">
+<div
+  data-component="GrantFaqSection"
+  class="flex flex-col gap-xl desktop:flex-row desktop:items-start desktop:gap-5xl"
+>
   <div
-    class="flex flex-col gap-xl desktop:flex-row desktop:items-start desktop:gap-5xl"
+    class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
   >
-    <div
-      class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
+    <h2
+      class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900 my-0"
     >
-      <h2
-        class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg text-neutral-900 my-0"
-      >
-        {title}
-      </h2>
+      {title}
+    </h2>
 
-      <div class="mt-xl desktop:mt-5xl">
-        {
-          trimmedSubtitle && (
-            <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
-              {trimmedSubtitle}
-            </h3>
-          )
-        }
-        <p
-          class="mt-lg font-poppins text-base leading-relaxed text-neutral-75 mb-0"
-        >
-          {description}
-        </p>
-        {
-          trimmedCtaText && trimmedCtaLink && (
-            <div class="mt-2xl">
-              <LinkButton
-                href={resolvedCta!.href}
-                variant="secondary"
-                external={resolvedCta!.external}
-                document={resolvedCta!.document}
-                class="w-full mx-auto desktop:w-auto desktop:mx-0"
-                linkText={trimmedCtaText}
-                umamiLabel="button_cta"
-                umamiBaseComponent="faq"
-              >
-                {trimmedCtaText}
-                {resolvedCta!.icon && (
-                  <Icon name={resolvedCta!.icon} slot="icon-right" />
-                )}
-              </LinkButton>
-            </div>
-          )
-        }
-      </div>
-    </div>
-
-    <!-- Right column: accordion -->
-    <div class="flex-1">
+    <div class="mt-xl desktop:mt-5xl">
       {
-        renderedItems.map((item) => (
-          <details class="group border-b border-neutral-200 py-2xl first:pt-0 ">
-            <summary
-              class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
-              {...faqToggleUmamiAttrs(item.question)}
+        trimmedSubtitle && (
+          <h3 class="font-poppins text-xl font-normal text-neutral-900 my-0">
+            {trimmedSubtitle}
+          </h3>
+        )
+      }
+      <p
+        class="mt-lg font-poppins text-base leading-relaxed text-neutral-75 mb-0"
+      >
+        {description}
+      </p>
+      {
+        trimmedCtaText && trimmedCtaLink && (
+          <div class="mt-2xl">
+            <LinkButton
+              href={resolvedCta!.href}
+              variant="secondary"
+              external={resolvedCta!.external}
+              document={resolvedCta!.document}
+              class="w-full mx-auto tablet:w-auto tablet:mx-0"
+              linkText={trimmedCtaText}
+              umamiLabel="button_cta"
+              umamiBaseComponent="faq"
             >
-              <span class="font-poppins text-base font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
-                {item.question}
-              </span>
-              <Icon
-                name="arrow-down"
-                class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
-              />
-            </summary>
-            <div
-              data-prose-faq
-              class="mt-lg font-poppins text-base text-neutral-75 tablet:text-xl desktop:text-xl [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline [&_a]:text-neutral-75"
-              set:html={item.answerHtml}
-            />
-          </details>
-        ))
+              {trimmedCtaText}
+              {resolvedCta!.icon && (
+                <Icon name={resolvedCta!.icon} slot="icon-right" />
+              )}
+            </LinkButton>
+          </div>
+        )
       }
     </div>
+  </div>
+
+  <!-- Right column: accordion -->
+  <div class="flex-1">
+    {
+      renderedItems.map((item) => (
+        <details class="group border-b border-neutral-200 py-2xl first:pt-0 ">
+          <summary
+            class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
+            {...faqToggleUmamiAttrs(item.question)}
+          >
+            <span class="font-poppins text-base font-normal group-open:text-neutral-900 tablet:text-xl desktop:text-2xl ">
+              {item.question}
+            </span>
+            <Icon
+              name="arrow-down"
+              class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
+            />
+          </summary>
+          <div
+            data-prose-faq
+            class="mt-lg font-poppins text-base text-neutral-100 tablet:text-xl desktop:text-xl [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline [&_a]:text-neutral-100"
+            set:html={item.answerHtml}
+          />
+        </details>
+      ))
+    }
   </div>
 </div>
