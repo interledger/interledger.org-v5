@@ -11,16 +11,29 @@
  * rule beats inheritance — same pattern as FaqItem.astro.
  */
 import type { ReportTextType } from '@/types/report'
+import CtaButtons from '@/components/blocks/CtaButtons.astro'
 import { useTranslations } from '@/utils'
 
 interface Props {
   type: ReportTextType
+  buttonText?: string
+  buttonLink?: string
+  buttonStyle?: 'primary' | 'secondary'
+  buttonExternal?: boolean
+  buttonDocument?: boolean
 }
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const { type } = Astro.props
+const {
+  type,
+  buttonText,
+  buttonLink,
+  buttonStyle,
+  buttonExternal,
+  buttonDocument
+} = Astro.props
 // List margin/padding utilities live on paragraphClasses/disclaimerClasses,
 // not here — they'd otherwise beat footnotes.css's own list/counter layout
 // (Tailwind's utilities layer always wins over footnotes.css's `@layer
@@ -38,7 +51,24 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
 
 <div class={sharedClasses}>
   {
-    type === 'Disclaimer' ? (
+    type === 'Button' ? (
+      buttonText &&
+      buttonLink && (
+        <div data-report-text="button">
+          <CtaButtons
+            buttons={[
+              {
+                text: buttonText,
+                link: buttonLink,
+                style: buttonStyle,
+                external: buttonExternal,
+                document: buttonDocument
+              }
+            ]}
+          />
+        </div>
+      )
+    ) : type === 'Disclaimer' ? (
       <div
         data-report-text="disclaimer"
         role="note"

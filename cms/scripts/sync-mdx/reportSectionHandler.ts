@@ -30,8 +30,12 @@ import type {
   ReportTextItem
 } from './types.blocks'
 import { REPORT_TEXT_TYPES, isReportTextType } from './types.blocks'
+import {
+  isCtaButtonStyle,
+  hasConflictingCtaFlags
+} from '../../src/utils/ctaButtons'
 import { extractChildrenContent } from './mdastSerialize'
-import { getStringAttr, getChildElements } from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -102,6 +106,8 @@ function parseReportText(
     })
   }
 
+  if (textType === 'Button') return parseButtonReportText(node, textType)
+
   // Prefer raw source slicing over AST re-serialization: footnote markers
   // ([^1]) and other literal markdown-like text get escaped by
   // mdast-util-to-markdown, corrupting content that was never ambiguous in
@@ -121,6 +127,56 @@ function parseReportText(
   return textType === 'Disclaimer'
     ? { textType, textDisclaimer: content }
     : { textType, textContent: content }
+}
+
+/**
+ * A Button item carries no rich-text children — its data lives entirely in
+ * attributes on the self-closing `<ReportText type="Button" .../>` tag,
+ * matching how report-section.serializer.ts emits it.
+ */
+function parseButtonReportText(
+  node: JsxBlockNode,
+  textType: 'Button'
+): ReportTextItem {
+  const text = getStringAttr(node, 'buttonText', { required: true })
+  const link = getStringAttr(node, 'buttonLink', { required: true })
+  const style = getStringAttr(node, 'buttonStyle')
+  const external = getBooleanAttr(node, 'buttonExternal')
+  const document = getBooleanAttr(node, 'buttonDocument')
+
+  if (style !== undefined && !isCtaButtonStyle(style)) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `ReportText "buttonStyle" must be "primary" or "secondary", got "${style}".`,
+      component: 'ReportText',
+      prop: 'buttonStyle',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  const buttonCta = {
+    text,
+    link,
+    style: (style ?? 'primary') as 'primary' | 'secondary',
+    ...(external ? { external: true } : {}),
+    ...(document ? { document: true } : {})
+  }
+
+  if (hasConflictingCtaFlags(buttonCta)) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'ReportText Button cannot be both external and document. Pick one: ' +
+        'external opens a new tab, document downloads a file.',
+      component: 'ReportText',
+      prop: 'buttonDocument',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  return { textType, buttonCta }
 }
 
 async function handleReportSection(

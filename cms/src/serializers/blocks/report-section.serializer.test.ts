@@ -14,6 +14,10 @@ const validReferences = {
   textType: 'References',
   textContent: '- First source.\n- Second source.'
 }
+const validButton = {
+  textType: 'Button',
+  buttonCta: { text: 'Download the report', link: '/reports/full.pdf' }
+}
 
 describe('report-section serializer', () => {
   it('serializes a block with a heading and a single paragraph content block', () => {
@@ -48,6 +52,66 @@ describe('report-section serializer', () => {
 
     expect(result).toContain('<ReportText type="References">')
     expect(result).toContain('- First source.')
+  })
+
+  it('serializes a button content block as a self-closing tag with attributes', () => {
+    const result = serialize({
+      heading: 'Downloads',
+      reportText: [validButton]
+    })
+
+    expect(result).toContain(
+      '<ReportText type="Button" buttonText="Download the report" buttonLink="/reports/full.pdf" />'
+    )
+  })
+
+  it('serializes a button with a non-default style, external, and document flags', () => {
+    const result = serialize({
+      heading: 'Downloads',
+      reportText: [
+        {
+          textType: 'Button',
+          buttonCta: {
+            text: 'Read more',
+            link: 'https://example.com',
+            style: 'secondary',
+            document: true
+          }
+        }
+      ]
+    })
+
+    expect(result).toContain('buttonStyle="secondary"')
+    expect(result).toContain('buttonDocument={true}')
+    expect(result).not.toContain('buttonExternal')
+  })
+
+  it('throws when a Button block is missing text or link', () => {
+    expect(() =>
+      serialize({
+        heading: 'Downloads',
+        reportText: [{ textType: 'Button', buttonCta: { text: '', link: '' } }]
+      })
+    ).toThrow(SerializerFieldError)
+  })
+
+  it('throws when a Button block has conflicting external and document flags', () => {
+    expect(() =>
+      serialize({
+        heading: 'Downloads',
+        reportText: [
+          {
+            textType: 'Button',
+            buttonCta: {
+              text: 'Read more',
+              link: 'https://example.com',
+              external: true,
+              document: true
+            }
+          }
+        ]
+      })
+    ).toThrow(SerializerFieldError)
   })
 
   it('throws when a References block is missing textContent', () => {

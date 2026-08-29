@@ -137,6 +137,85 @@ describe('ReportSection handler', () => {
     expect(first.textContent).toContain('[grant overview](/grant)')
   })
 
+  it('parses a Button content block', async () => {
+    const blocks = await parseMdxToBlocks(
+      reportSection([
+        '<ReportText type="Button" buttonText="Download the report" buttonLink="/reports/full.pdf" />'
+      ]),
+      ctx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.report-section',
+        heading: 'Introduction',
+        reportText: [
+          {
+            textType: 'Button',
+            buttonCta: {
+              text: 'Download the report',
+              link: '/reports/full.pdf',
+              style: 'primary'
+            }
+          }
+        ]
+      }
+    ])
+  })
+
+  it('parses a Button content block with style, external, and document', async () => {
+    const blocks = await parseMdxToBlocks(
+      reportSection([
+        '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonStyle="secondary" buttonDocument={true} />'
+      ]),
+      ctx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.report-section',
+        heading: 'Introduction',
+        reportText: [
+          {
+            textType: 'Button',
+            buttonCta: {
+              text: 'Read more',
+              link: 'https://example.com',
+              style: 'secondary',
+              document: true
+            }
+          }
+        ]
+      }
+    ])
+  })
+
+  it('errors when a Button block has conflicting external and document flags', async () => {
+    const mdx = reportSection([
+      '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonExternal={true} buttonDocument={true} />'
+    ])
+
+    const result = await parseMdxToBlocks(mdx, ctx)
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
+  })
+
+  it('errors when a Button block is missing buttonLink', async () => {
+    const mdx = reportSection([
+      '<ReportText type="Button" buttonText="Read more" />'
+    ])
+
+    const result = await parseMdxToBlocks(mdx, ctx)
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.MISSING_REQUIRED_PROP
+    )
+  })
+
   it('errors when the block has no heading', async () => {
     const mdx = reportSection([textItem('Paragraph')], '')
     const result = await parseMdxToBlocks(mdx, ctx)
