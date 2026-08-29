@@ -485,11 +485,9 @@ export const ui = {
     'grantee.read_more': '',
     'grantee.empty': '',
     'grantee.results': '',
-    'grantee.caveat.label': 'Aviso sobre los montos de las subvenciones',
-    'grantee.caveat.amounts':
-      'Los montos de las subvenciones mostrados reflejan el financiamiento comprometido según los registros de subvenciones de la Interledger Foundation y están sujetos al progreso satisfactorio del beneficiario. Los montos presentados pueden diferir de los reportados en los estados financieros auditados preparados de conformidad con los U.S. GAAP o de las cifras divulgadas en las declaraciones IRS Form 990. Tales diferencias pueden deberse a variaciones en el momento del reconocimiento, el tratamiento contable (incluido el reconocimiento de gastos frente a compromisos condicionales) y los calendarios de desembolso de las subvenciones.',
-    'grantee.caveat.exclusions':
-      'Esta base de datos incluye únicamente subvenciones y excluye las inversiones relacionadas con programas (PRI, por sus siglas en inglés).',
+    'grantee.caveat.label': '',
+    'grantee.caveat.amounts': '',
+    'grantee.caveat.exclusions': '',
     'aria.grantee.filters_label': '',
     'aria.grantee.list': '',
     'aria.grantee.tags': '',
