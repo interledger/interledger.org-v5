@@ -17,8 +17,35 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: '/grants/apply',
             text: 'Learn more',
-            external: false,
-            document: false
+            external: false
+          }
+        }
+      ]
+    }
+
+    const mdx = serialize({ ...original })
+    const blocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+    expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
+  })
+
+  it('round-trips Title with an optional second CTA', async () => {
+    const original = {
+      ariaLabel: 'Dev resources',
+      variant: 'Title' as const,
+      columns: 'Two' as const,
+      titleCards: [
+        {
+          heading: 'Rafiki',
+          description: 'Rafiki description.',
+          secondaryCta: {
+            link: 'https://rafiki.dev/',
+            text: 'Rafiki Docs',
+            external: true
+          },
+          secondSecondaryCta: {
+            link: 'https://github.com/interledger/rafiki',
+            text: 'Rafiki Repo',
+            external: true
           }
         }
       ]
@@ -65,8 +92,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: 'https://example.com',
             text: 'Open',
-            external: true,
-            document: false
+            external: true
           }
         }
       ]
@@ -134,8 +160,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: '/apply',
             text: 'Start',
-            external: false,
-            document: false
+            external: false
           }
         }
       ]

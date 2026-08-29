@@ -55,6 +55,7 @@ export interface CardGridCard {
   description?: string
   body?: string
   secondaryCta?: CardGridSecondaryCta
+  secondSecondaryCta?: CardGridSecondaryCta
   /** InfoCard cover image: site-relative path used in MDX (`imageSrc`). */
   imageSrc?: string
   /** InfoCard cover image: Strapi media id or populated `{ url }`. */

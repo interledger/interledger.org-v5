@@ -5,6 +5,7 @@ description: 'An open protocol that routes packets of money across banks, wallet
 heroTitle: 'Interledger Protocol'
 heroDescription: 'Move money like the internet moves data'
 heroImage: '/uploads/img/original/1_interledger_protocol_hero_large_389f764d14.jpg'
+heroImageAlt: 'A speaker presenting at the Interledger Summit beside a world map of payment routes.'
 locale: 'en'
 ---
 
@@ -15,3 +16,67 @@ The Interledger Protocol is an open protocol that routes packets of money across
 Financial systems were not built to talk to each other. Moving money between a bank in one country and a mobile wallet in another means navigating a chain of intermediaries, each with its own rules, formats, and fees. The more systems involved, the slower, more expensive, and more fragile the transaction becomes.
 
 </Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/interledger_protocol_stack.jpg"
+  alt="A comparison of the Interledger stack and the internet stack. Interledger layers (SPSP and Open Payments, STREAM, ILP, BTP and ILP-over-HTTP, and fiat, crypto, or mobile money) sit beside matching internet layers (application protocols, TCP/UDP/QUIC, IP, Wi-Fi/Ethernet/Bluetooth, and physical cables)."
+  needsFullView={true}
+  needsOutline={true}
+/>
+
+<Paragraph>
+
+ILP is an open, neutral protocol for transferring value, inspired by TCP/IP, the protocol that powers the internet. It solves the complexity of global payments the same way the internet solved the problem of connecting incompatible computer networks: with a shared protocol that any system can implement, regardless of what sits underneath it. Any system that speaks ILP can route value to any other system that does the same, without a direct integration, a shared ledger, or a central authority in the middle.
+
+</Paragraph>
+
+<Paragraph>
+
+## How Payments Move
+
+Rather than sending a single payment from start to finish, ILP breaks it into smaller packets, using route optimization and current market conditions to complete a payment quickly. Each packet travels across the network, is forwarded by nodes, and is either fulfilled, or rejected and rerouted. When all packets are fulfilled, the payment is complete. This lets payments move in real time, adapt to changing conditions, and stop safely if something fails.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/interledger_protocol_payment_packet.png"
+  alt="Diagram of a payment packet moving from sender to receiver through connectors. A selected path is shown as a solid line, with dashed alternate paths if a packet is rejected and rerouted."
+  needsFullView={true}
+  needsOutline={true}
+/>
+
+<Paragraph>
+
+## Built to Connect Systems, Not Replace Them
+
+ILP does not store funds, require a shared accounting ledger, or depend on any single network. It sits alongside existing systems and lets them exchange value, each keeping its own rules, currencies, and compliance arrangements. It works across banks, wallets, mobile money systems, instant payment systems, and digital assets, and is not tied to any currency, provider, or network. It is also mature and stable: ILP is on its fourth version and kept backward-compatible, so institutions can build on it without fear of disruptive changes.
+
+</Paragraph>
+
+<CardGrid title="The Protocol in Numbers" ariaLabel="Key figures for the Interledger Protocol" variant="Info" columns="Three">
+<InfoCard heading="Up to 1 million">
+
+Up to 1 million transactions per second per participant.
+
+</InfoCard>
+<InfoCard heading="$0.0001 USD">
+
+Payments as small as $0.0001 USD.
+
+</InfoCard>
+<InfoCard heading="Hundreds of FSPs">
+
+One direct peering relationship may allow you to indirectly peer with hundreds of FSPs.
+
+</InfoCard>
+</CardGrid>
+
+<CtaStrip
+  heading="Built in the Open"
+  primaryButtonText="Dev Portal"
+  primaryButtonLink="/tech/dev-portal"
+>
+
+The Interledger Protocol, the Open Payments standard, and the tools built on them are all open source. Anyone can read the code, audit the standards, propose changes, and contribute.
+
+</CtaStrip>

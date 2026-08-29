@@ -1,0 +1,79 @@
+---
+pathSlug: 'tech/rafiki'
+title: 'Rafiki'
+description: 'Open-source software that lets banks, wallets, and regulated providers support Open Payments and connect to Interledger without building it from scratch.'
+heroTitle: 'Rafiki'
+heroDescription: 'Open-source software for financial institutions building on Interledger.'
+heroImage: '/uploads/img/original/rafiki_hero.jpg'
+heroImageAlt: 'A presenter explaining a Rafiki transaction flow diagram at an Interledger event.'
+heroCtas:
+  - text: 'Read the Docs'
+    link: 'https://rafiki.dev/'
+    external: true
+locale: 'en'
+---
+
+<Paragraph>
+
+Implementing a new payments protocol from a specification is complex, time-consuming, and expensive. Many providers do not have the engineering capacity to build a full implementation in-house, and those that do would be duplicating work that already exists as tested, maintained, open-source software.
+
+Rafiki is the open-source, ready-to-use reference implementation of the Interledger Protocol and the Open Payments standard.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/rafiki_stack.jpg"
+  alt="Diagram of the Interledger stack titled Rafiki implements the Orange, showing application, transport, protocol, link, and settlement layers with STREAM, ILP, and ILPoverHTTP highlighted."
+  needsFullView={true}
+  needsOutline={true}
+/>
+
+<Paragraph>
+
+It gives financial service providers, including banks, wallets, and other regulated payment providers, the infrastructure to connect and support Open Payments without building everything from scratch. It handles payment flows, authorization, and connectivity, so providers can focus on their own product rather than rebuilding the foundation.
+
+</Paragraph>
+
+<CardGrid title="What You Can Do With Rafiki" ariaLabel="Capabilities enabled by Rafiki" variant="Info" columns="Two">
+<InfoCard heading="Enable Open Payments out of the box">
+
+Payment requests, quotes, approvals, and transfers, without building that infrastructure yourself.
+
+</InfoCard>
+<InfoCard heading="Connect and interoperate">
+
+Routing between wallets, currencies, and connected systems.
+
+</InfoCard>
+<InfoCard heading="Test before you go live">
+
+Run Rafiki locally to simulate a full payment environment and validate integrations.
+
+</InfoCard>
+<InfoCard heading="Contribute">
+
+Whether you are experienced with open source or new to it, there are many ways to help develop the project.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+## Built for Regulated Financial Institutions
+
+Rafiki is designed for financial service providers operating under applicable financial regulation, not for individual developers or unregulated platforms. Interledger-powered networks built on Rafiki require participants to be licensed entities, with KYC and AML/CFT obligations, sanctions screening, and fraud prevention expected of every provider that connects. Those requirements are what let the network operate with confidence across regulated financial environments.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Ways to start building with Rafiki" variant="Title" columns="Two">
+<TitleCard heading="Start building" buttonUrl="https://rafiki.dev/" buttonText="Read the docs" buttonExternal={true}>
+
+Rafiki is fully documented and open source. Read the docs, explore the code, and test on the shared network before you go live.
+
+</TitleCard>
+<TitleCard heading="Build with Support" buttonUrl="/contact" buttonText="Arrange an Integration Call" buttonExternal={false}>
+
+Talk to our team about integrating Rafiki, or apply for a grant to fund your implementation.
+
+</TitleCard>
+</CardGrid>

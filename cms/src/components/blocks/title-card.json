@@ -19,6 +19,12 @@
       "repeatable": false,
       "required": true
     },
+    "secondSecondaryCta": {
+      "type": "component",
+      "component": "shared.secondary-cta-link",
+      "repeatable": false,
+      "required": false
+    },
     "description": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",

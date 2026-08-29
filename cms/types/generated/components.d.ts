@@ -1220,6 +1220,10 @@ export interface BlocksTitleCard extends Struct.ComponentSchema {
       false
     > &
       Schema.Attribute.Required
+    secondSecondaryCta: Schema.Attribute.Component<
+      'shared.secondary-cta-link',
+      false
+    >
     subHeading: Schema.Attribute.String
   }
 }

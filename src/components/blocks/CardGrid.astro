@@ -29,6 +29,7 @@ interface StrapiCard {
   description?: string
   body?: string
   secondaryCta?: SecondaryCta
+  secondSecondaryCta?: SecondaryCta
   imageSrc?: string
   image?: string | { url?: string }
   imageAlt?: string | null
@@ -220,6 +221,10 @@ const headingId = headingText
                 buttonText={card.secondaryCta.text}
                 buttonExternal={card.secondaryCta.external}
                 buttonDocument={card.secondaryCta.document}
+                secondButtonUrl={card.secondSecondaryCta?.link}
+                secondButtonText={card.secondSecondaryCta?.text}
+                secondButtonExternal={card.secondSecondaryCta?.external}
+                secondButtonDocument={card.secondSecondaryCta?.document}
               >
                 <Fragment set:html={card.html} />
               </TitleCard>

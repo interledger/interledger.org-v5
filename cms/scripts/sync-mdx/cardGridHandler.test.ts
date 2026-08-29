@@ -31,13 +31,84 @@ describe('CardGrid handler', () => {
             secondaryCta: {
               link: '/grants/apply',
               text: 'Learn more',
-              external: false,
-              document: false
+              external: false
             }
           }
         ]
       }
     ])
+  })
+
+  it('parses a Title variant grid with an optional second CTA', async () => {
+    const mdx = [
+      '<CardGrid ariaLabel="Dev resources" variant="Title" columns="Two">',
+      '<TitleCard heading="Rafiki" buttonUrl="https://rafiki.dev/" buttonText="Rafiki Docs" buttonExternal={true} secondButtonUrl="https://github.com/interledger/rafiki" secondButtonText="Rafiki Repo" secondButtonExternal={true}>',
+      'Rafiki description.',
+      '</TitleCard>',
+      '</CardGrid>'
+    ].join('\n')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks[0]).toMatchObject({
+      titleCards: [
+        {
+          heading: 'Rafiki',
+          description: 'Rafiki description.',
+          secondaryCta: {
+            link: 'https://rafiki.dev/',
+            text: 'Rafiki Docs',
+            external: true
+          },
+          secondSecondaryCta: {
+            link: 'https://github.com/interledger/rafiki',
+            text: 'Rafiki Repo',
+            external: true
+          }
+        }
+      ]
+    })
+  })
+
+  it('leaves second CTA flags unset when secondButtonExternal/Document are omitted', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Dev resources" variant="Title" columns="Two">',
+        '<TitleCard heading="Rafiki" buttonUrl="/tech/rafiki" buttonText="Rafiki" secondButtonUrl="https://github.com/interledger/rafiki" secondButtonText="Rafiki Repo">',
+        'Rafiki description.',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+
+    expect(blocks).not.toBeInstanceOf(MdxParserError)
+    expect(
+      (
+        blocks as Array<{ titleCards: Array<{ secondSecondaryCta: unknown }> }>
+      )[0]!.titleCards[0]!.secondSecondaryCta
+    ).toEqual({
+      link: 'https://github.com/interledger/rafiki',
+      text: 'Rafiki Repo'
+    })
+  })
+
+  it('rejects a partial second CTA on TitleCard', async () => {
+    const result = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Dev resources" variant="Title" columns="Two">',
+        '<TitleCard heading="Rafiki" buttonUrl="https://rafiki.dev/" buttonText="Rafiki Docs" secondButtonUrl="https://github.com/interledger/rafiki">',
+        'Rafiki description.',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
   })
 
   it('parses an optional title', async () => {

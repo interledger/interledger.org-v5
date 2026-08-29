@@ -51,29 +51,79 @@ function isColumns(value: string): value is (typeof CARD_GRID_COLUMNS)[number] {
   return (CARD_GRID_COLUMNS as readonly string[]).includes(value)
 }
 
-function parseSecondaryCta(node: JsxBlockNode, component: string) {
-  const link = getStringAttr(node, 'buttonUrl', { required: true })
-  const text = getStringAttr(node, 'buttonText', { required: true })
-  const external = getBooleanAttr(node, 'buttonExternal') ?? false
-  const document = getBooleanAttr(node, 'buttonDocument') ?? false
+function parseCtaFlags(
+  node: JsxBlockNode,
+  component: string,
+  externalProp: string,
+  documentProp: string
+): { external?: boolean; document?: boolean } {
+  const external = getBooleanAttr(node, externalProp)
+  const document = getBooleanAttr(node, documentProp)
 
   if (external && document) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
-      message: `${component} cannot set both buttonExternal and buttonDocument.`,
+      message: `${component} cannot set both ${externalProp} and ${documentProp}.`,
       component,
       line: node.position?.start.line,
       column: node.position?.start.column
     })
   }
 
-  return { link, text, external, document }
+  // Leave omitted flags unset. resolveCtaLink infers external from absolute
+  // URLs only when `external` is undefined — an explicit false must stay false.
+  const flags: { external?: boolean; document?: boolean } = {}
+  if (external !== undefined) flags.external = external
+  if (document !== undefined) flags.document = document
+  return flags
+}
+
+function parseSecondaryCta(node: JsxBlockNode, component: string) {
+  const link = getStringAttr(node, 'buttonUrl', { required: true })
+  const text = getStringAttr(node, 'buttonText', { required: true })
+  return {
+    link,
+    text,
+    ...parseCtaFlags(node, component, 'buttonExternal', 'buttonDocument')
+  }
+}
+
+function parseOptionalSecondSecondaryCta(
+  node: JsxBlockNode,
+  component: string
+): CardGridCard['secondSecondaryCta'] {
+  const link = getStringAttr(node, 'secondButtonUrl')
+  const text = getStringAttr(node, 'secondButtonText')
+  if (link === undefined && text === undefined) return undefined
+
+  if (!link?.trim() || !text?.trim()) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `${component} requires both secondButtonUrl and secondButtonText when adding a second CTA.`,
+      component,
+      prop: 'secondButtonUrl',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  return {
+    link,
+    text,
+    ...parseCtaFlags(
+      node,
+      component,
+      'secondButtonExternal',
+      'secondButtonDocument'
+    )
+  }
 }
 
 function parseTitleCard(node: JsxBlockNode): CardGridCard {
   const heading = getStringAttr(node, 'heading', { required: true })
   const subHeading = getStringAttr(node, 'subheading')
   const secondaryCta = parseSecondaryCta(node, 'TitleCard')
+  const secondSecondaryCta = parseOptionalSecondSecondaryCta(node, 'TitleCard')
   const description =
     node.children.length > 0 ? childrenToMarkdown(node.children) : ''
   if (!description) {
@@ -92,6 +142,7 @@ function parseTitleCard(node: JsxBlockNode): CardGridCard {
     secondaryCta
   }
   if (subHeading !== undefined) card.subHeading = subHeading
+  if (secondSecondaryCta) card.secondSecondaryCta = secondSecondaryCta
   return card
 }
 

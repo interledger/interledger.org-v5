@@ -10,6 +10,10 @@ interface Props {
   buttonText: string
   buttonExternal?: boolean
   buttonDocument?: boolean
+  secondButtonUrl?: string
+  secondButtonText?: string
+  secondButtonExternal?: boolean
+  secondButtonDocument?: boolean
 }
 
 const {
@@ -17,8 +21,14 @@ const {
   subheading,
   buttonUrl,
   buttonText,
-  buttonExternal = false,
-  buttonDocument = false
+  // Omit the flag so resolveCtaLink can infer from an absolute URL. Explicit
+  // `false` is a same-tab override and must not be the missing-prop default.
+  buttonExternal,
+  buttonDocument = false,
+  secondButtonUrl,
+  secondButtonText,
+  secondButtonExternal,
+  secondButtonDocument = false
 } = Astro.props
 
 const { routeLocale } = Astro.locals
@@ -46,6 +56,20 @@ const overlayUmamiAttrs = buildUmamiAttrs({
   href,
   linkText: buttonText
 })
+
+const hasSecondButton = Boolean(
+  secondButtonUrl?.trim() && secondButtonText?.trim()
+)
+const secondResolved = hasSecondButton
+  ? resolveCtaLink({
+      url: secondButtonUrl!,
+      external: secondButtonExternal,
+      document: secondButtonDocument
+    })
+  : null
+
+const buttonClass =
+  'tablet:self-start z-1 group-hover/card:border-neutral-900 group-hover/card:text-neutral-900 dark:group-hover/card:border-neutral-0 dark:group-hover/card:text-neutral-0'
 
 const bgClasses = `
 nth-[6n+1]:[--card-bg:var(--color-deep-teal-50)] 
@@ -84,32 +108,61 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
       <slot />
     </div>
   </div>
-  <LinkButton
-    href={href}
-    variant="secondary"
-    mode="auto"
-    size="lg"
-    external={external}
-    document={buttonDocument}
-    iconSide={trailingIcon ? 'right' : 'none'}
-    class="tablet:self-start z-1 group-hover/card:border-neutral-900 group-hover/card:text-neutral-900 dark:group-hover/card:border-neutral-0 dark:group-hover/card:text-neutral-0"
-    linkText={buttonText}
-    umamiLabel="button_card"
-    umamiBaseComponent="title_cards"
-  >
-    {buttonText}
+  <div class="flex flex-col gap-sm z-1 tablet:flex-row tablet:flex-wrap">
+    <LinkButton
+      href={href}
+      variant="secondary"
+      mode="auto"
+      size="lg"
+      external={external}
+      document={buttonDocument}
+      iconSide={trailingIcon ? 'right' : 'none'}
+      class={buttonClass}
+      linkText={buttonText}
+      umamiLabel="button_card"
+      umamiBaseComponent="title_cards"
+    >
+      {buttonText}
+      {
+        trailingIcon && (
+          <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+        )
+      }
+    </LinkButton>
     {
-      trailingIcon && (
-        <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+      secondResolved && (
+        <LinkButton
+          href={secondResolved.href}
+          variant="secondary"
+          mode="auto"
+          size="lg"
+          external={secondResolved.external}
+          document={secondButtonDocument}
+          iconSide={secondResolved.icon ? 'right' : 'none'}
+          class={buttonClass}
+          linkText={secondButtonText}
+          umamiLabel="button_card"
+          umamiBaseComponent="title_cards"
+        >
+          {secondButtonText}
+          {secondResolved.icon && (
+            <Icon name={secondResolved.icon} slot="icon-right" class="size-5" />
+          )}
+        </LinkButton>
       )
     }
-  </LinkButton>
-  <a
-    href={href}
-    aria-hidden="true"
-    tabindex="-1"
-    class="absolute inset-0 z-0"
-    {...overlayTargetAttrs}
-    {...overlayDownloadAttrs}
-    {...overlayUmamiAttrs}></a>
+  </div>
+  {
+    !hasSecondButton && (
+      <a
+        href={href}
+        aria-hidden="true"
+        tabindex="-1"
+        class="absolute inset-0 z-0"
+        {...overlayTargetAttrs}
+        {...overlayDownloadAttrs}
+        {...overlayUmamiAttrs}
+      />
+    )
+  }
 </article>
