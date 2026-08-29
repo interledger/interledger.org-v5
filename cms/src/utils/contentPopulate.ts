@@ -39,7 +39,7 @@ const GRANT_BLOCKS = {
   },
   'blocks.card-grid': {
     populate: {
-      titleCards: { populate: { secondaryCta: true } },
+      titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } },
       resourceCards: { populate: { secondaryCta: true } },
       infoCards: { populate: { image: true } },
       navigationCards: { populate: { secondaryCta: true } }
@@ -89,7 +89,7 @@ const FOUNDATION_PAGE_BLOCKS = {
   },
   'blocks.card-grid': {
     populate: {
-      titleCards: { populate: { secondaryCta: true } },
+      titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } },
       resourceCards: { populate: { secondaryCta: true } },
       infoCards: { populate: { image: true } },
       navigationCards: { populate: { secondaryCta: true } }
@@ -151,7 +151,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.paragraph': {},
     'blocks.card-grid': {
       populate: {
-        titleCards: { populate: { secondaryCta: true } },
+        titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } },
         resourceCards: { populate: { secondaryCta: true } },
         infoCards: { populate: { image: true } },
         navigationCards: { populate: { secondaryCta: true } }
@@ -258,7 +258,7 @@ export const PODCAST_PAGE_CONTENT_POPULATE = {
     }
   },
   titleCards: {
-    populate: { titleCards: { populate: { secondaryCta: true } } }
+    populate: { titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } } }
   },
   podcasts: true,
   ctaStrip: true

@@ -53,6 +53,28 @@ describe('card-grid serializer', () => {
     expect(result).toContain('</CardGrid>')
   })
 
+  it('serializes a Title variant grid with an optional second CTA', () => {
+    const result = serialize({
+      ariaLabel: 'Dev resources',
+      variant: 'Title',
+      columns: 'Two',
+      cards: [
+        {
+          ...titleCard,
+          secondSecondaryCta: {
+            link: 'https://github.com/interledger/rafiki',
+            text: 'Rafiki Repo',
+            external: true
+          }
+        }
+      ]
+    })
+
+    expect(result).toContain('secondButtonUrl="https://github.com/interledger/rafiki"')
+    expect(result).toContain('secondButtonText="Rafiki Repo"')
+    expect(result).toContain('secondButtonExternal={true}')
+  })
+
   it('serializes an optional title and omits it when blank', () => {
     expect(
       serialize({

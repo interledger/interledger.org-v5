@@ -52,32 +52,36 @@ export function resolveCardGridCards(
 function validateSecondaryCta(
   cta: CardGridSecondaryCta | undefined,
   label: string,
-  pathPrefix: (string | number)[]
+  pathPrefix: (string | number)[],
+  fieldName = 'secondaryCta',
+  required = true
 ): FieldError[] {
   const fieldErrors: FieldError[] = []
   if (!cta) {
-    fieldErrors.push({
-      message: `${label} is missing secondary call to action`,
-      path: [...pathPrefix, 'secondaryCta']
-    })
+    if (required) {
+      fieldErrors.push({
+        message: `${label} is missing secondary call to action`,
+        path: [...pathPrefix, fieldName]
+      })
+    }
     return fieldErrors
   }
   if (!cta.link?.trim()) {
     fieldErrors.push({
-      message: `${label} secondary CTA is missing link`,
-      path: [...pathPrefix, 'secondaryCta', 'link']
+      message: `${label} ${fieldName === 'secondSecondaryCta' ? 'second ' : ''}secondary CTA is missing link`,
+      path: [...pathPrefix, fieldName, 'link']
     })
   }
   if (!cta.text?.trim()) {
     fieldErrors.push({
-      message: `${label} secondary CTA is missing text`,
-      path: [...pathPrefix, 'secondaryCta', 'text']
+      message: `${label} ${fieldName === 'secondSecondaryCta' ? 'second ' : ''}secondary CTA is missing text`,
+      path: [...pathPrefix, fieldName, 'text']
     })
   }
   if (cta.external && cta.document) {
     fieldErrors.push({
-      message: `${label} secondary CTA cannot be both external and document`,
-      path: [...pathPrefix, 'secondaryCta']
+      message: `${label} ${fieldName === 'secondSecondaryCta' ? 'second ' : ''}secondary CTA cannot be both external and document`,
+      path: [...pathPrefix, fieldName]
     })
   }
   return fieldErrors
@@ -142,6 +146,18 @@ function validateCard(
   ) {
     fieldErrors.push(
       ...validateSecondaryCta(card.secondaryCta, label, pathPrefix)
+    )
+  }
+
+  if (variant === 'Title') {
+    fieldErrors.push(
+      ...validateSecondaryCta(
+        card.secondSecondaryCta,
+        label,
+        pathPrefix,
+        'secondSecondaryCta',
+        false
+      )
     )
   }
 
@@ -324,6 +340,14 @@ function serializeCtaAttrs(cta: CardGridSecondaryCta): string {
   return attrs
 }
 
+function serializeSecondCtaAttrs(cta: CardGridSecondaryCta): string {
+  const external = cta.external ?? false
+  const document = cta.document ?? false
+  let attrs = ` secondButtonUrl="${esc(cta.link ?? '')}" secondButtonText="${esc(cta.text ?? '')}" secondButtonExternal={${external}}`
+  if (document) attrs += ` secondButtonDocument={true}`
+  return attrs
+}
+
 function getSecondaryCta(
   card: CardGridCard,
   variant: CardGridVariant
@@ -378,7 +402,10 @@ function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
     ? ` subheading="${esc(card.subHeading)}"`
     : ''
   const description = escMdxBraces(card.description ?? '')
-  return `<TitleCard${headingAttr}${subheadingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))}>\n\n${description}\n\n</TitleCard>`
+  const secondCtaAttrs = card.secondSecondaryCta
+    ? serializeSecondCtaAttrs(card.secondSecondaryCta)
+    : ''
+  return `<TitleCard${headingAttr}${subheadingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))}${secondCtaAttrs}>\n\n${description}\n\n</TitleCard>`
 }
 
 export function serialize(block: CardGridSerializeInput): string {

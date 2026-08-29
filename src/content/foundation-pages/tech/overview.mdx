@@ -29,35 +29,63 @@ Interledger is a stack of open protocols that work in layers, modeled on the arc
 </Paragraph>
 
 <SplitLayout imagePosition="left" displayRatio="1:1" imageSrc="/uploads/img/original/Diagram_2_26bebf3ebf.jpg">
-### **Application Protocols (**[**Open Payments**](/tech/open-payments/)**&#x20;and Simple Payments Setup Protocol)**
+### **Application Protocols (Open Payments and Simple Payments Setup Protocol)**
 
 Define how an application arranges a payment with an account: requesting it, quoting the amount and any fees, and getting the payer’s approval.
+
+[Explore Open Payments](/tech/open-payments)
 
 ### **Transport Protocols (STREAM)**
 
 Breaks a payment into packets, encrypts and sends them across ILP, and reassembles them reliably at the other end.
 
+[Learn more about STREAM](/developers/rfcs/stream-protocol)
+
 ### **The Interledger Protocol (ILP)**
 
-[The Interledger Protocol](/tech/interledger-protocol) routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
+Routes value across those systems. It works out where a payment needs to go and passes it on, without needing to know what sits underneath.
+
+[Learn more about ILP](/tech/interledger-protocol)
 
 ### **Link Layer Protocols**
 
 Provide two-way authenticated communication between account holders or their financial service providers.
 
+[Explore link layer protocols](/developers/rfcs/interledger-architecture/#link-protocols)
+
 ### **Ledgers and Payment Systems**
 
 The base of the stack: the banks, wallets, and mobile money services that hold accounts and move funds. Settlement happens outside of Interledger, allowing for increased competition and no vendor lock-in.
+
+[Explore ledger protocols](/developers/rfcs/interledger-architecture/#ledger-protocols)
 
 </SplitLayout>
 
 <Paragraph>
 
-[**Rafiki**](/tech/rafiki) is the open-source implementation that brings these layers together, so a regulated financial institution can adopt the whole stack without building each part itself.
-
-[**Web Monetization**](/tech/web-monetization) is the open web standard for browser-native payments and micropayments, made possible by ILP. It uses the Application Layer protocols to make these payments.
+Rafiki is the open-source implementation that brings these layers together, so a regulated financial institution can adopt the whole stack without building each part itself.
 
 </Paragraph>
+
+<CtaButtons
+  buttons={[{ text: 'Explore Rafiki', link: '/tech/rafiki', style: 'primary' }]}
+/>
+
+<Paragraph>
+
+Web Monetization is the open web standard for browser-native payments and micropayments, made possible by ILP. It uses the Application Layer protocols to make these payments.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Discover Web Monetization',
+      link: '/tech/web-monetization',
+      style: 'primary'
+    }
+  ]}
+/>
 
 <CardGrid title="Why it is Built This Way" ariaLabel="A grid of cards explaining the design decisions behind the Interledger Stack" variant="Info" columns="Two">
 <InfoCard heading="Delegated Responsibility">
@@ -142,7 +170,7 @@ As a grantmaking organization, we support and fund those who want to experiment 
 >
   At the University of Cape Town, one of our [NextGen Higher
   Education](/grant/education/next-gen) grantees, student teams built
-  DigiStokvel and SecureLifeCover at a hackathon, prototypes bringing digital
+  DigiStokvel and SecureLifeCover, prototypes bringing digital
   interoperability to South Africa’s traditional community savings market.
 </SplitLayout>
 

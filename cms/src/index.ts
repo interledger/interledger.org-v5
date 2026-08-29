@@ -1322,7 +1322,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Heading',
       subHeading: 'Sub heading',
       description: 'Description',
-      secondaryCta: 'Secondary call-to-action button'
+      secondaryCta: 'Secondary call-to-action button',
+      secondSecondaryCta: 'Second call-to-action button'
     },
     'shared.category': {
       categoryValue: 'Category'
@@ -1992,7 +1993,8 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'heading', size: 12 }],
       [{ name: 'subHeading', size: 12 }],
       [{ name: 'description', size: 12 }],
-      [{ name: 'secondaryCta', size: 12 }]
+      [{ name: 'secondaryCta', size: 12 }],
+      [{ name: 'secondSecondaryCta', size: 12 }]
     ],
     'blocks.info-card': [
       [{ name: 'heading', size: 12 }],

@@ -70,10 +70,46 @@ function parseSecondaryCta(node: JsxBlockNode, component: string) {
   return { link, text, external, document }
 }
 
+function parseOptionalSecondSecondaryCta(
+  node: JsxBlockNode,
+  component: string
+): CardGridCard['secondSecondaryCta'] {
+  const link = getStringAttr(node, 'secondButtonUrl')
+  const text = getStringAttr(node, 'secondButtonText')
+  if (link === undefined && text === undefined) return undefined
+
+  if (!link?.trim() || !text?.trim()) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `${component} requires both secondButtonUrl and secondButtonText when adding a second CTA.`,
+      component,
+      prop: 'secondButtonUrl',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  const external = getBooleanAttr(node, 'secondButtonExternal') ?? false
+  const document = getBooleanAttr(node, 'secondButtonDocument') ?? false
+
+  if (external && document) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `${component} cannot set both secondButtonExternal and secondButtonDocument.`,
+      component,
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  return { link, text, external, document }
+}
+
 function parseTitleCard(node: JsxBlockNode): CardGridCard {
   const heading = getStringAttr(node, 'heading', { required: true })
   const subHeading = getStringAttr(node, 'subheading')
   const secondaryCta = parseSecondaryCta(node, 'TitleCard')
+  const secondSecondaryCta = parseOptionalSecondSecondaryCta(node, 'TitleCard')
   const description =
     node.children.length > 0 ? childrenToMarkdown(node.children) : ''
   if (!description) {
@@ -92,6 +128,7 @@ function parseTitleCard(node: JsxBlockNode): CardGridCard {
     secondaryCta
   }
   if (subHeading !== undefined) card.subHeading = subHeading
+  if (secondSecondaryCta) card.secondSecondaryCta = secondSecondaryCta
   return card
 }
 

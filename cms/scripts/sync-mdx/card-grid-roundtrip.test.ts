@@ -29,6 +29,36 @@ describe('CardGrid round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
   })
 
+  it('round-trips Title with an optional second CTA', async () => {
+    const original = {
+      ariaLabel: 'Dev resources',
+      variant: 'Title' as const,
+      columns: 'Two' as const,
+      titleCards: [
+        {
+          heading: 'Rafiki',
+          description: 'Rafiki description.',
+          secondaryCta: {
+            link: 'https://rafiki.dev/',
+            text: 'Rafiki Docs',
+            external: true,
+            document: false
+          },
+          secondSecondaryCta: {
+            link: 'https://github.com/interledger/rafiki',
+            text: 'Rafiki Repo',
+            external: true,
+            document: false
+          }
+        }
+      ]
+    }
+
+    const mdx = serialize({ ...original })
+    const blocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+    expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
+  })
+
   it('round-trips an optional title', async () => {
     const original = {
       title: 'Why Participate?',
