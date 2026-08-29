@@ -93,6 +93,11 @@ const breadcrumbs = [
     href: localizeRoute(`grant/${slug}`, contentLocale)
   }
 ]
+
+// Grant markdown `##` is a section title (same role as InfoCards "At a Glance"),
+// whether it is a direct child of programOverview or wrapped in <Paragraph>.
+const grantSectionHeadingClass =
+  '[&_h2]:text-h3 tablet:[&_h2]:text-h3-md desktop:[&_h2]:text-h3-lg [&_h2]:text-neutral-900 [&_h2_strong]:font-medium [&_p_strong]:font-semibold'
 ---
 
 <FoundationPageLayout
@@ -118,7 +123,11 @@ const breadcrumbs = [
       programOverviewHtml && (
         <section class="px-content">
           <div class="content-column">
-            <div data-prose set:html={programOverviewHtml} />
+            <div
+              data-prose
+              class:list={[grantSectionHeadingClass, '[&>h2:first-child]:mt-0']}
+              set:html={programOverviewHtml}
+            />
           </div>
         </section>
       )
@@ -157,7 +166,7 @@ const breadcrumbs = [
 
     <section class="px-content">
       <div class="content-column">
-        <div data-prose>
+        <div data-prose class={grantSectionHeadingClass}>
           <MdxContent
             components={{
               Paragraph,

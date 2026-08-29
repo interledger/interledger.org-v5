@@ -398,7 +398,7 @@ Each `text-*` utility carries font-size, line-height, and font-weight together. 
 | ----------------------- | ---------------- | ---------------- | ------------------ |
 | `text-h1`               | 56 / 68 SemiBold | 70 / 76 SemiBold | 100 / 100 SemiBold |
 | `text-h2`               | 32 / 40 SemiBold | 36 / 48 SemiBold | 56 / 64 SemiBold   |
-| `text-h3`               | 20 / 28 Medium   | 28 / 36 Medium   | 40 / 56 Medium     |
+| `text-h3`               | 28 / 36 Medium   | 28 / 36 Medium   | 40 / 56 Medium     |
 | `text-h4`               | 18 / 28 Regular  | 20 / 30 Regular  | 24 / 34 Regular    |
 | `text-h5`               | 16 / 26 Regular  | 18 / 28 Regular  | 20 / 30 Regular    |
 | `text-body-lg-emphasis` | 15 / 24 Medium   | 16 / 26 Medium   | _(same as -md)_    |
