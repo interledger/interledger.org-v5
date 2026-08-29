@@ -163,7 +163,7 @@ describe('ReportSection handler', () => {
     ])
   })
 
-  it('parses a Button content block with style, external, and document', async () => {
+  it('parses a Button content block with style and document', async () => {
     const blocks = await parseMdxToBlocks(
       reportSection([
         '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonStyle="secondary" buttonDocument={true} />'
@@ -200,6 +200,23 @@ describe('ReportSection handler', () => {
     expect(result).toBeInstanceOf(MdxParserError)
     expect((result as MdxParserError).code).toBe(
       ParserErrorCode.INVALID_PROP_VALUE
+    )
+  })
+
+  it('errors when a Button block has unexpected children', async () => {
+    const mdx = reportSection([
+      [
+        '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com">',
+        'Some content.',
+        '</ReportText>'
+      ].join('\n')
+    ])
+
+    const result = await parseMdxToBlocks(mdx, ctx)
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.UNEXPECTED_CHILDREN
     )
   })
 

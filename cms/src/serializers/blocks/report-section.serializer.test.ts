@@ -65,7 +65,7 @@ describe('report-section serializer', () => {
     )
   })
 
-  it('serializes a button with a non-default style, external, and document flags', () => {
+  it('serializes a button with a non-default style and document flag', () => {
     const result = serialize({
       heading: 'Downloads',
       reportText: [

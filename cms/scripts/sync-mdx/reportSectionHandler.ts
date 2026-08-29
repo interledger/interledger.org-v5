@@ -138,6 +138,17 @@ function parseButtonReportText(
   node: JsxBlockNode,
   textType: 'Button'
 ): ReportTextItem {
+  if (node.children.length > 0) {
+    throw new MdxParserError({
+      code: ParserErrorCode.UNEXPECTED_CHILDREN,
+      message:
+        'ReportText type="Button" must be self-closing — it takes no children. Its text and link come from the buttonText/buttonLink attributes.',
+      component: 'ReportText',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
   const text = getStringAttr(node, 'buttonText', { required: true })
   const link = getStringAttr(node, 'buttonLink', { required: true })
   const style = getStringAttr(node, 'buttonStyle')
