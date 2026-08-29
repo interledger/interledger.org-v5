@@ -180,26 +180,19 @@ const hasSecondary = Boolean(
       ]}
     >
       {/*
-        Decorative Interledger network motif bleeding off the left edge.
-        Absolutely positioned so it never affects layout (no CLS); hidden from
-        the a11y tree. Low opacity so the nodes read as muted over the card.
-
-        The same 40% on dark, which is what Figma's dark variant shows. The
-        prototype runs its motif at full opacity, but that does not transfer:
-        there the motif is confined to the left of a wide card with the text
-        centred beside it, while ours is scaled and rotated across the whole
-        card. Measured at 390px, full opacity puts a node on top of the heading
-        and an arc through the description. At 40% every node still reads
-        clearly against neutral-150 (INTORG-1083).
+        Decorative Interledger network motif on the left edge. The SVG is
+        already cropped and muted (30% opacity) as drawn, so it is not rotated
+        or shifted. Absolutely positioned so it never affects layout; hidden
+        from the a11y tree.
       */}
       <img
         src="/img/blocks/cta-strip-network.svg"
         alt=""
         aria-hidden="true"
-        width="450"
-        height="450"
+        width="436"
+        height="439"
         loading="lazy"
-        class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[135%] w-auto max-w-none aspect-square -translate-x-1/4 -translate-y-1/2 rotate-90 opacity-40"
+        class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[175%] desktop:h-[155%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2"
       />
 
       <div class="flex flex-col items-center gap-lg text-center">
