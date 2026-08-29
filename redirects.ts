@@ -20,13 +20,30 @@ export const redirects = {
   '/hacktoberfest': '/tech/hacktoberfest',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
+  '/interledger': '/tech/interledger-protocol',
+  '/open-payments': '/tech/open-payments',
+  '/web-monetization': '/tech/web-monetization',
+  '/developers/': '/tech/dev-portal',
+  '/developers/roadmap': '/tech/roadmap',
+  '/grant/open-payments-sdk': '/grant/innovation/sdk',
+  '/grant/open-payments-accelerator': '/grant/innovation/accelerator',
+  '/grant/local-impact': '/grant/local-impact-grant',
+  '/art': '/grant/future-money/',
 
   // Foundation + site pages (Spanish)
-  '/es/open-payments-es': '/es/open-payments',
-  '/es/servicios-financieros-digitales': '/es/grant/financial-services',
+  '/es/interledger': '/es/tech/interledger-protocol',
+  '/es/open-payments': '/es/tech/open-payments',
+  '/es/web-monetization': '/es/tech/web-monetization',
+  // Points straight at the final target, not '/es/open-payments', to avoid
+  // chaining through the redirect above.
+  '/es/open-payments-es': '/es/tech/open-payments',
+  '/es/servicios-financieros-digitales':
+    '/es/grant/innovation/financial-services',
   '/es/educacion': '/es/grant/education',
   '/es/embajadores': '/es/grant/fellowship',
-  '/es/grant-web': '/es/grant/grant-web',
+  // Points straight at the final target, not '/es/grant/grant-web', to avoid
+  // chaining through the redirect below.
+  '/es/grant-web': '/es/grant/innovation/grant-web',
   '/es/grant/educacion': '/es/grant/education',
   '/es/grant/embajadores': '/es/grant/fellowship',
   '/es/grant/ambassadors': '/es/grant/fellowship',
@@ -37,6 +54,11 @@ export const redirects = {
   '/es/grantee-directory': '/es/grant/grantee-directory',
   '/es/grant/grantee-database': '/es/grant/grantee-directory',
   '/es/contacto': '/es/contact',
+  '/es/grant/open-payments-sdk': '/es/grant/innovation/sdk',
+  '/es/node/1760': '/es/grant/innovation/accelerator',
+  '/es/grant/grant-web': '/es/grant/innovation/grant-web',
+  '/es/node/1774': '/es/grant/local-impact-grant',
+  '/es/art': '/es/grant/future-money/',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
@@ -602,11 +624,22 @@ export const redirects = {
 
   // Policy and advocacy pages
   '/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger-open-source-technologies',
+    '/policy-and-advocacy/security-profile-interledger',
   '/network-fees-interledger-ecosystem':
     '/policy-and-advocacy/network-fees-interledger-ecosystem',
   '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions',
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+
+  // Policy and advocacy pages: renamed slugs (avoid chaining through the
+  // old flat paths above, which redirect straight to these new targets).
+  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/es/policy-and-advocacy/security-profile-interledger',
+  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
 
   // Foundation blog: tags renamed to categories (INTORG-765).
   // Explicit base-page redirects for the canonical term URLs (the links that

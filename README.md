@@ -745,10 +745,10 @@ The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as c
 
 ## Developers Roadmap (Linear Integration)
 
-The `/developers/roadmap` page shows a public timeline of tech projects sourced from a Linear custom view. It is server-side rendered (`export const prerender = false`): the page reads a pre-built snapshot from Netlify Blobs at request time and never calls the Linear API itself.
+The `/tech/roadmap` page shows a public timeline of tech projects sourced from a Linear custom view. It is server-side rendered (`export const prerender = false`): the page reads a pre-built snapshot from Netlify Blobs at request time and never calls the Linear API itself.
 
 ```text
-Linear API ──(sync function)──▶ Netlify Blob ──(SSR read at request time)──▶ /developers/roadmap ──▶ Netlify CDN cache
+Linear API ──(sync function)──▶ Netlify Blob ──(SSR read at request time)──▶ /tech/roadmap ──▶ Netlify CDN cache
 ```
 
 Two Netlify Functions build the snapshot from Linear and write it to the blob (store `roadmap`, key `roadmap-snapshot`):
