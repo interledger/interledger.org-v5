@@ -2,6 +2,7 @@ export const redirects = {
   // Foundation + site pages
   '/get-involved': '/community',
   '/today': '/developers/rfcs/interledger-protocol/',
+  '/developers/roadmap': '/tech/roadmap',
   '/about': '/about-us',
   '/overview': '/tech/overview/',
   '/mission': '/about-us',

@@ -284,6 +284,16 @@ export const ui = {
     'subscribe.error.submit':
       'Something went wrong subscribing you. Please try again.',
     'subscribe.error.captcha': 'Please complete the reCAPTCHA challenge.',
+    'roadmap.title': 'Developers Roadmap',
+    'roadmap.description':
+      'Track upcoming milestones, work in progress, and completed items across the Interledger open-source ecosystem.',
+    'roadmap.intro':
+      'Track milestones, active work, and shipped items across the Interledger open-source ecosystem.',
+    'roadmap.empty_state_pre':
+      'The roadmap could not be loaded right now. Please check back shortly or visit our',
+    'roadmap.empty_state_link_text': 'GitHub organisation',
+    'roadmap.empty_state_post': 'for the latest project status.',
+    'roadmap.refreshed_at': 'Roadmap data refreshed at:',
     'homepageHero.title_lead': 'Rewriting the rules that move money',
     'homepageHero.title_accent': '',
     'homepageHero.description':
@@ -614,6 +624,13 @@ export const ui = {
     'subscribe.success_thanks': '',
     'subscribe.error.submit': '',
     'subscribe.error.captcha': '',
+    'roadmap.title': '',
+    'roadmap.description': '',
+    'roadmap.intro': '',
+    'roadmap.empty_state_pre': '',
+    'roadmap.empty_state_link_text': '',
+    'roadmap.empty_state_post': '',
+    'roadmap.refreshed_at': '',
     'homepageHero.title_lead': '',
     'homepageHero.title_accent': '',
     'homepageHero.description': '',

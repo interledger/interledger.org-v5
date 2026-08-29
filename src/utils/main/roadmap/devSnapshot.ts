@@ -1,7 +1,7 @@
 import type { Snapshot } from '@/types/roadmap'
 import { tryCatchAsync } from '../../shared/tryCatch'
 
-// Dev-only snapshot source for /developers/roadmap. Plain `astro dev` has no
+// Dev-only snapshot source for /tech/roadmap. Plain `astro dev` has no
 // Netlify Blobs runtime, so the page can't read the production snapshot; this
 // fetches live Linear data when a key is configured and otherwise serves the
 // bundled fixture. Works under both `pnpm start` and `netlify dev`.
