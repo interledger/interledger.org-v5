@@ -1,7 +1,15 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
-import { roadmapWindow, projectOverlapsWindow, buildUmamiAttrs } from '@/utils'
+import {
+  roadmapWindow,
+  projectOverlapsWindow,
+  buildUmamiAttrs,
+  localizeRoute,
+  type BreadcrumbItem
+} from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
 
 interface Props {
@@ -13,6 +21,11 @@ const projects = snapshot?.projects ?? []
 const teams = snapshot?.teams ?? []
 const generatedAt = snapshot?.generatedAt ?? null
 const { routeLocale } = Astro.locals
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { name: 'Home', href: localizeRoute('', routeLocale) },
+  { name: 'Roadmap', href: localizeRoute('tech/roadmap', routeLocale) }
+]
 
 // Mirror RoadmapBoard's windowing so the empty state shows when no project falls
 // in the visible window (otherwise the board would render with zero rows).
@@ -34,29 +47,23 @@ const githubFallbackAttrs = buildUmamiAttrs({
   title="Developers Roadmap"
   description="Track upcoming milestones, work in progress, and completed items across the Interledger open-source ecosystem."
 >
-  <main class="pb-xl">
-    <section
-      class="bg-gradient-primary-fallback bg-gradient-primary py-2xl text-white"
-    >
-      <div class="mx-auto max-w-content min-w-[360px] px-[5%]">
-        <h1
-          class="text-h2 tablet:text-h2-md desktop:text-h2-lg font-semibold text-white"
-        >
-          Developers Roadmap
-        </h1>
-        <p class="mt-xs max-w-[56ch] opacity-90">
-          Track milestones, active work, and shipped items across the
-          Interledger open-source ecosystem.
-        </p>
-      </div>
-    </section>
+  <main class="px-content pt-2xl pb-4xl">
+    <div class="content-column">
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={false} />
+      </Breadcrumbs>
 
-    <section class="px-[5%] pt-md">
+      <h1 class="text-h1 text-neutral-900 mb-2xl">Developers Roadmap</h1>
+      <p class="mb-xl max-w-[56ch] text-body-md-standard text-neutral-600">
+        Track milestones, active work, and shipped items across the Interledger
+        open-source ecosystem.
+      </p>
+
       {
         hasData ? (
           <RoadmapBoard projects={projects} teams={teams} />
         ) : (
-          <div class="mx-auto max-w-content py-xl text-gray-600">
+          <div class="py-xl text-gray-600">
             <p>
               The roadmap could not be loaded right now. Please check back
               shortly or visit our{' '}
@@ -74,18 +81,18 @@ const githubFallbackAttrs = buildUmamiAttrs({
           </div>
         )
       }
-    </section>
 
-    {
-      generatedAt && (
-        <div class="mx-auto max-w-content px-[5%] pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
-          Roadmap data refreshed at:{' '}
-          <time class="roadmap-refreshed" datetime={generatedAt}>
-            {new Date(generatedAt).toUTCString()}
-          </time>
-        </div>
-      )
-    }
+      {
+        generatedAt && (
+          <div class="pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
+            Roadmap data refreshed at:{' '}
+            <time class="roadmap-refreshed" datetime={generatedAt}>
+              {new Date(generatedAt).toUTCString()}
+            </time>
+          </div>
+        )
+      }
+    </div>
   </main>
 </FoundationPageLayout>
 
