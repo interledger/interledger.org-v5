@@ -4,6 +4,9 @@ export const prerender = false
 import DevelopersRoadmapPage from '@/components/pages/DevelopersRoadmapPage.astro'
 import { getRoadmapSnapshot } from '@/utils'
 
+// No Spanish translation of the roadmap exists (the data comes straight from
+// Linear), so this route always renders the EN snapshot with the translation
+// disclaimer — see DevelopersRoadmapPage's `isFallback` prop.
 const snapshot = await getRoadmapSnapshot()
 
 Astro.response.headers.set(
@@ -14,4 +17,4 @@ Astro.response.headers.set(
 Astro.response.headers.set('Netlify-Cache-ID', 'roadmap')
 ---
 
-<DevelopersRoadmapPage snapshot={snapshot} />
+<DevelopersRoadmapPage snapshot={snapshot} isFallback />

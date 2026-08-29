@@ -1,14 +1,16 @@
 ---
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { roadmapWindow, projectOverlapsWindow, buildUmamiAttrs } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
 
 interface Props {
   snapshot: Snapshot | null
+  isFallback?: boolean
 }
 
-const { snapshot } = Astro.props
+const { snapshot, isFallback = false } = Astro.props
 const projects = snapshot?.projects ?? []
 const teams = snapshot?.teams ?? []
 const generatedAt = snapshot?.generatedAt ?? null
@@ -50,6 +52,16 @@ const githubFallbackAttrs = buildUmamiAttrs({
         </p>
       </div>
     </section>
+
+    {
+      isFallback && (
+        <div class="px-[5%] pt-md">
+          <div class="mx-auto flex max-w-content justify-end">
+            <TranslationDisclaimer isVisible={isFallback} />
+          </div>
+        </div>
+      )
+    }
 
     <section class="px-[5%] pt-md">
       {
