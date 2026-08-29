@@ -21,11 +21,13 @@ const {
   subheading,
   buttonUrl,
   buttonText,
-  buttonExternal = false,
+  // Omit the flag so resolveCtaLink can infer from an absolute URL. Explicit
+  // `false` is a same-tab override and must not be the missing-prop default.
+  buttonExternal,
   buttonDocument = false,
   secondButtonUrl,
   secondButtonText,
-  secondButtonExternal = false,
+  secondButtonExternal,
   secondButtonDocument = false
 } = Astro.props
 
