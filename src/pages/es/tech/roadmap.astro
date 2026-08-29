@@ -34,6 +34,10 @@ Astro.response.headers.set(
 )
 // Cache tag so the sync functions can purge just this page via purgeCache({ tags }).
 Astro.response.headers.set('Netlify-Cache-ID', 'roadmap')
+
+// The roadmap has no translated content of its own — this es route always
+// renders the en board/copy, so the disclaimer is always shown here.
+const isFallback = true
 ---
 
-<DevelopersRoadmapPage snapshot={snapshot} isFallback={false} />
+<DevelopersRoadmapPage snapshot={snapshot} isFallback={isFallback} />

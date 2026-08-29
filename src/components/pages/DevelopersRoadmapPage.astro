@@ -4,6 +4,7 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import RoadmapBoard from '@/components/roadmap/RoadmapBoard.astro'
 import {
+  useTranslations,
   roadmapWindow,
   projectOverlapsWindow,
   buildUmamiAttrs,
@@ -14,17 +15,19 @@ import type { Snapshot } from '@/types/roadmap'
 
 interface Props {
   snapshot: Snapshot | null
+  isFallback?: boolean
 }
 
-const { snapshot } = Astro.props
+const { snapshot, isFallback = false } = Astro.props
 const projects = snapshot?.projects ?? []
 const teams = snapshot?.teams ?? []
 const generatedAt = snapshot?.generatedAt ?? null
 const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { name: 'Home', href: localizeRoute('', routeLocale) },
-  { name: 'Roadmap', href: localizeRoute('tech/roadmap', routeLocale) }
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: t('roadmap.title'), href: localizeRoute('tech/roadmap', routeLocale) }
 ]
 
 // Mirror RoadmapBoard's windowing so the empty state shows when no project falls
@@ -39,24 +42,23 @@ const githubFallbackAttrs = buildUmamiAttrs({
   label: 'link',
   baseComponent: 'roadmap_empty_state',
   href: GITHUB_FALLBACK_HREF,
-  linkText: 'GitHub organisation'
+  linkText: t('roadmap.empty_state_link_text')
 })
 ---
 
 <FoundationPageLayout
-  title="Developers Roadmap"
-  description="Track upcoming milestones, work in progress, and completed items across the Interledger open-source ecosystem."
+  title={t('roadmap.title')}
+  description={t('roadmap.description')}
 >
   <main class="px-content pt-2xl pb-4xl">
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
-        <TranslationDisclaimer isVisible={false} />
+        <TranslationDisclaimer isVisible={isFallback} />
       </Breadcrumbs>
 
-      <h1 class="text-h1 text-neutral-900 mb-2xl">Developers Roadmap</h1>
+      <h1 class="text-h1 text-neutral-900 mb-2xl">{t('roadmap.title')}</h1>
       <p class="mb-xl max-w-[56ch] text-body-md-standard text-neutral-600">
-        Track milestones, active work, and shipped items across the Interledger
-        open-source ecosystem.
+        {t('roadmap.intro')}
       </p>
 
       {
@@ -65,8 +67,7 @@ const githubFallbackAttrs = buildUmamiAttrs({
         ) : (
           <div class="py-xl text-gray-600">
             <p>
-              The roadmap could not be loaded right now. Please check back
-              shortly or visit our{' '}
+              {t('roadmap.empty_state_pre')}{' '}
               <a
                 class="text-link underline"
                 href={GITHUB_FALLBACK_HREF}
@@ -74,9 +75,9 @@ const githubFallbackAttrs = buildUmamiAttrs({
                 rel="noopener noreferrer"
                 {...githubFallbackAttrs}
               >
-                GitHub organisation
+                {t('roadmap.empty_state_link_text')}
               </a>{' '}
-              for the latest project status.
+              {t('roadmap.empty_state_post')}
             </p>
           </div>
         )
@@ -85,7 +86,7 @@ const githubFallbackAttrs = buildUmamiAttrs({
       {
         generatedAt && (
           <div class="pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
-            Roadmap data refreshed at:{' '}
+            {t('roadmap.refreshed_at')}{' '}
             <time class="roadmap-refreshed" datetime={generatedAt}>
               {new Date(generatedAt).toUTCString()}
             </time>
