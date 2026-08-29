@@ -42,6 +42,18 @@
   & > * + * {
     margin-block-start: var(--space-section);
   }
+
+  /*
+   * A section holding nothing but a call to action belongs to the section
+   * above it, so the pair sits at the button gap rather than a full section
+   * break (Radu, 2026-08-28). Same principle as `.cta-link` and `CtaButtons`
+   * in prose/rhythm.css: a CTA is not a section of its own.
+   *
+   * The attribute outscores the sibling rule above, so no `!important`.
+   */
+  & > [data-stack='cta'] {
+    margin-block-start: var(--spacing-2xl);
+  }
 }
 
 /* Single-side reads of the same rhythm, for the edges of a stack. */
