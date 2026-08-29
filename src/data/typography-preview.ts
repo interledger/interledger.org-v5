@@ -50,8 +50,8 @@ const MOBILE_PRESETS: TypographyPreset[] = [
     label: 'H3',
     className: 'text-h3',
     fontWeight: 500,
-    fontSizePx: 20,
-    lineHeightPx: 28
+    fontSizePx: 28,
+    lineHeightPx: 36
   },
   {
     label: 'H4',
