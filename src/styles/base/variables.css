@@ -62,15 +62,23 @@
        Every page except the home page stacks its sections and its prose
        blocks on this value, so a block never brings its own margin.
 
+       Radu set the figure on 2026-08-28 as padding per side, which is why
+       each step is written as a double: a section carries 32/40/60 top and
+       bottom, so any two of them meet at 64/80/120.
+
        It must stay larger than `--space-block-heading`. A heading and the
        content under it belong together, so that pair reads tighter than the
        break between two sections. Radu reported the inverse at the bug bash
        on 2026-08-25: sections sat closer than a heading sat to its own
        content, which made the page read as one undivided run. */
-    --space-section: var(--spacing-4xl);
+    --space-section: calc(var(--spacing-2xl) * 2);
+
+    @variant tablet {
+      --space-section: calc(var(--spacing-3xl-tight) * 2);
+    }
 
     @variant desktop {
-      --space-section: var(--spacing-5xl);
+      --space-section: calc(var(--spacing-4xl) * 2);
     }
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
