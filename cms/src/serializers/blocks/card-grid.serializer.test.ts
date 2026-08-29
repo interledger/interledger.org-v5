@@ -70,7 +70,9 @@ describe('card-grid serializer', () => {
       ]
     })
 
-    expect(result).toContain('secondButtonUrl="https://github.com/interledger/rafiki"')
+    expect(result).toContain(
+      'secondButtonUrl="https://github.com/interledger/rafiki"'
+    )
     expect(result).toContain('secondButtonText="Rafiki Repo"')
     expect(result).toContain('secondButtonExternal={true}')
   })

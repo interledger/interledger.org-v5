@@ -86,7 +86,9 @@ describe('CardGrid handler', () => {
     )
 
     expect(result).toBeInstanceOf(MdxParserError)
-    expect((result as MdxParserError).code).toBe(ParserErrorCode.INVALID_PROP_VALUE)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
   })
 
   it('parses an optional title', async () => {
