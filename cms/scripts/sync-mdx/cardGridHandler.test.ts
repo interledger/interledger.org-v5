@@ -31,8 +31,7 @@ describe('CardGrid handler', () => {
             secondaryCta: {
               link: '/grants/apply',
               text: 'Learn more',
-              external: false,
-              document: false
+              external: false
             }
           }
         ]
@@ -59,17 +58,38 @@ describe('CardGrid handler', () => {
           secondaryCta: {
             link: 'https://rafiki.dev/',
             text: 'Rafiki Docs',
-            external: true,
-            document: false
+            external: true
           },
           secondSecondaryCta: {
             link: 'https://github.com/interledger/rafiki',
             text: 'Rafiki Repo',
-            external: true,
-            document: false
+            external: true
           }
         }
       ]
+    })
+  })
+
+  it('leaves second CTA flags unset when secondButtonExternal/Document are omitted', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid ariaLabel="Dev resources" variant="Title" columns="Two">',
+        '<TitleCard heading="Rafiki" buttonUrl="/tech/rafiki" buttonText="Rafiki" secondButtonUrl="https://github.com/interledger/rafiki" secondButtonText="Rafiki Repo">',
+        'Rafiki description.',
+        '</TitleCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+
+    expect(blocks).not.toBeInstanceOf(MdxParserError)
+    expect(
+      (
+        blocks as Array<{ titleCards: Array<{ secondSecondaryCta: unknown }> }>
+      )[0]!.titleCards[0]!.secondSecondaryCta
+    ).toEqual({
+      link: 'https://github.com/interledger/rafiki',
+      text: 'Rafiki Repo'
     })
   })
 

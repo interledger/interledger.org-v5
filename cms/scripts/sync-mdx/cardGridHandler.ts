@@ -51,23 +51,41 @@ function isColumns(value: string): value is (typeof CARD_GRID_COLUMNS)[number] {
   return (CARD_GRID_COLUMNS as readonly string[]).includes(value)
 }
 
-function parseSecondaryCta(node: JsxBlockNode, component: string) {
-  const link = getStringAttr(node, 'buttonUrl', { required: true })
-  const text = getStringAttr(node, 'buttonText', { required: true })
-  const external = getBooleanAttr(node, 'buttonExternal') ?? false
-  const document = getBooleanAttr(node, 'buttonDocument') ?? false
+function parseCtaFlags(
+  node: JsxBlockNode,
+  component: string,
+  externalProp: string,
+  documentProp: string
+): { external?: boolean; document?: boolean } {
+  const external = getBooleanAttr(node, externalProp)
+  const document = getBooleanAttr(node, documentProp)
 
   if (external && document) {
     throw new MdxParserError({
       code: ParserErrorCode.INVALID_PROP_VALUE,
-      message: `${component} cannot set both buttonExternal and buttonDocument.`,
+      message: `${component} cannot set both ${externalProp} and ${documentProp}.`,
       component,
       line: node.position?.start.line,
       column: node.position?.start.column
     })
   }
 
-  return { link, text, external, document }
+  // Leave omitted flags unset. resolveCtaLink infers external from absolute
+  // URLs only when `external` is undefined — an explicit false must stay false.
+  const flags: { external?: boolean; document?: boolean } = {}
+  if (external !== undefined) flags.external = external
+  if (document !== undefined) flags.document = document
+  return flags
+}
+
+function parseSecondaryCta(node: JsxBlockNode, component: string) {
+  const link = getStringAttr(node, 'buttonUrl', { required: true })
+  const text = getStringAttr(node, 'buttonText', { required: true })
+  return {
+    link,
+    text,
+    ...parseCtaFlags(node, component, 'buttonExternal', 'buttonDocument')
+  }
 }
 
 function parseOptionalSecondSecondaryCta(
@@ -89,20 +107,16 @@ function parseOptionalSecondSecondaryCta(
     })
   }
 
-  const external = getBooleanAttr(node, 'secondButtonExternal') ?? false
-  const document = getBooleanAttr(node, 'secondButtonDocument') ?? false
-
-  if (external && document) {
-    throw new MdxParserError({
-      code: ParserErrorCode.INVALID_PROP_VALUE,
-      message: `${component} cannot set both secondButtonExternal and secondButtonDocument.`,
+  return {
+    link,
+    text,
+    ...parseCtaFlags(
+      node,
       component,
-      line: node.position?.start.line,
-      column: node.position?.start.column
-    })
+      'secondButtonExternal',
+      'secondButtonDocument'
+    )
   }
-
-  return { link, text, external, document }
 }
 
 function parseTitleCard(node: JsxBlockNode): CardGridCard {

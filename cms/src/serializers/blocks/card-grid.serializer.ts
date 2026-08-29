@@ -332,19 +332,17 @@ export function validateCardGrid(block: CardGridSerializeInput): FieldError[] {
   return fieldErrors
 }
 
-function serializeCtaAttrs(cta: CardGridSecondaryCta): string {
-  const external = cta.external ?? false
-  const document = cta.document ?? false
-  let attrs = ` buttonUrl="${esc(cta.link ?? '')}" buttonText="${esc(cta.text ?? '')}" buttonExternal={${external}}`
-  if (document) attrs += ` buttonDocument={true}`
-  return attrs
-}
-
-function serializeSecondCtaAttrs(cta: CardGridSecondaryCta): string {
-  const external = cta.external ?? false
-  const document = cta.document ?? false
-  let attrs = ` secondButtonUrl="${esc(cta.link ?? '')}" secondButtonText="${esc(cta.text ?? '')}" secondButtonExternal={${external}}`
-  if (document) attrs += ` secondButtonDocument={true}`
+function serializeCtaAttrs(
+  cta: CardGridSecondaryCta,
+  prefix: 'button' | 'secondButton' = 'button'
+): string {
+  let attrs = ` ${prefix}Url="${esc(cta.link ?? '')}" ${prefix}Text="${esc(cta.text ?? '')}"`
+  // Omit the flag when unset so resolveCtaLink can infer from an absolute URL.
+  // Explicit false must still serialize — it is a same-tab override.
+  if (cta.external !== undefined) {
+    attrs += ` ${prefix}External={${cta.external}}`
+  }
+  if (cta.document) attrs += ` ${prefix}Document={true}`
   return attrs
 }
 
@@ -403,7 +401,7 @@ function serializeCard(card: CardGridCard, variant: CardGridVariant): string {
     : ''
   const description = escMdxBraces(card.description ?? '')
   const secondCtaAttrs = card.secondSecondaryCta
-    ? serializeSecondCtaAttrs(card.secondSecondaryCta)
+    ? serializeCtaAttrs(card.secondSecondaryCta, 'secondButton')
     : ''
   return `<TitleCard${headingAttr}${subheadingAttr}${serializeCtaAttrs(getSecondaryCta(card, variant))}${secondCtaAttrs}>\n\n${description}\n\n</TitleCard>`
 }

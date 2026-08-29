@@ -17,8 +17,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: '/grants/apply',
             text: 'Learn more',
-            external: false,
-            document: false
+            external: false
           }
         }
       ]
@@ -41,14 +40,12 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: 'https://rafiki.dev/',
             text: 'Rafiki Docs',
-            external: true,
-            document: false
+            external: true
           },
           secondSecondaryCta: {
             link: 'https://github.com/interledger/rafiki',
             text: 'Rafiki Repo',
-            external: true,
-            document: false
+            external: true
           }
         }
       ]
@@ -95,8 +92,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: 'https://example.com',
             text: 'Open',
-            external: true,
-            document: false
+            external: true
           }
         }
       ]
@@ -164,8 +160,7 @@ describe('CardGrid round-trip (serialize → parse)', () => {
           secondaryCta: {
             link: '/apply',
             text: 'Start',
-            external: false,
-            document: false
+            external: false
           }
         }
       ]
