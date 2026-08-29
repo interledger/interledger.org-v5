@@ -60,6 +60,9 @@ export function syncEmailFieldError(
   attemptedSubmit: boolean,
   helpId?: string
 ): boolean {
+  const trimmedValue = input.value.trim()
+  if (trimmedValue !== input.value) input.value = trimmedValue
+
   const message = resolveEmailFieldErrorMessage(
     input.value,
     input.validity,

@@ -201,6 +201,19 @@ describe('syncEmailFieldError', () => {
     expect(syncEmailFieldError(input, errorEl, false)).toBe(false)
     expect(errorEl.classList.contains('hidden')).toBe(true)
   })
+
+  it('trims surrounding whitespace and accepts the remaining address', () => {
+    const input = createInput({
+      value: '  user@example.com  ',
+      dataset: { errorRequired: 'Required', errorInvalid: 'Invalid email' },
+      validity: validity({ typeMismatch: true })
+    })
+    const errorEl = createErrorElement()
+
+    expect(syncEmailFieldError(input, errorEl, false)).toBe(false)
+    expect(input.value).toBe('user@example.com')
+    expect(errorEl.classList.contains('hidden')).toBe(true)
+  })
 })
 
 describe('bindEmailFieldValidation', () => {

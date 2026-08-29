@@ -23,6 +23,9 @@ export function emailConstraintErrorKind(
   validity: Pick<ValidityState, 'valueMissing' | 'typeMismatch'>
 ): ConstraintErrorKind | null {
   if (validity.valueMissing || value.trim() === '') return 'required'
-  if (validity.typeMismatch || !isValidEmailAddress(value)) return 'invalid'
+  // Surrounding whitespace can set typeMismatch even when the trimmed
+  // address is valid. isValidEmailAddress already trims, so it is the
+  // source of truth — not the browser flag.
+  if (!isValidEmailAddress(value)) return 'invalid'
   return null
 }

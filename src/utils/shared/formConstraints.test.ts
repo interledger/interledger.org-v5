@@ -69,4 +69,13 @@ describe('emailConstraintErrorKind', () => {
       emailConstraintErrorKind('user@example.com', validity({}))
     ).toBeNull()
   })
+
+  it('does not treat surrounding whitespace as invalid', () => {
+    expect(
+      emailConstraintErrorKind(
+        '  user@example.com  ',
+        validity({ typeMismatch: true })
+      )
+    ).toBeNull()
+  })
 })
