@@ -31,6 +31,25 @@ export const redirects = {
   '/art': '/grant/future-money/',
   '/media': '/press',
   '/open-payments-accelerator': '/grant/innovation/accelerator',
+  '/team/team-member-hackathon-2025-judge-sabine-schaller': '/team',
+  '/team/chris-lawrence': '/team',
+  '/team/alex-shin': '/team',
+
+  // Policy and advocacy pages
+  '/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/network-fees-interledger-ecosystem':
+    '/policy-and-advocacy/network-fees-interledger-ecosystem',
+  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/es/policy-and-advocacy/security-profile-interledger',
+  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
 
   // Foundation + site pages (Spanish)
   '/es/interledger': '/es/tech/interledger-protocol',
@@ -60,6 +79,7 @@ export const redirects = {
   '/es/node/1774': '/es/grant/local-impact-grant',
   '/es/art': '/es/grant/future-money/',
   '/es/politica-y-defensa': '/es/policy-and-advocacy',
+  '/es/politica-defensa': '/es/policy-and-advocacy',
   '/es/eventos': '/es/events',
   '/es/hacktoberfest': '/es/tech/hacktoberfest',
   '/es/equipo': '/es/team',
@@ -68,19 +88,6 @@ export const redirects = {
   '/es/sobre-nosotros': '/about-us',
   '/es/suscribase': '/es/subscribe',
   '/es/estandares-abiertos': '/es/tech/overview',
-
-  // Legacy Drupal Spanish content: these old URLs carried no /es/ prefix
-  // (Drupal served the Spanish content at the same path via language
-  // negotiation), so each maps straight to today's /es/-prefixed page.
-  '/open-payments-es': '/es/tech/open-payments',
-  '/servicios-financieros-digitales': '/es/grant/innovation/financial-services',
-  '/educacion': '/es/grant/education',
-  '/embajadores': '/es/grant/fellowship',
-  '/grant/educacion': '/es/grant/education',
-  '/grant/embajadores': '/es/grant/fellowship',
-  '/politica-defensa': '/es/policy-and-advocacy',
-  '/politicy-and-advocacy': '/es/policy-and-advocacy',
-  '/equipo': '/es/team',
 
   // News + blog content
   '/blog/2021/04/14/introducing-the-interledger-foundation':
@@ -555,7 +562,7 @@ export const redirects = {
   '/developers/blog': '/blog',
   '/es/developers/blog': '/es/blog',
 
-  // Individual tech posts (from cms/scripts/migrate-dev-blog-to-foundation.ts).
+  // Individual tech posts
   '/developers/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features':
     '/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features',
   '/developers/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks':
@@ -671,10 +678,6 @@ export const redirects = {
   '/hackathon/schedule': '/hackathon/overview',
   '/summit/interledger-foundation-hackathons': '/hackathon/overview',
   '/summit/hackathons/terms-conditions': '/hackathon/code-conduct',
-  // Drupal's own target for this ('/summit/hackathons/student-hack-terms-and-conditions')
-  // never existed on this site either; the sibling row above (same terms,
-  // draft state) already resolves to the current code-conduct page.
-  '/summit/hackathons/terms-conditions-draft': '/hackathon/code-conduct',
 
   // Hackathon microsite (Spanish).
   '/es/hackathon': '/es/hackathon/overview',
@@ -702,26 +705,16 @@ export const redirects = {
   '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
   '/es/summit/code-conduct': '/es/hackathon/code-conduct',
   '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
-
-  // Legacy Drupal Spanish hackathon paths (no /es/ prefix on the old site).
-  '/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
-  '/summit/hackathon/resources/judging': '/es/hackathon/faq',
-  '/summit/hackathon/resources/submission': '/es/hackathon/faq',
-  '/summit/hackathon/resources/presentations': '/es/hackathon/open-payments',
-  '/summit/hackathon/resources/use-cases': '/es/hackathon/open-payments',
-  '/summit/hackathon/resources/ideation-framework':
-    '/es/hackathon/open-payments',
-  '/summit/documentacion-del-glosario-del-hackaton':
+  '/es/summit/documentacion-del-glosario-del-hackaton':
     '/es/hackathon/open-payments',
   '/es/summit/hackaton/recursos/glosario': '/es/hackathon/open-payments',
-  '/summit/hackaton/recursos': '/es/hackathon/open-payments',
-  '/summit/hackaton/recursos/open-payments': '/es/hackathon/open-payments',
-  '/summit/hackaton/requisitos-para-participar-2025':
+  '/es/summit/hackaton/recursos': '/es/hackathon/open-payments',
+  '/es/summit/hackaton/recursos/open-payments': '/es/hackathon/open-payments',
+  '/es/summit/hackaton/requisitos-para-participar':
     '/es/hackathon/participation',
-  '/summit/hackaton/requisitos-para-participar': '/es/hackathon/participation',
-  '/summit/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
-  '/summit//hackathons/faqs': '/es/hackathon/faq',
-  '/summit/hackaton': '/es/hackathon/overview',
+  '/es/summit/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/summit//hackathons/faqs': '/es/hackathon/faq',
+  '/es/summit/hackaton': '/es/hackathon/overview',
 
   // Summit talks and speakers
   // Old singular routes (redirect directly to final destination)
@@ -746,35 +739,6 @@ export const redirects = {
     '/summit/2025/speakers/alejandra-cullen-benitez',
   '/summit/2025/talk/rafiki-open-payments':
     '/summit/2025/talks/evolution-rafiki-open-payments-2025',
-  // Typo'd source that briefly existed in Drupal for the same talk.
   '/summit/2025/talk/evolutio-rafiki-open-payments-2025':
-    '/summit/2025/talks/evolution-rafiki-open-payments-2025',
-
-  // Policy and advocacy pages
-  '/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger',
-  '/network-fees-interledger-ecosystem':
-    '/policy-and-advocacy/network-fees-interledger-ecosystem',
-  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/stablecoins-low-cost-transactions',
-  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger',
-  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
-    '/es/policy-and-advocacy/security-profile-interledger',
-  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/stablecoins-low-cost-transactions',
-  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
-
-  // Team pages: individual team-member profile URLs from the old site don't
-  // exist as separate routes any more — /team is a single page listing
-  // everyone. All old per-person paths collapse into it.
-  '/team/team-member-alex-lakatos': '/team',
-  '/team/team-member-roberto-valdavinhos': '/team',
-  '/team/team-member-afua-bruce': '/team',
-  '/team/team-member-dr-andrew-mangle': '/team',
-  '/team/team-member-hackathon-2025-judge-sabine-schaller': '/es/team',
-  // These carried Spanish-language content on the old site.
-  '/team/chris-lawrence': '/es/team',
-  '/team/alex-shin': '/es/team'
+    '/summit/2025/talks/evolution-rafiki-open-payments-2025'
 }
