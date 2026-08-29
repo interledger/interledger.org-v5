@@ -51,8 +51,7 @@
 
     /* The heading owns the gap down to its content. Without this the block's
        own top margin collapses in and wins, and the heading floats away from
-       what it titles. Radu reported that gap reading wider than the section
-       break above it at the bug bash on 2026-08-25.
+       what it titles.
 
        The second selector is the same case one level down: a `Paragraph` that
        ends on a heading is a title for the block that follows it. Zeroing the

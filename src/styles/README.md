@@ -449,10 +449,10 @@ One scale, used by every spacing utility (`p-*`, `m-*`, `gap-*`, `w-*`, `h-*`, `
 
 Every page except the home page uses **one** gap between its top-level elements, and **one** gap between a heading and the content under it. Nothing else. There is no per-component allowance for extra breathing room (Jessica and Briana, INTORG-1138).
 
-| Token                   | Value              | Use                                                    |
-| ----------------------- | ------------------ | ------------------------------------------------------ |
-| `--space-section`       | 60px, 80px desktop | Between two top-level elements: sections, prose blocks |
-| `--space-block-heading` | 48px               | Between a heading and the content it titles            |
+| Token                   | Value                              | Use                                                    |
+| ----------------------- | ---------------------------------- | ------------------------------------------------------ |
+| `--space-section`       | 64px / 80px tablet / 120px desktop | Between two top-level elements: sections, prose blocks |
+| `--space-block-heading` | 48px                               | Between a heading and the content it titles            |
 
 `--space-section` is always the larger of the two, so a section break reads wider than a heading break.
 
