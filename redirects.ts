@@ -12,12 +12,14 @@ export const redirects = {
   '/financial-services': '/grant/innovation/financial-services',
   '/grant/financial-services': '/grant/innovation/financial-services',
   '/education': '/grant/education',
-  '/ambassadors': '/grant/fellowship',
   '/grant-web': '/grant/innovation/grant-web',
   '/grant/grant-web': '/grant/innovation/grant-web',
+  '/grant/open-payments-sdk': '/grant/innovation/sdk',
+  '/grant/open-payments-accelerator': '/grant/innovation/accelerator',
   '/hacktoberfest-0': '/tech/hacktoberfest',
   '/hacktoberfest-2023': '/tech/hacktoberfest',
   '/hacktoberfest': '/tech/hacktoberfest',
+  '/ambassadors': '/grant/fellowship',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
   '/interledger': '/tech/interledger-protocol',
@@ -25,8 +27,6 @@ export const redirects = {
   '/web-monetization': '/tech/web-monetization',
   '/developers/': '/tech/dev-portal',
   '/developers/roadmap': '/tech/roadmap',
-  '/grant/open-payments-sdk': '/grant/innovation/sdk',
-  '/grant/open-payments-accelerator': '/grant/innovation/accelerator',
   '/grant/local-impact': '/grant/local-impact-grant',
   '/art': '/grant/future-money/',
 
@@ -34,15 +34,11 @@ export const redirects = {
   '/es/interledger': '/es/tech/interledger-protocol',
   '/es/open-payments': '/es/tech/open-payments',
   '/es/web-monetization': '/es/tech/web-monetization',
-  // Points straight at the final target, not '/es/open-payments', to avoid
-  // chaining through the redirect above.
   '/es/open-payments-es': '/es/tech/open-payments',
   '/es/servicios-financieros-digitales':
     '/es/grant/innovation/financial-services',
   '/es/educacion': '/es/grant/education',
   '/es/embajadores': '/es/grant/fellowship',
-  // Points straight at the final target, not '/es/grant/grant-web', to avoid
-  // chaining through the redirect below.
   '/es/grant-web': '/es/grant/innovation/grant-web',
   '/es/grant/educacion': '/es/grant/education',
   '/es/grant/embajadores': '/es/grant/fellowship',
@@ -508,146 +504,6 @@ export const redirects = {
   '/es/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken':
     '/es/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken',
 
-  // Spanish developer blog content
-  '/developers/blog/es': '/es/blog',
-  '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
-    '/es/blog/el-universo-interledger',
-
-  // Summit pages
-  '/summit/key-information': '/summit/media-kit',
-  '/summit/2025-summit-schedule': '/summit/schedule',
-  '/summit/code-of-conduct': '/hackathon/code-conduct',
-
-  // Summit pages (Spanish)
-  '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
-
-  // Hackathon microsite.
-  //
-  // Every hackathon path from the old site lands on one of the five live pages:
-  // overview, participation, faq, open-payments, code-conduct. Targets are
-  // checked against those routes on purpose. Astro does not follow a redirect
-  // chain, so a redirect whose target is itself a redirect serves a 404.
-  //
-  // The 2024 and 2025 event resource pages (venue, schedule, judging,
-  // submission, presentations, ideation framework, use cases, glossary) are all
-  // gone. Their nearest live equivalent is the resources page or the FAQ.
-  '/hackathon': '/hackathon/overview',
-  '/hackathons': '/hackathon/overview',
-  '/hackathons/overview': '/hackathon/overview',
-  '/hackathon/faqs': '/hackathon/faq',
-  '/hackathons/faqs': '/hackathon/faq',
-  '/hackathon/participation-requirements': '/hackathon/participation',
-  '/hackathons/participation': '/hackathon/participation',
-  '/hackathon/resources': '/hackathon/open-payments',
-  '/hackathons/resources': '/hackathon/open-payments',
-  '/hackathon/resources/documentation': '/hackathon/open-payments',
-  '/hackathon/code-of-conduct': '/hackathon/code-conduct',
-  '/hackathons/code-conduct': '/hackathon/code-conduct',
-  '/summit/hackathon': '/hackathon/overview',
-  '/summit/hackathon-2024': '/hackathon/overview',
-  '/summit/hackathon-venue': '/hackathon/overview',
-  '/summit/hackathon/schedule': '/hackathon/overview',
-  '/summit/hackathon/participation': '/hackathon/participation',
-  // The summit nav still links this exact path in both locales.
-  '/summit/hackathon/participation-requirements': '/hackathon/participation',
-  '/summit/hackathon/faqs': '/hackathon/faq',
-  '/summit/hackathon/resources': '/hackathon/open-payments',
-  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
-  '/summit/hackathon/resources/glossary': '/hackathon/open-payments',
-  '/summit/hackathon/resources/documentation/glossary':
-    '/hackathon/open-payments',
-  '/summit/hackathon-glossary-documentation': '/hackathon/open-payments',
-  '/summit/open-payments-and-hackathon-resources': '/hackathon/open-payments',
-  '/summit/open-payments-and-hackathon-documentation':
-    '/hackathon/open-payments',
-  '/summit/open-payments-use-cases': '/hackathon/open-payments',
-  '/summit/openai-api-onboarding-guide': '/hackathon/open-payments',
-  '/summit/presentations': '/hackathon/open-payments',
-  '/summit/ideation-framework': '/hackathon/open-payments',
-  '/summit/2025-judging-process-and-criteria': '/hackathon/faq',
-  '/summit/judging-process-and-criteria': '/hackathon/faq',
-  '/summit/submitting-your-solution': '/hackathon/faq',
-  '/summit/code-conduct': '/hackathon/code-conduct',
-
-  // Hackathon microsite (Spanish).
-  //
-  // Spanish URLs no longer carry Spanish words. Every ES path is
-  // /es/<the same EN pathname>, so the old hackaton/programa and
-  // preguntas-frecuentes forms redirect into the EN slug under /es.
-  '/es/hackathon': '/es/hackathon/overview',
-  '/es/hackathons': '/es/hackathon/overview',
-  '/es/hackathons/overview': '/es/hackathon/overview',
-  '/es/hackaton': '/es/hackathon/overview',
-  '/es/hackaton/overview': '/es/hackathon/overview',
-  '/es/hackathon/faqs': '/es/hackathon/faq',
-  '/es/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/hackathon/requisitos-de-participacion': '/es/hackathon/participation',
-  '/es/hackaton/programa': '/es/hackathon/overview',
-  '/es/hackathon/resources': '/es/hackathon/open-payments',
-  '/es/hackathon/recursos': '/es/hackathon/open-payments',
-  '/es/hackathon/codigo-de-conducta': '/es/hackathon/code-conduct',
-  '/es/summit/hackathon': '/es/hackathon/overview',
-  '/es/summit/hackathon/schedule': '/es/hackathon/overview',
-  '/es/summit/hackaton/programa': '/es/hackathon/overview',
-  '/es/summit/hackathon/participation': '/es/hackathon/participation',
-  '/es/summit/hackathon/participation-requirements':
-    '/es/hackathon/participation',
-  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
-  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
-  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
-  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
-  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
-  '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
-
-  // Summit talks and speakers
-  // Old singular routes (redirect directly to final destination)
-  '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
-    '/summit/2024/talks/future-payments-your-pocket',
-  '/summit/2024/talk/get-started-interledger-tech-stack':
-    '/summit/2024/talks/codius-fireside-chat',
-  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
-  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
-  '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
-    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
-  '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
-    '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
-  '/summit/2025/talk/miplata':
-    '/summit/2025/talks/miplata-payroll-reaches-home',
-  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
-    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
-  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
-  '/summit/2025/speaker/alejandra-cullen':
-    '/summit/2025/speakers/alejandra-cullen-benitez',
-
-  // Policy and advocacy pages
-  '/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger',
-  '/network-fees-interledger-ecosystem':
-    '/policy-and-advocacy/network-fees-interledger-ecosystem',
-  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/stablecoins-low-cost-transactions',
-
-  // Policy and advocacy pages: renamed slugs (avoid chaining through the
-  // old flat paths above, which redirect straight to these new targets).
-  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
-    '/policy-and-advocacy/security-profile-interledger',
-  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
-    '/es/policy-and-advocacy/security-profile-interledger',
-  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/policy-and-advocacy/stablecoins-low-cost-transactions',
-  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
-    '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
-
-  // Foundation blog: tags renamed to categories (INTORG-765).
-  // Explicit base-page redirects for the canonical term URLs (the links that
-  // existed in the wild — page 1 of each tag). Static→static so they resolve
-  // cleanly. Paginated old tag URLs (/2, /3, …) are intentionally not
-  // redirected: Astro's spread→Netlify mapping emits a literal `*` rather than
-  // a splat, so those would 301 to a 404. A tag needed >10 posts to ever have
-  // a page 2, so these barely existed; a clean 404 is preferable to a bad 301.
   '/blog/tag/announcements': '/blog/category/news',
   '/blog/tag/community-&-events': '/blog',
   '/blog/tag/grants-&-grantee-insights': '/blog/category/grantmaking',
@@ -732,5 +588,121 @@ export const redirects = {
   '/developers/blog/rafiki-cards-work-week-2026':
     '/blog/rafiki-cards-work-week-2026',
   '/es/developers/blog/el-universo-interledger':
-    '/es/blog/el-universo-interledger'
+    '/es/blog/el-universo-interledger',
+
+  // Spanish developer blog content
+  '/developers/blog/es': '/es/blog',
+  '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
+    '/es/blog/el-universo-interledger',
+
+  // Summit pages
+  '/summit/key-information': '/summit/media-kit',
+  '/summit/2025-summit-schedule': '/summit/schedule',
+  '/summit/code-of-conduct': '/hackathon/code-conduct',
+
+  // Summit pages (Spanish)
+  '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
+
+  // Hackathon microsite.
+  '/hackathon': '/hackathon/overview',
+  '/hackathons': '/hackathon/overview',
+  '/hackathons/overview': '/hackathon/overview',
+  '/hackathon/faqs': '/hackathon/faq',
+  '/hackathons/faqs': '/hackathon/faq',
+  '/hackathon/participation-requirements': '/hackathon/participation',
+  '/hackathons/participation': '/hackathon/participation',
+  '/hackathon/resources': '/hackathon/open-payments',
+  '/hackathons/resources': '/hackathon/open-payments',
+  '/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/hackathon/code-of-conduct': '/hackathon/code-conduct',
+  '/hackathons/code-conduct': '/hackathon/code-conduct',
+  '/summit/hackathon': '/hackathon/overview',
+  '/summit/hackathon-2024': '/hackathon/overview',
+  '/summit/hackathon-venue': '/hackathon/overview',
+  '/summit/hackathon/schedule': '/hackathon/overview',
+  '/summit/hackathon/participation': '/hackathon/participation',
+  '/summit/hackathon/participation-requirements': '/hackathon/participation',
+  '/summit/hackathon/faqs': '/hackathon/faq',
+  '/summit/hackathon/resources': '/hackathon/open-payments',
+  '/summit/hackathon/resources/documentation': '/hackathon/open-payments',
+  '/summit/hackathon/resources/glossary': '/hackathon/open-payments',
+  '/summit/hackathon/resources/documentation/glossary':
+    '/hackathon/open-payments',
+  '/summit/hackathon-glossary-documentation': '/hackathon/open-payments',
+  '/summit/open-payments-and-hackathon-resources': '/hackathon/open-payments',
+  '/summit/open-payments-and-hackathon-documentation':
+    '/hackathon/open-payments',
+  '/summit/open-payments-use-cases': '/hackathon/open-payments',
+  '/summit/openai-api-onboarding-guide': '/hackathon/open-payments',
+  '/summit/presentations': '/hackathon/open-payments',
+  '/summit/ideation-framework': '/hackathon/open-payments',
+  '/summit/2025-judging-process-and-criteria': '/hackathon/faq',
+  '/summit/judging-process-and-criteria': '/hackathon/faq',
+  '/summit/submitting-your-solution': '/hackathon/faq',
+  '/summit/code-conduct': '/hackathon/code-conduct',
+
+  // Hackathon microsite (Spanish).
+  '/es/hackathon': '/es/hackathon/overview',
+  '/es/hackathons': '/es/hackathon/overview',
+  '/es/hackathons/overview': '/es/hackathon/overview',
+  '/es/hackaton': '/es/hackathon/overview',
+  '/es/hackaton/overview': '/es/hackathon/overview',
+  '/es/hackathon/faqs': '/es/hackathon/faq',
+  '/es/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/hackathon/requisitos-de-participacion': '/es/hackathon/participation',
+  '/es/hackaton/programa': '/es/hackathon/overview',
+  '/es/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/hackathon/recursos': '/es/hackathon/open-payments',
+  '/es/hackathon/codigo-de-conducta': '/es/hackathon/code-conduct',
+  '/es/summit/hackathon': '/es/hackathon/overview',
+  '/es/summit/hackathon/schedule': '/es/hackathon/overview',
+  '/es/summit/hackaton/programa': '/es/hackathon/overview',
+  '/es/summit/hackathon/participation': '/es/hackathon/participation',
+  '/es/summit/hackathon/participation-requirements':
+    '/es/hackathon/participation',
+  '/es/summit/hackathon/faqs': '/es/hackathon/faq',
+  '/es/summit/hackathon/preguntas-frecuentes': '/es/hackathon/faq',
+  '/es/summit/hackathon/resources': '/es/hackathon/open-payments',
+  '/es/summit/hackathon/resources/documentation': '/es/hackathon/open-payments',
+  '/es/summit/code-conduct': '/es/hackathon/code-conduct',
+  '/es/summit/codigo-de-conducta': '/es/hackathon/code-conduct',
+
+  // Summit talks and speakers
+  // Old singular routes (redirect directly to final destination)
+  '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
+    '/summit/2024/talks/future-payments-your-pocket',
+  '/summit/2024/talk/get-started-interledger-tech-stack':
+    '/summit/2024/talks/codius-fireside-chat',
+  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
+  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
+  '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
+    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
+  '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
+    '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
+  '/summit/2025/talk/miplata':
+    '/summit/2025/talks/miplata-payroll-reaches-home',
+  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
+  '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
+    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
+  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
+  '/summit/2025/speaker/alejandra-cullen':
+    '/summit/2025/speakers/alejandra-cullen-benitez',
+
+  // Policy and advocacy pages
+  '/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/network-fees-interledger-ecosystem':
+    '/policy-and-advocacy/network-fees-interledger-ecosystem',
+  '/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/policy-and-advocacy/security-profile-interledger',
+  '/es/policy-and-advocacy/security-profile-interledger-open-source-technologies':
+    '/es/policy-and-advocacy/security-profile-interledger',
+  '/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/policy-and-advocacy/stablecoins-low-cost-transactions',
+  '/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions':
+    '/es/policy-and-advocacy/stablecoins-low-cost-transactions'
 }
