@@ -93,9 +93,7 @@ describe('split-layout serializer', () => {
     })
 
     expect(result).toContain('layoutType="video-text"')
-    expect(result).toContain(
-      'videoUrl="https://www.youtube.com/watch?v=abc"'
-    )
+    expect(result).toContain('videoUrl="https://www.youtube.com/watch?v=abc"')
     expect(result).toContain('imageSrc="/uploads/talk_poster.jpg"')
     expect(result).toContain('imageAlt="Talk still"')
   })

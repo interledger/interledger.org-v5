@@ -183,8 +183,7 @@ function updatePositionHint(
 
 function layoutVisibility(layoutType: string) {
   return {
-    showImage:
-      layoutType.startsWith('image') || layoutType.startsWith('video'),
+    showImage: layoutType.startsWith('image') || layoutType.startsWith('video'),
     showVideo: layoutType.startsWith('video'),
     showText: layoutType.endsWith('-text'),
     showQuote: layoutType.endsWith('-quote')
