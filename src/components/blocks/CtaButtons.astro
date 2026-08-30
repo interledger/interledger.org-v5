@@ -39,13 +39,24 @@ interface Props {
   hideIcons?: boolean
   umamiLabel?: UmamiLabel
   umamiBaseComponent?: string
+  /**
+   * 'prose' (default): the block owns its own margin (see the spacing
+   * comment above) for sitting directly in a prose/markdown flow.
+   * 'none': the parent already supplies the gap between blocks (e.g. a flex
+   * `gap-*` container like ReportSection) — margin classes are dropped so
+   * they don't stack on top of that gap, and so a wrapper that always makes
+   * this the sole/last child doesn't wrongly zero `mb-section` regardless of
+   * whether another block actually follows.
+   */
+  spacing?: 'prose' | 'none'
 }
 
 const {
   buttons = [],
   hideIcons = false,
   umamiLabel,
-  umamiBaseComponent
+  umamiBaseComponent,
+  spacing = 'prose'
 } = Astro.props
 const { routeLocale, site } = Astro.locals
 
@@ -90,7 +101,11 @@ const resolved = buttons
   resolved.length > 0 && (
     <div
       data-component="CtaButtons"
-      class="mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start"
+      class:list={[
+        spacing === 'prose' &&
+          'mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl',
+        'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+      ]}
     >
       {/*
         `iconSide` is explicit because LinkButton otherwise infers it from

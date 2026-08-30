@@ -14,26 +14,25 @@ import type { ReportTextType } from '@/types/report'
 import CtaButtons from '@/components/blocks/CtaButtons.astro'
 import { useTranslations } from '@/utils'
 
-interface Props {
-  type: ReportTextType
-  buttonText?: string
-  buttonLink?: string
+interface ButtonProps {
+  type: 'Button'
+  buttonText: string
+  buttonLink: string
   buttonStyle?: 'primary' | 'secondary'
   buttonExternal?: boolean
   buttonDocument?: boolean
 }
 
+interface TextProps {
+  type: Exclude<ReportTextType, 'Button'>
+}
+
+type Props = ButtonProps | TextProps
+
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const {
-  type,
-  buttonText,
-  buttonLink,
-  buttonStyle,
-  buttonExternal,
-  buttonDocument
-} = Astro.props
+const props = Astro.props
 // List margin/padding utilities live on paragraphClasses/disclaimerClasses,
 // not here — they'd otherwise beat footnotes.css's own list/counter layout
 // (Tailwind's utilities layer always wins over footnotes.css's `@layer
@@ -50,30 +49,36 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
 ---
 
 {
-  type === 'Button' ? (
-    // CtaButtons manages its own spacing/typography (see its own comment on
-    // mt-xl/mb-section) — it must not sit inside sharedClasses below, whose
-    // prose-tuned `[&_*:last-child]:mb-0` and `[&_:is(p,a,li)]:text-*` rules
-    // would override the button's margin and label size.
-    buttonText &&
-    buttonLink && (
-      <div data-report-text="button">
-        <CtaButtons
-          buttons={[
-            {
-              text: buttonText,
-              link: buttonLink,
-              style: buttonStyle,
-              external: buttonExternal,
-              document: buttonDocument
-            }
-          ]}
-        />
-      </div>
-    )
+  props.type === 'Button' ? (
+    // CtaButtons must not sit inside sharedClasses below: it's a distinct
+    // component, not prose/markdown content, and that div's prose-tuned
+    // `[&_*:last-child]:mb-0` / `[&_:is(p,a,li)]:text-*` rules would override
+    // the button's own margin and label size.
+    //
+    // spacing="none": ReportSection's own `flex flex-col gap-xl` already owns
+    // the gap between each ReportText, the same as Paragraph/Disclaimer/
+    // References below (none of which carry a self-margin either). CtaButtons'
+    // default spacing is tuned for a collapsing-margin prose flow, not a flex
+    // gap, and its `[&:last-child]:mb-0` would always fire here regardless of
+    // whether another block actually follows — this is always CtaButtons' only
+    // child.
+    <div data-report-text="button">
+      <CtaButtons
+        spacing="none"
+        buttons={[
+          {
+            text: props.buttonText,
+            link: props.buttonLink,
+            style: props.buttonStyle,
+            external: props.buttonExternal,
+            document: props.buttonDocument
+          }
+        ]}
+      />
+    </div>
   ) : (
     <div class={sharedClasses}>
-      {type === 'Disclaimer' ? (
+      {props.type === 'Disclaimer' ? (
         <div
           data-report-text="disclaimer"
           role="note"
@@ -82,7 +87,7 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
         >
           <slot />
         </div>
-      ) : type === 'References' ? (
+      ) : props.type === 'References' ? (
         <div data-report-text="references">
           <slot />
         </div>
