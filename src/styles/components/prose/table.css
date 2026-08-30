@@ -105,5 +105,37 @@
     & tbody tr:last-child > :last-child {
       border-end-end-radius: var(--radius-2xl);
     }
+
+    /* Dark tables: charcoal surface, white type, same zebra as Agenda rows. */
+    @variant dark {
+      & table {
+        background-color: var(--color-neutral-150);
+      }
+
+      & th,
+      & td {
+        border-block-end-color: var(--color-neutral-75);
+        border-inline-end-color: var(--color-neutral-75);
+        color: var(--color-neutral-0);
+      }
+
+      & :is(th, td):first-child {
+        border-inline-start-color: var(--color-neutral-75);
+      }
+
+      & tbody tr:nth-child(odd) > * {
+        background-color: var(--color-ocean-150);
+      }
+
+      & tbody tr:nth-child(even) > * {
+        background-color: var(--color-royal-purple-150);
+      }
+
+      & thead th {
+        background-color: var(--color-neutral-150);
+        border-top-color: var(--color-neutral-75);
+        color: var(--color-neutral-0);
+      }
+    }
   }
 }
