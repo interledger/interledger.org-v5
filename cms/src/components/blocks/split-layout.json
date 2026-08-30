@@ -47,7 +47,7 @@
       "type": "component",
       "component": "shared.localized-media",
       "repeatable": false,
-      "description": "Image for the media column. Leave empty when using a video instead.",
+      "description": "Image for the media column, or the cover image shown before a video plays.",
       "pluginOptions": {
         "i18n": {
           "localized": true

@@ -2,7 +2,7 @@
  * VideoEmbed component handler for the MDX block parser.
  *
  * Handles:
- * - <VideoEmbed url="https://youtube.com/..." title="..." />   (external)
+ * - <VideoEmbed url="https://youtube.com/..." title="..." poster="..." />
  * - <VideoEmbed url="https://vimeo.com/..." title="..." />     (external)
  * - <VideoEmbed url="https://cdn.example.com/clip.mp4" ... />  (external direct file)
  * - <VideoEmbed url="/img/blog/clip.mp4" title="..." />        (repo asset, direct URL)
@@ -33,6 +33,7 @@ async function handleVideoEmbed(
   return tryCatchParserError(async () => {
     const url = getStringAttr(node, 'url', { required: true })
     const title = getStringAttr(node, 'title', { required: true })
+    const poster = getStringAttr(node, 'poster')
 
     const block: VideoEmbedBlock = {
       __component: 'blocks.video-embed',
@@ -53,6 +54,19 @@ async function handleVideoEmbed(
       block.file = await ctx.resolveMediaUpload(url)
     } else {
       block.externalUrl = url
+    }
+
+    if (poster) {
+      if (!ctx.resolveMediaUpload) {
+        throw new MdxParserError({
+          code: ParserErrorCode.UNRESOLVED_RELATION,
+          message:
+            'resolveMediaUpload is required for VideoEmbed poster but was not provided.',
+          component: 'VideoEmbed',
+          prop: 'poster'
+        })
+      }
+      block.poster = await ctx.resolveMediaUpload(poster)
     }
 
     return [block]

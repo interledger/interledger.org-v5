@@ -1259,6 +1259,7 @@ export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   attributes: {
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'videos'>
+    poster: Schema.Attribute.Media<'images'>
     source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'external_url'>

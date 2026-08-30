@@ -39,6 +39,28 @@ describe('VideoEmbed round-trip (serialize → parse)', () => {
     ])
   })
 
+  it('round-trips an external URL with a poster', async () => {
+    const original = {
+      externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      title: 'A talk',
+      poster: { url: '/uploads/talk_poster.jpg' }
+    }
+    const blocks = await parseMdxToBlocks(
+      serialize(original),
+      ctxWith({ '/uploads/talk_poster.jpg': 19 })
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.video-embed',
+        source: 'external_url',
+        externalUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        title: 'A talk',
+        poster: 19
+      }
+    ])
+  })
+
   it('round-trips an uploaded file (media → url → resolved id)', async () => {
     const original = {
       file: { url: '/uploads/testnet_demo.mp4' },

@@ -118,7 +118,11 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
     mediaFirst && hasMedia && (
       <div class={columnClass}>
         {isVideoLayout && videoUrl ? (
-          <VideoEmbed url={videoUrl} title="Video" />
+          <VideoEmbed
+            url={videoUrl}
+            title={imageAlt?.trim() || 'Video'}
+            poster={imageSrc}
+          />
         ) : imageSrc ? (
           <OptimizedImage
             src={imageSrc}
@@ -186,7 +190,11 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
     !mediaFirst && hasMedia && (
       <div class={columnClass}>
         {isVideoLayout && videoUrl ? (
-          <VideoEmbed url={videoUrl} title="Video" />
+          <VideoEmbed
+            url={videoUrl}
+            title={imageAlt?.trim() || 'Video'}
+            poster={imageSrc}
+          />
         ) : imageSrc ? (
           <OptimizedImage
             src={imageSrc}

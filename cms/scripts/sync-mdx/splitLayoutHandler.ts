@@ -101,6 +101,10 @@ async function handleSplitLayout(
     const wantsImage = layoutTypeAttr
       ? layoutTypeAttr.startsWith('image')
       : !videoUrl
+    // Video layouts may pass imageSrc as the VideoEmbed cover/poster.
+    const wantsOptionalPoster = Boolean(
+      (layoutTypeAttr?.startsWith('video') || videoUrl) && imageSrc
+    )
 
     let imageId: number | null = null
     if (wantsImage && !imageSrc) {
@@ -111,7 +115,7 @@ async function handleSplitLayout(
         prop: 'imageSrc'
       })
     }
-    if (wantsImage && imageSrc) {
+    if ((wantsImage || wantsOptionalPoster) && imageSrc) {
       if (!ctx.resolveMediaUpload) {
         throw new MdxParserError({
           code: ParserErrorCode.MISSING_REQUIRED_PROP,
@@ -144,9 +148,10 @@ async function handleSplitLayout(
       displayRatio
     }
 
-    if (isImageLayout && imageId) {
+    if ((isImageLayout || isVideoLayout) && imageId) {
       // null when imageAlt is omitted so serializers can fall back to the
       // upload's alternativeText; explicit imageAlt="" stays '' (decorative).
+      // On video layouts this image is the VideoEmbed poster.
       block.media = { image: imageId, alternativeText: imageAlt ?? null }
     }
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl

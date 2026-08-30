@@ -9,11 +9,17 @@ interface Props {
   file?: { url: string }
   externalUrl?: string
   title: string
+  poster?: string | { url?: string } | null
 }
 
-const { url, file, externalUrl, title } = Astro.props
+const { url, file, externalUrl, title, poster } = Astro.props
 
 const resolvedUrl = url ?? file?.url ?? externalUrl
+const resolvedPoster = typeof poster === 'string' ? poster : poster?.url
 ---
 
-{resolvedUrl && title && <VideoEmbed url={resolvedUrl} title={title} />}
+{
+  resolvedUrl && title && (
+    <VideoEmbed url={resolvedUrl} title={title} poster={resolvedPoster} />
+  )
+}

@@ -46,6 +46,23 @@ describe('VideoEmbed handler — external URLs', () => {
     ])
   })
 
+  it('resolves a poster upload on an external video', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<VideoEmbed url="https://www.youtube.com/watch?v=abc" title="Talk" poster="/uploads/talk_poster.jpg" />',
+      ctxWith({ '/uploads/talk_poster.jpg': 19 })
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.video-embed',
+        source: 'external_url',
+        externalUrl: 'https://www.youtube.com/watch?v=abc',
+        title: 'Talk',
+        poster: 19
+      }
+    ])
+  })
+
   it('stores a Vimeo URL in externalUrl', async () => {
     const blocks = await parseMdxToBlocks(
       '<VideoEmbed url="https://vimeo.com/123456789" title="Sample Video" />',

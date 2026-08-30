@@ -81,6 +81,25 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('displayRatio=')
   })
 
+  it('serializes a video cover image as imageSrc', () => {
+    const result = serialize({
+      layoutType: 'video-text',
+      videoUrl: 'https://www.youtube.com/watch?v=abc',
+      media: {
+        image: { url: '/uploads/talk_poster.jpg' },
+        alternativeText: 'Talk still'
+      },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('layoutType="video-text"')
+    expect(result).toContain(
+      'videoUrl="https://www.youtube.com/watch?v=abc"'
+    )
+    expect(result).toContain('imageSrc="/uploads/talk_poster.jpg"')
+    expect(result).toContain('imageAlt="Talk still"')
+  })
+
   it('serializes non-default displayRatio so Strapi publishes update MDX', () => {
     const result = serialize({
       displayRatio: '1:1',

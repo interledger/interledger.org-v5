@@ -33,6 +33,13 @@
     "title": {
       "type": "string",
       "required": true
+    },
+    "poster": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"],
+      "description": "Optional cover image shown before the video plays."
     }
   }
 }

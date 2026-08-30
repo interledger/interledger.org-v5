@@ -173,6 +173,8 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
   /** YouTube/Vimeo/direct URL — set when source is 'external_url'. */
   externalUrl?: string
   title: string
+  /** Optional cover image (Strapi upload id). */
+  poster?: number
 }
 
 /**

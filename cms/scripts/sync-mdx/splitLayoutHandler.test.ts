@@ -171,6 +171,28 @@ describe('SplitLayout handler', () => {
     ])
   })
 
+  it('stores imageSrc as the video cover on a video-text layout', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout layoutType="video-text" videoUrl="https://www.youtube.com/watch?v=abc" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Talk still">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.split-layout',
+        layoutType: 'video-text',
+        imagePosition: 'right',
+        displayRatio: '2:1',
+        videoUrl: 'https://www.youtube.com/watch?v=abc',
+        media: {
+          image: STRAPI_UPLOAD_ID.primaryImage,
+          alternativeText: 'Talk still'
+        },
+        content: 'Body.'
+      }
+    ])
+  })
+
   it('parses CTA style when provided', async () => {
     const blocks = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>`,

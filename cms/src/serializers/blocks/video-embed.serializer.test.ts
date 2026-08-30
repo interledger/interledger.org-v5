@@ -53,6 +53,26 @@ describe('video-embed serializer', () => {
     expect(result).not.toContain('\\"')
   })
 
+  it('serializes an optional poster image', () => {
+    const result = serialize({
+      externalUrl: 'https://www.youtube.com/watch?v=abc123',
+      title: 'Talk',
+      poster: { url: '/uploads/talk_poster.jpg' }
+    })
+
+    expect(result).toContain('poster="/uploads/talk_poster.jpg"')
+  })
+
+  it('omits poster when it is a bare upload id (validation reuse)', () => {
+    const result = serialize({
+      externalUrl: 'https://www.youtube.com/watch?v=abc123',
+      title: 'Talk',
+      poster: 12
+    })
+
+    expect(result).not.toContain('poster=')
+  })
+
   it('produces a self-closing VideoEmbed tag', () => {
     const result = serialize({
       externalUrl: 'https://www.youtube.com/watch?v=abc123',
