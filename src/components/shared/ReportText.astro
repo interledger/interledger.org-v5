@@ -73,26 +73,24 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
     )
   ) : (
     <div class={sharedClasses}>
-      {
-        type === 'Disclaimer' ? (
-          <div
-            data-report-text="disclaimer"
-            role="note"
-            aria-label={t('report.disclaimer_label')}
-            class={disclaimerClasses}
-          >
-            <slot />
-          </div>
-        ) : type === 'References' ? (
-          <div data-report-text="references">
-            <slot />
-          </div>
-        ) : (
-          <div data-report-text="paragraph" class={paragraphClasses}>
-            <slot />
-          </div>
-        )
-      }
+      {type === 'Disclaimer' ? (
+        <div
+          data-report-text="disclaimer"
+          role="note"
+          aria-label={t('report.disclaimer_label')}
+          class={disclaimerClasses}
+        >
+          <slot />
+        </div>
+      ) : type === 'References' ? (
+        <div data-report-text="references">
+          <slot />
+        </div>
+      ) : (
+        <div data-report-text="paragraph" class={paragraphClasses}>
+          <slot />
+        </div>
+      )}
     </div>
   )
 }
