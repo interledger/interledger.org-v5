@@ -978,7 +978,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::hackathon-page.hackathon-page': {
       title:
-        'Enter only the page name, e.g. "Rules" — not "Interledger Hackathon | Rules". The "Interledger Hackathon |" part is added automatically in the browser tab.',
+        'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
       pathSlug:
         'Path relative to /hackathon/. Example: overview → /hackathon/overview. Do not include /hackathon/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
@@ -1033,7 +1033,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::faq.faq': {
       title:
-        'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Interledger Hackathon) is added automatically in the browser tab.',
+        'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
@@ -1052,7 +1052,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::report.report': {
       title:
-        'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Interledger Hackathon) is added automatically in the browser tab.',
+        'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
         'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
       section:
