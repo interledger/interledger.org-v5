@@ -2029,7 +2029,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.report-text': [
       [{ name: 'textType', size: 6 }],
       [{ name: 'textContent', size: 12 }],
-      [{ name: 'textDisclaimer', size: 12 }]
+      [{ name: 'textDisclaimer', size: 12 }],
+      [{ name: 'buttonCta', size: 12 }]
     ],
     'blocks.grant-faq-section': [
       [{ name: 'title', size: 12 }],

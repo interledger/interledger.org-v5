@@ -167,8 +167,10 @@ function parseButtonReportText(
   }
 
   const buttonCta = {
-    text,
-    link,
+    // Trim on the way in, the same as ctaButtonsHandler.ts — the composition
+    // rule and the round-trip both need to see the same value (Jonathan, #483).
+    text: text.trim(),
+    link: link.trim(),
     style: (style ?? 'primary') as 'primary' | 'secondary',
     ...(external ? { external: true } : {}),
     ...(document ? { document: true } : {})

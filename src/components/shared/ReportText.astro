@@ -49,42 +49,50 @@ const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border bord
 const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutral-75 [&_thead_th]:text-body-sm-emphasis desktop:[&_thead_th]:text-body-lg-emphasis-md ${listSpacingClasses}`
 ---
 
-<div class={sharedClasses}>
-  {
-    type === 'Button' ? (
-      buttonText &&
-      buttonLink && (
-        <div data-report-text="button">
-          <CtaButtons
-            buttons={[
-              {
-                text: buttonText,
-                link: buttonLink,
-                style: buttonStyle,
-                external: buttonExternal,
-                document: buttonDocument
-              }
-            ]}
-          />
-        </div>
-      )
-    ) : type === 'Disclaimer' ? (
-      <div
-        data-report-text="disclaimer"
-        role="note"
-        aria-label={t('report.disclaimer_label')}
-        class={disclaimerClasses}
-      >
-        <slot />
-      </div>
-    ) : type === 'References' ? (
-      <div data-report-text="references">
-        <slot />
-      </div>
-    ) : (
-      <div data-report-text="paragraph" class={paragraphClasses}>
-        <slot />
+{
+  type === 'Button' ? (
+    // CtaButtons manages its own spacing/typography (see its own comment on
+    // mt-xl/mb-section) — it must not sit inside sharedClasses below, whose
+    // prose-tuned `[&_*:last-child]:mb-0` and `[&_:is(p,a,li)]:text-*` rules
+    // would override the button's margin and label size.
+    buttonText &&
+    buttonLink && (
+      <div data-report-text="button">
+        <CtaButtons
+          buttons={[
+            {
+              text: buttonText,
+              link: buttonLink,
+              style: buttonStyle,
+              external: buttonExternal,
+              document: buttonDocument
+            }
+          ]}
+        />
       </div>
     )
-  }
-</div>
+  ) : (
+    <div class={sharedClasses}>
+      {
+        type === 'Disclaimer' ? (
+          <div
+            data-report-text="disclaimer"
+            role="note"
+            aria-label={t('report.disclaimer_label')}
+            class={disclaimerClasses}
+          >
+            <slot />
+          </div>
+        ) : type === 'References' ? (
+          <div data-report-text="references">
+            <slot />
+          </div>
+        ) : (
+          <div data-report-text="paragraph" class={paragraphClasses}>
+            <slot />
+          </div>
+        )
+      }
+    </div>
+  )
+}
