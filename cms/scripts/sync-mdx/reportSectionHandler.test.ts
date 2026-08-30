@@ -203,6 +203,19 @@ describe('ReportSection handler', () => {
     )
   })
 
+  it('errors when a Button block has a malformed buttonDocument value', async () => {
+    const mdx = reportSection([
+      '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonDocument="treu" />'
+    ])
+
+    const result = await parseMdxToBlocks(mdx, ctx)
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect((result as MdxParserError).code).toBe(
+      ParserErrorCode.INVALID_PROP_VALUE
+    )
+  })
+
   it('errors when a Button block has unexpected children', async () => {
     const mdx = reportSection([
       [

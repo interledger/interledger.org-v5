@@ -62,7 +62,7 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
     // gap, and its `[&:last-child]:mb-0` would always fire here regardless of
     // whether another block actually follows — this is always CtaButtons' only
     // child.
-    <div data-report-text="button">
+    <div data-report-text="button" class="px-lg tablet:px-0">
       <CtaButtons
         spacing="none"
         buttons={[
