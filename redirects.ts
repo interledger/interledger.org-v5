@@ -85,7 +85,7 @@ export const redirects = {
   '/es/equipo': '/es/team',
   '/es/involucrese': '/es/community',
   '/es/medios': '/es/press',
-  '/es/sobre-nosotros': '/about-us',
+  '/es/sobre-nosotros': '/es/about-us',
   '/es/suscribase': '/es/subscribe',
   '/es/estandares-abiertos': '/es/tech/overview',
 
