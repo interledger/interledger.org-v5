@@ -83,6 +83,17 @@
     }
   }
 
+  /* One-column tables (paper lists, callouts) should wrap on mobile, not
+     scroll sideways. */
+  [data-prose] table:not(:has(tr > :nth-child(2))) {
+    width: 100%;
+  }
+
+  [data-prose] .table-scroll:not(:has(tr > :nth-child(2))) {
+    overflow-x: visible;
+    contain: none;
+  }
+
   [data-prose] th,
   [data-prose] td {
     padding-block: var(--spacing-lg);
