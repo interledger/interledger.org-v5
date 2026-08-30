@@ -61,7 +61,7 @@ const consentCommunicationsLabel = t('subscribe.consent_communications_label')
 const currentPath = Astro.url.pathname
 
 const inputClasses =
-  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary'
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
 
 const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 
@@ -146,6 +146,9 @@ const secondaryTextClasses = 'text-neutral-75'
                 data-netlify-recaptcha="true"
                 aria-labelledby="subscribe-title"
                 class="flex flex-col gap-xl"
+                data-hubspot-subscription-type-id={hubspotCommunicationSubscriptionTypeId}
+                data-consent-processing-label={consentProcessingLabel}
+                data-consent-communications-label={consentCommunicationsLabel}
               >
                 <input type="hidden" name="form-name" value="subscribe" />
                 <p class="hidden">
@@ -196,8 +199,14 @@ const secondaryTextClasses = 'text-neutral-75'
                       required
                       aria-required="true"
                       autocomplete="email"
+                      inputmode="email"
                       class={inputClasses}
+                      data-error-required={t('subscribe.error.email_required')}
+                      data-error-invalid={t('subscribe.error.email_invalid')}
                     />
+                    <p id="email-error" class={errorClasses} role="alert">
+                      {t('subscribe.error.email_invalid')}
+                    </p>
                   </div>
 
                   <div class="flex flex-col gap-xs">
@@ -383,14 +392,13 @@ const secondaryTextClasses = 'text-neutral-75'
   </main>
 </FoundationPageLayout>
 
-<script
-  is:inline
-  define:vars={{
-    hubspotCommunicationSubscriptionTypeId,
-    consentProcessingLabel,
-    consentCommunicationsLabel
-  }}
->
+<script>
+  import {
+    bindEmailFieldValidation,
+    revealFormError,
+    setSubmitButtonBusy
+  } from '@/utils/shared/formFieldValidation'
+
   const successEl = document.getElementById('success-message')
   const formWrapper = document.getElementById('form-wrapper')
   const form = document.getElementById('subscribe-form')
@@ -403,6 +411,8 @@ const secondaryTextClasses = 'text-neutral-75'
   const submitError = document.getElementById('submit-error')
   const interestError = document.getElementById('interest-error')
   const captchaError = document.getElementById('captcha-error')
+  const emailInput = document.getElementById('email')
+  const emailError = document.getElementById('email-error')
   const consentCommunications = document.getElementById(
     'consent-communications'
   )
@@ -416,12 +426,22 @@ const secondaryTextClasses = 'text-neutral-75'
     )
   }
 
-  function showError(el) {
-    if (!el) return
-    el.classList.remove('hidden')
-    el.focus()
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+  const hubspotCommunicationSubscriptionTypeId = Number(
+    form?.dataset.hubspotSubscriptionTypeId
+  )
+  const consentProcessingLabel = form?.dataset.consentProcessingLabel ?? ''
+  const consentCommunicationsLabel =
+    form?.dataset.consentCommunicationsLabel ?? ''
+
+  let attemptedSubmit = false
+
+  const syncEmailError = emailInput
+    ? bindEmailFieldValidation({
+        input: emailInput,
+        errorEl: emailError,
+        getAttemptedSubmit: () => attemptedSubmit
+      })
+    : () => false
 
   function getCheckedInterests() {
     return Array.from(
@@ -449,7 +469,14 @@ const secondaryTextClasses = 'text-neutral-75'
   }
 
   nextBtn?.addEventListener('click', () => {
+    attemptedSubmit = true
     interestError?.classList.add('hidden')
+
+    const emailInvalid = syncEmailError()
+    if (emailInvalid) {
+      emailInput?.focus()
+      return
+    }
 
     if (!form.checkValidity()) {
       form.reportValidity()
@@ -457,7 +484,7 @@ const secondaryTextClasses = 'text-neutral-75'
     }
 
     if (getCheckedInterests().length === 0) {
-      showError(interestError)
+      revealFormError(interestError)
       return
     }
 
@@ -469,14 +496,7 @@ const secondaryTextClasses = 'text-neutral-75'
   })
 
   function setSubmitting(busy) {
-    if (!submitBtn) return
-    submitBtn.disabled = busy
-    submitBtn.setAttribute('aria-busy', busy ? 'true' : 'false')
-    const defaultLabel = submitBtn.dataset.labelDefault || ''
-    const busyLabel = submitBtn.dataset.labelBusy || defaultLabel
-    if (submitLabel) submitLabel.textContent = busy ? busyLabel : defaultLabel
-    submitBtn.classList.toggle('opacity-70', busy)
-    submitBtn.classList.toggle('pointer-events-none', busy)
+    setSubmitButtonBusy(submitBtn, submitLabel, busy)
   }
 
   function getHubspotCookie() {
@@ -486,9 +506,17 @@ const secondaryTextClasses = 'text-neutral-75'
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault()
+    attemptedSubmit = true
     submitError?.classList.add('hidden')
     interestError?.classList.add('hidden')
     captchaError?.classList.add('hidden')
+
+    const emailInvalid = syncEmailError()
+    if (emailInvalid) {
+      goToStep(1)
+      emailInput?.focus()
+      return
+    }
 
     if (!form.checkValidity()) {
       form.reportValidity()
@@ -499,13 +527,13 @@ const secondaryTextClasses = 'text-neutral-75'
 
     if (checkedInterests.length === 0) {
       goToStep(1)
-      showError(interestError)
+      revealFormError(interestError)
       return
     }
 
     const recaptchaToken = recaptchaResponse()
     if (!recaptchaToken) {
-      showError(captchaError)
+      revealFormError(captchaError)
       return
     }
 
@@ -574,7 +602,7 @@ const secondaryTextClasses = 'text-neutral-75'
       console.error(err)
       setSubmitting(false)
       window.grecaptcha?.reset?.()
-      showError(submitError)
+      revealFormError(submitError)
     }
   })
 </script>

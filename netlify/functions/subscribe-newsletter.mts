@@ -1,4 +1,5 @@
 import type { Context } from '@netlify/functions'
+import { isValidEmailAddress } from '../../src/utils/shared/formConstraints'
 import { tryCatchAsync } from '../../src/utils/shared/tryCatch'
 
 const HUBSPOT_PORTAL_ID = process.env.HUBSPOT_PORTAL_ID ?? ''
@@ -91,6 +92,11 @@ export default async function handler(
   const { recaptchaToken, fields, context, legalConsentOptions } = body
   if (!recaptchaToken || !isValidFields(fields)) {
     return jsonResponse({ error: 'Missing recaptchaToken or fields' }, 400)
+  }
+
+  const emailField = fields.find((field) => field.name === 'email')
+  if (!emailField || !isValidEmailAddress(emailField.value)) {
+    return jsonResponse({ error: 'Invalid email address' }, 400)
   }
 
   if (RECAPTCHA_SECRET_KEY) {
