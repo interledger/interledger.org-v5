@@ -167,9 +167,6 @@ export { createExcerpt } from './main/create-excerpt'
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 
-// Main site: Layout
-export { PAGE_TOP_OFFSET_CLASS } from './main/pageOffsets'
-
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
 export { getHeroSectionStyle } from './main/heroSectionStyle'

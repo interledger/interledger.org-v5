@@ -3,8 +3,7 @@ import {
   type Locale,
   isDemoPathSlug,
   useTranslations,
-  localizeRoute,
-  PAGE_TOP_OFFSET_CLASS
+  localizeRoute
 } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
@@ -104,7 +103,7 @@ const breadcrumbs = [
           />
         </PageHero>
       ) : (
-        <div class={`px-content ${PAGE_TOP_OFFSET_CLASS}`}>
+        <div class="px-content pt-page-offset">
           <div class="content-column">
             <Breadcrumbs breadcrumbs={breadcrumbs}>
               <TranslationDisclaimer isVisible={isFallback} />

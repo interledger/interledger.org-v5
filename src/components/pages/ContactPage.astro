@@ -3,7 +3,6 @@ import {
   useTranslations,
   localizeRoute,
   buildUmamiAttrs,
-  PAGE_TOP_OFFSET_CLASS,
   type BreadcrumbItem
 } from '@/utils'
 import { buttonVariants } from '@/components/shared/buttonVariants'
@@ -74,7 +73,7 @@ const optionClasses = [
   title={t('contact.title')}
   description={t('contact.description')}
 >
-  <main class={`px-content pb-section ${PAGE_TOP_OFFSET_CLASS}`}>
+  <main class="px-content pb-section pt-page-offset">
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
 

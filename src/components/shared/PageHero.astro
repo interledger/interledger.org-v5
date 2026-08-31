@@ -3,7 +3,7 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import { resolveCtaLink, PAGE_TOP_OFFSET_CLASS } from '@/utils'
+import { resolveCtaLink } from '@/utils'
 
 interface HeroCta {
   text: string
@@ -93,9 +93,7 @@ const parallaxImgClass = isWideBand
   (1440px), matching every other section on the page.
 -->
 <div data-component="PageHero">
-  <div
-    class:list={['bg-white px-content', PAGE_TOP_OFFSET_CLASS, copyBandPadding]}
-  >
+  <div class:list={['bg-white px-content pt-page-offset', copyBandPadding]}>
     <div class="content-column">
       {
         breadcrumbs && breadcrumbs.length > 0 && (

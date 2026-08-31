@@ -56,6 +56,26 @@
   }
 }
 
+/*
+ * Padding-top for the first block below the sticky/fixed site header
+ * (typically the breadcrumbs wrapper), so its distance from the very top of
+ * the viewport is a consistent 80 / 120 / 160px across mobile, tablet, and
+ * desktop regardless of the header's own height at each breakpoint.
+ */
+@utility pt-page-offset {
+  padding-block-start: calc(var(--spacing-5xl) - var(--site-header-height));
+
+  @variant tablet {
+    padding-block-start: calc(var(--spacing-6xl) - var(--site-header-height));
+  }
+
+  @variant desktop {
+    padding-block-start: calc(
+      var(--spacing-7xl) - var(--site-header-height-desktop)
+    );
+  }
+}
+
 /* Single-side reads of the same rhythm, for the edges of a stack. */
 @utility mt-section {
   margin-block-start: var(--space-section);
