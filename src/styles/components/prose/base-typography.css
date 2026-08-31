@@ -23,7 +23,8 @@
       }
     }
 
-    /* H3 headings */
+    /* H3 headings (visual h4 — regular). Strong inside stays 600 so
+       `### **Title**` actually bolds; inheriting 400 would look like body. */
     h3 {
       font-size: var(--text-h4);
       line-height: var(--text-h4--line-height);
@@ -37,6 +38,10 @@
       @variant desktop {
         font-size: var(--text-h4-lg);
         line-height: var(--text-h4-lg--line-height);
+      }
+
+      :is(strong, b) {
+        font-weight: 600;
       }
     }
 

@@ -239,6 +239,11 @@
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */
 
+  /* Poppins has no 700. Tailwind's `font-bold` is 700 by default and would
+     snap to the 800 face. Pin it to 600 so body/UI bold never goes extra-bold.
+     `font-extrabold` stays 800 for the few display titles that need it. */
+  --font-weight-bold: 600;
+
   /* H1: 56/68 → 70/76 → 100/100, all SemiBold */
   --text-h1: 3.5rem;
   --text-h1--line-height: 4.25rem;
