@@ -46,7 +46,7 @@ const umamiBase = {
   <a
     href={profileLink}
     data-component="ProfileCard"
-    class="text-neutral-900 no-underline hover:no-underline dark:text-neutral-0"
+    class="group text-neutral-900 no-underline hover:no-underline dark:text-neutral-0"
     {...buildUmamiAttrs({
       ...umamiBase,
       href: profileLink,
@@ -54,7 +54,7 @@ const umamiBase = {
     })}
   >
     <div
-      class={`mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-full ${colorClass}`}
+      class={`mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-full border-[3px] border-transparent box-border transition-[border-color] duration-slow group-hover:border-orchid-100 group-focus-visible:border-orchid-100 ${colorClass}`}
     >
       {
         photo ? (
@@ -75,7 +75,7 @@ const umamiBase = {
     </div>
     <div class="max-w-100 mx-auto mt-xl">
       <h3
-        class="mb-sm text-h4 font-normal text-neutral-900 tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
+        class="mb-sm text-h4 font-normal text-link underline decoration-current tablet:text-h4-md desktop:text-h4-lg group-hover:text-link-hover group-focus-visible:text-link-hover"
       >
         {name}
       </h3>
