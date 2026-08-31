@@ -1174,7 +1174,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.report-text': {
       textType: 'Block Type',
       textContent: 'Paragraph Content',
-      textDisclaimer: 'Disclaimer Text'
+      textDisclaimer: 'Disclaimer Text',
+      buttonCta: 'Call-to-action button'
     },
     'blocks.paragraph': {
       content: 'Content',
