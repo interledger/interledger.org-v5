@@ -164,15 +164,21 @@ const markdownPresetNoH1: Preset = {
       // line wraps the parser would otherwise read as hard breaks.
       function preserveSoftLineBreaks(editor: Editor) {
         const processor = editor.data.processor as unknown as {
-          toView: (markdown: string) => unknown
+          toView?: (markdown: string) => unknown
           _html2markdown?: { parse: (html: string) => string }
         }
 
-        const originalToView = processor.toView.bind(processor)
-        processor.toView = (markdown: string) =>
-          originalToView(
-            collapseSoftWraps(healStrandedListItemBreaks(markdown))
+        if (typeof processor.toView === 'function') {
+          const originalToView = processor.toView.bind(processor)
+          processor.toView = (markdown: string) =>
+            originalToView(
+              collapseSoftWraps(healStrandedListItemBreaks(markdown))
+            )
+        } else {
+          warnOnceAboutBrokenGfmShape(
+            'processor.toView is missing — stored content keeps the stranded <br>, and soft wraps still load as hard breaks.'
           )
+        }
 
         const html2markdown = processor._html2markdown
         if (!html2markdown || typeof html2markdown.parse !== 'function') {
