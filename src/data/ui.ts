@@ -2,7 +2,7 @@ export const ui = {
   en: {
     'site.title.foundation': 'Interledger Foundation',
     'site.title.summit': 'Interledger Summit',
-    'site.title.hackathon': 'Interledger Hackathons',
+    'site.title.hackathon': 'Open Payment Hackathons',
     'site.description':
       'Interledger Foundation builds open payment infrastructure, funds innovators, and works to make financial systems work together, for everyone.',
     'nav.home': 'Home',

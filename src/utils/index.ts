@@ -20,6 +20,7 @@ export {
   type SocialIconName
 } from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
+export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
 export {

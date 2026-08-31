@@ -47,7 +47,7 @@ const { Content: MdxContent } = await render(entry)
 const { name, photo, photoAlt, tagline, role, cta, description } = entry.data
 
 const isHackathon = section === 'hackathon'
-const title = isHackathon ? name : `${name} | Interledger Foundation`
+const title = name
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
 const hasBody = Boolean(entry.body?.trim())
