@@ -80,7 +80,7 @@ const ctaLink = (href: string, linkText?: string) =>
               <a
                 href={alternateLocaleHref}
                 hreflang={alternateLocale}
-                class="foundation-drawer-language-label font-poppins text-[1.25rem] font-normal no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+                class="foundation-drawer-language-label font-poppins text-h3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
                 aria-label={t('nav.switch_language', {
                   locale: alternateLocaleLabel
                 })}
@@ -93,7 +93,7 @@ const ctaLink = (href: string, linkText?: string) =>
                 {t('nav.language')}
               </a>
             ) : (
-              <span class="foundation-drawer-language-label font-poppins text-[1.25rem] font-normal">
+              <span class="foundation-drawer-language-label font-poppins text-h3">
                 {t('nav.language')}
               </span>
             )
