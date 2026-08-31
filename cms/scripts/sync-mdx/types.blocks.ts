@@ -338,12 +338,15 @@ export interface FaqBlock extends StrapiBlockBase {
  * blocks.report-text — entry in report-section's repeatable `reportText`
  * field. No `__component`; it's a nested component, not a dynamic-zone
  * block. `textType` picks the active field: `Paragraph` → `textContent`,
- * `Disclaimer` → `textDisclaimer`. Both are CKEditor rich text, stored as markdown.
+ * `Disclaimer` → `textDisclaimer`, `Button` → `buttonCta`. `textContent`/
+ * `textDisclaimer` are CKEditor rich text, stored as markdown; `buttonCta`
+ * is a nested `shared.cta-button` component.
  */
 export interface ReportTextItem {
   textType: ReportTextType
   textContent?: string
   textDisclaimer?: string
+  buttonCta?: CtaButton
 }
 
 /** blocks.report-section — a heading followed by a repeatable list of typed content blocks. */

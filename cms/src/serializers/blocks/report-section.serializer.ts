@@ -3,20 +3,63 @@ import {
   SerializerFieldError,
   ckeditorFieldToCompiledMarkdown,
   isReportTextType,
+  isCtaButtonStyle,
+  hasConflictingCtaFlags,
   REPORT_TEXT_TYPES,
   type FieldError,
-  type ReportTextType
+  type ReportTextType,
+  type CtaButtonEntry
 } from '../../utils'
 
 interface ReportTextItem {
   textType?: string
   textContent?: string
   textDisclaimer?: string
+  buttonCta?: CtaButtonEntry
 }
 
 /** Paragraph and References items store their text in `textContent`; Disclaimer uses `textDisclaimer`. */
 function textField(textType: ReportTextType): 'textContent' | 'textDisclaimer' {
   return textType === 'Disclaimer' ? 'textDisclaimer' : 'textContent'
+}
+
+/**
+ * Validate a Button item's `buttonCta`. Mirrors the field checks
+ * cta-buttons.serializer.ts runs per-button, but anchored at `buttonCta`
+ * instead of an array entry.
+ */
+function validateButtonCta(
+  buttonCta: CtaButtonEntry | undefined,
+  index: number
+): FieldError[] {
+  const position = index + 1
+  const fieldErrors: FieldError[] = []
+
+  if (!buttonCta?.text || !buttonCta.text.trim())
+    fieldErrors.push({
+      message: `Content Block ${position}: Button Text is required`,
+      path: ['reportText', index, 'buttonCta', 'text']
+    })
+
+  if (!buttonCta?.link || !buttonCta.link.trim())
+    fieldErrors.push({
+      message: `Content Block ${position}: Button Link is required`,
+      path: ['reportText', index, 'buttonCta', 'link']
+    })
+
+  if (buttonCta?.style !== undefined && !isCtaButtonStyle(buttonCta.style))
+    fieldErrors.push({
+      message: `Content Block ${position}: Button has an unknown style "${buttonCta.style}". Use primary or secondary.`,
+      path: ['reportText', index, 'buttonCta', 'style']
+    })
+
+  if (buttonCta && hasConflictingCtaFlags(buttonCta))
+    fieldErrors.push({
+      message: `Content Block ${position}: Button cannot be both external and document`,
+      path: ['reportText', index, 'buttonCta', 'document']
+    })
+
+  return fieldErrors
 }
 
 /**
@@ -37,6 +80,9 @@ function validateReportTextItem(
       }
     ]
   }
+
+  if (item.textType === 'Button')
+    return validateButtonCta(item.buttonCta, index)
 
   const field = textField(item.textType)
   const value = item[field]
@@ -96,6 +142,32 @@ export function serialize(block: {
   // Validation above guarantees heading and reportText items are present from here on.
   const items = block.reportText!.map((item) => {
     const textType = item.textType as ReportTextType
+
+    if (textType === 'Button') {
+      // Validation above guarantees text/link are present from here on.
+      const button = item.buttonCta as CtaButtonEntry
+      const attrs = [
+        `type="Button"`,
+        `buttonText="${esc(button.text!.trim())}"`,
+        `buttonLink="${esc(button.link!.trim())}"`
+      ]
+      // Only emit non-default attrs, so a default-valued button round-trips
+      // to the same MDX it came from (matches cta-buttons.serializer.ts).
+      if (button.style && button.style !== 'primary')
+        attrs.push(`buttonStyle="${esc(button.style)}"`)
+      // external is not a plain default-false flag like document: an absent
+      // external lets resolveCtaLink infer it from the URL, while an explicit
+      // false forces same-tab even for an absolute URL (src/utils/main/cta.ts).
+      // Omitting an explicit false on export would silently flip an editor's
+      // "not external" absolute-URL button back to external on render, so it
+      // must round-trip even though it matches the schema default.
+      if (button.external === true) attrs.push('buttonExternal={true}')
+      else if (button.external === false) attrs.push('buttonExternal={false}')
+      if (button.document) attrs.push('buttonDocument={true}')
+
+      return `<ReportText ${attrs.join(' ')} />`
+    }
+
     const raw = item[textField(textType)]!
 
     const text = escMdxBraces(ckeditorFieldToCompiledMarkdown(raw))

@@ -1174,7 +1174,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.report-text': {
       textType: 'Block Type',
       textContent: 'Paragraph Content',
-      textDisclaimer: 'Disclaimer Text'
+      textDisclaimer: 'Disclaimer Text',
+      buttonCta: 'Call-to-action button'
     },
     'blocks.paragraph': {
       content: 'Content',
@@ -2029,7 +2030,8 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.report-text': [
       [{ name: 'textType', size: 6 }],
       [{ name: 'textContent', size: 12 }],
-      [{ name: 'textDisclaimer', size: 12 }]
+      [{ name: 'textDisclaimer', size: 12 }],
+      [{ name: 'buttonCta', size: 12 }]
     ],
     'blocks.grant-faq-section': [
       [{ name: 'title', size: 12 }],

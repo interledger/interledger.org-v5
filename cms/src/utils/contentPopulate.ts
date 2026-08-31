@@ -145,7 +145,9 @@ export const PROFILE_PAGE_CONTENT_POPULATE = {
 /** Populate config for report content field (report-section blocks). */
 export const REPORT_CONTENT_POPULATE = {
   on: {
-    'blocks.report-section': { populate: { reportText: true } }
+    'blocks.report-section': {
+      populate: { reportText: { populate: { buttonCta: true } } }
+    }
   }
 } as const
 
