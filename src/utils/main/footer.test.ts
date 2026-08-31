@@ -32,7 +32,7 @@ describe('getFooterOnlyColumn', () => {
         },
         {
           label: 'en:footer.press_media',
-          href: '/en/foundation-pages/press-and-media'
+          href: '/en/foundation-pages/press'
         },
         { label: 'en:footer.faq', href: '/en/foundation-pages/faq' }
       ]

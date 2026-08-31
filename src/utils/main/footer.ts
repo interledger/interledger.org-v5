@@ -74,7 +74,7 @@ export function getFooterOnlyColumn(
       },
       {
         label: t('footer.press_media'),
-        href: translatePath('foundation-pages', lang, 'press-and-media')
+        href: translatePath('foundation-pages', lang, 'press')
       },
       {
         label: t('footer.faq'),
