@@ -22,6 +22,7 @@ import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import PageHero from '@/components/shared/PageHero.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
@@ -102,13 +103,20 @@ const breadcrumbs = [
           />
         </PageHero>
       ) : (
-        isFallback && (
-          <div class="px-content pt-xl">
-            <div class="content-column flex justify-end">
+        <div class="px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]">
+          <div class="content-column">
+            <Breadcrumbs breadcrumbs={breadcrumbs}>
               <TranslationDisclaimer isVisible={isFallback} />
-            </div>
+            </Breadcrumbs>
+            {/* Same treatment PageHero gives its own h1, so a hero-less page
+            still gets a real page title instead of relying on MdxContent's
+            first heading (which may not exist, or may be an h2 section
+            heading rather than the page's own title). */}
+            <h1 class="text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900 mb-2xl tablet:mb-3xl">
+              {title}
+            </h1>
           </div>
-        )
+        </div>
       )
     }
     <section class="px-content">
