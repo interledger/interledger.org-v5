@@ -6,6 +6,11 @@
  * `app.tsx` wires them into the data processor.
  */
 
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import type { Nodes } from 'mdast'
+
 // Unassigned Unicode private-use code point: it cannot collide with authored
 // text, and no markdown rule escapes or reflows it.
 export const SOFT_BREAK_PLACEHOLDER = '\uE000'
@@ -99,4 +104,75 @@ function mergeMultiParagraphTableCells(doc: Document) {
     cell.replaceChild(merged, paragraphs[0])
     paragraphs.slice(1).forEach((p) => cell.removeChild(p))
   }
+}
+
+const markdownParser = unified().use(remarkParse).use(remarkGfm)
+
+/**
+ * Rewrites a soft line wrap as the space it means, before the editor's parser
+ * sees it.
+ *
+ * That parser reads every newline inside a paragraph as a hard line break, so
+ * text stored with wrapped lines gains a real `<br />` at each wrap point on
+ * the next save — breaks nobody typed, in content nobody edited. Astro renders
+ * a soft wrap as a space, so the wrap has to reach the editor as one.
+ *
+ * Only the newlines inside a `text` node are touched. A markdown hard break
+ * (two trailing spaces, or a backslash) parses as its own `break` node, code
+ * and raw HTML as their own node types, so all of those keep their newlines.
+ * The continuation line's block prefix goes with the newline: its indentation,
+ * and the marker of any blockquote the text sits in.
+ *
+ * On a parse failure the markdown is handed back untouched. A break that
+ * should not be there beats an editor that will not open.
+ */
+export function collapseSoftWraps(markdown: string): string {
+  if (!markdown.includes('\n')) return markdown
+
+  let tree: Nodes
+  try {
+    tree = markdownParser.parse(markdown)
+  } catch (err) {
+    console.error('[CKEditor] could not parse markdown to find soft wraps', err)
+    return markdown
+  }
+
+  const wraps = findSoftWraps(tree, markdown)
+  if (!wraps.length) return markdown
+
+  let out = ''
+  let cursor = 0
+  for (const [from, to] of wraps) {
+    out += markdown.slice(cursor, from) + ' '
+    cursor = to
+  }
+  return out + markdown.slice(cursor)
+}
+
+/** Source ranges to replace with a space, in order, as `[from, to)` pairs. */
+function findSoftWraps(tree: Nodes, markdown: string): Array<[number, number]> {
+  const wraps: Array<[number, number]> = []
+
+  function walk(node: Nodes) {
+    if ('children' in node) {
+      for (const child of node.children) walk(child as Nodes)
+      return
+    }
+    if (node.type !== 'text' || !node.value.includes('\n')) return
+
+    const start = node.position?.start.offset
+    const end = node.position?.end.offset
+    if (start === undefined || end === undefined) return
+
+    for (let i = start; i < end; i++) {
+      if (markdown[i] !== '\n') continue
+      const from = markdown[i - 1] === '\r' ? i - 1 : i
+      let to = i + 1
+      while (to < end && ' \t>'.includes(markdown[to])) to++
+      wraps.push([from, to])
+    }
+  }
+
+  walk(tree)
+  return wraps
 }

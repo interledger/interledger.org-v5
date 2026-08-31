@@ -13,6 +13,7 @@ import {
 } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 import {
+  collapseSoftWraps,
   healStrandedListItemBreaks,
   prepareHtmlForMarkdown,
   restoreSoftBreaks
@@ -158,8 +159,9 @@ const markdownPresetNoH1: Preset = {
       },
       // Carry Shift+Enter soft breaks and multi-paragraph table cells through
       // the markdown round trip — see markdownRoundTrip.ts for why each
-      // transform is needed. Loading also heals the stranded <br> that older
-      // content still carries, so the next save writes the inline form.
+      // transform is needed. Loading also repairs two shapes stored content
+      // carries: the stranded <br> left by the old converter, and the soft
+      // line wraps the parser would otherwise read as hard breaks.
       function preserveSoftLineBreaks(editor: Editor) {
         const processor = editor.data.processor as unknown as {
           toView: (markdown: string) => unknown
@@ -168,7 +170,9 @@ const markdownPresetNoH1: Preset = {
 
         const originalToView = processor.toView.bind(processor)
         processor.toView = (markdown: string) =>
-          originalToView(healStrandedListItemBreaks(markdown))
+          originalToView(
+            collapseSoftWraps(healStrandedListItemBreaks(markdown))
+          )
 
         const html2markdown = processor._html2markdown
         if (!html2markdown || typeof html2markdown.parse !== 'function') {

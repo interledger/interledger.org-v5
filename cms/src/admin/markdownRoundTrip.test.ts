@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
 import {
+  collapseSoftWraps,
   healStrandedListItemBreaks,
   prepareHtmlForMarkdown,
   restoreSoftBreaks,
@@ -120,5 +121,95 @@ describe('healStrandedListItemBreaks', () => {
   it('leaves an already inline break alone', () => {
     const markdown = '1. one<br />two\n2. three'
     expect(healStrandedListItemBreaks(markdown)).toBe(markdown)
+  })
+})
+
+describe('collapseSoftWraps', () => {
+  it('rewrites a wrapped paragraph as one line', () => {
+    expect(collapseSoftWraps('Take our course and start\nknowing it.')).toBe(
+      'Take our course and start knowing it.'
+    )
+  })
+
+  it('rewrites a wrapped list item, dropping the continuation indent', () => {
+    expect(collapseSoftWraps('1. Create a free account or log\n   in.')).toBe(
+      '1. Create a free account or log in.'
+    )
+  })
+
+  it('drops the blockquote marker on a continuation line', () => {
+    expect(collapseSoftWraps('> quoted line\n> continues here')).toBe(
+      '> quoted line continues here'
+    )
+  })
+
+  it('drops both markers inside a nested blockquote', () => {
+    expect(collapseSoftWraps('> outer\n> > inner line\n> > continues')).toBe(
+      '> outer\n> > inner line continues'
+    )
+  })
+
+  it('rewrites a wrap that falls inside inline formatting', () => {
+    expect(collapseSoftWraps('this is **bold\ntext** here')).toBe(
+      'this is **bold text** here'
+    )
+  })
+
+  it('takes the carriage return with a Windows newline', () => {
+    expect(collapseSoftWraps('a line\r\nnext line')).toBe('a line next line')
+  })
+
+  it('keeps a hard break written as two trailing spaces', () => {
+    const markdown = 'a line  \nnext line'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps a hard break written as a trailing backslash', () => {
+    const markdown = 'a line\\\nnext line'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps a literal line break the author typed', () => {
+    const markdown = 'a line<br />next line'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps the newlines in a fenced code block', () => {
+    const markdown = '```js\nconst a = 1\nconst b = 2\n```'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps the newlines in an indented code block', () => {
+    const markdown = 'text\n\n    const a = 1\n    const b = 2\n'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps a table intact', () => {
+    const markdown = '| h | j |\n| --- | --- |\n| a | b |'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps separate paragraphs apart', () => {
+    const markdown = 'first para\n\nsecond para'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps a heading off the paragraph above it', () => {
+    const markdown = 'Some text\n\n## Heading\n\nmore'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps list items apart', () => {
+    const markdown = '- alpha\n  - beta\n- gamma'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('keeps a setext heading intact', () => {
+    const markdown = 'Title\n=====\n\nbody'
+    expect(collapseSoftWraps(markdown)).toBe(markdown)
+  })
+
+  it('returns single-line markdown untouched', () => {
+    expect(collapseSoftWraps('single line')).toBe('single line')
   })
 })
