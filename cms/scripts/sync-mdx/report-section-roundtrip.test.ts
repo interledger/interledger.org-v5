@@ -189,6 +189,55 @@ describe('ReportSection round-trip (serialize → parse)', () => {
     ])
   })
 
+  it('round-trips a Button block with an explicit external:true flag', async () => {
+    const original = {
+      heading: 'Downloads',
+      reportText: [
+        {
+          textType: 'Button',
+          buttonCta: {
+            text: 'Read more',
+            link: 'https://example.com',
+            style: 'primary',
+            external: true
+          }
+        }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.report-section', ...original }
+    ])
+  })
+
+  it('round-trips a Button block with an explicit external:false flag', async () => {
+    // Distinct from omitting external entirely: resolveCtaLink only infers
+    // external from the URL when the flag is undefined, so an explicit false
+    // must survive the full export/import cycle unchanged.
+    const original = {
+      heading: 'Downloads',
+      reportText: [
+        {
+          textType: 'Button',
+          buttonCta: {
+            text: 'Read more',
+            link: 'https://example.com',
+            style: 'primary',
+            external: false
+          }
+        }
+      ]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.report-section', ...original }
+    ])
+  })
+
   it('round-trips a heading with quotes, ampersands and angle brackets', async () => {
     const original = {
       heading: 'Q&A "Overview" <2026>',

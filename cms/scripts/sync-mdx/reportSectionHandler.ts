@@ -172,7 +172,11 @@ function parseButtonReportText(
     text: text.trim(),
     link: link.trim(),
     style: (style ?? 'primary') as 'primary' | 'secondary',
-    ...(external ? { external: true } : {}),
+    // external must keep an explicit false distinct from absent: resolveCtaLink
+    // only infers from the URL when external is undefined, so dropping an
+    // explicit false here (like the plain-default document flag below) would
+    // flip a same-tab absolute-URL button back to external on render.
+    ...(external !== undefined ? { external } : {}),
     ...(document ? { document: true } : {})
   }
 

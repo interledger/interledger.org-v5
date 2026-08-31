@@ -203,6 +203,37 @@ describe('ReportSection handler', () => {
     )
   })
 
+  it('parses an explicit buttonExternal={false} rather than dropping it', async () => {
+    // resolveCtaLink only infers external from the URL when the flag is
+    // undefined, so an explicit false must survive parsing distinct from an
+    // absent attribute — otherwise a same-tab absolute-URL button silently
+    // becomes external on render.
+    const blocks = await parseMdxToBlocks(
+      reportSection([
+        '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonExternal={false} />'
+      ]),
+      ctx
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.report-section',
+        heading: 'Introduction',
+        reportText: [
+          {
+            textType: 'Button',
+            buttonCta: {
+              text: 'Read more',
+              link: 'https://example.com',
+              style: 'primary',
+              external: false
+            }
+          }
+        ]
+      }
+    ])
+  })
+
   it('errors when a Button block has a malformed buttonDocument value', async () => {
     const mdx = reportSection([
       '<ReportText type="Button" buttonText="Read more" buttonLink="https://example.com" buttonDocument="treu" />'

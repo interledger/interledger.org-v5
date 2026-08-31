@@ -155,7 +155,14 @@ export function serialize(block: {
       // to the same MDX it came from (matches cta-buttons.serializer.ts).
       if (button.style && button.style !== 'primary')
         attrs.push(`buttonStyle="${esc(button.style)}"`)
-      if (button.external) attrs.push('buttonExternal={true}')
+      // external is not a plain default-false flag like document: an absent
+      // external lets resolveCtaLink infer it from the URL, while an explicit
+      // false forces same-tab even for an absolute URL (src/utils/main/cta.ts).
+      // Omitting an explicit false on export would silently flip an editor's
+      // "not external" absolute-URL button back to external on render, so it
+      // must round-trip even though it matches the schema default.
+      if (button.external === true) attrs.push('buttonExternal={true}')
+      else if (button.external === false) attrs.push('buttonExternal={false}')
       if (button.document) attrs.push('buttonDocument={true}')
 
       return `<ReportText ${attrs.join(' ')} />`
