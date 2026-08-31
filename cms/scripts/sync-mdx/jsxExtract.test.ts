@@ -125,6 +125,16 @@ describe('getBooleanAttr', () => {
       })
     )
   })
+
+  it('throws INVALID_PROP_VALUE for a malformed string value (typo)', () => {
+    const node = parseJsx('<Foo bar="treu" />')
+    expect(() => getBooleanAttr(node, 'bar')).toThrow(MdxParserError)
+    expect(() => getBooleanAttr(node, 'bar')).toThrow(
+      expect.objectContaining({
+        code: ParserErrorCode.INVALID_PROP_VALUE
+      })
+    )
+  })
 })
 
 // ---------------------------------------------------------------------------

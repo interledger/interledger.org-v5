@@ -9,7 +9,7 @@
       "type": "enumeration",
       "required": true,
       "default": "Paragraph",
-      "enum": ["Paragraph", "Disclaimer", "References"]
+      "enum": ["Paragraph", "Disclaimer", "References", "Button"]
     },
     "textContent": {
       "type": "customField",
@@ -58,6 +58,21 @@
         "preset": "basicMarkdownPreset"
       },
       "required": true
+    },
+    "buttonCta": {
+      "type": "component",
+      "component": "shared.cta-button",
+      "repeatable": false,
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "textType"
+            },
+            "Button"
+          ]
+        }
+      }
     }
   },
   "config": {}

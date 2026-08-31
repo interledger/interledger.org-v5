@@ -98,3 +98,17 @@ describe('dynamic zone populate configs', () => {
     ).toEqual([])
   })
 })
+
+describe('REPORT_CONTENT_POPULATE', () => {
+  it('deep-populates buttonCta on report-section.reportText', () => {
+    // The top-level `blocks.report-section` check above only confirms the
+    // component itself is populated — it can't see that reportText's own
+    // `buttonCta` component is missing or misspelled inside the nested
+    // populate, which would silently drop every report's CTA button data
+    // from the MDX export with no error.
+    expect(
+      REPORT_CONTENT_POPULATE.on['blocks.report-section'].populate.reportText
+        .populate.buttonCta
+    ).toBe(true)
+  })
+})

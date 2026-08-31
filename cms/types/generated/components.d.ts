@@ -1067,6 +1067,7 @@ export interface BlocksReportText extends Struct.ComponentSchema {
     displayName: 'Report Text'
   }
   attributes: {
+    buttonCta: Schema.Attribute.Component<'shared.cta-button', false>
     textContent: Schema.Attribute.RichText &
       Schema.Attribute.Required &
       Schema.Attribute.CustomField<
@@ -1084,7 +1085,7 @@ export interface BlocksReportText extends Struct.ComponentSchema {
         }
       >
     textType: Schema.Attribute.Enumeration<
-      ['Paragraph', 'Disclaimer', 'References']
+      ['Paragraph', 'Disclaimer', 'References', 'Button']
     > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Paragraph'>

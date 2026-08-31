@@ -182,6 +182,20 @@ export function getBooleanAttr(
     })
   }
 
+  // Plain string that isn't "true"/"false" (e.g. a typo like "treu"): reject
+  // rather than silently treating it as absent, which would drop the
+  // author's value on the next export.
+  if (typeof attr.value === 'string') {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "${name}" must be a static boolean (true/false), got "${attr.value}".`,
+      component: node.name ?? undefined,
+      prop: name,
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
   return undefined
 }
 

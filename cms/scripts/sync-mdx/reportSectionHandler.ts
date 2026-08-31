@@ -30,8 +30,12 @@ import type {
   ReportTextItem
 } from './types.blocks'
 import { REPORT_TEXT_TYPES, isReportTextType } from './types.blocks'
+import {
+  isCtaButtonStyle,
+  hasConflictingCtaFlags
+} from '../../src/utils/ctaButtons'
 import { extractChildrenContent } from './mdastSerialize'
-import { getStringAttr, getChildElements } from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -102,6 +106,8 @@ function parseReportText(
     })
   }
 
+  if (textType === 'Button') return parseButtonReportText(node, textType)
+
   // Prefer raw source slicing over AST re-serialization: footnote markers
   // ([^1]) and other literal markdown-like text get escaped by
   // mdast-util-to-markdown, corrupting content that was never ambiguous in
@@ -121,6 +127,73 @@ function parseReportText(
   return textType === 'Disclaimer'
     ? { textType, textDisclaimer: content }
     : { textType, textContent: content }
+}
+
+/**
+ * A Button item carries no rich-text children — its data lives entirely in
+ * attributes on the self-closing `<ReportText type="Button" .../>` tag,
+ * matching how report-section.serializer.ts emits it.
+ */
+function parseButtonReportText(
+  node: JsxBlockNode,
+  textType: 'Button'
+): ReportTextItem {
+  if (node.children.length > 0) {
+    throw new MdxParserError({
+      code: ParserErrorCode.UNEXPECTED_CHILDREN,
+      message:
+        'ReportText type="Button" must be self-closing — it takes no children. Its text and link come from the buttonText/buttonLink attributes.',
+      component: 'ReportText',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  const text = getStringAttr(node, 'buttonText', { required: true })
+  const link = getStringAttr(node, 'buttonLink', { required: true })
+  const style = getStringAttr(node, 'buttonStyle')
+  const external = getBooleanAttr(node, 'buttonExternal')
+  const document = getBooleanAttr(node, 'buttonDocument')
+
+  if (style !== undefined && !isCtaButtonStyle(style)) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `ReportText "buttonStyle" must be "primary" or "secondary", got "${style}".`,
+      component: 'ReportText',
+      prop: 'buttonStyle',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  const buttonCta = {
+    // Trim on the way in, the same as ctaButtonsHandler.ts — the composition
+    // rule and the round-trip both need to see the same value (Jonathan, #483).
+    text: text.trim(),
+    link: link.trim(),
+    style: (style ?? 'primary') as 'primary' | 'secondary',
+    // external must keep an explicit false distinct from absent: resolveCtaLink
+    // only infers from the URL when external is undefined, so dropping an
+    // explicit false here (like the plain-default document flag below) would
+    // flip a same-tab absolute-URL button back to external on render.
+    ...(external !== undefined ? { external } : {}),
+    ...(document ? { document: true } : {})
+  }
+
+  if (hasConflictingCtaFlags(buttonCta)) {
+    throw new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message:
+        'ReportText Button cannot be both external and document. Pick one: ' +
+        'external opens a new tab, document downloads a file.',
+      component: 'ReportText',
+      prop: 'buttonDocument',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+  }
+
+  return { textType, buttonCta }
 }
 
 async function handleReportSection(
