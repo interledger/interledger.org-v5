@@ -12,6 +12,11 @@ import {
   type HeadingOption
 } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
+import {
+  healStrandedListItemBreaks,
+  prepareHtmlForMarkdown,
+  restoreSoftBreaks
+} from './markdownRoundTrip'
 
 // Minimal clipboard callback types for the Google Docs paste cleanup plugin.
 interface CKEditorDataTransfer {
@@ -151,85 +156,46 @@ const markdownPresetNoH1: Preset = {
             .replace(ESCAPED_FOOTNOTE, '')
             .replace(BARE_URL, (url) => url.replace(/\\/g, ''))
       },
-      // GFM table cells only hold inline content, so a second <p> in one
-      // <td> (e.g. pasted multi-line content) flattens with no separator.
-      // Even a single <br> — Shift+Enter, since hard Enter is disabled in
-      // cells — degrades to a bare `\n` by default, just as invalid mid-row.
-      //
-      // Fix: merge sibling <p>s via a real <br>, kept as literal HTML
-      // through the processor's public `keepHtml` API instead of
-      // markdown's hard-break syntax. Not table-scoped, but an improvement
-      // regardless: Astro has no remark-breaks, so Shift+Enter's bare `\n`
-      // outside a table already rendered as nothing.
-      function preserveTableCellLineBreaks(editor: Editor) {
+      // Carry Shift+Enter soft breaks and multi-paragraph table cells through
+      // the markdown round trip — see markdownRoundTrip.ts for why each
+      // transform is needed. Loading also heals the stranded <br> that older
+      // content still carries, so the next save writes the inline form.
+      function preserveSoftLineBreaks(editor: Editor) {
         const processor = editor.data.processor as unknown as {
-          keepHtml?: (tag: string) => void
+          toView: (markdown: string) => unknown
           _html2markdown?: { parse: (html: string) => string }
         }
 
-        if (typeof processor.keepHtml === 'function') {
-          processor.keepHtml('br')
-        } else {
-          warnOnceAboutBrokenGfmShape(
-            'processor.keepHtml is missing — <br> line breaks (Shift+Enter, and merged table-cell paragraphs) will no longer survive the markdown round-trip.'
-          )
-        }
+        const originalToView = processor.toView.bind(processor)
+        processor.toView = (markdown: string) =>
+          originalToView(healStrandedListItemBreaks(markdown))
 
         const html2markdown = processor._html2markdown
         if (!html2markdown || typeof html2markdown.parse !== 'function') {
           warnOnceAboutBrokenGfmShape(
-            'processor._html2markdown.parse is missing — multi-paragraph table cells will flatten with no separator again.'
+            'processor._html2markdown.parse is missing — Shift+Enter soft breaks will collapse to an invisible newline, and multi-paragraph table cells will flatten with no separator.'
           )
           return
         }
 
         const originalParse = html2markdown.parse.bind(html2markdown)
         html2markdown.parse = (html: string) =>
-          originalParse(mergeMultiParagraphTableCells(html))
+          restoreSoftBreaks(originalParse(prepareHtmlForMarkdown(html)))
       }
     ]
   }
 }
 
-// `_html2markdown`/`keepHtml` are undocumented CKEditor internals — a version
-// bump could rename or drop them with no type error, silently disabling the
-// fixes above. Deduped by message so a break logs once, not per editor field.
+// `_html2markdown` is an undocumented CKEditor internal — a version bump could
+// rename or drop it with no type error, silently disabling the fixes above.
+// Deduped by message so a break logs once, not per editor field.
 const warnedGfmShapeMessages = new Set<string>()
 function warnOnceAboutBrokenGfmShape(message: string) {
   if (warnedGfmShapeMessages.has(message)) return
   warnedGfmShapeMessages.add(message)
   console.error(
-    `[CKEditor] ${message} This likely means a ckeditor5/strapi-plugin-ckeditor upgrade changed the GFM data processor's internal shape — update preserveTableCellLineBreaks in cms/src/admin/app.tsx.`
+    `[CKEditor] ${message} This likely means a ckeditor5/strapi-plugin-ckeditor upgrade changed the GFM data processor's internal shape — update preserveSoftLineBreaks in cms/src/admin/app.tsx.`
   )
-}
-
-function mergeMultiParagraphTableCells(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html')
-  const cells = doc.querySelectorAll('td, th')
-
-  for (const cell of cells) {
-    const paragraphs = Array.from(cell.children).filter(
-      (el): el is HTMLParagraphElement => el.tagName === 'P'
-    )
-    if (paragraphs.length < 2) continue
-
-    // Two <br> per boundary, not one: a boundary here is hard Enter (a real
-    // paragraph break), which should read as a bigger visual gap than
-    // Shift+Enter's single <br> soft break — the closest a table cell can
-    // get to an actual paragraph break, since GFM can't represent one.
-    const merged = doc.createElement('p')
-    paragraphs.forEach((p, i) => {
-      if (i > 0) {
-        merged.appendChild(doc.createElement('br'))
-        merged.appendChild(doc.createElement('br'))
-      }
-      while (p.firstChild) merged.appendChild(p.firstChild)
-    })
-    cell.replaceChild(merged, paragraphs[0])
-    paragraphs.slice(1).forEach((p) => cell.removeChild(p))
-  }
-
-  return doc.body.innerHTML
 }
 
 // Minimal editor for short rich-text fields (e.g. author bios):
