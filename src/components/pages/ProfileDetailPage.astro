@@ -72,8 +72,8 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 const Layout = getSectionPageLayout(section)
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 const textColorClass = isHackathon ? 'text-neutral-0' : 'text-neutral-900'
-const nameClass = `text-h1-md ${textColorClass}`
-const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
+const nameClass = `text-h1 ${textColorClass} tablet:text-h1-md desktop:text-h1-md`
+const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
 ---
 
 <Layout
@@ -114,7 +114,7 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
         }
       </div>
       <div
-        class="mt-3xl flex flex-col gap-0 [&_h2]:mb-md [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
+        class="mt-3xl-tight flex flex-col gap-0 [&_h2]:mb-md [&_h4]:mt-0 [&_h4]:mb-xl tablet:mt-3xl"
       >
         <h2 class={nameClass}>{name}</h2>
         {displayRole && <h4 class={roleClass}>{displayRole}</h4>}
