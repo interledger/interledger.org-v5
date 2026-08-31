@@ -138,7 +138,7 @@ export const ui = {
     'grantee.filter.year': 'Year',
     'grantee.filter.program': 'Program',
     'grantee.filter.all': 'All',
-    'grantee.amount_label': 'Total amount awarded',
+    'grantee.amount_label': 'Total amount committed',
     'grantee.currency': 'USD',
     'grantee.project_lead': 'Project lead',
     'grantee.view_details': 'View project details',
