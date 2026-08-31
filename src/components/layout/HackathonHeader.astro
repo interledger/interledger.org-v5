@@ -73,7 +73,7 @@ const ctaLink = (href: string, linkText?: string) =>
       data-offscreen="true"
       id="hackathonNavLinks"
     >
-      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl">
+      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-md">
         <div class="flex items-center justify-between gap-xl">
           {
             alternateLocaleHref && alternateLocaleLabel ? (
@@ -102,12 +102,12 @@ const ctaLink = (href: string, linkText?: string) =>
         </div>
       </div>
       <hr
-        class="desktop:hidden mx-lg mt-md mb-xl border-t border-neutral-25 dark:border-neutral-75"
+        class="desktop:hidden mx-lg mt-0 mb-lg border-t border-neutral-25 dark:border-neutral-75"
       />
       <FoundationNavMenu menuGroups={mainMenu} theme="dark" />
       {
         ctaButton && (
-          <div class="desktop:hidden mx-lg mt-2xl mb-4xl">
+          <div class="desktop:hidden mx-lg mt-xl mb-4xl">
             <LinkButton
               href={ctaButton.href || '#'}
               variant="primary"

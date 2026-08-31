@@ -97,7 +97,7 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
       data-offscreen="true"
       id="siteNavLinks"
     >
-      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-xl">
+      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-md">
         <div class="flex items-center justify-between gap-xl">
           {
             alternateLocaleHref && alternateLocaleLabel ? (
@@ -126,12 +126,12 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
         </div>
       </div>
       <hr
-        class="desktop:hidden mx-lg mt-md mb-xl border-t border-neutral-25 dark:border-neutral-75"
+        class="desktop:hidden mx-lg mt-0 mb-lg border-t border-neutral-25 dark:border-neutral-75"
       />
       <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
-          <div class="desktop:hidden mx-lg mt-2xl mb-4xl">
+          <div class="desktop:hidden mx-lg mt-xl mb-4xl">
             <LinkButton
               href={ctaButton.href || '#'}
               variant="primary"
