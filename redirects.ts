@@ -191,6 +191,8 @@ export const redirects = {
     '/blog/inside-usiu-africa-open-payments-workshop-what-students-built',
   '/news/insights-futuremoney-podcast-interledger-campus':
     '/blog/insights-futuremoney-podcast-interledger-campus',
+  '/news/interledger-awards-20000-five-organizations-explore-community-centered-financial':
+    '/blog/interledger-awards-20-000-to-five-organizations-to-explore-community-centered-financial-infrastructure',
   '/news/interledger-campus': '/blog/interledger-campus',
   '/news/interledger-comes-colombia-help-build-internet-opportunity':
     '/blog/interledger-comes-colombia-help-build-internet-opportunity',
