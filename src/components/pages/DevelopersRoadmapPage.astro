@@ -9,6 +9,7 @@ import {
   projectOverlapsWindow,
   buildUmamiAttrs,
   localizeRoute,
+  PAGE_TOP_OFFSET_CLASS,
   type BreadcrumbItem
 } from '@/utils'
 import type { Snapshot } from '@/types/roadmap'
@@ -50,7 +51,7 @@ const githubFallbackAttrs = buildUmamiAttrs({
   title={t('roadmap.title')}
   description={t('roadmap.description')}
 >
-  <main class="px-content pt-2xl pb-4xl">
+  <main class={`px-content pb-4xl ${PAGE_TOP_OFFSET_CLASS}`}>
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
         <TranslationDisclaimer isVisible={isFallback} />

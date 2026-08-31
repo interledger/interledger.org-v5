@@ -4,6 +4,7 @@ import {
   localizeRoute,
   translatePath,
   buildUmamiAttrs,
+  PAGE_TOP_OFFSET_CLASS,
   type BreadcrumbItem
 } from '@/utils'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
@@ -74,11 +75,11 @@ const secondaryTextClasses = 'text-neutral-75'
   title={t('subscribe.title')}
   description={t('subscribe.description')}
 >
-  <main class="px-content pt-2xl pb-section desktop:min-h-screen">
+  <main
+    class={`px-content pb-section desktop:min-h-screen ${PAGE_TOP_OFFSET_CLASS}`}
+  >
     <div class="content-column">
-      <div class="mb-xl">
-        <Breadcrumbs breadcrumbs={breadcrumbs} />
-      </div>
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
 
       <div class="flex flex-col gap-3xl desktop:flex-row desktop:gap-5xl">
         <div class="flex flex-col gap-xl desktop:max-w-[45%]">

@@ -14,7 +14,8 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
-  getSectionPageLayout
+  getSectionPageLayout,
+  PAGE_TOP_OFFSET_CLASS
 } from '@/utils'
 
 interface Props {
@@ -80,9 +81,7 @@ const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
-  <main
-    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
-  >
+  <main class={`flex flex-col px-content pb-section ${PAGE_TOP_OFFSET_CLASS}`}>
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
         <TranslationDisclaimer isVisible={isFallback} />
