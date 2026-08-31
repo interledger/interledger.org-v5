@@ -1302,7 +1302,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       source: 'Source',
       externalUrl: 'Video URL',
       file: 'Video file',
-      title: 'Title'
+      title: 'Title',
+      poster: 'Cover image'
     },
     'blocks.split-layout': {
       layoutType: 'Layout',
@@ -1389,7 +1390,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'A YouTube or Vimeo link, or a direct link to a video file (.mp4, .webm, .ogg, .mov).',
       file: 'Upload a video file (max 5 MB). For larger videos, use YouTube or Vimeo and paste the link in the URL field instead.',
       title:
-        'A short, descriptive title used as the accessible label for the video.'
+        'A short, descriptive title used as the accessible label for the video.',
+      poster:
+        'Optional cover image shown before play. Recommended: 16:9, at least 1280×720px.'
     },
     'blocks.info-cards': {
       heading:

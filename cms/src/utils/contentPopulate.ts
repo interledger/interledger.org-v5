@@ -21,7 +21,7 @@ const GRANT_BLOCKS = {
   'blocks.blockquote': {},
   'blocks.callout-text': {},
   'blocks.video-embed': {
-    populate: { file: true }
+    populate: { file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
@@ -77,7 +77,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { file: true }
   },
   'blocks.video-embed': {
-    populate: { file: true }
+    populate: { file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
@@ -120,7 +120,7 @@ const FOUNDATION_PAGE_BLOCKS = {
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.video-embed': {
-    populate: { file: true }
+    populate: { file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {

@@ -84,7 +84,7 @@ export function serialize(block: {
     attrs.push(`displayRatio="${esc(block.displayRatio)}"`)
   }
 
-  if (isImageLayout && imageUrl) {
+  if ((isImageLayout || isVideoLayout) && imageUrl) {
     attrs.push(`imageSrc="${esc(imageUrl)}"`)
     const alt = block.media?.alternativeText ?? imageObj?.alternativeText ?? ''
     if (alt) attrs.push(`imageAlt="${esc(alt)}"`)

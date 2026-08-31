@@ -7,6 +7,7 @@ export function serialize(block: {
   file?: { url?: string } | number | null
   externalUrl?: string
   title: string
+  poster?: { url?: string } | number | null
 }): string {
   if (!block.title) throw new Error('VideoEmbed block is missing title')
 
@@ -19,6 +20,11 @@ export function serialize(block: {
   // so an empty url is fine there; on export `file.url` is always populated.
   const fileUrl = typeof block.file === 'object' ? block.file?.url : undefined
   const url = fileUrl ?? block.externalUrl ?? ''
+  const posterUrl =
+    typeof block.poster === 'object' ? block.poster?.url : undefined
 
-  return `<VideoEmbed url="${esc(url)}" title="${esc(block.title)}" />`
+  const attrs = [`url="${esc(url)}"`, `title="${esc(block.title)}"`]
+  if (posterUrl) attrs.push(`poster="${esc(posterUrl)}"`)
+
+  return `<VideoEmbed ${attrs.join(' ')} />`
 }
