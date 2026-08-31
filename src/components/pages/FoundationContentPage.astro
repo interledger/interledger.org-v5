@@ -103,7 +103,7 @@ const breadcrumbs = [
           />
         </PageHero>
       ) : (
-        <div class="px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]">
+        <div class="px-content pt-page-offset">
           <div class="content-column">
             <Breadcrumbs breadcrumbs={breadcrumbs}>
               <TranslationDisclaimer isVisible={isFallback} />

@@ -80,9 +80,7 @@ const Layout = getSectionPageLayout(section)
 ---
 
 <Layout title={title} description={description}>
-  <main
-    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
-  >
+  <main class="flex flex-col px-content pb-section pt-page-offset">
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs}>
         <TranslationDisclaimer isVisible={isFallback} />

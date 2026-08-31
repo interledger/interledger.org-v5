@@ -93,12 +93,7 @@ const parallaxImgClass = isWideBand
   (1440px), matching every other section on the page.
 -->
 <div data-component="PageHero">
-  <div
-    class:list={[
-      'bg-white px-content pt-[calc(var(--spacing-6xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-6xl)-var(--site-header-height-desktop))]',
-      copyBandPadding
-    ]}
-  >
+  <div class:list={['bg-white px-content pt-page-offset', copyBandPadding]}>
     <div class="content-column">
       {
         breadcrumbs && breadcrumbs.length > 0 && (
