@@ -74,7 +74,7 @@ export default async function handler(
   _ctx: Context
 ): Promise<Response> {
 
-  console.log('[subscribe-newsletter] Received request', { method: req.method, body: await req.clone().json() })
+  console.log('[subscribe-newsletter] Received request', { method: req.method })
 
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method Not Allowed' }, 405, { Allow: 'POST' })
@@ -91,6 +91,13 @@ export default async function handler(
   if (body instanceof Error) {
     return jsonResponse({ error: 'Invalid JSON body' }, 400)
   }
+
+  console.log('[subscribe-newsletter] Parsed request body', {
+    ...body,
+    fields: body.fields?.map((field) =>
+      field.name === 'email' ? { ...field, value: '[redacted]' } : field
+    )
+  })
 
   const { recaptchaToken, fields, context, legalConsentOptions } = body
   if (!recaptchaToken || !isValidFields(fields)) {
