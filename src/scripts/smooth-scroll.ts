@@ -55,6 +55,6 @@ if (document.readyState === 'loading') {
 }
 
 reducedMotion.addEventListener('change', () => {
-if (reducedMotion.matches || !tabletUp.matches) stop()
+  if (reducedMotion.matches || !tabletUp.matches) stop()
   else start()
 })
