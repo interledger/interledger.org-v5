@@ -1,17 +1,4 @@
 name: Scheduled Strapi Rebuild & Content Sync
-# Rebuilds the Strapi CMS (only if /cms changed since the last run) and then syncs content,
-# navigation, and media from this repo into Strapi, once a day for both staging and playground.
-# This replaces the old per-commit pipeline: rebuilding/syncing on every push meant an editor
-# with a page open in the Strapi admin could hit save errors mid-session, because sync:all
-# rewrites component IDs on every entry it touches even though the parent documentId stays
-# stable, and production-mode Strapi has no way to detect that and refresh (unlike
-# `pnpm run develop` locally, which does). Batching both steps to once a day makes that far
-# less likely.
-# GitHub Actions schedules run in UTC; South Africa Standard Time has no daylight saving, so
-# 08:00 SAST is always 06:00 UTC.
-#
-# The rebuild/sync itself lives in the reusable strapi-rebuild-and-sync workflow, shared with the
-# manual build-and-sync workflow.
 on:
   schedule:
     - cron: '0 6 * * *' # 08:00 SAST
@@ -26,10 +13,10 @@ jobs:
     uses: ./.github/workflows/strapi-rebuild-and-sync.yml
     with:
       branch: ${{ matrix.branch }}
-      # workflow_dispatch always rebuilds, even with no new commits, so a manual run can recover
-      # from a bad prior deploy without waiting for a new cms/ commit. The scheduled run only
-      # rebuilds when cms/ actually changed.
-      force_rebuild: ${{ github.event_name == 'workflow_dispatch' }}
+      # Always rebuild, regardless of whether /cms changed since the last run, on both the
+      # daily schedule and a manual trigger — this replaces the old conditional that skipped
+      # scheduled rebuilds when nothing in /cms had changed.
+      force_rebuild: true
     # ENV_STRAPI_API_TOKEN resolves from the called job's environment; inherit covers the
     # repo-level secrets the Slack notification needs.
     secrets: inherit
