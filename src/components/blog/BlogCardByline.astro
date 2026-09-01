@@ -1,6 +1,12 @@
 ---
 import type { AuthorBioType } from '@/schemas/content'
-import { useTranslations, formatDate, twMerge } from '@/utils'
+import {
+  useTranslations,
+  formatDate,
+  twMerge,
+  ensureAbsoluteUrl,
+  buildUmamiAttrs
+} from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import FallbackAuthorIcon from '@/components/shared/FallbackAuthorIcon.astro'
 
@@ -19,12 +25,41 @@ const bylineClasses = twMerge(
   'flex flex-col gap-md text-neutral-100 **:text-body-sm-standard tablet:flex-row tablet:flex-wrap tablet:gap-xl',
   classes
 )
+const authorLink = bio?.link
+  ? {
+      href: ensureAbsoluteUrl(bio.link),
+      umami: buildUmamiAttrs({
+        pathname: Astro.url.pathname,
+        lang: routeLocale,
+        label: 'link',
+        baseComponent: 'blog',
+        href: bio.link,
+        linkText: bio.author
+      })
+    }
+  : null
+const AuthorWrap = authorLink ? 'a' : 'div'
+const authorWrapProps =
+  bio && authorLink
+    ? {
+        href: authorLink.href,
+        'aria-label': t('aria.author_profile', {
+          author: bio.author,
+          newTab: t('aria.opens_new_tab')
+        }),
+        class:
+          'card-nested group/author flex flex-nowrap items-center gap-sm text-neutral-100 no-underline',
+        target: '_blank',
+        rel: 'author noopener noreferrer',
+        ...authorLink.umami
+      }
+    : { class: 'flex flex-nowrap items-center gap-sm' }
 ---
 
 <div class={bylineClasses}>
   {
     bio && (
-      <div class="flex flex-nowrap items-center gap-sm">
+      <AuthorWrap {...authorWrapProps}>
         {bio.image ? (
           <OptimizedImage
             src={bio.image}
@@ -39,8 +74,16 @@ const bylineClasses = twMerge(
         ) : (
           <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full shrink-0" />
         )}
-        <span>{bio.author}</span>
-      </div>
+        <span
+          class={
+            authorLink
+              ? 'underline decoration-transparent transition-all duration-200 group-hover/author:decoration-inherit'
+              : undefined
+          }
+        >
+          {bio.author}
+        </span>
+      </AuthorWrap>
     )
   }
   <div class="flex gap-xl py-sm">
