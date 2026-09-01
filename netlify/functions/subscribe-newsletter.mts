@@ -73,6 +73,9 @@ export default async function handler(
   req: Request,
   _ctx: Context
 ): Promise<Response> {
+
+  console.log('[subscribe-newsletter] Received request', { method: req.method, body: await req.clone().json() })
+
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method Not Allowed' }, 405, { Allow: 'POST' })
   }
@@ -129,6 +132,11 @@ export default async function handler(
     )
     return jsonResponse({ error: 'HubSpot submission failed' }, 502)
   }
+
+  console.log('[subscribe-newsletter] HubSpot response ok:', hubspotResult.ok)
+  console.log('[subscribe-newsletter] HubSpot response status:', hubspotResult.status)
+  console.log('[subscribe-newsletter] HubSpot response statusText:', hubspotResult.statusText)
+  console.log('[subscribe-newsletter] HubSpot response url:', hubspotResult.url)
 
   if (!hubspotResult.ok) {
     console.error(
