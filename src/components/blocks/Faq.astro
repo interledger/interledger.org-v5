@@ -7,6 +7,7 @@
  */
 import { parseMarkdown, useTranslations } from '@/utils'
 import FaqItem from '@/components/shared/FaqItem.astro'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface StrapiFaqItem {
   question: string
@@ -26,6 +27,10 @@ const t = useTranslations(routeLocale)
 // Strapi preview (DynamicZone.astro) passes `items` with markdown answers that
 // still need rendering; MDX authoring passes <FaqItem> children that Astro has
 // already rendered, so we fall through to the slot.
+// Unique so two Faq blocks on one page don't exclusive-close each other
+// when JS is off. MDX-slotted <FaqItem> children keep their own `group`.
+const accordionName = `faq-${crypto.randomUUID()}`
+
 const renderedItems = items
   ? await Promise.all(
       items.map(async (item) => ({
@@ -37,6 +42,8 @@ const renderedItems = items
       }))
     )
   : null
+
+const faqGroup = faqAccordionGroupName()
 ---
 
 <section
@@ -55,7 +62,7 @@ const renderedItems = items
     {
       renderedItems ? (
         renderedItems.map((item) => (
-          <FaqItem question={item.question}>
+          <FaqItem question={item.question} group={accordionName}>
             <Fragment set:html={item.answerHtml} />
           </FaqItem>
         ))
