@@ -24,7 +24,14 @@ import NavigationCard from '@/components/shared/NavigationCard.astro'
 import HackathonHero from '@/components/pages/HackathonHero.astro'
 import HackathonAnimation from '@/components/hackathon/HackathonAnimation.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
-import { type Locale, isDemoPathSlug } from '@/utils'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import {
+  type Locale,
+  isDemoPathSlug,
+  useTranslations,
+  HACKATHON_HOME_SLUG,
+  buildSectionEntryBreadcrumbs
+} from '@/utils'
 
 interface Props {
   slug: string
@@ -42,6 +49,8 @@ const entry = pages.find(
 if (!entry) return Astro.redirect('/404')
 
 Astro.locals.profileEntries = await getCollection('profiles')
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const { Content: MdxContent } = await render(entry)
 const {
@@ -56,6 +65,18 @@ const {
   heroCtas
 } = entry.data
 const noindex = isDemoPathSlug(entry.data.pathSlug)
+
+// No breadcrumbs on the hackathon overview page.
+const showBreadcrumbs = slug !== HACKATHON_HOME_SLUG
+const breadcrumbs = showBreadcrumbs
+  ? buildSectionEntryBreadcrumbs(
+      slug,
+      'hackathon',
+      heroTitle ?? title,
+      routeLocale,
+      t('nav.home')
+    )
+  : undefined
 ---
 
 <HackathonPageLayout title={title} description={description} noindex={noindex}>
@@ -63,7 +84,8 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
     class="hackathon-content flex flex-col pb-5xl text-neutral-50 tablet:pb-6xl desktop:pb-7xl"
   >
     <HackathonHero
-      title={heroTitle ?? title}
+      title={title}
+      heroTitle={heroTitle}
       description={heroDescription}
       image={heroImage}
       imageAlt={heroImageAlt}
@@ -71,7 +93,10 @@ const noindex = isDemoPathSlug(entry.data.pathSlug)
       imageMobileAlt={heroImageMobileAlt}
       cta={heroCtas?.[0]}
       isFallback={isFallback}
-    />
+      breadcrumbs={breadcrumbs}
+    >
+      <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
+    </HackathonHero>
     <section class="px-content py-4xl">
       <div class="content-column">
         <div data-prose>
