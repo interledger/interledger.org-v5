@@ -31,6 +31,7 @@ const submitButtonUmamiAttrs = buildUmamiAttrs({
 const topics = [
   { value: 'Grants', label: t('contact.topic.grants') },
   { value: 'Media', label: t('contact.topic.media') },
+  { value: 'Policy and Advocacy', label: t('contact.topic.policy_advocacy') },
   { value: 'Technology', label: t('contact.topic.technology') },
   { value: 'Other', label: t('contact.topic.other') }
 ] as const
@@ -45,7 +46,7 @@ const helperClasses = 'mb-0 text-caption text-neutral-75'
 const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
 
 const summaryClasses = [
-  'list-none flex gap-xs items-center cursor-pointer font-thin',
+  'list-none flex gap-md items-center cursor-pointer font-thin',
   'p-xs rounded-lg border border-transparent',
   'group-open:text-neutral-100 group-open:[&_svg]:-rotate-90',
   '[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out',
@@ -182,14 +183,22 @@ const optionClasses = [
                       aria-haspopup="listbox"
                       aria-expanded="false"
                       aria-controls="topic-listbox"
-                      aria-describedby="topic-selected"
                     >
-                      {t('contact.topic')}
-                      <Icon
-                        name="arrow-right-keyboard"
-                        class="size-5 rotate-90"
-                        aria-hidden="true"
-                      />
+                      <span class="flex items-center gap-xs">
+                        {t('contact.topic')}
+                        <Icon
+                          name="arrow-right-keyboard"
+                          class="size-5 rotate-90"
+                          aria-hidden="true"
+                        />
+                      </span>
+                      <span
+                        id="topic-selected"
+                        class="text-primary"
+                        aria-live="polite"
+                      >
+                        {t('contact.topic.placeholder')}
+                      </span>
                     </summary>
                     <ul
                       id="topic-listbox"
@@ -203,7 +212,7 @@ const optionClasses = [
                           <li role="presentation">
                             <button
                               type="button"
-                              id={`topic-option-${topic.value}`}
+                              id={`topic-option-${topic.value.replaceAll(' ', '-')}`}
                               class={optionClasses}
                               role="option"
                               data-value={topic.value}
@@ -216,14 +225,6 @@ const optionClasses = [
                       }
                     </ul>
                   </details>
-                  <!-- Current selection (also announced via summary aria-describedby) -->
-                  <span
-                    id="topic-selected"
-                    class="text-primary"
-                    aria-live="polite"
-                  >
-                    {t('contact.topic.placeholder')}
-                  </span>
                 </div>
               </div>
 

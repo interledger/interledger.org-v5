@@ -35,7 +35,7 @@ const isEnActiveOnEs = isEnActive && routeLocale === 'es'
 const isEsActive = contentLang === 'es'
 
 const summaryClasses = `
-list-none flex gap-xs items-center cursor-pointer
+list-none flex gap-md items-center cursor-pointer
 p-xs rounded-lg border border-transparent
 group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
 [&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
@@ -68,8 +68,17 @@ const btnAttrs = (href: string) =>
   <div class="flex flex-wrap items-center gap-md">
     <details id="language-filter-details" class="group relative">
       <summary class={summaryClasses}>
-        {t('blog.lang_filter.label')}
-        <Icon name="arrow-right-keyboard" class="rotate-90" />
+        <span class="flex items-center gap-xs">
+          {t('blog.lang_filter.label')}
+          <Icon name="arrow-right-keyboard" class="rotate-90" />
+        </span>
+        <span class="text-primary">
+          {
+            isEsActive
+              ? t('blog.lang_filter.spanish')
+              : t('blog.lang_filter.english')
+          }
+        </span>
       </summary>
       <ul class={dropdownClasses}>
         <li>
@@ -96,13 +105,6 @@ const btnAttrs = (href: string) =>
         </li>
       </ul>
     </details>
-    <span class="text-primary"
-      >{
-        isEsActive
-          ? t('blog.lang_filter.spanish')
-          : t('blog.lang_filter.english')
-      }</span
-    >
   </div>
   {
     isEsActive && (
