@@ -1,0 +1,18 @@
+---
+/**
+ * Height-clip wrapper so FAQ answers can slide open/closed.
+ *
+ * Without JS the panel stays at 1fr and native <details> show/hide the
+ * answer. After initFaqAccordion marks the accordion ready, closed panels
+ * collapse to 0fr and JS toggles data-open to animate 0fr ↔ 1fr.
+ */
+---
+
+<div
+  data-faq-panel
+  class="grid [grid-template-rows:1fr] transition-[grid-template-rows] duration-200 motion-reduce:transition-none [[data-faq-accordion-ready]_&:not([data-open=true])]:[grid-template-rows:0fr]"
+>
+  <div class="min-h-0 overflow-hidden">
+    <slot />
+  </div>
+</div>

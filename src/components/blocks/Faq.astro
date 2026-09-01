@@ -51,7 +51,7 @@ const renderedItems = items
       </h2>
     )
   }
-  <div class="flex w-full flex-col gap-xl">
+  <div class="flex w-full flex-col gap-xl" data-faq-accordion>
     {
       renderedItems ? (
         renderedItems.map((item) => (
@@ -65,3 +65,9 @@ const renderedItems = items
     }
   </div>
 </section>
+
+<script>
+  import { initFaqAccordion } from '@/scripts/faq-accordion'
+
+  initFaqAccordion()
+</script>

@@ -18,6 +18,7 @@
  * not to `p` — giving one answer two different text colours.
  */
 import Icon from '@/components/shared/Icon.astro'
+import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
@@ -37,6 +38,8 @@ const umamiAttrs = buildUmamiAttrs({
 ---
 
 <details
+  name="faq"
+  data-faq-item
   class="group w-full border-b border-neutral-25 pb-xl dark:border-neutral-75"
 >
   <summary
@@ -53,10 +56,12 @@ const umamiAttrs = buildUmamiAttrs({
       class="size-8 shrink-0 text-link transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
     />
   </summary>
-  <div
-    data-prose-faq
-    class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 dark:text-neutral-50 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-100 dark:[&_p]:text-neutral-50 [&_li]:text-neutral-100 dark:[&_li]:text-neutral-50 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
-  >
-    <slot />
-  </div>
+  <FaqAnswerPanel>
+    <div
+      data-prose-faq
+      class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 dark:text-neutral-50 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-100 dark:[&_p]:text-neutral-50 [&_li]:text-neutral-100 dark:[&_li]:text-neutral-50 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
+    >
+      <slot />
+    </div>
+  </FaqAnswerPanel>
 </details>
