@@ -25,5 +25,11 @@ declare namespace App {
     site?: import('@/types/navigation').MicrositeSite
     /** Preloaded in MDX page shells so ProfileGrid avoids stale collection reads on HMR. */
     profileEntries?: import('astro:content').CollectionEntry<'profiles'>[]
+    /**
+     * Exclusive `<details name>` for the FAQ currently rendering. Set by
+     * `Faq.astro` so slotted MDX `<FaqItem>` children share one group
+     * instead of the document-wide default `faq`.
+     */
+    faqAccordionGroupName?: string
   }
 }

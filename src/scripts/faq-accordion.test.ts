@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   closeFaqPanel,
+  faqAccordionGroupName,
   handleFaqItemClick,
   initFaqAccordion,
   openFaqPanel,
@@ -62,6 +63,16 @@ function stubMatchMedia(reduce: boolean) {
     removeEventListener() {}
   }))
 }
+
+describe('faqAccordionGroupName', () => {
+  it('returns a unique faq-prefixed name per call', () => {
+    const first = faqAccordionGroupName()
+    const second = faqAccordionGroupName()
+    expect(first).toMatch(/^faq-/)
+    expect(second).toMatch(/^faq-/)
+    expect(first).not.toBe(second)
+  })
+})
 
 describe('questionScrollDestination', () => {
   afterEach(() => {
@@ -265,6 +276,42 @@ describe('openFaqPanel / closeFaqPanel animation', () => {
     expect(item.open).toBe(true)
     vi.advanceTimersByTime(250)
     expect(item.open).toBe(false)
+    vi.useRealTimers()
+  })
+
+  it('drops the close listener if the item is reopened mid-transition', () => {
+    const { item, panel } = makeItem(true)
+    item.dataset.faqExpanded = 'true'
+    panel.dataset.open = 'true'
+
+    closeFaqPanel(item as unknown as HTMLDetailsElement)
+    const onEnd = panel.addEventListener.mock.calls[0][1] as EventListener
+
+    openFaqPanel(item as unknown as HTMLDetailsElement)
+    expect(panel.removeEventListener).toHaveBeenCalledWith(
+      'transitionend',
+      onEnd
+    )
+    expect(item.open).toBe(true)
+
+    onEnd({
+      target: panel,
+      propertyName: 'grid-template-rows'
+    } as unknown as Event)
+    expect(item.open).toBe(true)
+  })
+
+  it('does not close after the fallback timeout if reopened mid-transition', () => {
+    vi.useFakeTimers()
+    const { item, panel } = makeItem(true)
+    item.dataset.faqExpanded = 'true'
+    panel.dataset.open = 'true'
+
+    closeFaqPanel(item as unknown as HTMLDetailsElement)
+    openFaqPanel(item as unknown as HTMLDetailsElement)
+    vi.advanceTimersByTime(250)
+
+    expect(item.open).toBe(true)
     vi.useRealTimers()
   })
 

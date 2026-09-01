@@ -24,13 +24,15 @@ const { heading, items } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
+// Unique so two Faq blocks on one page don't exclusive-close each other
+// when JS is off. Locals lets MDX-slotted <FaqItem> children share this
+// group instead of falling back to a document-wide `name="faq"`.
+const faqGroup = faqAccordionGroupName()
+Astro.locals.faqAccordionGroupName = faqGroup
+
 // Strapi preview (DynamicZone.astro) passes `items` with markdown answers that
 // still need rendering; MDX authoring passes <FaqItem> children that Astro has
 // already rendered, so we fall through to the slot.
-// Unique so two Faq blocks on one page don't exclusive-close each other
-// when JS is off. MDX-slotted <FaqItem> children keep their own `group`.
-const accordionName = `faq-${crypto.randomUUID()}`
-
 const renderedItems = items
   ? await Promise.all(
       items.map(async (item) => ({
@@ -42,8 +44,6 @@ const renderedItems = items
       }))
     )
   : null
-
-const faqGroup = faqAccordionGroupName()
 ---
 
 <section
@@ -62,7 +62,7 @@ const faqGroup = faqAccordionGroupName()
     {
       renderedItems ? (
         renderedItems.map((item) => (
-          <FaqItem question={item.question} group={accordionName}>
+          <FaqItem question={item.question} group={faqGroup}>
             <Fragment set:html={item.answerHtml} />
           </FaqItem>
         ))
