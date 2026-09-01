@@ -86,9 +86,33 @@ describe('assertStrapiRunning', () => {
 
     const result = assertStrapiRunning('http://strapi.test', 500)
     const assertion = expect(result).rejects.toThrow(/ECONNREFUSED/)
-    // The deadline is only re-checked after the retry delay, so even a
-    // sub-second budget waits out one full delay before giving up.
-    await vi.advanceTimersByTimeAsync(1000)
+    // The retry delay is capped to whatever budget remains, so a sub-second
+    // budget gives up in well under a second rather than waiting a full 1s.
+    await vi.advanceTimersByTimeAsync(500)
+    await assertion
+  })
+
+  it('never waits past the total budget even if a probe hangs', async () => {
+    // A fetch that never settles on its own - e.g. a connection stuck
+    // mid-handshake - must still be cut off by the per-attempt timeout. Real
+    // fetch rejects once its AbortSignal fires, so the mock has to as well.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        (_url: string, options?: { signal?: AbortSignal }) =>
+          new Promise<Response>((_resolve, reject) => {
+            options?.signal?.addEventListener('abort', () =>
+              reject(new DOMException('The operation was aborted.', 'AbortError'))
+            )
+          })
+      )
+    )
+
+    const result = assertStrapiRunning('http://strapi.test', 500)
+    const assertion = expect(result).rejects.toThrow(
+      /does not appear to be running/
+    )
+    await vi.advanceTimersByTimeAsync(500)
     await assertion
   })
 })

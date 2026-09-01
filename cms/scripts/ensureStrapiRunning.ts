@@ -29,10 +29,14 @@ export async function assertStrapiRunning(
   let lastError: unknown
 
   while (Date.now() < deadline) {
+    // Cap the attempt itself to whatever's left, so a hung fetch can't blow
+    // through the caller's budget on its own.
+    const attemptTimeoutMs = Math.min(PROBE_ATTEMPT_TIMEOUT_MS, deadline - Date.now())
+
     try {
       const response = await withTimeout(
         (signal) => fetch(probeUrl, { method: 'GET', signal }),
-        PROBE_ATTEMPT_TIMEOUT_MS
+        attemptTimeoutMs
       )
 
       // Any response below 500 means Strapi itself answered (even
@@ -45,7 +49,9 @@ export async function assertStrapiRunning(
       lastError = error
     }
 
-    await sleep(PROBE_RETRY_DELAY_MS)
+    const remainingMs = deadline - Date.now()
+    if (remainingMs <= 0) break
+    await sleep(Math.min(PROBE_RETRY_DELAY_MS, remainingMs))
   }
 
   const reason =
