@@ -95,16 +95,12 @@ const headingClasses =
           </div>
         )
       )}
-      <div
-        class:list={[
-          'flex-1 px-content pt-xl pb-3xl tablet:py-5xl',
-          isFallback ? 'tablet:pt-3xl' : ''
-        ]}
-      >
+      <div class="flex-1 flex flex-col px-content pt-xl pb-3xl tablet:py-5xl">
         <div
           class:list={[
-            'content-column grid items-center gap-3xl',
-            hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : ''
+            'flex-1 content-column grid items-center gap-3xl',
+            hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : '',
+            breadcrumbs ? 'desktop:-translate-y-[10%]' : ''
           ]}
         >
           <div class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100">
