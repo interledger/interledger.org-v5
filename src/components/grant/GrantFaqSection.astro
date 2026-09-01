@@ -3,6 +3,7 @@ import Icon from '@/components/shared/Icon.astro'
 import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import { parseMarkdown, resolveCtaLink, buildUmamiAttrs } from '@/utils'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface FaqItem {
   question: string
@@ -64,6 +65,10 @@ const resolvedCta = trimmedCtaLink
     })
   : null
 
+// Unique so this grant FAQ doesn't exclusive-close another accordion on
+// the same page when JS is off. initFaqAccordion strips `name`.
+const accordionName = `faq-${crypto.randomUUID()}`
+
 const renderedItems = await Promise.all(
   items.map(async (item) => ({
     question: item.question,
@@ -73,6 +78,8 @@ const renderedItems = await Promise.all(
     })
   }))
 )
+
+const faqGroup = faqAccordionGroupName()
 ---
 
 <div
@@ -131,7 +138,7 @@ const renderedItems = await Promise.all(
     {
       renderedItems.map((item) => (
         <details
-          name="faq"
+          name={accordionName}
           data-faq-item
           class="group scroll-mt-(--site-header-height) border-b border-neutral-200 pt-2xl pb-2xl first:border-t desktop:first:border-t-0 desktop:first:pt-0 desktop:scroll-mt-(--site-header-height-desktop)"
         >

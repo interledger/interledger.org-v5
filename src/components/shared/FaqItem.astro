@@ -23,9 +23,14 @@ import { buildUmamiAttrs } from '@/utils'
 
 interface Props {
   question: string
+  /**
+   * Exclusive `<details>` group for the no-JS fallback. Pass a unique value
+   * per accordion so two FAQs on one page don't close each other.
+   */
+  group?: string
 }
 
-const { question } = Astro.props
+const { question, group = 'faq' } = Astro.props
 const { routeLocale } = Astro.locals
 
 const umamiAttrs = buildUmamiAttrs({
@@ -38,7 +43,7 @@ const umamiAttrs = buildUmamiAttrs({
 ---
 
 <details
-  name="faq"
+  name={group}
   data-faq-item
   class="group w-full border-b border-neutral-25 pb-xl dark:border-neutral-75"
 >
