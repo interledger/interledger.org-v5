@@ -13,8 +13,9 @@ jobs:
     uses: ./.github/workflows/strapi-rebuild-and-sync.yml
     with:
       branch: ${{ matrix.branch }}
-      # This will either run on manual trigger or on schedule. Either way, we want to rebuild if /cms changed
-      # since the last run, so we don't skip a rebuild on a manual trigger.
+      # Always rebuild, regardless of whether /cms changed since the last run, on both the
+      # daily schedule and a manual trigger — this replaces the old conditional that skipped
+      # scheduled rebuilds when nothing in /cms had changed.
       force_rebuild: true
     # ENV_STRAPI_API_TOKEN resolves from the called job's environment; inherit covers the
     # repo-level secrets the Slack notification needs.
