@@ -7,12 +7,22 @@
  * cleared. Click on summary is preventDefault'd so we keep `open` true
  * while `[data-faq-panel]` slides 0fr ↔ 1fr, then clear `open` after.
  *
+ * Each accordion instance must use its own `name` (see
+ * `faqAccordionGroupName`). A shared `name="faq"` is document-wide, so
+ * two FAQs on one page would close each other before JS runs.
+ *
  * `name` is removed once JS is ready so setting `.open` on the clicked
  * item does not snap-close siblings (the HTML name grouping would).
  */
 
 const ACCORDION_SELECTOR = '[data-faq-accordion]'
 const ITEM_SELECTOR = '[data-faq-item]'
+
+/** Unique `<details name>` so exclusive grouping stays inside one accordion. */
+export function faqAccordionGroupName(): string {
+  return `faq-${crypto.randomUUID()}`
+}
+
 const PANEL_SELECTOR = '[data-faq-panel]'
 const SLIDE_MS = 200
 /** Programmatic scroll to the opened question — slower than native smooth. */
@@ -26,6 +36,7 @@ const closeTimeouts = new WeakMap<
   HTMLDetailsElement,
   ReturnType<typeof setTimeout>
 >()
+const closeListeners = new WeakMap<HTMLDetailsElement, EventListener>()
 
 function prefersReducedMotion(): boolean {
   return globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -95,15 +106,20 @@ export function scrollQuestionIntoView(item: HTMLElement): void {
   scrollFrame = requestAnimationFrame(step)
 }
 
-function clearCloseTimeout(item: HTMLDetailsElement): void {
+function cancelPendingClose(item: HTMLDetailsElement): void {
   const timeoutId = closeTimeouts.get(item)
-  if (timeoutId === undefined) return
-  clearTimeout(timeoutId)
-  closeTimeouts.delete(item)
+  if (timeoutId !== undefined) {
+    clearTimeout(timeoutId)
+    closeTimeouts.delete(item)
+  }
+  const listener = closeListeners.get(item)
+  if (!listener) return
+  panelOf(item)?.removeEventListener('transitionend', listener)
+  closeListeners.delete(item)
 }
 
 export function openFaqPanel(item: HTMLDetailsElement): void {
-  clearCloseTimeout(item)
+  cancelPendingClose(item)
   item.dataset.faqExpanded = 'true'
   item.open = true
   const panel = panelOf(item)
@@ -129,19 +145,20 @@ export function closeFaqPanel(item: HTMLDetailsElement): void {
     item.open = false
     return
   }
+  cancelPendingClose(item)
   delete panel.dataset.open
 
   const finish = (event?: TransitionEvent) => {
-    if (item.dataset.faqExpanded === 'true') return
     if (event && event.target !== panel) return
     if (event?.propertyName && event.propertyName !== 'grid-template-rows') {
       return
     }
-    clearCloseTimeout(item)
-    panel.removeEventListener('transitionend', onTransitionEnd)
+    cancelPendingClose(item)
+    if (item.dataset.faqExpanded === 'true') return
     item.open = false
   }
   const onTransitionEnd = (event: Event) => finish(event as TransitionEvent)
+  closeListeners.set(item, onTransitionEnd)
   panel.addEventListener('transitionend', onTransitionEnd)
   closeTimeouts.set(
     item,

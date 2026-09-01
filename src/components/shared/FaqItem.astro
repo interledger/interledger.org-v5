@@ -20,18 +20,25 @@
 import Icon from '@/components/shared/Icon.astro'
 import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import { buildUmamiAttrs } from '@/utils'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface Props {
   question: string
   /**
-   * Exclusive `<details>` group for the no-JS fallback. Pass a unique value
-   * per accordion so two FAQs on one page don't close each other.
+   * Exclusive `<details>` group for the no-JS fallback. Unique per accordion
+   * so two FAQs on one page don't close each other. When omitted, inherit
+   * the wrapping `<Faq>` group's name, then mint a unique one — never the
+   * document-wide `"faq"` string (native `name` is page-scoped).
    */
   group?: string
 }
 
-const { question, group = 'faq' } = Astro.props
+const { question } = Astro.props
 const { routeLocale } = Astro.locals
+const group =
+  Astro.props.group ??
+  Astro.locals.faqAccordionGroupName ??
+  faqAccordionGroupName()
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,

@@ -56,7 +56,7 @@ async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
 const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 // Unique so this page's questions don't exclusive-close a different FAQ
 // accordion on the same page when JS is off. initFaqAccordion strips `name`.
-const accordionName = `faq-${crypto.randomUUID()}`
+const accordionName = faqAccordionGroupName()
 ---
 
 <div
