@@ -1,5 +1,6 @@
 export const redirects = {
   // Foundation + site pages
+  '/home': '/',
   '/get-involved': '/community',
   '/today': '/developers/rfcs/interledger-protocol/',
   '/developers/roadmap': '/tech/roadmap',
@@ -52,6 +53,7 @@ export const redirects = {
     '/es/policy-and-advocacy/stablecoins-low-cost-transactions',
 
   // Foundation + site pages (Spanish)
+  '/es/home': '/es',
   '/es/interledger': '/es/tech/interledger-protocol',
   '/es/open-payments': '/es/tech/open-payments',
   '/es/web-monetization': '/es/tech/web-monetization',
