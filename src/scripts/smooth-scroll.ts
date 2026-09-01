@@ -10,6 +10,10 @@ const WHEEL_MULTIPLIER = 0.8
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
+// Lenis is a desktop-input affordance (wheel easing, drag-scroll resistance)
+// — mobile scrolling is already touch-native and doesn't need it.
+const tabletUp = window.matchMedia('(min-width: 810px)')
+
 let lenis: Lenis | null = null
 
 function start(): void {
@@ -31,7 +35,7 @@ function stop(): void {
 }
 
 function init(): void {
-  if (reducedMotion.matches) return
+  if (reducedMotion.matches || !tabletUp.matches) return
   start()
 }
 
@@ -51,6 +55,6 @@ if (document.readyState === 'loading') {
 }
 
 reducedMotion.addEventListener('change', () => {
-  if (reducedMotion.matches) stop()
+  if (reducedMotion.matches || !tabletUp.matches) stop()
   else start()
 })
