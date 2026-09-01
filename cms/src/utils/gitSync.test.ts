@@ -521,6 +521,28 @@ describe('runGitSync', () => {
     expect(deps.commands).toEqual([])
   })
 
+  it('reports a repo-root resolution failure instead of letting it escape unreported', async () => {
+    // os.homedir() throws when it can't determine a home directory (e.g. a
+    // container running as a uid with no /etc/passwd entry) — a throw here
+    // used to happen before repoRoot existed for report() to attach to.
+    vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', '~/staging')
+    vi.spyOn(os, 'homedir').mockImplementation(() => {
+      throw new Error('Unable to determine home directory')
+    })
+    const deps = createDeps()
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(deps.commands).toEqual([])
+    expect(deps.alerts).toEqual([
+      expect.objectContaining({
+        outcome: 'failed',
+        reason: 'Unable to determine home directory'
+      })
+    ])
+  })
+
   it('reports a failed status read instead of reading it as a clean tree', async () => {
     // Guards the original `catch { return [] }`: a repo left mid-rebase used to
     // log "No changes to commit" and look like success.
@@ -1073,6 +1095,25 @@ describe('gitCommitAndPush', () => {
       reason: 'disabled'
     })
     expect(deps.commands).toEqual([])
+  })
+
+  it('reports a repo-root resolution failure instead of letting it escape unreported', async () => {
+    vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', '~/staging')
+    vi.spyOn(os, 'homedir').mockImplementation(() => {
+      throw new Error('Unable to determine home directory')
+    })
+    const deps = createDeps()
+
+    const result = await gitCommitAndPush(NAV, 'nav: update', deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(deps.commands).toEqual([])
+    expect(deps.alerts).toEqual([
+      expect.objectContaining({
+        outcome: 'failed',
+        reason: 'Unable to determine home directory'
+      })
+    ])
   })
 
   it('accepts a single path and stages it relative to the repo', async () => {

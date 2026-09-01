@@ -430,7 +430,18 @@ export async function runGitSync(
 ): Promise<GitSyncResult> {
   if (isGitSyncDisabled()) return { outcome: 'skipped', reason: 'disabled' }
 
-  const repoRoot = getTargetRepoRoot()
+  const repoRoot = await tryCatchAsync(() => getTargetRepoRoot())
+  if (repoRoot instanceof Error) {
+    console.error(
+      `⚠️  Git sync failed to resolve repo root: ${repoRoot.message}`
+    )
+    return report(
+      { outcome: 'failed', error: repoRoot },
+      { label, repoRoot: 'unresolved' },
+      deps
+    )
+  }
+
   const result = await tryCatchAsync(() =>
     syncContentDirectories(label, repoRoot, context, deps)
   )
@@ -527,8 +538,9 @@ export function createDebouncedGitSync(
         pendingSyncTimer = null
         const ctx = latestContext
         latestContext = undefined
-        // runGitSync reports its own failures, so this only catches a throw
-        // from resolving the repo path — before there is a repo to report on.
+        // runGitSync reports its own failures and is not expected to reject.
+        // Defensive backstop only, so a future regression can't turn into an
+        // unhandled rejection inside this timer callback.
         lastFlush = runGitSync(label, ctx, deps).catch((err: unknown) => {
           console.error(`[gitSync] Flush error:`, err)
           const error = err instanceof Error ? err : new Error(String(err))
@@ -574,7 +586,18 @@ export async function gitCommitAndPush(
     return { outcome: 'skipped', reason: 'disabled' }
   }
 
-  const repoRoot = getTargetRepoRoot()
+  const repoRoot = await tryCatchAsync(() => getTargetRepoRoot())
+  if (repoRoot instanceof Error) {
+    console.error(
+      `⚠️  Git sync failed to resolve repo root: ${repoRoot.message}`
+    )
+    return report(
+      { outcome: 'failed', error: repoRoot },
+      { label: 'navigation', repoRoot: 'unresolved', commitMessage: message },
+      deps
+    )
+  }
+
   const result = await tryCatchAsync(() =>
     commitExplicitPaths(filepath, message, repoRoot, deps)
   )
