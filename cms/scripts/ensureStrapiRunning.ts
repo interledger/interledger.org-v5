@@ -8,25 +8,44 @@ function withTimeout<T>(
   return promiseFactory(controller.signal).finally(() => clearTimeout(timeout))
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+const PROBE_ATTEMPT_TIMEOUT_MS = 4000
+const PROBE_RETRY_DELAY_MS = 1000
+const PROBE_TOTAL_BUDGET_MS = 15000
+
 export async function assertStrapiRunning(
   baseUrl: string,
-  timeoutMs = 4000
+  totalBudgetMs = PROBE_TOTAL_BUDGET_MS
 ): Promise<void> {
+  // Strip trailing slashes so appending "/_health" can't produce "//_health".
   const normalized = baseUrl.replace(/\/+$/, '')
   const probeUrl = `${normalized}/_health`
+  // Absolute timestamp (ms) after which we stop retrying and give up.
+  const deadline = Date.now() + totalBudgetMs
 
-  let lastError: unknown = null
+  let lastError: unknown
 
-  try {
-    const response = await withTimeout(
-      (signal) => fetch(probeUrl, { method: 'GET', signal }),
-      timeoutMs
-    )
+  while (Date.now() < deadline) {
+    try {
+      const response = await withTimeout(
+        (signal) => fetch(probeUrl, { method: 'GET', signal }),
+        PROBE_ATTEMPT_TIMEOUT_MS
+      )
 
-    // Any HTTP response means the server is reachable (even 401/403/404).
-    if (response.status >= 100) return
-  } catch (error) {
-    lastError = error
+      // Any response below 500 means Strapi itself answered (even
+      // 401/403/404). A 5xx can mean the origin isn't actually up yet -
+      // e.g. Cloudflare returning 502 while Strapi is still starting -
+      // so keep retrying instead of treating it as reachable.
+      if (response.status < 500) return
+      lastError = new Error(`received status ${response.status}`)
+    } catch (error) {
+      lastError = error
+    }
+
+    await sleep(PROBE_RETRY_DELAY_MS)
   }
 
   const reason =
