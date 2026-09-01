@@ -5,7 +5,8 @@ import {
   useTranslations,
   localizeRoute,
   grantOverviewHubPath,
-  grantOverviewRouteParam
+  grantOverviewRouteParam,
+  GRANT_OVERVIEW_PRIMARY_SLUG
 } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
@@ -68,10 +69,13 @@ const t = useTranslations(contentLocale)
 
 const grantsHref = localizeRoute(grantOverviewHubPath(), contentLocale)
 const pageHref = localizeRoute(grantOverviewRouteParam(slug), contentLocale)
+// This template also renders the grants hub itself (slug === GRANT_OVERVIEW_PRIMARY_SLUG),
+// where grantsHref and pageHref are identical — a third crumb would just repeat "Grants".
+const isGrantOverviewHub = slug === GRANT_OVERVIEW_PRIMARY_SLUG
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', contentLocale) },
   { name: t('nav.grants'), href: grantsHref },
-  { name: heroTitle ?? title, href: pageHref }
+  ...(isGrantOverviewHub ? [] : [{ name: heroTitle ?? title, href: pageHref }])
 ]
 ---
 

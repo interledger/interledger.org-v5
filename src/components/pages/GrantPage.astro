@@ -4,7 +4,8 @@ import {
   parseMarkdown,
   resolveCtaLink,
   useTranslations,
-  localizeRoute
+  localizeRoute,
+  grantOverviewHubPath
 } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
@@ -87,7 +88,10 @@ const resolvedHeroTitle = heroTitle?.trim() || title
 
 const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', contentLocale) },
-  { name: t('nav.grants'), href: localizeRoute('grant', contentLocale) },
+  {
+    name: t('nav.grants'),
+    href: localizeRoute(grantOverviewHubPath(), contentLocale)
+  },
   {
     name: resolvedHeroTitle,
     href: localizeRoute(`grant/${slug}`, contentLocale)
