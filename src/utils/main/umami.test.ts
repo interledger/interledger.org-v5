@@ -372,6 +372,107 @@ describe('buildUmamiAttrs — event name and other properties', () => {
   })
 })
 
+describe('buildUmamiAttrs — grantee directory (INTORG-1134)', () => {
+  const listing = '/grant/grantee-directory'
+
+  it('tracks category filter pills as taxonomy_filter on grant', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'button_ui',
+        baseComponent: 'taxonomy_filter',
+        pathname: listing,
+        href: `${listing}/all/privacy`,
+        linkText: 'Privacy',
+        lang: 'en'
+      })
+    ).toEqual({
+      'data-umami-event': 'button_ui',
+      'data-umami-event-base-component': 'taxonomy_filter',
+      'data-umami-event-current-path': 'grant',
+      'data-umami-event-current-section': 'foundation',
+      'data-umami-event-link-text': 'Privacy',
+      'data-umami-event-lang': 'en',
+      'data-umami-event-destination-path': 'grant',
+      'data-umami-event-destination-section': 'foundation'
+    })
+  })
+
+  it('tracks year filter options as content_year_filter on grant', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'button_ui',
+        baseComponent: 'content_year_filter',
+        pathname: listing,
+        href: `${listing}/2024`,
+        linkText: '2024',
+        lang: 'en'
+      })
+    ).toMatchObject({
+      'data-umami-event': 'button_ui',
+      'data-umami-event-base-component': 'content_year_filter',
+      'data-umami-event-current-path': 'grant',
+      'data-umami-event-destination-path': 'grant'
+    })
+  })
+
+  it('tracks Read more as a grantee_cards UI button staying on grant', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'button_ui',
+        baseComponent: 'grantee_cards',
+        pathname: listing,
+        href: listing,
+        linkText: 'read more',
+        lang: 'en'
+      })
+    ).toMatchObject({
+      'data-umami-event': 'button_ui',
+      'data-umami-event-base-component': 'grantee_cards',
+      'data-umami-event-link-text': 'read more',
+      'data-umami-event-destination-path': 'grant',
+      'data-umami-event-destination-section': 'foundation'
+    })
+  })
+
+  it('tracks View project details as a grantee_cards card button to an external group', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'button_card',
+        baseComponent: 'grantee_cards',
+        pathname: listing,
+        href: 'https://community.interledger.org/some-report',
+        linkText: 'View project details',
+        lang: 'en'
+      })
+    ).toMatchObject({
+      'data-umami-event': 'button_card',
+      'data-umami-event-base-component': 'grantee_cards',
+      'data-umami-event-link-text': 'View project details',
+      'data-umami-event-destination-path': 'community_interledger',
+      'data-umami-event-destination-section': 'external'
+    })
+  })
+
+  it('tracks pagination as pagination staying on grant', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'button_ui',
+        baseComponent: 'pagination',
+        pathname: listing,
+        href: `${listing}/2`,
+        ariaLabel: 'Grantee Directory pages 2',
+        lang: 'en'
+      })
+    ).toMatchObject({
+      'data-umami-event': 'button_ui',
+      'data-umami-event-base-component': 'pagination',
+      'data-umami-event-link-text': 'Grantee Directory pages 2',
+      'data-umami-event-destination-path': 'grant',
+      'data-umami-event-destination-section': 'foundation'
+    })
+  })
+})
+
 describe('buildDeferredUmamiAttrs', () => {
   it('emits the identical event and properties as buildUmamiAttrs, under data-track-event* keys', () => {
     const input = {

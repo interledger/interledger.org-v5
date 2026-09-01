@@ -43,12 +43,24 @@ const tagAttrs = (tag: string, href: string) =>
 const metaItemClasses =
   'flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0'
 
+const readMoreLabel = t('grantee.read_more')
+const readMoreAttrs = buildUmamiAttrs({
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  label: 'button_ui',
+  baseComponent: 'grantee_cards',
+  linkText: readMoreLabel,
+  // Toggle does not navigate; still report the listing so destination
+  // matches the ticket (grant / foundation).
+  href: Astro.url.pathname
+})
+
 const detailsAttrs = grantee.projectUrl
   ? buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
-      label: 'button_cta',
-      baseComponent: 'grantee_details',
+      label: 'button_card',
+      baseComponent: 'grantee_cards',
       href: grantee.projectUrl,
       linkText: t('grantee.view_details')
     })
@@ -177,8 +189,9 @@ const detailsAttrs = grantee.projectUrl
                 class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
                 aria-expanded="false"
                 aria-controls={descriptionId}
+                {...readMoreAttrs}
               >
-                {t('grantee.read_more')}
+                {readMoreLabel}
                 <Icon name="arrow-down" class="size-4" />
               </button>
             )}

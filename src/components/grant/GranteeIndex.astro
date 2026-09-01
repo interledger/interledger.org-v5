@@ -131,7 +131,7 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
                 href={allYearsHref}
                 class={optionClasses}
                 aria-current={!selectedYear ? 'page' : undefined}
-                {...filterAttrs(allLabel, allYearsHref, 'filter_year_all')}
+                {...filterAttrs(allLabel, allYearsHref, 'content_year_filter')}
               >
                 {allLabel}
                 {!selectedYear && <Icon name="check" class="size-2.5" />}
@@ -151,7 +151,11 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
                       href={href}
                       class={optionClasses}
                       aria-current={isActive ? 'page' : undefined}
-                      {...filterAttrs(option.label, href, 'filter_year')}
+                      {...filterAttrs(
+                        option.label,
+                        href,
+                        'content_year_filter'
+                      )}
                     >
                       {option.label}
                       {isActive && <Icon name="check" class="size-2.5" />}
@@ -174,7 +178,7 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
         <PillLink
           href={allTagsHref}
           active={!selectedTag}
-          {...filterAttrs(allLabel, allTagsHref, 'filter_tag_all')}
+          {...filterAttrs(allLabel, allTagsHref, 'taxonomy_filter')}
         >
           {allLabel}
         </PillLink>
@@ -192,7 +196,7 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
               <PillLink
                 href={href}
                 active={isActive}
-                {...filterAttrs(option.label, href, 'filter_tag')}
+                {...filterAttrs(option.label, href, 'taxonomy_filter')}
               >
                 {option.label}
               </PillLink>
