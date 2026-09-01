@@ -32,7 +32,7 @@ function createFetch(
   return { fetchLike, posts }
 }
 
-/** Serialises a payload so tests can assert on rendered text without walking blocks. */
+/** Turns a payload into text. Tests can then check the text, instead of checking each block. */
 function rendered(post: SlackPost): string {
   return JSON.stringify(post.payload)
 }
@@ -264,7 +264,8 @@ describe('createSlackGitSyncNotifier', () => {
   })
 
   it('suppresses a repeat of the same root cause inside the window', async () => {
-    // A repo left mid-rebase fails on every save, one message per editor action.
+    // A repo stuck in a rebase fails on every save. Without a throttle,
+    // this sends one message per editor action.
     const { notify, posts, advance } = setup()
 
     await notify(failure)
@@ -349,8 +350,9 @@ describe('createSlackGitSyncNotifier', () => {
   })
 
   it('alerts immediately when the same fault returns after a recovery', async () => {
-    // The throttle must reset on recovery, or a fault recurring inside the
-    // window is swallowed after being declared fixed.
+    // The throttle must reset when the sync recovers. Otherwise, a fault
+    // that returns inside the window stays hidden after the code marks
+    // it fixed.
     const { notify, posts } = setup()
 
     await notify(failure)

@@ -23,7 +23,7 @@ import type { GitSyncAlert } from './slackNotify'
 
 const REPO = '/staging-clone'
 
-/** The three directories `getStagePaths` probes, as it joins them. */
+/** The three directories that `getStagePaths` checks, in the order it joins them. */
 const STAGE_DIRS = [
   path.join(REPO, 'src/content/'),
   path.join(REPO, 'src/data/'),
@@ -33,15 +33,16 @@ const STAGE_DIRS = [
 const STATUS_COMMAND = 'git status --porcelain'
 
 interface FakeDeps extends GitSyncDeps {
-  /** Every command passed to `exec`, in order. */
+  /** Every command given to `exec`, in order. */
   commands: string[]
-  /** Every alert handed to the notifier, in order. */
+  /** Every alert given to the notifier, in order. */
   alerts: GitSyncAlert[]
 }
 
 /**
- * Builds deps whose `exec` answers from `respond`, defaulting to success with
- * empty stdout. `existing` lists the paths `fileExists` reports as present.
+ * Builds test deps. The `exec` function returns the value from `respond`.
+ * By default, `exec` returns success with empty stdout. The `existing`
+ * list gives the paths that `fileExists` reports as present.
  */
 function createDeps(
   options: {
@@ -81,8 +82,9 @@ function gitFailure(
 }
 
 /**
- * Porcelain lines for a set of `[status, path]` pairs. Codes are padded to the
- * two columns git always emits, so `M` becomes the staged `M ` form.
+ * Builds porcelain lines for a set of `[status, path]` pairs. Git always
+ * uses two columns for the status code. So this function pads `M` to the
+ * staged `M ` form.
  */
 function status(...lines: [string, string][]): string {
   return lines
@@ -119,8 +121,8 @@ describe('shellQuote', () => {
   })
 
   it('neutralises a quote-break injection attempt', () => {
-    // Commit messages carry editor-controlled slugs into a shell command, where
-    // a bare `'` would end the quoted string.
+    // A commit message can carry a slug from the editor into a shell command.
+    // A bare `'` character in that slug would end the quoted string early.
     expect(shellQuote("x'; rm -rf /; echo '")).toBe(
       "'x'\\''; rm -rf /; echo '\\'''"
     )
@@ -339,7 +341,8 @@ describe('inferCommitMessage', () => {
   })
 
   it('reads a delete + add of the same slug as an update', () => {
-    // Same slug in two locale directories — a re-slug, not a rename.
+    // The same slug appears in two locale directories. This case is a
+    // re-slug, not a rename.
     const changes = [
       { status: 'D', filepath: 'src/content/faqs/a.mdx' },
       { status: '??', filepath: 'src/content/faqs/es/a.mdx' }
@@ -368,8 +371,9 @@ describe('inferCommitMessage', () => {
   })
 
   it('counts an added-then-modified file in both buckets', () => {
-    // `AM` satisfies both isAdded and isModified, so counts exceed the number
-    // of files. Documented, not endorsed.
+    // A git status of `AM` matches both isAdded and isModified. So the
+    // counts can be higher than the number of files. This test records
+    // the current behavior. It does not check that the behavior is correct.
     const changes = [
       { status: 'AM', filepath: 'src/content/faqs/a.mdx' },
       { status: 'M', filepath: 'src/content/faqs/b.mdx' }
@@ -420,7 +424,8 @@ describe('validateGitSyncRepoOnStartup', () => {
   })
 
   it('refuses to start when git sync is enabled without a Slack webhook', async () => {
-    // Syncing without alerting is the state that let push failures go unnoticed.
+    // In the past, git sync ran without Slack alerts. In that state, a
+    // push failure could go unnoticed.
     vi.stubEnv('SLACK_WEBHOOK_URL', '')
     const deps = createDeps({ existing: [REPO, path.join(REPO, '.git')] })
 
@@ -457,7 +462,8 @@ describe('validateGitSyncRepoOnStartup', () => {
   })
 
   it('checks the webhook before touching the filesystem', async () => {
-    // A config error is cheaper to diagnose, and likelier on a fresh deploy.
+    // A configuration error costs less time to diagnose. It is also more
+    // likely on a fresh deployment.
     vi.stubEnv('SLACK_WEBHOOK_URL', '')
     const deps = createDeps({ existing: [] })
 
@@ -483,8 +489,8 @@ describe('validateGitSyncRepoOnStartup', () => {
   })
 
   it('rethrows a failing rev-parse instead of booting into a broken repo', async () => {
-    // exec returns errors rather than rejecting, so this needs an explicit
-    // rethrow to keep failing the bootstrap.
+    // The `exec` function returns errors. It does not reject its promise.
+    // So this code must throw the error again, to make the bootstrap fail.
     const deps = createDeps({
       existing: [REPO, path.join(REPO, '.git')],
       respond: (command) =>
@@ -522,9 +528,11 @@ describe('runGitSync', () => {
   })
 
   it('reports a repo-root resolution failure instead of letting it escape unreported', async () => {
-    // os.homedir() throws when it can't determine a home directory (e.g. a
-    // container running as a uid with no /etc/passwd entry) — a throw here
-    // used to happen before repoRoot existed for report() to attach to.
+    // os.homedir() throws an error when it cannot find a home directory.
+    // For example, this can happen in a container that runs as a user ID
+    // with no entry in /etc/passwd. In the past, this error happened
+    // before repoRoot had a value. So report() had no repo root to attach
+    // to the alert.
     vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', '~/staging')
     vi.spyOn(os, 'homedir').mockImplementation(() => {
       throw new Error('Unable to determine home directory')
@@ -544,8 +552,9 @@ describe('runGitSync', () => {
   })
 
   it('reports a failed status read instead of reading it as a clean tree', async () => {
-    // Guards the original `catch { return [] }`: a repo left mid-rebase used to
-    // log "No changes to commit" and look like success.
+    // This test checks a past bug. The old code had a `catch { return [] }`
+    // block. Because of this, a repo stuck in a rebase logged "No changes
+    // to commit". The sync then looked like a success.
     const deps = createDeps({
       respond: (command) =>
         gitFailure(command, {
@@ -699,8 +708,8 @@ describe('runGitSync', () => {
   })
 
   it('reports a failed push rather than swallowing it', async () => {
-    // The original implementation logged and resolved, making a rejected push
-    // indistinguishable from a successful sync.
+    // The old code logged the error and resolved normally. So a rejected
+    // push looked the same as a successful sync.
     const deps = createDeps({
       respond: (command) =>
         command === STATUS_COMMAND
@@ -789,8 +798,8 @@ describe('createDebouncedGitSync', () => {
   })
 
   it('lets the last caller win the label and context', async () => {
-    // Two content types saved inside one window produce one commit, described
-    // by whichever saved last.
+    // If two content types save inside one debounce window, the sync
+    // makes one commit. The commit message comes from the type saved last.
     const deps = contentDeps()
     const scheduler = createDebouncedGitSync(deps, DELAY)
 
@@ -955,8 +964,8 @@ describe('git sync alerting', () => {
   })
 
   it('stays silent on a skip, which says nothing about repo health', async () => {
-    // A clean tree does not prove the last push landed, so it must not clear an
-    // outstanding failure.
+    // A clean working tree does not prove that the last push reached the
+    // remote. So a clean tree must not clear an open failure.
     const deps = createDeps({ respond: () => '' })
 
     await runGitSync('faq', undefined, deps)
@@ -974,9 +983,10 @@ describe('git sync alerting', () => {
   })
 
   it('alerts when a dependency throws instead of returning an error', async () => {
-    // An unexpected throw used to be converted to a `failed` result by the
-    // debounced wrapper, bypassing the funnel: no alert, and no recovery on the
-    // next success because the notifier never saw the outage.
+    // In the past, the debounced wrapper converted an unexpected error to
+    // a `failed` result on its own. This skipped the normal report path.
+    // No alert was sent. Also, no recovery alert was sent on the next
+    // success, because the notifier never saw the outage.
     const deps = createDeps()
     deps.exec = async () => {
       throw new Error('spawn ENOMEM')
@@ -1025,8 +1035,8 @@ describe('git sync alerting', () => {
   })
 
   it('does not reject when the notifier itself throws', async () => {
-    // Reporting is a side channel; a broken notifier must not convert a handled
-    // failure into a rejected sync.
+    // Reporting to Slack is a side channel. A broken notifier must not
+    // turn a handled failure into a rejected sync.
     const deps = createDeps({
       respond: (command) =>
         command === STATUS_COMMAND
@@ -1046,7 +1056,8 @@ describe('git sync alerting', () => {
   })
 
   it('reports an outage exactly once', async () => {
-    // The outer safety net must not re-report what the inner funnel handled.
+    // The outer safety net must not send a second report for a failure
+    // that the inner function already reported.
     const deps = createDeps({
       respond: (command) =>
         command === STATUS_COMMAND

@@ -11,16 +11,17 @@ import {
   type NotifyGitSync
 } from './slackNotify'
 
-// Derived from PATHS so this file keeps no second copy of the layout. The
-// trailing slash matters: these double as `startsWith` prefixes, where a bare
-// `src/content` would also match `src/contentious/`.
+// These constants come from PATHS. This file does not keep a second copy of
+// the layout. The trailing slash is important. Each constant works as a
+// `startsWith` prefix. Without the slash, `src/content` would also match
+// `src/contentious/`.
 const CONTENT_DIR = `${PATHS.CONTENT_ROOT}/`
 const DATA_DIR = `${PATHS.DATA_ROOT}/`
 const UPLOADS_DIR = PATHS.UPLOADS
 
-/** Staged wholesale on every debounced sync, when the directory exists. */
+/** Every debounced sync stages this whole directory, if it exists. */
 const STAGE_CANDIDATES = [CONTENT_DIR, DATA_DIR, UPLOADS_DIR] as const
-/** Prefixes treated as editorial content when inferring a commit message. */
+/** Path prefixes for editorial content. The code uses them to build the commit message. */
 const CONTENT_PATH_PREFIXES = [CONTENT_DIR, DATA_DIR] as const
 const DEBOUNCE_MS = 300
 
@@ -38,8 +39,9 @@ export interface SyncContext {
 // ── Results ──────────────────────────────────────────────────────────────────
 
 /**
- * A git command that exited non-zero. Carries the raw streams: a push rejection
- * and an expired token both surface only as a non-zero exit.
+ * A git command exited with a non-zero code. This error keeps the raw
+ * stdout and stderr streams. A push rejection and an expired token both
+ * produce only a non-zero exit code, with no other signal.
  */
 export class GitCommandError extends Error {
   readonly command: string
@@ -59,7 +61,7 @@ export class GitCommandError extends Error {
     this.stderr = stderr
   }
 
-  /** Both streams, for matching git's messages wherever it chose to print them. */
+  /** The combined stdout and stderr text. Git can print its message to either stream. */
   get combinedOutput(): string {
     return `${this.stdout}\n${this.stderr}`
   }
@@ -72,8 +74,9 @@ export type GitSyncSkipReason =
   | 'no-valid-paths'
 
 /**
- * Outcome of a sync attempt. Separates the benign no-ops from a genuine
- * failure, which the logs alone did not.
+ * The result of one sync attempt. This type shows the difference between
+ * a harmless no-op and a real failure. The console logs alone did not
+ * show this difference.
  */
 export type GitSyncResult =
   | { outcome: 'synced'; message: string }
@@ -83,7 +86,7 @@ export type GitSyncResult =
 
 // ── Injected effects ─────────────────────────────────────────────────────────
 
-/** Runs a command in `cwd`. Never rejects — a non-zero exit is a return value. */
+/** Runs a command in `cwd`. This function never rejects. A non-zero exit code is a normal return value, not an error. */
 export type GitExec = (
   command: string,
   cwd: string
@@ -179,8 +182,8 @@ export async function validateGitSyncRepoOnStartup(
     return
   }
 
-  // Syncing without alerting is how failures went unnoticed: a rejected push
-  // strands editor content with only a console line to say so.
+  // In the past, git sync ran without Slack alerts. A rejected push then
+  // left editor content stuck, with only a console line as a record.
   if (!isSlackAlertingConfigured()) {
     throw new Error(
       'SLACK_WEBHOOK_URL is not set while git sync is enabled, so sync failures ' +
@@ -372,9 +375,9 @@ interface ReportContext {
 }
 
 /**
- * The single funnel from a {@link GitSyncResult} to an alert. `skipped` says
- * nothing about repo health, so it neither alerts nor clears an outstanding
- * failure.
+ * This is the only path from a {@link GitSyncResult} to a Slack alert.
+ * A `skipped` result does not show repo health. So this function sends
+ * no alert for it, and clears no open failure for it.
  */
 async function report(
   result: GitSyncResult,
@@ -404,8 +407,9 @@ async function report(
           commitMessage: context.commitMessage
         }
 
-  // Reporting must not alter control flow. `notify` is injectable, so a throwing
-  // one would otherwise turn a handled failure into a rejected sync.
+  // A report must not change the control flow. The `notify` function is
+  // injectable. If it throws, a handled failure could become a rejected
+  // sync. This catch block stops that from happening.
   const notified = await tryCatchAsync(() => deps.notify(alert))
   if (notified instanceof Error) {
     console.error(`⚠️  Git sync alert failed to send: ${notified.message}`)
@@ -417,11 +421,12 @@ async function report(
 // ── Sync ─────────────────────────────────────────────────────────────────────
 
 /**
- * Stage the content directories, commit, and push. The commit message is
- * inferred from actual git status unless {@link SyncContext} supplies one.
+ * Stage the content directories. Commit the changes. Push the commit.
+ * The function builds the commit message from the actual git status,
+ * unless {@link SyncContext} gives a message.
  *
- * Never rejects: an unexpected throw is reported and returned as `failed`, so
- * no outage escapes the alerting funnel.
+ * This function never rejects. It reports an unexpected error and
+ * returns a `failed` result. This way, every outage reaches Slack.
  */
 export async function runGitSync(
   label: string,
@@ -503,13 +508,13 @@ async function syncContentDirectories(
 
 export interface DebouncedGitSync {
   /**
-   * Queue a sync. Calls within the debounce window are coalesced into one
-   * commit, and the *last* caller's label and context win.
+   * Add a sync to the queue. Calls inside the debounce window merge into
+   * one commit. The label and context from the last call apply.
    */
   schedule(label: string, context?: SyncContext): void
   /**
-   * The most recently started flush, or `null` if none has started. Lets
-   * callers observe an otherwise fire-and-forget run.
+   * The most recent flush, or `null` if no flush has started yet. Callers
+   * can use this to check the result of a background sync.
    */
   settled(): Promise<GitSyncResult | null>
 }
@@ -538,9 +543,9 @@ export function createDebouncedGitSync(
         pendingSyncTimer = null
         const ctx = latestContext
         latestContext = undefined
-        // runGitSync reports its own failures and is not expected to reject.
-        // Defensive backstop only, so a future regression can't turn into an
-        // unhandled rejection inside this timer callback.
+        // runGitSync reports its own failures. It should never reject.
+        // This catch is a backup only. It stops a future code error from
+        // causing an unhandled rejection in this timer callback.
         lastFlush = runGitSync(label, ctx, deps).catch((err: unknown) => {
           console.error(`[gitSync] Flush error:`, err)
           const error = err instanceof Error ? err : new Error(String(err))
@@ -558,23 +563,24 @@ export function createDebouncedGitSync(
 const defaultScheduler = createDebouncedGitSync()
 
 /**
- * Schedule a debounced git sync. Multiple calls within {@link DEBOUNCE_MS}
- * are coalesced into a single commit.
+ * Schedule a debounced git sync. Multiple calls inside {@link DEBOUNCE_MS}
+ * merge into one commit.
  */
 export function scheduleGitSync(label: string, context?: SyncContext): void {
   defaultScheduler.schedule(label, context)
 }
 
-/** The most recent scheduled flush. Lets callers observe the outcome. */
+/** The most recent scheduled flush. Callers can use this to check the result. */
 export function settledGitSync(): Promise<GitSyncResult | null> {
   return defaultScheduler.settled()
 }
 
 /**
- * Commit specific files immediately with an explicit message.
- * Use for cases like navigation updates where status inference isn't needed.
+ * Commit specific files now, with a fixed message.
+ * Use this function for cases like navigation updates. In these cases,
+ * the code does not need to infer the git status.
  *
- * Never rejects, on the same terms as {@link runGitSync}.
+ * This function never rejects, in the same way as {@link runGitSync}.
  */
 export async function gitCommitAndPush(
   filepath: string | string[],

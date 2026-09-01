@@ -158,7 +158,7 @@ export {
 // Block serialization (dynamic-zone content -> MDX)
 export { serializeContent, validateContentBlocks } from '../serializers/blocks'
 
-// Slack alerting for git sync failures
+// Slack alerts for git sync failures
 export {
   type GitSyncAlert,
   type NotifyGitSync,

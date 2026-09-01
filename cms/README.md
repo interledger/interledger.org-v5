@@ -49,23 +49,25 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 | `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
 | `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
 | `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
-| `SLACK_WEBHOOK_URL`         | Slack incoming webhook for git sync failures. **Required when git sync is enabled** — Strapi refuses to start without it.                                                                              |
+| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                         |
 
 ### Git Sync Failure Reporting
 
-Git sync runs inside lifecycle hooks, where failures are otherwise invisible.
-They post to Slack via `SLACK_WEBHOOK_URL`, and Strapi **refuses to boot** if git
-sync is enabled without it. Local development and CI opt out with
-`STRAPI_DISABLE_GIT_SYNC=true`.
+Git sync runs inside lifecycle hooks. Without alerts, failures here stay
+invisible. The code sends alerts to Slack through `SLACK_WEBHOOK_URL`. If
+git sync is enabled and this value is not set, Strapi **will not start**.
+For local development and CI, set `STRAPI_DISABLE_GIT_SYNC=true` instead.
 
-- **Failure alerts** name the host, environment, repo, content type, attempted
-  commit message, affected editor, and the tail of git's output.
-- **A recovery notice** posts on the first success after a failure.
-- **Secrets are redacted** — git echoes the remote URL, carrying a GitHub App
-  token, on auth failures.
-- **Repeats are throttled** for 15 minutes, keyed on the root cause rather than
-  the content type, since one broken clone fails every save. The next alert
-  reports how many were suppressed.
+- **Failure alerts** give the host, the environment, the repository, the
+  content type, the attempted commit message, the affected editor, and
+  the end of the git output.
+- **A recovery message** posts after the first successful sync that
+  follows a failure.
+- **The alert redacts secrets.** On an authentication failure, git repeats
+  the remote URL. This URL contains a GitHub App token.
+- **The alert throttles repeat failures** for 15 minutes. The throttle key
+  is the root cause, not the content type, because one broken clone makes
+  every save fail. The next alert states how many repeats it blocked.
 
 ### Git Sync Repository Target
 

@@ -1,28 +1,29 @@
 import os from 'os'
 import { tryCatchAsync } from './tryCatch'
 
-/** Never block a content lifecycle hook on Slack being reachable. */
+/** This value stops a slow Slack webhook from blocking a content lifecycle hook. */
 const WEBHOOK_TIMEOUT_MS = 5_000
 /**
- * A clone left mid-rebase fails on every subsequent save, so an unthrottled
- * alert would post per editor action. Once per root cause, then a summary.
+ * A clone stuck in a rebase fails on every later save. Without a throttle,
+ * this would send one alert per editor action. This value limits the
+ * alerts to one per root cause, then a summary message.
  */
 const REPEAT_SUPPRESSION_MS = 15 * 60 * 1_000
-/** Keep the tail, where the actionable line usually is. */
+/** This value keeps the end of the text. The useful line is usually near the end. */
 const MAX_DETAIL_CHARS = 1_000
 
 export interface GitSyncAlert {
-  /** `healthy` covers a completed sync and a genuine no-op, not a skip. */
+  /** The `healthy` value covers a completed sync and a true no-op. It does not cover a skip. */
   outcome: 'failed' | 'healthy'
   label: string
   repoRoot: string
-  /** The commit message that was attempted. */
+  /** The commit message the sync tried to use. */
   commitMessage?: string
-  /** One-line failure summary — used as the throttle fingerprint. */
+  /** A one-line failure summary. The code uses this text as the throttle fingerprint. */
   reason?: string
-  /** Raw git output. Redacted and truncated before it leaves the process. */
+  /** The raw git output. The code redacts and truncates this text before it leaves the process. */
   detail?: string
-  /** The editor whose change is stranded by the failure. */
+  /** The editor whose change did not reach the repository because of the failure. */
   author?: { name: string; email: string }
 }
 
@@ -64,7 +65,7 @@ export function isSlackAlertingConfigured(): boolean {
 
 // ── Redaction ────────────────────────────────────────────────────────────────
 
-/** Git echoes the remote URL on auth failure, and ours carries a GitHub App token. */
+/** Git repeats the remote URL when authentication fails. Our remote URL contains a GitHub App token. */
 const SECRET_PATTERNS: [RegExp, string][] = [
   // https://x-access-token:<token>@github.com/...
   [/(\bhttps?:\/\/)[^\s/:@]+:[^\s/@]+@/gi, '$1***:***@'],
@@ -98,7 +99,7 @@ interface SlackPayload {
 
 export interface SlackMessageInput extends GitSyncAlert {
   hostname: string
-  /** Repeats swallowed by the throttle since the last post. */
+  /** The number of repeat alerts the throttle blocked since the last post. */
   suppressedCount?: number
 }
 
@@ -194,8 +195,9 @@ interface ThrottleEntry {
 }
 
 /**
- * Builds a notifier with its own throttle and health state. Deduplicates by
- * root cause, not content type: one broken repo fails every type at once.
+ * Builds a notifier with its own throttle and health state. The notifier
+ * groups alerts by root cause, not by content type. One broken repository
+ * makes every content type fail at the same time.
  */
 export function createSlackGitSyncNotifier(
   overrides: Partial<SlackNotifierDeps> = {}
@@ -228,7 +230,8 @@ export function createSlackGitSyncNotifier(
 
   return async function notifyGitSync(alert: GitSyncAlert): Promise<void> {
     const url = deps.webhookUrl()
-    // Valid in local dev and CI; the startup guard covers deployments.
+    // This case is normal in local development and in CI. The startup
+    // guard checks real deployments.
     if (!url) return
 
     const hostname = deps.hostname()
@@ -264,5 +267,5 @@ export function createSlackGitSyncNotifier(
   }
 }
 
-/** Process-wide notifier used by git sync. */
+/** The notifier that git sync uses for the whole process. */
 export const notifyGitSyncToSlack: NotifyGitSync = createSlackGitSyncNotifier()
