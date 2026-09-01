@@ -73,6 +73,9 @@ export default async function handler(
   req: Request,
   _ctx: Context
 ): Promise<Response> {
+
+  console.log('[subscribe-newsletter] Received request', { method: req.method })
+
   if (req.method !== 'POST') {
     return jsonResponse({ error: 'Method Not Allowed' }, 405, { Allow: 'POST' })
   }
@@ -88,6 +91,13 @@ export default async function handler(
   if (body instanceof Error) {
     return jsonResponse({ error: 'Invalid JSON body' }, 400)
   }
+
+  console.log('[subscribe-newsletter] Parsed request body', {
+    ...body,
+    fields: body.fields?.map((field) =>
+      field.name === 'email' ? { ...field, value: '[redacted]' } : field
+    )
+  })
 
   const { recaptchaToken, fields, context, legalConsentOptions } = body
   if (!recaptchaToken || !isValidFields(fields)) {
@@ -129,6 +139,11 @@ export default async function handler(
     )
     return jsonResponse({ error: 'HubSpot submission failed' }, 502)
   }
+
+  console.log('[subscribe-newsletter] HubSpot response ok:', hubspotResult.ok)
+  console.log('[subscribe-newsletter] HubSpot response status:', hubspotResult.status)
+  console.log('[subscribe-newsletter] HubSpot response statusText:', hubspotResult.statusText)
+  console.log('[subscribe-newsletter] HubSpot response url:', hubspotResult.url)
 
   if (!hubspotResult.ok) {
     console.error(
