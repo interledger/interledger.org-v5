@@ -35,6 +35,7 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
 const pages = await getCollection('grant-pages')
 
 const mdxPage = pages.find(
@@ -82,19 +83,19 @@ const programOverviewHtml = programOverview
       lang: contentLocale
     })
   : null
-const t = useTranslations(contentLocale)
+const t = useTranslations(routeLocale)
 
 const resolvedHeroTitle = heroTitle?.trim() || title
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
   {
     name: t('nav.grants'),
-    href: localizeRoute(grantOverviewHubPath(), contentLocale)
+    href: localizeRoute(grantOverviewHubPath(), routeLocale)
   },
   {
     name: resolvedHeroTitle,
-    href: localizeRoute(`grant/${slug}`, contentLocale)
+    href: localizeRoute(`grant/${slug}`, routeLocale)
   }
 ]
 

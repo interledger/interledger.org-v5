@@ -31,6 +31,7 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
+const { routeLocale } = Astro.locals
 const pages = await getCollection('grant-overview-pages')
 
 const mdxPage = pages.find(
@@ -65,15 +66,15 @@ const followUpHtml = followUpContent
     })
   : null
 
-const t = useTranslations(contentLocale)
+const t = useTranslations(routeLocale)
 
-const grantsHref = localizeRoute(grantOverviewHubPath(), contentLocale)
-const pageHref = localizeRoute(grantOverviewRouteParam(slug), contentLocale)
+const grantsHref = localizeRoute(grantOverviewHubPath(), routeLocale)
+const pageHref = localizeRoute(grantOverviewRouteParam(slug), routeLocale)
 // This template also renders the grants hub itself (slug === GRANT_OVERVIEW_PRIMARY_SLUG),
 // where grantsHref and pageHref are identical — a third crumb would just repeat "Grants".
 const isGrantOverviewHub = slug === GRANT_OVERVIEW_PRIMARY_SLUG
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', contentLocale) },
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
   { name: t('nav.grants'), href: grantsHref },
   ...(isGrantOverviewHub ? [] : [{ name: heroTitle ?? title, href: pageHref }])
 ]
