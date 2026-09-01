@@ -122,13 +122,9 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 </div>
 
 <script>
-  // Mobile: FAQ sections themselves become an exclusive accordion (only one
-  // open at a time, via the native <details name> group so the browser
-  // handles closing the others for free) — first section open by default.
-  // Within an open section, questions are ALSO an exclusive accordion (only
-  // one open at a time), scoped per-section via a unique group name so
-  // opening a question in one section never affects another section's group.
-  // Questions start closed (INTORG-1153), matching the Faq block's FaqItem.
+  // Mobile: FAQ sections and questions toggle independently — opening one
+  // doesn't collapse whatever else is already open to avoid
+  // jarring layout jumps as other open sections/questions snapped shut.
   // Tablet: every section stays open; the `toggle` guard below reasserts
   // `open` if a keyboard user still manages to collapse one (pointer-events
   // is disabled on the summary, but that doesn't block keyboard activation).
@@ -149,13 +145,9 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
       const tabletQuery = window.matchMedia('(min-width: 810px)')
 
       const applyMode = (isTablet: boolean) => {
-        detailsEls.forEach((details, index) => {
+        detailsEls.forEach((details) => {
           if (isTablet) {
-            details.removeAttribute('name')
             details.open = true
-          } else {
-            details.setAttribute('name', 'faq-mobile-section')
-            details.open = index === 0
           }
         })
       }
@@ -172,32 +164,5 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
       tabletQuery.addEventListener('change', (event) =>
         applyMode(event.matches)
       )
-
-      detailsEls.forEach((sectionDetails, sectionIndex) => {
-        const itemDetailsEls = Array.from(
-          sectionDetails.querySelectorAll<HTMLDetailsElement>(
-            '[data-faq-mobile-item]'
-          )
-        )
-        if (itemDetailsEls.length === 0) return
-
-        const applyItemMode = (isTablet: boolean) => {
-          itemDetailsEls.forEach((itemDetails) => {
-            if (isTablet) {
-              itemDetails.removeAttribute('name')
-            } else {
-              itemDetails.setAttribute(
-                'name',
-                `faq-mobile-item-${sectionIndex}`
-              )
-            }
-          })
-        }
-
-        applyItemMode(tabletQuery.matches)
-        tabletQuery.addEventListener('change', (event) =>
-          applyItemMode(event.matches)
-        )
-      })
     })
 </script>
