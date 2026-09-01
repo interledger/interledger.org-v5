@@ -102,7 +102,9 @@ describe('assertStrapiRunning', () => {
         (_url: string, options?: { signal?: AbortSignal }) =>
           new Promise<Response>((_resolve, reject) => {
             options?.signal?.addEventListener('abort', () =>
-              reject(new DOMException('The operation was aborted.', 'AbortError'))
+              reject(
+                new DOMException('The operation was aborted.', 'AbortError')
+              )
             )
           })
       )

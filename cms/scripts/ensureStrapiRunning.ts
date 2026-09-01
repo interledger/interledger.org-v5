@@ -31,7 +31,10 @@ export async function assertStrapiRunning(
   while (Date.now() < deadline) {
     // Cap the attempt itself to whatever's left, so a hung fetch can't blow
     // through the caller's budget on its own.
-    const attemptTimeoutMs = Math.min(PROBE_ATTEMPT_TIMEOUT_MS, deadline - Date.now())
+    const attemptTimeoutMs = Math.min(
+      PROBE_ATTEMPT_TIMEOUT_MS,
+      deadline - Date.now()
+    )
 
     try {
       const response = await withTimeout(
