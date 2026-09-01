@@ -79,66 +79,91 @@ const headingClasses =
       aria-labelledby="hackathon-hero-title"
     >
       {breadcrumbs && breadcrumbs.length > 0 ? (
-        <div class="mx-auto w-full max-w-wide px-xl pt-page-offset desktop:px-5xl">
-          <Breadcrumbs breadcrumbs={breadcrumbs}>
-            <slot name="after-breadcrumbs" />
-          </Breadcrumbs>
+        <div class="px-content pt-page-offset">
+          <div class="content-column">
+            <Breadcrumbs breadcrumbs={breadcrumbs}>
+              <slot name="after-breadcrumbs" />
+            </Breadcrumbs>
+          </div>
         </div>
       ) : (
         isFallback && (
-          <div class="mx-auto flex w-full max-w-wide justify-end px-xl pt-page-offset desktop:px-5xl">
-            <slot name="after-breadcrumbs" />
+          <div class="px-content pt-page-offset">
+            <div class="content-column flex justify-end">
+              <slot name="after-breadcrumbs" />
+            </div>
           </div>
         )
       )}
       <div
         class:list={[
-          'mx-auto grid w-full max-w-wide flex-1 items-center gap-3xl px-xl pt-xl pb-3xl tablet:py-5xl desktop:px-5xl',
-          hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : '',
+          'flex-1 px-content pt-xl pb-3xl tablet:py-5xl',
           isFallback ? 'tablet:pt-3xl' : ''
         ]}
       >
-        <div class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100">
-          <HackathonLogo class="mb-3xl" />
-          <h1 id="hackathon-hero-title" class={headingClasses}>
-            {heroTitle}
-          </h1>
-          {description && (
-            <p class="mt-xl whitespace-pre-line text-h5 text-apricot-100 tablet:text-h5-md desktop:text-h5-lg">
-              {description}
-            </p>
-          )}
-          {cta && (
-            <nav aria-label={t('hackathonHero.cta_navigation')} class="mt-2xl">
-              <LinkButton
-                href={cta.link}
-                variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-                mode={cta.style === 'secondary' ? 'dark' : undefined}
-                external={cta.external}
-                class="w-full tablet:w-auto"
-                {...ctaUmami}
+        <div
+          class:list={[
+            'content-column grid items-center gap-3xl',
+            hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : ''
+          ]}
+        >
+          <div class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100">
+            <HackathonLogo class="mb-3xl" />
+            <h1 id="hackathon-hero-title" class={headingClasses}>
+              {heroTitle}
+            </h1>
+            {description && (
+              <p class="mt-xl whitespace-pre-line text-h5 text-apricot-100 tablet:text-h5-md desktop:text-h5-lg">
+                {description}
+              </p>
+            )}
+            {cta && (
+              <nav
+                aria-label={t('hackathonHero.cta_navigation')}
+                class="mt-2xl"
               >
-                {cta.text}
-              </LinkButton>
-            </nav>
-          )}
-        </div>
+                <LinkButton
+                  href={cta.link}
+                  variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+                  mode={cta.style === 'secondary' ? 'dark' : undefined}
+                  external={cta.external}
+                  class="w-full tablet:w-auto"
+                  {...ctaUmami}
+                >
+                  {cta.text}
+                </LinkButton>
+              </nav>
+            )}
+          </div>
 
-        {hasImage && desktopImage && (
-          <div class="min-w-0">
-            {imageMobile ? (
-              <>
-                <OptimizedImage
-                  src={imageMobile}
-                  alt={resolvedMobileAlt ?? ''}
-                  width={HERO_IMAGE_MOBILE_WIDTH}
-                  height={HERO_IMAGE_MOBILE_HEIGHT}
-                  loading="eager"
-                  fetchpriority="high"
-                  sizes="100vw"
-                  pictureClass="block tablet:hidden"
-                  class="h-auto w-full object-cover"
-                />
+          {hasImage && desktopImage && (
+            <div class="min-w-0">
+              {imageMobile ? (
+                <>
+                  <OptimizedImage
+                    src={imageMobile}
+                    alt={resolvedMobileAlt ?? ''}
+                    width={HERO_IMAGE_MOBILE_WIDTH}
+                    height={HERO_IMAGE_MOBILE_HEIGHT}
+                    loading="eager"
+                    fetchpriority="high"
+                    sizes="100vw"
+                    pictureClass="block tablet:hidden"
+                    class="h-auto w-full object-cover"
+                  />
+                  <OptimizedImage
+                    src={desktopImage}
+                    alt={resolvedDesktopAlt ?? ''}
+                    width={HERO_IMAGE_WIDTH}
+                    height={HERO_IMAGE_HEIGHT}
+                    loading="eager"
+                    fetchpriority="high"
+                    sizes="(min-width: 810px) 50vw, 100vw"
+                    pictureClass="hidden tablet:block"
+                    class="h-auto w-full object-cover"
+                  />
+                </>
+              ) : (
                 <OptimizedImage
                   src={desktopImage}
                   alt={resolvedDesktopAlt ?? ''}
@@ -147,24 +172,12 @@ const headingClasses =
                   loading="eager"
                   fetchpriority="high"
                   sizes="(min-width: 810px) 50vw, 100vw"
-                  pictureClass="hidden tablet:block"
                   class="h-auto w-full object-cover"
                 />
-              </>
-            ) : (
-              <OptimizedImage
-                src={desktopImage}
-                alt={resolvedDesktopAlt ?? ''}
-                width={HERO_IMAGE_WIDTH}
-                height={HERO_IMAGE_HEIGHT}
-                loading="eager"
-                fetchpriority="high"
-                sizes="(min-width: 810px) 50vw, 100vw"
-                class="h-auto w-full object-cover"
-              />
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   ) : (
