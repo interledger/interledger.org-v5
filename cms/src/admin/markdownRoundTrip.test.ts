@@ -73,6 +73,29 @@ describe('restoreSoftBreaks', () => {
   it('leaves markdown with no placeholder untouched', () => {
     expect(restoreSoftBreaks('1. one\n2. two')).toBe('1. one\n2. two')
   })
+
+  // The real serializer escapes the placeholder into `&#xE000;` when it
+  // follows a bold run that closes on punctuation (`**text:**`), so a plain
+  // raw-codepoint match misses it and the <br /> is silently dropped.
+  it('writes back a placeholder the serializer escaped after a bold run ending in punctuation', () => {
+    expect(restoreSoftBreaks('**text:**&#xE000;other text')).toBe(
+      '**text:**<br />other text'
+    )
+  })
+
+  it('writes back an escaped placeholder case-insensitively', () => {
+    expect(restoreSoftBreaks('**text:**&#xe000;other text')).toBe(
+      '**text:**<br />other text'
+    )
+  })
+
+  // Symmetric case: the same escaping rule fires when the placeholder sits
+  // immediately before a bold/italic run that opens with punctuation.
+  it('writes back a placeholder the serializer escaped before a bold run starting with punctuation', () => {
+    expect(restoreSoftBreaks('lead&#xE000;**:bold**')).toBe(
+      'lead<br />**:bold**'
+    )
+  })
 })
 
 describe('healStrandedListItemBreaks', () => {

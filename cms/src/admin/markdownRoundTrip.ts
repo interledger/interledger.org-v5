@@ -12,8 +12,19 @@ import remarkGfm from 'remark-gfm'
 import type { Nodes } from 'mdast'
 
 // Unassigned Unicode private-use code point: it cannot collide with authored
-// text, and no markdown rule escapes or reflows it.
+// text. It is NOT immune to markdown escaping, though — see
+// SOFT_BREAK_PATTERN below.
 export const SOFT_BREAK_PLACEHOLDER = '\uE000'
+
+// mdast-util-to-markdown encodes a character sitting right against a bold
+// run that opens or closes on punctuation (e.g. `**text:**`), unless that
+// character is itself whitespace or punctuation. Our placeholder is
+// neither, so it comes out as `&#xE000;` instead of raw. Matched
+// case-insensitively in case a future version lowercases the hex.
+const SOFT_BREAK_PATTERN = new RegExp(
+  `${SOFT_BREAK_PLACEHOLDER}|&#xE000;`,
+  'gi'
+)
 
 /**
  * Prepares editor HTML for the markdown converter.
@@ -27,7 +38,7 @@ export function prepareHtmlForMarkdown(html: string): string {
 
 /** Writes the placeholders back out as real line breaks. */
 export function restoreSoftBreaks(markdown: string): string {
-  return markdown.replaceAll(SOFT_BREAK_PLACEHOLDER, '<br />')
+  return markdown.replace(SOFT_BREAK_PATTERN, '<br />')
 }
 
 /**
