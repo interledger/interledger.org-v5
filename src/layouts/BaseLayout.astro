@@ -51,12 +51,6 @@ const {
 } = Astro.props
 
 const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
-const NON_PROD_UMAMI_WEBSITE_ID = '60547518-fd38-4f64-abf3-d03688e321b9'
-const isProduction =
-  (process.env.CONTEXT ?? import.meta.env.CONTEXT) === 'production'
-const umamiWebsiteId = isProduction
-  ? PROD_UMAMI_WEBSITE_ID
-  : NON_PROD_UMAMI_WEBSITE_ID
 ---
 
 <!doctype html>
@@ -99,8 +93,8 @@ const umamiWebsiteId = isProduction
     <script
       defer
       src="https://uwa.interledger.org/script.js"
-      data-website-id={umamiWebsiteId}
-      data-domains={isProduction ? 'interledger.org' : undefined}></script>
+      data-website-id={PROD_UMAMI_WEBSITE_ID}
+      data-domains="interledger.org"></script>
   </head>
 
   <body class={bodyClass} style={bodyStyle}>
