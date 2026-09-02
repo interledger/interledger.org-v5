@@ -24,6 +24,13 @@ export const redirects = {
   '/ambassadors': '/grant/fellowship',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
+  // EN twins of the `/es/grant*` entries below. `/grant` is a route prefix
+  // with no page of its own, so without these the bare paths 404 [INTORG-1218].
+  '/grant': '/grant/our-grantmaking',
+  '/grants': '/grant/our-grantmaking',
+  '/grants/our-grantmaking': '/grant/our-grantmaking',
+  '/grantee-directory': '/grant/grantee-directory',
+  '/grant/grantee-database': '/grant/grantee-directory',
   '/interledger': '/tech/interledger-protocol',
   '/open-payments': '/tech/open-payments',
   '/web-monetization': '/tech/web-monetization',
