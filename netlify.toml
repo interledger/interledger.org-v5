@@ -59,8 +59,7 @@
 # override its Cache-Control. With it last, every asset rule below was silently
 # discarded and everything was served `max-age=0, must-revalidate` — verified on
 # the deploy, where /img/*, /fonts/* and /documents/* all ignored their own
-# rules. X-Robots-Tag is unaffected either way: no other rule sets it, so it
-# merges rather than conflicts.
+# rules.
 #
 # This also decides browser caching for Netlify Image CDN responses, which
 # inherit their Cache-Control from the source asset — without it, transformed
@@ -69,7 +68,6 @@
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-    X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
   for = "/_astro/*"
