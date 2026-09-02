@@ -15,6 +15,12 @@
 [[plugins]]
   package = "./netlify/plugins/purge-roadmap"
 
+# Noindex staging/branch-deploy/preview builds without noindexing production.
+# See the /* headers block below — X-Robots-Tag can't be scoped by context
+# from within this file, so it's appended to dist/_headers post-build instead.
+[[plugins]]
+  package = "./netlify/plugins/robots-header"
+
 # Redirect old singular summit routes to plural (EN and ES)
 [[redirects]]
   from = "/summit/:year/talk/:slug"
@@ -59,17 +65,20 @@
 # override its Cache-Control. With it last, every asset rule below was silently
 # discarded and everything was served `max-age=0, must-revalidate` — verified on
 # the deploy, where /img/*, /fonts/* and /documents/* all ignored their own
-# rules. X-Robots-Tag is unaffected either way: no other rule sets it, so it
-# merges rather than conflicts.
+# rules.
 #
 # This also decides browser caching for Netlify Image CDN responses, which
 # inherit their Cache-Control from the source asset — without it, transformed
 # images revalidate on every navigation despite a ~1 year edge TTL.
+#
+# No X-Robots-Tag here on purpose: this file's rules apply to every deploy
+# context alike, and production must stay indexable. Non-production contexts
+# get X-Robots-Tag: noindex, nofollow appended to dist/_headers by the
+# robots-header build plugin instead (see the [[plugins]] entry above).
 [[headers]]
   for = "/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
-    X-Robots-Tag = "noindex, nofollow"
 
 [[headers]]
   for = "/_astro/*"
