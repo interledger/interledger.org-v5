@@ -91,7 +91,8 @@
      parent computes to 700, which the browser then synthesises or maps
      onto 800. 600 is the design-system bold (same as h1/h2). */
   b,
-  strong {
+  strong,
+  .hljs-strong {
     font-weight: 600;
   }
 
