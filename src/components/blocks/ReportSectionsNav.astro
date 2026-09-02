@@ -35,7 +35,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
   aria-label={t('report.sections_nav')}
   class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
 >
-  <ul class="flex list-none flex-col gap-2xl m-0 p-0">
+  <ol class="m-0 flex flex-col gap-2xl p-0">
     {
       sections.map((section, index) => (
         <li class="m-0">
@@ -48,14 +48,8 @@ const sectionNavAttrs = (id: string, heading: string) =>
             class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-link"
             {...sectionNavAttrs(section.id, section.heading)}
           >
-            <span class="flex items-start gap-md pl-xs">
-              <span
-                aria-hidden="true"
-                class="size-xs shrink-0 mt-md rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-link"
-              />
-              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-link">
-                {section.heading}
-              </span>
+            <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-link">
+              {section.heading}
             </span>
             <span
               aria-hidden="true"
@@ -65,7 +59,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
         </li>
       ))
     }
-  </ul>
+  </ol>
 </nav>
 
 <script>
@@ -79,3 +73,24 @@ const sectionNavAttrs = (id: string, heading: string) =>
     linkSelector: '[data-report-nav-link]'
   })
 </script>
+
+<style>
+  /* Reuse the shared 5px <ol> marker; tighter gutter than body copy, orchid
+     when the section is in view. */
+  :global([data-report-nav] ol) {
+    margin: 0;
+    padding-inline-start: 0;
+  }
+  :global([data-report-nav] ol > li) {
+    margin: 0;
+    padding-inline-start: var(--spacing-lg);
+  }
+  :global([data-report-nav] ol > li::before) {
+    left: 0;
+    top: calc(0.5em - (var(--ol-marker-size) / 2) + 1px);
+    transform: none;
+  }
+  :global([data-report-nav] ol > li:has([data-active='true'])::before) {
+    background-color: var(--color-link);
+  }
+</style>

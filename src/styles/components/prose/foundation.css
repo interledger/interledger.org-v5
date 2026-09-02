@@ -194,15 +194,18 @@
   [data-prose] [data-component='Paragraph'] ul > li,
   [data-prose] [data-component='Paragraph'] ol > li {
     position: relative;
+    /* Same gutter as disc lists in default.css / cards (spacing-xl). */
+    padding-inline-start: var(--spacing-xl);
     margin-bottom: var(--spacing-lg);
     @variant desktop {
       margin-bottom: var(--spacing-xl);
     }
   }
 
-  [data-prose] [data-component='Paragraph'] ul > li {
-    /* Same gutter as disc lists in default.css / cards (spacing-xl). */
-    padding-inline-start: var(--spacing-xl);
+  [data-prose] [data-component='Paragraph'] ol {
+    list-style: none;
+    padding-inline-start: 0;
+    margin-inline-start: 0;
   }
 
   [data-prose] [data-component='Paragraph'] ul > li::before {
@@ -220,16 +223,23 @@
     }
   }
 
-  [data-prose] [data-component='Paragraph'] ol > li::marker {
-    color: var(--color-tangerine-100);
+  [data-prose] [data-component='Paragraph'] ol > li::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: calc(0.75em - (var(--ol-marker-size) / 2));
+    width: var(--ol-marker-size);
+    height: var(--ol-marker-size);
+    border-radius: 50%;
+    background-color: var(--color-neutral-900);
   }
 
   @variant dark {
     [data-prose] [data-component='Paragraph'] ul > li::before {
       background-color: var(--color-aqua-mint-100);
     }
-    [data-prose] [data-component='Paragraph'] ol > li::marker {
-      color: var(--color-aqua-mint-100);
+    [data-prose] [data-component='Paragraph'] ol > li::before {
+      background-color: var(--color-neutral-0);
     }
   }
 
@@ -240,7 +250,7 @@
     [data-prose]
     [data-component='Paragraph']
     ol
-    > li::marker {
-    color: var(--color-neutral-0);
+    > li::before {
+    background-color: var(--color-neutral-0);
   }
 }

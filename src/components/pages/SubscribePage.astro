@@ -92,7 +92,7 @@ const secondaryTextClasses = 'text-neutral-75'
             <h2 class="text-h4-lg text-neutral-900">
               {t('subscribe.expect_heading')}
             </h2>
-            <ul class="flex flex-col gap-sm list-disc pl-xl">
+            <ol>
               {
                 expectPoints.map((point) => (
                   <li class={`text-body-md-standard ${secondaryTextClasses}`}>
@@ -100,7 +100,7 @@ const secondaryTextClasses = 'text-neutral-75'
                   </li>
                 ))
               }
-            </ul>
+            </ol>
           </div>
         </div>
 

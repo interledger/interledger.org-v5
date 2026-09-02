@@ -43,7 +43,7 @@ px-lg [&_*:last-child]:mb-0
 text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
 tablet:px-0 tablet:text-body-lg-standard-md [&_:is(p,a,li)]:tablet:text-body-lg-standard-md
 `
-const listSpacingClasses = `[&_:is(p,ol,ul,a,h3,h4,h5,h6)]:mb-xl [&_li]:mb-md [&_:is(ol,ul)]:pl-lg [&_:is(ol,ul)]:tablet:pl-xl`
+const listSpacingClasses = `[&_:is(p,ol,ul,a,h3,h4,h5,h6)]:mb-xl [&_li]:mb-md`
 const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,li,a)]:text-h5 tablet:p-xl tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg ${listSpacingClasses}`
 const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutral-75 [&_thead_th]:text-body-sm-emphasis desktop:[&_thead_th]:text-body-lg-emphasis-md ${listSpacingClasses}`
 ---

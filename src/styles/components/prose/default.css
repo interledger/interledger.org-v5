@@ -7,6 +7,9 @@
 @layer components {
   main {
     color: var(--color-neutral-100);
+    /* Shared with ReportSectionsNav. Triangle bullets in foundation.css
+       do not use this. Layout lists opt out with `list-none`. */
+    --ol-marker-size: 5px;
     p {
       color: var(--color-neutral-100);
     }
@@ -100,32 +103,40 @@
       margin-block-end: 0;
     }
 
-    /* Lists: outside position keeps the marker in the margin box, so a list
-       item whose content starts with a block element (e.g. a `<p>` from a
-       "loose" markdown list) still renders its marker on the same line as
-       that content instead of forcing it onto a line of its own.
-
-       Bullet gutter is spacing-xl (24px) everywhere — body copy, TitleCard,
-       InfoCard, FAQ. Triangle lists in foundation.css use the same value so
-       the text column lines up whether the marker is a disc or a triangle. */
-    ul,
-    ol {
-      list-style: disc outside none;
+    /* 5px black circle on content lists that used to show disc/decimal
+       markers. Layout lists opt out with `list-none`. Triangle bullets in
+       foundation.css override `ul > li::before` for Paragraph. */
+    ul:not(.list-none),
+    ol:not(.list-none) {
+      list-style: none;
       margin: var(--spacing-lg) 0;
+      padding-inline-start: 0;
+    }
+    ul:not(.list-none) > li,
+    ol:not(.list-none) > li {
+      position: relative;
       padding-inline-start: var(--spacing-xl);
     }
-    ul {
-      list-style-type: disc;
+    ul:not(.list-none) > li::before,
+    ol:not(.list-none) > li::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: calc(0.75em - (var(--ol-marker-size) / 2));
+      width: var(--ol-marker-size);
+      height: var(--ol-marker-size);
+      border-radius: 50%;
+      background-color: var(--color-neutral-900);
     }
-    ol {
-      list-style-type: decimal;
-      /* Decimals need a bit more room than discs (`10.` vs `•`). */
-      padding-inline-start: var(--spacing-2xl);
+    @variant dark {
+      ul:not(.list-none) > li::before,
+      ol:not(.list-none) > li::before {
+        background-color: var(--color-neutral-0);
+      }
     }
     ol li,
     ul li {
       margin-block-end: var(--spacing-md);
-      padding: 0;
     }
     ol li:last-of-type,
     ul li:last-of-type {
