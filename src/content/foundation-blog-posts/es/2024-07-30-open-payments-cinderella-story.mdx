@@ -25,7 +25,7 @@ Si alguna vez accedió a un sitio web con su cuenta de Google, su ID de Apple o 
 
 En un determinado momento del desarrollo de [Rafiki](https://rafiki.dev/), fue necesario implementar un estándar que describiera cómo terceros podían iniciar pagos en nombre de otra persona. Este estándar pasó a conocerse como Open Payments, que no solo tendría que proporcionar un marco para describir esos pagos, sino también incorporar un método de delegación de acceso que esos terceros pudieran utilizar. Contar con un método de delegación de acceso tan consolidado como OAuth 2.0 hizo que pareciera una elección evidente como método de autorización para este estándar.
 
-Sin embargo, a medida que los métodos de [Open Payment](https://openpayments.dev/introduction/overview/) para describir y gestionar pagos fueron tomando forma, comenzaron a evidenciarse las limitaciones de OAuth 2.0 para ese caso de uso. Para entender cuáles son, repasemos primero las características de OAuth 2.0 que lo llevaron a alcanzar una gran popularidad.
+Sin embargo, a medida que los métodos de [Open Payment](https://openpayments.dev/overview/getting-started/) para describir y gestionar pagos fueron tomando forma, comenzaron a evidenciarse las limitaciones de OAuth 2.0 para ese caso de uso. Para entender cuáles son, repasemos primero las características de OAuth 2.0 que lo llevaron a alcanzar una gran popularidad.
 
 Aunque es un proceso simple para el usuario, la delegación de acceso a través de OAuth 2.0 se logra gracias a la interacción de muchos componentes y actores diferentes. Estos roles son los siguientes:
 
@@ -178,4 +178,4 @@ Como referencia, contamos con un diagrama de secuencia con GNAP mucho más senci
 
 Teniendo esto en cuenta, queda claro que GNAP es la opción más adecuada para enviar pagos a través de Open Payments. Aunque la especificación no es oficialmente definitiva, el avance es constante y el futuro parece prometedor: las especificaciones están bien encaminadas para convertirse en una RFC formal. [El protocolo central](https://datatracker.ietf.org/doc/draft-ietf-gnap-core-protocol/) fue aprobado recientemente por el IESG y ha ingresado en la cola del editor del IESG. [La especificación para servidores de recursos](https://datatracker.ietf.org/doc/draft-ietf-gnap-resource-servers/) también está a punto de presentarse al IESG para su publicación.
 
-Para obtener más información sobre Open Payments en general, considere consultar la [documentación](https://openpayments.dev/introduction/overview/).
+Para obtener más información sobre Open Payments en general, considere consultar la [documentación](https://openpayments.dev/overview/getting-started/).
