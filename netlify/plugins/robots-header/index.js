@@ -1,4 +1,4 @@
-import { appendFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 // The [[headers]] rules in netlify.toml apply to every deploy context.
@@ -11,6 +11,17 @@ import path from 'node:path'
 // the two files do not set the same header key for that path. Here,
 // Cache-Control stays in netlify.toml. X-Robots-Tag exists only in this
 // file.
+
+const NOINDEX_RULE = '/*\n  X-Robots-Tag: noindex, nofollow\n'
+
+// Collapses any trailing newlines to exactly one blank line, so a rule
+// appended after this always starts on its own paragraph. Returns empty
+// text unchanged, so a fresh file gets no leading blank line.
+function withTrailingBlankLine(text) {
+  if (text.length === 0) return text
+  return text.replace(/\n*$/, '\n\n')
+}
+
 export const onPostBuild = async ({ constants }) => {
   if (process.env.CONTEXT === 'production') {
     console.log('[robots-header] production build — leaving pages indexable')
@@ -18,7 +29,17 @@ export const onPostBuild = async ({ constants }) => {
   }
 
   const headersPath = path.join(constants.PUBLISH_DIR, '_headers')
-  await appendFile(headersPath, '\n/*\n  X-Robots-Tag: noindex, nofollow\n')
+  const existing = await readFile(headersPath, 'utf8').catch((error) => {
+    if (error.code === 'ENOENT') return ''
+    throw error
+  })
+
+  if (existing.includes(NOINDEX_RULE)) {
+    console.log(`[robots-header] noindex rule already present in ${headersPath}`)
+    return
+  }
+
+  await writeFile(headersPath, withTrailingBlankLine(existing) + NOINDEX_RULE)
   console.log(
     `[robots-header] CONTEXT=${process.env.CONTEXT} — wrote noindex rule to ${headersPath}`
   )
