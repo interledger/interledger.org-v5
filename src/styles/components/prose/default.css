@@ -76,6 +76,16 @@
       margin-block-end: var(--spacing-2xl);
     }
 
+    hgroup {
+      margin-block-end: var(--spacing-2xl);
+    }
+    hgroup :is(h1, h2, h3, h4, h5, h6) {
+      margin-block-end: var(--spacing-sm);
+    }
+    hgroup p {
+      margin-block-end: 0;
+    }
+
     /* A CTA belongs to the paragraph above it, so that pair sits tighter than
        two independent blocks: 24px, and 32px from `desktop` (Radu,
        2026-08-12). The paragraph gives up its own bottom margin and the CTA
