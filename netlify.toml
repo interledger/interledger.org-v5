@@ -15,9 +15,11 @@
 [[plugins]]
   package = "./netlify/plugins/purge-roadmap"
 
-# Noindex staging/branch-deploy/preview builds without noindexing production.
-# See the /* headers block below — X-Robots-Tag can't be scoped by context
-# from within this file, so it's appended to dist/_headers post-build instead.
+# This plugin adds a noindex header to staging builds, branch-deploy builds,
+# and preview builds. It does not add the header to production builds. This
+# file cannot set a header for only one deploy context. So the plugin adds
+# the header to dist/_headers after the build. See the headers block for
+# path "/*" below.
 [[plugins]]
   package = "./netlify/plugins/robots-header"
 
@@ -59,22 +61,26 @@
 [context.deploy-preview]
   command = "pnpm install && pnpm run build"
 
-# Ordering matters. When several [[headers]] rules match one request Netlify
-# merges them, and for a header set more than once the LAST matching rule wins.
-# This catch-all must therefore come FIRST, so the specific rules below can
-# override its Cache-Control. With it last, every asset rule below was silently
-# discarded and everything was served `max-age=0, must-revalidate` — verified on
-# the deploy, where /img/*, /fonts/* and /documents/* all ignored their own
-# rules.
+# The order of these rules is important. When a request matches more than
+# one [[headers]] rule, Netlify merges the rules. If more than one rule sets
+# the same header, the LAST matching rule wins. For this reason, this
+# catch-all rule must come FIRST. Then the specific rules below can override
+# its Cache-Control value. In the past, this rule was last in the file. As a
+# result, Netlify silently ignored every asset rule below it. All requests
+# got the header `max-age=0, must-revalidate`. This error occurred on the
+# live deploy. The paths /img/*, /fonts/*, and /documents/* all ignored
+# their own rules.
 #
-# This also decides browser caching for Netlify Image CDN responses, which
-# inherit their Cache-Control from the source asset — without it, transformed
-# images revalidate on every navigation despite a ~1 year edge TTL.
+# This rule also sets the browser cache behavior for Netlify Image CDN
+# responses. These responses inherit their Cache-Control value from the
+# source asset. Without this rule, a transformed image revalidates on every
+# page visit, even though its edge cache lasts about one year.
 #
-# No X-Robots-Tag here on purpose: this file's rules apply to every deploy
-# context alike, and production must stay indexable. Non-production contexts
-# get X-Robots-Tag: noindex, nofollow appended to dist/_headers by the
-# robots-header build plugin instead (see the [[plugins]] entry above).
+# This rule does not set X-Robots-Tag. This omission is intentional. The
+# rules in this file apply to every deploy context. Production must stay
+# indexable. For non-production contexts, the robots-header build plugin
+# adds X-Robots-Tag: noindex, nofollow to dist/_headers. See the [[plugins]]
+# entry above.
 [[headers]]
   for = "/*"
   [headers.values]

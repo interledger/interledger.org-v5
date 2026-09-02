@@ -1,13 +1,16 @@
 import { appendFile } from 'node:fs/promises'
 import path from 'node:path'
 
-// netlify.toml [[headers]] rules apply to every deploy context alike — there
-// is no way to scope a header to production only from inside netlify.toml.
-// Staging, branch deploys, and PR deploy previews must stay out of search
-// results, so this appends a noindex rule to the publish dir's _headers file
-// only when CONTEXT isn't "production". Netlify merges a _headers file with
-// netlify.toml headers for the same path as long as they don't set the same
-// key — Cache-Control stays in netlify.toml, X-Robots-Tag lives only here.
+// The [[headers]] rules in netlify.toml apply to every deploy context.
+// netlify.toml cannot set a header for only the production context.
+// Staging builds, branch-deploy builds, and PR preview builds must stay out
+// of search results. For this reason, this code adds a noindex rule to the
+// _headers file in the publish directory. It adds the rule only when
+// CONTEXT is not "production". Netlify merges a _headers file with the
+// netlify.toml header rules for the same path. This merge works only when
+// the two files do not set the same header key for that path. Here,
+// Cache-Control stays in netlify.toml. X-Robots-Tag exists only in this
+// file.
 export const onPostBuild = async ({ constants }) => {
   if (process.env.CONTEXT === 'production') {
     console.log('[robots-header] production build — leaving pages indexable')
