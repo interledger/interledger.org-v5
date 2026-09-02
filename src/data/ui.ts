@@ -56,16 +56,6 @@ export const ui = {
     'blog.foundation.tag_title': 'Foundation Blog - {tag}',
     'blog.foundation.tag_description':
       'Foundation Blog posts tagged with {tag}',
-    'blog.developers.portal': 'Developers Portal',
-    'blog.developers.title': 'Engineering Blog',
-    'blog.developers.description':
-      'Hear stories and experiences from the team who is working on making Interledger, the interoperable global payments network, a reality.',
-    'blog.developers.tag_title': 'Engineering Blog - {tag}',
-    'blog.developers.tag_description':
-      'Engineering Blog posts tagged with {tag}',
-    'blog.developers.cta': 'Check out Foundation updates',
-    'blog.developers.preview.link': 'View the developers blog',
-    'blog.header.image_alt': 'Ernie holding an envelope',
     'blog.filter.category.label': 'Filter by category:',
     'blog.filter.tag.label': 'Filter by tag:',
     'blog.filter.all': 'All',
@@ -442,17 +432,6 @@ export const ui = {
     'blog.foundation.tag_title': 'Blog de la Interledger Foundation - {tag}',
     'blog.foundation.tag_description':
       'Publicaciones del Blog de la Interledger Foundation etiquetadas con {tag}',
-    'blog.developers.portal': 'Portal de Desarrolladores',
-    'blog.developers.title': 'Blog de Ingeniería',
-    'blog.developers.description':
-      'Escucha historias y experiencias del equipo que trabaja para hacer realidad Interledger',
-    'blog.developers.tag_title': 'Blog de Ingeniería - {tag}',
-    'blog.developers.tag_description':
-      'Publicaciones del Blog de Ingeniería etiquetadas con {tag}',
-    'blog.developers.cta':
-      'Descubre las novedades de la Interledger Foundation',
-    'blog.developers.preview.link': 'Ver el blog de desarrolladores',
-    'blog.header.image_alt': 'Ernie sosteniendo un sobre',
     'blog.filter.category.label': 'Filtrar por categoría:',
     'blog.filter.tag.label': 'Filtrar por etiqueta:',
     'blog.filter.all': 'Todas',
