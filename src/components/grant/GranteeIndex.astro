@@ -37,7 +37,7 @@ const selectedYearLabel =
   years.find((option) => option.value === selectedYear)?.label ?? allLabel
 
 const summaryClasses = `
-list-none flex gap-xs items-center cursor-pointer
+list-none flex gap-md items-center cursor-pointer
 p-xs rounded-lg border border-transparent
 group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
 [&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
@@ -140,8 +140,11 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
       >
         <details data-grantee-year-details class="group relative">
           <summary class={summaryClasses}>
-            {t('grantee.filter.year')}
-            <Icon name="arrow-right-keyboard" class="rotate-90" />
+            <span class="flex items-center gap-xs">
+              {t('grantee.filter.year')}
+              <Icon name="arrow-right-keyboard" class="rotate-90" />
+            </span>
+            <span class="text-primary">{selectedYearLabel}</span>
           </summary>
           <ul class={dropdownClasses}>
             <li>
@@ -184,7 +187,6 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
             }
           </ul>
         </details>
-        <span class="text-primary">{selectedYearLabel}</span>
       </div>
     </div>
     <ul
