@@ -215,6 +215,7 @@
     left: 0;
     width: var(--spacing-lg);
     height: var(--spacing-lg);
+    border-radius: 0;
     background-color: var(--color-tangerine-100);
     mask: url('/img/bullet-point.svg') no-repeat center / contain;
     -webkit-mask: url('/img/bullet-point.svg') no-repeat center / contain;
