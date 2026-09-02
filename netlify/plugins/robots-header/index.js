@@ -35,7 +35,9 @@ export const onPostBuild = async ({ constants }) => {
   })
 
   if (existing.includes(NOINDEX_RULE)) {
-    console.log(`[robots-header] noindex rule already present in ${headersPath}`)
+    console.log(
+      `[robots-header] noindex rule already present in ${headersPath}`
+    )
     return
   }
 
