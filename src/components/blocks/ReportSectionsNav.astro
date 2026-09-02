@@ -87,7 +87,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
   }
   :global([data-report-nav] ol > li::before) {
     left: 0;
-    top: calc(0.5em - (var(--ol-marker-size) / 2) + 1px);
+    top: calc(0.5em - (var(--ol-marker-size, 5px) / 2) + 1px);
     transform: none;
   }
   :global([data-report-nav] ol > li:has([data-active='true'])::before) {

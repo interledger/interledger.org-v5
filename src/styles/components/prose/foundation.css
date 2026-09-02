@@ -206,6 +206,9 @@
     list-style: none;
     padding-inline-start: 0;
     margin-inline-start: 0;
+    /* Defined on `main` in default.css; set here too so the marker still
+       sizes if this prose tree is rendered outside `main` (preview). */
+    --ol-marker-size: 5px;
   }
 
   [data-prose] [data-component='Paragraph'] ul > li::before {
@@ -228,9 +231,9 @@
     content: '';
     position: absolute;
     left: 6px;
-    top: calc(0.75em - (var(--ol-marker-size) / 2));
-    width: var(--ol-marker-size);
-    height: var(--ol-marker-size);
+    top: calc(0.75em - (var(--ol-marker-size, 5px) / 2));
+    width: var(--ol-marker-size, 5px);
+    height: var(--ol-marker-size, 5px);
     border-radius: 50%;
     background-color: var(--color-neutral-900);
   }
