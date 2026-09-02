@@ -21,14 +21,20 @@
         font-size: var(--text-h2-lg);
         line-height: var(--text-h2-lg--line-height);
       }
+
+      /* `## **Title**` is a common CMS habit; don't stack bold on the heading. */
+      :is(strong, b) {
+        font-weight: inherit;
+      }
     }
 
-    /* H3 headings */
+    /* H3 headings (visual h4 — regular). Strong inside stays 600 so
+       `### **Title**` actually bolds; inheriting 400 would look like body. */
     h3 {
       font-size: var(--text-h4);
       line-height: var(--text-h4--line-height);
       font-weight: var(--text-h4--font-weight);
-      
+
       @variant tablet {
         font-size: var(--text-h4-md);
         line-height: var(--text-h4-md--line-height);
@@ -38,10 +44,16 @@
         font-size: var(--text-h4-lg);
         line-height: var(--text-h4-lg--line-height);
       }
+
+      :is(strong, b) {
+        font-weight: 600;
+      }
     }
 
     /* H4-H6 headings */
-    h4, h5, h6 {
+    h4,
+    h5,
+    h6 {
       font-size: var(--text-h5);
       line-height: var(--text-h5--line-height);
       font-weight: var(--text-h5--font-weight);

@@ -87,6 +87,22 @@
     overflow-x: clip;
   }
 
+  /* Poppins ships 400 / 500 / 600 / 800. Preflight's `bolder` on a 400
+     parent computes to 700, which the browser then synthesises or maps
+     onto 800. 600 is the design-system bold (same as h1/h2). */
+  b,
+  strong {
+    font-weight: 600;
+  }
+
+  /* CMS / CKEditor often wraps the whole heading in <strong>. Don't let
+     that stack on the heading's own weight (`bolder` on a 600 h2 → 800).
+     h3 is excluded: prose h3 is the h4 token (400), so strong must stay 600
+     or it looks like regular text. */
+  :is(h1, h2, h4, h5, h6) :is(b, strong) {
+    font-weight: inherit;
+  }
+
   main {
     @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
   }
