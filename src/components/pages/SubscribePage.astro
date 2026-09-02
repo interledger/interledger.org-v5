@@ -79,23 +79,29 @@ const secondaryTextClasses = 'text-neutral-75'
       <Breadcrumbs breadcrumbs={breadcrumbs} />
 
       <div class="flex flex-col gap-3xl desktop:flex-row desktop:gap-5xl">
-        <div class="flex flex-col gap-xl desktop:max-w-[45%]">
-          <h1 class="text-h1 text-neutral-900">
+        <div class="flex flex-col desktop:max-w-[45%]">
+          <h1
+            class="mb-xl text-h4-md tablet:text-h3 desktop:text-h3-lg text-neutral-900"
+          >
             {t('subscribe.title')}
           </h1>
 
-          <p class={`text-body-md-standard ${secondaryTextClasses}`}>
+          <p
+            class="mb-xl tablet:mb-xl desktop:mb-xl text-h5 tablet:text-h5-md desktop:text-h5-md text-neutral-900"
+          >
             {t('subscribe.intro')}
           </p>
 
-          <div class="flex flex-col gap-md">
-            <h2 class="text-h4-lg text-neutral-900">
+          <div>
+            <h2
+              class="mb-xl text-body-lg-emphasis tablet:text-body-lg-emphasis-md text-neutral-900"
+            >
               {t('subscribe.expect_heading')}
             </h2>
             <ul class="flex flex-col gap-sm list-disc pl-xl">
               {
                 expectPoints.map((point) => (
-                  <li class={`text-body-md-standard ${secondaryTextClasses}`}>
+                  <li class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-100">
                     {point}
                   </li>
                 ))
