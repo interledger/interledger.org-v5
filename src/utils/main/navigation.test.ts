@@ -21,7 +21,7 @@ describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
     const { mainMenu } = getNavigation('hackathon', 'en')
     expect(mainMenu.map((group) => group.label)).toEqual([
-      'Hackathon',
+      'Hackathons',
       'Resources'
     ])
   })
