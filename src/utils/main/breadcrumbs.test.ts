@@ -28,7 +28,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Grant', href: '/grant' },
+      { name: 'Grant', href: '/grant/our-grantmaking' },
       { name: 'Education', href: '/grant/education' },
       { name: 'On Campus', href: '/grant/education/on-campus' },
       { name: 'FAQ', href: '/grant/education/on-campus/faq' }
@@ -113,7 +113,47 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'Home'
     )
 
-    expect(breadcrumbs[1]).toEqual({ name: 'Grant', href: '/grant' })
+    expect(breadcrumbs[1]).toEqual({
+      name: 'Grant',
+      href: '/grant/our-grantmaking'
+    })
+  })
+
+  // INTORG-1218: `/grant` is a route prefix with no page of its own, so the
+  // crumb must point at the hub page instead of a 404.
+  it('links the grant root crumb to the grant hub, in every locale', () => {
+    const breadcrumbs = buildSectionEntryBreadcrumbs(
+      'grant/fellowship/jane-doe',
+      'foundation',
+      'Jane Doe',
+      'es',
+      'Inicio'
+    )
+
+    expect(breadcrumbs).toEqual([
+      { name: 'Inicio', href: '/es' },
+      { name: 'Grant', href: '/es/grant/our-grantmaking' },
+      { name: 'Fellowship', href: '/es/grant/fellowship' },
+      { name: 'Jane Doe', href: '/es/grant/fellowship/jane-doe' }
+    ])
+  })
+
+  it('rewrites a root crumb only at the start of the path', () => {
+    const breadcrumbs = buildSectionEntryBreadcrumbs(
+      'grant/2025/faq',
+      'summit',
+      'FAQ',
+      'en',
+      'Home'
+    )
+
+    expect(breadcrumbs.map((crumb) => crumb.href)).toEqual([
+      '/',
+      '/summit',
+      '/summit/grant',
+      '/summit/grant/2025',
+      '/summit/grant/2025/faq'
+    ])
   })
 
   it('uses the route locale for hrefs, not the content locale', () => {

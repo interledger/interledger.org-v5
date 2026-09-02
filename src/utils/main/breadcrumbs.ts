@@ -1,10 +1,25 @@
-import { localizeRoute, HACKATHON_HOME_SLUG } from './routes'
+import {
+  localizeRoute,
+  HACKATHON_HOME_SLUG,
+  grantOverviewHubPath
+} from './routes'
 import type { Locale } from './i18'
 import type { SiteSection } from './static-paths'
 
 export type BreadcrumbItem = {
   name: string
   href: string
+}
+
+/**
+ * Path prefixes that carry no page of their own, mapped to the landing page a
+ * breadcrumb must link to instead. `/hackathon` has no page at its route base
+ * (see MicrositeHeader), and `/grant` is a route prefix whose hub page lives
+ * at `/grant/our-grantmaking`.
+ */
+const ROOT_LANDING_PATHS: Record<string, string> = {
+  hackathon: `hackathon/${HACKATHON_HOME_SLUG}`,
+  grant: grantOverviewHubPath()
 }
 
 function toLabel(segment: string): string {
@@ -40,18 +55,14 @@ export function buildSectionEntryBreadcrumbs(
   return [
     { name: homeLabel, href: localizeRoute('', routeLocale) },
     ...parentParts.map((_, i) => {
-      const segments = parentParts.slice(0, i + 1)
-      // Hackathon has no landing page at its route base (see MicrositeHeader),
-      // so its section-root breadcrumb must link straight to the overview
-      // page instead of a bare path that only exists as a redirect.
-      const isHackathonRoot = i === 0 && section === 'hackathon'
-      const routePath = isHackathonRoot
-        ? [...segments, HACKATHON_HOME_SLUG].join('/')
-        : segments.join('/')
+      const segmentPath = parentParts.slice(0, i + 1).join('/')
 
       return {
         name: toLabel(parentParts[i]),
-        href: localizeRoute(routePath, routeLocale)
+        href: localizeRoute(
+          ROOT_LANDING_PATHS[segmentPath] ?? segmentPath,
+          routeLocale
+        )
       }
     }),
     { name: label, href: localizeRoute(fullPath, routeLocale) }
