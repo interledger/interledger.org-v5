@@ -1,52 +1,30 @@
 /**
- * Background color palette for profile avatars and hero headers.
+ * Foreground/background color pairs for profile avatars and hero headers.
  *
- * 16-color sequence applied by a profile's render position in the grid.
+ * 12-pair sequence from design — avatar circle uses the saturated foreground;
+ * detail-page hero banner uses the lighter background tint. Position in the
+ * grid determines which pair applies (index % 12).
  */
 
-const PROFILE_AVATAR_COLORS = [
-  'bg-orchid-100',
-  'bg-sea-foam-100',
-  'bg-emerald-100',
-  'bg-coral-red-100',
-  'bg-periwinkle-100',
-  'bg-deep-teal-100',
-  'bg-tangerine-100',
-  'bg-raspberry-100',
-  'bg-lavender-100',
-  'bg-lagoon-100',
-  'bg-apricot-100',
-  'bg-flamingo-100',
-  'bg-soft-indigo-100',
-  'bg-pistachio-100',
-  'bg-aqua-mint-100',
-  'bg-blush-100'
-] as const
-
-/** Lighter tint of the same palette, for hero banners behind a profile's content. */
-const PROFILE_HERO_COLORS = [
-  'bg-orchid-100/20',
-  'bg-sea-foam-100/20',
-  'bg-emerald-100/20',
-  'bg-coral-red-100/20',
-  'bg-periwinkle-100/20',
-  'bg-deep-teal-100/20',
-  'bg-tangerine-100/20',
-  'bg-raspberry-100/20',
-  'bg-lavender-100/20',
-  'bg-lagoon-100/20',
-  'bg-apricot-100/20',
-  'bg-flamingo-100/20',
-  'bg-soft-indigo-100/20',
-  'bg-pistachio-100/20',
-  'bg-aqua-mint-100/20',
-  'bg-blush-100/20'
+const PROFILE_COLOR_PAIRS = [
+  { avatar: 'bg-lavender-100', hero: 'bg-aqua-mint-50' },
+  { avatar: 'bg-soft-indigo-100', hero: 'bg-blush-50' },
+  { avatar: 'bg-flamingo-100', hero: 'bg-pistachio-50' },
+  { avatar: 'bg-coral-red-100', hero: 'bg-apricot-50' },
+  { avatar: 'bg-flamingo-100', hero: 'bg-aqua-mint-50' },
+  { avatar: 'bg-emerald-100', hero: 'bg-blush-50' },
+  { avatar: 'bg-tangerine-100', hero: 'bg-pistachio-50' },
+  { avatar: 'bg-soft-indigo-100', hero: 'bg-apricot-50' },
+  { avatar: 'bg-tangerine-100', hero: 'bg-aqua-mint-50' },
+  { avatar: 'bg-coral-red-100', hero: 'bg-blush-50' },
+  { avatar: 'bg-lavender-100', hero: 'bg-pistachio-50' },
+  { avatar: 'bg-emerald-100', hero: 'bg-apricot-50' }
 ] as const
 
 export function getProfileAvatarColorClass(index: number): string {
-  return PROFILE_AVATAR_COLORS[index % PROFILE_AVATAR_COLORS.length]
+  return PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length].avatar
 }
 
 export function getProfileHeroColorClass(index: number): string {
-  return PROFILE_HERO_COLORS[index % PROFILE_HERO_COLORS.length]
+  return PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length].hero
 }
