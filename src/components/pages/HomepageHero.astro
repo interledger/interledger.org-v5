@@ -148,16 +148,12 @@ const heroUmami = (href: string, linkText: string) =>
     >
       <h1
         id="home-hero-title"
-        class="text-h2 tablet:text-h2-md desktop:text-h2-lg"
+        class="text-h2 tablet:text-h2-md desktop:text-h1-md"
       >
-        <span class="inline desktop:block"
-          >{t('homepageHero.title_lead')}
-        </span>
+        <span>{t('homepageHero.title_lead')} </span>
         {
           titleAccent && (
-            <span class="inline text-aqua-mint-100 desktop:block">
-              {titleAccent}
-            </span>
+            <span class="text-aqua-mint-100">{titleAccent}</span>
           )
         }
       </h1>

@@ -290,8 +290,8 @@ export const ui = {
     'roadmap.empty_state_link_text': 'GitHub organisation',
     'roadmap.empty_state_post': 'for the latest project status.',
     'roadmap.refreshed_at': 'Roadmap data refreshed at:',
-    'homepageHero.title_lead': 'Rewriting the rules that move money',
-    'homepageHero.title_accent': '',
+    'homepageHero.title_lead': 'Rewriting the rules that',
+    'homepageHero.title_accent': 'move money',
     'homepageHero.description':
       'We build open infrastructure, fund the people implementing it, and collaborate with regulators and institutions to make open financial systems work in the real world.',
     'homepageHero.cta_explore_tech': 'Explore our Tech',
@@ -640,8 +640,8 @@ export const ui = {
     'roadmap.empty_state_link_text': '',
     'roadmap.empty_state_post': '',
     'roadmap.refreshed_at': '',
-    'homepageHero.title_lead': 'Reescribiendo las reglas que mueven el dinero',
-    'homepageHero.title_accent': '',
+    'homepageHero.title_lead': 'Reescribiendo las reglas que',
+    'homepageHero.title_accent': 'mueven el dinero',
     'homepageHero.description':
       'Construimos infraestructura abierta, financiamos a quienes la implementan y colaboramos con reguladores e instituciones para que los sistemas financieros abiertos funcionen en el mundo real.',
     'homepageHero.cta_explore_tech': 'Explora nuestra tecnología',
