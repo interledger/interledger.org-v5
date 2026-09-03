@@ -13,6 +13,7 @@ export {
   hasUrlScheme,
   ensureAbsoluteUrl,
   isSafeMarkdownHref,
+  safeAbsoluteHref,
   isExternalHref,
   getHostname,
   getSocialIconName,

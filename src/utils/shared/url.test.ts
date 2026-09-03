@@ -4,6 +4,7 @@ import {
   ensureLeadingSlash,
   hasUrlScheme,
   isSafeMarkdownHref,
+  safeAbsoluteHref,
   isExternalHref,
   getHostname,
   getSocialIconName
@@ -158,6 +159,34 @@ describe('isSafeMarkdownHref', () => {
     // normalizing them (only TAB/LF/CR are actually stripped per spec), but
     // treating them as suspicious rather than "no scheme" is the safer call.
     expect(isSafeMarkdownHref('java\x1bscript:alert(1)')).toBe(false)
+  })
+})
+
+describe('safeAbsoluteHref', () => {
+  it('returns null for missing or whitespace-only input', () => {
+    expect(safeAbsoluteHref(undefined)).toBeNull()
+    expect(safeAbsoluteHref(null)).toBeNull()
+    expect(safeAbsoluteHref('')).toBeNull()
+    expect(safeAbsoluteHref('   ')).toBeNull()
+  })
+
+  it('returns null for rejected schemes', () => {
+    expect(safeAbsoluteHref('javascript:alert(1)')).toBeNull()
+    expect(
+      safeAbsoluteHref('data:text/html,<script>alert(1)</script>')
+    ).toBeNull()
+  })
+
+  it('absolutizes a bare host', () => {
+    expect(safeAbsoluteHref('linkedin.com/in/jane')).toBe(
+      'https://linkedin.com/in/jane'
+    )
+  })
+
+  it('leaves an already-absolute https URL untouched', () => {
+    expect(safeAbsoluteHref('https://example.com/jane')).toBe(
+      'https://example.com/jane'
+    )
   })
 })
 

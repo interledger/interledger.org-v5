@@ -4,8 +4,7 @@ import {
   useTranslations,
   formatDate,
   twMerge,
-  ensureAbsoluteUrl,
-  isSafeMarkdownHref,
+  safeAbsoluteHref,
   buildUmamiAttrs
 } from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -26,20 +25,20 @@ const bylineClasses = twMerge(
   'flex flex-col gap-md text-neutral-100 **:text-body-sm-standard tablet:flex-row tablet:flex-wrap tablet:gap-xl',
   classes
 )
-const authorLink =
-  bio?.link && isSafeMarkdownHref(bio.link)
-    ? {
-        href: ensureAbsoluteUrl(bio.link),
-        umami: buildUmamiAttrs({
-          pathname: Astro.url.pathname,
-          lang: routeLocale,
-          label: 'link',
-          baseComponent: 'blog',
-          href: bio.link,
-          linkText: bio.author
-        })
-      }
-    : null
+const authorHref = safeAbsoluteHref(bio?.link)
+const authorLink = authorHref
+  ? {
+      href: authorHref,
+      umami: buildUmamiAttrs({
+        pathname: Astro.url.pathname,
+        lang: routeLocale,
+        label: 'link',
+        baseComponent: 'blog',
+        href: authorHref,
+        linkText: bio?.author ?? ''
+      })
+    }
+  : null
 const AuthorWrap = authorLink ? 'a' : 'div'
 const authorWrapProps =
   bio && authorLink

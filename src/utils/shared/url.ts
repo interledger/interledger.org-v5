@@ -93,6 +93,18 @@ export function isSafeMarkdownHref(href: string): boolean {
   return SAFE_MARKDOWN_HREF_SCHEMES.has(`${match[1].toLowerCase()}:`)
 }
 
+/**
+ * Absolute href for an editor-supplied URL, or `null` if missing or using a
+ * rejected scheme (`javascript:`, `data:`, …).
+ */
+export function safeAbsoluteHref(
+  href: string | null | undefined
+): string | null {
+  if (!href?.trim()) return null
+  if (!isSafeMarkdownHref(href)) return null
+  return ensureAbsoluteUrl(href)
+}
+
 /** True when `href` is an absolute http(s) URL (used for target=_blank / rel). */
 export function isExternalHref(href: string): boolean {
   return /^https?:\/\//i.test(href)
