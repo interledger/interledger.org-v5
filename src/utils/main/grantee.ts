@@ -55,7 +55,7 @@ export interface Grantee {
   leaders: string[]
   tags: string[]
   description: string | null
-  projectUrl: string | null
+  projectUrls: string[]
   budget: number | null
   budgetLabel: string | null
   searchText: string
@@ -149,12 +149,10 @@ function asFiniteNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined
 }
 
-function parseProjectUrl(value: unknown): string | null {
-  const raw = asTrimmedString(value)
-  if (!raw) return null
-  const href = ensureAbsoluteUrl(raw)
-  if (!isSafeMarkdownHref(href) || !isExternalHref(href)) return null
-  return href
+function parseProjectUrls(value: unknown): string[] {
+  return asStringList(value)
+    .map((raw) => ensureAbsoluteUrl(raw))
+    .filter((href) => isSafeMarkdownHref(href) && isExternalHref(href))
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -203,7 +201,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     leaders,
     tags,
     description,
-    projectUrl: parseProjectUrl(fields['Project Links']),
+    projectUrls: parseProjectUrls(fields['Project Links']),
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),
     searchText

@@ -28,7 +28,7 @@ const sample = record({
   'Project Leader': ['Ada Lovelace'],
   'Thematic Tag': ['Financial Services', 'OpenSource'],
   'Project Description': 'Building a clearing house for open payments.',
-  'Project Links': 'https://community.interledger.org/example',
+  'Project Links': ['https://community.interledger.org/example'],
   'Total budget approved': 750000
 })
 
@@ -117,19 +117,24 @@ describe('parseGranteeRecords', () => {
       [
         record({
           'Project Name': 'No link',
-          'Project Links': 'javascript:alert(1)'
+          'Project Links': ['javascript:alert(1)']
         }),
         record({
           'Project Name': 'Empty link',
-          'Project Links': '   '
+          'Project Links': ['   ']
+        }),
+        record({
+          'Project Name': 'No links at all',
+          'Project Links': []
         })
       ],
       'en'
     )
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
-    expect(result[0]?.projectUrl).toBeNull()
-    expect(result[1]?.projectUrl).toBeNull()
+    expect(result[0]?.projectUrls).toEqual([])
+    expect(result[1]?.projectUrls).toEqual([])
+    expect(result[2]?.projectUrls).toEqual([])
   })
 
   it('sorts newest start month first, then by name', () => {
@@ -233,7 +238,7 @@ describe('matchesGranteeFilters', () => {
     leaders: ['Ada Lovelace'],
     tags: ['Privacy'],
     description: 'Open payments clearing house',
-    projectUrl: 'https://community.interledger.org/example',
+    projectUrls: ['https://community.interledger.org/example'],
     budget: 750000,
     budgetLabel: '750 000',
     searchText:
