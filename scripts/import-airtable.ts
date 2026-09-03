@@ -9,6 +9,9 @@ const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const EXCLUDED_FIELD_ID = 'fldirPGzYo96I1Hsu' // Project field in Projects table
 const PROJECT_LEADER_FIELD_ID = 'fldKLOR55uQPb5BHG' // Project Leader field in Projects table
+const PUBLISHED_ON_WEBSITE_FIELD_NAME = 'Published on Website'
+const PUBLISHED_ON_WEBSITE_VALUE = 'Published on Website'
+const PROJECT_NAME_FIELD_NAME = 'Project Name'
 
 function assertString(value: unknown, context: string): string {
   if (typeof value !== 'string') {
@@ -36,8 +39,25 @@ function isTableRecord(value: unknown): value is TableRecord {
     return false
   if (typeof v.fields !== 'object' || v.fields === null) return false
   const fields = v.fields as Record<string, unknown>
+  // Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
+  const projectName = fields[PROJECT_NAME_FIELD_NAME]
+  const recordLabel =
+    typeof projectName === 'string' ? `${projectName} (ID: ${v.id})` : v.id
   for (const key in fields) {
     const fieldValue = fields[key]
+    // A broken Airtable formula returns { error: '#ERROR!' } instead of a
+    // string/number. Drop it and warn rather than failing the whole sync.
+    if (
+      typeof fieldValue === 'object' &&
+      fieldValue !== null &&
+      typeof (fieldValue as { error?: unknown }).error === 'string'
+    ) {
+      console.warn(
+        `⚠️  Formula error in field "${key}" for record ${recordLabel}: ${(fieldValue as { error: string }).error} — field omitted`
+      )
+      delete fields[key]
+      continue
+    }
     if (
       typeof fieldValue !== 'string' &&
       typeof fieldValue !== 'number' &&
@@ -57,6 +77,15 @@ async function writeAirtableJson(data: TableRecord[]) {
 
   await fs.writeFile(filePath, JSON.stringify(data, null, 2))
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
+}
+
+// Only records marked 'Published on Website' in Airtable are written to grantee-data.json.
+function filterPublishedRecords(data: TableRecord[]): TableRecord[] {
+  return data.filter(
+    (record) =>
+      record.fields[PUBLISHED_ON_WEBSITE_FIELD_NAME] ===
+      PUBLISHED_ON_WEBSITE_VALUE
+  )
 }
 
 function resolveProjectLeaders(
@@ -197,10 +226,11 @@ async function importAirtableData() {
     'Project Leader field'
   ).name
 
-  const granteeData: TableRecord[] = await fetchGranteeRecords(
+  const allGranteeData: TableRecord[] = await fetchGranteeRecords(
     granteeView,
     apiToken
   )
+  const granteeData = filterPublishedRecords(allGranteeData)
   // Airtable returns linked records as IDs; resolve Project Leader IDs to contact names.
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
   const finalGranteeData = resolveProjectLeaders(
