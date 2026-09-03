@@ -3,7 +3,11 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import { resolveCtaLink } from '@/utils'
+import {
+  resolveCtaLink,
+  PAGE_HERO_MOBILE_MEDIA,
+  PAGE_HERO_DESKTOP_MEDIA
+} from '@/utils'
 
 interface HeroCta {
   text: string
@@ -148,7 +152,7 @@ const parallaxImgClass = isWideBand
     (image || imageMobile) && (
       <div
         class:list={[
-          'parallax-wrapper relative w-full overflow-hidden bg-neutral-900',
+          'parallax-wrapper relative w-full overflow-hidden bg-neutral-100',
           bandClass
         ]}
         data-image-band={imageBand}
@@ -162,16 +166,20 @@ const parallaxImgClass = isWideBand
               height={480}
               loading="eager"
               fetchpriority="high"
+              decoding="sync"
+              media={PAGE_HERO_MOBILE_MEDIA}
               pictureClass={parallaxPictureClass}
               class:list={[parallaxImgClass, 'block tablet:hidden']}
             />
             <OptimizedImage
-              src={image ?? imageMobile!}
+              src={image || imageMobile!}
               alt={imageAlt ?? ''}
               width={1920}
               height={940}
               loading="eager"
               fetchpriority="high"
+              decoding="sync"
+              media={PAGE_HERO_DESKTOP_MEDIA}
               pictureClass={parallaxPictureClass}
               class:list={[parallaxImgClass, 'hidden tablet:block']}
             />
@@ -184,6 +192,7 @@ const parallaxImgClass = isWideBand
             height={940}
             loading="eager"
             fetchpriority="high"
+            decoding="sync"
             pictureClass={parallaxPictureClass}
             class={parallaxImgClass}
           />

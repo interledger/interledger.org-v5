@@ -80,9 +80,19 @@ const breadcrumbs = [
   { name: t('nav.home'), href: localizeRoute('', routeLocale) },
   { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
+
+const heroLcpPreload =
+  heroTitle && (heroImage || heroImageMobile)
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
 ---
 
-<FoundationPageLayout title={title} description={description} noindex={noindex}>
+<FoundationPageLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  heroLcpPreload={heroLcpPreload}
+>
   <main class="page-stack pb-section" data-pillar="mission">
     {
       heroTitle ? (

@@ -88,9 +88,18 @@ const textSectionHtml =
         lang: routeLocale
       })
     : undefined
+
+const heroLcpPreload =
+  isLandingPage && (heroImage || heroImageMobile)
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
 ---
 
-<FoundationPageLayout title={pageTitle} description={pageDescription}>
+<FoundationPageLayout
+  title={pageTitle}
+  description={pageDescription}
+  heroLcpPreload={heroLcpPreload}
+>
   <main class="page-stack pb-section">
     <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
