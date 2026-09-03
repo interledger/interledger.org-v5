@@ -30,9 +30,19 @@ export const HOMEPAGE_HERO_TABLET_MIN = 810
  * `PageHero`'s mobile/desktop split. Shared by `PageHero.astro` (the real
  * `<picture>` `media` gating) and `heroLcpPreload.ts` (the matching `<link
  * rel="preload">`) so the two can't drift onto different breakpoints.
+ *
+ * Range syntax (`width < N` / `width >= N`) avoids 1px gaps from pairing
+ * `max-width: N-1` with `min-width: N` on fractional viewports.
  */
-export const PAGE_HERO_MOBILE_MEDIA = `(max-width: ${HOMEPAGE_HERO_TABLET_MIN - 1}px)`
-export const PAGE_HERO_DESKTOP_MEDIA = `(min-width: ${HOMEPAGE_HERO_TABLET_MIN}px)`
+export const PAGE_HERO_MOBILE_MEDIA = `(width < ${HOMEPAGE_HERO_TABLET_MIN}px)`
+export const PAGE_HERO_DESKTOP_MEDIA = `(width >= ${HOMEPAGE_HERO_TABLET_MIN}px)`
+
+/** Homepage Stefan hero on tablet+ when no separate 4K source is deployed. */
+export const HOMEPAGE_HERO_STANDARD_MEDIA = `(width >= ${HOMEPAGE_HERO_TABLET_MIN}px)`
+/** Standard hero source: tablet through sub-4K viewports (complements high-res). */
+export const HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA = `(width >= ${HOMEPAGE_HERO_TABLET_MIN}px) and (width < ${HERO_TV_MIN_WIDTH}px)`
+/** 4K homepage hero source; complements `HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA`. */
+export const HOMEPAGE_HERO_HIGHRES_MEDIA = `(width >= ${HERO_TV_MIN_WIDTH}px)`
 
 export interface HomepageHeroPictureConfig {
   primarySrc: string
@@ -48,13 +58,13 @@ export function getHomepageHeroPictureConfig(): HomepageHeroPictureConfig {
     getOptimizedImage(HERO_HIGHRES_SRC, TARGET_WIDTHS)
   )
   const heroMedia = useHighRes
-    ? `(min-width: ${HOMEPAGE_HERO_TABLET_MIN}px) and (max-width: ${HERO_TV_MIN_WIDTH - 1}px)`
-    : `(min-width: ${HOMEPAGE_HERO_TABLET_MIN}px)`
+    ? HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA
+    : HOMEPAGE_HERO_STANDARD_MEDIA
   const alternateSources = useHighRes
     ? [
         {
           src: HERO_HIGHRES_SRC,
-          media: `(min-width: ${HERO_TV_MIN_WIDTH}px)`,
+          media: HOMEPAGE_HERO_HIGHRES_MEDIA,
           sizes: heroSizes,
           widths: TARGET_WIDTHS,
           intrinsicWidth: HERO_HIGHRES_INTRINSIC_WIDTH

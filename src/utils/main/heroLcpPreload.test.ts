@@ -8,7 +8,10 @@ import {
 } from './images'
 import {
   getHomepageHeroPictureConfig,
-  HOMEPAGE_HERO_TABLET_MIN
+  PAGE_HERO_MOBILE_MEDIA,
+  PAGE_HERO_DESKTOP_MEDIA,
+  HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA,
+  HOMEPAGE_HERO_HIGHRES_MEDIA
 } from './homepageHeroImage'
 import {
   getHomepageHeroPreloadLinks,
@@ -44,6 +47,15 @@ describe('getHomepageHeroPreloadLinks', () => {
       imageSrcset: expectedSrcset
     })
   })
+
+  it('uses exact-complement TV breakpoint media when high-res is deployed', () => {
+    const { heroMedia, alternateSources } = getHomepageHeroPictureConfig()
+    const links = getHomepageHeroPreloadLinks()
+
+    expect(heroMedia).toBe(HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA)
+    expect(alternateSources?.[0]?.media).toBe(HOMEPAGE_HERO_HIGHRES_MEDIA)
+    expect(links[1]?.media).toBe(HOMEPAGE_HERO_HIGHRES_MEDIA)
+  })
 })
 
 describe('getPageHeroPreloadLinks', () => {
@@ -69,10 +81,8 @@ describe('getPageHeroPreloadLinks', () => {
     })
 
     expect(links).toHaveLength(2)
-    expect(links[0]?.media).toBe(
-      `(max-width: ${HOMEPAGE_HERO_TABLET_MIN - 1}px)`
-    )
-    expect(links[1]?.media).toBe(`(min-width: ${HOMEPAGE_HERO_TABLET_MIN}px)`)
+    expect(links[0]?.media).toBe(PAGE_HERO_MOBILE_MEDIA)
+    expect(links[1]?.media).toBe(PAGE_HERO_DESKTOP_MEDIA)
   })
 
   it('returns a single preload for a desktop-only hero image', () => {
