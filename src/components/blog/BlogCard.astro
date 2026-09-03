@@ -44,7 +44,7 @@ const cardClasses = twMerge(
     'pb-2xl border-b border-neutral-25 desktop:flex-row desktop:justify-between desktop:gap-3xl'
 )
 const cardHeaderClasses = twMerge(
-  'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 group-[&:hover:not(:has(.card-nested:hover))]/card:decoration-inherit desktop:text-h4-lg',
+  'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover-hover:group-[&:hover:not(:has(.card-nested:hover))]/card:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'
 )
 // Full-width image below desktop, side-by-side ~30% column from desktop.
@@ -53,7 +53,7 @@ const cardHeaderClasses = twMerge(
 const cardImageClasses =
   'object-cover rounded-3xl w-full aspect-240/140 max-h-[220px] tablet:max-h-[400px] desktop:max-h-[220px]'
 const cardImageBorderClasses =
-  'pointer-events-none absolute inset-0 z-1 rounded-3xl border-[3px] border-transparent transition-colors duration-200 group-[&:hover:not(:has(.card-nested:hover))]/card:border-orchid-100'
+  'pointer-events-none absolute inset-0 z-1 rounded-3xl border-[3px] border-transparent transition-colors duration-200 hover-hover:group-[&:hover:not(:has(.card-nested:hover))]/card:border-orchid-100'
 const cardBodyClasses = twMerge(
   'flex w-full flex-col gap-lg [&_a]:relative [&_a]:z-1',
   !featured && 'desktop:basis-[70%]'
