@@ -1,0 +1,7 @@
+{
+  "name": "netlify-plugin-robots-header",
+  "version": "1.0.0",
+  "description": "Noindex non-production deploys (staging, branch deploys, previews) without blocking production from search indexing",
+  "type": "module",
+  "main": "index.js"
+}
