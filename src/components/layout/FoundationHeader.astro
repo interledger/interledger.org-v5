@@ -65,7 +65,8 @@ const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
 const ctaLink = (href: string, linkText?: string) =>
   buildNavCtaUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 
-const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
+const headerClass =
+  'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl max-desktop:h-(--site-header-height) desktop:h-(--site-header-height-desktop)'
 ---
 
 <header
@@ -74,17 +75,17 @@ const headerClass = 'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl'
   data-component="FoundationHeader"
 >
   <nav
-    class="mx-auto w-full max-w-wide flex items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:gap-xl desktop:h-(--site-header-height-desktop) max-desktop:h-(--site-header-height)"
+    class="mx-auto flex h-full w-full max-w-wide items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:grid-rows-1 desktop:items-center desktop:gap-xl"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
   >
-    <h2 class="sr-only" id="block-interledger-mainnavigation-menu">
+    <h2 class="sr-only desktop:col-start-1 desktop:row-start-1" id="block-interledger-mainnavigation-menu">
       {navLabel}
     </h2>
     <a
       href={homeHref}
-      class="flex-none desktop:col-start-1 desktop:col-end-2 desktop:justify-self-start desktop:z-[1]"
+      class="flex flex-none items-center leading-none py-lg desktop:py-[1.25rem] desktop:col-start-1 desktop:col-end-2 desktop:row-start-1 desktop:justify-self-start desktop:z-[1]"
       aria-label={logoLabel}
       {...navLink(homeHref, undefined, logoLabel)}
     >
