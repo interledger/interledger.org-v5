@@ -5,14 +5,17 @@ import {
   buildUmamiAttrs,
   getBlogThumbnail,
   getBlogPostPath,
-  getReadingTime
+  getReadingTime,
+  translateTerm
 } from '@/utils'
 import type { Locale } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
+import Icon from '@/components/shared/Icon.astro'
 import TaxonomyFilter from '@/components/shared/TaxonomyFilter.astro'
 import ContentLangFilter from './ContentLangFilter.astro'
 import ContentLangNotice from './ContentLangNotice.astro'
 import BlogCard from './BlogCard.astro'
+import BlogSearchResultTemplate from './BlogSearchResultTemplate.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -50,6 +53,13 @@ const postAttrs = (href: string, linkText: string) =>
     href,
     linkText
   })
+
+const categoryLabels = Object.fromEntries(
+  allTerms.map((term) => [term, translateTerm('blog.categories', term, t)])
+)
+// Not routeLocale-scoped: the index covers both content languages in one
+// file (see blogSearch.ts), so it lives at a single, unprefixed URL.
+const searchIndexUrl = '/blog-search-index.json'
 ---
 
 <h1
@@ -62,24 +72,64 @@ const postAttrs = (href: string, linkText: string) =>
 
 <section
   aria-label={t('aria.blog.filters_label')}
+  data-blog-search-root
+  data-search-index-url={searchIndexUrl}
+  data-selected-content-lang={contentLang}
+  data-pathname={Astro.url.pathname}
+  data-lang={routeLocale}
+  data-category-labels={JSON.stringify(categoryLabels)}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
-  <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+  <div
+    class="flex flex-col gap-md tablet:flex-row tablet:items-center tablet:gap-xl"
+  >
+    <div class="relative w-full max-w-100 tablet:w-100">
+      <label for="blog-search" class="sr-only">
+        {t('blog.search.label')}
+      </label>
+      <Icon
+        name="search"
+        class="pointer-events-none absolute top-1/2 left-lg size-5 -translate-y-1/2 text-neutral-75"
+      />
+      <input
+        id="blog-search"
+        type="search"
+        placeholder={t('blog.search.placeholder')}
+        autocomplete="off"
+        class="w-full rounded-lg border border-neutral-50 bg-white py-md ps-3xl pe-lg text-base text-neutral-900 outline-none transition-colors placeholder:text-neutral-75 focus:border-primary focus:ring-1 focus:ring-primary"
+      />
+    </div>
 
-  <TaxonomyFilter
-    collection="foundation-blog"
-    terms={allTerms}
-    enabledTerms={enabledTerms}
-    selectedTerm={selectedTerm}
-    href={blogIndexHref}
-    contentLangOverride={contentLangOverride}
-  />
+    <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+  </div>
 
-  <ContentLangNotice
-    routeLocale={routeLocale}
-    contentLang={contentLang}
-    totalEntries={totalEntries}
-  />
+  <div data-blog-taxonomy-filter>
+    <TaxonomyFilter
+      collection="foundation-blog"
+      terms={allTerms}
+      enabledTerms={enabledTerms}
+      selectedTerm={selectedTerm}
+      href={blogIndexHref}
+      contentLangOverride={contentLangOverride}
+    />
+  </div>
+
+  <div data-blog-lang-notice>
+    <ContentLangNotice
+      routeLocale={routeLocale}
+      contentLang={contentLang}
+      totalEntries={totalEntries}
+    />
+  </div>
+
+  <p
+    class="m-0 text-body-sm-emphasis text-primary"
+    data-blog-search-count
+    aria-live="polite"
+    data-results-template={t('blog.search.results', { count: '{count}' })}
+    hidden
+  >
+  </p>
 </section>
 
 {
@@ -90,7 +140,15 @@ const postAttrs = (href: string, linkText: string) =>
   )
 }
 
-<ol class="list-none p-0 m-0 flex flex-col gap-2xl">
+<p
+  class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+  data-blog-search-empty
+  hidden
+>
+  {t('blog.search.empty')}
+</p>
+
+<ol class="list-none p-0 m-0 flex flex-col gap-2xl" data-blog-list>
   {
     posts.map((blogPostEntry) => {
       const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
@@ -109,3 +167,16 @@ const postAttrs = (href: string, linkText: string) =>
     })
   }
 </ol>
+
+<ol
+  class="list-none p-0 m-0 flex flex-col gap-2xl"
+  data-blog-search-results
+  hidden
+>
+</ol>
+
+<BlogSearchResultTemplate />
+
+<script>
+  import '@/scripts/blog-search'
+</script>

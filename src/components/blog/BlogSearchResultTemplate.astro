@@ -1,0 +1,61 @@
+---
+/**
+ * Markup source for client-side blog search rows. blog-search.ts clones this
+ * template and fills [data-blog-search-*] slots — keep structure and Tailwind
+ * classes aligned with BlogCard.astro (search rows use a plain <img>, since a
+ * client-rendered row can't run Astro's build-time image pipeline, and static
+ * category pills rather than ArticleCategories' filter links, since category
+ * filtering doesn't apply during search).
+ */
+---
+
+<template id="blog-search-result-template">
+  <li
+    class="flex flex-col-reverse gap-xl m-0 pb-2xl border-b border-neutral-25 desktop:flex-row desktop:justify-between desktop:gap-3xl"
+  >
+    <div class="flex w-full flex-col gap-lg desktop:basis-[70%]">
+      <h3 class="m-0">
+        <a
+          class="text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover:decoration-inherit tablet:text-h4-md desktop:text-h4-lg"
+          data-blog-search-link
+        >
+        </a>
+      </h3>
+      <p
+        class="m-0 text-body-lg-standard text-neutral-75 tablet:text-body-lg-standard-md"
+        data-blog-search-snippet
+      >
+      </p>
+      <ul
+        class="flex flex-wrap gap-xs list-none m-0 p-0"
+        data-blog-search-categories
+        hidden
+      >
+      </ul>
+      <time
+        class="text-body-sm-standard text-neutral-100"
+        data-blog-search-date
+      >
+      </time>
+    </div>
+    <div
+      class="w-full desktop:basis-[30%]"
+      data-blog-search-thumbnail-wrap
+      hidden
+    >
+      <img
+        class="object-cover rounded-3xl w-full aspect-240/140 max-h-[220px] tablet:max-h-[400px] desktop:max-h-[220px]"
+        loading="lazy"
+        data-blog-search-thumbnail
+      />
+    </div>
+  </li>
+</template>
+
+<template data-blog-search-category-template>
+  <li class="m-0">
+    <span
+      class="inline-block px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full bg-transparent"
+    ></span>
+  </li>
+</template>

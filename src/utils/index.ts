@@ -134,6 +134,13 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export {
+  getBlogSearchIndex,
+  matchesBlogSearch,
+  filterBlogPosts,
+  type BlogSearchEntry,
+  type BlogSearchFilters
+} from './main/blogSearch'
+export {
   GRANTEE_PAGE_SIZE,
   ALL_GRANTEE_YEAR_SLUG,
   getGranteeFilterUrl,
