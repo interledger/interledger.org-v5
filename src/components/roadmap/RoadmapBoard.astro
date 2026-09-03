@@ -141,7 +141,7 @@ let projectRowIndex = -1
           <thead>
             <tr>
               <th
-                class="hd-label sticky left-0 z-5 border-r border-gray-200 bg-gray-50 px-md align-middle text-caption desktop:text-body-sm-standard font-semibold uppercase tracking-wide text-gray-600"
+                class="hd-label sticky left-0 z-5 border-r border-gray-200 bg-gray-50 px-md align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600"
                 rowspan="2"
               >
                 Team / Project
@@ -157,7 +157,7 @@ let projectRowIndex = -1
                 quarterHeaders.map((qh, qi) => (
                   <th
                     class:list={[
-                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption desktop:text-body-sm-standard font-semibold uppercase tracking-wide text-gray-600',
+                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600',
                       { 'border-l-2 border-l-gray-300': qi > 0 },
                       {
                         'hd-quarter--current bg-primary/10! text-primary!':
@@ -176,7 +176,7 @@ let projectRowIndex = -1
                 quarterHeaders.map((qh) => (
                   <th
                     class:list={[
-                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption font-semibold uppercase tracking-wide text-gray-600',
+                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption font-bold uppercase tracking-wide text-gray-600',
                       {
                         'hd-quarter--current bg-primary/10! text-primary!':
                           qh.q === nowQuarter && qh.year === nowYear
@@ -211,7 +211,7 @@ let projectRowIndex = -1
                   >
                     {m.label}
                     {m.year === nowYear && m.month === nowMonth && (
-                      <span class="now-badge mx-auto mt-0.5 block w-fit rounded-full bg-primary px-1 py-0.5 text-[0.55rem] font-semibold uppercase tracking-wide text-white">
+                      <span class="now-badge mx-auto mt-0.5 block w-fit rounded-full bg-primary px-1 py-0.5 text-[0.55rem] font-bold uppercase tracking-wide text-white">
                         Now
                       </span>
                     )}
@@ -266,7 +266,7 @@ let projectRowIndex = -1
                 return (
                   <tr aria-label={`Team: ${team.name}`}>
                     <th
-                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-caption desktop:text-body-lg-standard font-semibold uppercase tracking-wider text-gray-700"
+                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-caption desktop:text-body-lg-standard font-bold uppercase tracking-wider text-gray-700"
                       scope="rowgroup"
                     >
                       <div class="inline-flex items-center gap-sm px-md py-xs">
