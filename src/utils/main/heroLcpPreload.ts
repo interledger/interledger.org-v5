@@ -37,12 +37,13 @@ function toAvifPreloadLink(
   sizes: string,
   media?: string
 ): ImagePreloadLink | null {
-  if (image.avifVariants.length === 0) return null
-
-  const imageSrcset = buildImageSrcset(image.avifVariants)
+  const imageSrcset =
+    image.avifVariants.length > 0
+      ? buildImageSrcset(image.avifVariants)
+      : image.avifFullSrc
   const href =
     image.avifVariants[image.avifVariants.length - 1]?.src ?? image.avifFullSrc
-  if (!href) return null
+  if (!imageSrcset || !href) return null
 
   return {
     href,

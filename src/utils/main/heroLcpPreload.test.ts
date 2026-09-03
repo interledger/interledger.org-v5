@@ -3,7 +3,8 @@ import {
   buildImageSrcset,
   getOptimizedImage,
   setDeployedImageSourcesForTests,
-  setImageCdnEnabledForTests
+  setImageCdnEnabledForTests,
+  setOptimizedImageVariantCatalogForTests
 } from './images'
 import {
   getHomepageHeroPictureConfig,
@@ -53,6 +54,7 @@ describe('getPageHeroPreloadLinks', () => {
   afterEach(() => {
     setImageCdnEnabledForTests(null)
     setDeployedImageSourcesForTests(null)
+    setOptimizedImageVariantCatalogForTests(null)
   })
 
   it('returns separate mobile and desktop preloads when both images are set', () => {
@@ -86,6 +88,27 @@ describe('getPageHeroPreloadLinks', () => {
 
   it('returns nothing when no hero images are provided', () => {
     expect(getPageHeroPreloadLinks({})).toEqual([])
+  })
+
+  it('preloads avifFullSrc when the catalog has no sized AVIF variants', () => {
+    setImageCdnEnabledForTests(false)
+    setOptimizedImageVariantCatalogForTests([
+      '/img/optimized/uploads/hero-full.webp',
+      '/img/optimized/uploads/hero-full.avif'
+    ])
+
+    const links = getPageHeroPreloadLinks({
+      image: '/uploads/img/original/hero.jpg'
+    })
+
+    expect(links).toEqual([
+      {
+        href: '/img/optimized/uploads/hero-full.avif',
+        imageSrcset: '/img/optimized/uploads/hero-full.avif',
+        imageSizes: '100vw',
+        type: 'image/avif'
+      }
+    ])
   })
 })
 
