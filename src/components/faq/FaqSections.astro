@@ -81,7 +81,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
             class="flex w-full list-none cursor-pointer items-center justify-between gap-sm rounded-lg border-b-2 border-transparent bg-neutral-25 px-lg py-md text-left [&::-webkit-details-marker]:hidden group-open/section:rounded-b-none group-open/section:border-link dark:bg-neutral-100 tablet:cursor-default tablet:rounded-none tablet:border-none tablet:bg-transparent dark:tablet:bg-transparent tablet:px-0 tablet:py-0 tablet:pointer-events-none"
             {...faqToggleAttrs(section.heading)}
           >
-            <h2 class="text-h4-md text-neutral-100 mb-0 group-open/section:text-link tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg dark:text-neutral-0 dark:tablet:group-open/section:text-neutral-0">
+            <h2 class="text-h3 text-neutral-100 mb-0 group-open/section:text-link tablet:group-open/section:text-neutral-100 tablet:text-h3-md tablet:text-neutral-900 desktop:text-h3-lg dark:text-neutral-0 dark:tablet:group-open/section:text-neutral-0">
               {section.heading}
             </h2>
             <Icon
@@ -89,11 +89,11 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
               class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/section:rotate-180 group-open/section:text-link dark:text-neutral-0 tablet:hidden"
             />
           </summary>
-          <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0 dark:border-neutral-75">
+          <div class="flex flex-col gap-lg rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl tablet:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0 dark:border-neutral-75">
             {section.items.map((item) => (
               <details
                 data-faq-mobile-item
-                class="group/item w-full border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl open:pb-2xl tablet:open:pb-xl dark:border-neutral-75"
+                class="group/item w-full border-b border-neutral-25 pb-lg first:pt-0 last:border-b-0 last:pb-0 tablet:pb-xl dark:border-neutral-75"
               >
                 <summary
                   class="flex w-full cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden"
@@ -109,7 +109,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                 </summary>
                 <div
                   data-prose-faq
-                  class="text-neutral-75 mt-md mb-0 pb-0 dark:text-neutral-50 [&_p]:text-h5-md [&_a]:text-h5-md [&_li]:text-h5-md [&_p]:desktop:text-h5-md [&_a]:desktop:text-h5-md [&_li]:desktop:text-h5-md [&_p]:m-0 [&_ul]:m-0 [&_ol]:m-0 [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit [&_.table-scroll:last-child]:mb-0 [&_.table-scroll:last-child]:[margin-block-end:0] [&_:is(p,ul,ol):last-child]:mb-0"
+                  class="text-neutral-75 mt-md dark:text-neutral-50 [&_:is(p,a,li)]:text-h5 [&_:is(p,a,li)]:tablet:text-h5-md [&_:is(p,a,li)]:desktop:text-h5-lg [&_p:last-of-type]:m-0 [&_ul:last-of-type]:m-0 [&_ol:last-of-type]:m-0 [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit [&_.table-scroll:last-child]:mb-0 [&_.table-scroll:last-child]:[margin-block-end:0] [&_:is(p,ul,ol):last-child]:mb-0"
                   set:html={item.answerHtml}
                 />
               </details>
