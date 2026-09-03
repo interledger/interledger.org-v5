@@ -3,7 +3,9 @@ import {
   useTranslations,
   COLLECTION_INDEX_SLUG,
   translatePath,
-  formatDate
+  formatDate,
+  PAGE_HERO_MOBILE_MEDIA,
+  PAGE_HERO_DESKTOP_MEDIA
 } from '@/utils'
 import type { FoundationBlogFrontmatterType } from '@/schemas/content.ts'
 import ArticleCategories from '@/components/blog/ArticleCategories.astro'
@@ -99,6 +101,8 @@ const blogPath = translatePath(
                 height={FEATURE_MOBILE.height}
                 loading="eager"
                 fetchpriority="high"
+                decoding="sync"
+                media={PAGE_HERO_MOBILE_MEDIA}
                 class="w-full h-auto rounded-3xl"
                 pictureClass="tablet:hidden"
               />
@@ -109,6 +113,8 @@ const blogPath = translatePath(
                 height={FEATURE_DESKTOP.height}
                 loading="eager"
                 fetchpriority="high"
+                decoding="sync"
+                media={PAGE_HERO_DESKTOP_MEDIA}
                 class="w-full h-auto rounded-3xl"
                 pictureClass="hidden tablet:block"
               />
@@ -121,6 +127,7 @@ const blogPath = translatePath(
               height={FEATURE_DESKTOP.height}
               loading="eager"
               fetchpriority="high"
+              decoding="sync"
               class="w-full h-auto rounded-3xl"
             />
           )

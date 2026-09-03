@@ -356,8 +356,9 @@ const DELIVERABLE_SOURCE_FORMATS: Record<string, ImageCdnFormat> = {
  * source missing from this deploy keeps degrading to a plain `<img>` rather than
  * gaining a rung that would 404.
  *
- * Applied by `OptimizedImage.astro` via the `intrinsicWidth` field on an
- * alternate source; components should not call this directly.
+ * Called through `resolveOptimizedImage()`, which every consumer that needs
+ * an intrinsic-width rung (`OptimizedImage.astro`, the hero LCP preload
+ * builder) goes through — don't call this directly elsewhere.
  */
 export function withIntrinsicWidthRung(
   image: OptimizedImage,
@@ -394,4 +395,21 @@ export function withIntrinsicWidthRung(
     avifVariants: [...downscales(image.avifVariants), avifRung],
     avifFullSrc: avifRung.src
   }
+}
+
+/**
+ * Resolves a source through `getOptimizedImage`, then collapses its top rung
+ * to `intrinsicWidth` when given. The one place that combines the two, so
+ * `OptimizedImage.astro` (the real `<picture>`) and the hero LCP preload
+ * builder (`heroLcpPreload.ts`) can't resolve the same source differently.
+ */
+export function resolveOptimizedImage(
+  src: string,
+  widths?: readonly number[],
+  intrinsicWidth?: number
+): OptimizedImage {
+  const image = getOptimizedImage(src, widths)
+  return intrinsicWidth
+    ? withIntrinsicWidthRung(image, src, intrinsicWidth)
+    : image
 }
