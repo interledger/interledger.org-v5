@@ -271,7 +271,9 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
 
 <script>
   import '@/scripts/grantee-description'
-  import '@/scripts/grantee-search'
+  import { initGranteeSearch } from '@/scripts/grantee-search'
+
+  initGranteeSearch()
 
   const details = document.querySelector<HTMLDetailsElement>(
     '[data-grantee-year-details]'

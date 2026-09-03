@@ -16,7 +16,7 @@ let cachedIndex: GranteeSearchEntry[] | null = null
 let cachedIndexUrl: string | null = null
 let fetchPromise: Promise<GranteeSearchEntry[]> | null = null
 
-async function loadIndex(url: string): Promise<GranteeSearchEntry[]> {
+export async function loadIndex(url: string): Promise<GranteeSearchEntry[]> {
   if (cachedIndex && cachedIndexUrl === url) return cachedIndex
 
   fetchPromise ??= fetch(url)
@@ -40,7 +40,7 @@ async function loadIndex(url: string): Promise<GranteeSearchEntry[]> {
   return fetchPromise
 }
 
-function updateUrlQuery(query: string) {
+export function updateUrlQuery(query: string) {
   const url = new URL(window.location.href)
   if (query) {
     url.searchParams.set(QUERY_PARAM, query)
@@ -55,7 +55,60 @@ function trackSearch(query: string) {
   window.umami?.track('grantee_search', { query })
 }
 
-function initGranteeSearch(): void {
+/** URL's `?q=` value on load, or `''` when absent — drives initial search hydration. */
+export function parseInitialQuery(href: string): string {
+  return new URL(href).searchParams.get(QUERY_PARAM) ?? ''
+}
+
+/** Fills `{count}` in a results-count template, e.g. `"{count} grantees found"`. */
+export function formatResultsCount(template: string, count: number): string {
+  return template.replace('{count}', String(count))
+}
+
+export interface GranteeSearchViewState {
+  staticHidden: boolean
+  emptyHidden: boolean
+  resultsHidden: boolean
+  paginationHidden: boolean
+}
+
+type GranteeSearchViewMode =
+  | {
+      mode: 'static'
+      initialStaticHidden: boolean
+      initialEmptyHidden: boolean
+    }
+  | { mode: 'results'; resultsCount: number }
+
+/**
+ * What the static list, results list, empty state, and pagination should show
+ * for a given mode. Kept pure and separate from the DOM writes in
+ * `showStatic`/`showSearchResults` so the decision — e.g. that pagination
+ * hides during a search but reappears at the page's original static/empty
+ * split once the query is cleared — is testable without a DOM.
+ */
+export function computeSearchViewState(
+  input: GranteeSearchViewMode
+): GranteeSearchViewState {
+  if (input.mode === 'static') {
+    return {
+      staticHidden: input.initialStaticHidden,
+      emptyHidden: input.initialEmptyHidden,
+      resultsHidden: true,
+      paginationHidden: false
+    }
+  }
+
+  const hasResults = input.resultsCount > 0
+  return {
+    staticHidden: true,
+    emptyHidden: hasResults,
+    resultsHidden: !hasResults,
+    paginationHidden: true
+  }
+}
+
+export function initGranteeSearch(): void {
   const root = document.querySelector<HTMLElement>('[data-grantee-search-root]')
   const input = document.getElementById('grantee-search')
   const staticList = document.querySelector<HTMLElement>('[data-grantee-list]')
@@ -110,14 +163,24 @@ function initGranteeSearch(): void {
   }
 
   function setResultsCount(count: number) {
-    resultsCount.textContent = resultsTemplate.replace('{count}', String(count))
+    resultsCount.textContent = formatResultsCount(resultsTemplate, count)
+  }
+
+  function applyViewState(state: GranteeSearchViewState) {
+    staticList.hidden = state.staticHidden
+    emptyState.hidden = state.emptyHidden
+    searchResults.hidden = state.resultsHidden
+    if (pagination) pagination.hidden = state.paginationHidden
   }
 
   function showStatic() {
-    staticList.hidden = initialStaticHidden
-    emptyState.hidden = initialEmptyHidden
-    if (pagination) pagination.hidden = false
-    searchResults.hidden = true
+    applyViewState(
+      computeSearchViewState({
+        mode: 'static',
+        initialStaticHidden,
+        initialEmptyHidden
+      })
+    )
     searchResults.replaceChildren()
     resultsCount.textContent = initialResultsText
   }
@@ -134,17 +197,15 @@ function initGranteeSearch(): void {
   }
 
   function showSearchResults(entries: GranteeSearchEntry[]) {
-    staticList.hidden = true
-    if (pagination) pagination.hidden = true
     const context = searchResultContext()
     searchResults.replaceChildren(
       ...entries.map((entry) =>
         createSearchResultRow(entry, rowTemplate, tagTemplate, context)
       )
     )
-    const hasResults = entries.length > 0
-    searchResults.hidden = !hasResults
-    emptyState.hidden = hasResults
+    applyViewState(
+      computeSearchViewState({ mode: 'results', resultsCount: entries.length })
+    )
     setResultsCount(entries.length)
   }
 
@@ -224,13 +285,9 @@ function initGranteeSearch(): void {
     window.location.assign(url.toString())
   })
 
-  const initialQuery = new URL(window.location.href).searchParams.get(
-    QUERY_PARAM
-  )
+  const initialQuery = parseInitialQuery(window.location.href)
   if (initialQuery) {
     input.value = initialQuery
     void runSearch(initialQuery)
   }
 }
-
-initGranteeSearch()
