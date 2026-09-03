@@ -91,16 +91,15 @@
      parent computes to 700, which the browser then synthesises or maps
      onto 800. 600 is the design-system bold (same as h1/h2). */
   b,
-  strong,
-  .hljs-strong {
+  strong {
     font-weight: 600;
   }
 
-  /* CMS / CKEditor often wraps the whole heading in <strong>. Don't let
-     that stack on the heading's own weight (`bolder` on a 600 h2 → 800).
-     h3 is excluded: prose h3 is the h4 token (400), so strong must stay 600
-     or it looks like regular text. */
-  :is(h1, h2, h4, h5, h6) :is(b, strong) {
+  /* Google Docs paste wraps the whole heading in <strong>. Don't let that
+     stack on a heading that's already 600 (`bolder` on h1/h2 → 800).
+     Prose h3–h6 use the 400 tokens, so strong must stay 600 or it looks
+     like regular text. */
+  :is(h1, h2) :is(b, strong) {
     font-weight: inherit;
   }
 
