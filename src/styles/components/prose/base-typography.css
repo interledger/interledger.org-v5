@@ -23,7 +23,7 @@
       }
     }
 
-    /* H3 headings (visual h4 — regular). `b`/`strong` stay 600 via reset.css. */
+    /* H3 headings (visual h4 — regular weight token) */
     h3 {
       font-size: var(--text-h4);
       line-height: var(--text-h4--line-height);
@@ -40,7 +40,7 @@
       }
     }
 
-    /* H4-H6 headings (visual h5 — regular). `b`/`strong` stay 600 via reset.css. */
+    /* H4–H6 headings (visual h5 — regular weight token) */
     h4,
     h5,
     h6 {
