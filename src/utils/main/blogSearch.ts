@@ -4,6 +4,7 @@ import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
 import { getBlogPostPath, defaultLocale } from './i18'
+import { getOptimizedImage } from './images'
 import type { Locale } from './locales'
 
 // matchesBlogSearch/filterBlogPosts live in blogSearchFilters.ts and are
@@ -42,6 +43,21 @@ function stripMarkdownSyntax(body: string): string {
 }
 
 /**
+ * Client-rendered search rows use a plain <img> (no build-time <picture>
+ * pipeline), so route the thumbnail through the same single-URL-context
+ * pattern as getHeroSectionStyle/VideoEmbed: take the optimized/CDN fullSrc,
+ * falling back to the raw path when optimization isn't available (SVG/GIF
+ * sources, or a source not yet in the deployed-sources catalog).
+ */
+function toSearchThumbnail(
+  thumbnail: BlogThumbnail | null
+): BlogThumbnail | null {
+  if (!thumbnail) return null
+  const fullSrc = getOptimizedImage(thumbnail.src).fullSrc
+  return fullSrc ? { src: fullSrc, alt: thumbnail.alt } : thumbnail
+}
+
+/**
  * Builds the combined EN+ES search catalog. One file for both content
  * languages — unlike routeLocale-scoped endpoints elsewhere, the blog's
  * ContentLangFilter toggle is independent of the site's UI locale, so a
@@ -75,7 +91,7 @@ export async function getBlogSearchIndex(): Promise<BlogSearchEntry[]> {
       categories,
       date: date.toISOString(),
       postPath: getBlogPostPath(post),
-      thumbnail: getBlogThumbnail(post),
+      thumbnail: toSearchThumbnail(getBlogThumbnail(post)),
       locale,
       searchText
     }
