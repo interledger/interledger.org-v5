@@ -1689,7 +1689,6 @@
       "Total budget approved": 68199.32,
       "Thematic Tag": ["Software", "OpenSource"],
       "Project Links": [
-        "See Email,  Feedback and Additional Documents below",
         "https://community.interledger.org/valueflows/valueflows-software-for-distributed-cooperative-economic-activity-on-the-open-web-grant-report-1-3mjk"
       ]
     }
@@ -3219,8 +3218,7 @@
       "Country": "Argentina",
       "Start Month": "2020-10",
       "Total budget approved": 72900,
-      "Thematic Tag": ["Publishing", "Web Monetization", "Women-Led"],
-      "Project Links": ["See attached "]
+      "Thematic Tag": ["Publishing", "Web Monetization", "Women-Led"]
     }
   },
   {
