@@ -30,8 +30,14 @@ describe('matchesBlogSearch', () => {
     expect(matchesBlogSearch(entry, { q: 'payments', lang: 'en' })).toBe(true)
   })
 
-  it('is case-insensitive', () => {
+  it('is case-insensitive on the query', () => {
     const entry = makeEntry()
+    expect(matchesBlogSearch(entry, { q: 'PAYMENTS', lang: 'en' })).toBe(true)
+  })
+
+  it('is case-insensitive on searchText, regardless of its casing', () => {
+    const entry = makeEntry({ searchText: 'Blog Post About Payments' })
+    expect(matchesBlogSearch(entry, { q: 'payments', lang: 'en' })).toBe(true)
     expect(matchesBlogSearch(entry, { q: 'PAYMENTS', lang: 'en' })).toBe(true)
   })
 

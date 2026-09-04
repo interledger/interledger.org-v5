@@ -17,7 +17,7 @@ export function matchesBlogSearch(
 ): boolean {
   if (entry.locale !== filters.lang) return false
   const query = filters.q?.trim().toLowerCase() ?? ''
-  if (query && !entry.searchText.includes(query)) return false
+  if (query && !entry.searchText.toLowerCase().includes(query)) return false
   return true
 }
 

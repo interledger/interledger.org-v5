@@ -141,12 +141,14 @@ function initBlogSearch(): void {
     taxonomyFilter.querySelectorAll('a').forEach((link) => {
       if (inert) {
         const href = link.getAttribute('href')
-        if (href) link.dataset.blogSearchHref = href
+        if (!href) return // already disabled by TaxonomyFilter itself
+        link.dataset.blogSearchHref = href
         link.removeAttribute('href')
         link.setAttribute('aria-disabled', 'true')
       } else {
         const href = link.dataset.blogSearchHref
-        if (href) link.setAttribute('href', href)
+        if (!href) return // never touched by search — leave its own state alone
+        link.setAttribute('href', href)
         delete link.dataset.blogSearchHref
         link.removeAttribute('aria-disabled')
       }
