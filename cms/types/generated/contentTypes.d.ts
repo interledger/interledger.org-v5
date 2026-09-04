@@ -636,6 +636,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
       'shared.related-article',
       true
     > &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -644,6 +645,7 @@ export interface ApiFoundationBlogPostFoundationBlogPost
       Schema.Attribute.SetMinMax<
         {
           max: 3
+          min: 3
         },
         number
       >

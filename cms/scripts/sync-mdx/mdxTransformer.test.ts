@@ -3279,7 +3279,8 @@ describe('buildBlogPayload', () => {
     title: 'Test post',
     description: 'A test description',
     date: '2026-06-10',
-    locale: 'en'
+    locale: 'en',
+    relatedArticles: ['one', 'two', 'three']
   }
 
   describe('featureMedia / thumbnailMedia', () => {
