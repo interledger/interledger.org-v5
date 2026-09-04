@@ -28,7 +28,7 @@ const sample = record({
   'Project Leader': ['Ada Lovelace'],
   'Thematic Tag': ['Financial Services', 'OpenSource'],
   'Project Description': 'Building a clearing house for open payments.',
-  'Project Links': 'https://community.interledger.org/example',
+  'Project Links': ['https://community.interledger.org/example'],
   'Total budget approved': 750000
 })
 
@@ -117,19 +117,49 @@ describe('parseGranteeRecords', () => {
       [
         record({
           'Project Name': 'No link',
-          'Project Links': 'javascript:alert(1)'
+          'Project Links': ['javascript:alert(1)']
         }),
         record({
           'Project Name': 'Empty link',
-          'Project Links': '   '
+          'Project Links': ['   ']
+        }),
+        record({
+          'Project Name': 'No links at all',
+          'Project Links': []
+        }),
+        record({
+          'Project Name': 'Note instead of a link',
+          'Project Links': ['See attached grant report']
         })
       ],
       'en'
     )
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
-    expect(result[0]?.projectUrl).toBeNull()
-    expect(result[1]?.projectUrl).toBeNull()
+    expect(result[0]?.projectUrls).toEqual([])
+    expect(result[1]?.projectUrls).toEqual([])
+    expect(result[2]?.projectUrls).toEqual([])
+    expect(result[3]?.projectUrls).toEqual([])
+  })
+
+  it('keeps a valid link alongside a non-URL note in the same field', () => {
+    const result = parseGranteeRecords(
+      [
+        record({
+          'Project Name': 'Note plus a real link',
+          'Project Links': [
+            'See below',
+            'https://community.interledger.org/elenimaltas_176/soul-in-the-horn-final-report-3j3c'
+          ]
+        })
+      ],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.projectUrls).toEqual([
+      'https://community.interledger.org/elenimaltas_176/soul-in-the-horn-final-report-3j3c'
+    ])
   })
 
   it('sorts newest start month first, then by name', () => {
@@ -233,7 +263,7 @@ describe('matchesGranteeFilters', () => {
     leaders: ['Ada Lovelace'],
     tags: ['Privacy'],
     description: 'Open payments clearing house',
-    projectUrl: 'https://community.interledger.org/example',
+    projectUrls: ['https://community.interledger.org/example'],
     budget: 750000,
     budgetLabel: '750 000',
     searchText:
