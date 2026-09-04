@@ -19,28 +19,33 @@ declare global {
 const DEBOUNCE_MS = 200
 const QUERY_PARAM = 'q'
 
-let cachedIndex: BlogSearchEntry[] | null = null
-let cachedIndexUrl: string | null = null
-let fetchPromise: Promise<BlogSearchEntry[]> | null = null
+const indexCache = new Map<string, BlogSearchEntry[]>()
+const indexFetches = new Map<string, Promise<BlogSearchEntry[]>>()
 
 async function loadIndex(url: string): Promise<BlogSearchEntry[]> {
-  if (cachedIndex && cachedIndexUrl === url) return cachedIndex
+  const cached = indexCache.get(url)
+  if (cached) return cached
 
-  fetchPromise ??= fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to load blog search index: ${response.status}`)
-      }
-      return response.json() as Promise<BlogSearchEntry[]>
-    })
-    .then((entries) => {
-      cachedIndex = entries
-      cachedIndexUrl = url
-      return entries
-    })
-    .finally(() => {
-      fetchPromise = null
-    })
+  let fetchPromise = indexFetches.get(url)
+  if (!fetchPromise) {
+    fetchPromise = fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load blog search index: ${response.status}`
+          )
+        }
+        return response.json() as Promise<BlogSearchEntry[]>
+      })
+      .then((entries) => {
+        indexCache.set(url, entries)
+        return entries
+      })
+      .finally(() => {
+        indexFetches.delete(url)
+      })
+    indexFetches.set(url, fetchPromise)
+  }
 
   return fetchPromise
 }
@@ -99,6 +104,10 @@ function initBlogSearch(): void {
     return
   }
 
+  // Captured non-null so nested function declarations (e.g.
+  // searchResultContext) don't re-trigger the null check on `root`.
+  const searchRoot = root
+
   const indexUrl = root.dataset.searchIndexUrl
   if (!indexUrl) return
 
@@ -155,19 +164,26 @@ function initBlogSearch(): void {
     setTaxonomyInert(false)
   }
 
+  // Applied as soon as a non-empty query starts a search (before the index
+  // fetch resolves), not just once results render — otherwise pagination and
+  // the category pills stay live/visible for the debounce+fetch window of
+  // the first search.
+  function enterSearchMode() {
+    staticList.hidden = true
+    if (langNotice) langNotice.hidden = true
+    if (pagination) pagination.hidden = true
+    setTaxonomyInert(true)
+  }
+
   function searchResultContext(): SearchResultContext {
     return {
-      pathname: root.dataset.pathname ?? window.location.pathname,
-      lang: (root.dataset.lang ?? lang) as Locale,
+      pathname: searchRoot.dataset.pathname ?? window.location.pathname,
+      lang: (searchRoot.dataset.lang ?? lang) as Locale,
       categoryLabels
     }
   }
 
   function showSearchResults(entries: BlogSearchEntry[]) {
-    staticList.hidden = true
-    if (langNotice) langNotice.hidden = true
-    if (pagination) pagination.hidden = true
-    setTaxonomyInert(true)
     const context = searchResultContext()
     searchResults.replaceChildren(
       ...entries.map((entry) =>
@@ -195,12 +211,19 @@ function initBlogSearch(): void {
       return
     }
 
+    // Enter search mode (hide pagination, disable category pills, hide the
+    // static list) as soon as we know we're searching — not only once
+    // results render — so the chrome doesn't stay live during the
+    // debounce+fetch window of the first search.
+    enterSearchMode()
+
     let index: BlogSearchEntry[]
     try {
       index = await loadIndex(indexUrl)
     } catch {
-      // Fail closed: leave whatever was already on screen rather than
-      // throwing away the static, JS-independent listing underneath.
+      // Fail closed: revert to the static, JS-independent listing rather
+      // than leaving the page with nothing shown.
+      if (myRequestId === requestId) showStatic()
       return
     }
 

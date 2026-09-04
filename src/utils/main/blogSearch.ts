@@ -6,11 +6,12 @@ import { getBlogThumbnail } from './blog'
 import { getBlogPostPath, defaultLocale } from './i18'
 import type { Locale } from './locales'
 
-export {
-  matchesBlogSearch,
-  filterBlogPosts,
-  type BlogSearchFilters
-} from './blogSearchFilters'
+// matchesBlogSearch/filterBlogPosts live in blogSearchFilters.ts and are
+// deliberately not re-exported here: this module imports astro:content
+// (getCollection) at load time, so forwarding them through it would let a
+// client-side import pull that server-only dependency in by extension.
+// Import them from './blogSearchFilters' (or '@/utils', which re-exports
+// straight from there) instead.
 
 const SEARCH_SNIPPET_MAX_LENGTH = 160
 // Bounds the per-post contribution to the shared JSON catalog. A full post
