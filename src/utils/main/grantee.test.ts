@@ -126,6 +126,10 @@ describe('parseGranteeRecords', () => {
         record({
           'Project Name': 'No links at all',
           'Project Links': []
+        }),
+        record({
+          'Project Name': 'Note instead of a link',
+          'Project Links': ['See attached grant report']
         })
       ],
       'en'
@@ -135,6 +139,27 @@ describe('parseGranteeRecords', () => {
     expect(result[0]?.projectUrls).toEqual([])
     expect(result[1]?.projectUrls).toEqual([])
     expect(result[2]?.projectUrls).toEqual([])
+    expect(result[3]?.projectUrls).toEqual([])
+  })
+
+  it('keeps a valid link alongside a non-URL note in the same field', () => {
+    const result = parseGranteeRecords(
+      [
+        record({
+          'Project Name': 'Note plus a real link',
+          'Project Links': [
+            'See below',
+            'https://community.interledger.org/elenimaltas_176/soul-in-the-horn-final-report-3j3c'
+          ]
+        })
+      ],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.projectUrls).toEqual([
+      'https://community.interledger.org/elenimaltas_176/soul-in-the-horn-final-report-3j3c'
+    ])
   })
 
   it('sorts newest start month first, then by name', () => {

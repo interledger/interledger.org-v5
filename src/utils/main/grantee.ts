@@ -3,6 +3,7 @@ import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
   ensureAbsoluteUrl,
+  getHostname,
   isExternalHref,
   isSafeMarkdownHref
 } from '../shared/url'
@@ -152,7 +153,12 @@ function asFiniteNumber(value: unknown): number | undefined {
 function parseProjectUrls(value: unknown): string[] {
   return asStringList(value)
     .map((raw) => ensureAbsoluteUrl(raw))
-    .filter((href) => isSafeMarkdownHref(href) && isExternalHref(href))
+    .filter(
+      (href) =>
+        isSafeMarkdownHref(href) &&
+        isExternalHref(href) &&
+        getHostname(href) !== null
+    )
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
