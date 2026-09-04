@@ -133,6 +133,16 @@ export {
   paginatePodcastEpisodes,
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
+export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
+// From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
+// (via getCollection) at module scope, so re-exporting these two through it
+// would pull that server-only dependency into any client bundle that imports
+// them from the @/utils barrel.
+export {
+  matchesBlogSearch,
+  filterBlogPosts,
+  type BlogSearchFilters
+} from './main/blogSearchFilters'
 export {
   GRANTEE_PAGE_SIZE,
   ALL_GRANTEE_YEAR_SLUG,
