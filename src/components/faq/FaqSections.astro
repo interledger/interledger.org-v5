@@ -8,6 +8,8 @@ import {
 import type { FaqSectionType } from '@/schemas/content'
 import Icon from '@/components/shared/Icon.astro'
 import FaqSectionsNav from '@/components/faq/FaqSectionsNav.astro'
+import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface Props {
   sections: FaqSectionType[]
@@ -52,6 +54,9 @@ async function withIdsAndParsedAnswers(rawSections: FaqSectionType[]) {
 }
 
 const sectionsWithIds = await withIdsAndParsedAnswers(sections)
+// Unique so this page's questions don't exclusive-close a different FAQ
+// accordion on the same page when JS is off. initFaqAccordion strips `name`.
+const accordionName = faqAccordionGroupName()
 ---
 
 <div
@@ -66,6 +71,7 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 
   <div
     data-faq-mobile-sections
+    data-faq-accordion
     class="flex w-full flex-col gap-3xl tablet:border-l tablet:border-neutral-25 dark:tablet:border-neutral-75 tablet:pl-3xl tablet:w-7/10 tablet:gap-6xl"
   >
     {
@@ -92,8 +98,10 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
           <div class="flex flex-col gap-xl rounded-b-lg border border-t-0 border-neutral-25 px-lg pt-2xl pb-xl desktop:gap-xl desktop:rounded-none tablet:border-none tablet:px-0 tablet:pt-xl tablet:pb-0 dark:border-neutral-75">
             {section.items.map((item) => (
               <details
+                name={accordionName}
+                data-faq-item
                 data-faq-mobile-item
-                class="group/item w-full border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:pb-xl dark:border-neutral-75"
+                class="group/item w-full scroll-mt-(--site-header-height) border-b border-neutral-25 pb-xl first:pt-0 last:border-b-0 last:pb-0 desktop:scroll-mt-(--site-header-height-desktop) desktop:pb-xl dark:border-neutral-75"
               >
                 <summary
                   class="flex w-full cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden"
@@ -107,11 +115,13 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
                     class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180 dark:text-neutral-0"
                   />
                 </summary>
-                <div
-                  data-prose-faq
-                  class="text-neutral-75 mt-md dark:text-neutral-50 [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit"
-                  set:html={item.answerHtml}
-                />
+                <FaqAnswerPanel>
+                  <div
+                    data-prose-faq
+                    class="text-neutral-75 mt-md dark:text-neutral-50 [&_p]:text-h5-md [&_a]:text-h5-md [&_p]:desktop:text-h5-lg [&_a]:desktop:text-h5-lg [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit"
+                    set:html={item.answerHtml}
+                  />
+                </FaqAnswerPanel>
               </details>
             ))}
           </div>
@@ -122,13 +132,16 @@ const sectionsWithIds = await withIdsAndParsedAnswers(sections)
 </div>
 
 <script>
-  // Mobile: FAQ sections and questions toggle independently — opening one
-  // doesn't collapse whatever else is already open to avoid
-  // jarring layout jumps as other open sections/questions snapped shut.
+  import { initFaqAccordion } from '@/scripts/faq-accordion'
+
+  initFaqAccordion()
+
+  // Mobile: FAQ *sections* still toggle independently. Questions are exclusive
+  // (one open at a time) via initFaqAccordion (and <details name> without JS),
+  // which also slides the answer and scrolls the opened question under the header.
   // Tablet: every section stays open; the `toggle` guard below reasserts
   // `open` if a keyboard user still manages to collapse one (pointer-events
   // is disabled on the summary, but that doesn't block keyboard activation).
-  // Questions keep their independent (non-exclusive) toggling at tablet+.
   // 810px matches the `tablet:` breakpoint in tailwind.config.mjs (see the
   // same hardcoded value in src/scripts/header-nav.ts — no shared JS/CSS
   // breakpoint token exists in this codebase yet).

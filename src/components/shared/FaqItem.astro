@@ -18,14 +18,27 @@
  * not to `p` — giving one answer two different text colours.
  */
 import Icon from '@/components/shared/Icon.astro'
+import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import { buildUmamiAttrs } from '@/utils'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface Props {
   question: string
+  /**
+   * Exclusive `<details>` group for the no-JS fallback. Unique per accordion
+   * so two FAQs on one page don't close each other. When omitted, inherit
+   * the wrapping `<Faq>` group's name, then mint a unique one — never the
+   * document-wide `"faq"` string (native `name` is page-scoped).
+   */
+  group?: string
 }
 
 const { question } = Astro.props
 const { routeLocale } = Astro.locals
+const group =
+  Astro.props.group ??
+  Astro.locals.faqAccordionGroupName ??
+  faqAccordionGroupName()
 
 const umamiAttrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,
@@ -37,7 +50,9 @@ const umamiAttrs = buildUmamiAttrs({
 ---
 
 <details
-  class="group w-full border-b border-neutral-25 pb-xl dark:border-neutral-75"
+  name={group}
+  data-faq-item
+  class="group w-full scroll-mt-(--site-header-height) border-b border-neutral-25 pb-xl desktop:scroll-mt-(--site-header-height-desktop) dark:border-neutral-75"
 >
   <summary
     class="flex w-full cursor-pointer list-none items-center justify-between gap-lg rounded-sm [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-link"
@@ -53,10 +68,12 @@ const umamiAttrs = buildUmamiAttrs({
       class="size-8 shrink-0 text-link transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
     />
   </summary>
-  <div
-    data-prose-faq
-    class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 dark:text-neutral-50 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-100 dark:[&_p]:text-neutral-50 [&_li]:text-neutral-100 dark:[&_li]:text-neutral-50 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
-  >
-    <slot />
-  </div>
+  <FaqAnswerPanel>
+    <div
+      data-prose-faq
+      class="mt-md text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 dark:text-neutral-50 [&_p]:text-h5 [&_p]:tablet:text-h5-md [&_p]:desktop:text-h5-lg [&_p]:text-neutral-100 dark:[&_p]:text-neutral-50 [&_li]:text-neutral-100 dark:[&_li]:text-neutral-50 [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
+    >
+      <slot />
+    </div>
+  </FaqAnswerPanel>
 </details>

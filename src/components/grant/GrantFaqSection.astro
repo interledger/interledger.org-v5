@@ -1,7 +1,9 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
+import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import { parseMarkdown, resolveCtaLink, buildUmamiAttrs } from '@/utils'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface FaqItem {
   question: string
@@ -72,6 +74,10 @@ const renderedItems = await Promise.all(
     })
   }))
 )
+
+// Unique so this grant FAQ doesn't exclusive-close another accordion on
+// the same page when JS is off. initFaqAccordion strips `name`.
+const accordionName = faqAccordionGroupName()
 ---
 
 <div
@@ -125,10 +131,14 @@ const renderedItems = await Promise.all(
   </div>
 
   <!-- Right column: accordion -->
-  <div class="flex-1">
+  <div class="flex-1" data-faq-accordion>
     {
       renderedItems.map((item) => (
-        <details class="group border-b border-neutral-200 py-2xl first:pt-0 ">
+        <details
+          name={accordionName}
+          data-faq-item
+          class="group scroll-mt-(--site-header-height) border-b border-neutral-200 py-2xl first:pt-0 desktop:scroll-mt-(--site-header-height-desktop)"
+        >
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
             {...faqToggleUmamiAttrs(item.question)}
@@ -141,13 +151,21 @@ const renderedItems = await Promise.all(
               class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
             />
           </summary>
-          <div
-            data-prose-faq
-            class="mt-lg font-poppins text-base text-neutral-100 tablet:text-xl desktop:text-xl [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
-            set:html={item.answerHtml}
-          />
+          <FaqAnswerPanel>
+            <div
+              data-prose-faq
+              class="mt-lg font-poppins text-base text-neutral-100 tablet:text-xl desktop:text-xl [&_p]:m-0 [&_p+p]:mt-md [&_ul]:m-0 [&_ol]:m-0 [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline"
+              set:html={item.answerHtml}
+            />
+          </FaqAnswerPanel>
         </details>
       ))
     }
   </div>
 </div>
+
+<script>
+  import { initFaqAccordion } from '@/scripts/faq-accordion'
+
+  initFaqAccordion()
+</script>
