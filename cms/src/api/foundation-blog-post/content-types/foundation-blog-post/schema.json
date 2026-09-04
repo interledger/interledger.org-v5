@@ -34,8 +34,7 @@
         }
       },
       "targetField": "title",
-      "required": true,
-      "description": "Path relative to /blog/. Example: my-article-title \u2192 /blog/my-article-title. Do not include /blog/ or a leading slash."
+      "required": true
     },
     "date": {
       "type": "date",
@@ -53,8 +52,7 @@
           "localized": true
         }
       },
-      "required": false,
-      "description": "Only fill in this field when the post has had a meaningful editorial update (revised text, new sections, or corrected facts)."
+      "required": false
     },
     "featured": {
       "type": "boolean",
@@ -64,20 +62,18 @@
         }
       },
       "required": true,
-      "default": false,
-      "description": "Check to pin this post as a featured article. Up to three featured posts appear in the section at the top of the blog listing page."
+      "default": false
     },
     "featureMedia": {
       "type": "component",
-      "component": "shared.localized-media",
-      "repeatable": false,
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Desktop feature image (required). Dimensions: 720 x 428."
+      "component": "shared.localized-media",
+      "repeatable": false,
+      "required": true
     },
     "featureImageMobile": {
       "type": "media",
@@ -90,19 +86,17 @@
       "required": false,
       "allowedTypes": [
         "images"
-      ],
-      "description": "Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop."
+      ]
     },
     "thumbnailMedia": {
       "type": "component",
-      "component": "shared.localized-media",
-      "repeatable": false,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       },
-      "description": "Optional listing thumbnail. Dimensions: 260 x 160."
+      "component": "shared.localized-media",
+      "repeatable": false
     },
     "description": {
       "type": "text",
@@ -111,23 +105,22 @@
           "localized": true
         }
       },
-      "required": true,
-      "description": "Short description shown on listings and link previews. Aim for 120\u2013160 characters."
+      "required": true
     },
     "content": {
       "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
       "components": [
         "blocks.paragraph",
         "blocks.video-embed",
         "blocks.image-block",
         "blocks.code-block",
         "blocks.quote"
-      ],
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      ]
     },
     "articleBio": {
       "type": "component",
@@ -158,9 +151,9 @@
       },
       "component": "shared.related-article",
       "repeatable": true,
-      "max": 3,
-      "required": false,
-      "description": "Add exactly 3 slugs of related blog posts to display in the \"You may also like\" section. Enter the slug only (e.g. my-related-post), not the full URL."
+      "required": true,
+      "min": 3,
+      "max": 3
     },
     "legacy": {
       "type": "boolean",
@@ -169,8 +162,6 @@
           "localized": true
         }
       },
-      "required": false,
-      "default": false,
       "conditions": {
         "visible": {
           "==": [
@@ -178,7 +169,9 @@
             false
           ]
         }
-      }
+      },
+      "required": false,
+      "default": false
     }
   }
 }
