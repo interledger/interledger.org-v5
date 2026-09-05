@@ -3,7 +3,7 @@ import {
   buildImageSrcset,
   getOptimizedImage,
   isOptimizableSource,
-  withIntrinsicWidthRung
+  resolveOptimizedImage
 } from '@/utils'
 
 export interface OptimizedImageAlternateSource {
@@ -32,6 +32,7 @@ interface Props {
   loading?: 'lazy' | 'eager'
   sizes?: string
   fetchpriority?: 'high' | 'low' | 'auto'
+  decoding?: 'async' | 'sync' | 'auto'
   media?: string
   draggable?: boolean
   /** Optional art-directed sources (most specific `media` first). */
@@ -48,6 +49,7 @@ const {
   loading = 'lazy',
   sizes = '100vw',
   fetchpriority,
+  decoding = 'async',
   media,
   draggable,
   alternateSources = []
@@ -65,10 +67,11 @@ const alternatePictureSources = alternateSources.flatMap(
     widths: alternateWidths,
     intrinsicWidth
   }) => {
-    const resolved = getOptimizedImage(alternateSrc, alternateWidths)
-    const alternate = intrinsicWidth
-      ? withIntrinsicWidthRung(resolved, alternateSrc, intrinsicWidth)
-      : resolved
+    const alternate = resolveOptimizedImage(
+      alternateSrc,
+      alternateWidths,
+      intrinsicWidth
+    )
     const sources: Array<{
       type: string
       media: string
@@ -101,7 +104,6 @@ const alternatePictureSources = alternateSources.flatMap(
 const hasResponsive = variants.length > 0 || alternatePictureSources.length > 0
 const webpSrcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
-const decoding: 'async' | 'sync' | 'auto' = 'async'
 // When a media query is provided, omit <img> src so browsers that don't match
 // the <source> media condition don't fetch the image at all.
 const imgSrc = media ? undefined : src
