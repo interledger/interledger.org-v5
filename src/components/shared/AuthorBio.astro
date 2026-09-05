@@ -1,6 +1,6 @@
 ---
 import { marked } from 'marked'
-import { ensureAbsoluteUrl, getSocialIconName, useTranslations } from '@/utils'
+import { safeAbsoluteHref, getSocialIconName, useTranslations } from '@/utils'
 import type { AuthorBioType } from '@/schemas/content.ts'
 import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -17,7 +17,8 @@ const t = useTranslations(routeLocale)
 const htmlBios = await Promise.all(
   bios.map(async (bio) => ({
     ...bio,
-    text: bio.text ? await marked.parse(bio.text) : ''
+    text: bio.text ? await marked.parse(bio.text) : '',
+    href: safeAbsoluteHref(bio.link)
   }))
 )
 ---
@@ -50,9 +51,9 @@ const htmlBios = await Promise.all(
             set:html={bio.text}
             class="text-body-sm-standard [&_p]:text-body-sm-standard [&_a]:text-body-sm-standard [&_p]:mb-lg"
           />
-          {bio.link && (
+          {bio.href && (
             <LinkButton
-              href={ensureAbsoluteUrl(bio.link)}
+              href={bio.href}
               external={true}
               variant="secondary"
               iconOnly={true}
@@ -63,7 +64,7 @@ const htmlBios = await Promise.all(
               umamiLabel="link"
               umamiBaseComponent="blog"
             >
-              <Icon name={getSocialIconName(bio.link)} />
+              <Icon name={getSocialIconName(bio.href)} />
             </LinkButton>
           )}
         </div>
