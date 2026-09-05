@@ -109,8 +109,8 @@ const TABLET_PRESETS: TypographyPreset[] = [
     label: 'H1',
     className: 'text-h1-md',
     fontWeight: 600,
-    fontSizePx: 70,
-    lineHeightPx: 76
+    fontSizePx: 76,
+    lineHeightPx: 90
   },
   {
     label: 'H2',

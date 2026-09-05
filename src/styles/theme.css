@@ -239,12 +239,12 @@
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */
 
-  /* H1: 56/68 → 70/76 → 100/100, all SemiBold */
+  /* H1: 56/68 → 76/90 → 100/100, all SemiBold */
   --text-h1: 3.5rem;
   --text-h1--line-height: 4.25rem;
   --text-h1--font-weight: 600;
-  --text-h1-md: 4.375rem;
-  --text-h1-md--line-height: 4.75rem;
+  --text-h1-md: 4.75rem;
+  --text-h1-md--line-height: 5.625rem;
   --text-h1-md--font-weight: 600;
   --text-h1-lg: 6.25rem;
   --text-h1-lg--line-height: 6.25rem;
@@ -336,7 +336,7 @@
 
   /* H1 */
   --leading-h1: 4.25rem; /* 68px */
-  --leading-h1-md: 4.75rem; /* 76px */
+  --leading-h1-md: 5.625rem; /* 90px */
   --leading-h1-lg: 6.25rem; /* 100px */
 
   /* H2 */
