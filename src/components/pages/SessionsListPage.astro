@@ -34,7 +34,7 @@ const label = t('summit.talks_pagination', { year })
     <section>
       {
         talkPreviews.length > 0 ? (
-          <ul class="flex flex-col gap-4">
+          <ul class="flex flex-col gap-4 list-none">
             {talkPreviews.map((talk) => (
               <SessionCard
                 talkPreview={talk}
