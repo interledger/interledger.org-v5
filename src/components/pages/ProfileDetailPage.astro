@@ -51,10 +51,6 @@ const title = name
 const displayRole = role ?? tagline
 const hasCta = Boolean(cta?.text && cta?.link)
 const hasBody = Boolean(entry.body?.trim())
-const hasIntro = Boolean(description || hasCta)
-const dividerClass = isHackathon
-  ? 'm-0 mb-2xl border-0 border-t border-neutral-75'
-  : 'm-0 mb-2xl border-0 border-t border-neutral-25'
 const colorIndex = await getProfileColorIndex(
   entry.data.pathSlug,
   contentLocale
@@ -76,8 +72,8 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 const Layout = getSectionPageLayout(section)
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 const textColorClass = isHackathon ? 'text-neutral-0' : 'text-neutral-900'
-const nameClass = `text-h2 ${textColorClass} tablet:text-h2-md desktop:text-h2-lg`
-const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
+const nameClass = `text-h2-md ${textColorClass} tablet:text-h2-md desktop:text-h1-md`
+const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
 ---
 
 <Layout
@@ -85,7 +81,7 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
   description={description ?? displayRole ?? name}
   noindex={noindex}
 >
-  <main class="pb-3xl" data-pillar="mission">
+  <main class="pb-section" data-pillar="mission">
     <header
       class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
     >
@@ -118,7 +114,7 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
         }
       </div>
       <div
-        class="mt-xl flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight [&_h4]:mt-0 [&_h4]:mb-xl [&_h4]:pb-0"
+        class="mt-3xl-tight flex flex-col gap-0 [&_h1]:mb-md [&_h4]:mt-0 [&_h4]:mb-xl tablet:mt-3xl"
       >
         <h1 class={nameClass}>{name}</h1>
         {displayRole && <h4 class={roleClass}>{displayRole}</h4>}
@@ -128,7 +124,7 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
           <section
             data-prose
             aria-label={t('profile.description')}
-            class="mb-2xl"
+            class="[&_p]:mb-5xl"
           >
             <Paragraph content={description} />
           </section>
@@ -157,13 +153,12 @@ const roleClass = `inline-block border-b-4 border-link text-h4 font-normal ${tex
           </div>
         )
       }
-      {hasIntro && hasBody && <hr class={dividerClass} />}
       {
         hasBody && (
           <section
             data-prose
             aria-label={t('profile.biography')}
-            class="mb-2xl"
+            class="mb-2xl [&_h3]:text-h3-lg [&_p]:mb-5xl"
           >
             <MdxContent components={{ Paragraph }} />
           </section>
