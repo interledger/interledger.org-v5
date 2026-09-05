@@ -1,9 +1,15 @@
 ---
 import type { Grantee, GranteeFilterOption } from '@/utils'
-import { useTranslations, buildUmamiAttrs, getGranteeFilterUrl } from '@/utils'
+import {
+  useTranslations,
+  buildDeferredUmamiAttrs,
+  getGranteeFilterUrl,
+  localizeRoute
+} from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
 import PillLink from '@/components/shared/PillLink.astro'
 import GranteeCard from './GranteeCard.astro'
+import GranteeSearchResultTemplate from './GranteeSearchResultTemplate.astro'
 
 interface Props {
   grantees: Grantee[]
@@ -31,7 +37,7 @@ const selectedYearLabel =
   years.find((option) => option.value === selectedYear)?.label ?? allLabel
 
 const summaryClasses = `
-list-none flex gap-xs items-center cursor-pointer
+list-none flex gap-md items-center cursor-pointer
 p-xs rounded-lg border border-transparent
 group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
 [&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
@@ -50,8 +56,15 @@ hover:bg-neutral-25 hover:text-neutral-100
 focus-visible:outline-none focus-visible:border focus-visible:border-link
 [&[aria-current='page']]:text-neutral-100
 `
+// Deferred (data-track-event, not data-umami-event): year/tag links carry a
+// live-typed search query appended by grantee-search.ts on click. Umami's
+// bundled script auto-intercepts data-umami-event clicks — preventDefault,
+// await its own fetch, then navigate to the link's *original* href — which
+// would race and silently drop the appended `?q=`. The deferred variant is
+// tracked by the existing page-global listener (initNavClickTracking,
+// header-nav.ts) without ever touching navigation.
 const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
-  buildUmamiAttrs({
+  buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,
     lang: routeLocale,
     label: 'button_ui',
@@ -62,6 +75,7 @@ const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
 
 const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
 const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
+const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
 ---
 
 <h1
@@ -90,15 +104,21 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
 
 <section
   aria-label={t('aria.grantee.filters_label')}
+  data-grantee-search-root
+  data-search-index-url={searchIndexUrl}
+  data-selected-year={selectedYear ?? ''}
+  data-selected-tag={selectedTag ?? ''}
+  data-directory-path={directoryPath}
+  data-pathname={Astro.url.pathname}
+  data-lang={routeLocale}
+  data-label-view-details={t('grantee.view_details')}
+  data-results-template={t('grantee.results')}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
   <div class="flex flex-col gap-xl">
     <div
       class="flex flex-col gap-md tablet:flex-row tablet:items-center tablet:gap-xl"
     >
-      {/* Search UI parked until INTORG-1112 lands again. */}
-      {
-        /*
       <div class="relative w-full max-w-[400px] tablet:w-[400px]">
         <label for="grantee-search" class="sr-only">
           {t('grantee.search.label')}
@@ -115,15 +135,16 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
           class="w-full rounded-xl border border-neutral-50 bg-white py-md ps-3xl pe-lg text-body-sm-standard text-neutral-100 outline-none transition-colors placeholder:text-neutral-75 focus-visible:border-link"
         />
       </div>
-      */
-      }
       <div
         class="flex shrink-0 flex-wrap items-center gap-md text-body-sm-emphasis text-neutral-75"
       >
         <details data-grantee-year-details class="group relative">
           <summary class={summaryClasses}>
-            {t('grantee.filter.year')}
-            <Icon name="arrow-right-keyboard" class="rotate-90" />
+            <span class="flex items-center gap-xs">
+              {t('grantee.filter.year')}
+              <Icon name="arrow-right-keyboard" class="rotate-90" />
+            </span>
+            <span class="text-primary">{selectedYearLabel}</span>
           </summary>
           <ul class={dropdownClasses}>
             <li>
@@ -166,7 +187,6 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
             }
           </ul>
         </details>
-        <span class="text-primary">{selectedYearLabel}</span>
       </div>
     </div>
     <ul
@@ -207,34 +227,53 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
     </ul>
   </div>
 
-  <p class="m-0 text-body-sm-emphasis text-primary">
+  <p
+    class="m-0 text-body-sm-emphasis text-primary"
+    data-grantee-results-count
+    aria-live="polite"
+  >
     {t('grantee.results', { count: totalCount })}
   </p>
 </section>
 
-{
-  grantees.length === 0 ? (
-    <p class="my-5xl text-h5-lg text-neutral-75 text-center tablet:text-h4-lg">
-      {t('grantee.empty')}
-    </p>
-  ) : (
-    <ol
-      class="list-none p-0 m-0 flex flex-col gap-2xl"
-      aria-label={t('aria.grantee.list')}
-    >
-      {grantees.map((grantee) => (
-        <GranteeCard
-          grantee={grantee}
-          directoryPath={directoryPath}
-          selectedYear={selectedYear}
-        />
-      ))}
-    </ol>
-  )
-}
+<p
+  class="my-5xl text-h5-lg text-neutral-75 text-center tablet:text-h4-lg"
+  data-grantee-empty
+  hidden={grantees.length !== 0}
+>
+  {t('grantee.empty')}
+</p>
+<ol
+  class="list-none p-0 m-0 flex flex-col gap-2xl"
+  aria-label={t('aria.grantee.list')}
+  data-grantee-list
+  hidden={grantees.length === 0}
+>
+  {
+    grantees.map((grantee) => (
+      <GranteeCard
+        grantee={grantee}
+        directoryPath={directoryPath}
+        selectedYear={selectedYear}
+      />
+    ))
+  }
+</ol>
+<ol
+  class="list-none p-0 m-0 flex flex-col gap-2xl"
+  aria-label={t('aria.grantee.list')}
+  data-grantee-search-results
+  hidden
+>
+</ol>
+
+<GranteeSearchResultTemplate />
 
 <script>
   import '@/scripts/grantee-description'
+  import { initGranteeSearch } from '@/scripts/grantee-search'
+
+  initGranteeSearch()
 
   const details = document.querySelector<HTMLDetailsElement>(
     '[data-grantee-year-details]'

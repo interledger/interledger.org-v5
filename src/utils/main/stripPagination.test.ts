@@ -148,4 +148,16 @@ describe('stripPagination', () => {
       '/es/grant/grantee-directory/2024'
     )
   })
+
+  it('does not strip an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/privacy')).toBe(
+      '/grant/grantee-directory/privacy'
+    )
+  })
+
+  it('drops the page number from an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/privacy/2')).toBe(
+      '/grant/grantee-directory/privacy'
+    )
+  })
 })

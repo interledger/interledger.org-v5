@@ -1,6 +1,9 @@
 import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
+import { truncateText } from './text'
+import { createExcerpt } from './create-excerpt'
+import { ALL_GRANTEE_YEAR_SLUG, filterGrantees } from './granteeFilters'
 import {
   ensureAbsoluteUrl,
   isExternalHref,
@@ -8,8 +11,15 @@ import {
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
+export {
+  ALL_GRANTEE_YEAR_SLUG,
+  filterGrantees,
+  getGranteeFilterUrl,
+  matchesGranteeFilters,
+  type GranteeFilters
+} from './granteeFilters'
+
 export const GRANTEE_PAGE_SIZE = 10
-export const ALL_GRANTEE_YEAR_SLUG = 'all'
 
 function isGranteeYearSlug(value: string): boolean {
   return value === ALL_GRANTEE_YEAR_SLUG || /^\d{4}$/.test(value)
@@ -25,21 +35,11 @@ export const granteeRouteShape: PaginatedRouteShape = {
   isValidListingPrefix: (prefixParts) => {
     if (prefixParts[0] !== 'grantee-directory') return false
     if (prefixParts.length === 1) return true
-    if (!isGranteeYearSlug(prefixParts[1])) return false
-    return prefixParts.length === 2 || prefixParts.length === 3
+    // Second segment is a year or an all-years tag slug.
+    if (prefixParts.length === 2) return true
+    // Third segment is only a tag when the second is a year.
+    return prefixParts.length === 3 && isGranteeYearSlug(prefixParts[1])
   }
-}
-
-/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
-export function getGranteeFilterUrl(
-  directoryPath: string,
-  year?: string,
-  tag?: string
-): string {
-  if (!year && !tag) return directoryPath
-  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
-  if (!tag) return yearPath
-  return `${yearPath}/${tag}`
 }
 
 export interface Grantee {
@@ -59,12 +59,6 @@ export interface Grantee {
   budget: number | null
   budgetLabel: string | null
   searchText: string
-}
-
-export interface GranteeFilters {
-  q?: string
-  year: string
-  tag: string
 }
 
 export interface GranteeFilterOption {
@@ -161,6 +155,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+// Visible prose for searchText/snippets. createExcerpt is the shared
+// markdown-it → html-to-text path (blog excerpts); collapsing whitespace
+// keeps searchText a single haystack. matchesGranteeFilters stays in
+// granteeFilters.ts so this markdown-it import never reaches the client
+// search bundle.
+function stripMarkdownSyntax(text: string): string {
+  return createExcerpt(text).replace(/\s+/g, ' ').trim()
+}
+
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null
   if (!isRecord(value.fields)) return null
@@ -185,7 +188,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     country,
     ...leaders,
     ...tags,
-    description ?? ''
+    description ? stripMarkdownSyntax(description) : ''
   ]
     .join(' ')
     .toLowerCase()
@@ -259,29 +262,6 @@ export function uniqueFilterOptions(
   return options.sort((a, b) => a.label.localeCompare(b.label))
 }
 
-export function matchesGranteeFilters(
-  grantee: Pick<Grantee, 'year' | 'tags' | 'searchText'>,
-  filters: GranteeFilters
-): boolean {
-  if (filters.year && grantee.year !== filters.year) return false
-  if (
-    filters.tag &&
-    !grantee.tags.some((tag) => generateSlug(tag) === filters.tag)
-  ) {
-    return false
-  }
-  const query = filters.q?.trim().toLowerCase() ?? ''
-  if (query && !grantee.searchText.includes(query)) return false
-  return true
-}
-
-export function filterGrantees(
-  grantees: Grantee[],
-  filters: GranteeFilters
-): Grantee[] {
-  return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
-}
-
 export interface GranteeListingData {
   grantees: Grantee[]
   years: GranteeFilterOption[]
@@ -299,6 +279,71 @@ export function getGranteeListingData(
     years: uniqueFilterOptions(grantees, 'year'),
     tags: uniqueFilterOptions(grantees, 'tag')
   }
+}
+
+/**
+ * A single grantee's fields as shipped in the client-side search catalog
+ * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
+ * Trimmed to what a slim search-result row needs — no raw markdown, no
+ * derived slugs that the full `GranteeCard` computes for itself.
+ */
+export interface GranteeSearchEntry {
+  id: string
+  name: string
+  program: string
+  year: string
+  country: string
+  startMonth: string
+  startLabel: string
+  leaders: string[]
+  tags: string[]
+  descriptionSnippet: string | null
+  projectUrl: string | null
+  budgetLabel: string | null
+  searchText: string
+}
+
+const SEARCH_SNIPPET_MAX_LENGTH = 160
+
+function toSearchSnippet(description: string | null): string | null {
+  if (!description) return null
+  return truncateText(
+    stripMarkdownSyntax(description),
+    SEARCH_SNIPPET_MAX_LENGTH
+  )
+}
+
+function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
+  return {
+    id: grantee.id,
+    name: grantee.name,
+    program: grantee.program,
+    year: grantee.year,
+    country: grantee.country,
+    startMonth: grantee.startMonth,
+    startLabel: grantee.startLabel,
+    leaders: grantee.leaders,
+    tags: grantee.tags,
+    descriptionSnippet: toSearchSnippet(grantee.description),
+    projectUrl: grantee.projectUrl,
+    budgetLabel: grantee.budgetLabel,
+    searchText: grantee.searchText
+  }
+}
+
+/**
+ * Build-time catalog for client-side grantee search. Small and locale-scoped
+ * so it can be fetched once (lazily, on first search interaction) and reused
+ * across every paginated/filtered directory route — see
+ * `src/pages/grantee-search-index.json.ts`.
+ */
+export function getGranteeSearchIndex(
+  data: unknown,
+  locale: Locale
+): GranteeSearchEntry[] {
+  const grantees = parseGranteeRecords(data, locale)
+  if (grantees instanceof Error) throw grantees
+  return grantees.map(toGranteeSearchEntry)
 }
 
 interface GranteeListingPageProps {
@@ -347,6 +392,34 @@ export function paginateGranteesByYear({
   })
 }
 
+export function paginateGranteesByTag({
+  paginate,
+  grantees,
+  years,
+  tags
+}: {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}) {
+  return tags.flatMap((tag) => {
+    // Tag-only URLs live at /grantee-directory/<tag>, same slot as a year.
+    // Skip slugs that would collide with a year route.
+    if (isGranteeYearSlug(tag.value)) return []
+    const entries = filterGrantees(grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    return paginate(entries, {
+      params: { year: tag.value },
+      pageSize: GRANTEE_PAGE_SIZE,
+      props: listingProps(years, tags, undefined, tag.value)
+    })
+  })
+}
+
 export function paginateGranteesByYearAndTag({
   paginate,
   grantees,
@@ -358,26 +431,19 @@ export function paginateGranteesByYearAndTag({
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
 }) {
-  const yearSlugs = [
-    ALL_GRANTEE_YEAR_SLUG,
-    ...years.map((option) => option.value)
-  ]
-
-  return yearSlugs.flatMap((yearSlug) => {
-    const yearFilter = yearSlug === ALL_GRANTEE_YEAR_SLUG ? '' : yearSlug
-
-    return tags.flatMap((tag) => {
+  return years.flatMap((year) =>
+    tags.flatMap((tag) => {
       const entries = filterGrantees(grantees, {
         q: '',
-        year: yearFilter,
+        year: year.value,
         tag: tag.value
       })
 
       return paginate(entries, {
-        params: { year: yearSlug, tag: tag.value },
+        params: { year: year.value, tag: tag.value },
         pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, yearFilter || undefined, tag.value)
+        props: listingProps(years, tags, year.value, tag.value)
       })
     })
-  })
+  )
 }

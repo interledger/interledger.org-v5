@@ -59,25 +59,18 @@ const breadcrumbs = [
       />
       {
         page.lastPage > 1 && (
-          <Pagination
-            baseUrl={basePath}
-            length={page.lastPage}
-            currentPage={page.currentPage}
-            prevUrl={page.url.prev}
-            nextUrl={page.url.next}
-            label={t('grantee.title')}
-            class="mt-section"
-          />
+          <div data-grantee-pagination class="mt-section">
+            <Pagination
+              baseUrl={basePath}
+              length={page.lastPage}
+              currentPage={page.currentPage}
+              prevUrl={page.url.prev}
+              nextUrl={page.url.next}
+              label={t('grantee.title')}
+            />
+          </div>
         )
       }
-      <footer
-        role="note"
-        aria-label={t('grantee.caveat.label')}
-        class="mt-5xl border-t border-neutral-25 pt-xl text-caption leading-normal text-neutral-75 tablet:mt-6xl tablet:pt-2xl [&_p]:text-caption [&_p]:leading-normal"
-      >
-        <p class="m-0 mb-md">{t('grantee.caveat.amounts')}</p>
-        <p class="m-0">{t('grantee.caveat.exclusions')}</p>
-      </footer>
     </div>
   </main>
 </FoundationPageLayout>

@@ -165,13 +165,15 @@ const detailsAttrs = grantee.projectUrl
             class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
           >
             {leadersLabel && (
-              <div class:list={[metaItemClasses, description && 'mb-lg']}>
-                <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
-                <span>
-                  <span class="sr-only">{t('grantee.project_lead')}: </span>
-                  {leadersLabel}
-                </span>
-              </div>
+              <p
+                class:list={[
+                  'm-0 text-body-sm-standard text-neutral-100',
+                  description && 'mb-lg'
+                ]}
+              >
+                <span class="sr-only">{t('grantee.project_lead')}: </span>
+                {leadersLabel}
+              </p>
             )}
             {description && (
               <p
@@ -186,13 +188,20 @@ const detailsAttrs = grantee.projectUrl
                 type="button"
                 hidden
                 data-grantee-description-toggle
-                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+                data-label-more={t('grantee.read_more')}
+                data-label-less={t('grantee.read_less')}
+                class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link aria-expanded:[&_svg]:rotate-180"
                 aria-expanded="false"
                 aria-controls={descriptionId}
                 {...readMoreAttrs}
               >
-                {readMoreLabel}
-                <Icon name="arrow-down" class="size-4" />
+                <span data-grantee-description-toggle-label>
+                  {readMoreLabel}
+                </span>
+                <Icon
+                  name="arrow-down"
+                  class="size-4 transition-transform duration-200"
+                />
               </button>
             )}
           </div>
