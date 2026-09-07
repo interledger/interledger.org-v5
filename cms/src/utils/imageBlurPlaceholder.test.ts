@@ -47,7 +47,9 @@ describe('generateBlurPlaceholder', () => {
   it('returns an Error instead of throwing when sharp fails (missing/corrupt file)', async () => {
     toBuffer.mockRejectedValue(new Error('Input file is missing'))
 
-    const result = await generateBlurPlaceholder('/uploads/img/original/gone.jpg')
+    const result = await generateBlurPlaceholder(
+      '/uploads/img/original/gone.jpg'
+    )
 
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain('Input file is missing')

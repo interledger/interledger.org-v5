@@ -303,9 +303,8 @@ export async function heroFrontmatter(
     if (hero.backgroundImageMobile?.alternativeText) {
       data.heroImageMobileAlt = hero.backgroundImageMobile.alternativeText
     }
-    const heroImageMobileBlur = await tryGenerateBlurPlaceholder(
-      heroImageMobile
-    )
+    const heroImageMobileBlur =
+      await tryGenerateBlurPlaceholder(heroImageMobile)
     if (heroImageMobileBlur) data.heroImageMobileBlur = heroImageMobileBlur
   }
   const cta = hero.hero_call_to_action

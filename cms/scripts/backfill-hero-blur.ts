@@ -91,7 +91,11 @@ async function backfillFile(
   }
 
   if (changed && !DRY_RUN) {
-    fs.writeFileSync(filepath, `---\n${lines.join('\n')}\n---\n${body}`, 'utf-8')
+    fs.writeFileSync(
+      filepath,
+      `---\n${lines.join('\n')}\n---\n${body}`,
+      'utf-8'
+    )
   }
 
   return { updated: changed, skipped }

@@ -150,9 +150,7 @@ function getOutputDir<T extends UID.ContentType>(
   return path.join(projectRoot, config.outputDir)
 }
 
-export async function generateMDX<
-  T extends UID.ContentType = UID.ContentType
->(
+export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   _config: PageLifecycleConfig<T>,
   page: PageData,
   preservedFields: Record<string, unknown> = {},
