@@ -37,6 +37,9 @@ export {
   validateLocalImageUrl
 } from './uploadValidation'
 
+// Hero/feature image blur placeholder (LQIP) generation
+export { generateBlurPlaceholder } from './imageBlurPlaceholder'
+
 // Paths & configuration
 export {
   getProjectRoot,
