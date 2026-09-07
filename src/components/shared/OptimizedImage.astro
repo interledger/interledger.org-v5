@@ -63,13 +63,19 @@ const {
   placeholder
 } = Astro.props
 
-const placeholderStyle = placeholder
-  ? {
-      backgroundImage: `url(${placeholder})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center'
-    }
-  : undefined
+// Trimmed and restricted to a data: image URI — placeholder comes from
+// content-managed frontmatter, so this must not be interpolated into the
+// inline style unquoted/unvalidated (a stray `)` or `;` could break out of
+// the `url(...)` token and inject further CSS into the style attribute).
+const safePlaceholder = placeholder?.trim()
+const placeholderStyle =
+  safePlaceholder && safePlaceholder.startsWith('data:image/')
+    ? {
+        backgroundImage: `url('${safePlaceholder}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }
+    : undefined
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
   ? getOptimizedImage(src)
