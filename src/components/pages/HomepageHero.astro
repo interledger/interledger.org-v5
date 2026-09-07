@@ -11,6 +11,7 @@ import {
   localizeRoute,
   HERO_LCP_IMAGE_WIDTH,
   HERO_LCP_IMAGE_HEIGHT,
+  HERO_STANDARD_BLUR,
   type Locale
 } from '@/utils'
 
@@ -96,6 +97,7 @@ const heroUmami = (href: string, linkText: string) =>
       sizes={heroSizes}
       pictureClass="absolute inset-0 hidden tablet:block"
       class="hero-stefan-photo h-full w-full object-cover"
+      placeholder={HERO_STANDARD_BLUR}
     />
   </div>
 

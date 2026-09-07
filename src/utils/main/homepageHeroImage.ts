@@ -18,6 +18,15 @@ export const HERO_LCP_IMAGE_HEIGHT = 1280
 export const HERO_STANDARD_SRC = '/img/homepage/stefan-thomas.webp'
 export const HERO_HIGHRES_SRC = '/img/homepage/stefan-thomas-highres.avif'
 /**
+ * Base64 LQIP blur placeholder for `stefan-thomas.webp`, generated once via
+ * `generateBlurPlaceholder()` (cms/src/utils/imageBlurPlaceholder.ts) since
+ * this hero is a static asset, not Strapi content — it never runs through
+ * the CMS lifecycle hook that generates `*Blur` frontmatter for MDX heroes.
+ * Regenerate and paste in again if the source image changes.
+ */
+export const HERO_STANDARD_BLUR =
+  'data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoUAA0APu1orU2ppqSiMAgBMB2JZwAAW+v57Q6YPs2cEAD+8qgsa/7RStVqDUXBJy6fEX5s7s8G87+zTchXzHapxK/XQoi9HBu+gAAA'
+/**
  * Intrinsic width of `stefan-thomas-highres.avif`. Caps its ladder so the 3840
  * rung stops re-encoding the source into something larger than the file itself;
  * at this width the AVIF source is served directly. Update alongside the asset.
