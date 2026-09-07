@@ -29,8 +29,10 @@ interface Props {
   description?: string | null
   image?: string | null
   imageAlt?: string | null
+  imageBlur?: string | null
   imageMobile?: string | null
   imageMobileAlt?: string | null
+  imageMobileBlur?: string | null
   cta?: HackathonHeroCta | null
   isFallback?: boolean
   breadcrumbs?: BreadcrumbItem[]
@@ -42,8 +44,10 @@ const {
   description,
   image,
   imageAlt,
+  imageBlur,
   imageMobile,
   imageMobileAlt,
+  imageMobileBlur,
   cta,
   isFallback = false,
   breadcrumbs
@@ -56,6 +60,7 @@ const resolvedDesktopAlt = imageAlt ?? imageMobileAlt
 const resolvedMobileAlt = imageMobileAlt ?? imageAlt
 const hasImage = Boolean(image || imageMobile)
 const desktopImage = image ?? imageMobile
+const desktopBlur = image ? imageBlur : imageMobileBlur
 const ctaUmami = cta
   ? buildUmamiAttrs({
       pathname: Astro.url.pathname,
@@ -146,6 +151,7 @@ const headingClasses =
                     sizes="100vw"
                     pictureClass="block tablet:hidden"
                     class="h-auto w-full object-cover"
+                    placeholder={imageMobileBlur ?? undefined}
                   />
                   <OptimizedImage
                     src={desktopImage}
@@ -157,6 +163,7 @@ const headingClasses =
                     sizes="(min-width: 810px) 50vw, 100vw"
                     pictureClass="hidden tablet:block"
                     class="h-auto w-full object-cover"
+                    placeholder={desktopBlur ?? undefined}
                   />
                 </>
               ) : (
@@ -169,6 +176,7 @@ const headingClasses =
                   fetchpriority="high"
                   sizes="(min-width: 810px) 50vw, 100vw"
                   class="h-auto w-full object-cover"
+                  placeholder={desktopBlur ?? undefined}
                 />
               )}
             </div>

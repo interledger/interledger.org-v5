@@ -60,8 +60,10 @@ const {
   heroDescription,
   heroImage,
   heroImageAlt,
+  heroImageBlur,
   heroImageMobile,
   heroImageMobileAlt,
+  heroImageMobileBlur,
   heroCtas
 } = entry.data
 const noindex = isDemoPathSlug(entry.data.pathSlug)
@@ -89,8 +91,10 @@ const breadcrumbs = showBreadcrumbs
       description={heroDescription}
       image={heroImage}
       imageAlt={heroImageAlt}
+      imageBlur={heroImageBlur}
       imageMobile={heroImageMobile}
       imageMobileAlt={heroImageMobileAlt}
+      imageMobileBlur={heroImageMobileBlur}
       cta={heroCtas?.[0]}
       isFallback={isFallback}
       breadcrumbs={breadcrumbs}
