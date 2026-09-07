@@ -3,7 +3,8 @@ import {
   buildImageSrcset,
   getOptimizedImage,
   isOptimizableSource,
-  resolveOptimizedImage
+  resolveOptimizedImage,
+  sanitizeBlurPlaceholder
 } from '@/utils'
 
 export interface OptimizedImageAlternateSource {
@@ -63,9 +64,10 @@ const {
   placeholder
 } = Astro.props
 
-const placeholderStyle = placeholder
+const safePlaceholder = sanitizeBlurPlaceholder(placeholder)
+const placeholderStyle = safePlaceholder
   ? {
-      backgroundImage: `url(${placeholder})`,
+      backgroundImage: `url('${safePlaceholder}')`,
       backgroundSize: 'cover',
       backgroundPosition: 'center'
     }

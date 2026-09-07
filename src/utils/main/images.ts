@@ -24,6 +24,7 @@ export {
   encodeImageUrlPath,
   hasOptimizableRasterExtension,
   pathToSegments,
+  sanitizeBlurPlaceholder,
   type OptimizedImageManifest
 } from './imagePaths'
 
