@@ -16,7 +16,8 @@ export function getHeroSectionStyle(
   const { fullSrc } = getOptimizedImage(trimmed)
   const url = fullSrc ?? encodeImageUrlPath(trimmed)
   const layers = [`url('${url}')`]
-  if (heroImageBlur) layers.push(`url('${heroImageBlur}')`)
+  const blur = heroImageBlur?.trim()
+  if (blur) layers.push(`url('${blur}')`)
 
   return { backgroundImage: layers.join(', ') }
 }

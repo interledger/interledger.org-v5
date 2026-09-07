@@ -64,4 +64,12 @@ describe('getHeroSectionStyle', () => {
       backgroundImage: "url('/elsewhere/hero.jpg')"
     })
   })
+
+  it('omits the second layer for a whitespace-only blur placeholder', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero.jpg', '   ')).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
 })
