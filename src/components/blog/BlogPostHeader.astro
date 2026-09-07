@@ -105,6 +105,7 @@ const blogPath = translatePath(
                 media={PAGE_HERO_MOBILE_MEDIA}
                 class="w-full h-auto rounded-3xl"
                 pictureClass="tablet:hidden"
+                placeholder={frontmatter.featureImageMobileBlur}
               />
               <OptimizedImage
                 src={frontmatter.featureImage}
@@ -117,6 +118,7 @@ const blogPath = translatePath(
                 media={PAGE_HERO_DESKTOP_MEDIA}
                 class="w-full h-auto rounded-3xl"
                 pictureClass="hidden tablet:block"
+                placeholder={frontmatter.featureImageBlur}
               />
             </>
           ) : (
@@ -129,6 +131,7 @@ const blogPath = translatePath(
               fetchpriority="high"
               decoding="sync"
               class="w-full h-auto rounded-3xl"
+              placeholder={frontmatter.featureImageBlur}
             />
           )
         }
