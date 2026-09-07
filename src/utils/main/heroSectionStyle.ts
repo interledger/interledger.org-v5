@@ -26,7 +26,7 @@ export function getHeroSectionStyle(
   const url =
     fullSrc ??
     (trimmed.startsWith('http')
-      ? encodeURI(trimmed)
+      ? encodeURI(trimmed).replaceAll("'", '%27')
       : encodeImageUrlPath(trimmed))
   const layers = [`url('${url}')`]
   const blur = sanitizeBlurPlaceholder(heroImageBlur)
