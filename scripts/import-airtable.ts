@@ -32,15 +32,18 @@ function findById<T extends { id: string }>(
   return found
 }
 
+function isRecordLike(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
 // A broken Airtable formula/rollup returns { error: '#ERROR!' } instead of a
 // string/number; an invalid numeric result (e.g. divide-by-zero) returns
 // { specialValue: 'NaN' } instead. Both are error shapes, just under
 // different keys.
 function airtableFormulaErrorReason(value: unknown): string | undefined {
-  if (typeof value !== 'object' || value === null) return undefined
-  const v = value as Record<string, unknown>
-  if (typeof v.error === 'string') return v.error
-  if (typeof v.specialValue === 'string') return v.specialValue
+  if (!isRecordLike(value)) return undefined
+  if (typeof value.error === 'string') return value.error
+  if (typeof value.specialValue === 'string') return value.specialValue
   return undefined
 }
 
@@ -49,14 +52,15 @@ function airtableFormulaErrorReason(value: unknown): string | undefined {
 // unconditionally, before validation, so cleanup never depends on iteration
 // order or short-circuiting.
 function sanitizeFormulaErrors(value: unknown): void {
-  if (typeof value !== 'object' || value === null) return
-  const v = value as Record<string, unknown>
-  if (typeof v.fields !== 'object' || v.fields === null) return
-  const fields = v.fields as Record<string, unknown>
+  if (!isRecordLike(value)) return
+  if (!isRecordLike(value.fields)) return
+  const fields = value.fields
   // Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
   const projectName = fields[PROJECT_NAME_FIELD_NAME]
   const recordLabel =
-    typeof projectName === 'string' ? `${projectName} (ID: ${v.id})` : v.id
+    typeof projectName === 'string'
+      ? `${projectName} (ID: ${value.id})`
+      : value.id
 
   for (const key in fields) {
     const reason = airtableFormulaErrorReason(fields[key])
@@ -69,12 +73,11 @@ function sanitizeFormulaErrors(value: unknown): void {
 }
 
 function isTableRecord(value: unknown): value is TableRecord {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  if (typeof v.id !== 'string' || typeof v.createdTime !== 'string')
+  if (!isRecordLike(value)) return false
+  if (typeof value.id !== 'string' || typeof value.createdTime !== 'string')
     return false
-  if (typeof v.fields !== 'object' || v.fields === null) return false
-  const fields = v.fields as Record<string, unknown>
+  if (!isRecordLike(value.fields)) return false
+  const fields = value.fields
   for (const key in fields) {
     const fieldValue = fields[key]
     if (
@@ -146,6 +149,12 @@ function resolveProjectLeaders(
   return updatedData
 }
 
+function throwUnexpectedShape(): never {
+  throw new Error(
+    `Unexpected response shape from Airtable: page.records is not TableRecord[]`
+  )
+}
+
 async function fetchAllRecords(
   tableId: typeof CONTACTS_TABLE_ID | typeof PROJECTS_TABLE_ID,
   params: URLSearchParams,
@@ -168,17 +177,9 @@ async function fetchAllRecords(
     }
 
     const page = await response.json()
-    if (!Array.isArray(page.records)) {
-      throw new Error(
-        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
-      )
-    }
+    if (!Array.isArray(page.records)) throwUnexpectedShape()
     page.records.forEach(sanitizeFormulaErrors)
-    if (!page.records.every(isTableRecord)) {
-      throw new Error(
-        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
-      )
-    }
+    if (!page.records.every(isTableRecord)) throwUnexpectedShape()
     records.push(...page.records)
     offset = page.offset
   } while (offset)
