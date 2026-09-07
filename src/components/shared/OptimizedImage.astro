@@ -37,6 +37,13 @@ interface Props {
   draggable?: boolean
   /** Optional art-directed sources (most specific `media` first). */
   alternateSources?: OptimizedImageAlternateSource[]
+  /**
+   * Base64 LQIP blur placeholder (`data:image/webp;base64,...`), from a
+   * `*Blur` frontmatter field. Painted as a CSS background behind the `<img>`
+   * — the opaque real photo covers it the instant it decodes, so this needs
+   * no fade/JS. Requires `width`/`height` to reserve the box beforehand.
+   */
+  placeholder?: string
 }
 
 const {
@@ -52,8 +59,17 @@ const {
   decoding = 'async',
   media,
   draggable,
-  alternateSources = []
+  alternateSources = [],
+  placeholder
 } = Astro.props
+
+const placeholderStyle = placeholder
+  ? {
+      backgroundImage: `url(${placeholder})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }
+  : undefined
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
   ? getOptimizedImage(src)
@@ -144,6 +160,7 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -162,6 +179,7 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -179,6 +197,7 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
         fetchpriority={fetchpriority}
         draggable={draggable}
         data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
