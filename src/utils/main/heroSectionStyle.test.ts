@@ -37,4 +37,23 @@ describe('getHeroSectionStyle', () => {
       backgroundImage: "url('/elsewhere/hero%20image.jpg')"
     })
   })
+
+  it('layers a blur placeholder underneath the real image when provided', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle('/elsewhere/hero.jpg', 'data:image/webp;base64,AAA')
+    ).toEqual({
+      backgroundImage:
+        "url('/elsewhere/hero.jpg'), url('data:image/webp;base64,AAA')"
+    })
+  })
+
+  it('omits the second layer when no blur placeholder is given', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero.jpg')).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
 })
