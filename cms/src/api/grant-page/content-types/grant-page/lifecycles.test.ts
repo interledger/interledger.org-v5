@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { generateGrantPageMDX } from './lifecycles'
 
 describe('generateGrantPageMDX', () => {
-  it('writes programOverview to frontmatter only, not into the MDX body', () => {
-    const mdx = generateGrantPageMDX(
+  it('writes programOverview to frontmatter only, not into the MDX body', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -32,8 +32,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.content).not.toContain('Eligibility')
   })
 
-  it('promotes a stray <br/> in programOverview and ctaStrip.description to a paragraph break', () => {
-    const mdx = generateGrantPageMDX(
+  it('promotes a stray <br/> in programOverview and ctaStrip.description to a paragraph break', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -58,8 +58,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.ctaStrip.description).toBe('line one\n\nline two')
   })
 
-  it('clears stale programOverview frontmatter when Strapi has none for the entry', () => {
-    const mdx = generateGrantPageMDX(
+  it('clears stale programOverview frontmatter when Strapi has none for the entry', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -84,8 +84,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.ctaStrip.color).toBeUndefined()
   })
 
-  it('omits subtitle/ctaText/ctaLink from faqSection frontmatter when absent, rather than writing empty strings', () => {
-    const mdx = generateGrantPageMDX(
+  it('omits subtitle/ctaText/ctaLink from faqSection frontmatter when absent, rather than writing empty strings', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -133,8 +133,8 @@ describe('generateGrantPageMDX', () => {
     ]
   }
 
-  it('trims a whitespace-only subtitle down to absent, rather than writing blank text', () => {
-    const mdx = generateGrantPageMDX(
+  it('trims a whitespace-only subtitle down to absent, rather than writing blank text', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -152,8 +152,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.faqSection.subtitle).toBeUndefined()
   })
 
-  it('trims a valid subtitle', () => {
-    const mdx = generateGrantPageMDX(
+  it('trims a valid subtitle', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -171,8 +171,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.faqSection.subtitle).toBe('Get in touch')
   })
 
-  it('omits a text-only cta half rather than exporting a dead button', () => {
-    const mdx = generateGrantPageMDX(
+  it('omits a text-only cta half rather than exporting a dead button', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
@@ -191,8 +191,8 @@ describe('generateGrantPageMDX', () => {
     expect(parsed.data.faqSection.ctaLink).toBeUndefined()
   })
 
-  it('writes both cta halves, trimmed, when both are present', () => {
-    const mdx = generateGrantPageMDX(
+  it('writes both cta halves, trimmed, when both are present', async () => {
+    const mdx = await generateGrantPageMDX(
       {
         id: 1,
         documentId: 'grant-1',
