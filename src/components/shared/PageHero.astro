@@ -33,6 +33,10 @@ interface Props {
   imageAlt?: string | null
   /** Alt text for the mobile hero image. Falls back to `imageAlt` when omitted. */
   imageMobileAlt?: string | null
+  /** Base64 LQIP blur placeholder for the desktop image, from `heroImageBlur` frontmatter. */
+  imageBlur?: string | null
+  /** Base64 LQIP blur placeholder for the mobile image, from `heroImageMobileBlur` frontmatter. */
+  imageMobileBlur?: string | null
   cta?: HeroCta | null
   breadcrumbs?: BreadcrumbItem[]
   /**
@@ -49,6 +53,8 @@ const {
   imageAlt,
   imageMobile,
   imageMobileAlt,
+  imageBlur,
+  imageMobileBlur,
   cta,
   breadcrumbs,
   imageBand = 'default'
@@ -170,6 +176,7 @@ const parallaxImgClass = isWideBand
               media={PAGE_HERO_MOBILE_MEDIA}
               pictureClass={parallaxPictureClass}
               class:list={[parallaxImgClass, 'block tablet:hidden']}
+              placeholder={imageMobileBlur ?? undefined}
             />
             <OptimizedImage
               src={image || imageMobile!}
@@ -182,6 +189,7 @@ const parallaxImgClass = isWideBand
               media={PAGE_HERO_DESKTOP_MEDIA}
               pictureClass={parallaxPictureClass}
               class:list={[parallaxImgClass, 'hidden tablet:block']}
+              placeholder={(image ? imageBlur : imageMobileBlur) ?? undefined}
             />
           </>
         ) : (
@@ -195,6 +203,7 @@ const parallaxImgClass = isWideBand
             decoding="sync"
             pictureClass={parallaxPictureClass}
             class={parallaxImgClass}
+            placeholder={imageBlur ?? undefined}
           />
         )}
       </div>
