@@ -153,12 +153,12 @@ function asFiniteNumber(value: unknown): number | undefined {
 function parseProjectUrls(value: unknown): string[] {
   return asStringList(value)
     .map((raw) => ensureAbsoluteUrl(raw))
-    .filter(
-      (href) =>
-        isSafeMarkdownHref(href) &&
-        isExternalHref(href) &&
-        getHostname(href) !== null
-    )
+    .filter((href) => {
+      if (!isSafeMarkdownHref(href) || !isExternalHref(href)) return false
+      // Reject single-label hosts like "TBD" or "pending" — `new URL` accepts them.
+      const hostname = getHostname(href)
+      return hostname !== null && hostname.includes('.')
+    })
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

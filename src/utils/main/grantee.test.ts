@@ -130,6 +130,10 @@ describe('parseGranteeRecords', () => {
         record({
           'Project Name': 'Note instead of a link',
           'Project Links': ['See attached grant report']
+        }),
+        record({
+          'Project Name': 'Placeholder TBD',
+          'Project Links': ['TBD']
         })
       ],
       'en'
