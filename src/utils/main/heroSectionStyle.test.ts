@@ -38,6 +38,14 @@ describe('getHeroSectionStyle', () => {
     })
   })
 
+  it('encodes per segment, not with encodeURI, so a comma in the filename cannot split the value', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero,photo.jpg')).toEqual({
+      backgroundImage: "url('/elsewhere/hero%2Cphoto.jpg')"
+    })
+  })
+
   it('layers a blur placeholder underneath the real image when provided', () => {
     setImageCdnEnabledForTests(false)
 

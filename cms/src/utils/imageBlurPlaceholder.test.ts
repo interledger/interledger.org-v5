@@ -44,6 +44,21 @@ describe('generateBlurPlaceholder', () => {
     expect(sharpMock).not.toHaveBeenCalled()
   })
 
+  it('resolves an absolute upload URL (STRAPI_UPLOADS_BASE_URL set) back to the local file', async () => {
+    toBuffer.mockResolvedValue(Buffer.from('fake-image-bytes'))
+
+    const result = await generateBlurPlaceholder(
+      'https://cdn.example.com/uploads/img/original/hero.jpg'
+    )
+
+    expect(result).toBe(
+      `data:image/webp;base64,${Buffer.from('fake-image-bytes').toString('base64')}`
+    )
+    expect(sharpMock).toHaveBeenCalledWith(
+      expect.stringContaining('/uploads/img/original/hero.jpg')
+    )
+  })
+
   it('returns an Error instead of throwing when sharp fails (missing/corrupt file)', async () => {
     toBuffer.mockRejectedValue(new Error('Input file is missing'))
 
