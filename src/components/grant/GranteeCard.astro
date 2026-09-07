@@ -55,13 +55,15 @@ const readMoreAttrs = buildUmamiAttrs({
   href: Astro.url.pathname
 })
 
-const detailsAttrs = grantee.projectUrl
+// Only one CTA is supported for now; supporting multiple project links is in discussion.
+const projectUrl = grantee.projectUrls[0]
+const detailsAttrs = projectUrl
   ? buildUmamiAttrs({
       pathname: Astro.url.pathname,
       lang: routeLocale,
       label: 'button_card',
       baseComponent: 'grantee_cards',
-      href: grantee.projectUrl,
+      href: projectUrl,
       linkText: t('grantee.view_details')
     })
   : {}
@@ -200,10 +202,10 @@ const detailsAttrs = grantee.projectUrl
       }
 
       {
-        grantee.projectUrl && (
+        projectUrl && (
           <div class="flex flex-wrap gap-md">
             <LinkButton
-              href={grantee.projectUrl}
+              href={projectUrl}
               external
               variant="primary"
               size="sm"

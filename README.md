@@ -734,6 +734,7 @@ pnpm run sync:airtable
 **What it does:**
 
 - Fetches records from the **Projects** table using a configured view
+- Keeps only records marked **Published on Website**
 - Resolves linked **Project Leader** IDs into contact names from the **Contacts** table
 - Writes the result to `src/data/airtable/grantee-data.json`
 

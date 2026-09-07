@@ -31,19 +31,3 @@ export interface TableRecord {
     [key: string]: string | number | string[]
   }
 }
-
-// Specific interface for the Grantee Data - it matches the JSON structure we  generate for the frontend to consume (@/data/airtable/grantee-data.json)
-export interface GranteeRecord extends TableRecord {
-  fields: {
-    Country: string
-    'Project Name': string
-    'Project Leader': string[]
-    'Secondary Grant Program Name': string
-    'Start Month': string
-    Year: string
-    'Total budget approved': number
-    'Project Description'?: string
-    'Project Links'?: string
-    'Thematic Tag'?: string[]
-  }
-}

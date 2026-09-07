@@ -9,6 +9,9 @@ const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const EXCLUDED_FIELD_ID = 'fldirPGzYo96I1Hsu' // Project field in Projects table
 const PROJECT_LEADER_FIELD_ID = 'fldKLOR55uQPb5BHG' // Project Leader field in Projects table
+const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Website field in Projects table
+const PUBLISHED_ON_WEBSITE_VALUE = 'Published on Website'
+const PROJECT_NAME_FIELD_NAME = 'Project Name'
 
 function assertString(value: unknown, context: string): string {
   if (typeof value !== 'string') {
@@ -29,13 +32,52 @@ function findById<T extends { id: string }>(
   return found
 }
 
+function isRecordLike(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+// A broken Airtable formula/rollup returns { error: '#ERROR!' } instead of a
+// string/number; an invalid numeric result (e.g. divide-by-zero) returns
+// { specialValue: 'NaN' } instead. Both are error shapes, just under
+// different keys.
+function airtableFormulaErrorReason(value: unknown): string | undefined {
+  if (!isRecordLike(value)) return undefined
+  if (typeof value.error === 'string') return value.error
+  if (typeof value.specialValue === 'string') return value.specialValue
+  return undefined
+}
+
+// Strips formula-error fields from a record in place, warning instead of
+// failing the whole sync over one bad cell. Runs over every record
+// unconditionally, before validation, so cleanup never depends on iteration
+// order or short-circuiting.
+function sanitizeFormulaErrors(value: unknown): void {
+  if (!isRecordLike(value)) return
+  if (!isRecordLike(value.fields)) return
+  const fields = value.fields
+  // Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
+  const projectName = fields[PROJECT_NAME_FIELD_NAME]
+  const recordLabel =
+    typeof projectName === 'string'
+      ? `${projectName} (ID: ${value.id})`
+      : value.id
+
+  for (const key in fields) {
+    const reason = airtableFormulaErrorReason(fields[key])
+    if (reason === undefined) continue
+    console.warn(
+      `⚠️  Formula error in field "${key}" for record ${recordLabel}: ${reason} — field omitted`
+    )
+    delete fields[key]
+  }
+}
+
 function isTableRecord(value: unknown): value is TableRecord {
-  if (typeof value !== 'object' || value === null) return false
-  const v = value as Record<string, unknown>
-  if (typeof v.id !== 'string' || typeof v.createdTime !== 'string')
+  if (!isRecordLike(value)) return false
+  if (typeof value.id !== 'string' || typeof value.createdTime !== 'string')
     return false
-  if (typeof v.fields !== 'object' || v.fields === null) return false
-  const fields = v.fields as Record<string, unknown>
+  if (!isRecordLike(value.fields)) return false
+  const fields = value.fields
   for (const key in fields) {
     const fieldValue = fields[key]
     if (
@@ -57,6 +99,28 @@ async function writeAirtableJson(data: TableRecord[]) {
 
   await fs.writeFile(filePath, JSON.stringify(data, null, 2))
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
+}
+
+// Only records marked 'Published on Website' in Airtable are written to grantee-data.json.
+function filterPublishedRecords(
+  data: TableRecord[],
+  publishedOnWebsiteFieldName: string
+): TableRecord[] {
+  const published = data.filter(
+    (record) =>
+      record.fields[publishedOnWebsiteFieldName] === PUBLISHED_ON_WEBSITE_VALUE
+  )
+  if (data.length > 0 && published.length === 0) {
+    throw new Error(
+      `${PUBLISHED_ON_WEBSITE_VALUE} filter matched 0 of ${data.length} records — refusing to write an empty grantee directory`
+    )
+  }
+  // Every remaining record is published by construction, so the flag is redundant — drop it to keep the written JSON smaller.
+  return published.map((record) => {
+    const fields = { ...record.fields }
+    delete fields[publishedOnWebsiteFieldName]
+    return { ...record, fields }
+  })
 }
 
 function resolveProjectLeaders(
@@ -85,6 +149,12 @@ function resolveProjectLeaders(
   return updatedData
 }
 
+function throwUnexpectedShape(): never {
+  throw new Error(
+    `Unexpected response shape from Airtable: page.records is not TableRecord[]`
+  )
+}
+
 async function fetchAllRecords(
   tableId: typeof CONTACTS_TABLE_ID | typeof PROJECTS_TABLE_ID,
   params: URLSearchParams,
@@ -107,11 +177,9 @@ async function fetchAllRecords(
     }
 
     const page = await response.json()
-    if (!Array.isArray(page.records) || !page.records.every(isTableRecord)) {
-      throw new Error(
-        `Unexpected response shape from Airtable: page.records is not TableRecord[]`
-      )
-    }
+    if (!Array.isArray(page.records)) throwUnexpectedShape()
+    page.records.forEach(sanitizeFormulaErrors)
+    if (!page.records.every(isTableRecord)) throwUnexpectedShape()
     records.push(...page.records)
     offset = page.offset
   } while (offset)
@@ -196,10 +264,19 @@ async function importAirtableData() {
     PROJECT_LEADER_FIELD_ID,
     'Project Leader field'
   ).name
+  const publishedOnWebsiteFieldName = findById(
+    projectsTable.fields,
+    PUBLISHED_ON_WEBSITE_FIELD_ID,
+    'Published on Website field'
+  ).name
 
-  const granteeData: TableRecord[] = await fetchGranteeRecords(
+  const allGranteeData: TableRecord[] = await fetchGranteeRecords(
     granteeView,
     apiToken
+  )
+  const granteeData = filterPublishedRecords(
+    allGranteeData,
+    publishedOnWebsiteFieldName
   )
   // Airtable returns linked records as IDs; resolve Project Leader IDs to contact names.
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
