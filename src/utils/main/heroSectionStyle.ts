@@ -18,7 +18,16 @@ export function getHeroSectionStyle(
   if (!trimmed) return undefined
 
   const { fullSrc } = getOptimizedImage(trimmed)
-  const url = fullSrc ?? encodeImageUrlPath(trimmed)
+  // `encodeImageUrlPath` encodes per path segment and is only correct for a
+  // site-relative literal path — applied to an absolute URL it would mangle
+  // the scheme/host and destroy any query string. `encodeURI` (which leaves
+  // `?`/`#` untouched) is the right tool there, matching how the rest of this
+  // module treats an absolute source (see `resolveOptimizableSource`).
+  const url =
+    fullSrc ??
+    (trimmed.startsWith('http')
+      ? encodeURI(trimmed)
+      : encodeImageUrlPath(trimmed))
   const layers = [`url('${url}')`]
   const blur = sanitizeBlurPlaceholder(heroImageBlur)
   if (blur) layers.push(`url('${blur}')`)

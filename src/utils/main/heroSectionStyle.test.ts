@@ -46,6 +46,16 @@ describe('getHeroSectionStyle', () => {
     })
   })
 
+  it('keeps an absolute fallback URL intact instead of mangling its scheme/host and query string', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle('https://cdn.example.com/uploads/hero.jpg?v=2')
+    ).toEqual({
+      backgroundImage: "url('https://cdn.example.com/uploads/hero.jpg?v=2')"
+    })
+  })
+
   it('layers a blur placeholder underneath the real image when provided', () => {
     setImageCdnEnabledForTests(false)
 
