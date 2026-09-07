@@ -203,6 +203,7 @@ export {
   isOptimizableSource,
   encodeImageUrlPath,
   hasOptimizableRasterExtension,
+  sanitizeBlurPlaceholder,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,

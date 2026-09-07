@@ -72,4 +72,17 @@ describe('getHeroSectionStyle', () => {
       backgroundImage: "url('/elsewhere/hero.jpg')"
     })
   })
+
+  it('omits the second layer for a malformed blur value that could break out of url(...)', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle(
+        '/elsewhere/hero.jpg',
+        "data:image/webp;base64,AAA');color:red;--x:('"
+      )
+    ).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
 })

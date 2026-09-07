@@ -3,18 +3,9 @@ import {
   buildImageSrcset,
   getOptimizedImage,
   isOptimizableSource,
-  resolveOptimizedImage
+  resolveOptimizedImage,
+  sanitizeBlurPlaceholder
 } from '@/utils'
-
-/**
- * Matches exactly what `generateBlurPlaceholder()` (cms/src/utils/imageBlurPlaceholder.ts)
- * produces — a base64-encoded WebP data URI, nothing else. `placeholder` comes
- * from content-managed frontmatter and is interpolated into an inline
- * `background-image: url('...')`, so this must reject anything outside the
- * base64 alphabet: a stray `'`, `)`, or `;` could break out of the token and
- * inject further CSS into the style attribute.
- */
-const BLUR_PLACEHOLDER_RE = /^data:image\/webp;base64,[A-Za-z0-9+/]+=*$/
 
 export interface OptimizedImageAlternateSource {
   src: string
@@ -73,15 +64,14 @@ const {
   placeholder
 } = Astro.props
 
-const safePlaceholder = placeholder?.trim()
-const placeholderStyle =
-  safePlaceholder && BLUR_PLACEHOLDER_RE.test(safePlaceholder)
-    ? {
-        backgroundImage: `url('${safePlaceholder}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }
-    : undefined
+const safePlaceholder = sanitizeBlurPlaceholder(placeholder)
+const placeholderStyle = safePlaceholder
+  ? {
+      backgroundImage: `url('${safePlaceholder}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }
+  : undefined
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
   ? getOptimizedImage(src)

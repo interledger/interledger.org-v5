@@ -1,4 +1,8 @@
-import { encodeImageUrlPath, getOptimizedImage } from './images'
+import {
+  encodeImageUrlPath,
+  getOptimizedImage,
+  sanitizeBlurPlaceholder
+} from './images'
 
 /**
  * Layers the real hero image over a base64 LQIP blur placeholder when one is
@@ -16,7 +20,7 @@ export function getHeroSectionStyle(
   const { fullSrc } = getOptimizedImage(trimmed)
   const url = fullSrc ?? encodeImageUrlPath(trimmed)
   const layers = [`url('${url}')`]
-  const blur = heroImageBlur?.trim()
+  const blur = sanitizeBlurPlaceholder(heroImageBlur)
   if (blur) layers.push(`url('${blur}')`)
 
   return { backgroundImage: layers.join(', ') }
