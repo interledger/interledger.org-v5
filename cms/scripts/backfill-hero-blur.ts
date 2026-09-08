@@ -31,6 +31,11 @@ const IMAGE_FIELDS = [
 ] as const
 
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/
+// A handful of legacy-imported MDX files (Drupal-era Spanish blog posts) carry
+// a leading UTF-8 BOM before the `---` delimiter, which the anchored regex
+// above does not tolerate. Strip it before matching and restore it on write
+// so those files don't change encoding as a side effect.
+const BOM = String.fromCharCode(0xfeff)
 
 function listMdxFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return []
@@ -61,9 +66,17 @@ function cachedGenerateBlurPlaceholder(url: string): Promise<string | Error> {
 async function backfillFile(
   filepath: string
 ): Promise<{ updated: boolean; skipped: string[] }> {
-  const raw = fs.readFileSync(filepath, 'utf-8')
+  const rawWithBom = fs.readFileSync(filepath, 'utf-8')
+  const hasBom = rawWithBom.startsWith(BOM)
+  const raw = hasBom ? rawWithBom.slice(BOM.length) : rawWithBom
+
   const match = raw.match(FRONTMATTER_RE)
-  if (!match) return { updated: false, skipped: [] }
+  if (!match) {
+    return {
+      updated: false,
+      skipped: [`${path.basename(filepath)}: no parseable frontmatter block`]
+    }
+  }
 
   const body = raw.slice(match[0].length)
   const lines = match[1].split('\n')
@@ -91,9 +104,10 @@ async function backfillFile(
   }
 
   if (changed && !DRY_RUN) {
+    const prefix = hasBom ? BOM : ''
     fs.writeFileSync(
       filepath,
-      `---\n${lines.join('\n')}\n---\n${body}`,
+      `${prefix}---\n${lines.join('\n')}\n---\n${body}`,
       'utf-8'
     )
   }
