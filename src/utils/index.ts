@@ -135,23 +135,34 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export {
-  GRANTEE_PAGE_SIZE,
   ALL_GRANTEE_YEAR_SLUG,
+  GRANTEE_COLLIDING_TAG_PREFIX,
   getGranteeFilterUrl,
-  getGranteeListingData,
-  paginateGranteesByYear,
-  paginateGranteesByYearAndTag,
-  parseGranteeRecords,
-  uniqueFilterOptions,
+  isCollidingTagSlug,
+  isGranteeYearSlug,
   matchesGranteeFilters,
   filterGrantees,
+  type GranteeFilters
+} from './main/granteeFilters'
+export {
+  GRANTEE_PAGE_SIZE,
+  getGranteeListingData,
+  getGranteeSearchIndex,
+  paginateGranteesByYear,
+  paginateGranteesByTag,
+  paginateGranteesByCollidingTag,
+  paginateGranteesByYearAndTag,
+  paginateGranteesByYearAndCollidingTag,
+  legacyAllYearsRedirects,
+  parseGranteeRecords,
+  uniqueFilterOptions,
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
   type Grantee,
-  type GranteeFilters,
   type GranteeFilterOption,
-  type GranteeListingData
+  type GranteeListingData,
+  type GranteeSearchEntry
 } from './main/grantee'
 
 // Main site: Text

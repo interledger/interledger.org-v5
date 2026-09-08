@@ -1,0 +1,152 @@
+---
+/**
+ * Markup source for client-side grantee search rows. grantee-search.ts clones
+ * this template and fills [data-grantee-search-*] slots — keep structure and
+ * Tailwind classes aligned with GranteeCard.astro (search omits read-more and
+ * full markdown descriptions; tag pills and view-details match browse mode).
+ */
+import Icon from '@/components/shared/Icon.astro'
+import { buttonVariants } from '@/components/shared/buttonVariants'
+import { useTranslations } from '@/utils'
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const metaItemClasses =
+  'flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0'
+
+const detailsLinkClass = buttonVariants({
+  variant: 'primary',
+  size: 'sm',
+  iconSide: 'right'
+})
+---
+
+<template id="grantee-search-result-template">
+  <li
+    class="m-0 rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl"
+  >
+    <article class="flex flex-col gap-lg">
+      <div
+        class="flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl"
+      >
+        <div class="flex min-w-0 flex-col gap-sm">
+          <h3
+            class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg"
+            data-grantee-search-name
+          >
+          </h3>
+          <p
+            class="m-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75"
+            data-grantee-search-program
+            hidden
+          >
+          </p>
+        </div>
+        <div
+          class="shrink-0 desktop:text-right"
+          data-grantee-search-budget-wrap
+          hidden
+        >
+          <p
+            class="m-0 flex items-start gap-sm font-poppins font-semibold text-h2 text-neutral-150 tablet:text-h2-md desktop:justify-end desktop:text-h2-lg"
+          >
+            <span data-grantee-search-budget-amount></span>
+            <span
+              class="self-end mb-sm whitespace-nowrap text-h3 font-normal tablet:text-h3-md desktop:text-h3-lg"
+              data-grantee-search-budget-currency>{t('grantee.currency')}</span
+            >
+          </p>
+          <p class="m-0 text-body-sm-standard text-neutral-75">
+            {t('grantee.amount_label')}
+          </p>
+        </div>
+      </div>
+
+      <ul
+        class="flex flex-wrap gap-xs list-none m-0 p-0"
+        aria-label={t('aria.grantee.tags')}
+        data-grantee-search-tags-wrap
+        hidden
+      >
+      </ul>
+
+      <ul
+        class="flex flex-col gap-sm list-none m-0 p-0"
+        data-grantee-search-meta-wrap
+        hidden
+      >
+        <li
+          class:list={[metaItemClasses, 'm-0']}
+          data-grantee-search-country-wrap
+          hidden
+        >
+          <Icon name="map-pin" class="size-5 shrink-0 text-neutral-75" />
+          <span>
+            <span class="sr-only">{t('aria.grantee.location')}: </span>
+            <span data-grantee-search-country></span>
+          </span>
+        </li>
+        <li
+          class:list={[metaItemClasses, 'm-0']}
+          data-grantee-search-date-wrap
+          hidden
+        >
+          <Icon name="calendar" class="size-5 shrink-0 text-neutral-75" />
+          <time data-grantee-search-date>
+            <span class="sr-only">{t('aria.grantee.date')}: </span>
+            <span data-grantee-search-date-text></span>
+          </time>
+        </li>
+      </ul>
+
+      <div class="flex flex-col gap-xl">
+        <div
+          class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
+          data-grantee-search-description-panel
+          hidden
+        >
+          <p
+            class="m-0 text-body-sm-standard text-neutral-100"
+            data-grantee-search-leaders-wrap
+            hidden
+          >
+            <span class="sr-only">{t('grantee.project_lead')}: </span>
+            <span data-grantee-search-leaders></span>
+          </p>
+          <p
+            class="m-0 text-body-lg-standard text-neutral-100"
+            data-grantee-search-snippet
+            hidden
+          >
+          </p>
+        </div>
+
+        <div
+          class="flex flex-wrap gap-md"
+          data-grantee-search-details-wrap
+          hidden
+        >
+          <a
+            class={detailsLinkClass}
+            data-grantee-search-details-link
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t('grantee.view_details')}
+            <Icon name="external-link" class="size-4" />
+            <span class="sr-only">{t('aria.opens_new_tab')}</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  </li>
+</template>
+
+<template data-grantee-search-tag-template>
+  <li class="m-0">
+    <a
+      class="inline-block no-underline px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full bg-transparent transition-colors duration-200 ease-in-out hover:border-neutral-75 hover:text-neutral-150 focus-visible:outline-none focus-visible:border-link"
+    ></a>
+  </li>
+</template>
