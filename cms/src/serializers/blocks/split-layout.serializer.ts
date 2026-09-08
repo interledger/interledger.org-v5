@@ -130,7 +130,9 @@ export function serialize(block: {
   const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''
 
   if (body) {
-    return `<SplitLayout${attrsStr}>\n${body}\n</SplitLayout>`
+    // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
+    // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
+    return `<SplitLayout${attrsStr}>\n\n${body}\n\n</SplitLayout>`
   }
   return `<SplitLayout${attrsStr} />`
 }
