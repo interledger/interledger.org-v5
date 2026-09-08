@@ -65,7 +65,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 slugs of related posts — Strapi enforces this as required for editors.
+  // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
   relatedArticles: z.array(z.string()).length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
