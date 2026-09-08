@@ -4,8 +4,7 @@ import rawGranteeData from '@/data/airtable/grantee-data.json'
 import GranteeDirectoryPage from '@/components/pages/GranteeDirectoryPage.astro'
 import {
   getGranteeListingData,
-  paginateGranteesByCollidingTag,
-  paginateGranteesByYearAndTag,
+  paginateGranteesByYearAndCollidingTag,
   type Grantee,
   type GranteeFilterOption
 } from '@/utils'
@@ -13,10 +12,7 @@ import {
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const listing = getGranteeListingData(rawGranteeData, 'en')
   if (listing instanceof Error) throw listing
-  return [
-    ...paginateGranteesByYearAndTag({ paginate, ...listing }),
-    ...paginateGranteesByCollidingTag({ paginate, ...listing })
-  ]
+  return paginateGranteesByYearAndCollidingTag({ paginate, ...listing })
 }
 
 interface Props {

@@ -148,4 +148,34 @@ describe('stripPagination', () => {
       '/es/grant/grantee-directory/2024'
     )
   })
+
+  it('does not strip an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/privacy')).toBe(
+      '/grant/grantee-directory/privacy'
+    )
+  })
+
+  it('drops the page number from an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/privacy/2')).toBe(
+      '/grant/grantee-directory/privacy'
+    )
+  })
+
+  it('drops the page number from a colliding tag listing under the reserved prefix', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/all/2')).toBe(
+      '/grant/grantee-directory/tag/all'
+    )
+  })
+
+  it('does not treat a numeric colliding tag as a listing page', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/2')).toBe(
+      '/grant/grantee-directory/tag/2'
+    )
+  })
+
+  it('drops the page number from a year + colliding tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/2024/tag/all/2')).toBe(
+      '/grant/grantee-directory/2024/tag/all'
+    )
+  })
 })
