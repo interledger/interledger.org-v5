@@ -71,7 +71,9 @@ export function serialize(block: {
     ? escMdxBraces(ckeditorFieldToCompiledMarkdown(block.description))
     : ''
 
+  // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
+  // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
   return description
-    ? `<CtaStrip ${attrs}>\n${description}\n</CtaStrip>`
+    ? `<CtaStrip ${attrs}>\n\n${description}\n\n</CtaStrip>`
     : `<CtaStrip ${attrs} />`
 }
