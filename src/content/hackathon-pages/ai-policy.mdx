@@ -13,7 +13,7 @@ Participants are welcome to use AI tools (e.g., ChatGPT, Claude, GitHub Copilot,
 
 ## **2. Disclosure Is Required**
 
-Every team must add a file named AI_USAGE.md to the root of their GitHub project repository. This file must state:
+Every team must add a file named `AI\_USAGE.md` to the root of their GitHub project repository. This file must state:
 
 - Which AI tool(s) were used
 - What they were used for
@@ -22,45 +22,45 @@ Every team must add a file named AI_USAGE.md to the root of their GitHub project
 
 ### Example: AI_USAGE.md
 
-\`# AI Usage Disclosure
+`#AI Usage Disclosure`
 
-\## Tools Used
+`## Tools Used`
 
-\- ChatGPT (GPT-4o)
+`* ChatGPT (GPT-4o)` 
 
-\- Claude
+`* Claude`
 
-\## Where and How We Used AI
+`## Where and How We Used AI`
 
-\### 1. Backend – Payment flow (\`/src/api/open-payments.ts\`)
+``### 1. Backend – Payment flow (`/src/api/open-payments.ts`)``
 
-\- Used Claude to scaffold the initial Open Payments flow, creating incoming and outgoing payments, as well as quote creation.
+`* Used Claude to scaffold the initial Open Payments flow, creating incoming and outgoing payments, as well as quote creation.` 
 
-\- Reviewed and rewrote error handling ourselves after testing revealed the AI's version didn't handle grants correctly.
+`* Reviewed and rewrote error handling ourselves after testing revealed the AI's version didn't handle grants correctly.`
 
-\### 2. Frontend – Donation platform UI (\`/src/components/Donation.tsx\`)
+``### 2. Frontend – Donation platform UI (`/src/components/Donation.tsx`)``
 
-\- Used Claude to generate all design and frontend pages and components
+`* Used Claude to generate all design and frontend pages and components`
 
-\### 3. Documentation – README setup instructions
+`### 3. Documentation – README setup instructions`
 
-\- Used ChatGPT to draft the initial README structure.
+`* Used ChatGPT to draft the initial README structure.` 
 
-\- Edited by hand to match our actual setup steps and fix inaccurate install commands.
+`* Edited by hand to match our actual setup steps and fix inaccurate install commands.`
 
-\## What We Did Ourselves
+`## What We Did Ourselves`
 
-\- Testing and verification of all AI-suggested code
+`* Testing and verification of all AI-suggested code`
 
-\## Prompt Log
+`## Prompt Log`
 
-See \`/prompts/backend-payments.md\` for the full list of prompts used to generate the open payments flow code.\`
+``See `/prompts/backend-payments.md` for the full list of prompts used to generate the open payments flow code.``
 
 ## **3. Prompt Logs Are Required**
 
-Teams must also push the prompts they used to instruct AI tools for coding into their repo, in a folder called /prompts (or appended to AI_USAGE.md if the log is short). This should include the actual prompt text sent to the AI, not just a summary. All AI tools used should be able to provide a prompt list to be saved in the folder/file.
+Teams must also push the prompts they used to instruct AI tools for coding into their repo, in a folder called `/prompts` (or appended to `AI\_USAGE.md` if the log is short). This should include the actual prompt text sent to the AI, not just a summary. All AI tools used should be able to provide a prompt list to be saved in the folder/file.
 
-Example: /prompts/backend-payments.md
+Example: `/prompts/backend-payments.md`
 
 ## **4. Recommendation: Use AI, But Don't Outsource Your Work Or Your Thinking**
 
@@ -72,7 +72,7 @@ Example: /prompts/backend-payments.md
 
 Before the hackathon (or before submitting), all participants must complete one of the following:
 
-- The Platzi course on Open Payments: https://platzi.com/cursos/interledger-openpayments/ (Spanish only),or
+- The Platzi course on Open Payments: [https://platzi.com/cursos/interledger-openpayments/](https://platzi.com/cursos/interledger-openpayments/) (Spanish only),or
 - Review the Guide to Open Payments (English and Spanish)
 
 A solid understanding of the Open Payments flow is required before building on it, and this preparation ensures every participant has that foundation.
