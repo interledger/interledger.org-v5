@@ -13,71 +13,65 @@
  */
 
 interface ProfileColorPair {
-  avatar: { light: string; dark: string }
-  hero: { light: string; dark: string }
+  avatar: string
+  hero: string
 }
 
 const PROFILE_COLOR_PAIRS: ProfileColorPair[] = [
   {
-    avatar: { light: 'bg-lavender-100', dark: 'bg-soft-indigo-100' },
-    hero: { light: 'bg-aqua-mint-100', dark: 'bg-royal-purple-100' }
+    avatar: 'bg-lavender-100 dark:bg-soft-indigo-100',
+    hero: 'bg-aqua-mint-100 dark:bg-royal-purple-100'
   },
   {
-    avatar: { light: 'bg-soft-indigo-100', dark: 'bg-deep-teal-100' },
-    hero: { light: 'bg-blush-100', dark: 'bg-ocean-100' }
+    avatar: 'bg-soft-indigo-100 dark:bg-deep-teal-100',
+    hero: 'bg-blush-100 dark:bg-ocean-100'
   },
   {
-    avatar: { light: 'bg-flamingo-100', dark: 'bg-tangerine-100' },
-    hero: { light: 'bg-pistachio-100', dark: 'bg-forest-green-100' }
+    avatar: 'bg-flamingo-100 dark:bg-tangerine-100',
+    hero: 'bg-pistachio-100 dark:bg-forest-green-100'
   },
   {
-    avatar: { light: 'bg-coral-red-100', dark: 'bg-raspberry-100' },
-    hero: { light: 'bg-apricot-100', dark: 'bg-wine-100' }
+    avatar: 'bg-coral-red-100 dark:bg-raspberry-100',
+    hero: 'bg-apricot-100 dark:bg-wine-100'
   },
   {
-    avatar: { light: 'bg-flamingo-100', dark: 'bg-lavender-100' },
-    hero: { light: 'bg-aqua-mint-100', dark: 'bg-royal-purple-100' }
+    avatar: 'bg-flamingo-100 dark:bg-lavender-100',
+    hero: 'bg-aqua-mint-100 dark:bg-royal-purple-100'
   },
   {
-    avatar: { light: 'bg-emerald-100', dark: 'bg-lagoon-100' },
-    hero: { light: 'bg-blush-100', dark: 'bg-ocean-100' }
+    avatar: 'bg-emerald-100 dark:bg-lagoon-100',
+    hero: 'bg-blush-100 dark:bg-ocean-100'
   },
   {
-    avatar: { light: 'bg-tangerine-100', dark: 'bg-raspberry-100' },
-    hero: { light: 'bg-pistachio-100', dark: 'bg-forest-green-100' }
+    avatar: 'bg-tangerine-100 dark:bg-raspberry-100',
+    hero: 'bg-pistachio-100 dark:bg-forest-green-100'
   },
   {
-    avatar: { light: 'bg-soft-indigo-100', dark: 'bg-orchid-100' },
-    hero: { light: 'bg-apricot-100', dark: 'bg-wine-100' }
+    avatar: 'bg-soft-indigo-100 dark:bg-orchid-100',
+    hero: 'bg-apricot-100 dark:bg-wine-100'
   },
   {
-    avatar: { light: 'bg-tangerine-100', dark: 'bg-deep-teal-100' },
-    hero: { light: 'bg-aqua-mint-100', dark: 'bg-royal-purple-100' }
+    avatar: 'bg-tangerine-100 dark:bg-deep-teal-100',
+    hero: 'bg-aqua-mint-100 dark:bg-royal-purple-100'
   },
   {
-    avatar: { light: 'bg-coral-red-100', dark: 'bg-orchid-100' },
-    hero: { light: 'bg-blush-100', dark: 'bg-ocean-100' }
+    avatar: 'bg-coral-red-100 dark:bg-orchid-100',
+    hero: 'bg-blush-100 dark:bg-ocean-100'
   },
   {
-    avatar: { light: 'bg-lavender-100', dark: 'bg-tangerine-100' },
-    hero: { light: 'bg-pistachio-100', dark: 'bg-forest-green-100' }
+    avatar: 'bg-lavender-100 dark:bg-tangerine-100',
+    hero: 'bg-pistachio-100 dark:bg-forest-green-100'
   },
   {
-    avatar: { light: 'bg-emerald-100', dark: 'bg-periwinkle-100' },
-    hero: { light: 'bg-apricot-100', dark: 'bg-wine-100' }
+    avatar: 'bg-emerald-100 dark:bg-periwinkle-100',
+    hero: 'bg-apricot-100 dark:bg-wine-100'
   }
 ]
 
-function themedColorClass(light: string, dark: string): string {
-  return `${light} dark:${dark}`
-}
-
 export function getProfileAvatarColorClass(index: number): string {
-  const pair = PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length]
-  return themedColorClass(pair.avatar.light, pair.avatar.dark)
+  return PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length].avatar
 }
 
 export function getProfileHeroColorClass(index: number): string {
-  const pair = PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length]
-  return themedColorClass(pair.hero.light, pair.hero.dark)
+  return PROFILE_COLOR_PAIRS[index % PROFILE_COLOR_PAIRS.length].hero
 }
