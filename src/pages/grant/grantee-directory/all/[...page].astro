@@ -1,19 +1,19 @@
 ---
 /**
- * Legacy `/grant/grantee-directory/<year>/<tag>` bookmarks. Tags now always
- * live under `/tag/<slug>`.
+ * Legacy `/grant/grantee-directory/all/<tag>` bookmarks. Colliding tags
+ * (`all`, digits) go to `/tag/<slug>`; everything else drops the `/all` prefix.
  */
 import type { GetStaticPaths } from 'astro'
 import rawGranteeData from '@/data/airtable/grantee-data.json'
 import {
   getGranteeListingData,
   grantGranteeDirectoryPath,
-  legacyYearAndTagRedirects
+  legacyAllYearsRedirects
 } from '@/utils'
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const listing = getGranteeListingData(rawGranteeData, 'en')
   if (listing instanceof Error) throw listing
-  return legacyYearAndTagRedirects(listing, grantGranteeDirectoryPath())
+  return legacyAllYearsRedirects(listing, grantGranteeDirectoryPath())
 }
 ---

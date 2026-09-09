@@ -1,9 +1,15 @@
 import { describe, expect, it } from 'vitest'
+import { ALL_GRANTEE_YEAR_SLUG } from './granteeFilters'
 import {
   formatBudgetAmount,
   formatStartMonth,
   getGranteeListingData,
+  legacyAllYearsRedirects,
+  legacyUnprefixedTagRedirects,
+  legacyYearAndTagRedirects,
   normalizeCountry,
+  paginateGranteesByTag,
+  paginateGranteesByYearAndTag,
   parseGranteeRecords,
   uniqueFilterOptions
 } from './grantee'
@@ -265,5 +271,175 @@ describe('getGranteeListingData', () => {
       'financial-services',
       'opensource'
     ])
+  })
+})
+
+describe('paginateGranteesByTag', () => {
+  it('emits every tag under params.tag, including reserved slugs', () => {
+    const colliding = record(
+      {
+        ...sample.fields,
+        'Project Name': 'All-tag project',
+        'Thematic Tag': ['All', '2024']
+      },
+      'rec-collide'
+    )
+    const listing = getGranteeListingData([sample, colliding], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const params: string[] = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: { params: { tag: string } }
+    ) => {
+      params.push(options.params.tag)
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByTag({ paginate, ...listing })
+
+    expect(params).toContain('all')
+    expect(params).toContain('2024')
+    expect(params).toContain('financial-services')
+  })
+})
+
+describe('paginateGranteesByYearAndTag', () => {
+  it('emits every tag under the year, including reserved slugs', () => {
+    const colliding = record(
+      {
+        ...sample.fields,
+        'Thematic Tag': ['All', '2', 'Financial Services']
+      },
+      'rec-collide-year'
+    )
+    const listing = getGranteeListingData([colliding], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const tags: string[] = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: { params: { year: string; tag: string } }
+    ) => {
+      tags.push(options.params.tag)
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByYearAndTag({ paginate, ...listing })
+
+    expect(tags).toContain('financial-services')
+    expect(tags).toContain('all')
+    expect(tags).toContain('2')
+  })
+
+  it('does not emit /all/<tag> pages — those redirect to the tag-only route', () => {
+    const listing = getGranteeListingData([sample], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const calls: Array<{
+      year: string
+      tag: string
+      selectedYear: string | undefined
+      selectedTag: string | undefined
+    }> = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: {
+        params: { year: string; tag: string }
+        props: { selectedYear?: string; selectedTag?: string }
+      }
+    ) => {
+      calls.push({
+        year: options.params.year,
+        tag: options.params.tag,
+        selectedYear: options.props.selectedYear,
+        selectedTag: options.props.selectedTag
+      })
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByYearAndTag({ paginate, ...listing })
+
+    expect(calls.some((call) => call.year === ALL_GRANTEE_YEAR_SLUG)).toBe(
+      false
+    )
+    expect(calls).toContainEqual({
+      year: '2024',
+      tag: 'financial-services',
+      selectedYear: '2024',
+      selectedTag: 'financial-services'
+    })
+  })
+})
+
+describe('legacyAllYearsRedirects', () => {
+  it('sends a bookmarked /all/all tag to /tag/all, not the unfiltered directory', () => {
+    const colliding = record(
+      {
+        ...sample.fields,
+        'Thematic Tag': ['All']
+      },
+      'rec-legacy-all'
+    )
+    const listing = getGranteeListingData([colliding], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const redirects = legacyAllYearsRedirects(
+      listing,
+      '/grant/grantee-directory'
+    )
+    expect(redirects).toContainEqual({
+      params: { page: 'all' },
+      redirect: '/grant/grantee-directory/tag/all'
+    })
+  })
+
+  it('sends a normal tag bookmark to /tag/<slug>', () => {
+    const listing = getGranteeListingData([sample], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const redirects = legacyAllYearsRedirects(
+      listing,
+      '/grant/grantee-directory'
+    )
+    expect(redirects).toContainEqual({
+      params: { page: 'financial-services' },
+      redirect: '/grant/grantee-directory/tag/financial-services'
+    })
+  })
+})
+
+describe('legacyUnprefixedTagRedirects', () => {
+  it('moves old /<tag> bookmarks onto /tag/<slug>', () => {
+    const listing = getGranteeListingData([sample], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    expect(
+      legacyUnprefixedTagRedirects(listing, '/grant/grantee-directory')
+    ).toContainEqual({
+      params: { year: 'financial-services' },
+      redirect: '/grant/grantee-directory/tag/financial-services'
+    })
+  })
+})
+
+describe('legacyYearAndTagRedirects', () => {
+  it('moves old /<year>/<tag> bookmarks onto /<year>/tag/<slug>', () => {
+    const listing = getGranteeListingData([sample], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    expect(
+      legacyYearAndTagRedirects(listing, '/grant/grantee-directory')
+    ).toContainEqual({
+      params: { year: '2024', tag: 'financial-services' },
+      redirect: '/grant/grantee-directory/2024/tag/financial-services'
+    })
   })
 })

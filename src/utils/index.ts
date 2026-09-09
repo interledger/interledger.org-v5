@@ -136,7 +136,9 @@ export {
 } from './main/podcastPagination'
 export {
   ALL_GRANTEE_YEAR_SLUG,
+  GRANTEE_TAG_PREFIX,
   getGranteeFilterUrl,
+  isCollidingTagSlug,
   isGranteeYearSlug,
   matchesGranteeFilters,
   filterGrantees,
@@ -146,7 +148,11 @@ export {
   GRANTEE_PAGE_SIZE,
   getGranteeListingData,
   paginateGranteesByYear,
+  paginateGranteesByTag,
   paginateGranteesByYearAndTag,
+  legacyUnprefixedTagRedirects,
+  legacyYearAndTagRedirects,
+  legacyAllYearsRedirects,
   parseGranteeRecords,
   uniqueFilterOptions,
   normalizeCountry,

@@ -138,14 +138,44 @@ describe('stripPagination', () => {
   })
 
   it('drops the page number from a grantee year and tag listing', () => {
-    expect(stripPagination('/grant/grantee-directory/2024/privacy/3')).toBe(
-      '/grant/grantee-directory/2024/privacy'
+    expect(stripPagination('/grant/grantee-directory/2024/tag/privacy/3')).toBe(
+      '/grant/grantee-directory/2024/tag/privacy'
     )
   })
 
   it('drops the page number from a locale-prefixed grantee year listing', () => {
     expect(stripPagination('/es/grant/grantee-directory/2024/2')).toBe(
       '/es/grant/grantee-directory/2024'
+    )
+  })
+
+  it('does not strip an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/privacy')).toBe(
+      '/grant/grantee-directory/tag/privacy'
+    )
+  })
+
+  it('drops the page number from an all-years tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/privacy/2')).toBe(
+      '/grant/grantee-directory/tag/privacy'
+    )
+  })
+
+  it('drops the page number from a colliding tag listing under the reserved prefix', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/all/2')).toBe(
+      '/grant/grantee-directory/tag/all'
+    )
+  })
+
+  it('does not treat a numeric colliding tag as a listing page', () => {
+    expect(stripPagination('/grant/grantee-directory/tag/2')).toBe(
+      '/grant/grantee-directory/tag/2'
+    )
+  })
+
+  it('drops the page number from a year + colliding tag listing', () => {
+    expect(stripPagination('/grant/grantee-directory/2024/tag/all/2')).toBe(
+      '/grant/grantee-directory/2024/tag/all'
     )
   })
 })

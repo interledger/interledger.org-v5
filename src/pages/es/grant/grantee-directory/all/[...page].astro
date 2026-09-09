@@ -1,20 +1,20 @@
 ---
 /**
- * Legacy `/es/grant/grantee-directory/<year>/<tag>` bookmarks. See the EN twin.
+ * Legacy `/es/grant/grantee-directory/all/<tag>` bookmarks. See the EN twin.
  */
 import type { GetStaticPaths } from 'astro'
 import rawGranteeData from '@/data/airtable/grantee-data.json'
 import {
   getGranteeListingData,
   grantGranteeDirectoryPath,
-  legacyYearAndTagRedirects,
+  legacyAllYearsRedirects,
   localizeRoute
 } from '@/utils'
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const listing = getGranteeListingData(rawGranteeData, 'es')
   if (listing instanceof Error) throw listing
-  return legacyYearAndTagRedirects(
+  return legacyAllYearsRedirects(
     listing,
     localizeRoute(grantGranteeDirectoryPath(), 'es')
   )

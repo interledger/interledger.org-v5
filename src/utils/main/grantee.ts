@@ -3,8 +3,10 @@ import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
   ALL_GRANTEE_YEAR_SLUG,
-  isGranteeYearSlug,
-  filterGrantees
+  GRANTEE_TAG_PREFIX,
+  filterGrantees,
+  isCollidingTagSlug,
+  isGranteeYearSlug
 } from './granteeFilters'
 import {
   ensureAbsoluteUrl,
@@ -14,6 +16,17 @@ import {
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
+export {
+  ALL_GRANTEE_YEAR_SLUG,
+  GRANTEE_TAG_PREFIX,
+  filterGrantees,
+  getGranteeFilterUrl,
+  isCollidingTagSlug,
+  isGranteeYearSlug,
+  matchesGranteeFilters,
+  type GranteeFilters
+} from './granteeFilters'
+
 export const GRANTEE_PAGE_SIZE = 10
 
 export const granteeRouteShape: PaginatedRouteShape = {
@@ -21,13 +34,23 @@ export const granteeRouteShape: PaginatedRouteShape = {
     if (basePath !== '/grant' || parts[0] !== 'grantee-directory') return false
     const last = parts.at(-1)
     // Years are 4-digit values in the path, not listing page numbers.
-    return !last || !/^\d{4}$/.test(last)
+    return !last || !isGranteeYearSlug(last)
   },
   isValidListingPrefix: (prefixParts) => {
     if (prefixParts[0] !== 'grantee-directory') return false
     if (prefixParts.length === 1) return true
-    if (!isGranteeYearSlug(prefixParts[1])) return false
-    return prefixParts.length === 2 || prefixParts.length === 3
+    // `/2024` — not `/tag` (incomplete) and not a leftover unprefixed tag.
+    if (prefixParts.length === 2) return isGranteeYearSlug(prefixParts[1])
+    // `/tag/privacy` — `/tag/2` is a tag named "2", not page 2 of `/tag`.
+    if (prefixParts.length === 3) {
+      return prefixParts[1] === GRANTEE_TAG_PREFIX
+    }
+    // `/2024/tag/privacy`
+    return (
+      prefixParts.length === 4 &&
+      isGranteeYearSlug(prefixParts[1]) &&
+      prefixParts[2] === GRANTEE_TAG_PREFIX
+    )
   }
 }
 
@@ -203,8 +226,10 @@ function compareGrantees(a: Grantee, b: Grantee): number {
   return a.name.localeCompare(b.name)
 }
 
-export function parseGranteeRecords(
-  data: unknown,
+const parsedRecordsCache = new WeakMap<object, Map<Locale, Grantee[] | Error>>()
+
+function parseGranteeRecordsUncached(
+  data: object,
   locale: Locale
 ): Grantee[] | Error {
   if (!Array.isArray(data)) {
@@ -215,6 +240,33 @@ export function parseGranteeRecords(
     .map((record) => toGrantee(record, locale))
     .filter((grantee): grantee is Grantee => grantee !== null)
     .sort(compareGrantees)
+}
+
+/**
+ * Parse the Airtable dump once per (dump, locale). Each directory
+ * `getStaticPaths` used to re-run the markdown pass; listing + search +
+ * redirects share one in-memory result for the imported JSON.
+ */
+export function parseGranteeRecords(
+  data: unknown,
+  locale: Locale
+): Grantee[] | Error {
+  if (typeof data !== 'object' || data === null) {
+    return new Error('Grantee dump is not an array')
+  }
+
+  let byLocale = parsedRecordsCache.get(data)
+  if (!byLocale) {
+    byLocale = new Map()
+    parsedRecordsCache.set(data, byLocale)
+  }
+
+  const cached = byLocale.get(locale)
+  if (cached !== undefined) return cached
+
+  const parsed = parseGranteeRecordsUncached(data, locale)
+  byLocale.set(locale, parsed)
+  return parsed
 }
 
 export function uniqueFilterOptions(
@@ -264,6 +316,12 @@ export function getGranteeListingData(
   }
 }
 
+/**
+ * A single grantee's fields as shipped in the client-side search catalog
+ * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
+ * Trimmed to what a slim search-result row needs — no raw markdown, no
+ * derived slugs that the full `GranteeCard` computes for itself.
+ */
 interface GranteeListingPageProps {
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
@@ -310,37 +368,168 @@ export function paginateGranteesByYear({
   })
 }
 
+type TagListingArgs = {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}
+
+type DirectoryRedirect = {
+  params: Record<string, string>
+  redirect: string
+}
+
+function tagListingPath(directoryPath: string, tag: string, year?: string) {
+  return year
+    ? `${directoryPath}/${year}/${GRANTEE_TAG_PREFIX}/${tag}`
+    : `${directoryPath}/${GRANTEE_TAG_PREFIX}/${tag}`
+}
+
+function paginatedRedirects(
+  params: Record<string, string>,
+  dest: string,
+  entryCount: number
+): DirectoryRedirect[] {
+  const pages = Math.max(1, Math.ceil(entryCount / GRANTEE_PAGE_SIZE))
+  const redirects: DirectoryRedirect[] = [{ params, redirect: dest }]
+  for (let page = 2; page <= pages; page++) {
+    redirects.push({
+      params: { ...params, page: String(page) },
+      redirect: `${dest}/${page}`
+    })
+  }
+  return redirects
+}
+
+/** Tag-only listings at `/grantee-directory/tag/<slug>`. */
+export function paginateGranteesByTag({
+  paginate,
+  grantees,
+  years,
+  tags
+}: TagListingArgs) {
+  return tags.flatMap((tag) => {
+    const entries = filterGrantees(grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    return paginate(entries, {
+      params: { tag: tag.value },
+      pageSize: GRANTEE_PAGE_SIZE,
+      props: listingProps(years, tags, undefined, tag.value)
+    })
+  })
+}
+
+/** Year + tag listings at `/grantee-directory/<year>/tag/<slug>`. */
 export function paginateGranteesByYearAndTag({
   paginate,
   grantees,
   years,
   tags
-}: {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}) {
-  const yearSlugs = [
-    ALL_GRANTEE_YEAR_SLUG,
-    ...years.map((option) => option.value)
-  ]
-
-  return yearSlugs.flatMap((yearSlug) => {
-    const yearFilter = yearSlug === ALL_GRANTEE_YEAR_SLUG ? '' : yearSlug
-
-    return tags.flatMap((tag) => {
+}: TagListingArgs) {
+  return years.flatMap((year) =>
+    tags.flatMap((tag) => {
       const entries = filterGrantees(grantees, {
         q: '',
-        year: yearFilter,
+        year: year.value,
         tag: tag.value
       })
-
       return paginate(entries, {
-        params: { year: yearSlug, tag: tag.value },
+        params: { year: year.value, tag: tag.value },
         pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, yearFilter || undefined, tag.value)
+        props: listingProps(years, tags, year.value, tag.value)
       })
     })
+  )
+}
+
+/** Old `/<tag>` bookmarks that used the year slot → `/tag/<slug>`. */
+export function legacyUnprefixedTagRedirects(
+  listing: GranteeListingData,
+  directoryPath: string
+): DirectoryRedirect[] {
+  return listing.tags.flatMap((tag) => {
+    if (isCollidingTagSlug(tag.value)) return []
+    const entries = filterGrantees(listing.grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    return paginatedRedirects(
+      { year: tag.value },
+      tagListingPath(directoryPath, tag.value),
+      entries.length
+    )
   })
+}
+
+/** Old `/<year>/<tag>` bookmarks → `/<year>/tag/<slug>`. */
+export function legacyYearAndTagRedirects(
+  listing: GranteeListingData,
+  directoryPath: string
+): DirectoryRedirect[] {
+  return listing.years.flatMap((year) =>
+    listing.tags.flatMap((tag) => {
+      if (isCollidingTagSlug(tag.value)) return []
+      const entries = filterGrantees(listing.grantees, {
+        q: '',
+        year: year.value,
+        tag: tag.value
+      })
+      return paginatedRedirects(
+        { year: year.value, tag: tag.value },
+        tagListingPath(directoryPath, tag.value, year.value),
+        entries.length
+      )
+    })
+  )
+}
+
+/** Old `/all/<tag>` bookmarks → current tag-only URLs. */
+export function legacyAllYearsRedirects(
+  listing: GranteeListingData,
+  directoryPath: string
+): { params: { page: string }; redirect: string }[] {
+  const redirects: { params: { page: string }; redirect: string }[] = []
+  const seen = new Set<string>()
+
+  const add = (page: string, redirect: string) => {
+    if (seen.has(page)) return
+    seen.add(page)
+    redirects.push({ params: { page }, redirect })
+  }
+
+  for (const tag of listing.tags) {
+    const dest = tagListingPath(directoryPath, tag.value)
+    const entries = filterGrantees(listing.grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    const pages = Math.max(1, Math.ceil(entries.length / GRANTEE_PAGE_SIZE))
+    add(tag.value, dest)
+    for (let page = 2; page <= pages; page++) {
+      add(`${tag.value}/${page}`, `${dest}/${page}`)
+    }
+  }
+
+  add(
+    ALL_GRANTEE_YEAR_SLUG,
+    tagListingPath(directoryPath, ALL_GRANTEE_YEAR_SLUG)
+  )
+
+  const unfilteredPages = Math.max(
+    1,
+    Math.ceil(listing.grantees.length / GRANTEE_PAGE_SIZE)
+  )
+  for (let page = 2; page <= unfilteredPages; page++) {
+    const slug = String(page)
+    if (seen.has(slug)) continue
+    add(slug, `${directoryPath}/${slug}`)
+  }
+
+  return redirects
 }
