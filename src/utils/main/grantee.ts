@@ -1,6 +1,8 @@
 import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
+import { truncateText } from './text'
+import { createSearchPlainText } from './create-excerpt'
 import {
   GRANTEE_TAG_PREFIX,
   filterGrantees,
@@ -54,6 +56,8 @@ export interface Grantee {
   leaders: string[]
   tags: string[]
   description: string | null
+  /** Plain-text description, parsed once for searchText and snippets. */
+  descriptionPlain: string
   projectUrls: string[]
   budget: number | null
   budgetLabel: string | null
@@ -157,6 +161,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function descriptionToPlainText(text: string): string {
+  return createSearchPlainText(text).replace(/\s+/g, ' ').trim()
+}
+
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null
   if (!isRecord(value.fields)) return null
@@ -172,6 +180,9 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
   const leaders = asStringList(fields['Project Leader'])
   const tags = asStringList(fields['Thematic Tag'])
   const description = asTrimmedString(fields['Project Description']) ?? null
+  const descriptionPlain = description
+    ? descriptionToPlainText(description)
+    : ''
   const budget = asFiniteNumber(fields['Total budget approved']) ?? null
 
   const searchText = [
@@ -181,7 +192,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     country,
     ...leaders,
     ...tags,
-    description ?? ''
+    descriptionPlain
   ]
     .join(' ')
     .toLowerCase()
@@ -199,6 +210,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     leaders,
     tags,
     description,
+    descriptionPlain,
     projectUrls: parseProjectUrls(fields['Project Links']),
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),
@@ -300,6 +312,68 @@ export function getGranteeListingData(
     years: uniqueFilterOptions(grantees, 'year'),
     tags: uniqueFilterOptions(grantees, 'tag')
   }
+}
+
+/**
+ * A single grantee's fields as shipped in the client-side search catalog
+ * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
+ * Trimmed to what a slim search-result row needs — no raw markdown, no
+ * derived slugs that the full `GranteeCard` computes for itself.
+ */
+export interface GranteeSearchEntry {
+  id: string
+  name: string
+  program: string
+  year: string
+  country: string
+  startMonth: string
+  startLabel: string
+  leaders: string[]
+  tags: string[]
+  descriptionSnippet: string | null
+  projectUrl: string | null
+  budgetLabel: string | null
+  searchText: string
+}
+
+const SEARCH_SNIPPET_MAX_LENGTH = 160
+
+function toSearchSnippet(descriptionPlain: string): string | null {
+  if (!descriptionPlain) return null
+  return truncateText(descriptionPlain, SEARCH_SNIPPET_MAX_LENGTH)
+}
+
+function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
+  return {
+    id: grantee.id,
+    name: grantee.name,
+    program: grantee.program,
+    year: grantee.year,
+    country: grantee.country,
+    startMonth: grantee.startMonth,
+    startLabel: grantee.startLabel,
+    leaders: grantee.leaders,
+    tags: grantee.tags,
+    descriptionSnippet: toSearchSnippet(grantee.descriptionPlain),
+    projectUrl: grantee.projectUrls[0] ?? null,
+    budgetLabel: grantee.budgetLabel,
+    searchText: grantee.searchText
+  }
+}
+
+/**
+ * Build-time catalog for client-side grantee search. Small and locale-scoped
+ * so it can be fetched once (lazily, on first search interaction) and reused
+ * across every paginated/filtered directory route — see
+ * `src/pages/grantee-search-index.json.ts`.
+ */
+export function getGranteeSearchIndex(
+  data: unknown,
+  locale: Locale
+): GranteeSearchEntry[] | Error {
+  const grantees = parseGranteeRecords(data, locale)
+  if (grantees instanceof Error) return grantees
+  return grantees.map(toGranteeSearchEntry)
 }
 
 /** Filter options and active selections passed through paginate `props`. */
