@@ -1009,8 +1009,30 @@ describe('validatePodcastPageFields', () => {
 })
 
 describe('validateBlogFields', () => {
-  it('returns undefined when both fields are absent', () => {
-    expect(validateBlogFields({})).toBeUndefined()
+  it('flags a missing relatedArticles array (exactly 3 is always required)', () => {
+    const err = validateBlogFields({})
+    expect(err?.message).toBe(
+      'Related Articles: Exactly 3 related articles are required'
+    )
+    expect(err?.details.errors[0].path).toEqual(['relatedArticles'])
+  })
+
+  it('flags fewer than 3 related articles', () => {
+    const err = validateBlogFields({
+      relatedArticles: [{ slug: 'one' }, { slug: 'two' }]
+    })
+    expect(err?.message).toBe(
+      'Related Articles: Exactly 3 related articles are required'
+    )
+    expect(err?.details.errors[0].path).toEqual(['relatedArticles'])
+  })
+
+  it('returns undefined for exactly 3 related articles, all with slugs', () => {
+    expect(
+      validateBlogFields({
+        relatedArticles: [{ slug: 'one' }, { slug: 'two' }, { slug: 'three' }]
+      })
+    ).toBeUndefined()
   })
 
   it('flags a bio missing an author with an index-aware path', () => {
@@ -1023,7 +1045,7 @@ describe('validateBlogFields', () => {
 
   it('flags a related article missing a slug with an index-aware path', () => {
     const err = validateBlogFields({
-      relatedArticles: [{ slug: 'valid' }, { slug: '' }]
+      relatedArticles: [{ slug: 'valid' }, { slug: '' }, { slug: 'valid-2' }]
     })
     expect(err?.message).toBe('Related Articles: Slug is required')
     expect(err?.details.errors[0].path).toEqual([
@@ -1036,7 +1058,7 @@ describe('validateBlogFields', () => {
   it('reports a missing bio author and a missing related-article slug together', () => {
     const err = validateBlogFields({
       articleBio: [{ author: null }],
-      relatedArticles: [{ slug: '' }]
+      relatedArticles: [{ slug: '' }, { slug: 'two' }, { slug: 'three' }]
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
       ['articleBio', '0', 'author'],
