@@ -32,11 +32,11 @@ interface GrantOverviewPageData extends PageData {
   ctaStrip?: CtaStrip | null
 }
 
-export function generateGrantOverviewPageMDX(
+export async function generateGrantOverviewPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
-): string {
+): Promise<string> {
   const overviewPage = page as GrantOverviewPageData
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
@@ -47,8 +47,10 @@ export function generateGrantOverviewPageMDX(
     'heroDescription',
     'heroImage',
     'heroImageAlt',
+    'heroImageBlur',
     'heroImageMobile',
     'heroImageMobileAlt',
+    'heroImageMobileBlur',
     'heroCtas',
     'followUpContent'
   ])
@@ -57,12 +59,13 @@ export function generateGrantOverviewPageMDX(
     (isLocalized && englishSlug ? englishSlug : undefined) ?? preservedLocalizes
 
   const ctaStrip = overviewPage.ctaStrip
+  const heroData = await heroFrontmatter(overviewPage.hero)
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: overviewPage.description ?? '',
-    ...heroFrontmatter(overviewPage.hero),
+    ...heroData,
     ...(ctaStrip
       ? {
           ctaStrip: {

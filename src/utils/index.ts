@@ -197,17 +197,36 @@ export {
 // Main site: Images
 export {
   getOptimizedImage,
+  resolveOptimizedImage,
   buildImageSrcset,
   hasOptimizedVariants,
   isOptimizableSource,
   encodeImageUrlPath,
   hasOptimizableRasterExtension,
-  withIntrinsicWidthRung,
+  sanitizeBlurPlaceholder,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,
   type OptimizedImage
 } from './main/images'
+export {
+  getHomepageHeroPictureConfig,
+  HERO_LCP_IMAGE_WIDTH,
+  HERO_LCP_IMAGE_HEIGHT,
+  HERO_STANDARD_BLUR,
+  HACKATHON_HERO_SIZES,
+  HOMEPAGE_HERO_TABLET_MIN,
+  PAGE_HERO_MOBILE_MEDIA,
+  PAGE_HERO_DESKTOP_MEDIA
+} from './main/homepageHeroImage'
+export {
+  getHomepageHeroPreloadLinks,
+  getPageHeroPreloadLinks,
+  resolveHeroLcpPreloadLinks,
+  type HeroLcpPreloadConfig,
+  type ImagePreloadLink,
+  type PageHeroPreloadOptions
+} from './main/heroLcpPreload'
 export {
   NETLIFY_IMAGE_ENDPOINT,
   buildImageCdnUrl,

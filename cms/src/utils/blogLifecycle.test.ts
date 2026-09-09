@@ -165,14 +165,14 @@ describe('resolveBlogMdxFilename — write/delete path parity', () => {
 })
 
 describe('generateBlogMDX — locale and localizes', () => {
-  it('always writes locale for English posts', () => {
-    const mdx = generateBlogMDX(makePost({ locale: 'en' }))
+  it('always writes locale for English posts', async () => {
+    const mdx = await generateBlogMDX(makePost({ locale: 'en' }))
     expect(mdx).toMatch(/^locale:\s*en$/m)
     expect(mdx).not.toMatch(/^localizes:/m)
   })
 
-  it('writes locale and localizes for Spanish posts', () => {
-    const mdx = generateBlogMDX(
+  it('writes locale and localizes for Spanish posts', async () => {
+    const mdx = await generateBlogMDX(
       makePost({
         locale: 'es',
         pathSlug: 'test-post',
@@ -184,8 +184,8 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).toMatch(/^localizes:\s*test-post$/m)
   })
 
-  it('places locale and localizes after featured, before images', () => {
-    const mdx = generateBlogMDX(
+  it('places locale and localizes after featured, before images', async () => {
+    const mdx = await generateBlogMDX(
       makePost({
         locale: 'es',
         pathSlug: 'test-post',
@@ -206,10 +206,10 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(featureImageAt).toBeGreaterThan(localizesAt)
   })
 
-  it('omits localizes when no EN counterpart is known', () => {
+  it('omits localizes when no EN counterpart is known', async () => {
     // ES-only post: enPost null, empty localizations. Writing localizes:
     // <es-pathSlug> would be a lie and make sync-mdx/translationMap invent EN.
-    const mdx = generateBlogMDX(
+    const mdx = await generateBlogMDX(
       makePost({
         locale: 'es',
         pathSlug: 'es-only-slug',
@@ -220,8 +220,8 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).not.toMatch(/^localizes:/m)
   })
 
-  it('uses the explicit englishSlug option for localizes', () => {
-    const mdx = generateBlogMDX(
+  it('uses the explicit englishSlug option for localizes', async () => {
+    const mdx = await generateBlogMDX(
       makePost({
         locale: 'es',
         pathSlug: 'es-only-slug',
@@ -232,12 +232,12 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).toMatch(/^localizes:\s*english-path$/m)
   })
 
-  it('defaults missing locale to en; callers must stamp locale for localized exports', () => {
+  it('defaults missing locale to en; callers must stamp locale for localized exports', async () => {
     // Simulates Strapi omitting locale on the document payload.
     // generateBlogMDX itself defaults missing locale to en — no localizes.
     // Callers (fetchBlogPost / writeMDXFile) must stamp the requested locale
     // before generating ES frontmatter.
-    const mdx = generateBlogMDX(
+    const mdx = await generateBlogMDX(
       makePost({
         locale: undefined,
         pathSlug: 'test-post',
@@ -248,7 +248,7 @@ describe('generateBlogMDX — locale and localizes', () => {
     expect(mdx).not.toMatch(/^localizes:/m)
   })
 
-  it('writes locale after stamping a missing document locale as es', () => {
+  it('writes locale after stamping a missing document locale as es', async () => {
     // Strapi omitted locale on the document; fetchBlogPost stamps the
     // requested locale before generateBlogMDX runs. Without an EN counterpart
     // we still write locale, but not a fabricated localizes.
@@ -258,21 +258,21 @@ describe('generateBlogMDX — locale and localizes', () => {
       localizations: []
     } as Record<string, unknown>)
     const locale = stampBlogLocale(postFromStrapi, 'es')
-    const mdx = generateBlogMDX({ ...postFromStrapi, locale })
+    const mdx = await generateBlogMDX({ ...postFromStrapi, locale })
 
     expect(locale).toBe('es')
     expect(mdx).toMatch(/^locale:\s*es$/m)
     expect(mdx).not.toMatch(/^localizes:/m)
   })
 
-  it('writes localizes when EN is known only via the englishSlug option', () => {
+  it('writes localizes when EN is known only via the englishSlug option', async () => {
     const postFromStrapi = makePost({
       locale: undefined,
       pathSlug: 'es-slug',
       localizations: []
     } as Record<string, unknown>)
     const locale = stampBlogLocale(postFromStrapi, 'es')
-    const mdx = generateBlogMDX(
+    const mdx = await generateBlogMDX(
       { ...postFromStrapi, locale },
       { englishSlug: 'en-slug' }
     )
@@ -283,24 +283,24 @@ describe('generateBlogMDX — locale and localizes', () => {
 })
 
 describe('generateBlogMDX — article bios', () => {
-  it('throws when a bio has a null author', () => {
-    expect(() =>
+  it('throws when a bio has a null author', async () => {
+    await expect(
       generateBlogMDX(makePost({ articleBio: [{ author: null }] }))
-    ).toThrow('Author Bio: Name is required')
+    ).rejects.toThrow('Author Bio: Name is required')
   })
 
-  it('throws when a bio has an empty or whitespace-only author', () => {
-    expect(() =>
+  it('throws when a bio has an empty or whitespace-only author', async () => {
+    await expect(
       generateBlogMDX(makePost({ articleBio: [{ author: '' }] }))
-    ).toThrow('Author Bio: Name is required')
+    ).rejects.toThrow('Author Bio: Name is required')
 
-    expect(() =>
+    await expect(
       generateBlogMDX(makePost({ articleBio: [{ author: '   ' }] }))
-    ).toThrow('Author Bio: Name is required')
+    ).rejects.toThrow('Author Bio: Name is required')
   })
 
-  it('serializes valid bios with author and link', () => {
-    const mdx = generateBlogMDX(
+  it('serializes valid bios with author and link', async () => {
+    const mdx = await generateBlogMDX(
       makePost({
         articleBio: [{ author: 'Jane Doe', link: 'https://example.com' }]
       })
@@ -311,8 +311,8 @@ describe('generateBlogMDX — article bios', () => {
     expect(mdx).toContain("link: 'https://example.com'")
   })
 
-  it('promotes a stray <br/> in profileBio to a paragraph break', () => {
-    const mdx = generateBlogMDX(
+  it('promotes a stray <br/> in profileBio to a paragraph break', async () => {
+    const mdx = await generateBlogMDX(
       makePost({
         articleBio: [
           { author: 'Jane Doe', profileBio: 'line one<br/>line two' }
