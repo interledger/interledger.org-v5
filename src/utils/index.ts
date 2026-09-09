@@ -157,6 +157,7 @@ export {
 export {
   GRANTEE_PAGE_SIZE,
   getGranteeListingData,
+  getGranteeSearchIndex,
   paginateGranteesByYear,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
@@ -167,7 +168,8 @@ export {
   formatStartMonth,
   type Grantee,
   type GranteeFilterOption,
-  type GranteeListingData
+  type GranteeListingData,
+  type GranteeSearchEntry
 } from './main/grantee'
 
 // Main site: Text
