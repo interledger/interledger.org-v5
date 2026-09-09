@@ -457,26 +457,18 @@ export function paginateGranteesByCollidingTag(args: TagListingArgs) {
   return paginateTagOnlyListings(args, true)
 }
 
-export function paginateGranteesByYearAndTag({
-  paginate,
-  grantees,
-  years,
-  tags
-}: {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}) {
+function paginateYearAndTagListings(
+  { paginate, grantees, years, tags }: TagListingArgs,
+  colliding: boolean
+) {
   return years.flatMap((year) =>
     tags.flatMap((tag) => {
-      if (isCollidingTagSlug(tag.value)) return []
+      if (isCollidingTagSlug(tag.value) !== colliding) return []
       const entries = filterGrantees(grantees, {
         q: '',
         year: year.value,
         tag: tag.value
       })
-
       return paginate(entries, {
         params: { year: year.value, tag: tag.value },
         pageSize: GRANTEE_PAGE_SIZE,
@@ -486,33 +478,13 @@ export function paginateGranteesByYearAndTag({
   )
 }
 
+export function paginateGranteesByYearAndTag(args: TagListingArgs) {
+  return paginateYearAndTagListings(args, false)
+}
+
 /** Year + colliding tag, e.g. `/grantee-directory/2024/tag/all`. */
-export function paginateGranteesByYearAndCollidingTag({
-  paginate,
-  grantees,
-  years,
-  tags
-}: {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}) {
-  return years.flatMap((year) =>
-    tags.flatMap((tag) => {
-      if (!isCollidingTagSlug(tag.value)) return []
-      const entries = filterGrantees(grantees, {
-        q: '',
-        year: year.value,
-        tag: tag.value
-      })
-      return paginate(entries, {
-        params: { year: year.value, tag: tag.value },
-        pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, year.value, tag.value)
-      })
-    })
-  )
+export function paginateGranteesByYearAndCollidingTag(args: TagListingArgs) {
+  return paginateYearAndTagListings(args, true)
 }
 
 /** Old `/all/<tag>` bookmarks → current tag-only URLs. */
