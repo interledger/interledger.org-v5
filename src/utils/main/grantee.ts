@@ -2,10 +2,8 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
-  ALL_GRANTEE_YEAR_SLUG,
   GRANTEE_TAG_PREFIX,
   filterGrantees,
-  isCollidingTagSlug,
   isGranteeYearSlug
 } from './granteeFilters'
 import {
@@ -15,17 +13,6 @@ import {
   isSafeMarkdownHref
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
-
-export {
-  ALL_GRANTEE_YEAR_SLUG,
-  GRANTEE_TAG_PREFIX,
-  filterGrantees,
-  getGranteeFilterUrl,
-  isCollidingTagSlug,
-  isGranteeYearSlug,
-  matchesGranteeFilters,
-  type GranteeFilters
-} from './granteeFilters'
 
 export const GRANTEE_PAGE_SIZE = 10
 
@@ -375,34 +362,6 @@ type TagListingArgs = {
   tags: GranteeFilterOption[]
 }
 
-type DirectoryRedirect = {
-  params: Record<string, string>
-  redirect: string
-}
-
-function tagListingPath(directoryPath: string, tag: string, year?: string) {
-  return year
-    ? `${directoryPath}/${year}/${GRANTEE_TAG_PREFIX}/${tag}`
-    : `${directoryPath}/${GRANTEE_TAG_PREFIX}/${tag}`
-}
-
-function paginatedRedirects(
-  params: Record<string, string>,
-  dest: string,
-  entryCount: number
-): DirectoryRedirect[] {
-  const pages = Math.max(1, Math.ceil(entryCount / GRANTEE_PAGE_SIZE))
-  const redirects: DirectoryRedirect[] = [{ params, redirect: dest }]
-  for (let page = 2; page <= pages; page++) {
-    redirects.push({
-      params: { ...params, page: String(page) },
-      redirect: `${dest}/${page}`
-    })
-  }
-  return redirects
-}
-
-/** Tag-only listings at `/grantee-directory/tag/<slug>`. */
 export function paginateGranteesByTag({
   paginate,
   grantees,
@@ -447,89 +406,3 @@ export function paginateGranteesByYearAndTag({
 }
 
 /** Old `/<tag>` bookmarks that used the year slot → `/tag/<slug>`. */
-export function legacyUnprefixedTagRedirects(
-  listing: GranteeListingData,
-  directoryPath: string
-): DirectoryRedirect[] {
-  return listing.tags.flatMap((tag) => {
-    if (isCollidingTagSlug(tag.value)) return []
-    const entries = filterGrantees(listing.grantees, {
-      q: '',
-      year: '',
-      tag: tag.value
-    })
-    return paginatedRedirects(
-      { year: tag.value },
-      tagListingPath(directoryPath, tag.value),
-      entries.length
-    )
-  })
-}
-
-/** Old `/<year>/<tag>` bookmarks → `/<year>/tag/<slug>`. */
-export function legacyYearAndTagRedirects(
-  listing: GranteeListingData,
-  directoryPath: string
-): DirectoryRedirect[] {
-  return listing.years.flatMap((year) =>
-    listing.tags.flatMap((tag) => {
-      if (isCollidingTagSlug(tag.value)) return []
-      const entries = filterGrantees(listing.grantees, {
-        q: '',
-        year: year.value,
-        tag: tag.value
-      })
-      return paginatedRedirects(
-        { year: year.value, tag: tag.value },
-        tagListingPath(directoryPath, tag.value, year.value),
-        entries.length
-      )
-    })
-  )
-}
-
-/** Old `/all/<tag>` bookmarks → current tag-only URLs. */
-export function legacyAllYearsRedirects(
-  listing: GranteeListingData,
-  directoryPath: string
-): { params: { page: string }; redirect: string }[] {
-  const redirects: { params: { page: string }; redirect: string }[] = []
-  const seen = new Set<string>()
-
-  const add = (page: string, redirect: string) => {
-    if (seen.has(page)) return
-    seen.add(page)
-    redirects.push({ params: { page }, redirect })
-  }
-
-  for (const tag of listing.tags) {
-    const dest = tagListingPath(directoryPath, tag.value)
-    const entries = filterGrantees(listing.grantees, {
-      q: '',
-      year: '',
-      tag: tag.value
-    })
-    const pages = Math.max(1, Math.ceil(entries.length / GRANTEE_PAGE_SIZE))
-    add(tag.value, dest)
-    for (let page = 2; page <= pages; page++) {
-      add(`${tag.value}/${page}`, `${dest}/${page}`)
-    }
-  }
-
-  add(
-    ALL_GRANTEE_YEAR_SLUG,
-    tagListingPath(directoryPath, ALL_GRANTEE_YEAR_SLUG)
-  )
-
-  const unfilteredPages = Math.max(
-    1,
-    Math.ceil(listing.grantees.length / GRANTEE_PAGE_SIZE)
-  )
-  for (let page = 2; page <= unfilteredPages; page++) {
-    const slug = String(page)
-    if (seen.has(slug)) continue
-    add(slug, `${directoryPath}/${slug}`)
-  }
-
-  return redirects
-}

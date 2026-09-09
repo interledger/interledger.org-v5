@@ -4,9 +4,6 @@ import {
   formatBudgetAmount,
   formatStartMonth,
   getGranteeListingData,
-  legacyAllYearsRedirects,
-  legacyUnprefixedTagRedirects,
-  legacyYearAndTagRedirects,
   normalizeCountry,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
@@ -371,75 +368,6 @@ describe('paginateGranteesByYearAndTag', () => {
       tag: 'financial-services',
       selectedYear: '2024',
       selectedTag: 'financial-services'
-    })
-  })
-})
-
-describe('legacyAllYearsRedirects', () => {
-  it('sends a bookmarked /all/all tag to /tag/all, not the unfiltered directory', () => {
-    const colliding = record(
-      {
-        ...sample.fields,
-        'Thematic Tag': ['All']
-      },
-      'rec-legacy-all'
-    )
-    const listing = getGranteeListingData([colliding], 'en')
-    expect(listing).not.toBeInstanceOf(Error)
-    if (listing instanceof Error) return
-
-    const redirects = legacyAllYearsRedirects(
-      listing,
-      '/grant/grantee-directory'
-    )
-    expect(redirects).toContainEqual({
-      params: { page: 'all' },
-      redirect: '/grant/grantee-directory/tag/all'
-    })
-  })
-
-  it('sends a normal tag bookmark to /tag/<slug>', () => {
-    const listing = getGranteeListingData([sample], 'en')
-    expect(listing).not.toBeInstanceOf(Error)
-    if (listing instanceof Error) return
-
-    const redirects = legacyAllYearsRedirects(
-      listing,
-      '/grant/grantee-directory'
-    )
-    expect(redirects).toContainEqual({
-      params: { page: 'financial-services' },
-      redirect: '/grant/grantee-directory/tag/financial-services'
-    })
-  })
-})
-
-describe('legacyUnprefixedTagRedirects', () => {
-  it('moves old /<tag> bookmarks onto /tag/<slug>', () => {
-    const listing = getGranteeListingData([sample], 'en')
-    expect(listing).not.toBeInstanceOf(Error)
-    if (listing instanceof Error) return
-
-    expect(
-      legacyUnprefixedTagRedirects(listing, '/grant/grantee-directory')
-    ).toContainEqual({
-      params: { year: 'financial-services' },
-      redirect: '/grant/grantee-directory/tag/financial-services'
-    })
-  })
-})
-
-describe('legacyYearAndTagRedirects', () => {
-  it('moves old /<year>/<tag> bookmarks onto /<year>/tag/<slug>', () => {
-    const listing = getGranteeListingData([sample], 'en')
-    expect(listing).not.toBeInstanceOf(Error)
-    if (listing instanceof Error) return
-
-    expect(
-      legacyYearAndTagRedirects(listing, '/grant/grantee-directory')
-    ).toContainEqual({
-      params: { year: '2024', tag: 'financial-services' },
-      redirect: '/grant/grantee-directory/2024/tag/financial-services'
     })
   })
 })

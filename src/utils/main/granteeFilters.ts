@@ -9,19 +9,6 @@ export function isGranteeYearSlug(value: string): boolean {
   return /^\d{4}$/.test(value)
 }
 
-/**
- * Tag slugs whose *old* URLs already lived under `/tag/` because they
- * collided with the year/pagination slot. Used only to emit redirects from
- * those pre-prefix bookmarks; new URLs always use `GRANTEE_TAG_PREFIX`.
- */
-export function isCollidingTagSlug(value: string): boolean {
-  return (
-    value === ALL_GRANTEE_YEAR_SLUG ||
-    value === GRANTEE_TAG_PREFIX ||
-    /^\d+$/.test(value)
-  )
-}
-
 /** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
 export function getGranteeFilterUrl(
   directoryPath: string,

@@ -31,6 +31,15 @@ export const redirects = {
   '/grants/our-grantmaking': '/grant/our-grantmaking',
   '/grantee-directory': '/grant/grantee-directory',
   '/grant/grantee-database': '/grant/grantee-directory',
+
+  // Grantee directory moved every tag listing under an explicit `/tag/`
+  // segment, so the old `all` year-sentinel and bare year/tag pairs redirect
+  // to the prefixed shape [INTORG-1112].
+  '/grant/grantee-directory/all': '/grant/grantee-directory',
+  '/grant/grantee-directory/all/[tag]/[...page]':
+    '/grant/grantee-directory/tag/[tag]/[...page]',
+  '/grant/grantee-directory/[year]/[tag]/[...page]':
+    '/grant/grantee-directory/[year]/tag/[tag]/[...page]',
   '/interledger': '/tech/interledger-protocol',
   '/open-payments': '/tech/open-payments',
   '/web-monetization': '/tech/web-monetization',
@@ -81,6 +90,13 @@ export const redirects = {
   '/es/grants/our-grantmaking': '/es/grant/our-grantmaking',
   '/es/grantee-directory': '/es/grant/grantee-directory',
   '/es/grant/grantee-database': '/es/grant/grantee-directory',
+
+  // See the EN twins above [INTORG-1112].
+  '/es/grant/grantee-directory/all': '/es/grant/grantee-directory',
+  '/es/grant/grantee-directory/all/[tag]/[...page]':
+    '/es/grant/grantee-directory/tag/[tag]/[...page]',
+  '/es/grant/grantee-directory/[year]/[tag]/[...page]':
+    '/es/grant/grantee-directory/[year]/tag/[tag]/[...page]',
   '/es/contacto': '/es/contact',
   '/es/grant/open-payments-sdk': '/es/grant/innovation/sdk',
   '/es/node/1760': '/es/grant/innovation/accelerator',

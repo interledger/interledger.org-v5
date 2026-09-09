@@ -4,10 +4,7 @@ import rawGranteeData from '@/data/airtable/grantee-data.json'
 import GranteeDirectoryPage from '@/components/pages/GranteeDirectoryPage.astro'
 import {
   getGranteeListingData,
-  grantGranteeDirectoryPath,
   paginateGranteesByYear,
-  legacyUnprefixedTagRedirects,
-  localizeRoute,
   type Grantee,
   type GranteeFilterOption
 } from '@/utils'
@@ -15,13 +12,7 @@ import {
 export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
   const listing = getGranteeListingData(rawGranteeData, 'es')
   if (listing instanceof Error) throw listing
-  return [
-    ...paginateGranteesByYear({ paginate, ...listing }),
-    ...legacyUnprefixedTagRedirects(
-      listing,
-      localizeRoute(grantGranteeDirectoryPath(), 'es')
-    )
-  ]
+  return paginateGranteesByYear({ paginate, ...listing })
 }
 
 interface Props {
