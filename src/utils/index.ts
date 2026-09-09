@@ -163,7 +163,7 @@ export {
   TABLE_SCROLL_CLASS,
   wrapScrollableTables
 } from './main/wrapScrollableTables'
-export { createExcerpt } from './main/create-excerpt'
+export { createExcerpt, createSearchPlainText } from './main/create-excerpt'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
