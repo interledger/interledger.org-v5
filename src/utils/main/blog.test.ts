@@ -17,6 +17,7 @@ interface FakePost {
   thumbnailImageAlt?: string
   featureImage?: string
   featureImageAlt?: string
+  featureImageBlur?: string
   legacy?: boolean
   locale?: string
 }
@@ -34,6 +35,7 @@ function makePost(post: FakePost): Entry {
       thumbnailImageAlt: post.thumbnailImageAlt,
       featureImage: post.featureImage,
       featureImageAlt: post.featureImageAlt,
+      featureImageBlur: post.featureImageBlur,
       legacy: post.legacy ?? false,
       locale: post.locale ?? 'en'
     }
@@ -140,6 +142,31 @@ describe('getBlogThumbnail', () => {
     const post = makePost({ slug: 'a', date: '2025-01-01' })
 
     expect(getBlogThumbnail(post)).toBeNull()
+  })
+
+  it('uses featureImageBlur as the thumbnail placeholder too, since thumbnailImage is just a resized featureImage', () => {
+    const post = makePost({
+      slug: 'a',
+      date: '2025-01-01',
+      thumbnailImage: '/thumb.jpg',
+      featureImage: '/feature.jpg',
+      featureImageBlur: 'data:image/webp;base64,AAA'
+    })
+
+    const thumbnail = getBlogThumbnail(post)
+    expect(thumbnail?.src).toBe('/thumb.jpg')
+    expect(thumbnail?.blur).toBe('data:image/webp;base64,AAA')
+  })
+
+  it('carries the feature image blur placeholder when falling back to it', () => {
+    const post = makePost({
+      slug: 'a',
+      date: '2025-01-01',
+      featureImage: '/feature.jpg',
+      featureImageBlur: 'data:image/webp;base64,BBB'
+    })
+
+    expect(getBlogThumbnail(post)?.blur).toBe('data:image/webp;base64,BBB')
   })
 })
 
