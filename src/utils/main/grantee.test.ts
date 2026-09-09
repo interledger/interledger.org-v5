@@ -768,6 +768,27 @@ describe('getGranteeSearchIndex', () => {
     ).toBe(true)
   })
 
+  it('keeps setext underlines and blockquote markers searchable', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Block Markers',
+          'Project Description': 'Open payments\n=============\n\n> wallets first'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    const grantee = index[0]!
+    expect(
+      matchesGranteeFilters(grantee, { q: '===', year: '', tag: '' })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(grantee, { q: '> wallets', year: '', tag: '' })
+    ).toBe(true)
+  })
+
   it('produces entries matchesGranteeFilters can filter directly', () => {
     const index = getGranteeSearchIndex([sample], 'en')
     expect(index).not.toBeInstanceOf(Error)

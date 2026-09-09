@@ -2,7 +2,7 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
-import { createExcerpt } from './create-excerpt'
+import { createSearchPlainText } from './create-excerpt'
 import {
   ALL_GRANTEE_YEAR_SLUG,
   GRANTEE_COLLIDING_TAG_PREFIX,
@@ -181,14 +181,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-// Visible prose for searchText/snippets. createExcerpt is the shared
-// markdown-it → html-to-text path (blog excerpts). ATX hashes are escaped
-// before excerpting so they remain searchable with the visible prose.
 function descriptionToPlainText(text: string): string {
-  // markdown-it treats ATX hashes as headings and drops them. Escape so a
-  // query like "# open" still matches. Other syntax is stripped by excerpting.
-  const preservedHashes = text.replace(/^(#{1,6})(\s)/gm, '\\$1$2')
-  return createExcerpt(preservedHashes).replace(/\s+/g, ' ').trim()
+  return createSearchPlainText(text).replace(/\s+/g, ' ').trim()
 }
 
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
