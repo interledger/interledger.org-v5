@@ -214,6 +214,7 @@ interface SearchDom {
   searchError: HTMLElement
   searchingStatus: HTMLElement
   resultsCount: HTMLElement
+  clearButton: HTMLButtonElement
   pagination: HTMLElement | null
   rowTemplate: HTMLTemplateElement
   tagTemplate: HTMLTemplateElement
@@ -233,6 +234,9 @@ function querySearchDom(): SearchDom | null {
   )
   const searchingStatus = document.querySelector<HTMLElement>(
     '[data-grantee-searching]'
+  )
+  const clearButton = document.querySelector<HTMLButtonElement>(
+    '[data-grantee-search-clear]'
   )
   const resultsCount = document.querySelector<HTMLElement>(
     '[data-grantee-results-count]'
@@ -254,6 +258,7 @@ function querySearchDom(): SearchDom | null {
     !emptyState ||
     !searchError ||
     !searchingStatus ||
+    !(clearButton instanceof HTMLButtonElement) ||
     !resultsCount ||
     !(rowTemplate instanceof HTMLTemplateElement) ||
     !tagTemplate ||
@@ -270,6 +275,7 @@ function querySearchDom(): SearchDom | null {
     emptyState,
     searchError,
     searchingStatus,
+    clearButton,
     resultsCount,
     pagination,
     rowTemplate,
@@ -454,13 +460,13 @@ function createSearchController(
 }
 
 /**
- * Rewrites same-origin link hrefs on click/auxclick to carry the live search
- * query. Rewrite-then-let-navigate (rather than preventDefault + assign)
- * preserves Ctrl/Cmd/Shift new-tab behavior.
+ * Rewrites year/tag filter hrefs on click/auxclick to carry the live query.
+ * Pagination is hidden whenever `q` is non-empty (search results are the full
+ * filtered set, not a page), so it is not wired. Rewrite-then-let-navigate
+ * (rather than preventDefault + assign) keeps Ctrl/Cmd/Shift new-tab.
  */
 function bindPreserveSearchOnClick(
   searchRoot: HTMLElement,
-  pagination: HTMLElement | null,
   searchInput: HTMLInputElement
 ): void {
   function preserveSearchOnClick(event: MouseEvent) {
@@ -471,7 +477,7 @@ function bindPreserveSearchOnClick(
     const target = event.target as Element | null
     const link = target?.closest('a[href]')
     if (!(link instanceof HTMLAnchorElement)) return
-    if (!searchRoot.contains(link) && !pagination?.contains(link)) return
+    if (!searchRoot.contains(link)) return
 
     const query = searchInput.value.trim()
     if (!query) return
@@ -485,12 +491,10 @@ function bindPreserveSearchOnClick(
 
   searchRoot.addEventListener('click', preserveSearchOnClick)
   searchRoot.addEventListener('auxclick', preserveSearchOnClick)
-  pagination?.addEventListener('click', preserveSearchOnClick)
-  pagination?.addEventListener('auxclick', preserveSearchOnClick)
 }
 
 function wireGranteeSearch(dom: SearchDom): void {
-  const { root: searchRoot, input: searchInput, pagination } = dom
+  const { root: searchRoot, input: searchInput, clearButton } = dom
   const year = searchRoot.dataset.selectedYear ?? ''
   const tag = searchRoot.dataset.selectedTag ?? ''
 
@@ -529,11 +533,27 @@ function wireGranteeSearch(dom: SearchDom): void {
     trackSearch(trimmed)
   }
 
+  function syncClearButton() {
+    clearButton.hidden = !searchInput.value
+  }
+
+  function clearSearch() {
+    searchInput.value = ''
+    lastTrackedQuery = ''
+    controller.cancelScheduled()
+    view.showStatic()
+    updateUrlQuery('')
+    syncClearButton()
+    searchInput.focus()
+  }
+
   searchInput.addEventListener('input', () => {
-    // Hide pagination immediately so Prev/Next (outside the search root)
-    // cannot navigate away without `?q=` during the debounce window.
+    // Hide the static list and pagination immediately. Search results are
+    // not paged; leaving Prev/Next up during debounce would navigate without
+    // `?q=`.
     if (searchInput.value.trim()) view.enterSearchMode()
     controller.scheduleSearch(searchInput.value)
+    syncClearButton()
   })
 
   // Analytics on commit (Enter/blur), not each debounce, so Umami does not
@@ -545,23 +565,24 @@ function wireGranteeSearch(dom: SearchDom): void {
     }
     if (event.key === 'Escape' && searchInput.value) {
       event.preventDefault()
-      searchInput.value = ''
-      lastTrackedQuery = ''
-      controller.cancelScheduled()
-      view.showStatic()
-      updateUrlQuery('')
+      clearSearch()
     }
+  })
+
+  clearButton.addEventListener('click', () => {
+    clearSearch()
   })
 
   searchInput.addEventListener('blur', () => {
     trackCommittedSearch()
   })
 
-  bindPreserveSearchOnClick(searchRoot, pagination, searchInput)
+  bindPreserveSearchOnClick(searchRoot, searchInput)
 
   const initialQuery = parseInitialQuery(window.location.href)
   if (initialQuery) {
     searchInput.value = initialQuery
     void controller.runSearch(initialQuery)
   }
+  syncClearButton()
 }
