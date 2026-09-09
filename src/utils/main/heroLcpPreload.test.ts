@@ -8,6 +8,7 @@ import {
 } from './images'
 import {
   getHomepageHeroPictureConfig,
+  HACKATHON_HERO_SIZES,
   PAGE_HERO_MOBILE_MEDIA,
   PAGE_HERO_DESKTOP_MEDIA,
   HOMEPAGE_HERO_STANDARD_WITH_TV_CAP_MEDIA,
@@ -98,6 +99,35 @@ describe('getPageHeroPreloadLinks', () => {
 
   it('returns nothing when no hero images are provided', () => {
     expect(getPageHeroPreloadLinks({})).toEqual([])
+  })
+
+  it('defaults imageSizes to 100vw for a full-bleed hero band', () => {
+    setDeployedImageSourcesForTests(['/img/grant/hero-desktop.webp'])
+
+    const links = getPageHeroPreloadLinks({
+      image: '/img/grant/hero-desktop.webp'
+    })
+
+    expect(links[0]?.imageSizes).toBe('100vw')
+  })
+
+  it('advertises desktopSizes so the preload matches a non-full-bleed hero', () => {
+    // A preload advertising a wider slot than the `<picture>` makes the browser
+    // fetch one srcset candidate and then paint another (INTORG-1157).
+    setDeployedImageSourcesForTests([
+      '/img/hackathon/hero.webp',
+      '/img/hackathon/hero-mobile.webp'
+    ])
+
+    const [mobile, desktop] = getPageHeroPreloadLinks({
+      image: '/img/hackathon/hero.webp',
+      imageMobile: '/img/hackathon/hero-mobile.webp',
+      desktopSizes: HACKATHON_HERO_SIZES
+    })
+
+    // The mobile hero stays full-bleed in every layout.
+    expect(mobile?.imageSizes).toBe('100vw')
+    expect(desktop?.imageSizes).toBe(HACKATHON_HERO_SIZES)
   })
 
   it('preloads avifFullSrc when the catalog has no sized AVIF variants', () => {

@@ -46,6 +46,14 @@ export const HOMEPAGE_HERO_TABLET_MIN = 810
 export const PAGE_HERO_MOBILE_MEDIA = `(width < ${HOMEPAGE_HERO_TABLET_MIN}px)`
 export const PAGE_HERO_DESKTOP_MEDIA = `(width >= ${HOMEPAGE_HERO_TABLET_MIN}px)`
 
+/**
+ * `sizes` for the hackathon hero, which sits in a half-width grid column from
+ * tablet up rather than spanning the viewport like `PageHero`'s band. Shared by
+ * `HackathonHero.astro` (the real `<picture>`) and the LCP preload built in
+ * `heroLcpPreload.ts`, so the two can't advertise different candidates.
+ */
+export const HACKATHON_HERO_SIZES = `(min-width: ${HOMEPAGE_HERO_TABLET_MIN}px) 50vw, 100vw`
+
 /** Homepage Stefan hero on tablet+ when no separate 4K source is deployed. */
 export const HOMEPAGE_HERO_STANDARD_MEDIA = `(width >= ${HOMEPAGE_HERO_TABLET_MIN}px)`
 /** Standard hero source: tablet through sub-4K viewports (complements high-res). */
