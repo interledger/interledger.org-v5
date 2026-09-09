@@ -20,6 +20,15 @@ export interface ImagePreloadLink {
 export interface PageHeroPreloadOptions {
   image?: string | null
   imageMobile?: string | null
+  /**
+   * `sizes` the desktop image advertises, when it isn't full-bleed. Must match
+   * the `sizes` on the rendering `<OptimizedImage>`: advertise a wider slot
+   * here and the browser preloads a bigger srcset candidate than the one the
+   * `<picture>` then picks, so it downloads two images and the LCP one wasn't
+   * preloaded at all. `PageHero`'s band spans the viewport, hence the `100vw`
+   * default; `HackathonHero`'s sits in a half-width grid column from tablet up.
+   */
+  desktopSizes?: string
 }
 
 /** Passed to FoundationPageLayout / HeroImagePreload — one entry point for LCP preloads. */
@@ -91,18 +100,20 @@ export function getHomepageHeroPreloadLinks(): ImagePreloadLink[] {
   return links
 }
 
+/** A mobile hero is full-bleed in every layout that renders one. */
+const MOBILE_HERO_SIZES = '100vw'
+
 /** Preload candidates for PageHero image band (matches mobile/desktop CSS split). */
-export function getPageHeroPreloadLinks(options: {
-  image?: string | null
-  imageMobile?: string | null
-}): ImagePreloadLink[] {
-  const sizes = '100vw'
+export function getPageHeroPreloadLinks(
+  options: PageHeroPreloadOptions
+): ImagePreloadLink[] {
+  const desktopSizes = options.desktopSizes ?? '100vw'
   const links: ImagePreloadLink[] = []
 
   if (options.imageMobile?.trim()) {
     const mobile = preloadLinkForSource(
       options.imageMobile.trim(),
-      sizes,
+      MOBILE_HERO_SIZES,
       PAGE_HERO_MOBILE_MEDIA
     )
     if (mobile) links.push(mobile)
@@ -110,7 +121,7 @@ export function getPageHeroPreloadLinks(options: {
     const desktopSrc = options.image?.trim() || options.imageMobile.trim()
     const desktop = preloadLinkForSource(
       desktopSrc,
-      sizes,
+      desktopSizes,
       PAGE_HERO_DESKTOP_MEDIA
     )
     if (desktop) links.push(desktop)
@@ -118,7 +129,7 @@ export function getPageHeroPreloadLinks(options: {
   }
 
   if (options.image?.trim()) {
-    const link = preloadLinkForSource(options.image.trim(), sizes)
+    const link = preloadLinkForSource(options.image.trim(), desktopSizes)
     if (link) links.push(link)
   }
 
