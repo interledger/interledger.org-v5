@@ -163,6 +163,7 @@ const imgSrc = media ? undefined : src
         loading={loading}
         decoding={decoding}
         style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -182,6 +183,7 @@ const imgSrc = media ? undefined : src
         loading={loading}
         decoding={decoding}
         style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -200,6 +202,7 @@ const imgSrc = media ? undefined : src
         loading={loading}
         decoding={decoding}
         style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
         data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
@@ -209,6 +212,32 @@ const imgSrc = media ? undefined : src
 }
 
 <script>
+  // Drops the blur placeholder once the real image has painted. A source with
+  // transparency (the hackathon hero, the SVG blog banners) would otherwise
+  // keep showing the blur through its own alpha channel forever, since the
+  // placeholder is a CSS background sitting behind the image. CSS has no
+  // "image loaded" signal, so this is the one part of the blur-up that needs
+  // JS — `complete` covers images that finished before this script ran, which
+  // eager/high-priority heroes usually do.
+  const dropBlurPlaceholder = (img: HTMLImageElement) => {
+    img.style.backgroundImage = 'none'
+    img.removeAttribute('data-blur-placeholder')
+  }
+
+  for (const img of document.querySelectorAll<HTMLImageElement>(
+    'img[data-blur-placeholder]'
+  )) {
+    if (img.complete) {
+      dropBlurPlaceholder(img)
+    } else {
+      // Only on `load`: a failed image should keep the blur rather than fall
+      // back to an empty box.
+      img.addEventListener('load', () => dropBlurPlaceholder(img), {
+        once: true
+      })
+    }
+  }
+
   if (import.meta.env.DEV) {
     // Surfaces images that fell back to the unoptimized original (e.g. a CDN
     // upload missing from this deploy). Idempotent so duplicate inclusion across
