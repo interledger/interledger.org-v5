@@ -47,6 +47,15 @@ function syncToggle(root: HTMLElement) {
   parts.toggle.hidden = !descriptionOverflows(parts.text)
 }
 
+/** The label the user clicked, not the one shown after the toggle. */
+export function umamiLabelForReadMoreClick(
+  expandedAfterClick: boolean,
+  more: string,
+  less: string
+): string {
+  return expandedAfterClick ? more : less
+}
+
 function bindDescription(root: HTMLElement) {
   if (root.dataset.granteeDescriptionReady === 'true') return
   root.dataset.granteeDescriptionReady = 'true'
@@ -59,9 +68,11 @@ function bindDescription(root: HTMLElement) {
     setExpanded(root, expanded)
     const more = parts.toggle.dataset.labelMore
     const less = parts.toggle.dataset.labelLess
-    const linkText = expanded ? less : more
-    if (linkText) {
-      parts.toggle.setAttribute('data-umami-event-link-text', linkText)
+    if (more && less) {
+      parts.toggle.setAttribute(
+        'data-umami-event-link-text',
+        umamiLabelForReadMoreClick(expanded, more, less)
+      )
     }
   })
 
@@ -79,4 +90,6 @@ export function initGranteeDescriptions(scope: ParentNode = document) {
     .forEach(bindDescription)
 }
 
-initGranteeDescriptions()
+if (typeof document !== 'undefined') {
+  initGranteeDescriptions()
+}
