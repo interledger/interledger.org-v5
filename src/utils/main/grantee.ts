@@ -2,6 +2,11 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
+  ALL_GRANTEE_YEAR_SLUG,
+  isGranteeYearSlug,
+  filterGrantees
+} from './granteeFilters'
+import {
   ensureAbsoluteUrl,
   getHostname,
   isExternalHref,
@@ -10,11 +15,6 @@ import {
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
 export const GRANTEE_PAGE_SIZE = 10
-export const ALL_GRANTEE_YEAR_SLUG = 'all'
-
-function isGranteeYearSlug(value: string): boolean {
-  return value === ALL_GRANTEE_YEAR_SLUG || /^\d{4}$/.test(value)
-}
 
 export const granteeRouteShape: PaginatedRouteShape = {
   matches: (basePath, parts) => {
@@ -29,18 +29,6 @@ export const granteeRouteShape: PaginatedRouteShape = {
     if (!isGranteeYearSlug(prefixParts[1])) return false
     return prefixParts.length === 2 || prefixParts.length === 3
   }
-}
-
-/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
-export function getGranteeFilterUrl(
-  directoryPath: string,
-  year?: string,
-  tag?: string
-): string {
-  if (!year && !tag) return directoryPath
-  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
-  if (!tag) return yearPath
-  return `${yearPath}/${tag}`
 }
 
 export interface Grantee {
@@ -60,12 +48,6 @@ export interface Grantee {
   budget: number | null
   budgetLabel: string | null
   searchText: string
-}
-
-export interface GranteeFilters {
-  q?: string
-  year: string
-  tag: string
 }
 
 export interface GranteeFilterOption {
@@ -261,29 +243,6 @@ export function uniqueFilterOptions(
     return options.sort((a, b) => b.label.localeCompare(a.label))
   }
   return options.sort((a, b) => a.label.localeCompare(b.label))
-}
-
-export function matchesGranteeFilters(
-  grantee: Pick<Grantee, 'year' | 'tags' | 'searchText'>,
-  filters: GranteeFilters
-): boolean {
-  if (filters.year && grantee.year !== filters.year) return false
-  if (
-    filters.tag &&
-    !grantee.tags.some((tag) => generateSlug(tag) === filters.tag)
-  ) {
-    return false
-  }
-  const query = filters.q?.trim().toLowerCase() ?? ''
-  if (query && !grantee.searchText.includes(query)) return false
-  return true
-}
-
-export function filterGrantees(
-  grantees: Grantee[],
-  filters: GranteeFilters
-): Grantee[] {
-  return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
 }
 
 export interface GranteeListingData {

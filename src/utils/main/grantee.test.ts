@@ -1,15 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
-  filterGrantees,
   formatBudgetAmount,
   formatStartMonth,
-  getGranteeFilterUrl,
   getGranteeListingData,
-  matchesGranteeFilters,
   normalizeCountry,
   parseGranteeRecords,
-  uniqueFilterOptions,
-  type Grantee
+  uniqueFilterOptions
 } from './grantee'
 
 function record(
@@ -250,116 +246,6 @@ describe('uniqueFilterOptions', () => {
       '2025',
       '2020'
     ])
-  })
-})
-
-describe('matchesGranteeFilters', () => {
-  const grantee: Grantee = {
-    id: 'rec1',
-    name: 'People’s Clearing House',
-    program: 'Digital Financial Services',
-    programKey: 'digital-financial-services',
-    year: '2024',
-    startMonth: '2024-09',
-    startLabel: 'September 2024',
-    country: 'Germany',
-    countryKey: 'germany',
-    leaders: ['Ada Lovelace'],
-    tags: ['Privacy'],
-    description: 'Open payments clearing house',
-    projectUrls: ['https://community.interledger.org/example'],
-    budget: 750000,
-    budgetLabel: '750 000',
-    searchText:
-      'people’s clearing house digital financial services 2024 germany ada lovelace privacy open payments clearing house'
-  }
-
-  it('matches when no filters are set', () => {
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '',
-        tag: ''
-      })
-    ).toBe(true)
-  })
-
-  it('filters by year and thematic tag', () => {
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '2024',
-        tag: 'privacy'
-      })
-    ).toBe(true)
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '2020',
-        tag: ''
-      })
-    ).toBe(false)
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '',
-        tag: 'education'
-      })
-    ).toBe(false)
-  })
-})
-
-describe('filterGrantees', () => {
-  it('returns only matching records', () => {
-    const parsed = parseGranteeRecords(
-      [
-        sample,
-        record(
-          {
-            'Project Name': 'Campus Lab',
-            'Secondary Grant Program Name': 'NextGen Higher Education',
-            Year: '2025',
-            Country: 'Kenya'
-          },
-          'rec2'
-        )
-      ],
-      'en'
-    )
-    expect(parsed).not.toBeInstanceOf(Error)
-    if (parsed instanceof Error) return
-    const filtered = filterGrantees(parsed, {
-      q: '',
-      year: '2025',
-      tag: ''
-    })
-    expect(filtered.map((g) => g.name)).toEqual(['Campus Lab'])
-  })
-})
-
-describe('getGranteeFilterUrl', () => {
-  const directory = '/grant/grantee-directory'
-
-  it('returns the directory path when nothing is selected', () => {
-    expect(getGranteeFilterUrl(directory)).toBe(directory)
-  })
-
-  it('appends the year value', () => {
-    expect(getGranteeFilterUrl(directory, '2024')).toBe(
-      '/grant/grantee-directory/2024'
-    )
-  })
-
-  it('uses all/<tag> when only a tag is selected', () => {
-    expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/all/privacy'
-    )
-  })
-
-  it('combines year and tag values', () => {
-    expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
-      '/grant/grantee-directory/2024/privacy'
-    )
   })
 })
 
