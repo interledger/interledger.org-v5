@@ -167,15 +167,13 @@ const detailsAttrs = projectUrl
             class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
           >
             {leadersLabel && (
-              <p
-                class:list={[
-                  'm-0 text-body-sm-standard text-neutral-100',
-                  description && 'mb-lg'
-                ]}
-              >
-                <span class="sr-only">{t('grantee.project_lead')}: </span>
-                {leadersLabel}
-              </p>
+              <div class:list={[metaItemClasses, description && 'mb-lg']}>
+                <Icon name="user" class="size-5 shrink-0 text-neutral-75" />
+                <span>
+                  <span class="sr-only">{t('grantee.project_lead')}: </span>
+                  {leadersLabel}
+                </span>
+              </div>
             )}
             {description && (
               <p
@@ -202,7 +200,7 @@ const detailsAttrs = projectUrl
                 </span>
                 <Icon
                   name="arrow-down"
-                  class="size-4 transition-transform duration-200"
+                  class="size-5 transition-transform duration-200"
                 />
               </button>
             )}
