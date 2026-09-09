@@ -51,7 +51,7 @@ const PROFILE_COLOR_PAIRS: ProfileColorPair[] = [
     hero: 'bg-apricot-100 dark:bg-wine-100'
   },
   {
-    avatar: 'bg-tangerine-100 dark:bg-deep-teal-100',
+    avatar: 'bg-tangerine-100 dark:bg-tangerine-100',
     hero: 'bg-aqua-mint-100 dark:bg-royal-purple-100'
   },
   {
