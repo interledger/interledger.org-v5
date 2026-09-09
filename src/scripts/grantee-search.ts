@@ -268,48 +268,49 @@ export function initGranteeSearch(): void {
   wireGranteeSearch(dom)
 }
 
-function wireGranteeSearch(dom: SearchDom): void {
-  const searchRoot = dom.root
-  const searchInput = dom.input
-  const searchStaticList = dom.staticList
-  const searchResultsList = dom.searchResults
-  const searchEmpty = dom.emptyState
-  const searchErrorEl = dom.searchError
-  const searchCount = dom.resultsCount
-  const pagination = dom.pagination
-  const searchRowTemplate = dom.rowTemplate
-  const searchTagTemplate = dom.tagTemplate
-  const searchIndexUrl = dom.indexUrl
+interface SearchViewConfig {
+  resultsTemplate: string
+  initialStaticHidden: boolean
+  initialEmptyHidden: boolean
+  initialResultsText: string
+}
 
-  const year = searchRoot.dataset.selectedYear ?? ''
-  const tag = searchRoot.dataset.selectedTag ?? ''
-  const resultsTemplate = searchRoot.dataset.resultsTemplate ?? '{count}'
+interface SearchView {
+  showStatic(): void
+  enterSearchMode(): void
+  showSearchError(): void
+  showSearchResults(
+    entries: GranteeSearchEntry[],
+    context: SearchResultContext
+  ): void
+}
 
-  const initialStaticHidden = searchStaticList.hidden
-  const initialEmptyHidden = searchEmpty.hidden
-  const initialResultsText = searchCount.textContent ?? ''
-
-  let debounceHandle: number | undefined
-  let requestId = 0
-  let lastTrackedQuery = ''
-
-  function trackCommittedSearch() {
-    const trimmed = searchInput.value.trim()
-    if (!trimmed || trimmed === lastTrackedQuery) return
-    lastTrackedQuery = trimmed
-    trackSearch(trimmed)
-  }
+/** Owns the DOM writes for the static/searching/results/error states. */
+function createSearchView(
+  dom: SearchDom,
+  config: SearchViewConfig
+): SearchView {
+  const {
+    staticList,
+    searchResults,
+    emptyState,
+    searchError,
+    resultsCount,
+    pagination,
+    rowTemplate,
+    tagTemplate
+  } = dom
 
   function setResultsCount(count: number) {
-    searchCount.textContent = formatResultsCount(resultsTemplate, count)
+    resultsCount.textContent = formatResultsCount(config.resultsTemplate, count)
   }
 
   function applyViewState(state: GranteeSearchViewState) {
-    searchStaticList.hidden = state.staticHidden
-    searchEmpty.hidden = state.emptyHidden
-    searchResultsList.hidden = state.resultsHidden
-    searchErrorEl.hidden = state.errorHidden
-    searchCount.hidden = state.countHidden
+    staticList.hidden = state.staticHidden
+    emptyState.hidden = state.emptyHidden
+    searchResults.hidden = state.resultsHidden
+    searchError.hidden = state.errorHidden
+    resultsCount.hidden = state.countHidden
     if (pagination) pagination.hidden = state.paginationHidden
   }
 
@@ -317,12 +318,12 @@ function wireGranteeSearch(dom: SearchDom): void {
     applyViewState(
       computeSearchViewState({
         mode: 'static',
-        initialStaticHidden,
-        initialEmptyHidden
+        initialStaticHidden: config.initialStaticHidden,
+        initialEmptyHidden: config.initialEmptyHidden
       })
     )
-    searchResultsList.replaceChildren()
-    searchCount.textContent = initialResultsText
+    searchResults.replaceChildren()
+    resultsCount.textContent = config.initialResultsText
   }
 
   function enterSearchMode() {
@@ -330,31 +331,17 @@ function wireGranteeSearch(dom: SearchDom): void {
   }
 
   function showSearchError() {
-    searchResultsList.replaceChildren()
+    searchResults.replaceChildren()
     applyViewState(computeSearchViewState({ mode: 'error' }))
   }
 
-  function searchResultContext(): SearchResultContext {
-    return {
-      directoryPath: searchRoot.dataset.directoryPath ?? '',
-      selectedYear: year,
-      searchQuery: searchInput.value.trim(),
-      pathname: searchRoot.dataset.pathname ?? window.location.pathname,
-      lang: searchRoot.dataset.lang ?? '',
-      viewDetailsLabel: searchRoot.dataset.labelViewDetails ?? ''
-    }
-  }
-
-  function showSearchResults(entries: GranteeSearchEntry[]) {
-    const context = searchResultContext()
-    searchResultsList.replaceChildren(
+  function showSearchResults(
+    entries: GranteeSearchEntry[],
+    context: SearchResultContext
+  ) {
+    searchResults.replaceChildren(
       ...entries.map((entry) =>
-        createSearchResultRow(
-          entry,
-          searchRowTemplate,
-          searchTagTemplate,
-          context
-        )
+        createSearchResultRow(entry, rowTemplate, tagTemplate, context)
       )
     )
     applyViewState(
@@ -363,34 +350,68 @@ function wireGranteeSearch(dom: SearchDom): void {
     setResultsCount(entries.length)
   }
 
+  return { showStatic, enterSearchMode, showSearchError, showSearchResults }
+}
+
+interface SearchControllerConfig {
+  indexUrl: string
+  year: string
+  tag: string
+  view: SearchView
+  buildContext: (query: string) => SearchResultContext
+  /** Live input value, re-read after each await to detect a stale response. */
+  getInputValue: () => string
+}
+
+interface SearchController {
+  runSearch(query: string): Promise<void>
+  scheduleSearch(query: string): void
+  cancelScheduled(): void
+}
+
+/** Owns debouncing, request-generation tracking, and filtering against the index. */
+function createSearchController(
+  config: SearchControllerConfig
+): SearchController {
+  let debounceHandle: number | undefined
+  let requestId = 0
+
+  function isStale(myRequestId: number, trimmed: string): boolean {
+    return (
+      myRequestId !== requestId || config.getInputValue().trim() !== trimmed
+    )
+  }
+
   async function runSearch(query: string) {
     const trimmed = query.trim()
     const myRequestId = ++requestId
 
     if (!trimmed) {
-      showStatic()
+      config.view.showStatic()
       return
     }
 
-    enterSearchMode()
+    config.view.enterSearchMode()
 
-    const index = await loadIndex(searchIndexUrl)
-    if (myRequestId !== requestId || searchInput.value.trim() !== trimmed)
-      return
+    const index = await loadIndex(config.indexUrl)
+    if (isStale(myRequestId, trimmed)) return
     if (index instanceof Error) {
-      showSearchError()
+      config.view.showSearchError()
       return
     }
 
     const matches = index.filter((entry) =>
-      matchesGranteeFilters(entry, { q: trimmed, year, tag })
+      matchesGranteeFilters(entry, {
+        q: trimmed,
+        year: config.year,
+        tag: config.tag
+      })
     )
     try {
-      showSearchResults(matches)
+      config.view.showSearchResults(matches, config.buildContext(trimmed))
     } catch {
-      if (myRequestId !== requestId || searchInput.value.trim() !== trimmed)
-        return
-      showSearchError()
+      if (isStale(myRequestId, trimmed)) return
+      config.view.showSearchError()
     }
   }
 
@@ -402,37 +423,26 @@ function wireGranteeSearch(dom: SearchDom): void {
     }, DEBOUNCE_MS)
   }
 
-  searchInput.addEventListener('input', () => {
-    // Hide pagination immediately so Prev/Next (outside the search root)
-    // cannot navigate away without `?q=` during the debounce window.
-    if (searchInput.value.trim()) enterSearchMode()
-    scheduleSearch(searchInput.value)
-  })
+  function cancelScheduled() {
+    window.clearTimeout(debounceHandle)
+    // Drop the in-flight generation so a late-failing fetch cannot paint
+    // the error view over the static list.
+    requestId++
+  }
 
-  // Analytics on commit (Enter/blur), not each debounce, so Umami does not
-  // store a typing transcript.
-  searchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      trackCommittedSearch()
-      return
-    }
-    if (event.key === 'Escape' && searchInput.value) {
-      event.preventDefault()
-      searchInput.value = ''
-      lastTrackedQuery = ''
-      window.clearTimeout(debounceHandle)
-      // Drop the in-flight generation so a late-failing fetch cannot paint
-      // the error view over the static list.
-      requestId++
-      showStatic()
-      updateUrlQuery('')
-    }
-  })
+  return { runSearch, scheduleSearch, cancelScheduled }
+}
 
-  searchInput.addEventListener('blur', () => {
-    trackCommittedSearch()
-  })
-
+/**
+ * Rewrites same-origin link hrefs on click/auxclick to carry the live search
+ * query. Rewrite-then-let-navigate (rather than preventDefault + assign)
+ * preserves Ctrl/Cmd/Shift new-tab behavior.
+ */
+function bindPreserveSearchOnClick(
+  searchRoot: HTMLElement,
+  pagination: HTMLElement | null,
+  searchInput: HTMLInputElement
+): void {
   function preserveSearchOnClick(event: MouseEvent) {
     if (event.defaultPrevented) return
     // 0 = primary, 1 = middle (auxclick). Ignore right-click.
@@ -446,8 +456,6 @@ function wireGranteeSearch(dom: SearchDom): void {
     const query = searchInput.value.trim()
     if (!query) return
 
-    // Rewrite the href and let the browser navigate (including Ctrl/Cmd/Shift
-    // new-tab). preventDefault + assign dropped `?q=` on modified clicks.
     link.href = hrefWithPreservedSearch(
       link.href,
       query,
@@ -459,10 +467,81 @@ function wireGranteeSearch(dom: SearchDom): void {
   searchRoot.addEventListener('auxclick', preserveSearchOnClick)
   pagination?.addEventListener('click', preserveSearchOnClick)
   pagination?.addEventListener('auxclick', preserveSearchOnClick)
+}
+
+function wireGranteeSearch(dom: SearchDom): void {
+  const { root: searchRoot, input: searchInput, pagination } = dom
+  const year = searchRoot.dataset.selectedYear ?? ''
+  const tag = searchRoot.dataset.selectedTag ?? ''
+
+  const view = createSearchView(dom, {
+    resultsTemplate: searchRoot.dataset.resultsTemplate ?? '{count}',
+    initialStaticHidden: dom.staticList.hidden,
+    initialEmptyHidden: dom.emptyState.hidden,
+    initialResultsText: dom.resultsCount.textContent ?? ''
+  })
+
+  function buildContext(query: string): SearchResultContext {
+    return {
+      directoryPath: searchRoot.dataset.directoryPath ?? '',
+      selectedYear: year,
+      searchQuery: query,
+      pathname: searchRoot.dataset.pathname ?? window.location.pathname,
+      lang: searchRoot.dataset.lang ?? '',
+      viewDetailsLabel: searchRoot.dataset.labelViewDetails ?? ''
+    }
+  }
+
+  const controller = createSearchController({
+    indexUrl: dom.indexUrl,
+    year,
+    tag,
+    view,
+    buildContext,
+    getInputValue: () => searchInput.value
+  })
+
+  let lastTrackedQuery = ''
+  function trackCommittedSearch() {
+    const trimmed = searchInput.value.trim()
+    if (!trimmed || trimmed === lastTrackedQuery) return
+    lastTrackedQuery = trimmed
+    trackSearch(trimmed)
+  }
+
+  searchInput.addEventListener('input', () => {
+    // Hide pagination immediately so Prev/Next (outside the search root)
+    // cannot navigate away without `?q=` during the debounce window.
+    if (searchInput.value.trim()) view.enterSearchMode()
+    controller.scheduleSearch(searchInput.value)
+  })
+
+  // Analytics on commit (Enter/blur), not each debounce, so Umami does not
+  // store a typing transcript.
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      trackCommittedSearch()
+      return
+    }
+    if (event.key === 'Escape' && searchInput.value) {
+      event.preventDefault()
+      searchInput.value = ''
+      lastTrackedQuery = ''
+      controller.cancelScheduled()
+      view.showStatic()
+      updateUrlQuery('')
+    }
+  })
+
+  searchInput.addEventListener('blur', () => {
+    trackCommittedSearch()
+  })
+
+  bindPreserveSearchOnClick(searchRoot, pagination, searchInput)
 
   const initialQuery = parseInitialQuery(window.location.href)
   if (initialQuery) {
     searchInput.value = initialQuery
-    void runSearch(initialQuery)
+    void controller.runSearch(initialQuery)
   }
 }
