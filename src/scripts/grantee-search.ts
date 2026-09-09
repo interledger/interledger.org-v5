@@ -128,6 +128,8 @@ export interface GranteeSearchViewState {
   paginationHidden: boolean
   errorHidden: boolean
   countHidden: boolean
+  searchingHidden: boolean
+  rootBusy: boolean
 }
 
 type GranteeSearchViewMode =
@@ -158,7 +160,9 @@ export function computeSearchViewState(
       resultsHidden: true,
       paginationHidden: false,
       errorHidden: true,
-      countHidden: false
+      countHidden: false,
+      searchingHidden: true,
+      rootBusy: false
     }
   }
 
@@ -169,7 +173,9 @@ export function computeSearchViewState(
       resultsHidden: true,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: true
+      countHidden: true,
+      searchingHidden: false,
+      rootBusy: true
     }
   }
 
@@ -180,7 +186,9 @@ export function computeSearchViewState(
       resultsHidden: true,
       paginationHidden: true,
       errorHidden: false,
-      countHidden: true
+      countHidden: true,
+      searchingHidden: true,
+      rootBusy: false
     }
   }
 
@@ -191,7 +199,9 @@ export function computeSearchViewState(
     resultsHidden: !hasResults,
     paginationHidden: true,
     errorHidden: true,
-    countHidden: false
+    countHidden: false,
+    searchingHidden: true,
+    rootBusy: false
   }
 }
 
@@ -202,6 +212,7 @@ interface SearchDom {
   searchResults: HTMLOListElement
   emptyState: HTMLElement
   searchError: HTMLElement
+  searchingStatus: HTMLElement
   resultsCount: HTMLElement
   pagination: HTMLElement | null
   rowTemplate: HTMLTemplateElement
@@ -219,6 +230,9 @@ function querySearchDom(): SearchDom | null {
   const emptyState = document.querySelector<HTMLElement>('[data-grantee-empty]')
   const searchError = document.querySelector<HTMLElement>(
     '[data-grantee-search-error]'
+  )
+  const searchingStatus = document.querySelector<HTMLElement>(
+    '[data-grantee-searching]'
   )
   const resultsCount = document.querySelector<HTMLElement>(
     '[data-grantee-results-count]'
@@ -239,6 +253,7 @@ function querySearchDom(): SearchDom | null {
     !searchResults ||
     !emptyState ||
     !searchError ||
+    !searchingStatus ||
     !resultsCount ||
     !(rowTemplate instanceof HTMLTemplateElement) ||
     !tagTemplate ||
@@ -254,6 +269,7 @@ function querySearchDom(): SearchDom | null {
     searchResults,
     emptyState,
     searchError,
+    searchingStatus,
     resultsCount,
     pagination,
     rowTemplate,
@@ -291,10 +307,12 @@ function createSearchView(
   config: SearchViewConfig
 ): SearchView {
   const {
+    root,
     staticList,
     searchResults,
     emptyState,
     searchError,
+    searchingStatus,
     resultsCount,
     pagination,
     rowTemplate,
@@ -310,8 +328,10 @@ function createSearchView(
     emptyState.hidden = state.emptyHidden
     searchResults.hidden = state.resultsHidden
     searchError.hidden = state.errorHidden
+    searchingStatus.hidden = state.searchingHidden
     resultsCount.hidden = state.countHidden
     if (pagination) pagination.hidden = state.paginationHidden
+    root.setAttribute('aria-busy', state.rootBusy ? 'true' : 'false')
   }
 
   function showStatic() {

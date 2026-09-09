@@ -44,7 +44,9 @@ describe('computeSearchViewState', () => {
       resultsHidden: true,
       paginationHidden: false,
       errorHidden: true,
-      countHidden: false
+      countHidden: false,
+      searchingHidden: true,
+      rootBusy: false
     })
   })
 
@@ -57,7 +59,9 @@ describe('computeSearchViewState', () => {
       resultsHidden: false,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: false
+      countHidden: false,
+      searchingHidden: true,
+      rootBusy: false
     })
   })
 
@@ -70,7 +74,9 @@ describe('computeSearchViewState', () => {
       resultsHidden: true,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: false
+      countHidden: false,
+      searchingHidden: true,
+      rootBusy: false
     })
   })
 
@@ -81,7 +87,9 @@ describe('computeSearchViewState', () => {
       resultsHidden: true,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: true
+      countHidden: true,
+      searchingHidden: false,
+      rootBusy: true
     })
   })
 
@@ -92,7 +100,9 @@ describe('computeSearchViewState', () => {
       resultsHidden: true,
       paginationHidden: true,
       errorHidden: false,
-      countHidden: true
+      countHidden: true,
+      searchingHidden: true,
+      rootBusy: false
     })
   })
 })
