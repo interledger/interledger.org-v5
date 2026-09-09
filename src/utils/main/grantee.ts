@@ -182,8 +182,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 // Visible prose for searchText/snippets. createExcerpt is the shared
-// markdown-it → html-to-text path (blog excerpts). Raw description is also
-// indexed so characters markdown-it would eat (ATX `#`, etc.) still match.
+// markdown-it → html-to-text path (blog excerpts). ATX hashes are escaped
+// before excerpting so they remain searchable with the visible prose.
 function descriptionToPlainText(text: string): string {
   // markdown-it treats ATX hashes as headings and drops them. Escape so a
   // query like "# open" still matches. Other syntax is stripped by excerpting.
