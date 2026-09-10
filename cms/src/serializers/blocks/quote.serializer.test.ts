@@ -20,7 +20,7 @@ describe('quote serializer', () => {
 
   it('serializes a quote with no author fields', () => {
     expect(serialize({ quote: 'Just the words.' })).toBe(
-      '<Quote>\n  Just the words.\n</Quote>'
+      '<Quote>\n\nJust the words.\n\n</Quote>'
     )
   })
 
