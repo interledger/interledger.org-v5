@@ -93,15 +93,26 @@ const BLOCK_GAP = 'mt-section'
 
 <div class="flex flex-col">
   {
-    resolvedBlocks.map(({ Component, props, uid }, index) => (
-      <div
-        class:list={[
-          'w-full',
-          index > 0 && !OWNS_ITS_SPACING.has(uid) && BLOCK_GAP
-        ]}
-      >
-        <Component {...props} />
-      </div>
-    ))
+    resolvedBlocks.map(({ Component, props, uid }, index) => {
+      const prevUid = index > 0 ? resolvedBlocks[index - 1].uid : null
+      // Consecutive Paragraphs are running text, not section breaks. Inner
+      // `p` already carries the 32px prose gap (`prose/default.css`).
+      const consecutiveParagraphs =
+        uid === 'blocks.paragraph' && prevUid === 'blocks.paragraph'
+
+      return (
+        <div
+          class:list={[
+            'w-full',
+            index > 0 &&
+              !OWNS_ITS_SPACING.has(uid) &&
+              !consecutiveParagraphs &&
+              BLOCK_GAP
+          ]}
+        >
+          <Component {...props} />
+        </div>
+      )
+    })
   }
 </div>
