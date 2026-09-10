@@ -428,6 +428,7 @@ describe('getGranteeSearchIndex', () => {
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(index[0]?.descriptionSnippet).not.toBeNull()
+    expect(index[0]?.descriptionSnippet?.length).toBeLessThanOrEqual(160)
     expect(index[0]?.descriptionSnippet?.length).toBeLessThan(
       longDescription.length
     )
