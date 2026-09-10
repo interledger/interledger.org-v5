@@ -212,6 +212,29 @@ describe('formatMdx', () => {
     expect(result).toContain('Hello world.')
   })
 
+  it('does not wrap a CtaStrip description (INTORG-1188)', async () => {
+    // Regression: Prettier's MDX printer wraps JSX children text at
+    // printWidth and ignores proseWrap entirely when that text sits flush
+    // against the tags. cta-strip.serializer.ts separates the description
+    // from <CtaStrip> with a blank line so Prettier treats it as a real
+    // paragraph instead, where proseWrap is honored.
+    const description =
+      'Interledger brings together people across technology, policy, ' +
+      'research, education, and advocacy to make financial systems open, ' +
+      'connected, and accessible to all.'
+    const ctaStrip = serializeCtaStrip({
+      heading: 'The People Behind the Work',
+      primaryButtonText: 'Meet the Team',
+      primaryButtonLink: '/team',
+      description
+    })
+    const content = ['---', "title: 'test'", '---', '', ctaStrip, ''].join('\n')
+
+    const result = await formatMdx(content)
+
+    expect(result).toContain(description)
+  })
+
   it('does not wrap prose for any tag-adjacent JSX-children serializer (INTORG-1188)', async () => {
     // Regression (INTORG-1188): Prettier wraps JSX children text flush
     // against tags regardless of proseWrap. Checked per serializer, not
