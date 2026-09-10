@@ -109,18 +109,21 @@
     line-height: var(--text-body-sm-standard--line-height);
   }
 
-  /* Single-line fields are 40px (--spacing-3xl-tight). Textareas stay auto. */
-  input:not(
-    [type='hidden'],
-    [type='checkbox'],
-    [type='radio'],
-    [type='file'],
-    [type='button'],
-    [type='submit'],
-    [type='reset'],
-    [type='image'],
-    [type='range'],
-    [type='color']
+  /* Single-line fields are 40px (--spacing-3xl-tight). Textareas stay auto.
+     :where() keeps specificity at 0 so h-* / py-* utilities can override. */
+  :where(
+    input:not(
+      [type='hidden'],
+      [type='checkbox'],
+      [type='radio'],
+      [type='file'],
+      [type='button'],
+      [type='submit'],
+      [type='reset'],
+      [type='image'],
+      [type='range'],
+      [type='color']
+    )
   ) {
     height: var(--spacing-3xl-tight);
     padding-block: 0;
