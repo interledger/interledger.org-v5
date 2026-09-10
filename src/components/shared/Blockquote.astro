@@ -56,9 +56,9 @@ const quoteText = quote != null && quote !== '' ? stripOuterQuotes(quote) : null
   </blockquote>
   {
     htmlSource && (
-      <figcaption class="mt-0">
+      <figcaption class="mt-md">
         <p class="m-0 font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg font-normal">
-          – <cite class="not-italic" set:html={htmlSource} />
+          – <cite class="not-italic font-semibold" set:html={htmlSource} />
         </p>
       </figcaption>
     )
@@ -90,13 +90,13 @@ const quoteText = quote != null && quote !== '' ? stripOuterQuotes(quote) : null
   }
 
   cite {
-    font-weight: 400;
+    font-weight: 600;
     font-style: normal;
   }
 
   cite :global(strong) {
     color: inherit;
-    font-weight: 400;
+    font-weight: inherit;
     font-style: italic;
   }
 

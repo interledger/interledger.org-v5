@@ -41,6 +41,14 @@
       & p {
         margin-bottom: 0;
       }
+
+      & p + p {
+        margin-block-start: var(--spacing-md);
+      }
+
+      & strong {
+        font-weight: 600;
+      }
     }
 
     img {
