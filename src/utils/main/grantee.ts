@@ -404,5 +404,3 @@ export function paginateGranteesByYearAndTag({
     })
   )
 }
-
-/** Old `/<tag>` bookmarks that used the year slot → `/tag/<slug>`. */
