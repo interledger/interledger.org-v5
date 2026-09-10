@@ -4,27 +4,12 @@ import {
   getGranteeFilterUrl,
   matchesGranteeFilters
 } from './granteeFilters'
-import type { Grantee } from './grantee'
 
 describe('matchesGranteeFilters', () => {
-  const grantee: Grantee = {
-    id: 'rec1',
-    name: 'People’s Clearing House',
-    program: 'Digital Financial Services',
-    programKey: 'digital-financial-services',
+  const grantee = {
     year: '2024',
-    startMonth: '2024-09',
-    startLabel: 'September 2024',
-    country: 'Germany',
-    countryKey: 'germany',
-    leaders: ['Ada Lovelace'],
     tags: ['Privacy'],
-    description: 'Open payments clearing house',
-    projectUrls: ['https://community.interledger.org/example'],
-    budget: 750000,
-    budgetLabel: '750 000',
-    searchText:
-      'people’s clearing house digital financial services 2024 germany ada lovelace privacy open payments clearing house'
+    searchText: 'people’s clearing house privacy germany'
   }
 
   it('matches when no filters are set', () => {
