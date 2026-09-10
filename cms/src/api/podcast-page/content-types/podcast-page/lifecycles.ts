@@ -28,11 +28,11 @@ interface PodcastPageData extends PageData {
   ctaStrip?: PodcastPageCtaStrip
 }
 
-function generatePodcastPageMDX(
+async function generatePodcastPageMDX(
   page: PageData,
   _preservedFields: Record<string, unknown>,
   englishSlug?: string
-): string {
+): Promise<string> {
   const podcastPage = page as PodcastPageData
 
   return generatePodcastPageMdx(

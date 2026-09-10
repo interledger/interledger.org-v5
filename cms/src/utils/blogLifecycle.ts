@@ -12,6 +12,7 @@ import {
   resolveFilenameSlug,
   ckeditorFieldToParsedMarkdown
 } from './mdx'
+import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
 import type { AuthorBio } from './contentTypes'
@@ -192,15 +193,38 @@ export function resolveBlogMdxFilename(
   })
 }
 
-export function generateBlogMDX(
+/**
+ * Generates a blur placeholder and logs (rather than throws) on failure — a
+ * missing/unsupported source must never block publish, it just means that
+ * image renders without a blur-up placeholder.
+ */
+async function tryGenerateBlurPlaceholder(
+  url: string
+): Promise<string | undefined> {
+  const result = await generateBlurPlaceholder(url)
+  if (result instanceof Error) {
+    console.warn(`⚠️  Skipping blur placeholder for ${url}: ${result.message}`)
+    return undefined
+  }
+  return result
+}
+
+export async function generateBlogMDX(
   post: BlogResult,
   options: { englishSlug?: string | null } = {}
-) {
+): Promise<string> {
   const yqs = yamlSingleQuoteScalar
   const locale = (post.locale || defaultLang).trim() || defaultLang
   const isLocalized = locale !== defaultLang
   const englishSlug = isLocalized
     ? resolveBlogEnglishSlug(post, options.englishSlug)
+    : undefined
+
+  const featureImageBlur = post.featureMedia?.image?.url
+    ? await tryGenerateBlurPlaceholder(post.featureMedia.image.url)
+    : undefined
+  const featureImageMobileBlur = post.featureImageMobile?.url
+    ? await tryGenerateBlurPlaceholder(post.featureImageMobile.url)
     : undefined
 
   const articleBios =
@@ -250,12 +274,16 @@ export function generateBlogMDX(
     post.featureMedia?.image?.url && post.featureMedia.alternativeText != null
       ? `featureImageAlt: ${yqs(post.featureMedia.alternativeText)}`
       : null,
+    featureImageBlur ? `featureImageBlur: ${yqs(featureImageBlur)}` : null,
     post.featureImageMobile?.url
       ? `featureImageMobile: ${yqs(post.featureImageMobile.url)}`
       : null,
     post.featureImageMobile?.url &&
     post.featureImageMobile.alternativeText != null
       ? `featureImageMobileAlt: ${yqs(post.featureImageMobile.alternativeText)}`
+      : null,
+    featureImageMobileBlur
+      ? `featureImageMobileBlur: ${yqs(featureImageMobileBlur)}`
       : null,
     post.thumbnailMedia?.image?.url
       ? `thumbnailImage: ${yqs(post.thumbnailMedia.image.url)}`
@@ -315,7 +343,7 @@ async function writeMDXFile({
   const normalized = withNormalizedLocale(post)
   const filename = resolveBlogMdxFilename(normalized, englishSlug)
   const filepath = path.join(outputPath, filename)
-  const mdxContent = generateBlogMDX(normalized, { englishSlug })
+  const mdxContent = await generateBlogMDX(normalized, { englishSlug })
 
   await fs.promises.mkdir(outputPath, { recursive: true })
   await fs.promises.writeFile(filepath, await formatMdx(mdxContent), 'utf-8')

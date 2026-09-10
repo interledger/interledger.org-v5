@@ -39,5 +39,7 @@ export function serialize(block: {
 
   const attrStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''
 
-  return `<Quote${attrStr}>\n  ${quote}\n</Quote>`
+  // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
+  // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
+  return `<Quote${attrStr}>\n\n${quote}\n\n</Quote>`
 }

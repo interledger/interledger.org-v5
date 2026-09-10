@@ -6,5 +6,7 @@ export function serialize(block: { content: string }): string {
 
   const content = escMdxBraces(ckeditorFieldToCompiledMarkdown(block.content))
 
-  return `<CalloutText>\n${content}\n</CalloutText>`
+  // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
+  // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
+  return `<CalloutText>\n\n${content}\n\n</CalloutText>`
 }

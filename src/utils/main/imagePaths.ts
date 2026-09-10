@@ -98,6 +98,28 @@ export function encodeImageUrlPath(pathname: string): string {
   return pathname.split('/').map(encodeURIComponent).join('/')
 }
 
+/**
+ * Matches exactly what `generateBlurPlaceholder()`
+ * (cms/src/utils/imageBlurPlaceholder.ts) produces — a base64-encoded WebP
+ * data URI, nothing else.
+ */
+const BLUR_PLACEHOLDER_RE = /^data:image\/webp;base64,[A-Za-z0-9+/]+=*$/
+
+/**
+ * Validates a `*Blur` frontmatter value before it's interpolated into an
+ * inline `background-image: url('...')` (`OptimizedImage.astro`,
+ * `heroSectionStyle.ts`). The value is content-managed, so it must never
+ * reach a CSS context unvalidated — a stray `'`, `)`, or `;` could break out
+ * of the `url(...)` token and inject further CSS into the style attribute.
+ * Returns the trimmed value on success, `undefined` otherwise.
+ */
+export function sanitizeBlurPlaceholder(
+  value: string | undefined
+): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed && BLUR_PLACEHOLDER_RE.test(trimmed) ? trimmed : undefined
+}
+
 export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',

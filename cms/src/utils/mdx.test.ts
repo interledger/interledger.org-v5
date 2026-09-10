@@ -9,6 +9,11 @@ import {
   sectionScopedMdxFilename,
   resolveFilenameSlug
 } from './mdx'
+import { serialize as serializeCtaStrip } from '../serializers/blocks/cta-strip.serializer'
+import { serialize as serializeQuote } from '../serializers/blocks/quote.serializer'
+import { serialize as serializeCalloutText } from '../serializers/blocks/callout-text.serializer'
+import { serialize as serializeSplitLayout } from '../serializers/blocks/split-layout.serializer'
+import { serialize as serializeBlockquote } from '../serializers/blocks/blockquote.serializer'
 
 describe('looksLikeHtmlField', () => {
   it('is false for markdown that only carries an intentional <br/>', () => {
@@ -205,5 +210,72 @@ describe('formatMdx', () => {
     const result = await formatMdx(content)
 
     expect(result).toContain('Hello world.')
+  })
+
+  it('does not wrap a CtaStrip description (INTORG-1188)', async () => {
+    // Regression: Prettier's MDX printer wraps JSX children text at
+    // printWidth and ignores proseWrap entirely when that text sits flush
+    // against the tags. cta-strip.serializer.ts separates the description
+    // from <CtaStrip> with a blank line so Prettier treats it as a real
+    // paragraph instead, where proseWrap is honored.
+    const description =
+      'Interledger brings together people across technology, policy, ' +
+      'research, education, and advocacy to make financial systems open, ' +
+      'connected, and accessible to all.'
+    const ctaStrip = serializeCtaStrip({
+      heading: 'The People Behind the Work',
+      primaryButtonText: 'Meet the Team',
+      primaryButtonLink: '/team',
+      description
+    })
+    const content = ['---', "title: 'test'", '---', '', ctaStrip, ''].join('\n')
+
+    const result = await formatMdx(content)
+
+    expect(result).toContain(description)
+  })
+
+  it('does not wrap prose for any tag-adjacent JSX-children serializer (INTORG-1188)', async () => {
+    // Regression (INTORG-1188): Prettier wraps JSX children text flush
+    // against tags regardless of proseWrap. Checked per serializer, not
+    // just once, since each has a different shape and could regress independently.
+    const prose =
+      'Interledger brings together people across technology, policy, ' +
+      'research, education, and advocacy to make financial systems open, ' +
+      'connected, and accessible to all.'
+
+    const cases: Array<[string, () => string]> = [
+      [
+        'CtaStrip',
+        () =>
+          serializeCtaStrip({
+            heading: 'The People Behind the Work',
+            primaryButtonText: 'Meet the Team',
+            primaryButtonLink: '/team',
+            description: prose
+          })
+      ],
+      ['Quote', () => serializeQuote({ quote: prose })],
+      ['CalloutText', () => serializeCalloutText({ content: prose })],
+      [
+        'SplitLayout',
+        () =>
+          serializeSplitLayout({
+            media: { image: { url: '/uploads/education_grant.jpg' } },
+            content: prose
+          })
+      ],
+      ['Blockquote', () => serializeBlockquote({ quote: prose })]
+    ]
+
+    for (const [name, serialize] of cases) {
+      const content = ['---', "title: 'test'", '---', '', serialize(), ''].join(
+        '\n'
+      )
+
+      const result = await formatMdx(content)
+
+      expect(result, `${name} wrapped its prose`).toContain(prose)
+    }
   })
 })
