@@ -40,6 +40,11 @@ export function getFeaturedPosts(
  * posts only). Returns null when nothing is available so callers can skip the
  * image rather than render a broken one. Alt text always matches whichever
  * image was chosen, not just the thumbnail's own alt field.
+ *
+ * `thumbnailImage` has no blur field of its own — it's a resized rendition of
+ * `featureImage`, not a distinct photo, so `featureImageBlur` doubles as its
+ * placeholder too rather than generating and storing a second, visually
+ * indistinguishable one.
  */
 export function getBlogThumbnail(
   post: FoundationBlogEntry
@@ -49,11 +54,21 @@ export function getBlogThumbnail(
     thumbnailImageAlt,
     featureImage,
     featureImageAlt,
+    featureImageBlur,
     legacy
   } = post.data
   if (thumbnailImage)
-    return { src: thumbnailImage, alt: thumbnailImageAlt ?? '' }
-  if (featureImage) return { src: featureImage, alt: featureImageAlt ?? '' }
+    return {
+      src: thumbnailImage,
+      alt: thumbnailImageAlt ?? '',
+      blur: featureImageBlur
+    }
+  if (featureImage)
+    return {
+      src: featureImage,
+      alt: featureImageAlt ?? '',
+      blur: featureImageBlur
+    }
   if (legacy) return { src: TECH_BLOG_FALLBACK_THUMBNAIL, alt: '' }
   return null
 }

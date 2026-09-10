@@ -111,10 +111,10 @@ function podcastsFrontmatter(podcasts: PodcastPageItem[]) {
  * Serialize the podcast-page into MDX (frontmatter only — no body).
  * For non-default locales, `englishSlug` is written as `localizes`.
  */
-export function generatePodcastPageMdx(
+export async function generatePodcastPageMdx(
   page: PodcastPageInput,
   englishSlug?: string
-): string {
+): Promise<string> {
   const locale = page.locale ?? defaultLang
   const isLocalized = locale !== defaultLang
 
@@ -122,7 +122,7 @@ export function generatePodcastPageMdx(
     title: page.title,
     pathSlug: page.pathSlug,
     description: page.description,
-    ...heroFrontmatter(page.hero),
+    ...(await heroFrontmatter(page.hero)),
     ...(page.textSection
       ? { textSection: ckeditorFieldToParsedMarkdown(page.textSection) }
       : {}),

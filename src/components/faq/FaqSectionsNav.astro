@@ -45,10 +45,10 @@ const sectionNavAttrs = (id: string, heading: string) =>
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
-            class="group flex flex-col gap-sm rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link"
+            class="group relative inline-flex max-w-full flex-col pb-sm rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link"
             {...sectionNavAttrs(section.id, section.heading)}
           >
-            <span class="flex items-start gap-md pl-md">
+            <span class="flex items-start gap-md pl-sm">
               <span
                 aria-hidden="true"
                 class="size-1 shrink-0 mt-2.5 rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-link dark:bg-neutral-50 dark:group-hover:bg-neutral-0"
@@ -59,7 +59,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
             </span>
             <span
               aria-hidden="true"
-              class="h-px w-0 bg-link transition-all duration-200 group-data-[active=true]:w-full"
+              class="pointer-events-none absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-link transition-transform duration-200 ease-out motion-reduce:transition-none group-data-[active=true]:scale-x-100"
             />
           </a>
         </li>
