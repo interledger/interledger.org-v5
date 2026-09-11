@@ -93,14 +93,20 @@ describe('computeSearchViewState', () => {
     })
   })
 
-  it('shows an error and hides the static list so a failed fetch is not mistaken for results', () => {
-    expect(computeSearchViewState({ mode: 'error' })).toEqual({
-      staticHidden: true,
+  it('keeps the server-rendered list and pager when the index fails, and shows the alert', () => {
+    expect(
+      computeSearchViewState({
+        mode: 'error',
+        initialStaticHidden: false,
+        initialEmptyHidden: true
+      })
+    ).toEqual({
+      staticHidden: false,
       emptyHidden: true,
       resultsHidden: true,
-      paginationHidden: true,
+      paginationHidden: false,
       errorHidden: false,
-      countHidden: true,
+      countHidden: false,
       searchingHidden: true,
       rootBusy: false
     })
