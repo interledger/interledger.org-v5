@@ -140,7 +140,11 @@ type GranteeSearchViewMode =
     }
   | { mode: 'searching' }
   | { mode: 'results'; resultsCount: number }
-  | { mode: 'error' }
+  | {
+      mode: 'error'
+      initialStaticHidden: boolean
+      initialEmptyHidden: boolean
+    }
 
 /**
  * What the static list, results list, empty state, error state, count, and
@@ -181,12 +185,12 @@ export function computeSearchViewState(
 
   if (input.mode === 'error') {
     return {
-      staticHidden: true,
-      emptyHidden: true,
+      staticHidden: input.initialStaticHidden,
+      emptyHidden: input.initialEmptyHidden,
       resultsHidden: true,
-      paginationHidden: true,
+      paginationHidden: false,
       errorHidden: false,
-      countHidden: true,
+      countHidden: false,
       searchingHidden: true,
       rootBusy: false
     }
@@ -358,7 +362,14 @@ function createSearchView(
 
   function showSearchError() {
     searchResults.replaceChildren()
-    applyViewState(computeSearchViewState({ mode: 'error' }))
+    resultsCount.textContent = config.initialResultsText
+    applyViewState(
+      computeSearchViewState({
+        mode: 'error',
+        initialStaticHidden: config.initialStaticHidden,
+        initialEmptyHidden: config.initialEmptyHidden
+      })
+    )
   }
 
   function showSearchResults(
