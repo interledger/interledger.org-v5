@@ -240,10 +240,13 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
   >
     {t('grantee.results', { count: totalCount })}
   </p>
-  <p class="sr-only" data-grantee-searching aria-live="polite" hidden>
-    {t('grantee.search.searching')}
-  </p>
 </section>
+{
+  /* Outside [data-grantee-search-root] so aria-busy does not defer this announcement. */
+}
+<p class="sr-only" data-grantee-searching aria-live="polite" hidden>
+  {t('grantee.search.searching')}
+</p>
 <p
   class="my-5xl text-h5-lg text-neutral-75 text-center tablet:text-h4-lg"
   data-grantee-empty
