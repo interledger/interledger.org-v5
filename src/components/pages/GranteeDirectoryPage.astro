@@ -59,15 +59,16 @@ const breadcrumbs = [
       />
       {
         page.lastPage > 1 && (
-          <Pagination
-            baseUrl={basePath}
-            length={page.lastPage}
-            currentPage={page.currentPage}
-            prevUrl={page.url.prev}
-            nextUrl={page.url.next}
-            label={t('grantee.title')}
-            class="mt-section"
-          />
+          <div data-grantee-pagination class="mt-section">
+            <Pagination
+              baseUrl={basePath}
+              length={page.lastPage}
+              currentPage={page.currentPage}
+              prevUrl={page.url.prev}
+              nextUrl={page.url.next}
+              label={t('grantee.title')}
+            />
+          </div>
         )
       }
       <footer
