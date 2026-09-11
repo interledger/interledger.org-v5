@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import matter from 'gray-matter'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
@@ -64,7 +65,18 @@ interface BlogResult {
 interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
-  state: { oldPathSlug?: string; oldDate?: string }
+  state: BlogLifecycleState
+}
+
+/**
+ * `oldPathSlug` is the English slug (filenames derive from it). Frontmatter
+ * carries each locale's *own* slug, so cleanup that matches on frontmatter
+ * needs `oldPathSlugByLocale` instead.
+ */
+interface BlogLifecycleState {
+  oldPathSlug?: string
+  oldDate?: string
+  oldPathSlugByLocale?: Record<string, string>
 }
 
 /**
@@ -191,6 +203,84 @@ export function resolveBlogMdxFilename(
       resolvedEnglishSlug
     )
   })
+}
+
+/**
+ * Other `.mdx` files in `dir` for `date` whose frontmatter `pathSlug` matches.
+ * Blog filenames are `{date}-{pathSlug}.mdx`, but legacy files (tech-blog
+ * merge) used a different stem. A Strapi save writes the canonical name and
+ * used to leave the old file, so two MDX docs mapped to one entry
+ * (INTORG-1236).
+ *
+ * `date` scopes the scan to that day's filename prefix. Every blog filename
+ * carries one, so this keeps the delete off unrelated posts that merely share
+ * a slug — matching is on `pathSlug` alone, and MDX frontmatter has no Strapi
+ * documentId to key on — and it means only that day's files get parsed rather
+ * than the whole directory. An empty `date` yields no matches: without a
+ * prefix to scope to there is nothing to distinguish a leftover from an
+ * unrelated post, and deleting broadly is worse than leaving the duplicate.
+ */
+export function siblingMdxFilesWithPathSlug(
+  dir: string,
+  pathSlug: string,
+  date: string,
+  keepFilepath?: string
+): string[] {
+  if (!pathSlug || !date || !fs.existsSync(dir)) return []
+  const keep = keepFilepath ? path.resolve(keepFilepath) : null
+  let names: string[]
+  try {
+    names = fs.readdirSync(dir)
+  } catch {
+    return []
+  }
+
+  const matches: string[] = []
+  for (const name of names) {
+    if (!name.endsWith('.mdx')) continue
+    if (!name.startsWith(`${date}-`)) continue
+    const filepath = path.join(dir, name)
+    if (keep && path.resolve(filepath) === keep) continue
+    let slug: unknown
+    try {
+      slug = matter(fs.readFileSync(filepath, 'utf-8')).data.pathSlug
+    } catch (error) {
+      // Unreadable or malformed frontmatter. Skipping matches sync-mdx, which
+      // reports invalid MDX and carries on; throwing here would take every
+      // blog publish down over one unrelated broken file.
+      console.warn(`⚠️  Skipping unparseable MDX: ${filepath}`, error)
+      continue
+    }
+    if (typeof slug === 'string' && slug === pathSlug) {
+      matches.push(filepath)
+    }
+  }
+  return matches
+}
+
+/** Unlink leftover MDX files that share `pathSlug` with the file just written. */
+export function removeSiblingMdxFilesWithPathSlug(
+  dir: string,
+  pathSlug: string,
+  date: string,
+  keepFilepath?: string
+): string[] {
+  const removed: string[] = []
+  for (const filepath of siblingMdxFilesWithPathSlug(
+    dir,
+    pathSlug,
+    date,
+    keepFilepath
+  )) {
+    try {
+      fs.unlinkSync(filepath)
+      removed.push(filepath)
+      console.log(`🗑️  Deleted leftover blog MDX: ${filepath}`)
+    } catch (error) {
+      console.error(`Failed to delete leftover blog MDX: ${filepath}`, error)
+    }
+  }
+  return removed
 }
 
 /**
@@ -349,6 +439,15 @@ async function writeMDXFile({
   await fs.promises.writeFile(filepath, await formatMdx(mdxContent), 'utf-8')
 
   console.log(`✅ Generated Blog Post MDX file: ${filepath}`)
+  // `normalized.pathSlug` is this locale's own slug, which is what frontmatter
+  // carries (the filename uses the English one) — so this compares like for
+  // like in every locale directory.
+  removeSiblingMdxFilesWithPathSlug(
+    outputPath,
+    normalized.pathSlug,
+    normalized.date,
+    filepath
+  )
   return filepath
 }
 
@@ -480,7 +579,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         documentId?: string
         data?: { documentId?: string; locale?: string }
       }
-      state: { oldPathSlug?: string; oldDate?: string }
+      state: BlogLifecycleState
     }) {
       if (shouldSkipMdxExport()) return
       const documentId =
@@ -493,6 +592,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
 
       event.state.oldPathSlug = enPost.pathSlug
       event.state.oldDate = enPost.date
+
+      // Frontmatter holds the locale's own pathSlug, so stash each one — an
+      // ES post may carry a localized slug that the EN slug would never match.
+      const oldPathSlugByLocale: Record<string, string> = {}
+      for (const locale of LOCALES) {
+        const post =
+          locale === defaultLang
+            ? enPost
+            : await fetchBlogPost(documentId, locale)
+        if (post?.pathSlug) oldPathSlugByLocale[locale] = post.pathSlug
+      }
+      event.state.oldPathSlugByLocale = oldPathSlugByLocale
     },
     async afterUpdate(event: BlogEvent) {
       const { result } = event
@@ -507,7 +618,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       )
 
       const label = event.model.singularName
-      const { oldPathSlug, oldDate } = event.state
+      const { oldPathSlug, oldDate, oldPathSlugByLocale } = event.state
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
       const currentEnSlug = enPost?.pathSlug
       const currentDate = enPost?.date
@@ -524,6 +635,16 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
           `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`
         )
         deleteOldBlogFiles(oldPathSlug, oldDate)
+        // Legacy filenames are `{date}-{old-stem}.mdx` with pathSlug still the
+        // old slug — the constructed name above misses those. Match on each
+        // locale's own old slug, since that is what its frontmatter carries.
+        for (const locale of LOCALES) {
+          removeSiblingMdxFilesWithPathSlug(
+            getOutputPath(locale),
+            oldPathSlugByLocale?.[locale] ?? oldPathSlug,
+            oldDate
+          )
+        }
         console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
         await exportAllBlogLocales(result.documentId)
       } else {
