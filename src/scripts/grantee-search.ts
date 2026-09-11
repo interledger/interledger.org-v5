@@ -407,7 +407,7 @@ interface SearchController {
 }
 
 /** Owns debouncing, request-generation tracking, and filtering against the index. */
-function createSearchController(
+export function createSearchController(
   config: SearchControllerConfig
 ): SearchController {
   let debounceHandle: number | undefined

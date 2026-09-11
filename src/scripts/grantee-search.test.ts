@@ -2,6 +2,7 @@ import { describe, expect, it, vi, afterEach } from 'vitest'
 import type { GranteeSearchEntry } from '@/utils/main/grantee'
 import {
   computeSearchViewState,
+  createSearchController,
   formatResultsCount,
   loadIndex,
   parseGranteeSearchIndex,
@@ -277,5 +278,91 @@ describe('loadIndex', () => {
       sampleSearchEntry({ id: '/grantee-search-index-es.json' })
     ])
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('createSearchController stale responses', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  function mockView() {
+    return {
+      showStatic: vi.fn(),
+      enterSearchMode: vi.fn(),
+      showSearchError: vi.fn(),
+      showSearchResults: vi.fn()
+    }
+  }
+
+  function deferredFetch(url: string) {
+    let resolveResponse!: (value: unknown) => void
+    const responsePromise = new Promise((resolve) => {
+      resolveResponse = resolve
+    })
+    vi.stubGlobal('fetch', vi.fn().mockReturnValue(responsePromise))
+    vi.stubGlobal('window', {
+      clearTimeout: vi.fn(),
+      setTimeout: vi.fn()
+    })
+    return { url, resolveResponse }
+  }
+
+  function controllerFor(
+    url: string,
+    view: ReturnType<typeof mockView>,
+    getInputValue: () => string
+  ) {
+    return createSearchController({
+      indexUrl: url,
+      year: '',
+      tag: '',
+      view,
+      buildContext: (searchQuery) => ({
+        directoryPath: '/grant/grantee-directory',
+        selectedYear: '',
+        searchQuery,
+        pathname: '/grant/grantee-directory',
+        lang: 'en',
+        viewDetailsLabel: 'View project details'
+      }),
+      getInputValue
+    })
+  }
+
+  it('does not apply a success response after the input has changed', async () => {
+    const { url, resolveResponse } = deferredFetch(
+      '/grantee-search-index-stale-success.json'
+    )
+    const view = mockView()
+    let inputValue = 'alpha'
+    const controller = controllerFor(url, view, () => inputValue)
+
+    const pending = controller.runSearch('alpha')
+    inputValue = 'beta'
+    resolveResponse({
+      ok: true,
+      json: () => Promise.resolve([sampleSearchEntry({ searchText: 'alpha' })])
+    })
+    await pending
+
+    expect(view.showSearchResults).not.toHaveBeenCalled()
+    expect(view.showSearchError).not.toHaveBeenCalled()
+  })
+
+  it('does not apply a failed response after cancellation', async () => {
+    const { url, resolveResponse } = deferredFetch(
+      '/grantee-search-index-stale-error.json'
+    )
+    const view = mockView()
+    const controller = controllerFor(url, view, () => 'alpha')
+
+    const pending = controller.runSearch('alpha')
+    controller.cancelScheduled()
+    resolveResponse({ ok: false, status: 500 })
+    await pending
+
+    expect(view.showSearchError).not.toHaveBeenCalled()
+    expect(view.showSearchResults).not.toHaveBeenCalled()
   })
 })
