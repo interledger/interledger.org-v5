@@ -227,12 +227,22 @@ export default function CardVariantPicker({
 
   // Restricted content types: force the only allowed variant when empty/wrong,
   // and clear disallowed card arrays so they don't linger in the form.
+  //
+  // Guarded because useForm's setters throw in local dev — they work in
+  // production — and an uncaught throw in an effect unmounts the whole admin,
+  // since Strapi has no error boundary. Visibility is applied either way.
   useEffect(() => {
     if (!singleVariant) return
-    if (value !== singleVariant) {
-      onChange({ target: { name, value: singleVariant, type: 'string' } })
+    try {
+      if (value !== singleVariant) {
+        onChange({ target: { name, value: singleVariant, type: 'string' } })
+      }
+      clearInactiveCardFields(prefix, singleVariant, cardFields, setFieldValue)
+    } catch {
+      console.warn(
+        `[CardVariantPicker] could not force variant "${singleVariant}" on ${name}`
+      )
     }
-    clearInactiveCardFields(prefix, singleVariant, cardFields, setFieldValue)
     requestAnimationFrame(() =>
       applyCardFieldVisibility(prefix, singleVariant, cardFields)
     )
