@@ -445,7 +445,7 @@ describe('getGranteeSearchIndex', () => {
     expect(index[0]?.descriptionSnippet).toBeNull()
   })
 
-  it('keeps ATX hashes searchable without parsing the description twice', () => {
+  it('keeps ATX hashes searchable in precomputed searchText', () => {
     const index = getGranteeSearchIndex(
       [
         record({
@@ -460,6 +460,25 @@ describe('getGranteeSearchIndex', () => {
     expect(
       matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
     ).toBe(true)
+  })
+
+  it('builds snippets from stored descriptionPlain, not a second markdown pass', () => {
+    const data = [
+      record({
+        'Project Name': 'Heading Grantee',
+        'Project Description': '# Open payments infrastructure.'
+      })
+    ]
+    const grantees = parseGranteeRecords(data, 'en')
+    expect(grantees).not.toBeInstanceOf(Error)
+    if (grantees instanceof Error) return
+
+    const index = getGranteeSearchIndex(data, 'en')
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+
+    expect(index[0]?.descriptionSnippet).toBe(grantees[0]!.descriptionPlain)
+    expect(index[0]?.searchText).toContain('# open payments')
   })
 
   it('keeps setext underlines and blockquote markers searchable', () => {

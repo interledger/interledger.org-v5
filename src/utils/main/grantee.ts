@@ -2,7 +2,7 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
-import { createDisplayPlainText, createSearchPlainText } from './create-excerpt'
+import { createPlainTextVariants } from './create-excerpt'
 import {
   GRANTEE_TAG_PREFIX,
   filterGrantees,
@@ -56,7 +56,7 @@ export interface Grantee {
   leaders: string[]
   tags: string[]
   description: string | null
-  /** Display plain text: inline markdown stripped, block markers gone. */
+  /** Display plain text from parse time; search markers live in `searchText`. */
   descriptionPlain: string
   projectUrls: string[]
   budget: number | null
@@ -169,9 +169,10 @@ function descriptionPlainTexts(text: string): {
   display: string
   search: string
 } {
+  const { display, search } = createPlainTextVariants(text)
   return {
-    display: collapseWhitespace(createDisplayPlainText(text)),
-    search: collapseWhitespace(createSearchPlainText(text))
+    display: collapseWhitespace(display),
+    search: collapseWhitespace(search)
   }
 }
 
