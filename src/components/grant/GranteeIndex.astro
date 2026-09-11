@@ -56,13 +56,10 @@ hover:bg-neutral-25 hover:text-neutral-100
 focus-visible:outline-none focus-visible:border focus-visible:border-link
 [&[aria-current='page']]:text-neutral-100
 `
-// Deferred (data-track-event, not data-umami-event): year/tag links carry a
-// live-typed search query appended by grantee-search.ts on click. Umami's
-// bundled script auto-intercepts data-umami-event clicks — preventDefault,
-// await its own fetch, then navigate to the link's *original* href — which
-// would race and silently drop the appended `?q=`. The deferred variant is
-// tracked by the existing page-global listener (initNavClickTracking,
-// header-nav.ts) without ever touching navigation.
+// Deferred (data-track-event, not data-umami-event): year/tag hrefs pick up
+// a live `?q=` as the query changes. Umami's bundled script intercepts
+// data-umami-event clicks (preventDefault, then navigate) and can drop that
+// param. initNavClickTracking fires the same event without touching navigation.
 const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
   buildDeferredUmamiAttrs({
     pathname: Astro.url.pathname,

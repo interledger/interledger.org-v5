@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { hrefWithPreservedSearch } from './grantee-search-result'
+import {
+  hrefFromOriginal,
+  hrefWithPreservedSearch
+} from './grantee-search-result'
 
 describe('hrefWithPreservedSearch', () => {
   const origin = 'https://interledger.org'
@@ -33,5 +36,34 @@ describe('hrefWithPreservedSearch', () => {
         origin
       )
     ).toBe('/grant/grantee-directory/privacy?q=education#list')
+  })
+
+  it('keeps an existing q when the query is empty', () => {
+    expect(
+      hrefWithPreservedSearch(
+        '/grant/grantee-directory/2024?q=education',
+        '',
+        origin
+      )
+    ).toBe('/grant/grantee-directory/2024?q=education')
+  })
+})
+
+describe('hrefFromOriginal', () => {
+  const origin = 'https://interledger.org'
+  const original = '/grant/grantee-directory/2024'
+
+  it('appends q from the original href, then restores it when the query is cleared', () => {
+    expect(hrefFromOriginal(original, 'education', origin)).toBe(
+      '/grant/grantee-directory/2024?q=education'
+    )
+    expect(hrefFromOriginal(original, '', origin)).toBe(original)
+    expect(hrefFromOriginal(original, '   ', origin)).toBe(original)
+  })
+
+  it('replaces a previous query instead of stacking on a mutated href', () => {
+    expect(hrefFromOriginal(original, 'open payments', origin)).toBe(
+      '/grant/grantee-directory/2024?q=open+payments'
+    )
   })
 })

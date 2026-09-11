@@ -3,7 +3,7 @@ import type { GranteeSearchEntry } from '@/utils/main/grantee'
 import { tryCatchAsync } from '@/utils/shared/tryCatch'
 import {
   createSearchResultRow,
-  hrefWithPreservedSearch,
+  hrefFromOriginal,
   type SearchResultContext
 } from './grantee-search-result'
 
@@ -470,38 +470,28 @@ export function createSearchController(
   return { runSearch, scheduleSearch, cancelScheduled }
 }
 
+const ORIGINAL_HREF_ATTR = 'data-grantee-original-href'
+
 /**
- * Rewrites year/tag filter hrefs on click/auxclick to carry the live query.
- * Pagination is hidden whenever `q` is non-empty (search results are the full
- * filtered set, not a page), so it is not wired. Rewrite-then-let-navigate
- * (rather than preventDefault + assign) keeps Ctrl/Cmd/Shift new-tab.
+ * Rewrite year/tag filter hrefs from a stored original so `?q=` cannot stick
+ * after a modified-click. Pagination is hidden whenever `q` is non-empty, so
+ * it is not wired. Copy-link / context-menu see the live query because this
+ * runs as the input changes, not on click.
  */
-function bindPreserveSearchOnClick(
-  searchRoot: HTMLElement,
-  searchInput: HTMLInputElement
+export function syncSearchHrefs(
+  root: ParentNode,
+  query: string,
+  pageOrigin: string
 ): void {
-  function preserveSearchOnClick(event: MouseEvent) {
-    if (event.defaultPrevented) return
-    // 0 = primary, 1 = middle (auxclick). Ignore right-click.
-    if (event.button !== 0 && event.button !== 1) return
-
-    const target = event.target as Element | null
-    const link = target?.closest('a[href]')
-    if (!(link instanceof HTMLAnchorElement)) return
-    if (!searchRoot.contains(link)) return
-
-    const query = searchInput.value.trim()
-    if (!query) return
-
-    link.href = hrefWithPreservedSearch(
-      link.href,
-      query,
-      window.location.origin
-    )
+  for (const node of root.querySelectorAll('a[href]')) {
+    if (!(node instanceof HTMLAnchorElement)) continue
+    let original = node.getAttribute(ORIGINAL_HREF_ATTR)
+    if (original === null) {
+      original = node.getAttribute('href') ?? ''
+      node.setAttribute(ORIGINAL_HREF_ATTR, original)
+    }
+    node.setAttribute('href', hrefFromOriginal(original, query, pageOrigin))
   }
-
-  searchRoot.addEventListener('click', preserveSearchOnClick)
-  searchRoot.addEventListener('auxclick', preserveSearchOnClick)
 }
 
 function wireGranteeSearch(dom: SearchDom): void {
@@ -548,12 +538,17 @@ function wireGranteeSearch(dom: SearchDom): void {
     clearButton.hidden = !searchInput.value
   }
 
+  function syncFilterHrefs() {
+    syncSearchHrefs(searchRoot, searchInput.value, window.location.origin)
+  }
+
   function clearSearch() {
     searchInput.value = ''
     lastTrackedQuery = ''
     controller.cancelScheduled()
     view.showStatic()
     updateUrlQuery('')
+    syncFilterHrefs()
     syncClearButton()
     searchInput.focus()
   }
@@ -564,6 +559,7 @@ function wireGranteeSearch(dom: SearchDom): void {
     // `?q=`.
     if (searchInput.value.trim()) view.enterSearchMode()
     controller.scheduleSearch(searchInput.value)
+    syncFilterHrefs()
     syncClearButton()
   })
 
@@ -588,12 +584,11 @@ function wireGranteeSearch(dom: SearchDom): void {
     trackCommittedSearch()
   })
 
-  bindPreserveSearchOnClick(searchRoot, searchInput)
-
   const initialQuery = parseInitialQuery(window.location.href)
   if (initialQuery) {
     searchInput.value = initialQuery
     void controller.runSearch(initialQuery)
   }
+  syncFilterHrefs()
   syncClearButton()
 }

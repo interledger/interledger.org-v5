@@ -13,6 +13,10 @@ const SEARCH_QUERY_PARAM = 'q'
 /**
  * Carry the live search onto a same-origin href. External destinations
  * (view-details) are left alone. Hash is preserved.
+ *
+ * Empty query returns `href` unchanged — including a leftover `?q=`. Callers
+ * that need to strip search must pass the pre-search href (see
+ * {@link hrefFromOriginal}).
  */
 export function hrefWithPreservedSearch(
   href: string,
@@ -25,6 +29,21 @@ export function hrefWithPreservedSearch(
   if (url.origin !== new URL(pageOrigin).origin) return href
   url.searchParams.set(SEARCH_QUERY_PARAM, trimmed)
   return `${url.pathname}${url.search}${url.hash}`
+}
+
+/**
+ * Derive a filter href from a stable original. Empty query restores
+ * `originalHref`; a non-empty query always starts from that original so a
+ * previous `?q=` cannot stick after a modified-click.
+ */
+export function hrefFromOriginal(
+  originalHref: string,
+  query: string,
+  pageOrigin: string
+): string {
+  const trimmed = query.trim()
+  if (!trimmed) return originalHref
+  return hrefWithPreservedSearch(originalHref, trimmed, pageOrigin)
 }
 
 /** Context the populate script needs but the JSON catalog does not carry. */
