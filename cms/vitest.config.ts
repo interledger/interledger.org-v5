@@ -27,10 +27,10 @@ export default defineConfig({
       // rewrites them in place. Run it locally only; in CI it produces a config
       // diff nothing can commit.
       thresholds: {
-        statements: 59,
+        statements: 64,
         branches: 62,
-        functions: 64,
-        lines: 60
+        functions: 70,
+        lines: 65
       }
     }
   },
