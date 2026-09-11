@@ -25,11 +25,11 @@
  *
  * Findings come in two severities, and the split is the point of this audit:
  *
- * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw `/img/**` or
- *   `/uploads/**` raster reached the page without going through
- *   `OptimizedImage`/`getOptimizedImage` at all. That is a code defect, it is
- *   deterministic from the repo tree, and whoever wrote the component can fix
- *   it — so it fails the build.
+ * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw raster from a
+ *   checked source tree (see `isOptimizableRasterPath`) reached the page. It
+ *   did not go through `OptimizedImage`/`getOptimizedImage`. That is a code
+ *   defect, it is deterministic from the repo tree, and whoever wrote the
+ *   component can fix it — so it fails the build.
  * - **Reported only** (`degraded-marker`): the component *did* route through
  *   `getOptimizedImage`, which found the source missing from this deploy and
  *   deliberately emitted a plain `<img>` rather than a `<picture>` a browser
@@ -47,7 +47,10 @@ import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isImageCdnEnabled } from '../utils/main/imageCdn'
-import { hasOptimizableRasterExtension } from '../utils/main/imagePaths'
+import {
+  IMAGE_URL_PATHS,
+  hasOptimizableRasterExtension
+} from '../utils/main/imagePaths'
 
 const CDN_MARKER = '/.netlify/images'
 const IMG_TAG_RE = /<img\b[^>]*>/gi
@@ -102,9 +105,28 @@ function hasAttr(tag: string, name: string): boolean {
   return new RegExp(`\\s${name}(\\s|=|>|/)`, 'i').test(tag)
 }
 
-/** A site-relative raster we expect to be optimized (not an SVG/GIF/external). */
+/**
+ * A site-relative raster that must be optimized. SVGs, GIFs and external URLs
+ * are not included.
+ *
+ * The Sessionize prefix comes from `IMAGE_URL_PATHS`, not from a new string
+ * literal. This list, the resolver list and the encoder list drifted apart
+ * once before. As a result, approximately 240 speaker photos shipped raw and
+ * this audit did not detect them.
+ *
+ * The `/img/` and `/uploads/` literals are broader than their
+ * `IMAGE_URL_PATHS` equivalents. For example, this check uses `/uploads/**`
+ * and `IMAGE_URL_PATHS` uses `/uploads/img/original/**`. Keep them broad, so
+ * that an addition here cannot reduce what the audit checks.
+ */
 export function isOptimizableRasterPath(src: string): boolean {
-  if (!src.startsWith('/img/') && !src.startsWith('/uploads/')) return false
+  if (
+    !src.startsWith('/img/') &&
+    !src.startsWith('/uploads/') &&
+    !src.startsWith(`${IMAGE_URL_PATHS.sessionizeSource}/`)
+  ) {
+    return false
+  }
   if (src.startsWith('/img/optimized/')) return false
   return hasOptimizableRasterExtension(src)
 }
