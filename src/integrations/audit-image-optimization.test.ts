@@ -17,6 +17,15 @@ describe('isOptimizableRasterPath', () => {
     expect(isOptimizableRasterPath('/img/a.webp')).toBe(true)
   })
 
+  it('accepts Sessionize speaker photos', () => {
+    expect(
+      isOptimizableRasterPath('/sessionize-speakers/img/2025/ed-cable.jpg')
+    ).toBe(true)
+    expect(
+      isOptimizableRasterPath('/sessionize-speakers/img/no-photo.svg')
+    ).toBe(false)
+  })
+
   it('rejects svgs, gifs, optimized output, and external paths', () => {
     expect(isOptimizableRasterPath('/img/logo.svg')).toBe(false)
     expect(isOptimizableRasterPath('/img/anim.gif')).toBe(false)
@@ -77,6 +86,16 @@ describe('findUnoptimizedImages', () => {
     const html = `<img src="/uploads/img/original/erica.png" alt="x" />`
     expect(findUnoptimizedImages(html)).toEqual([
       { src: '/uploads/img/original/erica.png', reason: 'standalone-raw' }
+    ])
+  })
+
+  it('flags a raw Sessionize speaker photo', () => {
+    const html = `<img src="/sessionize-speakers/img/2025/ed-cable.jpg" alt="Ed Cable" width="240" />`
+    expect(findUnoptimizedImages(html)).toEqual([
+      {
+        src: '/sessionize-speakers/img/2025/ed-cable.jpg',
+        reason: 'standalone-raw'
+      }
     ])
   })
 

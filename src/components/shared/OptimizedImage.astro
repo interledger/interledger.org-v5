@@ -36,6 +36,17 @@ interface Props {
   decoding?: 'async' | 'sync' | 'auto'
   media?: string
   draggable?: boolean
+  /**
+   * CDN widths for `src`. The default is `DEFAULT_CDN_WIDTHS`.
+   *
+   * Use a shorter list for images that never render large. Each width is a
+   * separate transform with its own price and its own edge-cache entry.
+   * Netlify does not upscale. A width above the intrinsic width of the source
+   * therefore returns the same pixels as the width below it.
+   *
+   * Use `AVATAR_CDN_WIDTHS` for profile photos.
+   */
+  widths?: readonly number[]
   /** Optional art-directed sources (most specific `media` first). */
   alternateSources?: OptimizedImageAlternateSource[]
   /**
@@ -60,6 +71,7 @@ const {
   decoding = 'async',
   media,
   draggable,
+  widths,
   alternateSources = [],
   placeholder
 } = Astro.props
@@ -74,7 +86,7 @@ const placeholderStyle = safePlaceholder
   : undefined
 
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
-  ? getOptimizedImage(src)
+  ? getOptimizedImage(src, widths)
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const alternatePictureSources = alternateSources.flatMap(

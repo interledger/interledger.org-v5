@@ -10,11 +10,37 @@ export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
 
 /**
+ * CDN widths for speaker avatars.
+ *
+ * Each width is a separate transform with its own price and its own edge-cache
+ * entry. Netlify does not upscale. If the source is narrower than the width,
+ * the transform returns the same pixels as the width below it, at the same
+ * price. Avatars render at 200 to 400 CSS px. The default 1280 and 1920 widths
+ * therefore give no benefit. They cost 6 transforms for each photo, in two
+ * formats, when 4 transforms are sufficient.
+ *
+ * The 240 width is a true downscale for the card grids at DPR 1. The 480 width
+ * covers DPR 2.
+ *
+ * Size note. This is not an invariant. Sessionize gives us URLs that contain
+ * its own resize directive, for example `…/image/2363-400o400o1-….jpg`. Each
+ * photo is therefore 400x400 today. `scripts/sync-sessionize.ts` saves each
+ * photo without a resize. No code in this repo enforces that size. These
+ * widths are correct in both conditions. At 400 px the 480 width clamps to the
+ * source. For a larger source, the 480 width becomes a true downscale.
+ */
+export const AVATAR_CDN_WIDTHS = [240, 480] as const
+
+/**
  * Encoding quality, shared by the two things that can produce a variant: the
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
- * URL builder (`imageCdn.ts`). Defined here so the two cannot drift, and so a
- * change to either lands in the CI cache key (this file is hashed by
- * `.github/actions/cache-optimized-images`).
+ * URL builder (`imageCdn.ts`). Defined here so the two cannot drift.
+ *
+ * A change to either value invalidates the build-mode encode cache
+ * automatically. That cache uses the key `PIPELINE_ID:<source hash>`, and
+ * `PIPELINE_ID` in `scripts/optimize-images.ts` interpolates both constants.
+ * Increment its trailing token manually only for pipeline changes that these
+ * values do not encode, such as width rules or output naming.
  *
  * Higher than sharp's WebP default (80): blog/body images were looking soft
  * when the browser had to fall back to a small variant (INTORG-934).
@@ -124,7 +150,21 @@ export const IMAGE_URL_PATHS = {
   publicSource: '/img',
   publicOptimized: '/img/optimized',
   uploadSource: '/uploads/img/original',
-  uploadOptimized: '/img/optimized/uploads'
+  uploadOptimized: '/img/optimized/uploads',
+  /**
+   * Speaker photos downloaded from Sessionize by `scripts/sync-sessionize.ts`.
+   *
+   * These photos are outside `/img`. Each prefix check must therefore name
+   * them. An earlier omission is why these photos were the last image family
+   * that shipped raw.
+   *
+   * Their variants go under `publicOptimized`, like the variants of every
+   * other source. They therefore inherit the `/img/optimized` gitignore entry,
+   * the CI encode cache and the `/img/*` cache header, with no more
+   * configuration.
+   */
+  sessionizeSource: '/sessionize-speakers/img',
+  sessionizeOptimized: '/img/optimized/sessionize-speakers'
 } as const
 
 /**
