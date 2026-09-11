@@ -56,6 +56,100 @@ export interface SearchResultContext {
   viewDetailsLabel: string
 }
 
+export interface SearchResultTagModel {
+  text: string
+  href: string
+  umami: UmamiTrackAttrs
+}
+
+export interface SearchResultDetailsModel {
+  href: string
+  umami: UmamiAttrs
+}
+
+/**
+ * Values `createSearchResultRow` writes into the Astro template.
+ * A missing optional section is `null` or `[]`, not a DOM visibility flag.
+ */
+export interface SearchResultRowModel {
+  name: string
+  program: string | null
+  budgetLabel: string | null
+  tags: SearchResultTagModel[]
+  country: string | null
+  startLabel: string | null
+  startMonth: string | null
+  leaders: string | null
+  leadersHasSnippetSpacer: boolean
+  descriptionSnippet: string | null
+  details: SearchResultDetailsModel | null
+}
+
+function tagPillModel(
+  tag: string,
+  context: SearchResultContext,
+  pageOrigin: string
+): SearchResultTagModel {
+  const href = hrefWithPreservedSearch(
+    getGranteeFilterUrl(
+      context.directoryPath,
+      context.selectedYear || undefined,
+      generateSlug(tag)
+    ),
+    context.searchQuery,
+    pageOrigin
+  )
+  return {
+    text: tag,
+    href,
+    umami: buildDeferredUmamiAttrs({
+      pathname: context.pathname,
+      lang: context.lang,
+      label: 'button_ui',
+      baseComponent: 'grantee_tag',
+      linkText: `#${tag}`,
+      href
+    })
+  }
+}
+
+/** Pure row payload. `createSearchResultRow` is the template applicator. */
+export function searchResultRowModel(
+  entry: GranteeSearchEntry,
+  context: SearchResultContext,
+  pageOrigin: string
+): SearchResultRowModel {
+  const leaders = entry.leaders.length > 0 ? entry.leaders.join(', ') : null
+  const descriptionSnippet = entry.descriptionSnippet || null
+  const detailsHref = entry.projectUrl || null
+
+  return {
+    name: entry.name,
+    program: entry.program || null,
+    budgetLabel: entry.budgetLabel || null,
+    tags: entry.tags.map((tag) => tagPillModel(tag, context, pageOrigin)),
+    country: entry.country || null,
+    startLabel: entry.startLabel || null,
+    startMonth: entry.startMonth || null,
+    leaders,
+    leadersHasSnippetSpacer: Boolean(leaders && descriptionSnippet),
+    descriptionSnippet,
+    details: detailsHref
+      ? {
+          href: detailsHref,
+          umami: buildUmamiAttrs({
+            pathname: context.pathname,
+            lang: context.lang,
+            label: 'button_card',
+            baseComponent: 'grantee_cards',
+            href: detailsHref,
+            linkText: context.viewDetailsLabel
+          })
+        }
+      : null
+  }
+}
+
 function requireElement<T extends Element>(
   root: ParentNode,
   selector: string
@@ -91,10 +185,10 @@ function applyUmamiAttrs(
 function fillOrHide(
   wrap: HTMLElement,
   visible: boolean,
-  fill: () => void
+  fill?: () => void
 ): void {
   if (visible) {
-    fill()
+    fill?.()
     show(wrap)
   } else {
     hide(wrap)
@@ -104,58 +198,33 @@ function fillOrHide(
 function appendTagPill(
   list: HTMLElement,
   tagTemplate: HTMLTemplateElement,
-  tag: string,
-  context: SearchResultContext
+  tag: SearchResultTagModel
 ): void {
   const fragment = tagTemplate.content.cloneNode(true) as DocumentFragment
   const pill = fragment.querySelector('a')
   if (!pill) return
 
-  const tagSlug = generateSlug(tag)
-  const href = hrefWithPreservedSearch(
-    getGranteeFilterUrl(
-      context.directoryPath,
-      context.selectedYear || undefined,
-      tagSlug
-    ),
-    context.searchQuery,
-    window.location.origin
-  )
-
-  pill.href = href
-  pill.textContent = tag
-  applyUmamiAttrs(
-    pill,
-    buildDeferredUmamiAttrs({
-      pathname: context.pathname,
-      lang: context.lang,
-      label: 'button_ui',
-      baseComponent: 'grantee_tag',
-      linkText: `#${tag}`,
-      href
-    })
-  )
+  pill.href = tag.href
+  pill.textContent = tag.text
+  applyUmamiAttrs(pill, tag.umami)
   list.append(fragment)
 }
 
 function fillTags(
   row: HTMLElement,
   tagTemplate: HTMLTemplateElement,
-  entry: GranteeSearchEntry,
-  context: SearchResultContext
+  tags: SearchResultTagModel[]
 ): void {
   const tagsWrap = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-tags-wrap]'
   )
-  fillOrHide(tagsWrap, entry.tags.length > 0, () => {
-    entry.tags.forEach((tag) =>
-      appendTagPill(tagsWrap, tagTemplate, tag, context)
-    )
+  fillOrHide(tagsWrap, tags.length > 0, () => {
+    tags.forEach((tag) => appendTagPill(tagsWrap, tagTemplate, tag))
   })
 }
 
-function fillMeta(row: HTMLElement, entry: GranteeSearchEntry): void {
+function fillMeta(row: HTMLElement, model: SearchResultRowModel): void {
   const metaWrap = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-meta-wrap]'
@@ -169,27 +238,27 @@ function fillMeta(row: HTMLElement, entry: GranteeSearchEntry): void {
     '[data-grantee-search-date-wrap]'
   )
 
-  fillOrHide(countryWrap, Boolean(entry.country), () => {
+  fillOrHide(countryWrap, Boolean(model.country), () => {
     setTextContent(
       requireElement(row, '[data-grantee-search-country]'),
-      entry.country
+      model.country ?? ''
     )
   })
-  fillOrHide(dateWrap, Boolean(entry.startLabel), () => {
+  fillOrHide(dateWrap, Boolean(model.startLabel), () => {
     setTextContent(
       requireElement(row, '[data-grantee-search-date-text]'),
-      entry.startLabel
+      model.startLabel ?? ''
     )
     const timeEl = requireElement<HTMLTimeElement>(
       row,
       '[data-grantee-search-date]'
     )
-    if (entry.startMonth) timeEl.dateTime = entry.startMonth
+    if (model.startMonth) timeEl.dateTime = model.startMonth
   })
-  fillOrHide(metaWrap, Boolean(entry.country || entry.startLabel), () => {})
+  fillOrHide(metaWrap, Boolean(model.country || model.startLabel))
 }
 
-function fillDescription(row: HTMLElement, entry: GranteeSearchEntry): void {
+function fillDescription(row: HTMLElement, model: SearchResultRowModel): void {
   const descriptionPanel = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-description-panel]'
@@ -203,28 +272,23 @@ function fillDescription(row: HTMLElement, entry: GranteeSearchEntry): void {
     '[data-grantee-search-snippet]'
   )
 
-  fillOrHide(leadersWrap, entry.leaders.length > 0, () => {
+  fillOrHide(leadersWrap, Boolean(model.leaders), () => {
     setTextContent(
       requireElement(row, '[data-grantee-search-leaders]'),
-      entry.leaders.join(', ')
+      model.leaders ?? ''
     )
-    leadersWrap.classList.toggle('mb-lg', Boolean(entry.descriptionSnippet))
+    leadersWrap.classList.toggle('mb-lg', model.leadersHasSnippetSpacer)
   })
-  fillOrHide(snippet, Boolean(entry.descriptionSnippet), () => {
-    setTextContent(snippet, entry.descriptionSnippet ?? '')
+  fillOrHide(snippet, Boolean(model.descriptionSnippet), () => {
+    setTextContent(snippet, model.descriptionSnippet ?? '')
   })
   fillOrHide(
     descriptionPanel,
-    entry.leaders.length > 0 || Boolean(entry.descriptionSnippet),
-    () => {}
+    Boolean(model.leaders || model.descriptionSnippet)
   )
 }
 
-function fillDetails(
-  row: HTMLElement,
-  entry: GranteeSearchEntry,
-  context: SearchResultContext
-): void {
+function fillDetails(row: HTMLElement, model: SearchResultRowModel): void {
   const detailsWrap = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-details-wrap]'
@@ -233,20 +297,11 @@ function fillDetails(
     row,
     '[data-grantee-search-details-link]'
   )
-  fillOrHide(detailsWrap, Boolean(entry.projectUrl), () => {
-    const href = entry.projectUrl ?? ''
-    detailsLink.href = href
-    applyUmamiAttrs(
-      detailsLink,
-      buildUmamiAttrs({
-        pathname: context.pathname,
-        lang: context.lang,
-        label: 'button_card',
-        baseComponent: 'grantee_cards',
-        href,
-        linkText: context.viewDetailsLabel
-      })
-    )
+  fillOrHide(detailsWrap, Boolean(model.details), () => {
+    const details = model.details
+    if (!details) return
+    detailsLink.href = details.href
+    applyUmamiAttrs(detailsLink, details.umami)
   })
 }
 
@@ -260,33 +315,34 @@ export function createSearchResultRow(
   tagTemplate: HTMLTemplateElement,
   context: SearchResultContext
 ): HTMLLIElement {
+  const model = searchResultRowModel(entry, context, window.location.origin)
   const fragment = rowTemplate.content.cloneNode(true) as DocumentFragment
   const row = requireElement<HTMLLIElement>(fragment, 'li')
 
-  setTextContent(requireElement(row, '[data-grantee-search-name]'), entry.name)
+  setTextContent(requireElement(row, '[data-grantee-search-name]'), model.name)
 
   const program = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-program]'
   )
-  fillOrHide(program, Boolean(entry.program), () => {
-    setTextContent(program, entry.program)
+  fillOrHide(program, Boolean(model.program), () => {
+    setTextContent(program, model.program ?? '')
   })
 
   const budgetWrap = requireElement<HTMLElement>(
     row,
     '[data-grantee-search-budget-wrap]'
   )
-  fillOrHide(budgetWrap, Boolean(entry.budgetLabel), () => {
+  fillOrHide(budgetWrap, Boolean(model.budgetLabel), () => {
     setTextContent(
       requireElement(row, '[data-grantee-search-budget-amount]'),
-      entry.budgetLabel ?? ''
+      model.budgetLabel ?? ''
     )
   })
 
-  fillTags(row, tagTemplate, entry, context)
-  fillMeta(row, entry)
-  fillDescription(row, entry)
-  fillDetails(row, entry, context)
+  fillTags(row, tagTemplate, model.tags)
+  fillMeta(row, model)
+  fillDescription(row, model)
+  fillDetails(row, model)
   return row
 }
