@@ -146,6 +146,7 @@ export {
 export {
   GRANTEE_PAGE_SIZE,
   getGranteeListingData,
+  getGranteeSearchIndex,
   paginateGranteesByYear,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
@@ -156,7 +157,8 @@ export {
   formatStartMonth,
   type Grantee,
   type GranteeFilterOption,
-  type GranteeListingData
+  type GranteeListingData,
+  type GranteeSearchEntry
 } from './main/grantee'
 
 // Main site: Text
@@ -168,7 +170,11 @@ export {
   TABLE_SCROLL_CLASS,
   wrapScrollableTables
 } from './main/wrapScrollableTables'
-export { createExcerpt, createSearchPlainText } from './main/create-excerpt'
+export {
+  createDisplayPlainText,
+  createExcerpt,
+  createSearchPlainText
+} from './main/create-excerpt'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'

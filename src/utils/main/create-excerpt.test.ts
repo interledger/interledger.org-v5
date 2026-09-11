@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { createExcerpt, createSearchPlainText } from './create-excerpt'
+import {
+  createDisplayPlainText,
+  createExcerpt,
+  createPlainTextVariants,
+  createSearchPlainText
+} from './create-excerpt'
 
 describe('createExcerpt', () => {
   it('strips inline markdown down to plain text', () => {
@@ -30,6 +35,26 @@ describe('createExcerpt', () => {
     expect(createExcerpt(undefined)).toBe('')
     expect(createExcerpt(null)).toBe('')
     expect(createExcerpt(42)).toBe('')
+  })
+})
+
+describe('createDisplayPlainText', () => {
+  it('keeps heading case and drops the ATX marker', () => {
+    expect(createDisplayPlainText('# Open payments')).toBe('Open payments')
+  })
+
+  it('drops setext underlines and blockquote carets', () => {
+    expect(
+      createDisplayPlainText('Open payments\n=============\n\n> wallets first')
+    ).toBe('Open payments wallets first')
+  })
+})
+
+describe('createPlainTextVariants', () => {
+  it('returns display and search strings from one call', () => {
+    const variants = createPlainTextVariants('# Open payments')
+    expect(variants.search).toContain('# Open payments')
+    expect(variants.display).toBe('Open payments')
   })
 })
 

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_GRANTEE_YEAR_SLUG } from './granteeFilters'
+import { ALL_GRANTEE_YEAR_SLUG, matchesGranteeFilters } from './granteeFilters'
 import {
   formatBudgetAmount,
   formatStartMonth,
   getGranteeListingData,
+  getGranteeSearchIndex,
   normalizeCountry,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
@@ -369,5 +370,242 @@ describe('paginateGranteesByYearAndTag', () => {
       selectedYear: '2024',
       selectedTag: 'financial-services'
     })
+  })
+})
+
+describe('getGranteeSearchIndex', () => {
+  it('returns an Error when the dump is not an array, matching getGranteeListingData', () => {
+    expect(getGranteeSearchIndex({ records: [] }, 'en')).toBeInstanceOf(Error)
+  })
+
+  it('maps grantees to slim, searchable entries', () => {
+    const index = getGranteeSearchIndex([sample], 'en')
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index).toHaveLength(1)
+    expect(index[0]).toMatchObject({
+      id: 'rec1',
+      name: 'People’s Clearing House',
+      program: 'Digital Financial Services',
+      year: '2024',
+      country: 'United States',
+      startMonth: '2024-09',
+      startLabel: 'September 2024',
+      tags: ['Financial Services', 'OpenSource'],
+      projectUrl: 'https://community.interledger.org/example',
+      budgetLabel: '750 000'
+    })
+    expect(index[0]?.searchText).toContain('clearing house')
+  })
+
+  it('strips markdown from snippets without dropping literal C# or A_B', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Snippet Markers',
+          'Project Description':
+            'A **C#** and A_B toolkit. [docs](https://example.com)'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionSnippet).toBe('A C# and A_B toolkit. docs')
+  })
+
+  it('truncates a long description into a plain-text snippet', () => {
+    const longDescription = 'Building open payments infrastructure. '.repeat(10)
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Long Description Grantee',
+          'Project Description': longDescription
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionSnippet).not.toBeNull()
+    expect(index[0]?.descriptionSnippet?.length).toBeLessThanOrEqual(160)
+    expect(index[0]?.descriptionSnippet?.length).toBeLessThan(
+      longDescription.length
+    )
+    expect(index[0]?.descriptionSnippet?.endsWith('…')).toBe(true)
+  })
+
+  it('is null for grantees with no description', () => {
+    const index = getGranteeSearchIndex(
+      [record({ 'Project Name': 'No Description' })],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionSnippet).toBeNull()
+  })
+
+  it('keeps ATX hashes searchable in precomputed searchText', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Heading Grantee',
+          'Project Description': '# Open payments'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(
+      matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
+    ).toBe(true)
+  })
+
+  it('builds snippets from stored descriptionPlain, not a second markdown pass', () => {
+    const data = [
+      record({
+        'Project Name': 'Heading Grantee',
+        'Project Description': '# Open payments infrastructure.'
+      })
+    ]
+    const grantees = parseGranteeRecords(data, 'en')
+    expect(grantees).not.toBeInstanceOf(Error)
+    if (grantees instanceof Error) return
+
+    const index = getGranteeSearchIndex(data, 'en')
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+
+    expect(index[0]?.descriptionSnippet).toBe(grantees[0]!.descriptionPlain)
+    expect(index[0]?.searchText).toContain('# open payments')
+  })
+
+  it('keeps setext underlines and blockquote markers searchable', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Block Markers',
+          'Project Description':
+            'Open payments\n=============\n\n> wallets first'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    const grantee = index[0]!
+    expect(
+      matchesGranteeFilters(grantee, { q: '===', year: '', tag: '' })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(grantee, { q: '> wallets', year: '', tag: '' })
+    ).toBe(true)
+    expect(grantee.descriptionSnippet).not.toMatch(/===|>/)
+  })
+
+  it('shows heading and quote prose in the snippet without markdown markers', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Display Snippet',
+          'Project Description': '# Open payments\n\n> wallets first'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionSnippet).toBe('Open payments wallets first')
+    expect(
+      matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
+    ).toBe(true)
+  })
+
+  it('produces entries matchesGranteeFilters can filter directly', () => {
+    const index = getGranteeSearchIndex([sample], 'en')
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(
+      matchesGranteeFilters(index[0]!, { q: 'clearing', year: '', tag: '' })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(index[0]!, { q: 'nonexistent', year: '', tag: '' })
+    ).toBe(false)
+  })
+})
+
+describe('searchText markdown handling', () => {
+  it('strips markdown syntax from searchText so raw markers are not required to match', () => {
+    const result = parseGranteeRecords(
+      [
+        record({
+          'Project Name': 'Markdown Grantee',
+          'Project Description':
+            '# Builds **open** [payments](https://example.com) infra for `wallets`.'
+        })
+      ],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.searchText).toContain(
+      'builds open payments infra for wallets'
+    )
+    expect(
+      matchesGranteeFilters(result[0]!, {
+        q: 'builds open payments',
+        year: '',
+        tag: ''
+      })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(result[0]!, { q: '# builds', year: '', tag: '' })
+    ).toBe(true)
+  })
+
+  it('keeps literal C# and A_B so those queries still match', () => {
+    const result = parseGranteeRecords(
+      [
+        record({
+          'Project Name': 'Literal Markers',
+          'Project Description': 'Built in C# with an A_B fallback.'
+        })
+      ],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    const grantee = result[0]!
+    expect(grantee.searchText).toContain('c#')
+    expect(grantee.searchText).toContain('a_b')
+    expect(matchesGranteeFilters(grantee, { q: 'c#', year: '', tag: '' })).toBe(
+      true
+    )
+    expect(
+      matchesGranteeFilters(grantee, { q: 'a_b', year: '', tag: '' })
+    ).toBe(true)
+  })
+
+  it('keeps setext underlines and blockquote markers searchable', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Block Markers',
+          'Project Description':
+            'Open payments\n=============\n\n> wallets first'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    const grantee = index[0]!
+    expect(
+      matchesGranteeFilters(grantee, { q: '===', year: '', tag: '' })
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(grantee, { q: '> wallets', year: '', tag: '' })
+    ).toBe(true)
   })
 })
