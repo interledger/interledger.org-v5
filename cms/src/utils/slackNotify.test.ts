@@ -405,3 +405,111 @@ describe('createSlackGitSyncNotifier', () => {
     expect(posts).toHaveLength(1)
   })
 })
+
+// ── Conflict-resolved alerts ─────────────────────────────────────────────────
+
+describe('conflict-resolved alerts', () => {
+  const conflict: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone',
+    commitMessage: 'faq: update a',
+    author: { name: 'Ada Lovelace', email: 'ada@example.com' },
+    overwrittenPaths: ['src/content/foundation-pages/events.mdx'],
+    resolvedPaths: [
+      { path: 'src/content/faqs/retired.mdx', action: 'deleted' }
+    ],
+    supersededCommits: ['09b7eba fix(content): unwrap prose']
+  }
+
+  function notifier(overrides: { now?: () => number } = {}) {
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: overrides.now ?? (() => 0),
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+    return { notify, posts }
+  }
+
+  it('names the overwritten files, the resolutions and the superseded commits', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({ ...conflict, hostname: 'strapi-vm' })
+    )
+
+    expect(text).toContain('src/content/foundation-pages/events.mdx')
+    expect(text).toContain('src/content/faqs/retired.mdx')
+    expect(text).toContain('09b7eba fix(content): unwrap prose')
+    expect(text).toContain('git log -p 09b7eba')
+  })
+
+  it('reads distinctly from a failure and a recovery in the channel list', () => {
+    const payload = buildSlackPayload({ ...conflict, hostname: 'strapi-vm' })
+
+    expect(payload.text).toBe(
+      '⚠️ Strapi git sync overwrote 2 file(s) on strapi-vm'
+    )
+    expect(payload.text).not.toContain('❌')
+    expect(payload.text).not.toContain('✅')
+  })
+
+  /**
+   * A conflict on an otherwise-healthy repo is the normal case. Reusing the
+   * `healthy` outcome would drop it, because that branch only posts when a
+   * failure is open.
+   */
+  it('posts even though the repo was never unhealthy', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+
+    expect(posts).toHaveLength(1)
+  })
+
+  it('does not mark the repo unhealthy, so the next success stays silent', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+    await notify({
+      outcome: 'healthy',
+      label: 'faq',
+      repoRoot: '/staging-clone'
+    })
+
+    expect(posts).toHaveLength(1)
+  })
+
+  it('throttles repeats over the same files', async () => {
+    let clock = 0
+    const { notify, posts } = notifier({ now: () => clock })
+
+    await notify(conflict)
+    clock += 60_000
+    await notify(conflict)
+
+    expect(posts).toHaveLength(1)
+
+    clock += FIFTEEN_MINUTES
+    await notify(conflict)
+    expect(posts).toHaveLength(2)
+  })
+
+  it('keeps a fingerprint separate from a failure, so neither buries the other', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(failure)
+    await notify(conflict)
+
+    expect(posts).toHaveLength(2)
+  })
+
+  it('fires again for a different set of files', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+    await notify({ ...conflict, overwrittenPaths: ['src/content/faqs/z.mdx'] })
+
+    expect(posts).toHaveLength(2)
+  })
+})
