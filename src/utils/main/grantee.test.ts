@@ -482,6 +482,25 @@ describe('getGranteeSearchIndex', () => {
     expect(
       matchesGranteeFilters(grantee, { q: '> wallets', year: '', tag: '' })
     ).toBe(true)
+    expect(grantee.descriptionSnippet).not.toMatch(/===|>/)
+  })
+
+  it('shows heading and quote prose in the snippet without markdown markers', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Display Snippet',
+          'Project Description': '# Open payments\n\n> wallets first'
+        })
+      ],
+      'en'
+    )
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionSnippet).toBe('Open payments wallets first')
+    expect(
+      matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
+    ).toBe(true)
   })
 
   it('produces entries matchesGranteeFilters can filter directly', () => {
