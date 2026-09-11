@@ -35,6 +35,10 @@ export const redirects = {
   // Grantee directory moved every tag listing under an explicit `/tag/`
   // segment, so the old `all` year-sentinel and bare year/tag pairs redirect
   // to the prefixed shape [INTORG-1112].
+  //
+  // The /:year/:tag wildcard also matches canonical /:year/tag/:slug.
+  // public/_redirects lists more-specific rules first so those 404
+  // instead of looping (Astro emits these 301s after that file).
   '/grant/grantee-directory/all': '/grant/grantee-directory',
   '/grant/grantee-directory/all/[tag]/[...page]':
     '/grant/grantee-directory/tag/[tag]/[...page]',
@@ -91,7 +95,7 @@ export const redirects = {
   '/es/grantee-directory': '/es/grant/grantee-directory',
   '/es/grant/grantee-database': '/es/grant/grantee-directory',
 
-  // See the EN twins above [INTORG-1112].
+  // See the EN twins above [INTORG-1112]. Same public/_redirects guard.
   '/es/grant/grantee-directory/all': '/es/grant/grantee-directory',
   '/es/grant/grantee-directory/all/[tag]/[...page]':
     '/es/grant/grantee-directory/tag/[tag]/[...page]',
