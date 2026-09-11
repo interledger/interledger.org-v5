@@ -334,12 +334,22 @@ jobs:
 
           if [ "$pushed" != "true" ]; then
             # Hand the checkout back exactly as we found it. A local commit that never reaches
-            # origin would diverge the branch and break the next run's `git pull --ff-only`, and
-            # the data is regenerated from Airtable on the next run anyway. Undo only our commit
-            # and only our file — `git reset --hard` here would discard Strapi content that has
-            # not been committed yet.
-            git reset --soft HEAD~1
-            git restore --staged --worktree -- "$AIRTABLE_JSON"
+            # origin would diverge the branch, and the data is regenerated from Airtable on the
+            # next run anyway. Undo only our commit and only our file — `git reset --hard` here
+            # would discard Strapi content that has not been committed yet.
+            #
+            # Guarded on the ahead-count: Strapi commits to this same checkout on a 300ms
+            # debounce whenever an editor saves, so a save landing during the retry loop above
+            # puts *its* commit at HEAD and ours underneath. `HEAD~1` would then drop the
+            # editor's work instead of ours. Nothing here can safely rewrite a commit we do
+            # not own, so leave the stack alone and let the divergence be reported.
+            AHEAD="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
+            if [ "$AHEAD" = "1" ]; then
+              git reset --soft HEAD~1
+              git restore --staged --worktree -- "$AIRTABLE_JSON"
+            else
+              echo "::warning::$AHEAD unpushed commits — another writer owns one, so the grantee commit was left in place."
+            fi
             echo "Error: could not push grantee data to $DEPLOY_BRANCH after $MAX_PUSH_ATTEMPTS attempts."
             exit 1
           fi
