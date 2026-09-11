@@ -22,13 +22,24 @@ function isExpanded(toggle: HTMLButtonElement): boolean {
   return toggle.getAttribute('aria-expanded') === 'true'
 }
 
+/** Hide the control when collapsed text fits in two lines. */
+export function shouldHideReadMoreToggle(
+  expanded: boolean,
+  overflows: boolean
+): boolean {
+  return !expanded && !overflows
+}
+
 function setExpanded(root: HTMLElement, expanded: boolean) {
   const parts = queryDescription(root)
   if (!parts) return
 
   parts.text.classList.toggle(LINE_CLAMP_CLASS, !expanded)
   parts.toggle.setAttribute('aria-expanded', String(expanded))
-  parts.toggle.hidden = false
+  parts.toggle.hidden = shouldHideReadMoreToggle(
+    expanded,
+    descriptionOverflows(parts.text)
+  )
 
   const label = parts.toggle.querySelector(
     '[data-grantee-description-toggle-label]'
