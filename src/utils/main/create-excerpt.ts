@@ -32,7 +32,9 @@ const DISPLAY_CONVERT_OPTIONS = {
 function excerptFromMarkdown(
   parser: MarkdownIt,
   body: unknown,
-  convertOptions: typeof CONVERT_OPTIONS | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
+  convertOptions:
+    | typeof CONVERT_OPTIONS
+    | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
 ): string {
   const safeBody = typeof body === 'string' ? body : ''
   const html = parser.render(safeBody)
