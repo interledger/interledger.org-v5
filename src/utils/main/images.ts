@@ -51,20 +51,24 @@ interface ResolvedImageSource {
    */
   pathname: string
   /**
-   * Base name of this source's pre-generated variants (`{base}-{width}.webp`),
-   * resolved alongside the pathname so the prefix that matched cannot be
-   * re-derived differently later. Unused in CDN mode.
+   * Base name of the pre-generated variants of this source, in the form
+   * `{base}-{width}.webp`. It is resolved with the pathname, so that no later
+   * code can derive the matched prefix a second time and get a different
+   * result. CDN mode does not use it.
    */
   optimizedBase: string
 }
 
 /**
- * Source prefix → optimized-output prefix, in match order. Must stay in step
- * with `SOURCES` in `scripts/optimize-images.ts`: that array decides what lands
- * in the catalogs, this one decides what is looked up in them.
+ * Source prefix to optimized-output prefix, in match order.
  *
- * `publicSource` goes last because it is the broadest — `/img/optimized` and
- * nothing else sits inside it, and that case is rejected before the scan.
+ * Keep in step with `SOURCES` in `scripts/optimize-images.ts`. That array
+ * decides what the encoder writes to the catalogs. This array decides what the
+ * resolver reads back.
+ *
+ * `publicSource` is last because it is the broadest prefix. It contains
+ * `/img/optimized` and no other source. The code rejects that case before this
+ * scan.
  */
 const OPTIMIZED_SOURCE_PREFIXES = [
   {
@@ -234,8 +238,8 @@ function resolveOptimizableSource(src: string): ResolvedImageSource | null {
   // neither hide an extension nor invent one.
   if (!hasOptimizableRasterExtension(pathname)) return null
 
-  // The generated output tree is not a source. It lives inside `publicSource`,
-  // so it has to be rejected before the prefix scan rather than within it.
+  // The generated output tree is not a source. It is inside `publicSource`,
+  // so reject it before the prefix scan, not during the scan.
   if (isWithinUrlPath(pathname, IMAGE_URL_PATHS.publicOptimized)) return null
 
   const prefix = OPTIMIZED_SOURCE_PREFIXES.find((candidate) =>

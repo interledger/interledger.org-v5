@@ -38,29 +38,35 @@ const RUNTIME_IMAGE_SOURCES_CATALOG_PATH = path.join(
 
 const CONCURRENCY = 4
 
-// WEBP_QUALITY and AVIF_QUALITY live in @/utils/main/imagePaths so the Netlify
-// Image CDN URL builder encodes at the same settings as this script. Both are
-// interpolated here, so a quality change invalidates the content-hash cache by
-// itself. Bump the trailing token by hand for anything they don't encode —
-// target widths or output naming — or already-processed sources are skipped and
-// keep variants built under the old rules.
+// WEBP_QUALITY and AVIF_QUALITY come from @/utils/main/imagePaths. The Netlify
+// Image CDN URL builder uses the same two constants. This keeps both encoders
+// at the same quality.
+//
+// PIPELINE_ID interpolates both constants. A quality change therefore
+// invalidates the content-hash cache automatically. For other pipeline changes,
+// such as target widths or output naming, increment the trailing token
+// manually. If you do not, the script skips processed sources and keeps the old
+// variants.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
 
 interface SourceConfig {
   dir: string
   outputPrefix: string
   /**
-   * Whether an oversized file fails the build. On for the directories we
-   * control, where an oversized image is an editor mistake fixable at source.
-   * Off for Sessionize photos: speakers upload those to a third party and
-   * nobody here can re-cut them, so one large headshot must not be able to
-   * block a deploy. Oversize is still reported, just not fatally.
+   * If true, an oversized file fails the build.
+   *
+   * Set it to true for the directories we control. There, an oversized image is
+   * an editor mistake, and the editor can correct the source file. Set it to
+   * false for Sessionize photos. Speakers upload those photos to a third party,
+   * and we cannot resize the originals. One large photo must not stop a deploy.
+   * The script still reports the oversize.
    */
   enforceSizeLimit: boolean
 }
 
-// Must stay in step with `OPTIMIZED_SOURCE_PREFIXES` in
-// `src/utils/main/images.ts`, which looks up what this array produces.
+// Keep in step with `OPTIMIZED_SOURCE_PREFIXES` in `src/utils/main/images.ts`.
+// This array decides what the script writes. That array decides what the
+// resolver reads back.
 const SOURCES: SourceConfig[] = [
   {
     dir: getPublicAssetPath(IMAGE_URL_PATHS.publicSource),

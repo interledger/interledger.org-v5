@@ -10,21 +10,24 @@ export const TARGET_WIDTHS = [640, 1280, 1920, 2560, 3840] as const
 export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
 
 /**
- * Width ladder for speaker avatars. Every rung is a separately billed transform
- * and a separate edge-cache entry, and Netlify clamps rather than upscales — so
- * for a source narrower than a rung, that rung returns the same pixels as the
- * one below it at full price. Avatars render at 200–400 CSS px, so the 1280 and
- * 1920 default rungs buy nothing: 6 transforms per photo (two formats) where 4
- * will do.
+ * CDN widths for speaker avatars.
  *
- * 240 is a genuine downscale for the card grids at DPR 1; 480 covers DPR 2.
+ * Each width is a separate transform with its own price and its own edge-cache
+ * entry. Netlify does not upscale. If the source is narrower than the width,
+ * the transform returns the same pixels as the width below it, at the same
+ * price. Avatars render at 200 to 400 CSS px. The default 1280 and 1920 widths
+ * therefore give no benefit. They cost 6 transforms for each photo, in two
+ * formats, when 4 transforms are sufficient.
  *
- * Sizing note, not an invariant: Sessionize hands us URLs that carry its own
- * resize directive (`…/image/2363-400o400o1-….jpg`), so today every photo
- * arrives 400×400, and `scripts/sync-sessionize.ts` saves whatever it is handed
- * without resizing. Nothing in this repo enforces that bound. The ladder does
- * not depend on it either way: at 400px the 480 rung clamps to the source, and
- * for a larger source it simply becomes a real downscale.
+ * The 240 width is a true downscale for the card grids at DPR 1. The 480 width
+ * covers DPR 2.
+ *
+ * Size note. This is not an invariant. Sessionize gives us URLs that contain
+ * its own resize directive, for example `…/image/2363-400o400o1-….jpg`. Each
+ * photo is therefore 400x400 today. `scripts/sync-sessionize.ts` saves each
+ * photo without a resize. No code in this repo enforces that size. These
+ * widths are correct in both conditions. At 400 px the 480 width clamps to the
+ * source. For a larger source, the 480 width becomes a true downscale.
  */
 export const AVATAR_CDN_WIDTHS = [240, 480] as const
 
@@ -33,11 +36,11 @@ export const AVATAR_CDN_WIDTHS = [240, 480] as const
  * build-time encoder (`scripts/optimize-images.ts`) and the Netlify Image CDN
  * URL builder (`imageCdn.ts`). Defined here so the two cannot drift.
  *
- * Changing either value invalidates the build-mode encode cache on its own:
- * that cache is keyed `PIPELINE_ID:<source hash>`, and `PIPELINE_ID` in
- * `scripts/optimize-images.ts` interpolates both constants. A manual bump of
- * its trailing token is only needed for pipeline changes these values don't
- * encode — width rules or output naming.
+ * A change to either value invalidates the build-mode encode cache
+ * automatically. That cache uses the key `PIPELINE_ID:<source hash>`, and
+ * `PIPELINE_ID` in `scripts/optimize-images.ts` interpolates both constants.
+ * Increment its trailing token manually only for pipeline changes that these
+ * values do not encode, such as width rules or output naming.
  *
  * Higher than sharp's WebP default (80): blog/body images were looking soft
  * when the browser had to fall back to a small variant (INTORG-934).
@@ -150,12 +153,15 @@ export const IMAGE_URL_PATHS = {
   uploadOptimized: '/img/optimized/uploads',
   /**
    * Speaker photos downloaded from Sessionize by `scripts/sync-sessionize.ts`.
-   * They sit outside `/img`, so every prefix check has to name them explicitly
-   * — the omission is why they were the one image family still shipping raw.
    *
-   * Variants land under `publicOptimized` like every other source, which is
-   * what makes them inherit the `/img/optimized` gitignore entry, the CI
-   * encode cache, and the `/img/*` cache header without further wiring.
+   * These photos are outside `/img`. Each prefix check must therefore name
+   * them. An earlier omission is why these photos were the last image family
+   * that shipped raw.
+   *
+   * Their variants go under `publicOptimized`, like the variants of every
+   * other source. They therefore inherit the `/img/optimized` gitignore entry,
+   * the CI encode cache and the `/img/*` cache header, with no more
+   * configuration.
    */
   sessionizeSource: '/sessionize-speakers/img',
   sessionizeOptimized: '/img/optimized/sessionize-speakers'

@@ -20,12 +20,12 @@ const { getNavigation } = await import('./navigation')
 
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
-    // Compared against the config module rather than a hard-coded label list.
-    // These files are synced from Strapi, so an editor adding a nav group is
-    // expected content churn, not a regression — pinning the labels made this
-    // red when INTORG-1046 added a "Resources" group. The site → config
-    // mapping is what's under test, and that still fails loudly if
-    // `hackathon` ever resolves to the summit config.
+    // Compare against the config module, not against a fixed list of labels.
+    // Strapi syncs these files. A new nav group from an editor is therefore
+    // expected content, not a regression. A fixed list of labels made this
+    // test fail when INTORG-1046 added a "Resources" group. This test checks
+    // the site-to-config mapping. It still fails if `hackathon` resolves to
+    // the summit config.
     expect(getNavigation('hackathon', 'en')).toEqual(hackathonEn)
   })
 

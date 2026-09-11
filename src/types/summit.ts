@@ -23,10 +23,10 @@ export interface Talk {
 
 export type TalkPreview = Omit<Talk, 'speakers'> & {
   /**
-   * Always populated: `getTalkPreviews` substitutes the no-photo SVG when
-   * Sessionize has no photo for the speaker, so components can pass this
-   * straight to `OptimizedImage`. Contrast `SessionizeSpeaker.profilePicture`,
-   * which is the nullable API shape.
+   * Always set. If Sessionize has no photo for the speaker, `getTalkPreviews`
+   * substitutes the no-photo SVG. Components can therefore pass this value
+   * directly to `OptimizedImage`. The API shape is nullable. See
+   * `SessionizeSpeaker.profilePicture`.
    */
   speakerImage: string
   speakerName: string | null
@@ -37,7 +37,7 @@ export interface Speaker {
   name: string
   bio: string | null
   tagLine: string | null
-  /** Always populated — see `TalkPreview.speakerImage`. */
+  /** Always set. See `TalkPreview.speakerImage`. */
   profilePicture: string
   es: {
     bio: string

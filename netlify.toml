@@ -106,11 +106,12 @@
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
-# Sessionize speaker photos. Needed on its own because they live outside /img
-# and would otherwise keep the catch-all's max-age=0. That matters twice over:
-# the originals are the <img> fallback, and per the note above, Image CDN
-# transforms inherit Cache-Control from their source — so without this every
-# speaker avatar revalidates on each navigation despite the long edge TTL.
+# Sessionize speaker photos. These photos are outside /img, so they need their
+# own rule. Without it, the catch-all rule applies max-age=0. This has two
+# effects. The originals are the <img> fallback. Also, as the note above
+# explains, Image CDN transforms inherit Cache-Control from their source.
+# Every speaker avatar would then revalidate on each navigation, even with a
+# long edge TTL.
 [[headers]]
   for = "/sessionize-speakers/*"
   [headers.values]

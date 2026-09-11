@@ -26,11 +26,10 @@
  * Findings come in two severities, and the split is the point of this audit:
  *
  * - **Blocking** (`standalone-raw`, `picture-without-cdn`): a raw raster from a
- *   policed source tree (see `isOptimizableRasterPath`) reached the page
- *   without going through
- *   `OptimizedImage`/`getOptimizedImage` at all. That is a code defect, it is
- *   deterministic from the repo tree, and whoever wrote the component can fix
- *   it — so it fails the build.
+ *   checked source tree (see `isOptimizableRasterPath`) reached the page. It
+ *   did not go through `OptimizedImage`/`getOptimizedImage`. That is a code
+ *   defect, it is deterministic from the repo tree, and whoever wrote the
+ *   component can fix it — so it fails the build.
  * - **Reported only** (`degraded-marker`): the component *did* route through
  *   `getOptimizedImage`, which found the source missing from this deploy and
  *   deliberately emitted a plain `<img>` rather than a `<picture>` a browser
@@ -107,15 +106,18 @@ function hasAttr(tag: string, name: string): boolean {
 }
 
 /**
- * A site-relative raster we expect to be optimized (not an SVG/GIF/external).
+ * A site-relative raster that must be optimized. SVGs, GIFs and external URLs
+ * are not included.
  *
- * The Sessionize prefix comes from `IMAGE_URL_PATHS` rather than another string
- * literal: this list, the resolver's and the encoder's each drifted apart once
- * already, and that is precisely how ~240 speaker photos shipped raw past an
- * audit whose whole job is to catch a raw raster. The `/img/` and `/uploads/`
- * literals stay deliberately broader than their `IMAGE_URL_PATHS` equivalents
- * (`/uploads/**` vs `/uploads/img/original/**`) so widening this does not
- * quietly narrow what is already policed.
+ * The Sessionize prefix comes from `IMAGE_URL_PATHS`, not from a new string
+ * literal. This list, the resolver list and the encoder list drifted apart
+ * once before. As a result, approximately 240 speaker photos shipped raw and
+ * this audit did not detect them.
+ *
+ * The `/img/` and `/uploads/` literals are broader than their
+ * `IMAGE_URL_PATHS` equivalents. For example, this check uses `/uploads/**`
+ * and `IMAGE_URL_PATHS` uses `/uploads/img/original/**`. Keep them broad, so
+ * that an addition here cannot reduce what the audit checks.
  */
 export function isOptimizableRasterPath(src: string): boolean {
   if (

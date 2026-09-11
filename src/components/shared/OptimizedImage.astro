@@ -37,12 +37,14 @@ interface Props {
   media?: string
   draggable?: boolean
   /**
-   * CDN width ladder for `src`; defaults to `DEFAULT_CDN_WIDTHS`. Narrow it for
-   * images that never render large: every rung is a separately billed transform
-   * behind its own edge-cache entry, and because Netlify clamps rather than
-   * upscales, every rung above the source's intrinsic width returns pixels
-   * identical to the rung below it. `AVATAR_CDN_WIDTHS` is the ladder for
-   * profile photos.
+   * CDN widths for `src`. The default is `DEFAULT_CDN_WIDTHS`.
+   *
+   * Use a shorter list for images that never render large. Each width is a
+   * separate transform with its own price and its own edge-cache entry.
+   * Netlify does not upscale. A width above the intrinsic width of the source
+   * therefore returns the same pixels as the width below it.
+   *
+   * Use `AVATAR_CDN_WIDTHS` for profile photos.
    */
   widths?: readonly number[]
   /** Optional art-directed sources (most specific `media` first). */
