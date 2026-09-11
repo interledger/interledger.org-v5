@@ -50,8 +50,10 @@ const {
   heroDescription,
   heroImage,
   heroImageAlt,
+  heroImageBlur,
   heroImageMobile,
   heroImageMobileAlt,
+  heroImageMobileBlur,
   heroCtas,
   metaImage,
   canonicalUrl,
@@ -78,6 +80,11 @@ const breadcrumbs = [
   { name: t('nav.grants'), href: grantsHref },
   ...(isGrantOverviewHub ? [] : [{ name: heroTitle ?? title, href: pageHref }])
 ]
+
+const heroLcpPreload =
+  heroImage || heroImageMobile
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
 ---
 
 <FoundationPageLayout
@@ -85,6 +92,7 @@ const breadcrumbs = [
   description={description}
   ogImageUrl={metaImage}
   canonicalURL={canonicalUrl}
+  heroLcpPreload={heroLcpPreload}
 >
   <main class="page-stack pb-section">
     <PageHero
@@ -94,6 +102,8 @@ const breadcrumbs = [
       imageMobile={heroImageMobile}
       imageAlt={heroImageAlt}
       imageMobileAlt={heroImageMobileAlt}
+      imageBlur={heroImageBlur}
+      imageMobileBlur={heroImageMobileBlur}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
       imageBand="default"

@@ -87,6 +87,22 @@
     overflow-x: clip;
   }
 
+  /* Poppins ships 400 / 500 / 600 / 800. Preflight's `bolder` on a 400
+     parent computes to 700, which the browser then synthesises or maps
+     onto 800. Pin emphasis at 600 site-wide (prose, CMS paste, etc.). */
+  b,
+  strong {
+    font-weight: 600;
+  }
+
+  /* Headings that are already 600 (h1/h2 tokens): don't stack bold again
+     when Google Docs wraps the whole line in <strong> (`bolder` → 800).
+     h3–h6 use 400 tokens and keep the global 600 above so ### **Title**
+     still reads as bold. */
+  :is(h1, h2) :is(b, strong) {
+    font-weight: inherit;
+  }
+
   main {
     @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
   }

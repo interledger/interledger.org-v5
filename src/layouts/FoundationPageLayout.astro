@@ -15,6 +15,8 @@ import BaseLayout from './BaseLayout.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
 import FoundationHeader from '@/components/layout/FoundationHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
+import HeroImagePreload from '@/components/shared/HeroImagePreload.astro'
+import type { HeroLcpPreloadConfig } from '@/utils'
 
 interface Props {
   title: string
@@ -26,6 +28,8 @@ interface Props {
   headerTheme?: 'light' | 'dark'
   bodyClass?: string
   noindex?: boolean
+  /** Emits `<link rel="preload">` for homepage or PageHero LCP candidates in `<head>`. */
+  heroLcpPreload?: HeroLcpPreloadConfig
 }
 
 const defaultBodyClass =
@@ -40,7 +44,8 @@ const {
   datePublished,
   headerTheme = 'light',
   bodyClass = defaultBodyClass,
-  noindex = false
+  noindex = false,
+  heroLcpPreload
 } = Astro.props
 ---
 
@@ -57,6 +62,7 @@ const {
 >
   <Fragment slot="head">
     <slot name="head" />
+    {heroLcpPreload && <HeroImagePreload config={heroLcpPreload} />}
   </Fragment>
   <FoundationHeader slot="header" theme={headerTheme} />
   <TableScrollSupport />

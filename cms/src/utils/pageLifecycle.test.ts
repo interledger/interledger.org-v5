@@ -17,7 +17,7 @@ const testConfig = {
 }
 
 describe('generateMDX — clears deleted Strapi-managed fields', () => {
-  it('removes heroImage from frontmatter when media is deleted in Strapi', () => {
+  it('removes heroImage from frontmatter when media is deleted in Strapi', async () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -36,12 +36,12 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       heroTitle: 'Preserved Title'
     }
 
-    const result = generateMDX(testConfig, page, preservedFields)
+    const result = await generateMDX(testConfig, page, preservedFields)
 
     expect(result).not.toContain('heroImage')
   })
 
-  it('keeps heroImage in frontmatter when media is present', () => {
+  it('keeps heroImage in frontmatter when media is present', async () => {
     const page = {
       id: 1,
       documentId: 'doc1',
@@ -55,7 +55,7 @@ describe('generateMDX — clears deleted Strapi-managed fields', () => {
       }
     }
 
-    const result = generateMDX(testConfig, page)
+    const result = await generateMDX(testConfig, page)
 
     expect(result).toContain('heroImage')
     expect(result).toContain('https://example.com/image.jpg')
@@ -72,26 +72,26 @@ describe('generateMDX — required field validation', () => {
     description: 'Test description'
   }
 
-  it('throws when description is missing', () => {
-    expect(() =>
+  it('throws when description is missing', async () => {
+    await expect(
       generateMDX(testConfig, { ...base, description: undefined })
-    ).toThrow('Page is missing a required description')
+    ).rejects.toThrow('Page is missing a required description')
   })
 
-  it('throws when description is blank', () => {
-    expect(() =>
+  it('throws when description is blank', async () => {
+    await expect(
       generateMDX(testConfig, { ...base, description: '   ' })
-    ).toThrow('Page is missing a required description')
+    ).rejects.toThrow('Page is missing a required description')
   })
 
-  it('throws when hero is present but title is empty', () => {
-    expect(() =>
+  it('throws when hero is present but title is empty', async () => {
+    await expect(
       generateMDX(testConfig, { ...base, hero: { title: '' } })
-    ).toThrow('Hero is missing required title')
+    ).rejects.toThrow('Hero is missing required title')
   })
 
-  it('throws when a hero CTA is missing text', () => {
-    expect(() =>
+  it('throws when a hero CTA is missing text', async () => {
+    await expect(
       generateMDX(testConfig, {
         ...base,
         hero: {
@@ -99,11 +99,11 @@ describe('generateMDX — required field validation', () => {
           hero_call_to_action: { text: '', link: '/about' }
         }
       })
-    ).toThrow('Hero CTA is missing required text')
+    ).rejects.toThrow('Hero CTA is missing required text')
   })
 
-  it('throws when a hero CTA is missing link', () => {
-    expect(() =>
+  it('throws when a hero CTA is missing link', async () => {
+    await expect(
       generateMDX(testConfig, {
         ...base,
         hero: {
@@ -111,11 +111,11 @@ describe('generateMDX — required field validation', () => {
           hero_call_to_action: { text: 'Learn more', link: '' }
         }
       })
-    ).toThrow('Hero CTA is missing required link')
+    ).rejects.toThrow('Hero CTA is missing required link')
   })
 
-  it('writes title/description/locale without hero fields when hero is absent', () => {
-    const result = generateMDX(testConfig, base)
+  it('writes title/description/locale without hero fields when hero is absent', async () => {
+    const result = await generateMDX(testConfig, base)
 
     expect(result).toContain("title: 'Test Page'")
     expect(result).toContain("description: 'Test description'")
@@ -124,8 +124,8 @@ describe('generateMDX — required field validation', () => {
     expect(result).not.toContain('heroImage')
   })
 
-  it('clears stale hero fields preserved from MDX when the page has no hero', () => {
-    const result = generateMDX(testConfig, base, {
+  it('clears stale hero fields preserved from MDX when the page has no hero', async () => {
+    const result = await generateMDX(testConfig, base, {
       heroTitle: 'Stale',
       heroImage: '/old.jpg',
       heroImageMobile: '/old-mobile.jpg',

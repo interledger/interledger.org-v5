@@ -45,8 +45,10 @@ const {
   heroDescription,
   heroImage,
   heroImageAlt,
+  heroImageBlur,
   heroImageMobile,
   heroImageMobileAlt,
+  heroImageMobileBlur,
   heroCtas,
   textSection,
   titleCards,
@@ -88,9 +90,18 @@ const textSectionHtml =
         lang: routeLocale
       })
     : undefined
+
+const heroLcpPreload =
+  isLandingPage && (heroImage || heroImageMobile)
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
 ---
 
-<FoundationPageLayout title={pageTitle} description={pageDescription}>
+<FoundationPageLayout
+  title={pageTitle}
+  description={pageDescription}
+  heroLcpPreload={heroLcpPreload}
+>
   <main class="page-stack pb-section">
     <!-- Hero images only show on the landing page not paginated or filtered pages-->
     <PageHero
@@ -100,6 +111,8 @@ const textSectionHtml =
       imageAlt={heroImageAlt}
       imageMobile={isLandingPage ? heroImageMobile : undefined}
       imageMobileAlt={heroImageMobileAlt}
+      imageBlur={isLandingPage ? heroImageBlur : undefined}
+      imageMobileBlur={isLandingPage ? heroImageMobileBlur : undefined}
       cta={heroCtas?.[0]}
       breadcrumbs={breadcrumbs}
     >

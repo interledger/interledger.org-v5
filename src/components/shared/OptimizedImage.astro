@@ -3,7 +3,8 @@ import {
   buildImageSrcset,
   getOptimizedImage,
   isOptimizableSource,
-  withIntrinsicWidthRung
+  resolveOptimizedImage,
+  sanitizeBlurPlaceholder
 } from '@/utils'
 
 export interface OptimizedImageAlternateSource {
@@ -32,10 +33,29 @@ interface Props {
   loading?: 'lazy' | 'eager'
   sizes?: string
   fetchpriority?: 'high' | 'low' | 'auto'
+  decoding?: 'async' | 'sync' | 'auto'
   media?: string
   draggable?: boolean
+  /**
+   * CDN widths for `src`. The default is `DEFAULT_CDN_WIDTHS`.
+   *
+   * Use a shorter list for images that never render large. Each width is a
+   * separate transform with its own price and its own edge-cache entry.
+   * Netlify does not upscale. A width above the intrinsic width of the source
+   * therefore returns the same pixels as the width below it.
+   *
+   * Use `AVATAR_CDN_WIDTHS` for profile photos.
+   */
+  widths?: readonly number[]
   /** Optional art-directed sources (most specific `media` first). */
   alternateSources?: OptimizedImageAlternateSource[]
+  /**
+   * Base64 LQIP blur placeholder (`data:image/webp;base64,...`), from a
+   * `*Blur` frontmatter field. Painted as a CSS background behind the `<img>`
+   * — the opaque real photo covers it the instant it decodes, so this needs
+   * no fade/JS. Requires `width`/`height` to reserve the box beforehand.
+   */
+  placeholder?: string
 }
 
 const {
@@ -48,13 +68,25 @@ const {
   loading = 'lazy',
   sizes = '100vw',
   fetchpriority,
+  decoding = 'async',
   media,
   draggable,
-  alternateSources = []
+  widths,
+  alternateSources = [],
+  placeholder
 } = Astro.props
 
+const safePlaceholder = sanitizeBlurPlaceholder(placeholder)
+const placeholderStyle = safePlaceholder
+  ? {
+      backgroundImage: `url('${safePlaceholder}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center'
+    }
+  : undefined
+
 const { variants, fullSrc, avifVariants, avifFullSrc } = src
-  ? getOptimizedImage(src)
+  ? getOptimizedImage(src, widths)
   : { variants: [], fullSrc: null, avifVariants: [], avifFullSrc: null }
 
 const alternatePictureSources = alternateSources.flatMap(
@@ -65,10 +97,11 @@ const alternatePictureSources = alternateSources.flatMap(
     widths: alternateWidths,
     intrinsicWidth
   }) => {
-    const resolved = getOptimizedImage(alternateSrc, alternateWidths)
-    const alternate = intrinsicWidth
-      ? withIntrinsicWidthRung(resolved, alternateSrc, intrinsicWidth)
-      : resolved
+    const alternate = resolveOptimizedImage(
+      alternateSrc,
+      alternateWidths,
+      intrinsicWidth
+    )
     const sources: Array<{
       type: string
       media: string
@@ -101,7 +134,6 @@ const alternatePictureSources = alternateSources.flatMap(
 const hasResponsive = variants.length > 0 || alternatePictureSources.length > 0
 const webpSrcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
-const decoding: 'async' | 'sync' | 'auto' = 'async'
 // When a media query is provided, omit <img> src so browsers that don't match
 // the <source> media condition don't fetch the image at all.
 const imgSrc = media ? undefined : src
@@ -142,6 +174,8 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -160,6 +194,8 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
       />
@@ -177,6 +213,8 @@ const imgSrc = media ? undefined : src
         class={className}
         loading={loading}
         decoding={decoding}
+        style={placeholderStyle}
+        data-blur-placeholder={safePlaceholder ? '' : undefined}
         fetchpriority={fetchpriority}
         draggable={draggable}
         data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
@@ -186,6 +224,32 @@ const imgSrc = media ? undefined : src
 }
 
 <script>
+  // Drops the blur placeholder once the real image has painted. A source with
+  // transparency (the hackathon hero, the SVG blog banners) would otherwise
+  // keep showing the blur through its own alpha channel forever, since the
+  // placeholder is a CSS background sitting behind the image. CSS has no
+  // "image loaded" signal, so this is the one part of the blur-up that needs
+  // JS — `complete` covers images that finished before this script ran, which
+  // eager/high-priority heroes usually do.
+  const dropBlurPlaceholder = (img: HTMLImageElement) => {
+    img.style.backgroundImage = 'none'
+    img.removeAttribute('data-blur-placeholder')
+  }
+
+  for (const img of document.querySelectorAll<HTMLImageElement>(
+    'img[data-blur-placeholder]'
+  )) {
+    if (img.complete) {
+      dropBlurPlaceholder(img)
+    } else {
+      // Only on `load`: a failed image should keep the blur rather than fall
+      // back to an empty box.
+      img.addEventListener('load', () => dropBlurPlaceholder(img), {
+        once: true
+      })
+    }
+  }
+
   if (import.meta.env.DEV) {
     // Surfaces images that fell back to the unoptimized original (e.g. a CDN
     // upload missing from this deploy). Idempotent so duplicate inclusion across

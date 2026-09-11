@@ -37,4 +37,62 @@ describe('getHeroSectionStyle', () => {
       backgroundImage: "url('/elsewhere/hero%20image.jpg')"
     })
   })
+
+  it('encodes per segment, not with encodeURI, so a comma in the filename cannot split the value', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero,photo.jpg')).toEqual({
+      backgroundImage: "url('/elsewhere/hero%2Cphoto.jpg')"
+    })
+  })
+
+  it('keeps an absolute fallback URL intact instead of mangling its scheme/host and query string', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle('https://cdn.example.com/uploads/hero.jpg?v=2')
+    ).toEqual({
+      backgroundImage: "url('https://cdn.example.com/uploads/hero.jpg?v=2')"
+    })
+  })
+
+  it('layers a blur placeholder underneath the real image when provided', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle('/elsewhere/hero.jpg', 'data:image/webp;base64,AAA')
+    ).toEqual({
+      backgroundImage:
+        "url('/elsewhere/hero.jpg'), url('data:image/webp;base64,AAA')"
+    })
+  })
+
+  it('omits the second layer when no blur placeholder is given', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero.jpg')).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
+
+  it('omits the second layer for a whitespace-only blur placeholder', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(getHeroSectionStyle('/elsewhere/hero.jpg', '   ')).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
+
+  it('omits the second layer for a malformed blur value that could break out of url(...)', () => {
+    setImageCdnEnabledForTests(false)
+
+    expect(
+      getHeroSectionStyle(
+        '/elsewhere/hero.jpg',
+        "data:image/webp;base64,AAA');color:red;--x:('"
+      )
+    ).toEqual({
+      backgroundImage: "url('/elsewhere/hero.jpg')"
+    })
+  })
 })

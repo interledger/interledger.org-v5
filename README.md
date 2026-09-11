@@ -331,10 +331,11 @@ This all lives in one workflow, `.github/workflows/scheduled-content-sync.yml`, 
 1. Pulls the latest commit for that branch onto the VM.
 2. Rebuilds and restarts the Strapi service **only if** `/cms` changed since the last time this job ran (a manual `workflow_dispatch` run always rebuilds, so it can be used to recover from a bad prior deploy). This is the code deploy step — content types, lifecycles, plugins — not content.
 3. Runs `pnpm run sync:all` in `cms/` to sync content, navigation, and media, regardless of whether a rebuild happened.
+4. Runs `pnpm run sync:airtable` from the repo root and, if `src/data/airtable/grantee-data.json` changed, commits just that one file and pushes it to the branch. See [Grantee Data (Airtable Integration)](#grantee-data-airtable-integration).
 
 - **Schedule**: 08:00 SAST daily (`06:00 UTC` — South Africa Standard Time has no daylight saving).
 - **Manual/on-demand run**: trigger `workflow_dispatch` on `scheduled-content-sync.yml` when a change needs to land before the next scheduled run — it always rebuilds and then syncs.
-- **Failure notification**: posts to the `frontend-team` Slack channel if the rebuild or the sync fails.
+- **Failure notification**: posts to the `frontend-team` Slack channel if any stage fails; the message names the stage (Strapi rebuild/content sync, or Airtable grantee sync).
 
 ### Hosting Architecture
 
@@ -727,6 +728,10 @@ To make the work funded through Interledger Foundation grants easier to explore,
 
 ### Syncing Data from Airtable
 
+The sync runs automatically at the end of the daily Strapi rebuild — see [Content Sync Schedule](#content-sync-schedule) — for both `staging` and `playground`. When the fetched data differs from what is committed, the workflow commits `src/data/airtable/grantee-data.json` on its own as `chore(data): sync grantee data from Airtable` and pushes to the branch, which triggers a Netlify build. When nothing changed it is a no-op — no empty commit.
+
+To run it by hand, locally or to land a change before the next scheduled run:
+
 ```sh
 pnpm run sync:airtable
 ```
@@ -736,11 +741,12 @@ pnpm run sync:airtable
 - Fetches records from the **Projects** table using a configured view
 - Keeps only records marked **Published on Website**
 - Resolves linked **Project Leader** IDs into contact names from the **Contacts** table
-- Writes the result to `src/data/airtable/grantee-data.json`
+- Writes the result to `src/data/airtable/grantee-data.json`, Prettier-formatted, so the file is lint-clean and a manual run and an automated one produce byte-identical output
 
 **Requirements:**
 
 - `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
+- In CI the token comes from the `ENV_AIRTABLE_API_TOKEN` secret on the `strapi-staging` and `strapi-playground` GitHub Environments
 
 The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as constants at the top of `scripts/import-airtable.ts`. They reference Airtable IDs (stable across renames), not field names — so editors can rename fields in Airtable without breaking the script.
 
@@ -826,9 +832,11 @@ pnpm run optimize:images
 
 **How it works:**
 
-- Images are sourced from two locations:
+- Images are sourced from three locations:
   - `public/img/` — static assets committed to the repo
   - `public/uploads/img/original/` — images uploaded via Strapi
+  - `public/sessionize-speakers/img/` — summit speaker photos downloaded by `pnpm run sync:sessionize`. Variants go to `public/img/optimized/sessionize-speakers/`
+- The 2 MB size limit fails the build for the first two locations. For Sessionize photos it only prints a warning, because speakers upload those photos to a third party and we cannot resize the originals
 - Each image produces variants at widths ≤ its original width, avoiding upscaling
 - Outputs are cached: a variant is skipped if it already exists and is newer than the source
 - The `public/img/optimized/` directory is gitignored — variants are generated at build time

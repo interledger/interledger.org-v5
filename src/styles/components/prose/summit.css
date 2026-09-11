@@ -35,6 +35,12 @@
     & blockquote p {
       margin-bottom: 0;
     }
+    & blockquote p + p {
+      margin-block-start: var(--spacing-md);
+    }
+    & blockquote strong {
+      font-weight: 600;
+    }
 
     /* === Table styles === */
     & .table-scroll {

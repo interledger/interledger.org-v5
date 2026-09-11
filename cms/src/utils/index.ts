@@ -37,6 +37,9 @@ export {
   validateLocalImageUrl
 } from './uploadValidation'
 
+// Hero/feature image blur placeholder (LQIP) generation
+export { generateBlurPlaceholder } from './imageBlurPlaceholder'
+
 // Paths & configuration
 export {
   getProjectRoot,
@@ -158,12 +161,39 @@ export {
 // Block serialization (dynamic-zone content -> MDX)
 export { serializeContent, validateContentBlocks } from '../serializers/blocks'
 
-// Git sync
+// Slack alerts for git sync failures
+export {
+  type GitSyncAlert,
+  type NotifyGitSync,
+  type SlackNotifierDeps,
+  type SlackMessageInput,
+  type FetchLike,
+  getSlackWebhookUrl,
+  isSlackAlertingConfigured,
+  redactSecrets,
+  truncateDetail,
+  buildSlackPayload,
+  createSlackGitSyncNotifier,
+  notifyGitSyncToSlack
+} from './slackNotify'
+
+// Git sync after publish
 export {
   type SyncContext,
+  type GitSyncResult,
+  type GitSyncSkipReason,
+  type GitSyncDeps,
+  type GitExec,
+  type DebouncedGitSync,
+  GitCommandError,
+  defaultGitSyncDeps,
+  isGitSyncDisabled,
   getTargetRepoRoot,
   validateGitSyncRepoOnStartup,
+  runGitSync,
+  createDebouncedGitSync,
   scheduleGitSync,
+  settledGitSync,
   gitCommitAndPush
 } from './gitSync'
 

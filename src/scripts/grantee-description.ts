@@ -18,20 +18,53 @@ function queryDescription(
   return { text, toggle }
 }
 
-function expandDescription(root: HTMLElement) {
+function isExpanded(toggle: HTMLButtonElement): boolean {
+  return toggle.getAttribute('aria-expanded') === 'true'
+}
+
+/** Hide the control when collapsed text fits in two lines. */
+export function shouldHideReadMoreToggle(
+  expanded: boolean,
+  overflows: boolean
+): boolean {
+  return !expanded && !overflows
+}
+
+function setExpanded(root: HTMLElement, expanded: boolean) {
   const parts = queryDescription(root)
   if (!parts) return
 
-  parts.text.classList.remove(LINE_CLAMP_CLASS)
-  parts.toggle.setAttribute('aria-expanded', 'true')
-  parts.toggle.hidden = true
+  parts.text.classList.toggle(LINE_CLAMP_CLASS, !expanded)
+  parts.toggle.setAttribute('aria-expanded', String(expanded))
+  parts.toggle.hidden = shouldHideReadMoreToggle(
+    expanded,
+    descriptionOverflows(parts.text)
+  )
+
+  const label = parts.toggle.querySelector(
+    '[data-grantee-description-toggle-label]'
+  )
+  const more = parts.toggle.dataset.labelMore
+  const less = parts.toggle.dataset.labelLess
+  if (label && more && less) {
+    label.textContent = expanded ? less : more
+  }
 }
 
 function syncToggle(root: HTMLElement) {
   const parts = queryDescription(root)
   if (!parts) return
-  if (parts.toggle.getAttribute('aria-expanded') === 'true') return
+  if (isExpanded(parts.toggle)) return
   parts.toggle.hidden = !descriptionOverflows(parts.text)
+}
+
+/** The label the user clicked, not the one shown after the toggle. */
+export function umamiLabelForReadMoreClick(
+  expandedAfterClick: boolean,
+  more: string,
+  less: string
+): string {
+  return expandedAfterClick ? more : less
 }
 
 function bindDescription(root: HTMLElement) {
@@ -42,7 +75,16 @@ function bindDescription(root: HTMLElement) {
   if (!parts) return
 
   parts.toggle.addEventListener('click', () => {
-    expandDescription(root)
+    const expanded = !isExpanded(parts.toggle)
+    setExpanded(root, expanded)
+    const more = parts.toggle.dataset.labelMore
+    const less = parts.toggle.dataset.labelLess
+    if (more && less) {
+      parts.toggle.setAttribute(
+        'data-umami-event-link-text',
+        umamiLabelForReadMoreClick(expanded, more, less)
+      )
+    }
   })
 
   const reveal = () => syncToggle(root)
@@ -59,4 +101,6 @@ export function initGranteeDescriptions(scope: ParentNode = document) {
     .forEach(bindDescription)
 }
 
-initGranteeDescriptions()
+if (typeof document !== 'undefined') {
+  initGranteeDescriptions()
+}

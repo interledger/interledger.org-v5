@@ -65,6 +65,8 @@
       text-decoration-color: currentColor;
     }
 
+    /* Site-wide paragraph (and sibling text-flow) gap: 32px. `Paragraph`
+       blocks sit in this rhythm too — see prose/rhythm.css. */
     p,
     h2,
     h3,

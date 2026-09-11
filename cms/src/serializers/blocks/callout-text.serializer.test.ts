@@ -5,7 +5,9 @@ describe('callout-text serializer', () => {
   it('serializes callout-text with content', () => {
     const result = serialize({ content: 'Important information.' })
 
-    expect(result).toBe('<CalloutText>\nImportant information.\n</CalloutText>')
+    expect(result).toBe(
+      '<CalloutText>\n\nImportant information.\n\n</CalloutText>'
+    )
   })
 
   it('converts HTML content to markdown', () => {

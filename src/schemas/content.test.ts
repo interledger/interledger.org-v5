@@ -12,7 +12,8 @@ const base = {
   description: 'A short description',
   date: '2025-01-01',
   pathSlug: 'a-post',
-  categories: ['News']
+  categories: ['News'],
+  relatedArticles: ['one', 'two', 'three']
 }
 
 describe('foundationBlogFrontmatterSchema', () => {
@@ -21,7 +22,7 @@ describe('foundationBlogFrontmatterSchema', () => {
 
     expect(parsed.featured).toBe(false)
     expect(parsed.legacy).toBe(false)
-    expect(parsed.relatedArticles).toEqual([])
+    expect(parsed.relatedArticles).toEqual(['one', 'two', 'three'])
     expect(parsed.lastUpdated).toBeUndefined()
     expect(parsed.date).toBeInstanceOf(Date)
   })
@@ -49,6 +50,26 @@ describe('foundationBlogFrontmatterSchema', () => {
       ...base,
       relatedArticles: ['one', 'two', 'three', 'four']
     })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects fewer than three related articles', () => {
+    const result = foundationBlogFrontmatterSchema.safeParse({
+      ...base,
+      relatedArticles: ['one', 'two']
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('requires relatedArticles', () => {
+    const withoutRelatedArticles: Record<string, unknown> = { ...base }
+    delete withoutRelatedArticles.relatedArticles
+
+    const result = foundationBlogFrontmatterSchema.safeParse(
+      withoutRelatedArticles
+    )
 
     expect(result.success).toBe(false)
   })

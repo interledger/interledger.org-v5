@@ -29,6 +29,7 @@ import {
   type Locale,
   isDemoPathSlug,
   useTranslations,
+  HACKATHON_HERO_SIZES,
   HACKATHON_HOME_SLUG,
   buildSectionEntryBreadcrumbs
 } from '@/utils'
@@ -60,11 +61,25 @@ const {
   heroDescription,
   heroImage,
   heroImageAlt,
+  heroImageBlur,
   heroImageMobile,
   heroImageMobileAlt,
+  heroImageMobileBlur,
   heroCtas
 } = entry.data
 const noindex = isDemoPathSlug(entry.data.pathSlug)
+
+// Gated on `heroTitle` like FoundationContentPage: HackathonHero only renders
+// its image band in the `heroTitle` branch, so preloading otherwise would fetch
+// an image the page never paints.
+const heroLcpPreload =
+  heroTitle && (heroImage || heroImageMobile)
+    ? {
+        image: heroImage,
+        imageMobile: heroImageMobile,
+        desktopSizes: HACKATHON_HERO_SIZES
+      }
+    : undefined
 
 // No breadcrumbs on the hackathon overview page.
 const showBreadcrumbs = slug !== HACKATHON_HOME_SLUG
@@ -79,7 +94,12 @@ const breadcrumbs = showBreadcrumbs
   : undefined
 ---
 
-<HackathonPageLayout title={title} description={description} noindex={noindex}>
+<HackathonPageLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  heroLcpPreload={heroLcpPreload}
+>
   <main
     class="hackathon-content flex flex-col pb-5xl text-neutral-50 tablet:pb-6xl desktop:pb-7xl"
   >
@@ -89,8 +109,10 @@ const breadcrumbs = showBreadcrumbs
       description={heroDescription}
       image={heroImage}
       imageAlt={heroImageAlt}
+      imageBlur={heroImageBlur}
       imageMobile={heroImageMobile}
       imageMobileAlt={heroImageMobileAlt}
+      imageMobileBlur={heroImageMobileBlur}
       cta={heroCtas?.[0]}
       isFallback={isFallback}
       breadcrumbs={breadcrumbs}

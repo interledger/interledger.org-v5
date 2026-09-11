@@ -38,8 +38,8 @@ function makePage(overrides: Partial<PodcastPageInput> = {}): PodcastPageInput {
 }
 
 describe('generatePodcastPageMdx', () => {
-  it('writes core frontmatter fields with no body', () => {
-    const { data, content } = matter(generatePodcastPageMdx(makePage()))
+  it('writes core frontmatter fields with no body', async () => {
+    const { data, content } = matter(await generatePodcastPageMdx(makePage()))
 
     expect(data.title).toBe('Podcasts')
     expect(data.pathSlug).toBe('podcast')
@@ -50,8 +50,8 @@ describe('generatePodcastPageMdx', () => {
     expect(content.trim()).toBe('')
   })
 
-  it('flattens titleCards into a columns/ariaLabel/cards object', () => {
-    const { data } = matter(generatePodcastPageMdx(makePage()))
+  it('flattens titleCards into a columns/ariaLabel/cards object', async () => {
+    const { data } = matter(await generatePodcastPageMdx(makePage()))
     const titleCards = data.titleCards as {
       columns: string
       ariaLabel: string
@@ -64,8 +64,8 @@ describe('generatePodcastPageMdx', () => {
     expect(titleCards.cards[0]?.heading).toBe('Future Money')
   })
 
-  it('flattens podcasts', () => {
-    const { data } = matter(generatePodcastPageMdx(makePage()))
+  it('flattens podcasts', async () => {
+    const { data } = matter(await generatePodcastPageMdx(makePage()))
     const podcasts = data.podcasts as Array<{
       title: string
       series: string
@@ -79,8 +79,8 @@ describe('generatePodcastPageMdx', () => {
   // Strips are purple only, so there is no colour field to write. #481 took
   // `color` back off this export. Assert it stays gone, so nothing puts it
   // back and breaks the podcast sync again.
-  it('flattens ctaStrip and writes no colour field', () => {
-    const { data } = matter(generatePodcastPageMdx(makePage()))
+  it('flattens ctaStrip and writes no colour field', async () => {
+    const { data } = matter(await generatePodcastPageMdx(makePage()))
     const ctaStrip = data.ctaStrip as {
       heading: string
       buttonText: string
@@ -93,9 +93,9 @@ describe('generatePodcastPageMdx', () => {
     expect(ctaStrip).not.toHaveProperty('color')
   })
 
-  it('writes the secondary CTA only when both halves are set', () => {
+  it('writes the secondary CTA only when both halves are set', async () => {
     const both = matter(
-      generatePodcastPageMdx(
+      await generatePodcastPageMdx(
         makePage({
           ctaStrip: {
             heading: 'Listen now',
@@ -112,7 +112,7 @@ describe('generatePodcastPageMdx', () => {
     expect(both.secondaryButtonLink).toBe('/podcast/all')
 
     const halfOnly = matter(
-      generatePodcastPageMdx(
+      await generatePodcastPageMdx(
         makePage({
           ctaStrip: {
             heading: 'Listen now',
@@ -128,22 +128,22 @@ describe('generatePodcastPageMdx', () => {
     expect(halfOnly).not.toHaveProperty('secondaryButtonLink')
   })
 
-  it('adds localizes for a non-default locale, using the English slug', () => {
+  it('adds localizes for a non-default locale, using the English slug', async () => {
     const { data } = matter(
-      generatePodcastPageMdx(makePage({ locale: 'es' }), 'podcast')
+      await generatePodcastPageMdx(makePage({ locale: 'es' }), 'podcast')
     )
     expect(data.locale).toBe('es')
     expect(data.localizes).toBe('podcast')
   })
 
-  it('does not add localizes for the default locale', () => {
-    const { data } = matter(generatePodcastPageMdx(makePage()))
+  it('does not add localizes for the default locale', async () => {
+    const { data } = matter(await generatePodcastPageMdx(makePage()))
     expect(data.localizes).toBeUndefined()
   })
 
-  it('converts textSection through ckeditorFieldToParsedMarkdown when present', () => {
+  it('converts textSection through ckeditorFieldToParsedMarkdown when present', async () => {
     const { data } = matter(
-      generatePodcastPageMdx(
+      await generatePodcastPageMdx(
         makePage({ textSection: '<p>Hello <strong>world</strong></p>' })
       )
     )
@@ -151,17 +151,17 @@ describe('generatePodcastPageMdx', () => {
     expect(data.textSection).toBe('Hello **world**')
   })
 
-  it('omits textSection when absent', () => {
-    const { data } = matter(generatePodcastPageMdx(makePage()))
+  it('omits textSection when absent', async () => {
+    const { data } = matter(await generatePodcastPageMdx(makePage()))
     expect(data).not.toHaveProperty('textSection')
   })
 
   // Turndown escapes a literal underscore as `\_` so markdown renderers
   // don't misread it as emphasis. This locks in that yaml.dump/gray-matter
   // round-trips a multi-paragraph value containing that escape correctly.
-  it('round-trips an escaped underscore across paragraphs without corrupting it', () => {
+  it('round-trips an escaped underscore across paragraphs without corrupting it', async () => {
     const { data } = matter(
-      generatePodcastPageMdx(
+      await generatePodcastPageMdx(
         makePage({
           textSection:
             '<p>Sub_scribe to our podcast.</p><p>your_favorite platform now.</p>'

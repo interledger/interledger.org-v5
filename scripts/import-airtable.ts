@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import fs from 'fs/promises'
+import * as prettier from 'prettier'
 import type { TableMeta, Table, View, TableRecord } from '@/types/airtable'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
@@ -97,7 +98,21 @@ async function writeAirtableJson(data: TableRecord[]) {
   await fs.mkdir(basePath, { recursive: true })
   const filePath = path.join(basePath, 'grantee-data.json')
 
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2))
+  // grantee-data.json is committed, and `pnpm run lint` runs `prettier --check` over it.
+  // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
+  // stringify output would fail lint and bury every real change under thousands of lines
+  // of formatting churn. Formatting here keeps a local run and the automated sync in
+  // .github/workflows/strapi-rebuild-and-sync.yml byte-identical.
+  const config = await prettier.resolveConfig(filePath)
+  const formatted = await prettier.format(JSON.stringify(data, null, 2), {
+    ...config,
+    // .prettierrc's plugin list exists for .astro files only; loading it to format JSON
+    // costs resolution work for identical output.
+    plugins: [],
+    filepath: filePath
+  })
+
+  await fs.writeFile(filePath, formatted)
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
 }
 
