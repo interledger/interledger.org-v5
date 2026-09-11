@@ -29,6 +29,16 @@ const DISPLAY_CONVERT_OPTIONS = {
   ]
 }
 
+function plainTextFromHtml(
+  html: string,
+  convertOptions:
+    | typeof CONVERT_OPTIONS
+    | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
+): string {
+  const text = convert(html, convertOptions)
+  return convert(text, convertOptions)
+}
+
 function excerptFromMarkdown(
   parser: MarkdownIt,
   body: unknown,
@@ -37,9 +47,7 @@ function excerptFromMarkdown(
     | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
 ): string {
   const safeBody = typeof body === 'string' ? body : ''
-  const html = parser.render(safeBody)
-  const text = convert(html, convertOptions)
-  return convert(text, convertOptions)
+  return plainTextFromHtml(parser.render(safeBody), convertOptions)
 }
 
 const excerptParser = new MarkdownIt()
@@ -59,3 +67,23 @@ export const createDisplayPlainText = (body: unknown): string =>
 /** Inline markdown stripped; ATX/setext/blockquote punctuation kept for search. */
 export const createSearchPlainText = (body: unknown): string =>
   excerptFromMarkdown(searchPlainParser, body)
+
+/**
+ * Display and search plain text from one markdown source. Two MarkdownIt
+ * profiles are required — search keeps block markers queryable; display strips
+ * them — but both are computed once when parsing grantee records and stored on
+ * `Grantee` for reuse (snippets and the search index do not re-run markdown).
+ */
+export function createPlainTextVariants(body: unknown): {
+  display: string
+  search: string
+} {
+  const safeBody = typeof body === 'string' ? body : ''
+  return {
+    search: plainTextFromHtml(searchPlainParser.render(safeBody), CONVERT_OPTIONS),
+    display: plainTextFromHtml(
+      excerptParser.render(safeBody),
+      DISPLAY_CONVERT_OPTIONS
+    )
+  }
+}

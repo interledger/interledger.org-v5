@@ -170,7 +170,11 @@ export {
   TABLE_SCROLL_CLASS,
   wrapScrollableTables
 } from './main/wrapScrollableTables'
-export { createExcerpt, createSearchPlainText } from './main/create-excerpt'
+export {
+  createDisplayPlainText,
+  createExcerpt,
+  createSearchPlainText
+} from './main/create-excerpt'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'

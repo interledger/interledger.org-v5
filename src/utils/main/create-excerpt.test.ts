@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   createDisplayPlainText,
   createExcerpt,
+  createPlainTextVariants,
   createSearchPlainText
 } from './create-excerpt'
 
@@ -46,6 +47,14 @@ describe('createDisplayPlainText', () => {
     expect(
       createDisplayPlainText('Open payments\n=============\n\n> wallets first')
     ).toBe('Open payments wallets first')
+  })
+})
+
+describe('createPlainTextVariants', () => {
+  it('returns display and search strings from one call', () => {
+    const variants = createPlainTextVariants('# Open payments')
+    expect(variants.search).toContain('# Open payments')
+    expect(variants.display).toBe('Open payments')
   })
 })
 
