@@ -7,7 +7,9 @@ describe('truncateText', () => {
   })
 
   it('never exceeds maxLength including the ellipsis', () => {
-    const text = 'Building open payments infrastructure for everyone. '.repeat(8)
+    const text = 'Building open payments infrastructure for everyone. '.repeat(
+      8
+    )
     const result = truncateText(text, 160)
     expect(result.length).toBeLessThanOrEqual(160)
     expect(result.endsWith('…')).toBe(true)
