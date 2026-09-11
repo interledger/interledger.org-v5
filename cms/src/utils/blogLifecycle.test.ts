@@ -1,9 +1,14 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import matter from 'gray-matter'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import {
   generateBlogMDX,
+  removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
+  siblingMdxFilesWithPathSlug,
   stampBlogLocale
 } from '@/utils'
 
@@ -324,5 +329,172 @@ describe('generateBlogMDX — article bios', () => {
 
     // YAML literal block scalars (`|`) always retain a trailing newline.
     expect(parsed.data.articleBios[0].text).toBe('line one\n\nline two\n')
+  })
+})
+
+describe('siblingMdxFilesWithPathSlug', () => {
+  let tempDir: string
+
+  afterEach(() => {
+    if (tempDir) fs.rmSync(tempDir, { recursive: true, force: true })
+  })
+
+  function writePost(filename: string, pathSlug: string) {
+    fs.writeFileSync(
+      path.join(tempDir, filename),
+      `---\npathSlug: ${pathSlug}\n---\n\nbody\n`
+    )
+  }
+
+  const names = (filepaths: string[]) => filepaths.map((f) => path.basename(f))
+
+  it('finds a leftover file whose stem is not the pathSlug (INTORG-1236)', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost(
+      '2026-03-26-rafiki-integrator-guide.mdx',
+      'simple-rafiki-integration-guide'
+    )
+    writePost(
+      '2026-03-26-simple-rafiki-integration-guide.mdx',
+      'simple-rafiki-integration-guide'
+    )
+    writePost('2026-03-26-other-post.mdx', 'other-post')
+
+    const keep = path.join(
+      tempDir,
+      '2026-03-26-simple-rafiki-integration-guide.mdx'
+    )
+    expect(
+      names(
+        siblingMdxFilesWithPathSlug(
+          tempDir,
+          'simple-rafiki-integration-guide',
+          '2026-03-26',
+          keep
+        )
+      )
+    ).toEqual(['2026-03-26-rafiki-integrator-guide.mdx'])
+  })
+
+  it('reads a quoted YAML pathSlug', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    fs.writeFileSync(
+      path.join(tempDir, '2026-03-26-legacy-name.mdx'),
+      `---\npathSlug: 'simple-rafiki-integration-guide'\n---\n`
+    )
+    expect(
+      names(
+        siblingMdxFilesWithPathSlug(
+          tempDir,
+          'simple-rafiki-integration-guide',
+          '2026-03-26'
+        )
+      )
+    ).toEqual(['2026-03-26-legacy-name.mdx'])
+  })
+
+  it('skips a file with unparseable frontmatter instead of throwing', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    fs.writeFileSync(
+      path.join(tempDir, '2026-03-26-broken.mdx'),
+      `---\ntitle: [unclosed\npathSlug: the-slug\n---\n\nbody\n`
+    )
+    writePost('2026-03-26-legacy-name.mdx', 'the-slug')
+
+    // One corrupt file must not take down the whole publish, and must not
+    // hide the leftover the scan was actually looking for.
+    expect(
+      names(siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26'))
+    ).toEqual(['2026-03-26-legacy-name.mdx'])
+  })
+
+  it('ignores same-slug files dated to another day', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('2026-03-26-the-slug.mdx', 'the-slug')
+    writePost('2024-01-02-unrelated-post.mdx', 'the-slug')
+
+    expect(
+      names(siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26'))
+    ).toEqual(['2026-03-26-the-slug.mdx'])
+  })
+
+  it('ignores a file with no date prefix', () => {
+    // Every blog filename is date-prefixed. Without one there is nothing
+    // tying the file to this post, so it is left alone rather than deleted.
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('no-date-prefix.mdx', 'the-slug')
+
+    expect(
+      siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26')
+    ).toEqual([])
+  })
+
+  it('returns nothing when the date is empty', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('2026-03-26-the-slug.mdx', 'the-slug')
+
+    expect(siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '')).toEqual([])
+  })
+
+  it('ignores non-mdx files and posts with no pathSlug', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    fs.writeFileSync(path.join(tempDir, '2026-03-26-the-slug.json'), '{}')
+    fs.writeFileSync(
+      path.join(tempDir, '2026-03-26-no-slug.mdx'),
+      `---\ntitle: No slug\n---\n`
+    )
+
+    expect(
+      siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26')
+    ).toEqual([])
+  })
+
+  it('returns nothing for a directory that does not exist', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    expect(
+      siblingMdxFilesWithPathSlug(
+        path.join(tempDir, 'nope'),
+        'the-slug',
+        '2026-03-26'
+      )
+    ).toEqual([])
+  })
+
+  it('deletes leftover files and keeps the canonical one', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('2026-03-26-legacy-name.mdx', 'the-slug')
+    writePost('2026-03-26-the-slug.mdx', 'the-slug')
+    const keep = path.join(tempDir, '2026-03-26-the-slug.mdx')
+
+    expect(
+      names(
+        removeSiblingMdxFilesWithPathSlug(
+          tempDir,
+          'the-slug',
+          '2026-03-26',
+          keep
+        )
+      )
+    ).toEqual(['2026-03-26-legacy-name.mdx'])
+    expect(fs.existsSync(keep)).toBe(true)
+    expect(
+      fs.existsSync(path.join(tempDir, '2026-03-26-legacy-name.mdx'))
+    ).toBe(false)
+  })
+
+  it('matches a localized ES pathSlug, not the English one', () => {
+    // ES frontmatter carries the post's own slug while the filename uses the
+    // English slug — the rename cleanup has to compare against the ES one.
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('2026-03-26-english-stem.mdx', 'guia-en-espanol')
+
+    expect(
+      siblingMdxFilesWithPathSlug(tempDir, 'english-stem', '2026-03-26')
+    ).toEqual([])
+    expect(
+      names(
+        siblingMdxFilesWithPathSlug(tempDir, 'guia-en-espanol', '2026-03-26')
+      )
+    ).toEqual(['2026-03-26-english-stem.mdx'])
   })
 })

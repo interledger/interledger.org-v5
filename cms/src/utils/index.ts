@@ -212,8 +212,10 @@ export {
 export {
   createBlogLifecycle,
   generateBlogMDX,
+  removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
+  siblingMdxFilesWithPathSlug,
   stampBlogLocale
 } from './blogLifecycle'
 export {
