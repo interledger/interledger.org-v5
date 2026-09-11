@@ -1,7 +1,9 @@
 ---
 import Icon from '@/components/shared/Icon.astro'
+import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import { parseMarkdown, resolveCtaLink, buildUmamiAttrs } from '@/utils'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface FaqItem {
   question: string
@@ -72,6 +74,10 @@ const renderedItems = await Promise.all(
     })
   }))
 )
+
+// Unique so this grant FAQ doesn't exclusive-close another accordion on
+// the same page when JS is off. initFaqAccordion strips `name`.
+const accordionName = faqAccordionGroupName()
 ---
 
 <div
@@ -126,10 +132,14 @@ const renderedItems = await Promise.all(
   </div>
 
   <!-- Right column: accordion -->
-  <div class="flex-1 desktop:pt-lg">
+  <div class="flex-1 desktop:pt-lg" data-faq-accordion>
     {
       renderedItems.map((item) => (
-        <details class="group border-b border-neutral-200 pt-2xl pb-2xl first:border-t desktop:first:border-t-0 desktop:first:pt-0">
+        <details
+          name={accordionName}
+          data-faq-item
+          class="group scroll-mt-(--site-header-height) border-b border-neutral-200 pt-2xl pb-2xl first:border-t desktop:first:border-t-0 desktop:first:pt-0 desktop:scroll-mt-(--site-header-height-desktop)"
+        >
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-xl [&::-webkit-details-marker]:hidden"
             {...faqToggleUmamiAttrs(item.question)}
@@ -142,11 +152,13 @@ const renderedItems = await Promise.all(
               class="size-8 shrink-0 text-purple-600 transition-transform duration-200 group-open:rotate-180"
             />
           </summary>
-          <div
-            data-prose-faq
-            class="mt-2xl mb-0 pb-0 font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 [&_:is(p,li,a)]:text-h5 tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg [&_p+p]:mt-md [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline [&_:is(p,ul,ol,.table-scroll):last-child]:mb-0"
-            set:html={item.answerHtml}
-          />
+          <FaqAnswerPanel>
+            <div
+              data-prose-faq
+              class="mt-2xl mb-0 pb-0 font-poppins text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-100 [&_:is(p,li,a)]:text-h5 tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg [&_p+p]:mt-md [&_p+ul]:mt-md [&_p+ol]:mt-md [&_ul+p]:mt-md [&_ol+p]:mt-md [&_li>p:first-of-type]:inline [&_:is(p,ul,ol,.table-scroll):last-child]:mb-0"
+              set:html={item.answerHtml}
+            />
+          </FaqAnswerPanel>
         </details>
       ))
     }
@@ -159,3 +171,9 @@ const renderedItems = await Promise.all(
     margin-block-end: 0;
   }
 </style>
+
+<script>
+  import { initFaqAccordion } from '@/scripts/faq-accordion'
+
+  initFaqAccordion()
+</script>
