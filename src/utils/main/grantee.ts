@@ -2,7 +2,7 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
-import { createSearchPlainText } from './create-excerpt'
+import { createDisplayPlainText, createSearchPlainText } from './create-excerpt'
 import {
   GRANTEE_TAG_PREFIX,
   filterGrantees,
@@ -56,7 +56,7 @@ export interface Grantee {
   leaders: string[]
   tags: string[]
   description: string | null
-  /** Plain-text description, parsed once for searchText and snippets. */
+  /** Display plain text: inline markdown stripped, block markers gone. */
   descriptionPlain: string
   projectUrls: string[]
   budget: number | null
@@ -161,8 +161,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function descriptionToPlainText(text: string): string {
-  return createSearchPlainText(text).replace(/\s+/g, ' ').trim()
+function collapseWhitespace(text: string): string {
+  return text.replace(/\s+/g, ' ').trim()
+}
+
+function descriptionPlainTexts(text: string): {
+  display: string
+  search: string
+} {
+  return {
+    display: collapseWhitespace(createDisplayPlainText(text)),
+    search: collapseWhitespace(createSearchPlainText(text))
+  }
 }
 
 function toGrantee(value: unknown, locale: Locale): Grantee | null {
@@ -180,9 +190,9 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
   const leaders = asStringList(fields['Project Leader'])
   const tags = asStringList(fields['Thematic Tag'])
   const description = asTrimmedString(fields['Project Description']) ?? null
-  const descriptionPlain = description
-    ? descriptionToPlainText(description)
-    : ''
+  const descriptionTexts = description
+    ? descriptionPlainTexts(description)
+    : { display: '', search: '' }
   const budget = asFiniteNumber(fields['Total budget approved']) ?? null
 
   const searchText = [
@@ -192,7 +202,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     country,
     ...leaders,
     ...tags,
-    descriptionPlain
+    descriptionTexts.search
   ]
     .join(' ')
     .toLowerCase()
@@ -210,7 +220,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     leaders,
     tags,
     description,
-    descriptionPlain,
+    descriptionPlain: descriptionTexts.display,
     projectUrls: parseProjectUrls(fields['Project Links']),
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),
