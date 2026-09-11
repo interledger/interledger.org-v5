@@ -135,21 +135,24 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export {
-  GRANTEE_PAGE_SIZE,
   ALL_GRANTEE_YEAR_SLUG,
   getGranteeFilterUrl,
+  isGranteeYearSlug,
+  matchesGranteeFilters,
+  filterGrantees,
+  type GranteeFilters
+} from './main/granteeFilters'
+export {
+  GRANTEE_PAGE_SIZE,
   getGranteeListingData,
   paginateGranteesByYear,
   paginateGranteesByYearAndTag,
   parseGranteeRecords,
   uniqueFilterOptions,
-  matchesGranteeFilters,
-  filterGrantees,
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
   type Grantee,
-  type GranteeFilters,
   type GranteeFilterOption,
   type GranteeListingData
 } from './main/grantee'
