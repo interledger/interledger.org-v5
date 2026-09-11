@@ -80,7 +80,10 @@ export function createPlainTextVariants(body: unknown): {
 } {
   const safeBody = typeof body === 'string' ? body : ''
   return {
-    search: plainTextFromHtml(searchPlainParser.render(safeBody), CONVERT_OPTIONS),
+    search: plainTextFromHtml(
+      searchPlainParser.render(safeBody),
+      CONVERT_OPTIONS
+    ),
     display: plainTextFromHtml(
       excerptParser.render(safeBody),
       DISPLAY_CONVERT_OPTIONS
