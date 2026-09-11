@@ -225,18 +225,21 @@ export default function CardVariantPicker({
     )
   }
 
-  // Restricted content types: force the only allowed variant when empty/wrong,
-  // and clear disallowed card arrays so they don't linger in the form.
+  // Restricted content types: force the only allowed variant when empty/wrong.
+  // Strapi renders custom-field Inputs outside a <Form> in some paths, where
+  // `onChange` throws by design — and an uncaught throw in an effect unmounts
+  // the whole admin. Skipping is safe: the server still aligns and validates.
   useEffect(() => {
-    if (!singleVariant) return
-    if (value !== singleVariant) {
+    if (!singleVariant || value === singleVariant) return
+    try {
       onChange({ target: { name, value: singleVariant, type: 'string' } })
+    } catch {
+      // Expected when there's no <Form> above us; anything else is worth seeing.
+      console.warn(
+        `[CardVariantPicker] could not force variant "${singleVariant}" on ${name}`
+      )
     }
-    clearInactiveCardFields(prefix, singleVariant, cardFields, setFieldValue)
-    requestAnimationFrame(() =>
-      applyCardFieldVisibility(prefix, singleVariant, cardFields)
-    )
-  }, [singleVariant, value, name, prefix, cardFields, onChange, setFieldValue])
+  }, [singleVariant, value, name, onChange])
 
   useEffect(() => {
     const activeVariant =
