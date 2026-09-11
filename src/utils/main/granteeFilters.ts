@@ -2,8 +2,11 @@ import { generateSlug } from './slug'
 
 export const ALL_GRANTEE_YEAR_SLUG = 'all'
 
+/** Path segment for every tag listing: `/grantee-directory/tag/<slug>`. */
+export const GRANTEE_TAG_PREFIX = 'tag'
+
 export function isGranteeYearSlug(value: string): boolean {
-  return value === ALL_GRANTEE_YEAR_SLUG || /^\d{4}$/.test(value)
+  return /^\d{4}$/.test(value)
 }
 
 /** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
@@ -12,10 +15,14 @@ export function getGranteeFilterUrl(
   year?: string,
   tag?: string
 ): string {
-  if (!year && !tag) return directoryPath
-  const yearPath = `${directoryPath}/${year || ALL_GRANTEE_YEAR_SLUG}`
-  if (!tag) return yearPath
-  return `${yearPath}/${tag}`
+  const yearSegment = year?.trim() || undefined
+  const tagSegment = tag?.trim() || undefined
+  if (!yearSegment && !tagSegment) return directoryPath
+  if (!yearSegment) {
+    return `${directoryPath}/${GRANTEE_TAG_PREFIX}/${tagSegment}`
+  }
+  if (!tagSegment) return `${directoryPath}/${yearSegment}`
+  return `${directoryPath}/${yearSegment}/${GRANTEE_TAG_PREFIX}/${tagSegment}`
 }
 
 export interface GranteeFilters {

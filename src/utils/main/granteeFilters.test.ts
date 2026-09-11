@@ -103,15 +103,30 @@ describe('getGranteeFilterUrl', () => {
     )
   })
 
-  it('uses all/<tag> when only a tag is selected', () => {
+  it('puts every tag under /tag/, including reserved slugs', () => {
     expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/all/privacy'
+      '/grant/grantee-directory/tag/privacy'
+    )
+    expect(getGranteeFilterUrl(directory, undefined, 'all')).toBe(
+      '/grant/grantee-directory/tag/all'
+    )
+    expect(getGranteeFilterUrl(directory, undefined, '2024')).toBe(
+      '/grant/grantee-directory/tag/2024'
+    )
+    expect(getGranteeFilterUrl(directory, undefined, '2')).toBe(
+      '/grant/grantee-directory/tag/2'
     )
   })
 
-  it('combines year and tag values', () => {
+  it('nests year and tag as /<year>/tag/<slug>', () => {
     expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
-      '/grant/grantee-directory/2024/privacy'
+      '/grant/grantee-directory/2024/tag/privacy'
+    )
+    expect(getGranteeFilterUrl(directory, '2024', 'all')).toBe(
+      '/grant/grantee-directory/2024/tag/all'
+    )
+    expect(getGranteeFilterUrl(directory, '2024', '2')).toBe(
+      '/grant/grantee-directory/2024/tag/2'
     )
   })
 })

@@ -2,9 +2,9 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { generateSlug } from './slug'
 import {
-  ALL_GRANTEE_YEAR_SLUG,
-  isGranteeYearSlug,
-  filterGrantees
+  GRANTEE_TAG_PREFIX,
+  filterGrantees,
+  isGranteeYearSlug
 } from './granteeFilters'
 import {
   ensureAbsoluteUrl,
@@ -21,13 +21,23 @@ export const granteeRouteShape: PaginatedRouteShape = {
     if (basePath !== '/grant' || parts[0] !== 'grantee-directory') return false
     const last = parts.at(-1)
     // Years are 4-digit values in the path, not listing page numbers.
-    return !last || !/^\d{4}$/.test(last)
+    return !last || !isGranteeYearSlug(last)
   },
   isValidListingPrefix: (prefixParts) => {
     if (prefixParts[0] !== 'grantee-directory') return false
     if (prefixParts.length === 1) return true
-    if (!isGranteeYearSlug(prefixParts[1])) return false
-    return prefixParts.length === 2 || prefixParts.length === 3
+    // `/2024` — not `/tag` (incomplete) and not a leftover unprefixed tag.
+    if (prefixParts.length === 2) return isGranteeYearSlug(prefixParts[1])
+    // `/tag/privacy` — `/tag/2` is a tag named "2", not page 2 of `/tag`.
+    if (prefixParts.length === 3) {
+      return prefixParts[1] === GRANTEE_TAG_PREFIX
+    }
+    // `/2024/tag/privacy`
+    return (
+      prefixParts.length === 4 &&
+      isGranteeYearSlug(prefixParts[1]) &&
+      prefixParts[2] === GRANTEE_TAG_PREFIX
+    )
   }
 }
 
@@ -203,8 +213,10 @@ function compareGrantees(a: Grantee, b: Grantee): number {
   return a.name.localeCompare(b.name)
 }
 
-export function parseGranteeRecords(
-  data: unknown,
+const parsedRecordsCache = new WeakMap<object, Map<Locale, Grantee[] | Error>>()
+
+function parseGranteeRecordsUncached(
+  data: object,
   locale: Locale
 ): Grantee[] | Error {
   if (!Array.isArray(data)) {
@@ -215,6 +227,32 @@ export function parseGranteeRecords(
     .map((record) => toGrantee(record, locale))
     .filter((grantee): grantee is Grantee => grantee !== null)
     .sort(compareGrantees)
+}
+
+/**
+ * Parse the Airtable dump once per (dump, locale). Directory listing
+ * `getStaticPaths` share one in-memory result for the imported JSON module.
+ */
+export function parseGranteeRecords(
+  data: unknown,
+  locale: Locale
+): Grantee[] | Error {
+  if (typeof data !== 'object' || data === null) {
+    return new Error('Grantee dump is not an array')
+  }
+
+  let byLocale = parsedRecordsCache.get(data)
+  if (!byLocale) {
+    byLocale = new Map()
+    parsedRecordsCache.set(data, byLocale)
+  }
+
+  const cached = byLocale.get(locale)
+  if (cached !== undefined) return cached
+
+  const parsed = parseGranteeRecordsUncached(data, locale)
+  byLocale.set(locale, parsed)
+  return parsed
 }
 
 export function uniqueFilterOptions(
@@ -264,6 +302,7 @@ export function getGranteeListingData(
   }
 }
 
+/** Filter options and active selections passed through paginate `props`. */
 interface GranteeListingPageProps {
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
@@ -310,37 +349,52 @@ export function paginateGranteesByYear({
   })
 }
 
+type TagListingArgs = {
+  paginate: PaginateFunction
+  grantees: Grantee[]
+  years: GranteeFilterOption[]
+  tags: GranteeFilterOption[]
+}
+
+export function paginateGranteesByTag({
+  paginate,
+  grantees,
+  years,
+  tags
+}: TagListingArgs) {
+  return tags.flatMap((tag) => {
+    const entries = filterGrantees(grantees, {
+      q: '',
+      year: '',
+      tag: tag.value
+    })
+    return paginate(entries, {
+      params: { tag: tag.value },
+      pageSize: GRANTEE_PAGE_SIZE,
+      props: listingProps(years, tags, undefined, tag.value)
+    })
+  })
+}
+
+/** Year + tag listings at `/grantee-directory/<year>/tag/<slug>`. */
 export function paginateGranteesByYearAndTag({
   paginate,
   grantees,
   years,
   tags
-}: {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}) {
-  const yearSlugs = [
-    ALL_GRANTEE_YEAR_SLUG,
-    ...years.map((option) => option.value)
-  ]
-
-  return yearSlugs.flatMap((yearSlug) => {
-    const yearFilter = yearSlug === ALL_GRANTEE_YEAR_SLUG ? '' : yearSlug
-
-    return tags.flatMap((tag) => {
+}: TagListingArgs) {
+  return years.flatMap((year) =>
+    tags.flatMap((tag) => {
       const entries = filterGrantees(grantees, {
         q: '',
-        year: yearFilter,
+        year: year.value,
         tag: tag.value
       })
-
       return paginate(entries, {
-        params: { year: yearSlug, tag: tag.value },
+        params: { year: year.value, tag: tag.value },
         pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, yearFilter || undefined, tag.value)
+        props: listingProps(years, tags, year.value, tag.value)
       })
     })
-  })
+  )
 }
