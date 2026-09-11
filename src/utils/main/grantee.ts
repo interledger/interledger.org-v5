@@ -230,9 +230,8 @@ function parseGranteeRecordsUncached(
 }
 
 /**
- * Parse the Airtable dump once per (dump, locale). Each directory
- * `getStaticPaths` used to re-run the markdown pass; listing + search +
- * redirects share one in-memory result for the imported JSON.
+ * Parse the Airtable dump once per (dump, locale). Directory listing
+ * `getStaticPaths` share one in-memory result for the imported JSON module.
  */
 export function parseGranteeRecords(
   data: unknown,
@@ -303,12 +302,7 @@ export function getGranteeListingData(
   }
 }
 
-/**
- * A single grantee's fields as shipped in the client-side search catalog
- * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
- * Trimmed to what a slim search-result row needs — no raw markdown, no
- * derived slugs that the full `GranteeCard` computes for itself.
- */
+/** Filter options and active selections passed through paginate `props`. */
 interface GranteeListingPageProps {
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
