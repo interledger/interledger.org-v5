@@ -130,15 +130,85 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
+          # An operation interrupted by a conflict fails every later git command in this
+          # checkout, including the integrate below, and used to need a hand to clear.
+          # Strapi's git sync now clears its own (cms/src/utils/gitSync.ts), but a
+          # hand-run command on the VM can still leave state behind. `--abort` restores
+          # the pre-operation commit; `--quit` only clears the state, so it is the
+          # fallback for a rebase too corrupt to unwind.
+          if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
+             [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+            echo "::warning::Checkout was left mid-rebase — clearing it."
+            git rebase --abort || git rebase --quit || true
+          fi
+          if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
+            echo "::warning::Checkout was left mid-merge — clearing it."
+            git merge --abort || true
+          fi
+          if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+            echo "::warning::Checkout was left mid-cherry-pick — clearing it."
+            git cherry-pick --abort || true
+          fi
+
+          # Captured before the integrate, so the rebuild trigger below sees everything it
+          # brought in. A rebase can make OLD_SHA a non-ancestor of NEW_SHA; `git diff`
+          # between two such commits still reports cms/ changes, and erring towards an
+          # extra rebuild is the safe direction.
           OLD_SHA="$(git rev-parse HEAD)"
 
           git fetch origin "$DEPLOY_BRANCH"
-          git checkout "$DEPLOY_BRANCH"
-          git pull --ff-only
 
-          # Defensive check: fail if git index contains unresolved conflicts
+          # Assert the branch rather than switching onto it unconditionally. A `git checkout`
+          # against a tree Strapi is mid-write on can fail outright or carry local edits
+          # across, so it is worth knowing when the checkout has drifted.
+          CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          if [ "$CURRENT_BRANCH" != "$DEPLOY_BRANCH" ]; then
+            echo "::warning::Checkout was on '$CURRENT_BRANCH'; switching to '$DEPLOY_BRANCH'."
+            git checkout "$DEPLOY_BRANCH"
+          fi
+
+          # Fast-forward is the expected path and the cheapest one: it never touches
+          # Strapi's possibly-dirty working tree, so it needs no stash. `git merge --ff-only`
+          # rather than `git pull --ff-only` — no implicit second fetch, no dependence on a
+          # configured upstream, and an exit code to branch on.
+          if ! git merge --ff-only "origin/$DEPLOY_BRANCH"; then
+            # Diverged: a Strapi or Airtable commit never reached origin. Failing here used
+            # to take down the whole run — rebuild, content sync and Airtable sync alike —
+            # and it stayed failed until someone intervened. Policy is that CMS content wins,
+            # so replay the local commits on top of origin instead.
+            #
+            # `-X theirs` is the local side, not the upstream one: a rebase swaps ours/theirs,
+            # so `ours` is origin and `theirs` is the commit being replayed. See git-rebase(1),
+            # "Using merging strategies to rebase". Flipping it to `-X ours` would silently
+            # discard the editor content this is trying to save.
+            echo "::warning::$DEPLOY_PATH diverged from origin/$DEPLOY_BRANCH — replaying local commits on top (CMS wins)."
+            git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
+
+            if ! git -c rebase.autoStash=true -c rerere.enabled=false \
+                   rebase -X theirs "origin/$DEPLOY_BRANCH"; then
+              # Leaving it mid-rebase would break every later editor save as well as the next
+              # run. What `-X theirs` cannot resolve is an existence conflict (a page deleted
+              # on one side and edited on the other), which has no mechanically correct answer.
+              git rebase --abort || true
+              echo "Error: could not reconcile $DEPLOY_PATH with origin/$DEPLOY_BRANCH."
+              echo "A modify/delete or rename conflict needs a human. Local commits:"
+              git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
+              exit 1
+            fi
+
+            # Push so the next run is a plain fast-forward again. Non-fatal: the rebuild and
+            # sync below are still valid against this tree, and the next run retries.
+            git push origin "HEAD:$DEPLOY_BRANCH" || \
+              echo "::warning::Recovered commits not pushed; the next run will retry."
+          fi
+
+          # Defensive check: after a clean `-X theirs` rebase nothing can be unmerged, so
+          # anything here came from the autostash pop — conflict markers sitting in the
+          # working tree, which the next Strapi save would otherwise commit into src/content.
           if [ -n "$(git ls-files -u)" ]; then
-            echo "Unresolved git conflicts detected after pull"
+            echo "Unresolved git conflicts in $DEPLOY_PATH:"
+            git ls-files -u | awk '{ print $4 }' | sort -u
+            echo "The working tree may contain conflict markers. Resolve by hand before the next run."
             exit 1
           fi
 
@@ -185,11 +255,11 @@ jobs:
             pnpm run sync:all
           fi
 
-      # Runs last, on the tree the step above already fetched, fast-forwarded and
-      # conflict-checked, so the only pending change should be the regenerated JSON. No `if:`
-      # guard on purpose: the default "skip when an earlier step failed" is what we want, since
-      # the likeliest earlier failure is a diverged checkout, and that is the last state to be
-      # pushing from.
+      # Runs last, on the tree the step above already fetched, integrated and conflict-checked,
+      # so the only pending change should be the regenerated JSON. No `if:` guard on purpose:
+      # the default "skip when an earlier step failed" is what we want, since the likeliest
+      # earlier failure is a checkout that could not be reconciled, and that is the last state
+      # to be pushing from.
       - name: Sync grantee data from Airtable
         id: airtable-sync
         shell: bash
@@ -264,12 +334,22 @@ jobs:
 
           if [ "$pushed" != "true" ]; then
             # Hand the checkout back exactly as we found it. A local commit that never reaches
-            # origin would diverge the branch and break the next run's `git pull --ff-only`, and
-            # the data is regenerated from Airtable on the next run anyway. Undo only our commit
-            # and only our file — `git reset --hard` here would discard Strapi content that has
-            # not been committed yet.
-            git reset --soft HEAD~1
-            git restore --staged --worktree -- "$AIRTABLE_JSON"
+            # origin would diverge the branch, and the data is regenerated from Airtable on the
+            # next run anyway. Undo only our commit and only our file — `git reset --hard` here
+            # would discard Strapi content that has not been committed yet.
+            #
+            # Guarded on the ahead-count: Strapi commits to this same checkout on a 300ms
+            # debounce whenever an editor saves, so a save landing during the retry loop above
+            # puts *its* commit at HEAD and ours underneath. `HEAD~1` would then drop the
+            # editor's work instead of ours. Nothing here can safely rewrite a commit we do
+            # not own, so leave the stack alone and let the divergence be reported.
+            AHEAD="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
+            if [ "$AHEAD" = "1" ]; then
+              git reset --soft HEAD~1
+              git restore --staged --worktree -- "$AIRTABLE_JSON"
+            else
+              echo "::warning::$AHEAD unpushed commits — another writer owns one, so the grantee commit was left in place."
+            fi
             echo "Error: could not push grantee data to $DEPLOY_BRANCH after $MAX_PUSH_ATTEMPTS attempts."
             exit 1
           fi

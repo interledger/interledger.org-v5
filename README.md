@@ -15,6 +15,7 @@ It represents the **fifth major iteration** of interledger.org. For background o
 5. [CI / GitHub Workflows](#ci--github-workflows)
 6. [Content Workflow](#content-workflow)
    - [Content Synchronization](#content-synchronization)
+   - [Content Conflict Resolution](#content-conflict-resolution)
    - [Preview functionality](#preview-functionality)
    - [Branches and Deployment](#branches-and-deployment)
    - [Environments](#environments)
@@ -291,10 +292,42 @@ Pull requests must pass all checks before merging.
 1. **Strapi → Astro**:
    - Strapi lifecycle hooks trigger `.mdx` file **creation**, **updates**, and **deletions**.
    - Changes are automatically committed and pushed directly to the `staging` branch, where Strapi acts as a contributor.
+   - When that push collides with a PR someone merged the same day, **the CMS wins** — see [Content Conflict Resolution](#content-conflict-resolution) below.
 
 2. **Astro → Strapi**:
    - `.mdx` files are synced back into the Strapi database on a daily schedule, not on every merge — see [Content Sync Schedule](#content-sync-schedule) below.
    - Scripts like `sync:mdx` handle the synchronization.
+
+### Content Conflict Resolution
+
+Because Astro → Strapi only runs daily, Strapi's copy of a page goes stale the
+moment a PR editing that page's `.mdx` lands on `staging`. If an editor then
+saves that page, the resulting commit conflicts with the merged PR.
+
+**Policy: CMS content wins where the two conflict.** Editors are the authority
+on page copy, so a developer sweep that collides with a live edit yields.
+
+- **Conflicting hunks only.** The rebase runs with `-X theirs`, which resolves
+  the contested lines in the editor's favour. A developer change **elsewhere in
+  the same file** still merges in normally — a frontmatter backfill is not
+  reverted just because someone was editing the body.
+- **Existence conflicts** (a PR deletes a page an editor is editing, or the
+  reverse) are also resolved toward the CMS. This resolution is confined to
+  `src/content/` and `public/uploads/img/original`; an unresolved path outside
+  them aborts the sync for a human to settle, rather than guessing.
+- **Nothing is lost from history.** The rebase replays the editor's commit on
+  top of the PR, so the superseded commit and its content stay reachable.
+- **Every overwrite is announced.** A `⚠️ Strapi git sync overwrote branch
+changes` message goes to `#frontend-team` naming the files and the superseded
+  commits, because nothing lints a direct push to `staging`. If your PR shows up
+  there, recover the dropped change with
+  `git log -p <sha> -- <path>` and re-apply it on top of `staging`.
+
+> **A note for anyone reading the code:** during a rebase git swaps the meaning
+> of `ours` and `theirs` — `ours` is the branch being replayed _onto_ (the
+> merged PR) and `theirs` is the commit being replayed (the editor's save). So
+> `-X theirs` is the CMS-wins policy and **not** a typo. See
+> `cms/src/utils/gitSync.ts`.
 
 ### Preview Functionality
 
