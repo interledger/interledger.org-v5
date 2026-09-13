@@ -22,6 +22,27 @@ describe('matchesGranteeFilters', () => {
     ).toBe(true)
   })
 
+  it('matches regardless of query case', () => {
+    expect(
+      matchesGranteeFilters(grantee, { q: 'Clearing HOUSE', year: '', tag: '' })
+    ).toBe(true)
+  })
+
+  it('matches regardless of accents on the query or the indexed text', () => {
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: 'Proyecto en México' },
+        { q: 'mexico', year: '', tag: '' }
+      )
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: 'Proyecto en Mexico' },
+        { q: 'México', year: '', tag: '' }
+      )
+    ).toBe(true)
+  })
+
   it('filters by year and thematic tag', () => {
     expect(
       matchesGranteeFilters(grantee, {
