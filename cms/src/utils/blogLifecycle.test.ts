@@ -339,7 +339,13 @@ describe('siblingMdxFilesWithPathSlug', () => {
   let tempDir: string
 
   afterEach(() => {
-    if (tempDir) fs.rmSync(tempDir, { recursive: true, force: true })
+    if (!tempDir) return
+    try {
+      fs.chmodSync(tempDir, 0o755)
+    } catch {
+      // Directory may already be gone or not chmod'd.
+    }
+    fs.rmSync(tempDir, { recursive: true, force: true })
   })
 
   function writePost(filename: string, pathSlug: string, date = '2026-03-26') {
@@ -503,20 +509,39 @@ describe('siblingMdxFilesWithPathSlug', () => {
     writePost('2026-03-26-the-slug.mdx', 'the-slug')
     const keep = path.join(tempDir, '2026-03-26-the-slug.mdx')
 
-    expect(
-      names(
-        removeSiblingMdxFilesWithPathSlug(
-          tempDir,
-          'the-slug',
-          '2026-03-26',
-          keep
-        )
-      )
-    ).toEqual(['2026-03-26-legacy-name.mdx'])
+    const removed = removeSiblingMdxFilesWithPathSlug(
+      tempDir,
+      'the-slug',
+      '2026-03-26',
+      keep
+    )
+    if (removed instanceof Error) throw removed
+    expect(names(removed)).toEqual(['2026-03-26-legacy-name.mdx'])
     expect(fs.existsSync(keep)).toBe(true)
     expect(
       fs.existsSync(path.join(tempDir, '2026-03-26-legacy-name.mdx'))
     ).toBe(false)
+  })
+
+  it('returns Error when leftover unlink fails instead of swallowing it', () => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    writePost('2026-03-26-legacy-name.mdx', 'the-slug')
+    writePost('2026-03-26-the-slug.mdx', 'the-slug')
+    const leftover = path.join(tempDir, '2026-03-26-legacy-name.mdx')
+    const keep = path.join(tempDir, '2026-03-26-the-slug.mdx')
+    fs.chmodSync(tempDir, 0o555)
+
+    const result = removeSiblingMdxFilesWithPathSlug(
+      tempDir,
+      'the-slug',
+      '2026-03-26',
+      keep
+    )
+    fs.chmodSync(tempDir, 0o755)
+
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain(leftover)
+    expect(fs.existsSync(leftover)).toBe(true)
   })
 
   it('matches a localized ES pathSlug, not the English one', () => {

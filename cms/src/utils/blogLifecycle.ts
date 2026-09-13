@@ -312,13 +312,28 @@ export function siblingMdxFilesWithPathSlug(
   return matches
 }
 
-/** Unlink leftover MDX files that share `pathSlug` with the file just written. */
+function isNotFound(error: unknown): boolean {
+  return (error as NodeJS.ErrnoException).code === 'ENOENT'
+}
+
+function deletionError(filepath: string, error: unknown): Error {
+  const cause = error instanceof Error ? error : new Error(String(error))
+  return new Error(`Failed to delete blog MDX: ${filepath}`, {
+    cause
+  })
+}
+
+/**
+ * Unlink leftover MDX files that share `pathSlug` with the file just written.
+ * Returns the paths removed, or Error on the first unlink that is not ENOENT
+ * — callers must not schedule git sync after that, or the leftover is committed.
+ */
 export function removeSiblingMdxFilesWithPathSlug(
   dir: string,
   pathSlug: string,
   date: string,
   keepFilepath?: string
-): string[] {
+): string[] | Error {
   const removed: string[] = []
   for (const filepath of siblingMdxFilesWithPathSlug(
     dir,
@@ -331,7 +346,10 @@ export function removeSiblingMdxFilesWithPathSlug(
       removed.push(filepath)
       console.log(`🗑️  Deleted leftover blog MDX: ${filepath}`)
     } catch (error) {
-      console.error(`Failed to delete leftover blog MDX: ${filepath}`, error)
+      if (isNotFound(error)) continue
+      const err = deletionError(filepath, error)
+      console.error(err.message, error)
+      return err
     }
   }
   return removed
@@ -496,12 +514,13 @@ async function writeMDXFile({
   // `normalized.pathSlug` is this locale's own slug, which is what frontmatter
   // carries (the filename uses the English one) — so this compares like for
   // like in every locale directory.
-  removeSiblingMdxFilesWithPathSlug(
+  const removed = removeSiblingMdxFilesWithPathSlug(
     outputPath,
     normalized.pathSlug,
     normalized.date,
     filepath
   )
+  if (removed instanceof Error) throw removed
   return filepath
 }
 
@@ -542,13 +561,16 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       ? path.join(projectRoot, outputDir, locale)
       : path.join(projectRoot, outputDir)
 
-  function deleteMdxIfExists(filepath: string, locale: string): void {
+  function deleteMdxIfExists(filepath: string, locale: string): void | Error {
     if (!fs.existsSync(filepath)) return
     try {
       fs.unlinkSync(filepath)
       console.log(`🗑️  Deleted old ${locale} blog MDX: ${filepath}`)
     } catch (error) {
-      console.error(`Failed to delete blog MDX: ${filepath}`, error)
+      if (isNotFound(error)) return
+      const err = deletionError(filepath, error)
+      console.error(err.message, error)
+      return err
     }
   }
 
@@ -563,21 +585,23 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     previous: BlogMdxIdentity,
     filenameSlug: string,
     keepFilepath?: string
-  ): void {
+  ): void | Error {
     const constructed = path.join(
       getOutputPath(locale),
       generateFilename({ date: previous.date, pathSlug: filenameSlug })
     )
     const keep = keepFilepath ? path.resolve(keepFilepath) : null
     if (!keep || path.resolve(constructed) !== keep) {
-      deleteMdxIfExists(constructed, locale)
+      const deleted = deleteMdxIfExists(constructed, locale)
+      if (deleted instanceof Error) return deleted
     }
-    removeSiblingMdxFilesWithPathSlug(
+    const removed = removeSiblingMdxFilesWithPathSlug(
       getOutputPath(locale),
       previous.pathSlug,
       previous.date,
       keepFilepath
     )
+    if (removed instanceof Error) return removed
   }
 
   /** Export all locale variants for a blog post (mirrors pageLifecycle pattern). */
@@ -630,11 +654,15 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
           ? post
           : await fetchBlogPost(result.documentId, defaultLang)
       // Trust post.locale from fetchBlogPost (stamped only when omitted).
-      await writeMDXFile({
-        outputPath: getOutputPath(post.locale),
-        post,
-        englishSlug: enPost?.pathSlug
-      })
+      try {
+        await writeMDXFile({
+          outputPath: getOutputPath(post.locale),
+          post,
+          englishSlug: enPost?.pathSlug
+        })
+      } catch (error) {
+        throw toValidationError(error)
+      }
       const ctx: SyncContext = {
         slug: post.pathSlug,
         action: 'create',
@@ -712,7 +740,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
             event.state
           )
           if (!previous) continue
-          cleanupPreviousLocaleMdx(locale, previous, previousEn.pathSlug)
+          const cleaned = cleanupPreviousLocaleMdx(
+            locale,
+            previous,
+            previousEn.pathSlug
+          )
+          if (cleaned instanceof Error) throw toValidationError(cleaned)
         }
         console.log(`📝 Re-exporting all ${label} locales: ${enPost.pathSlug}`)
         await exportAllBlogLocales(result.documentId)
@@ -738,12 +771,13 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
             console.log(
               `🗑️  Blog ${post.locale} pathSlug/date changed from "${previous.pathSlug}"/"${previous.date}" to "${post.pathSlug}"/"${post.date}", deleting leftover MDX`
             )
-            cleanupPreviousLocaleMdx(
+            const cleaned = cleanupPreviousLocaleMdx(
               post.locale,
               previous,
               oldPathSlug ?? enPost?.pathSlug ?? post.pathSlug,
               filepath
             )
+            if (cleaned instanceof Error) throw cleaned
           }
         } catch (error) {
           throw toValidationError(error)
