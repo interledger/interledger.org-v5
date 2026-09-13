@@ -238,19 +238,38 @@ export function resolveBlogMdxFilename(
 }
 
 /**
- * Other `.mdx` files in `dir` for `date` whose frontmatter `pathSlug` matches.
+ * YYYY-MM-DD from blog frontmatter `date`. gray-matter/js-yaml may yield a
+ * string or a Date (unquoted YAML timestamps). UTC calendar date avoids a
+ * local-timezone off-by-one on Date values.
+ */
+export function normalizeBlogFrontmatterDate(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    if (!trimmed) return null
+    return /^\d{4}-\d{2}-\d{2}/.test(trimmed) ? trimmed.slice(0, 10) : trimmed
+  }
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const year = value.getUTCFullYear()
+    const month = String(value.getUTCMonth() + 1).padStart(2, '0')
+    const day = String(value.getUTCDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+  return null
+}
+
+/**
+ * Other `.mdx` files in `dir` whose frontmatter `pathSlug` and `date` match.
  * Blog filenames are `{date}-{pathSlug}.mdx`, but legacy files (tech-blog
- * merge) used a different stem. A Strapi save writes the canonical name and
- * used to leave the old file, so two MDX docs mapped to one entry
- * (INTORG-1236).
+ * merge) used a different stem — and some (e.g. go-further-with-open-payments)
+ * keep a filename date that disagrees with frontmatter. A Strapi save writes
+ * the canonical name and used to leave the old file, so two MDX docs mapped
+ * to one entry (INTORG-1236).
  *
- * `date` scopes the scan to that day's filename prefix. Every blog filename
- * carries one, so this keeps the delete off unrelated posts that merely share
- * a slug — matching is on `pathSlug` alone, and MDX frontmatter has no Strapi
- * documentId to key on — and it means only that day's files get parsed rather
- * than the whole directory. An empty `date` yields no matches: without a
- * prefix to scope to there is nothing to distinguish a leftover from an
- * unrelated post, and deleting broadly is worse than leaving the duplicate.
+ * Matching is on frontmatter, not the filename prefix: MDX has no Strapi
+ * documentId, so pathSlug + date is what identifies a leftover vs an
+ * unrelated post that merely shares a slug. An empty `date` yields no
+ * matches — without one there is nothing to distinguish those cases, and
+ * deleting broadly is worse than leaving the duplicate.
  */
 export function siblingMdxFilesWithPathSlug(
   dir: string,
@@ -258,7 +277,8 @@ export function siblingMdxFilesWithPathSlug(
   date: string,
   keepFilepath?: string
 ): string[] {
-  if (!pathSlug || !date || !fs.existsSync(dir)) return []
+  const wantedDate = normalizeBlogFrontmatterDate(date)
+  if (!pathSlug || !wantedDate || !fs.existsSync(dir)) return []
   const keep = keepFilepath ? path.resolve(keepFilepath) : null
   let names: string[]
   try {
@@ -270,12 +290,11 @@ export function siblingMdxFilesWithPathSlug(
   const matches: string[] = []
   for (const name of names) {
     if (!name.endsWith('.mdx')) continue
-    if (!name.startsWith(`${date}-`)) continue
     const filepath = path.join(dir, name)
     if (keep && path.resolve(filepath) === keep) continue
-    let slug: unknown
+    let data: { pathSlug?: unknown; date?: unknown }
     try {
-      slug = matter(fs.readFileSync(filepath, 'utf-8')).data.pathSlug
+      data = matter(fs.readFileSync(filepath, 'utf-8')).data
     } catch (error) {
       // Unreadable or malformed frontmatter. Skipping matches sync-mdx, which
       // reports invalid MDX and carries on; throwing here would take every
@@ -283,7 +302,10 @@ export function siblingMdxFilesWithPathSlug(
       console.warn(`⚠️  Skipping unparseable MDX: ${filepath}`, error)
       continue
     }
-    if (typeof slug === 'string' && slug === pathSlug) {
+    if (typeof data.pathSlug !== 'string' || data.pathSlug !== pathSlug) {
+      continue
+    }
+    if (normalizeBlogFrontmatterDate(data.date) === wantedDate) {
       matches.push(filepath)
     }
   }

@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   blogLocaleIdentityChanged,
   generateBlogMDX,
+  normalizeBlogFrontmatterDate,
   removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
@@ -341,10 +342,10 @@ describe('siblingMdxFilesWithPathSlug', () => {
     if (tempDir) fs.rmSync(tempDir, { recursive: true, force: true })
   })
 
-  function writePost(filename: string, pathSlug: string) {
+  function writePost(filename: string, pathSlug: string, date = '2026-03-26') {
     fs.writeFileSync(
       path.join(tempDir, filename),
-      `---\npathSlug: ${pathSlug}\n---\n\nbody\n`
+      `---\ndate: ${date}\npathSlug: ${pathSlug}\n---\n\nbody\n`
     )
   }
 
@@ -382,7 +383,7 @@ describe('siblingMdxFilesWithPathSlug', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
     fs.writeFileSync(
       path.join(tempDir, '2026-03-26-legacy-name.mdx'),
-      `---\npathSlug: 'simple-rafiki-integration-guide'\n---\n`
+      `---\ndate: '2026-03-26'\npathSlug: 'simple-rafiki-integration-guide'\n---\n`
     )
     expect(
       names(
@@ -412,19 +413,53 @@ describe('siblingMdxFilesWithPathSlug', () => {
 
   it('ignores same-slug files dated to another day', () => {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
-    writePost('2026-03-26-the-slug.mdx', 'the-slug')
-    writePost('2024-01-02-unrelated-post.mdx', 'the-slug')
+    writePost('2026-03-26-the-slug.mdx', 'the-slug', '2026-03-26')
+    writePost('2024-01-02-unrelated-post.mdx', 'the-slug', '2024-01-02')
 
     expect(
       names(siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26'))
     ).toEqual(['2026-03-26-the-slug.mdx'])
   })
 
-  it('ignores a file with no date prefix', () => {
-    // Every blog filename is date-prefixed. Without one there is nothing
-    // tying the file to this post, so it is left alone rather than deleted.
+  it('finds a leftover whose filename date disagrees with frontmatter date', () => {
+    // Live EN/ES files: 2025-12-19-go-further-with-open-payments.mdx
+    // declares date: 2026-01-22. A save writes 2026-01-22-* and used to
+    // leave the original because the scan filtered on the filename prefix.
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
-    writePost('no-date-prefix.mdx', 'the-slug')
+    fs.writeFileSync(
+      path.join(tempDir, '2025-12-19-go-further-with-open-payments.mdx'),
+      `---\ndate: 2026-01-22\npathSlug: go-further-with-open-payments\n---\n`
+    )
+    writePost(
+      '2026-01-22-go-further-with-open-payments.mdx',
+      'go-further-with-open-payments',
+      '2026-01-22'
+    )
+    const keep = path.join(
+      tempDir,
+      '2026-01-22-go-further-with-open-payments.mdx'
+    )
+
+    expect(
+      names(
+        siblingMdxFilesWithPathSlug(
+          tempDir,
+          'go-further-with-open-payments',
+          '2026-01-22',
+          keep
+        )
+      )
+    ).toEqual(['2025-12-19-go-further-with-open-payments.mdx'])
+  })
+
+  it('ignores a matching slug with no frontmatter date', () => {
+    // Filename date is not identity — without a frontmatter date there is
+    // nothing tying the file to this post, so it is left alone.
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-sibling-'))
+    fs.writeFileSync(
+      path.join(tempDir, '2026-03-26-the-slug.mdx'),
+      `---\npathSlug: the-slug\n---\n`
+    )
 
     expect(
       siblingMdxFilesWithPathSlug(tempDir, 'the-slug', '2026-03-26')
@@ -498,6 +533,30 @@ describe('siblingMdxFilesWithPathSlug', () => {
         siblingMdxFilesWithPathSlug(tempDir, 'guia-en-espanol', '2026-03-26')
       )
     ).toEqual(['2026-03-26-english-stem.mdx'])
+  })
+})
+
+describe('normalizeBlogFrontmatterDate', () => {
+  it('keeps a YYYY-MM-DD string', () => {
+    expect(normalizeBlogFrontmatterDate('2026-01-22')).toBe('2026-01-22')
+  })
+
+  it('takes the calendar date from an ISO datetime string', () => {
+    expect(normalizeBlogFrontmatterDate('2026-01-22T00:00:00.000Z')).toBe(
+      '2026-01-22'
+    )
+  })
+
+  it('uses the UTC calendar date from a Date', () => {
+    expect(
+      normalizeBlogFrontmatterDate(new Date('2026-01-22T00:00:00.000Z'))
+    ).toBe('2026-01-22')
+  })
+
+  it('returns null for empty or non-date values', () => {
+    expect(normalizeBlogFrontmatterDate('')).toBeNull()
+    expect(normalizeBlogFrontmatterDate(null)).toBeNull()
+    expect(normalizeBlogFrontmatterDate(undefined)).toBeNull()
   })
 })
 

@@ -214,6 +214,7 @@ export {
   blogLocaleIdentityChanged,
   createBlogLifecycle,
   generateBlogMDX,
+  normalizeBlogFrontmatterDate,
   removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
