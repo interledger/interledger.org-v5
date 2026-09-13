@@ -103,6 +103,32 @@
     font-weight: inherit;
   }
 
+  /* Placeholders stay 14px even when the field itself is 16px (text-base). */
+  ::placeholder {
+    font-size: var(--text-body-sm-standard);
+    line-height: var(--text-body-sm-standard--line-height);
+  }
+
+  /* Single-line fields are 40px (--spacing-3xl-tight). Textareas stay auto.
+     :where() keeps specificity at 0 so h-* / py-* utilities can override. */
+  :where(
+    input:not(
+      [type='hidden'],
+      [type='checkbox'],
+      [type='radio'],
+      [type='file'],
+      [type='button'],
+      [type='submit'],
+      [type='reset'],
+      [type='image'],
+      [type='range'],
+      [type='color']
+    )
+  ) {
+    height: var(--spacing-3xl-tight);
+    padding-block: 0;
+  }
+
   main {
     @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
   }
