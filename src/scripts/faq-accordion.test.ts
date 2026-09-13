@@ -178,7 +178,10 @@ describe('handleFaqItemClick', () => {
     now = 1400
     frames[0](now)
 
-    expect(windowScrollTo).toHaveBeenCalledWith(0, 100 + 400 - 70)
+    expect(windowScrollTo).toHaveBeenCalledWith({
+      top: 100 + 400 - 70,
+      behavior: 'instant'
+    })
     expect(item.scrollIntoView).not.toHaveBeenCalled()
   })
 

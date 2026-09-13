@@ -75,7 +75,7 @@ function applyScroll(y: number): void {
     lenis.scrollTo(y, { immediate: true })
     return
   }
-  globalThis.scrollTo(0, y)
+  globalThis.scrollTo({ top: y, behavior: 'instant' })
 }
 
 function easeOutCubic(t: number): number {
