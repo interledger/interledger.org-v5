@@ -4,10 +4,12 @@ import path from 'path'
 import matter from 'gray-matter'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+  blogLocaleIdentityChanged,
   generateBlogMDX,
   removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
+  resolvePreviousBlogLocaleIdentity,
   siblingMdxFilesWithPathSlug,
   stampBlogLocale
 } from '@/utils'
@@ -496,5 +498,81 @@ describe('siblingMdxFilesWithPathSlug', () => {
         siblingMdxFilesWithPathSlug(tempDir, 'guia-en-espanol', '2026-03-26')
       )
     ).toEqual(['2026-03-26-english-stem.mdx'])
+  })
+})
+
+describe('resolvePreviousBlogLocaleIdentity', () => {
+  const state = {
+    oldPathSlug: 'en-slug',
+    oldDate: '2026-03-26',
+    oldPathSlugByLocale: { en: 'en-slug', es: 'guia-en-espanol' },
+    oldDateByLocale: { en: '2026-03-26', es: '2026-04-01' }
+  }
+
+  it('prefers the locale-specific slug and date', () => {
+    expect(resolvePreviousBlogLocaleIdentity('es', state)).toEqual({
+      pathSlug: 'guia-en-espanol',
+      date: '2026-04-01'
+    })
+  })
+
+  it('falls back to English when the locale was not stashed', () => {
+    expect(
+      resolvePreviousBlogLocaleIdentity('es', {
+        oldPathSlug: 'en-slug',
+        oldDate: '2026-03-26'
+      })
+    ).toEqual({ pathSlug: 'en-slug', date: '2026-03-26' })
+  })
+
+  it('mixes a locale-specific slug with the English date when the locale date is missing', () => {
+    expect(
+      resolvePreviousBlogLocaleIdentity('es', {
+        oldPathSlug: 'en-slug',
+        oldDate: '2026-03-26',
+        oldPathSlugByLocale: { es: 'guia-en-espanol' }
+      })
+    ).toEqual({ pathSlug: 'guia-en-espanol', date: '2026-03-26' })
+  })
+
+  it('returns null when slug or date is missing', () => {
+    expect(
+      resolvePreviousBlogLocaleIdentity('en', { oldPathSlug: 'en-slug' })
+    ).toBeNull()
+    expect(
+      resolvePreviousBlogLocaleIdentity('en', { oldDate: '2026-03-26' })
+    ).toBeNull()
+  })
+})
+
+describe('blogLocaleIdentityChanged', () => {
+  const previous = { pathSlug: 'guia-en-espanol', date: '2026-03-26' }
+
+  it('detects an ES-only slug change', () => {
+    expect(
+      blogLocaleIdentityChanged(previous, {
+        pathSlug: 'guia-actualizada',
+        date: '2026-03-26'
+      })
+    ).toBe(true)
+  })
+
+  it('detects an ES-only date change', () => {
+    expect(
+      blogLocaleIdentityChanged(previous, {
+        pathSlug: 'guia-en-espanol',
+        date: '2026-04-01'
+      })
+    ).toBe(true)
+  })
+
+  it('is false when slug and date are unchanged', () => {
+    expect(blogLocaleIdentityChanged(previous, previous)).toBe(false)
+  })
+
+  it('is false when the current locale has no slug or date yet', () => {
+    expect(
+      blogLocaleIdentityChanged(previous, { pathSlug: null, date: null })
+    ).toBe(false)
   })
 })

@@ -69,14 +69,46 @@ interface BlogEvent {
 }
 
 /**
- * `oldPathSlug` is the English slug (filenames derive from it). Frontmatter
- * carries each locale's *own* slug, so cleanup that matches on frontmatter
- * needs `oldPathSlugByLocale` instead.
+ * `oldPathSlug` / `oldDate` are the English values. Filenames use the English
+ * slug plus each locale's own date; frontmatter carries each locale's own
+ * slug, so leftover cleanup needs the per-locale maps.
  */
 interface BlogLifecycleState {
   oldPathSlug?: string
   oldDate?: string
   oldPathSlugByLocale?: Record<string, string>
+  oldDateByLocale?: Record<string, string>
+}
+
+export type BlogMdxIdentity = { pathSlug: string; date: string }
+
+/**
+ * Previous frontmatter identity for leftover MDX cleanup. Prefers the
+ * locale's own stashed slug/date; falls back to English when that locale
+ * was unpublished or failed to fetch.
+ */
+export function resolvePreviousBlogLocaleIdentity(
+  locale: string,
+  state: Pick<
+    BlogLifecycleState,
+    'oldPathSlug' | 'oldDate' | 'oldPathSlugByLocale' | 'oldDateByLocale'
+  >
+): BlogMdxIdentity | null {
+  const pathSlug = state.oldPathSlugByLocale?.[locale] ?? state.oldPathSlug
+  const date = state.oldDateByLocale?.[locale] ?? state.oldDate
+  if (!pathSlug || !date) return null
+  return { pathSlug, date }
+}
+
+/** True when this locale's pathSlug or date differs from the stashed values. */
+export function blogLocaleIdentityChanged(
+  previous: BlogMdxIdentity,
+  current: { pathSlug?: string | null; date?: string | null }
+): boolean {
+  return (
+    (Boolean(current.pathSlug) && previous.pathSlug !== current.pathSlug) ||
+    (Boolean(current.date) && previous.date !== current.date)
+  )
 }
 
 /**
@@ -499,16 +531,31 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   }
 
   /**
-   * Delete old blog MDX files for all locales when EN slug changes.
-   * Blog filenames include the date: `{date}-{slug}.mdx` where slug is the
-   * english slug for all locales (via resolveFilenameSlug).
+   * Drop the constructed `{date}-{enSlug}.mdx` and any leftover same-slug
+   * files for one locale's previous identity. `keepFilepath` is the file
+   * just written — skip it when the old constructed path is the same file
+   * (ES-only slug change: filename uses the English slug and does not move).
    */
-  function deleteOldBlogFiles(oldEnSlug: string, oldDate: string): void {
-    for (const locale of LOCALES) {
-      const filename = generateFilename({ date: oldDate, pathSlug: oldEnSlug })
-      const filepath = path.join(getOutputPath(locale), filename)
-      deleteMdxIfExists(filepath, locale)
+  function cleanupPreviousLocaleMdx(
+    locale: string,
+    previous: BlogMdxIdentity,
+    filenameSlug: string,
+    keepFilepath?: string
+  ): void {
+    const constructed = path.join(
+      getOutputPath(locale),
+      generateFilename({ date: previous.date, pathSlug: filenameSlug })
+    )
+    const keep = keepFilepath ? path.resolve(keepFilepath) : null
+    if (!keep || path.resolve(constructed) !== keep) {
+      deleteMdxIfExists(constructed, locale)
     }
+    removeSiblingMdxFilesWithPathSlug(
+      getOutputPath(locale),
+      previous.pathSlug,
+      previous.date,
+      keepFilepath
+    )
   }
 
   /** Export all locale variants for a blog post (mirrors pageLifecycle pattern). */
@@ -586,24 +633,26 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         event.params?.documentId ?? event.params?.data?.documentId
       if (!documentId) return
 
-      // Always stash the EN slug/date — all locale filenames depend on it
+      // Stash each locale's slug/date. Filenames use the EN slug, but date is
+      // localized and frontmatter carries each locale's own pathSlug.
       const enPost = await fetchBlogPost(documentId, defaultLang)
       if (!enPost?.pathSlug) return
 
       event.state.oldPathSlug = enPost.pathSlug
       event.state.oldDate = enPost.date
 
-      // Frontmatter holds the locale's own pathSlug, so stash each one — an
-      // ES post may carry a localized slug that the EN slug would never match.
       const oldPathSlugByLocale: Record<string, string> = {}
+      const oldDateByLocale: Record<string, string> = {}
       for (const locale of LOCALES) {
         const post =
           locale === defaultLang
             ? enPost
             : await fetchBlogPost(documentId, locale)
         if (post?.pathSlug) oldPathSlugByLocale[locale] = post.pathSlug
+        if (post?.date) oldDateByLocale[locale] = post.date
       }
       event.state.oldPathSlugByLocale = oldPathSlugByLocale
+      event.state.oldDateByLocale = oldDateByLocale
     },
     async afterUpdate(event: BlogEvent) {
       const { result } = event
@@ -618,34 +667,32 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       )
 
       const label = event.model.singularName
-      const { oldPathSlug, oldDate, oldPathSlugByLocale } = event.state
+      const { oldPathSlug } = event.state
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
-      const currentEnSlug = enPost?.pathSlug
-      const currentDate = enPost?.date
+      const previousEn = resolvePreviousBlogLocaleIdentity(
+        defaultLang,
+        event.state
+      )
 
-      // If the EN slug or the date changed, delete old files for all locales and re-export
+      // EN slug feeds every locale's filename; EN date change still re-exports
+      // all locales so translations stay in lockstep with the English file.
       if (
-        oldPathSlug &&
-        oldDate &&
-        currentEnSlug &&
-        currentDate &&
-        (oldPathSlug !== currentEnSlug || oldDate !== currentDate)
+        previousEn &&
+        enPost &&
+        blogLocaleIdentityChanged(previousEn, enPost)
       ) {
         console.log(
-          `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`
+          `🗑️  Blog pathSlug/date changed from "${previousEn.pathSlug}"/"${previousEn.date}" to "${enPost.pathSlug}"/"${enPost.date}", deleting old MDX files`
         )
-        deleteOldBlogFiles(oldPathSlug, oldDate)
-        // Legacy filenames are `{date}-{old-stem}.mdx` with pathSlug still the
-        // old slug — the constructed name above misses those. Match on each
-        // locale's own old slug, since that is what its frontmatter carries.
         for (const locale of LOCALES) {
-          removeSiblingMdxFilesWithPathSlug(
-            getOutputPath(locale),
-            oldPathSlugByLocale?.[locale] ?? oldPathSlug,
-            oldDate
+          const previous = resolvePreviousBlogLocaleIdentity(
+            locale,
+            event.state
           )
+          if (!previous) continue
+          cleanupPreviousLocaleMdx(locale, previous, previousEn.pathSlug)
         }
-        console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
+        console.log(`📝 Re-exporting all ${label} locales: ${enPost.pathSlug}`)
         await exportAllBlogLocales(result.documentId)
       } else {
         const post = currentLocalePost
@@ -653,11 +700,29 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
         try {
           // Trust post.locale from fetchBlogPost (stamped only when omitted).
-          await writeMDXFile({
+          const filepath = await writeMDXFile({
             outputPath: getOutputPath(post.locale),
             post,
             englishSlug: enPost?.pathSlug
           })
+          // writeMDXFile only scans the new date + new slug. An ES-only slug
+          // or date change never enters the EN branch above, so clean this
+          // locale's previous identity or the old-date / old-slug file stays.
+          const previous = resolvePreviousBlogLocaleIdentity(
+            post.locale,
+            event.state
+          )
+          if (previous && blogLocaleIdentityChanged(previous, post)) {
+            console.log(
+              `🗑️  Blog ${post.locale} pathSlug/date changed from "${previous.pathSlug}"/"${previous.date}" to "${post.pathSlug}"/"${post.date}", deleting leftover MDX`
+            )
+            cleanupPreviousLocaleMdx(
+              post.locale,
+              previous,
+              oldPathSlug ?? enPost?.pathSlug ?? post.pathSlug,
+              filepath
+            )
+          }
         } catch (error) {
           throw toValidationError(error)
         }

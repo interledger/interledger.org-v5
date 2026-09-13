@@ -210,11 +210,14 @@ export {
   readLocaleFromUpdateEvent
 } from './pageLifecycle'
 export {
+  type BlogMdxIdentity,
+  blogLocaleIdentityChanged,
   createBlogLifecycle,
   generateBlogMDX,
   removeSiblingMdxFilesWithPathSlug,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
+  resolvePreviousBlogLocaleIdentity,
   siblingMdxFilesWithPathSlug,
   stampBlogLocale
 } from './blogLifecycle'
