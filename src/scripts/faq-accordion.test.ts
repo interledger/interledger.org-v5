@@ -11,6 +11,8 @@ import {
 
 type FakePanel = {
   dataset: Record<string, string | undefined>
+  style: { transition: string }
+  offsetHeight: number
   addEventListener: ReturnType<typeof vi.fn>
   removeEventListener: ReturnType<typeof vi.fn>
 }
@@ -35,6 +37,8 @@ function makeItem(open = false): {
 } {
   const panel: FakePanel = {
     dataset: {},
+    style: { transition: '' },
+    offsetHeight: 0,
     addEventListener: vi.fn(),
     removeEventListener: vi.fn()
   }
@@ -118,40 +122,20 @@ describe('handleFaqItemClick', () => {
     expect(a.item.scrollIntoView).not.toHaveBeenCalled()
   })
 
-  it('eases to the live question top so a sibling closing above cannot overshoot', () => {
+  it('snaps the opened question under the header', () => {
     stubMatchMedia(false)
     const scrollTo = vi.fn()
     vi.stubGlobal('__siteLenis', { scrollTo })
     vi.stubGlobal('scrollY', 0)
     vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
 
     const { item } = makeItem(false)
-    let top = 800
-    item.getBoundingClientRect = () => ({ top })
-
-    let now = 0
-    vi.stubGlobal('performance', { now: () => now })
-    const frames: FrameRequestCallback[] = []
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
-      frames.push(cb)
-      return frames.length
-    })
+    item.getBoundingClientRect = () => ({ top: 500 })
 
     scrollQuestionIntoView(item as unknown as HTMLElement)
 
-    now = 200
-    top = 500
-    const first = frames.shift()
-    first?.(now)
-    const mid = scrollTo.mock.calls.at(-1)?.[0] as number
-    expect(mid).toBeLessThan(800 - 76)
-
-    now = 1400
-    top = 500
-    const last = frames.shift()
-    last?.(now)
-    expect(scrollTo).toHaveBeenLastCalledWith(500 - 76, { immediate: true })
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(500 - 76, { immediate: true })
     expect(item.scrollIntoView).not.toHaveBeenCalled()
   })
 
@@ -161,28 +145,45 @@ describe('handleFaqItemClick', () => {
     vi.stubGlobal('scrollTo', windowScrollTo)
     vi.stubGlobal('scrollY', 100)
     vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '70px' }))
-    vi.stubGlobal('cancelAnimationFrame', vi.fn())
 
     const { item } = makeItem(false)
     item.getBoundingClientRect = () => ({ top: 400 })
 
-    let now = 0
-    vi.stubGlobal('performance', { now: () => now })
-    const frames: FrameRequestCallback[] = []
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
-      frames.push(cb)
-      return frames.length
-    })
-
     scrollQuestionIntoView(item as unknown as HTMLElement)
-    now = 1400
-    frames[0](now)
 
     expect(windowScrollTo).toHaveBeenCalledWith({
       top: 100 + 400 - 70,
       behavior: 'instant'
     })
     expect(item.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('closes a sibling instantly and snaps the opened question under the header', () => {
+    stubMatchMedia(false)
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('scrollY', 400)
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
+    vi.stubGlobal('requestAnimationFrame', vi.fn())
+
+    const a = makeItem(true)
+    a.item.dataset.faqExpanded = 'true'
+    a.panel.dataset.open = 'true'
+    const b = makeItem(false)
+    b.item.getBoundingClientRect = () => ({
+      top: a.item.open ? 500 : 300
+    })
+
+    handleFaqItemClick(
+      b.item as unknown as HTMLDetailsElement,
+      [a.item, b.item] as unknown as HTMLDetailsElement[]
+    )
+
+    expect(a.item.open).toBe(false)
+    expect(a.panel.addEventListener).not.toHaveBeenCalled()
+    expect(a.panel.style.transition).toBe('')
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(400 + 300 - 76, { immediate: true })
   })
 
   it('collapses an already expanded item without scrolling', () => {
@@ -244,6 +245,19 @@ describe('openFaqPanel / closeFaqPanel animation', () => {
     flushRaf()
     expect(panel.dataset.open).toBeUndefined()
     expect(item.open).toBe(true)
+  })
+
+  it('skips the close transition when instant is set', () => {
+    const { item, panel } = makeItem(true)
+    item.dataset.faqExpanded = 'true'
+    panel.dataset.open = 'true'
+
+    closeFaqPanel(item as unknown as HTMLDetailsElement, { instant: true })
+
+    expect(item.open).toBe(false)
+    expect(panel.dataset.open).toBeUndefined()
+    expect(panel.addEventListener).not.toHaveBeenCalled()
+    expect(panel.style.transition).toBe('')
   })
 
   it('clears open after the grid-template-rows transition ends', () => {

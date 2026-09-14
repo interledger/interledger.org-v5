@@ -25,8 +25,6 @@ export function faqAccordionGroupName(): string {
 
 const PANEL_SELECTOR = '[data-faq-panel]'
 const SLIDE_MS = 200
-/** Programmatic scroll to the opened question — slower than native smooth. */
-const FAQ_SCROLL_DURATION_MS = 1400
 
 type SiteLenis = {
   scrollTo: (target: number, options: { immediate: boolean }) => void
@@ -54,14 +52,6 @@ function siteLenis(): SiteLenis | undefined {
   return (globalThis as unknown as { __siteLenis?: SiteLenis }).__siteLenis
 }
 
-let scrollFrame = 0
-
-function cancelQuestionScroll(): void {
-  if (!scrollFrame) return
-  cancelAnimationFrame(scrollFrame)
-  scrollFrame = 0
-}
-
 /** Document Y that puts the question top just under the header. */
 export function questionScrollDestination(item: HTMLElement): number {
   const margin = parseFloat(getComputedStyle(item).scrollMarginTop)
@@ -78,32 +68,12 @@ function applyScroll(y: number): void {
   globalThis.scrollTo({ top: y, behavior: 'instant' })
 }
 
-function easeOutCubic(t: number): number {
-  return 1 - (1 - t) ** 3
-}
-
 export function scrollQuestionIntoView(item: HTMLElement): void {
-  cancelQuestionScroll()
   if (prefersReducedMotion()) {
     item.scrollIntoView({ block: 'start' })
     return
   }
-
-  const startY = globalThis.scrollY
-  const startTime = performance.now()
-
-  const step = (now: number) => {
-    const t = Math.min(1, (now - startTime) / FAQ_SCROLL_DURATION_MS)
-    // Re-read each frame: a sibling closing above this question moves it up.
-    const destination = questionScrollDestination(item)
-    applyScroll(startY + (destination - startY) * easeOutCubic(t))
-    if (t < 1) {
-      scrollFrame = requestAnimationFrame(step)
-      return
-    }
-    scrollFrame = 0
-  }
-  scrollFrame = requestAnimationFrame(step)
+  applyScroll(questionScrollDestination(item))
 }
 
 function cancelPendingClose(item: HTMLDetailsElement): void {
@@ -137,11 +107,30 @@ export function openFaqPanel(item: HTMLDetailsElement): void {
   })
 }
 
-export function closeFaqPanel(item: HTMLDetailsElement): void {
+/**
+ * Collapse without the 200ms grid-rows transition so a sibling close can
+ * be compensated with an instant scroll in the same turn.
+ */
+function snapPanelClosed(panel: HTMLElement): void {
+  const previous = panel.style.transition
+  panel.style.transition = 'none'
+  delete panel.dataset.open
+  void panel.offsetHeight
+  panel.style.transition = previous
+}
+
+export function closeFaqPanel(
+  item: HTMLDetailsElement,
+  options?: { instant?: boolean }
+): void {
   item.dataset.faqExpanded = 'false'
   const panel = panelOf(item)
-  if (!panel || prefersReducedMotion()) {
-    if (panel) delete panel.dataset.open
+  if (!panel || prefersReducedMotion() || options?.instant) {
+    cancelPendingClose(item)
+    if (panel) {
+      if (options?.instant) snapPanelClosed(panel)
+      else delete panel.dataset.open
+    }
     item.open = false
     return
   }
@@ -174,8 +163,11 @@ export function handleFaqItemClick(
     closeFaqPanel(item)
     return
   }
+
   for (const other of items) {
-    if (other !== item && isExpanded(other)) closeFaqPanel(other)
+    if (other !== item && isExpanded(other)) {
+      closeFaqPanel(other, { instant: true })
+    }
   }
   openFaqPanel(item)
   scrollQuestionIntoView(item)
