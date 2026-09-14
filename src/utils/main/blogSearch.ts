@@ -64,7 +64,12 @@ function toSearchThumbnail(
  * single fetch covers both without a reload.
  */
 export async function getBlogSearchIndex(): Promise<BlogSearchEntry[]> {
-  const posts = await getCollection('foundation-blog')
+  // Newest-first, to match the order the listing renders in (see
+  // fetchPostsAndTerms in tagFilter.ts). getCollection yields glob order, which
+  // for date-prefixed filenames is oldest-first — the opposite of the listing.
+  const posts = (await getCollection('foundation-blog')).sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime()
+  )
 
   return posts.map((post) => {
     const { title, description, categories, date } = post.data
