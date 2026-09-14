@@ -26,10 +26,10 @@ const toSlug = (value: string) =>
 const submenuToggleAttrs = (groupLabel: string) =>
   buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)
 
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-xl px-lg text-[1.25rem] desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-lg px-lg text-h4-md desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
 
 const navButtonChevronClass =
-  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
+  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none desktop:group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
 
 const panelBgClass = isDark
   ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
@@ -70,11 +70,11 @@ const subGroupHeadingTextClass = isDark
 const megaSubGroupClass =
   'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
 
-const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap pb-sm desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
 ---
 
 <ul
-  class="list-none flex flex-col gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
+  class="list-none flex flex-col max-desktop:gap-sm gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
   id="siteNavMenu"
   data-component="FoundationNavMenu"
   data-nav-list

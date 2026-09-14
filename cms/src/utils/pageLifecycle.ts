@@ -105,7 +105,7 @@ export interface PageLifecycleConfig<
     page: PageData,
     preservedFields: Record<string, unknown>,
     englishSlug?: string
-  ) => string
+  ) => Promise<string>
 }
 
 function normalizePathSlug(pathSlug: unknown): string {
@@ -150,12 +150,12 @@ function getOutputDir<T extends UID.ContentType>(
   return path.join(projectRoot, config.outputDir)
 }
 
-export function generateMDX<T extends UID.ContentType = UID.ContentType>(
+export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   _config: PageLifecycleConfig<T>,
   page: PageData,
   preservedFields: Record<string, unknown> = {},
   englishSlug?: string
-): string {
+): Promise<string> {
   const locale = page.locale || defaultLang
   const isLocalized = locale !== defaultLang
   const { localizes, ...restPreserved } = preservedFields
@@ -169,7 +169,7 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
 
   let heroData: Record<string, unknown>
   try {
-    heroData = heroFrontmatter(page.hero)
+    heroData = await heroFrontmatter(page.hero)
   } catch (error) {
     throw toValidationError(error)
   }
@@ -191,8 +191,10 @@ export function generateMDX<T extends UID.ContentType = UID.ContentType>(
     'heroDescription',
     'heroImage',
     'heroImageAlt',
+    'heroImageBlur',
     'heroImageMobile',
     'heroImageMobileAlt',
+    'heroImageMobileBlur',
     'heroCtas'
   ] as const
   for (const key of heroManagedKeys) {
@@ -229,9 +231,9 @@ async function writeMDXFile<T extends UID.ContentType>(
 
     // Preserve fields that exist in MDX but not in Strapi
     const preservedFields = getPreservedFields(filepath)
-    const mdxContent = config.generateMDX
+    const mdxContent = await (config.generateMDX
       ? config.generateMDX(page, preservedFields, englishSlug)
-      : generateMDX(config, page, preservedFields, englishSlug)
+      : generateMDX(config, page, preservedFields, englishSlug))
     fs.writeFileSync(filepath, await formatMdx(mdxContent), 'utf-8')
     console.log(
       `✅ Generated ${uidToLogLabel(config.contentTypeUid)} MDX: ${filepath}`

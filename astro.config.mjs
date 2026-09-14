@@ -41,8 +41,15 @@ export default defineConfig({
     // variants catalog under src/generated/ (no runtime fs against public/),
     // but keep these exclusions so a future filesystem probe cannot pull image
     // binaries into the SSR function and breach AWS Lambda's unzipped size
-    // limit (INTORG-946 / ADR-008).
-    excludeFiles: ['./public/img/**/*', './public/uploads/**/*']
+    // limit (INTORG-946 / ADR-008). Exclude public/sessionize-speakers for the
+    // same reason. It holds approximately 22 MB of speaker photos, and each
+    // summit adds more. The CDN serves these photos. The Lambda never reads
+    // them.
+    excludeFiles: [
+      './public/img/**/*',
+      './public/uploads/**/*',
+      './public/sessionize-speakers/**/*'
+    ]
   }),
   markdown: {
     rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]

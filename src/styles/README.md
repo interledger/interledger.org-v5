@@ -447,20 +447,21 @@ One scale, used by every spacing utility (`p-*`, `m-*`, `gap-*`, `w-*`, `h-*`, `
 
 #### Page rhythm: one gap between elements
 
-Every page except the home page uses **one** gap between its top-level elements, and **one** gap between a heading and the content under it. Nothing else. There is no per-component allowance for extra breathing room (Jessica and Briana, INTORG-1138).
+Every page except the home page uses **one** gap between its top-level elements, **one** gap between a heading and the content under it, and the 32px text rhythm between paragraphs. There is no per-component allowance for extra breathing room (Jessica and Briana, INTORG-1138).
 
 | Token                   | Value                              | Use                                                    |
 | ----------------------- | ---------------------------------- | ------------------------------------------------------ |
 | `--space-section`       | 64px / 80px tablet / 120px desktop | Between two top-level elements: sections, prose blocks |
 | `--space-block-heading` | 48px                               | Between a heading and the content it titles            |
+| `--spacing-2xl`         | 32px                               | Between paragraphs (bare `p` or a `Paragraph` block)   |
 
-`--space-section` is always the larger of the two, so a section break reads wider than a heading break.
+`--space-section` is always the larger of the first pair, so a section break reads wider than a heading break. `Paragraph` is running text, not a section: consecutive Paragraphs use the 32px text rhythm from `prose/default.css`, same as adjacent `<p>` tags.
 
 **A block never carries its own vertical margin.** The container decides:
 
 - `page-stack` on `<main>` spaces the page's sections. Sections carry `px-content` for the gutter and nothing else.
-- `prose/rhythm.css` spaces the children of `[data-prose]`, `[data-prose-blog]`, and `[data-prose-summit]`. It targets any child with a `data-component` attribute, which is why a block component must set that attribute on its **root** element.
-- `DynamicZone.astro` applies the same value in the Strapi preview, so a block sits in the same place there as on the live page.
+- `prose/rhythm.css` spaces the children of `[data-prose]`, `[data-prose-blog]`, and `[data-prose-summit]`. It targets any child with a `data-component` attribute except `Paragraph` (text flow, 32px). That is why a block component must set that attribute on its **root** element.
+- `DynamicZone.astro` applies the same value in the Strapi preview, so a block sits in the same place there as on the live page. Consecutive `blocks.paragraph` items skip the section gap and keep the 32px paragraph rhythm.
 
 Single-side reads, for the edges of a stack: `mt-section`, `mb-section`, `pt-section`, `pb-section`, `gap-section`.
 

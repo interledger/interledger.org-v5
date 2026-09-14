@@ -16,6 +16,9 @@ interface Props {
 const { heading, items, umamiContext }: Props = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const timeLabel = t('agenda.timeLabel')
+const activityLabel = t('agenda.activityLabel')
+const additionalInfoLabel = t('agenda.additionalInfoLabel')
 const markdownContext = {
   page: umamiContext,
   pathname: Astro.url.pathname,
@@ -85,45 +88,62 @@ const renderedItems = await Promise.all(
             )}
           </div>
 
-          <dl
+          {/*
+            VoiceOver treats each dt/dd as its own list item, so sr-only terms
+            were announced as empty entries ("Time, empty term, 1 of 6"). One
+            li per field with an sr-only "{label}, " prefix reads as
+            "Time, 9am, 1 of 3".
+          */}
+          <ul
+            role="list"
             class:list={[
-              'm-0 min-w-0 rounded-2xl py-lg pr-2xl pl-3xl text-neutral-100 dark:text-neutral-0 tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid tablet:items-stretch tablet:rounded-lg dark:tablet:rounded-2xl tablet:py-xl tablet:pr-3xl',
+              'm-0 min-w-0 list-none rounded-2xl py-lg pr-2xl pl-3xl text-neutral-100 dark:text-neutral-0 tablet:col-span-2 tablet:grid tablet:grid-cols-subgrid tablet:items-stretch tablet:rounded-lg dark:tablet:rounded-2xl tablet:py-xl tablet:pr-3xl',
               index % 2 === 0
                 ? 'bg-ice-indigo-50 dark:bg-ocean-150'
                 : 'bg-rose-mint-50 dark:bg-royal-purple-150'
             ]}
           >
-            <div
+            <li
               class:list={[
                 'min-w-0',
                 item.hasAdditionalInfo
-                  ? 'max-w-[300px] tablet:pr-xl'
+                  ? 'max-w-[300px] tablet:col-start-1 tablet:pr-xl'
                   : 'tablet:col-span-2'
               ]}
             >
-              <dt class="sr-only">{t('agenda.timeLabel')}</dt>
-              <dd
-                class="m-0 text-body-lg-emphasis tablet:text-body-lg-emphasis-md [&_p]:m-0"
+              {timeLabel && <span class="sr-only">{timeLabel}, </span>}
+              <span
+                class="text-body-lg-emphasis tablet:text-body-lg-emphasis-md [&_p]:m-0"
                 set:html={item.time}
               />
-              <dt class="sr-only">{t('agenda.activityLabel')}</dt>
-              <dd
-                class="mt-md mb-0 text-h5 text-primary dark:text-lavender-100 tablet:mt-sm tablet:text-h5-md desktop:text-h5-lg [&_p]:m-0"
+            </li>
+            <li
+              class:list={[
+                'mt-md min-w-0 tablet:mt-sm',
+                item.hasAdditionalInfo
+                  ? 'max-w-[300px] tablet:col-start-1 tablet:pr-xl'
+                  : 'tablet:col-span-2'
+              ]}
+            >
+              {activityLabel && <span class="sr-only">{activityLabel}, </span>}
+              <span
+                class="text-h5 text-link tablet:text-h5-md desktop:text-h5-lg [&_p]:m-0"
                 set:html={item.activity}
               />
-            </div>
-
+            </li>
             {item.hasAdditionalInfo && (
-              <div class="mt-md min-w-0 pl-md tablet:mt-0 tablet:border-l tablet:border-neutral-50 dark:tablet:border-neutral-75 tablet:pl-2xl flex flex-col justify-center">
-                <dt class="sr-only">{t('agenda.additionalInfoLabel')}</dt>
-                <dd
+              <li class="mt-md flex min-w-0 flex-col justify-center pl-md tablet:col-start-2 tablet:row-span-2 tablet:row-start-1 tablet:mt-0 tablet:border-l tablet:border-neutral-50 tablet:pl-2xl dark:tablet:border-neutral-75">
+                {additionalInfoLabel && (
+                  <span class="sr-only">{additionalInfoLabel}, </span>
+                )}
+                <div
                   data-agenda-info
                   class="m-0 text-body-sm-standard tablet:text-body-lg-standard-md [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
                   set:html={item.additionalInfo}
                 />
-              </div>
+              </li>
             )}
-          </dl>
+          </ul>
         </li>
       ))
     }

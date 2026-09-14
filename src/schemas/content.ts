@@ -56,17 +56,21 @@ export const foundationBlogFrontmatterSchema = z.object({
   // Strapi enforces it as required for editors.
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  featureImageBlur: z.string().optional(),
   // Optional mobile feature image; falls back to the desktop image when absent.
   // Own alt lives on the media file (and in featureImageMobileAlt frontmatter);
   // when omitted at render time, UI falls back to featureImageAlt.
   featureImageMobile: z.string().optional(),
   featureImageMobileAlt: z.string().nullable().optional(),
+  featureImageMobileBlur: z.string().optional(),
   thumbnailImage: z.string().optional(),
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 slugs of related posts when populated; optional for now so builds pass.
-  relatedArticles: z.array(z.string()).max(3).optional().default([]),
+  // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
+  relatedArticles: z.array(z.string()).length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),
@@ -86,8 +90,12 @@ export const foundationPageFrontmatterSchema = z.object({
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  heroImageBlur: z.string().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
+  heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
@@ -100,6 +108,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroTitle: z.string().optional(),
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
+  heroImageBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
@@ -117,8 +126,12 @@ export const hackathonPageFrontmatterSchema = z.object({
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  heroImageBlur: z.string().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
+  heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   localizes: z.string().optional(),
   locale: z.string().optional()
@@ -216,8 +229,12 @@ export const grantPageFrontmatterSchema = z.object({
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  heroImageBlur: z.string().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
+  heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   programOverview: z.string().optional(),
   primaryCta: z
@@ -249,8 +266,12 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  heroImageBlur: z.string().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
+  heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   followUpContent: z.string().optional(),
   ctaStrip: grantCtaStripSchema,
@@ -394,8 +415,12 @@ export const podcastPageFrontmatterSchema = z.object({
   heroDescription: z.string().optional(),
   heroImage: z.string().optional(),
   heroImageAlt: z.string().nullable().optional(),
+  // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
+  // for content synced before this field existed, or when generation failed.
+  heroImageBlur: z.string().optional(),
   heroImageMobile: z.string().optional(),
   heroImageMobileAlt: z.string().nullable().optional(),
+  heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
   textSection: z.string().optional(),
   titleCards: podcastTitleCardsSchema,

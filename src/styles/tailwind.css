@@ -42,6 +42,13 @@
 @import 'tailwindcss';
 @config "../../tailwind.config.mjs";
 
+/* Wrap hover paint that must not stick after a tap (coarse pointers). */
+@custom-variant hover-hover {
+  @media (hover: hover) {
+    @slot;
+  }
+}
+
 /* Theme layer - @theme tokens must be processed before @apply in base files */
 @import './theme.css';
 

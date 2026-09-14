@@ -10,5 +10,7 @@ export function serialize(block: { quote: string; source?: string }): string {
   // Blockquote.astro can parse it as markdown via parseMarkdownInline
   const sourceAttr = block.source ? ` source="${esc(block.source)}"` : ''
 
-  return `<Blockquote${sourceAttr}>\n  ${quote}\n</Blockquote>`
+  // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
+  // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
+  return `<Blockquote${sourceAttr}>\n\n${quote}\n\n</Blockquote>`
 }

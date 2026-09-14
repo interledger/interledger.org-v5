@@ -222,11 +222,11 @@
   color: black;
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label:is(:hover, :focus-visible) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label:focus-visible {
   color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] .foundation-drawer-language-label:is(:hover, :focus-visible) {
+.foundation-header[data-theme='light'] .foundation-drawer-language-label:focus-visible {
   color: var(--color-neutral-100);
 }
 
@@ -245,8 +245,14 @@
   color: var(--color-neutral-50);
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
-  border-color: var(--color-neutral-75);
+@media (min-width: 1200px) {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
+    border-color: var(--color-neutral-75);
+  }
+
+  .foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
+    border-color: var(--color-neutral-100);
+  }
 }
 
 .foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] {
@@ -264,10 +270,6 @@
   color: var(--color-neutral-75);
 }
 
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
-  border-color: var(--color-neutral-100);
-}
-
 /* LanguageSwitcher's outline defaults to --color-link, which now resolves to
    apricot on every dark header. Foundation's dark header still wants orchid,
    so override it back here. */
@@ -275,16 +277,16 @@
   outline-color: var(--color-orchid-100);
 }
 
-/* Mobile drawer: nav link and parent toggle hover/focus/active — filled background */
+/* Mobile drawer: nav link and parent toggle focus/active — filled background */
 @media (max-width: 1199px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:hover, :focus-visible, [data-active=true]),
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:focus-visible, [data-active=true]),
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:focus-visible, [data-active=true]) {
     outline: none;
     background-color: var(--color-neutral-100);
   }
 
-  .foundation-header[data-theme='light'] .nav-link:is(:hover, :focus-visible, [data-active=true]),
-  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible, [data-active=true]) {
+  .foundation-header[data-theme='light'] .nav-link:is(:focus-visible, [data-active=true]),
+  .foundation-header[data-theme='light'] [data-submenu-button]:is(:focus-visible, [data-active=true]) {
     outline: none;
     background-color: var(--color-neutral-25);
   }

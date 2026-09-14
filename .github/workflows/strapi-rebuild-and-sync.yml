@@ -1,4 +1,7 @@
 name: Strapi Rebuild & Sync
+# Rebuilds the Strapi service if /cms changed, syncs content/navigation/media into it, then
+# refreshes src/data/airtable/grantee-data.json and commits it back to the deploy branch.
+#
 # Shared implementation behind every entry point that rebuilds and syncs a Strapi VM:
 #   - scheduled-content-sync.yml — the daily run across staging and playground
 #   - build-and-sync.yml         — a manual run against one selected branch
@@ -39,11 +42,18 @@ jobs:
       cancel-in-progress: false
     runs-on: strapi-vm
     environment: ${{ inputs.branch == 'playground' && 'strapi-playground' || 'strapi-staging' }}
+    outputs:
+      # Names the stage that failed, so the Slack alert doesn't blame the rebuild for an Airtable
+      # outage. Only two stages can fail and a failure in the first skips the second, so the
+      # two-way expression is exact: anything other than the Airtable step failing means the
+      # rebuild/sync stage did.
+      failed_stage: ${{ steps.airtable-sync.outcome == 'failure' && 'Airtable grantee sync' || 'Strapi rebuild/content sync' }}
     env:
       DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
       STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
       STRAPI_URL: ${{ vars.ENV_STRAPI_URL }}
       STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_API_TOKEN }}
+      AIRTABLE_API_TOKEN: ${{ secrets.ENV_AIRTABLE_API_TOKEN }}
       SYNC_FORCE: ${{ vars.ENV_SYNC_FORCE }}
       DEPLOY_BRANCH: ${{ inputs.branch }}
       FORCE_REBUILD: ${{ inputs.force_rebuild }}
@@ -87,6 +97,13 @@ jobs:
 
           if [ -z "${STRAPI_API_TOKEN:-}" ]; then
             echo "Error: ENV_STRAPI_API_TOKEN is not set for this environment."
+            exit 1
+          fi
+
+          # Checked here rather than in the Airtable step it belongs to: that step runs last,
+          # so a missing token would otherwise surface only after a full rebuild.
+          if [ -z "${AIRTABLE_API_TOKEN:-}" ]; then
+            echo "Error: ENV_AIRTABLE_API_TOKEN is not set for this environment."
             exit 1
           fi
 
@@ -168,6 +185,97 @@ jobs:
             pnpm run sync:all
           fi
 
+      # Runs last, on the tree the step above already fetched, fast-forwarded and
+      # conflict-checked, so the only pending change should be the regenerated JSON. No `if:`
+      # guard on purpose: the default "skip when an earlier step failed" is what we want, since
+      # the likeliest earlier failure is a diverged checkout, and that is the last state to be
+      # pushing from.
+      - name: Sync grantee data from Airtable
+        id: airtable-sync
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          AIRTABLE_JSON='src/data/airtable/grantee-data.json'
+          COMMIT_MESSAGE='chore(data): sync grantee data from Airtable'
+          # The VM checkout's global git identity belongs to whoever last configured it. Set the
+          # identity per-command so an automated commit is attributable as one.
+          COMMIT_AUTHOR_NAME='github-actions[bot]'
+          COMMIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          MAX_PUSH_ATTEMPTS=5
+
+          # Each `run:` is a fresh shell. Node and pnpm are already installed by the step above,
+          # so this only has to put them back on PATH.
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          nvm use 24
+          export PNPM_HOME="/home/strapi/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          # import-airtable.ts resolves './src/data/airtable' against the CWD, so this has to run
+          # from the repo root — not cms/, where the previous step left off.
+          cd "$DEPLOY_PATH"
+
+          echo "Syncing grantee data from Airtable..."
+          pnpm run sync:airtable
+
+          # The script writes Prettier-formatted JSON (see writeAirtableJson), so no format pass
+          # is needed here. Verify rather than trust: nothing lints a direct push to the deploy
+          # branch, so drift would surface much later as a red `pnpm run lint` on someone's PR.
+          pnpm exec prettier --check "$AIRTABLE_JSON"
+
+          # --porcelain rather than `git diff --quiet`: Strapi's git sync may already have staged
+          # this path, which a worktree-vs-index diff would report as clean.
+          if [ -z "$(git status --porcelain -- "$AIRTABLE_JSON")" ]; then
+            echo "Grantee data unchanged — nothing to commit."
+            exit 0
+          fi
+
+          # `git commit -- <pathspec>` commits the working-tree version of exactly this file and
+          # ignores the rest of the index. Strapi's git sync (cms/src/utils/gitSync.ts,
+          # STAGE_CANDIDATES) stages all of src/content/, src/data/ and the uploads dir on a
+          # 300ms debounce, so unrelated paths may be staged right now — `git add` + `git commit`
+          # would sweep those into this commit, the pathspec form cannot.
+          git \
+            -c "user.name=$COMMIT_AUTHOR_NAME" \
+            -c "user.email=$COMMIT_AUTHOR_EMAIL" \
+            commit -m "$COMMIT_MESSAGE" -- "$AIRTABLE_JSON"
+
+          # Push first and only integrate if rejected: the common case is a clean fast-forward,
+          # and that path never touches Strapi's possibly-dirty working tree. autoStash covers
+          # files Strapi is mid-write on, which would otherwise make the rebase refuse to start.
+          pushed=false
+          for attempt in $(seq 1 "$MAX_PUSH_ATTEMPTS"); do
+            if git push origin "HEAD:$DEPLOY_BRANCH"; then
+              pushed=true
+              break
+            fi
+
+            echo "Push rejected (attempt $attempt/$MAX_PUSH_ATTEMPTS) — rebasing onto origin/$DEPLOY_BRANCH."
+            sleep "$((attempt * 5))"
+            git fetch origin "$DEPLOY_BRANCH"
+            if ! git -c rebase.autoStash=true rebase "origin/$DEPLOY_BRANCH"; then
+              # An aborted rebase restores the pre-rebase state with our commit intact, so the
+              # next attempt is a clean retry. Leaving it mid-rebase would break the next run's
+              # `git pull --ff-only` and Strapi's own git sync alike.
+              git rebase --abort || true
+            fi
+          done
+
+          if [ "$pushed" != "true" ]; then
+            # Hand the checkout back exactly as we found it. A local commit that never reaches
+            # origin would diverge the branch and break the next run's `git pull --ff-only`, and
+            # the data is regenerated from Airtable on the next run anyway. Undo only our commit
+            # and only our file — `git reset --hard` here would discard Strapi content that has
+            # not been committed yet.
+            git reset --soft HEAD~1
+            git restore --staged --worktree -- "$AIRTABLE_JSON"
+            echo "Error: could not push grantee data to $DEPLOY_BRANCH after $MAX_PUSH_ATTEMPTS attempts."
+            exit 1
+          fi
+
+          echo "Pushed updated grantee data to $DEPLOY_BRANCH."
+
   notify-slack:
     runs-on: ubuntu-latest
     needs: rebuild-and-sync
@@ -185,13 +293,13 @@ jobs:
           payload: |
             {
               "channel": "frontend-team",
-              "text": "❌ Strapi rebuild/sync failed for *${{ inputs.branch }}* in *${{ github.repository }}*",
+              "text": "❌ ${{ needs.rebuild-and-sync.outputs.failed_stage || 'Strapi rebuild/sync' }} failed for *${{ inputs.branch }}* in *${{ github.repository }}*",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "❌ *Strapi Rebuild/Sync Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ inputs.branch }}\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                    "text": "❌ *${{ needs.rebuild-and-sync.outputs.failed_stage || 'Strapi rebuild/sync' }} failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ inputs.branch }}\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
                   }
                 }
               ]

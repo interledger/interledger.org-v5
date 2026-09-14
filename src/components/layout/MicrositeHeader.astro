@@ -74,7 +74,7 @@ const ctaLink = (href: string, linkText?: string) =>
       {
         ctaButton && (
           <a
-            class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 hover:bg-[#444] desktop:hidden"
+            class="block whitespace-nowrap py-xl px-lg no-underline text-current transition-colors duration-150 desktop:hidden"
             href={ctaButton.href || '#'}
             {...ctaLink(ctaButton.href || '#', ctaButton.label)}
             {...(ctaButton.openInNewTab

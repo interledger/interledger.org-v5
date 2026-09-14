@@ -10,6 +10,8 @@ import BaseLayout from './BaseLayout.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
 import HackathonHeader from '@/components/layout/HackathonHeader.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
+import HeroImagePreload from '@/components/shared/HeroImagePreload.astro'
+import type { HeroLcpPreloadConfig } from '@/utils'
 
 interface Props {
   title: string
@@ -17,6 +19,8 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   noindex?: boolean
+  /** Emits `<link rel="preload">` for the hackathon hero LCP candidate in `<head>`. */
+  heroLcpPreload?: HeroLcpPreloadConfig
 }
 
 const { routeLocale } = Astro.locals
@@ -28,7 +32,8 @@ const {
   description,
   ogImageUrl = new URL('/img/og-hackathon.png', site).href,
   canonicalURL,
-  noindex = false
+  noindex = false,
+  heroLcpPreload
 } = Astro.props
 
 // Single source of site identity. `BaseLayout` turns this into `data-site` on
@@ -48,14 +53,16 @@ Astro.locals.site = 'hackathon'
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-clip bg-neutral-150 text-neutral-50"
   noindex={noindex}
 >
-  <link
-    slot="head"
-    rel="preload"
-    href="/fonts/poppins-extrabold.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
+  <Fragment slot="head">
+    <link
+      rel="preload"
+      href="/fonts/poppins-extrabold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    {heroLcpPreload && <HeroImagePreload config={heroLcpPreload} />}
+  </Fragment>
   <HackathonHeader slot="header" />
   <TableScrollSupport />
   <div

@@ -759,9 +759,10 @@ export function validateAuthorBio(
 
 /**
  * Validate a blog post's Related Articles component (Article Bio itself is
- * validated via {@link validateAuthorBio}). `relatedArticles` is marked
- * `required` in its component schema, so Strapi enforces it on create; this
- * fills the same partial-update gap as the other validators here.
+ * validated via {@link validateAuthorBio}). `relatedArticles` is `required`
+ * with `min`/`max` of 3 in the content-type schema, so Strapi enforces the
+ * count on create; this fills the same partial-update gap as the other
+ * validators here (see `validateFaqSections` for the same pattern).
  *
  * Returns a `ValidationError` combining every missing field found, `undefined` otherwise.
  */
@@ -770,14 +771,24 @@ export function validateBlogFields(post: {
   relatedArticles?: { slug: string }[]
 }): errors.ValidationError | undefined {
   const fieldErrors: FieldError[] = []
-  for (const [i, related] of (post.relatedArticles ?? []).entries()) {
-    if (!related.slug) {
-      fieldErrors.push({
-        message: 'Related Articles: Slug is required',
-        path: ['relatedArticles', i, 'slug']
-      })
+  const related = post.relatedArticles
+
+  if (!Array.isArray(related) || related.length !== 3) {
+    fieldErrors.push({
+      message: 'Related Articles: Exactly 3 related articles are required',
+      path: ['relatedArticles']
+    })
+  } else {
+    for (const [i, item] of related.entries()) {
+      if (!item.slug) {
+        fieldErrors.push({
+          message: 'Related Articles: Slug is required',
+          path: ['relatedArticles', i, 'slug']
+        })
+      }
     }
   }
+
   return mergeValidationErrors(
     validateAuthorBio(post, 'articleBio'),
     combineFieldErrors(fieldErrors)

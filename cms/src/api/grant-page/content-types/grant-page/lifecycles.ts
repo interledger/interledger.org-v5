@@ -63,11 +63,11 @@ interface GrantPageData extends PageData {
   ctaStrip?: CtaStrip | null
 }
 
-export function generateGrantPageMDX(
+export async function generateGrantPageMDX(
   page: PageData,
   preservedFields: Record<string, unknown>,
   englishSlug?: string
-): string {
+): Promise<string> {
   const grantPage = page as GrantPageData
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
@@ -83,8 +83,10 @@ export function generateGrantPageMDX(
     'heroDescription',
     'heroImage',
     'heroImageAlt',
+    'heroImageBlur',
     'heroImageMobile',
     'heroImageMobileAlt',
+    'heroImageMobileBlur',
     'heroCtas'
   ])
     delete (restPreserved as Record<string, unknown>)[key]
@@ -95,12 +97,13 @@ export function generateGrantPageMDX(
   const primaryCta = grantPage.primaryCta
   const infoCards = grantPage.infoCards
   const faqSection = grantPage.faqSection
+  const heroData = await heroFrontmatter(grantPage.hero)
   const frontmatter: Record<string, unknown> = {
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
     description: grantPage.description ?? '',
-    ...heroFrontmatter(grantPage.hero),
+    ...heroData,
     ...(grantPage.programOverview
       ? {
           programOverview: ckeditorFieldToParsedMarkdown(

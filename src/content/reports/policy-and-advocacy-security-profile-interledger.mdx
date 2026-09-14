@@ -31,7 +31,7 @@ At the core of the Interledger technology stack is Interledger Protocol version 
 
 ILP incorporates key architectural safeguards that enhance cryptographic integrity and system-level resilience. These include timeout enforcement, conditional packet execution, and intermediary-enforced holds on peer liquidity. Collectively, these mechanisms minimize the risk of value loss during transmission.
 
-Every ILP transaction is conditional: 
+Every ILP transaction is conditional:
 
 - Every transaction must meet cryptographic conditions across all hops before finalization.
 - Funds are locked and only released upon successful fulfillment, ensuring rollback capabilities in the event of payment failure and thus eliminating the risk of partial payments.
@@ -66,18 +66,16 @@ We acknowledge that our cryptographic choices may pose challenges to implementat
 
 ### 1.3 Reference Implementation Security
 
-Rafiki is a software package that bundles up all the Interledger functionality for use by regulated account providers who want to join the Interledger Network. 
+Rafiki is a software package that bundles up all the Interledger functionality for use by regulated account providers who want to join the Interledger Network.
 
-The Interledger Foundation maintains an annual audit schedule for reviewing the security of Rafiki and, in particular, Rafiki’s implementation of ILP and the Open Payments APIs. 
+The Interledger Foundation maintains an annual audit schedule for reviewing the security of Rafiki and, in particular, Rafiki’s implementation of ILP and the Open Payments APIs.
 
-The first audit of Rafiki was conducted in 2024 by the independent third-party security firm Paragon Cyber Solutions [^2]. We do not incentivize auditors to produce “clean” reports; to the contrary, we financially incentivize surfacing any and all security vectors and pay rewards based on issue severity. Completed audits are accompanied by engineering blog posts that document remediation strategies and lessons learned. 
+The first audit of Rafiki was conducted in 2024 by the independent third-party security firm Paragon Cyber Solutions [^2]. We do not incentivize auditors to produce “clean” reports; to the contrary, we financially incentivize surfacing any and all security vectors and pay rewards based on issue severity. Completed audits are accompanied by engineering blog posts that document remediation strategies and lessons learned.
 
 #### Key Points for Policymakers:
 
 - The Interledger Foundation commissions comprehensive security audits annually of Rafiki from respected independent security auditors.
 - We demonstrate our commitment to transparency by publishing summaries of these independent security reports, after we have corrected any identified concerns.
-
-<br />
 
 </ReportText>
 
@@ -98,11 +96,11 @@ Security is embedded throughout the Interledger Foundation’s engineering pipel
 
 ### 2.2 Bug Bounty Program
 
-In October 2025, the Interledger Foundation will launch a bug bounty program. It is intended to engage security researchers in identifying and responsibly disclosing vulnerabilities. Participants are rewarded commensurate with the severity and impact of their findings. In line with industry norms, details on our bug bounty program will be found in the `.well-known/security.txt` file distributed across all Interledger web properties once the program has launched. 
+In October 2025, the Interledger Foundation will launch a bug bounty program. It is intended to engage security researchers in identifying and responsibly disclosing vulnerabilities. Participants are rewarded commensurate with the severity and impact of their findings. In line with industry norms, details on our bug bounty program will be found in the `.well-known/security.txt` file distributed across all Interledger web properties once the program has launched.
 
 #### Key Points for Policymakers:
 
-From October 2025, we invite white-hat hackers to engage with us constructively. Through our bug bounty, we will offer financial rewards to researchers who identify security concerns. 
+From October 2025, we invite white-hat hackers to engage with us constructively. Through our bug bounty, we will offer financial rewards to researchers who identify security concerns.
 
 ### 2.3. Community and Transparency
 
@@ -121,9 +119,8 @@ The Interledger Foundation actively fosters a culture of transparency and accoun
 
 <ReportText type="Paragraph">
 
-The Interledger Foundation provides regulated financial service providers with secure, free, open-source software. When financial institutions integrate, deploy, and operate Interledger technologies, they are responsible for upholding their own security practices and controls. 
+The Interledger Foundation provides regulated financial service providers with secure, free, open-source software. When financial institutions integrate, deploy, and operate Interledger technologies, they are responsible for upholding their own security practices and controls.
 
-<br />
 An important consideration in the secure deployment of Interledger is the
 two-sided nature of Rafiki. Rafiki, in serving as the intermediary layer that
 facilitates cross-network payment interoperability, potentially exposes both

@@ -11,7 +11,7 @@ describe('cta-strip serializer', () => {
     })
 
     expect(result).toBe(
-      '<CtaStrip heading="Stay up to date" primaryButtonText="Subscribe" primaryButtonLink="/newsletter">\nSign up for our newsletter.\n</CtaStrip>'
+      '<CtaStrip heading="Stay up to date" primaryButtonText="Subscribe" primaryButtonLink="/newsletter">\n\nSign up for our newsletter.\n\n</CtaStrip>'
     )
   })
 

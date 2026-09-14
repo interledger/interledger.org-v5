@@ -38,25 +38,50 @@ const RUNTIME_IMAGE_SOURCES_CATALOG_PATH = path.join(
 
 const CONCURRENCY = 4
 
-// WEBP_QUALITY and AVIF_QUALITY now live in @/utils/main/imagePaths so the
-// Netlify Image CDN URL builder encodes at the same settings as this script.
-// Bump when quality, target widths, or output naming changes so the content-hash
-// cache does not skip regeneration of already-processed sources.
+// WEBP_QUALITY and AVIF_QUALITY come from @/utils/main/imagePaths. The Netlify
+// Image CDN URL builder uses the same two constants. This keeps both encoders
+// at the same quality.
+//
+// PIPELINE_ID interpolates both constants. A quality change therefore
+// invalidates the content-hash cache automatically. For other pipeline changes,
+// such as target widths or output naming, increment the trailing token
+// manually. If you do not, the script skips processed sources and keeps the old
+// variants.
 const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
 
 interface SourceConfig {
   dir: string
   outputPrefix: string
+  /**
+   * If true, an oversized file fails the build.
+   *
+   * Set it to true for the directories we control. There, an oversized image is
+   * an editor mistake, and the editor can correct the source file. Set it to
+   * false for Sessionize photos. Speakers upload those photos to a third party,
+   * and we cannot resize the originals. One large photo must not stop a deploy.
+   * The script still reports the oversize.
+   */
+  enforceSizeLimit: boolean
 }
 
+// Keep in step with `OPTIMIZED_SOURCE_PREFIXES` in `src/utils/main/images.ts`.
+// This array decides what the script writes. That array decides what the
+// resolver reads back.
 const SOURCES: SourceConfig[] = [
   {
     dir: getPublicAssetPath(IMAGE_URL_PATHS.publicSource),
-    outputPrefix: ''
+    outputPrefix: '',
+    enforceSizeLimit: true
   },
   {
     dir: getPublicAssetPath(IMAGE_URL_PATHS.uploadSource),
-    outputPrefix: 'uploads'
+    outputPrefix: 'uploads',
+    enforceSizeLimit: true
+  },
+  {
+    dir: getPublicAssetPath(IMAGE_URL_PATHS.sessionizeSource),
+    outputPrefix: 'sessionize-speakers',
+    enforceSizeLimit: false
   }
 ]
 
@@ -246,7 +271,7 @@ async function main(): Promise<void> {
   }> = []
   const oversizedErrors: string[] = []
 
-  for (const { dir, outputPrefix } of SOURCES) {
+  for (const { dir, outputPrefix, enforceSizeLimit } of SOURCES) {
     if (!fs.existsSync(dir)) {
       console.log(`  skip ${path.relative(PROJECT_ROOT, dir)} (not found)`)
       continue
@@ -258,11 +283,13 @@ async function main(): Promise<void> {
 
     for (const file of files) {
       const { size } = fs.statSync(file)
-      if (isImageOverSizeLimit(size)) {
-        oversizedErrors.push(
-          imageSizeLimitError(path.relative(PROJECT_ROOT, file), size)
-        )
-      }
+      if (!isImageOverSizeLimit(size)) continue
+      const message = imageSizeLimitError(
+        path.relative(PROJECT_ROOT, file),
+        size
+      )
+      if (enforceSizeLimit) oversizedErrors.push(message)
+      else console.warn(`    ⚠️ ${message}`)
     }
 
     sourceBatches.push({ dir, outputPrefix, files })

@@ -76,8 +76,8 @@
     }
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
-       Cap block size on large viewports for LCP hero band). */
-    --layout-homepage-hero-copy-max-lg: 42rem;
+       54rem lets the 76/90 title wrap to two lines, not three. */
+    --layout-homepage-hero-copy-max-lg: 54rem;
     --option1: linear-gradient(
       to bottom,
       hsla(162, 86%, 12%, 1),
