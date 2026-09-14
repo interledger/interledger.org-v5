@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content'
 import type { BlogThumbnail } from '@/types/blog'
+import { foldSearchText } from '../shared/foldSearchText'
 import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
@@ -80,14 +81,14 @@ export async function getBlogSearchIndex(): Promise<BlogSearchEntry[]> {
       SEARCH_SNIPPET_MAX_LENGTH
     )
 
-    const searchText = [
-      title,
-      description,
-      truncateText(excerpt, SEARCH_TEXT_EXCERPT_MAX_LENGTH),
-      ...categories
-    ]
-      .join(' ')
-      .toLowerCase()
+    const searchText = foldSearchText(
+      [
+        title,
+        description,
+        truncateText(excerpt, SEARCH_TEXT_EXCERPT_MAX_LENGTH),
+        ...categories
+      ].join(' ')
+    )
 
     return {
       id: post.id,

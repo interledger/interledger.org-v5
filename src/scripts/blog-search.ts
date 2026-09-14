@@ -65,7 +65,54 @@ function trackSearch(query: string) {
   window.umami?.track('blog_search', { query })
 }
 
-function initBlogSearch(): void {
+/** Where a filter link's pristine, query-free href is stashed. */
+const ORIGINAL_HREF_ATTR = 'data-blog-search-original-href'
+
+/**
+ * Derive a filter href from a stable original. An empty query restores
+ * `originalHref`; a non-empty one always starts from that same original, so a
+ * previous `?q=` can never compound or stick after a modified-click.
+ * Cross-origin hrefs are left alone.
+ */
+export function hrefFromOriginal(
+  originalHref: string,
+  query: string,
+  pageOrigin: string
+): string {
+  const trimmed = query.trim()
+  if (!trimmed) return originalHref
+
+  const url = new URL(originalHref, pageOrigin)
+  if (url.origin !== new URL(pageOrigin).origin) return originalHref
+  url.searchParams.set(QUERY_PARAM, trimmed)
+  return `${url.pathname}${url.search}${url.hash}`
+}
+
+/**
+ * Rewrite the category-pill and content-language hrefs inside the search root
+ * so they carry the live query. Runs as the input changes rather than on
+ * click, so modified-click, copy-link and the context menu all see the same
+ * URL the user would get from a plain click. Pills that TaxonomyFilter
+ * rendered disabled have no `href`, so the selector skips them. Pagination
+ * lives outside the root and is hidden during search, so it is not wired.
+ */
+export function syncSearchHrefs(
+  root: ParentNode,
+  query: string,
+  pageOrigin: string
+): void {
+  for (const node of root.querySelectorAll('a[href]')) {
+    if (!(node instanceof HTMLAnchorElement)) continue
+    let original = node.getAttribute(ORIGINAL_HREF_ATTR)
+    if (original === null) {
+      original = node.getAttribute('href') ?? ''
+      node.setAttribute(ORIGINAL_HREF_ATTR, original)
+    }
+    node.setAttribute('href', hrefFromOriginal(original, query, pageOrigin))
+  }
+}
+
+export function initBlogSearch(): void {
   const root = document.querySelector<HTMLElement>('[data-blog-search-root]')
   const input = document.getElementById('blog-search')
   const staticList = document.querySelector<HTMLElement>('[data-blog-list]')
@@ -80,9 +127,6 @@ function initBlogSearch(): void {
   )
   const searchCount = document.querySelector<HTMLElement>(
     '[data-blog-search-count]'
-  )
-  const taxonomyFilter = document.querySelector<HTMLElement>(
-    '[data-blog-taxonomy-filter]'
   )
   const pagination = document.querySelector<HTMLElement>(
     '[data-blog-pagination]'
@@ -112,6 +156,9 @@ function initBlogSearch(): void {
   if (!indexUrl) return
 
   const lang = (root.dataset.selectedContentLang ?? '') as Locale
+  // Raw category term, absent on /category/all and on term-fallback pages
+  // (where the static list itself shows every post for the language).
+  const category = root.dataset.selectedCategory || undefined
   const categoryLabels = JSON.parse(
     root.dataset.categoryLabels ?? '{}'
   ) as Record<string, string>
@@ -131,28 +178,8 @@ function initBlogSearch(): void {
     trackSearch(trimmed)
   }
 
-  // Category pills don't apply during search — go inert the same way
-  // TaxonomyFilter already disables a term with no posts in the selected
-  // language (see TaxonomyFilter.astro/PillLink.astro): drop `href` so the
-  // anchor has no default action or focus stop, and set `aria-disabled`,
-  // which PillLink's own CSS already styles as greyed-out.
-  function setTaxonomyInert(inert: boolean) {
-    if (!taxonomyFilter) return
-    taxonomyFilter.querySelectorAll('a').forEach((link) => {
-      if (inert) {
-        const href = link.getAttribute('href')
-        if (!href) return // already disabled by TaxonomyFilter itself
-        link.dataset.blogSearchHref = href
-        link.removeAttribute('href')
-        link.setAttribute('aria-disabled', 'true')
-      } else {
-        const href = link.dataset.blogSearchHref
-        if (!href) return // never touched by search — leave its own state alone
-        link.setAttribute('href', href)
-        delete link.dataset.blogSearchHref
-        link.removeAttribute('aria-disabled')
-      }
-    })
+  function syncFilterHrefs() {
+    syncSearchHrefs(searchRoot, input.value, window.location.origin)
   }
 
   function showStatic() {
@@ -163,18 +190,16 @@ function initBlogSearch(): void {
     if (langNotice) langNotice.hidden = false
     if (searchCount) searchCount.hidden = true
     if (pagination) pagination.hidden = false
-    setTaxonomyInert(false)
   }
 
   // Applied as soon as a non-empty query starts a search (before the index
-  // fetch resolves), not just once results render — otherwise pagination and
-  // the category pills stay live/visible for the debounce+fetch window of
-  // the first search.
+  // fetch resolves), not just once results render — otherwise the static list
+  // and pagination stay visible for the debounce+fetch window of the first
+  // search, and Prev/Next would navigate away without `?q=`.
   function enterSearchMode() {
     staticList.hidden = true
     if (langNotice) langNotice.hidden = true
     if (pagination) pagination.hidden = true
-    setTaxonomyInert(true)
   }
 
   function searchResultContext(): SearchResultContext {
@@ -213,10 +238,9 @@ function initBlogSearch(): void {
       return
     }
 
-    // Enter search mode (hide pagination, disable category pills, hide the
-    // static list) as soon as we know we're searching — not only once
-    // results render — so the chrome doesn't stay live during the
-    // debounce+fetch window of the first search.
+    // Enter search mode (hide the static list and pagination) as soon as we
+    // know we're searching — not only once results render — so the chrome
+    // doesn't stay live during the debounce+fetch window of the first search.
     enterSearchMode()
 
     let index: BlogSearchEntry[]
@@ -232,7 +256,7 @@ function initBlogSearch(): void {
     if (myRequestId !== requestId || input.value.trim() !== trimmed) return
 
     const matches = index.filter((entry) =>
-      matchesBlogSearch(entry, { q: trimmed, lang })
+      matchesBlogSearch(entry, { q: trimmed, lang, category })
     )
     showSearchResults(matches)
   }
@@ -247,6 +271,9 @@ function initBlogSearch(): void {
 
   input.addEventListener('input', () => {
     scheduleSearch(input.value)
+    // Ahead of the debounce, so a click landing mid-debounce still carries
+    // the query the user can see in the field.
+    syncFilterHrefs()
   })
 
   // Analytics on commit (Enter/blur), not each debounce, so Umami does not
@@ -263,37 +290,12 @@ function initBlogSearch(): void {
       window.clearTimeout(debounceHandle)
       showStatic()
       updateUrlQuery('')
+      syncFilterHrefs()
     }
   })
 
   input.addEventListener('blur', () => {
     trackCommittedSearch()
-  })
-
-  // Category pills go inert during search, so this delegated handler only
-  // ever fires for links that remain clickable while searching — i.e. the
-  // ContentLangFilter EN/ES links — carrying the live query forward.
-  root.addEventListener('click', (event) => {
-    if (event.defaultPrevented || event.button !== 0) return
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-
-    const target = event.target as Element | null
-    const link = target?.closest('a[href]')
-    if (
-      !(link instanceof HTMLAnchorElement) ||
-      !root.contains(link) ||
-      link.getAttribute('aria-disabled') === 'true'
-    ) {
-      return
-    }
-
-    const query = input.value.trim()
-    if (!query) return
-
-    const url = new URL(link.href)
-    url.searchParams.set(QUERY_PARAM, query)
-    event.preventDefault()
-    window.location.assign(url.toString())
   })
 
   const initialQuery = new URL(window.location.href).searchParams.get(
@@ -303,6 +305,7 @@ function initBlogSearch(): void {
     input.value = initialQuery
     void runSearch(initialQuery)
   }
+  // After hydration, so a deep-linked `?q=` is already on the filter links
+  // before the first click.
+  syncFilterHrefs()
 }
-
-initBlogSearch()

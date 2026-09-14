@@ -75,6 +75,7 @@ const searchIndexUrl = '/blog-search-index.json'
   data-blog-search-root
   data-search-index-url={searchIndexUrl}
   data-selected-content-lang={contentLang}
+  data-selected-category={isTermFallback ? undefined : selectedTerm}
   data-pathname={Astro.url.pathname}
   data-lang={routeLocale}
   data-category-labels={JSON.stringify(categoryLabels)}
@@ -103,16 +104,14 @@ const searchIndexUrl = '/blog-search-index.json'
     <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
   </div>
 
-  <div data-blog-taxonomy-filter>
-    <TaxonomyFilter
-      collection="foundation-blog"
-      terms={allTerms}
-      enabledTerms={enabledTerms}
-      selectedTerm={selectedTerm}
-      href={blogIndexHref}
-      contentLangOverride={contentLangOverride}
-    />
-  </div>
+  <TaxonomyFilter
+    collection="foundation-blog"
+    terms={allTerms}
+    enabledTerms={enabledTerms}
+    selectedTerm={selectedTerm}
+    href={blogIndexHref}
+    contentLangOverride={contentLangOverride}
+  />
 
   <div data-blog-lang-notice>
     <ContentLangNotice
@@ -178,5 +177,7 @@ const searchIndexUrl = '/blog-search-index.json'
 <BlogSearchResultTemplate />
 
 <script>
-  import '@/scripts/blog-search'
+  import { initBlogSearch } from '@/scripts/blog-search'
+
+  initBlogSearch()
 </script>
