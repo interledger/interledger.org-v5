@@ -4092,7 +4092,10 @@
       "Country": "United States",
       "Start Month": "2025-08",
       "Total budget approved": 10000,
-      "Thematic Tag": ["Web Monetization"]
+      "Thematic Tag": ["Web Monetization"],
+      "Project Links": [
+        "https://community.interledger.org/snarfed/bridgy-fed-ilf-grant-final-report-5hfp"
+      ]
     }
   },
   {
