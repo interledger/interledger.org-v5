@@ -173,7 +173,7 @@ jobs:
           ## Manual Test
 
           Reading the diff is the test. To see it rendered, check out this branch, run
-          `pnpm run dev`, and open `/grant/grantee-directory`.
+          `pnpm run start`, and open `/grant/grantee-directory`.
 
           Worth a skim for:
 
@@ -183,8 +183,8 @@ jobs:
 
           ## Checks
 
-          - [x] `pnpm run format` — the sync script Prettier-formats its own output
-          - [x] `pnpm run lint` — this file is `prettier --check`ed before the PR is opened
+          - [x] `pnpm run sync:airtable` — generated the updated file
+          - [x] `pnpm exec prettier --check src/data/airtable/grantee-data.json` — passed before the PR was opened
 
           ## PR Checklist
 
