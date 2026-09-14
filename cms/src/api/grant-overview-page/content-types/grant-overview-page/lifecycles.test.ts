@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { generateGrantOverviewPageMDX } from './lifecycles'
 
 describe('generateGrantOverviewPageMDX', () => {
-  it('clears stale hero frontmatter when Strapi has no hero for the entry', () => {
-    const mdx = generateGrantOverviewPageMDX(
+  it('clears stale hero frontmatter when Strapi has no hero for the entry', async () => {
+    const mdx = await generateGrantOverviewPageMDX(
       {
         id: 1,
         documentId: 'overview-1',
@@ -35,8 +35,8 @@ describe('generateGrantOverviewPageMDX', () => {
     expect(parsed.data.heroImage).toBeUndefined()
   })
 
-  it('writes followUpContent to frontmatter instead of the MDX body', () => {
-    const mdx = generateGrantOverviewPageMDX(
+  it('writes followUpContent to frontmatter instead of the MDX body', async () => {
+    const mdx = await generateGrantOverviewPageMDX(
       {
         id: 1,
         documentId: 'overview-1',
@@ -64,8 +64,8 @@ describe('generateGrantOverviewPageMDX', () => {
     expect(parsed.content.trim()).toBe('')
   })
 
-  it('promotes a stray <br/> in followUpContent and ctaStrip.description to a paragraph break', () => {
-    const mdx = generateGrantOverviewPageMDX(
+  it('promotes a stray <br/> in followUpContent and ctaStrip.description to a paragraph break', async () => {
+    const mdx = await generateGrantOverviewPageMDX(
       {
         id: 1,
         documentId: 'overview-1',

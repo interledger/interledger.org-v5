@@ -16,6 +16,17 @@ describe('split-layout serializer', () => {
     expect(result).toContain('imageAlt="Students collaborating"')
   })
 
+  it('serializes body content as blank-line-separated JSX children', () => {
+    const result = serialize({
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toBe(
+      '<SplitLayout imageSrc="/uploads/education_grant.jpg">\n\nSome body copy.\n\n</SplitLayout>'
+    )
+  })
+
   it('falls back to the image alternativeText when media.alternativeText is unset', () => {
     const result = serialize({
       media: {

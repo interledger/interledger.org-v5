@@ -34,6 +34,13 @@
   [data-prose] blockquote p {
     margin-bottom: 0;
   }
+  /* Attribution as a following paragraph inside the quote (markdown `>` + **Name**). */
+  [data-prose] blockquote p + p {
+    margin-block-start: var(--spacing-md);
+  }
+  [data-prose] blockquote strong {
+    font-weight: 600;
+  }
   [data-prose] blockquote + p {
     /* room for a following attribution line if authored after the quote */
     margin-block-start: var(--spacing-md);

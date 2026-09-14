@@ -56,7 +56,10 @@ const title = mdxData?.title
 const description = mdxData?.description || undefined
 const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
 const mdxHeroDescription = mdxData?.heroDescription || ''
-const heroSectionStyle = getHeroSectionStyle(mdxData?.heroImage)
+const heroSectionStyle = getHeroSectionStyle(
+  mdxData?.heroImage,
+  mdxData?.heroImageBlur
+)
 const heroCtas = mdxData?.heroCtas ?? []
 const gradient =
   (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'

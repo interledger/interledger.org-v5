@@ -135,21 +135,26 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export {
-  GRANTEE_PAGE_SIZE,
   ALL_GRANTEE_YEAR_SLUG,
+  GRANTEE_TAG_PREFIX,
   getGranteeFilterUrl,
+  isGranteeYearSlug,
+  matchesGranteeFilters,
+  filterGrantees,
+  type GranteeFilters
+} from './main/granteeFilters'
+export {
+  GRANTEE_PAGE_SIZE,
   getGranteeListingData,
   paginateGranteesByYear,
+  paginateGranteesByTag,
   paginateGranteesByYearAndTag,
   parseGranteeRecords,
   uniqueFilterOptions,
-  matchesGranteeFilters,
-  filterGrantees,
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
   type Grantee,
-  type GranteeFilters,
   type GranteeFilterOption,
   type GranteeListingData
 } from './main/grantee'
@@ -163,7 +168,7 @@ export {
   TABLE_SCROLL_CLASS,
   wrapScrollableTables
 } from './main/wrapScrollableTables'
-export { createExcerpt } from './main/create-excerpt'
+export { createExcerpt, createSearchPlainText } from './main/create-excerpt'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
@@ -197,17 +202,38 @@ export {
 // Main site: Images
 export {
   getOptimizedImage,
+  resolveOptimizedImage,
   buildImageSrcset,
   hasOptimizedVariants,
   isOptimizableSource,
   encodeImageUrlPath,
   hasOptimizableRasterExtension,
+  sanitizeBlurPlaceholder,
   withIntrinsicWidthRung,
+  AVATAR_CDN_WIDTHS,
   IMAGE_URL_PATHS,
   TARGET_WIDTHS,
   pathToSegments,
   type OptimizedImage
 } from './main/images'
+export {
+  getHomepageHeroPictureConfig,
+  HERO_LCP_IMAGE_WIDTH,
+  HERO_LCP_IMAGE_HEIGHT,
+  HERO_STANDARD_BLUR,
+  HACKATHON_HERO_SIZES,
+  HOMEPAGE_HERO_TABLET_MIN,
+  PAGE_HERO_MOBILE_MEDIA,
+  PAGE_HERO_DESKTOP_MEDIA
+} from './main/homepageHeroImage'
+export {
+  getHomepageHeroPreloadLinks,
+  getPageHeroPreloadLinks,
+  resolveHeroLcpPreloadLinks,
+  type HeroLcpPreloadConfig,
+  type ImagePreloadLink,
+  type PageHeroPreloadOptions
+} from './main/heroLcpPreload'
 export {
   NETLIFY_IMAGE_ENDPOINT,
   buildImageCdnUrl,

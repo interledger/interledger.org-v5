@@ -1,24 +1,32 @@
 ---
-title: Simple Rafiki Integration Guide
-description: A short developer guide for integrating an Account Servicing Entity (ASE) with Rafiki.
+title: 'Simple Rafiki Integration Guide'
+description: 'A short developer guide for integrating an Account Servicing Entity (ASE) with Rafiki.'
 date: 2026-03-26
 pathSlug: simple-rafiki-integration-guide
 featured: false
 locale: en
+featureImage: '/img/tech-thumbnail.svg'
+featureImageBlur: 'data:image/webp;base64,UklGRn4AAABXRUJQVlA4WAoAAAAQAAAAEwAACgAAQUxQSBwAAAABD0CQbePPvO3XiIg4IMw2OoP50/Z9BhH9T9pDVlA4IDwAAAAQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQAALe4aYWUAA/ujDz5gY6w4dPJr2H+DLbYqP+Dcjb5DAAAA='
 articleBios:
-  - author: Max Kurapov
-  - author: Timea Nagy
-  - author: Dragos Palade
-  - author: Tadej Golobic
+  - author: 'Max Kurapov'
+    image: '/img/foundation-blog/authors/max.jpg'
+    imageAlt: 'Max Kurapov'
+  - author: 'Timea Nagy'
+    image: '/img/foundation-blog/authors/timea.jpg'
+    imageAlt: 'Timea Nagy'
+  - author: 'Dragos Palade'
+  - author: 'Tadej Golobic'
 categories:
-  - Engineering
-  - Interledger Technology
+  - 'Engineering'
+  - 'Interledger Technology'
 relatedArticles:
-  - rafiki-beta-release
-  - rafiki-low-level-intro
-  - ilp-packet-lifecycle
+  - 'rafiki-beta-release'
+  - 'rafiki-low-level-intro'
+  - 'ilp-packet-lifecycle'
 legacy: true
 ---
+
+<Paragraph>
 
 In this guide, we provide you, a developer who's starting to integrate Rafiki with your ASE (Account Servicing Entity), a simple walkthrough for how to make your first payment using Rafiki.
 Here, we will introduce simple concepts, and the necessary APIs & webhook events to complete a payment between a sender and receiver at the ASE.
@@ -29,11 +37,15 @@ First of all, let's see what an ASE is responsible for, in comparison to what Ra
 
 ## Comparing responsibilities
 
+</Paragraph>
+
 <ImageBlock
   src="/img/foundation-blog/2026-03-26/responsibilites.png"
   alt="Overview of responsibilities between an ASE and Rafiki"
   needsFullView={true}
 />
+
+<Paragraph>
 
 ## Open Payments and ILP
 
@@ -116,11 +128,15 @@ Once the outgoing payment has been approved/funded, Rafiki will make the payment
 5. If the payment in Rafiki is successful, you will receive an outgoing payment completed webhook. When this is received, you should finalize the debit of the sending user's account.
 6. You will also receive an incoming payment completed (or incoming payment expired) webhook. For these webhooks, you should credit the recipient's user account.
 
+</Paragraph>
+
 <ImageBlock
   src="/img/foundation-blog/2026-03-26/sequence-diagram.png"
   alt="Sequence diagram for payment flow"
   needsFullView={true}
 />
+
+<Paragraph>
 
 The [Rafiki documentation](https://rafiki.dev/integration/requirements/webhook-events/) describes all of the webhook events and how they should be handled.
 
@@ -147,3 +163,5 @@ Open Payments endpoints + ILP connector. The Admin API must not be exposed exter
 ### Can you make cross-currency payments?
 
 In order to make cross-currency payments, you will need to create the corresponding assets, and [provide a way for Rafiki to fetch rates](https://rafiki.dev/integration/requirements/exchange-rates/).
+
+</Paragraph>

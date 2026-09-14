@@ -1,0 +1,24 @@
+---
+import { resolveHeroLcpPreloadLinks, type HeroLcpPreloadConfig } from '@/utils'
+
+interface Props {
+  config: HeroLcpPreloadConfig
+}
+
+const { config } = Astro.props
+const links = resolveHeroLcpPreloadLinks(config)
+---
+
+{
+  links.map((link) => (
+    <link
+      rel="preload"
+      as="image"
+      href={link.href}
+      type={link.type}
+      imagesrcset={link.imageSrcset}
+      imagesizes={link.imageSizes}
+      {...(link.media ? { media: link.media } : {})}
+    />
+  ))
+}

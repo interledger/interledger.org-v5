@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import hackathonEn from '@/config/hackathon-navigation.json'
 import type { Locale } from './locales'
 
 // `./navigation` -> `./locales` reaches into Astro's virtual modules for
@@ -19,11 +20,13 @@ const { getNavigation } = await import('./navigation')
 
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
-    const { mainMenu } = getNavigation('hackathon', 'en')
-    expect(mainMenu.map((group) => group.label)).toEqual([
-      'Hackathons',
-      'Resources'
-    ])
+    // Compare against the config module, not against a fixed list of labels.
+    // Strapi syncs these files. A new nav group from an editor is therefore
+    // expected content, not a regression. A fixed list of labels made this
+    // test fail when INTORG-1046 added a "Resources" group. This test checks
+    // the site-to-config mapping. It still fails if `hackathon` resolves to
+    // the summit config.
+    expect(getNavigation('hackathon', 'en')).toEqual(hackathonEn)
   })
 
   it('returns the localized config for es', () => {

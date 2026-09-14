@@ -10,6 +10,7 @@ import matter from 'gray-matter'
 import isHtml from 'is-html'
 import TurndownService from 'turndown'
 import type { Hero, HeroCta, MediaFile } from '../../types/shared/types'
+import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 
 export type { Hero, HeroCta }
 
@@ -261,9 +262,25 @@ export function getPreservedFields(filepath: string): Record<string, unknown> {
   }
 }
 
-export function heroFrontmatter(
+/**
+ * Generates a blur placeholder for a hero image and logs (rather than
+ * throws) on failure — a missing/unsupported source must never block
+ * publish, it just means that image renders without a blur-up placeholder.
+ */
+async function tryGenerateBlurPlaceholder(
+  url: string
+): Promise<string | undefined> {
+  const result = await generateBlurPlaceholder(url)
+  if (result instanceof Error) {
+    console.warn(`⚠️  Skipping blur placeholder for ${url}: ${result.message}`)
+    return undefined
+  }
+  return result
+}
+
+export async function heroFrontmatter(
   hero: Hero | undefined | null
-): Record<string, unknown> {
+): Promise<Record<string, unknown>> {
   const data: Record<string, unknown> = {}
   if (!hero) return data
   if (!hero.title?.trim()) throw new Error('Hero is missing required title')
@@ -277,6 +294,8 @@ export function heroFrontmatter(
     if (hero.media?.alternativeText) {
       data.heroImageAlt = hero.media.alternativeText
     }
+    const heroImageBlur = await tryGenerateBlurPlaceholder(heroImage)
+    if (heroImageBlur) data.heroImageBlur = heroImageBlur
   }
   const heroImageMobile = getImageUrl(hero.backgroundImageMobile)
   if (heroImageMobile) {
@@ -284,6 +303,9 @@ export function heroFrontmatter(
     if (hero.backgroundImageMobile?.alternativeText) {
       data.heroImageMobileAlt = hero.backgroundImageMobile.alternativeText
     }
+    const heroImageMobileBlur =
+      await tryGenerateBlurPlaceholder(heroImageMobile)
+    if (heroImageMobileBlur) data.heroImageMobileBlur = heroImageMobileBlur
   }
   const cta = hero.hero_call_to_action
   if (cta) {

@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
+import { ALL_GRANTEE_YEAR_SLUG } from './granteeFilters'
 import {
-  filterGrantees,
   formatBudgetAmount,
   formatStartMonth,
-  getGranteeFilterUrl,
   getGranteeListingData,
-  matchesGranteeFilters,
   normalizeCountry,
+  paginateGranteesByTag,
+  paginateGranteesByYearAndTag,
   parseGranteeRecords,
-  uniqueFilterOptions,
-  type Grantee
+  uniqueFilterOptions
 } from './grantee'
 
 function record(
@@ -253,116 +252,6 @@ describe('uniqueFilterOptions', () => {
   })
 })
 
-describe('matchesGranteeFilters', () => {
-  const grantee: Grantee = {
-    id: 'rec1',
-    name: 'People’s Clearing House',
-    program: 'Digital Financial Services',
-    programKey: 'digital-financial-services',
-    year: '2024',
-    startMonth: '2024-09',
-    startLabel: 'September 2024',
-    country: 'Germany',
-    countryKey: 'germany',
-    leaders: ['Ada Lovelace'],
-    tags: ['Privacy'],
-    description: 'Open payments clearing house',
-    projectUrls: ['https://community.interledger.org/example'],
-    budget: 750000,
-    budgetLabel: '750 000',
-    searchText:
-      'people’s clearing house digital financial services 2024 germany ada lovelace privacy open payments clearing house'
-  }
-
-  it('matches when no filters are set', () => {
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '',
-        tag: ''
-      })
-    ).toBe(true)
-  })
-
-  it('filters by year and thematic tag', () => {
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '2024',
-        tag: 'privacy'
-      })
-    ).toBe(true)
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '2020',
-        tag: ''
-      })
-    ).toBe(false)
-    expect(
-      matchesGranteeFilters(grantee, {
-        q: '',
-        year: '',
-        tag: 'education'
-      })
-    ).toBe(false)
-  })
-})
-
-describe('filterGrantees', () => {
-  it('returns only matching records', () => {
-    const parsed = parseGranteeRecords(
-      [
-        sample,
-        record(
-          {
-            'Project Name': 'Campus Lab',
-            'Secondary Grant Program Name': 'NextGen Higher Education',
-            Year: '2025',
-            Country: 'Kenya'
-          },
-          'rec2'
-        )
-      ],
-      'en'
-    )
-    expect(parsed).not.toBeInstanceOf(Error)
-    if (parsed instanceof Error) return
-    const filtered = filterGrantees(parsed, {
-      q: '',
-      year: '2025',
-      tag: ''
-    })
-    expect(filtered.map((g) => g.name)).toEqual(['Campus Lab'])
-  })
-})
-
-describe('getGranteeFilterUrl', () => {
-  const directory = '/grant/grantee-directory'
-
-  it('returns the directory path when nothing is selected', () => {
-    expect(getGranteeFilterUrl(directory)).toBe(directory)
-  })
-
-  it('appends the year value', () => {
-    expect(getGranteeFilterUrl(directory, '2024')).toBe(
-      '/grant/grantee-directory/2024'
-    )
-  })
-
-  it('uses all/<tag> when only a tag is selected', () => {
-    expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/all/privacy'
-    )
-  })
-
-  it('combines year and tag values', () => {
-    expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
-      '/grant/grantee-directory/2024/privacy'
-    )
-  })
-})
-
 describe('getGranteeListingData', () => {
   it('returns an Error instead of throwing when the dump is malformed', () => {
     const result = getGranteeListingData({ records: [] }, 'en')
@@ -379,5 +268,106 @@ describe('getGranteeListingData', () => {
       'financial-services',
       'opensource'
     ])
+  })
+})
+
+describe('paginateGranteesByTag', () => {
+  it('emits every tag under params.tag, including reserved slugs', () => {
+    const colliding = record(
+      {
+        ...sample.fields,
+        'Project Name': 'All-tag project',
+        'Thematic Tag': ['All', '2024']
+      },
+      'rec-collide'
+    )
+    const listing = getGranteeListingData([sample, colliding], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const params: string[] = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: { params: { tag: string } }
+    ) => {
+      params.push(options.params.tag)
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByTag({ paginate, ...listing })
+
+    expect(params).toContain('all')
+    expect(params).toContain('2024')
+    expect(params).toContain('financial-services')
+  })
+})
+
+describe('paginateGranteesByYearAndTag', () => {
+  it('emits every tag under the year, including reserved slugs', () => {
+    const colliding = record(
+      {
+        ...sample.fields,
+        'Thematic Tag': ['All', '2', 'Financial Services']
+      },
+      'rec-collide-year'
+    )
+    const listing = getGranteeListingData([colliding], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const tags: string[] = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: { params: { year: string; tag: string } }
+    ) => {
+      tags.push(options.params.tag)
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByYearAndTag({ paginate, ...listing })
+
+    expect(tags).toContain('financial-services')
+    expect(tags).toContain('all')
+    expect(tags).toContain('2')
+  })
+
+  it('does not emit /all/<tag> pages — those redirect to the tag-only route', () => {
+    const listing = getGranteeListingData([sample], 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+
+    const calls: Array<{
+      year: string
+      tag: string
+      selectedYear: string | undefined
+      selectedTag: string | undefined
+    }> = []
+    const paginate = ((
+      _entries: Grantee[],
+      options: {
+        params: { year: string; tag: string }
+        props: { selectedYear?: string; selectedTag?: string }
+      }
+    ) => {
+      calls.push({
+        year: options.params.year,
+        tag: options.params.tag,
+        selectedYear: options.props.selectedYear,
+        selectedTag: options.props.selectedTag
+      })
+      return []
+    }) as PaginateFunction
+
+    paginateGranteesByYearAndTag({ paginate, ...listing })
+
+    expect(calls.some((call) => call.year === ALL_GRANTEE_YEAR_SLUG)).toBe(
+      false
+    )
+    expect(calls).toContainEqual({
+      year: '2024',
+      tag: 'financial-services',
+      selectedYear: '2024',
+      selectedTag: 'financial-services'
+    })
   })
 })

@@ -59,6 +59,12 @@
 
 /* Static design tokens — single source of truth for values */
 @theme {
+  /* Poppins has no 700. Tailwind's `font-bold` would otherwise emit 700,
+     which the browser maps onto extra-bold 800. Semibold is the bold. */
+  --font-weight-bold: 600;
+}
+
+@theme {
   /* Animation shorthand tokens → animate-* utilities */
   --animate-fade-in: fade-in 500ms ease-in-out;
   --animate-zoom: zoom 2s forwards;

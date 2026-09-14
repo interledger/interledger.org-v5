@@ -1,0 +1,18 @@
+# Grantee directory [INTORG-1112]
+# These must sit above the Astro-emitted /:year/:tag/* 301s (appended at
+# build). That wildcard also matches canonical /:year/tag/:slug (the
+# second segment is the literal "tag"), which would 301 to
+# /:year/tag/tag/:slug and loop. Existing generated pages still win via
+# Netlify shadowing; missing ones 404 instead of looping.
+#
+# /all/:tag is listed first so "all" is not captured as :year.
+
+/grant/grantee-directory/all/:tag    /grant/grantee-directory/tag/:tag          301
+/grant/grantee-directory/all/:tag/*  /grant/grantee-directory/tag/:tag/:splat   301
+/es/grant/grantee-directory/all/:tag    /es/grant/grantee-directory/tag/:tag          301
+/es/grant/grantee-directory/all/:tag/*  /es/grant/grantee-directory/tag/:tag/:splat   301
+
+/grant/grantee-directory/:year/tag/*    /404.html    404
+/grant/grantee-directory/tag/*          /404.html    404
+/es/grant/grantee-directory/:year/tag/*    /404.html    404
+/es/grant/grantee-directory/tag/*          /404.html    404
