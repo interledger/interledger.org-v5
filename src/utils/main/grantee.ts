@@ -1,5 +1,6 @@
 import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
+import { foldSearchText } from '../shared/foldSearchText'
 import { generateSlug } from './slug'
 import { truncateText } from './text'
 import { createPlainTextVariants } from './create-excerpt'
@@ -196,17 +197,17 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     : { display: '', search: '' }
   const budget = asFiniteNumber(fields['Total budget approved']) ?? null
 
-  const searchText = [
-    name,
-    program,
-    year,
-    country,
-    ...leaders,
-    ...tags,
-    descriptionTexts.search
-  ]
-    .join(' ')
-    .toLowerCase()
+  const searchText = foldSearchText(
+    [
+      name,
+      program,
+      year,
+      country,
+      ...leaders,
+      ...tags,
+      descriptionTexts.search
+    ].join(' ')
+  )
 
   return {
     id: value.id,
