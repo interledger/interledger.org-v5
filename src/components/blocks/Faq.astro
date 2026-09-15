@@ -7,6 +7,7 @@
  */
 import { parseMarkdown, useTranslations } from '@/utils'
 import FaqItem from '@/components/shared/FaqItem.astro'
+import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface StrapiFaqItem {
   question: string
@@ -22,6 +23,12 @@ interface Props {
 const { heading, items } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+// Unique so two Faq blocks on one page don't exclusive-close each other
+// when JS is off. Locals lets MDX-slotted <FaqItem> children share this
+// group instead of falling back to a document-wide `name="faq"`.
+const faqGroup = faqAccordionGroupName()
+Astro.locals.faqAccordionGroupName = faqGroup
 
 // Strapi preview (DynamicZone.astro) passes `items` with markdown answers that
 // still need rendering; MDX authoring passes <FaqItem> children that Astro has
@@ -51,11 +58,11 @@ const renderedItems = items
       </h2>
     )
   }
-  <div class="flex w-full flex-col gap-xl">
+  <div class="flex w-full flex-col gap-xl" data-faq-accordion>
     {
       renderedItems ? (
         renderedItems.map((item) => (
-          <FaqItem question={item.question}>
+          <FaqItem question={item.question} group={faqGroup}>
             <Fragment set:html={item.answerHtml} />
           </FaqItem>
         ))
@@ -65,3 +72,9 @@ const renderedItems = items
     }
   </div>
 </section>
+
+<script>
+  import { initFaqAccordion } from '@/scripts/faq-accordion'
+
+  initFaqAccordion()
+</script>
