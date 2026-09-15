@@ -11,9 +11,9 @@ import {
   buildPushCommand,
   buildRebaseCommand,
   buildRebaseContinueCommand,
+  acquireSyncLock,
   formatLockOwner,
   isUnmerged,
-  parseLockEpochMs,
   recoverInterruptedOperation,
   createDebouncedGitSync,
   expandHomeDir,
@@ -50,12 +50,25 @@ interface FakeDeps extends GitSyncDeps {
   /** Every delay `sleep` was asked for, in order. */
   sleeps: number[]
   /** The in-memory filesystem backing the sync lock. */
-  files: Map<string, string>
+  files: Map<string, LockEntry>
   /** Mutable clock, advanced by `sleep`. */
   clock: { ms: number }
 }
 
 const LOCK_PATH = path.join(REPO, '.git/strapi-sync.lock')
+
+/** One entry in the fake lock filesystem: contents plus the mtime staleness reads. */
+interface LockEntry {
+  contents: string
+  mtimeMs: number
+}
+
+/** Seeds the fake filesystem with a lock held by someone else since `heldAtMs`. */
+function heldLock(heldAtMs: number, contents = 'pid=999 host=other\n') {
+  return new Map<string, LockEntry>([
+    [LOCK_PATH, { contents, mtimeMs: heldAtMs }]
+  ])
+}
 
 type FakeResponse =
   | string
@@ -76,7 +89,7 @@ function createDeps(
     respond?: (command: string) => string | GitCommandError
     responses?: Record<string, FakeResponse>
     existing?: string[]
-    files?: Map<string, string>
+    files?: Map<string, LockEntry>
     clock?: { ms: number }
   } = {}
 ): FakeDeps {
@@ -84,7 +97,7 @@ function createDeps(
     respond,
     responses = {},
     existing = [REPO, ...STAGE_DIRS],
-    files = new Map<string, string>(),
+    files = new Map<string, LockEntry>(),
     clock = { ms: Date.UTC(2026, 0, 1) }
   } = options
   const commands: string[] = []
@@ -118,14 +131,26 @@ function createDeps(
       // deterministically rather than by the test's own wall clock.
       clock.ms += ms
     },
-    // An in-memory stand-in for the O_EXCL lock file.
+    // An in-memory stand-in for the lock file, modelling the same primitives:
+    // `claim` links a fully written temp file into place, and every entry
+    // carries an mtime so staleness never depends on the contents.
     lockFs: {
-      create: (filepath, contents) => {
-        if (files.has(filepath)) return false
-        files.set(filepath, contents)
+      claim: (lockPath, tempPath, contents) => {
+        files.set(tempPath, { contents, mtimeMs: clock.ms })
+        files.delete(tempPath)
+        if (files.has(lockPath)) return false
+        files.set(lockPath, { contents, mtimeMs: clock.ms })
         return true
       },
-      read: (filepath) => files.get(filepath) ?? null,
+      mtimeMs: (filepath) => files.get(filepath)?.mtimeMs ?? null,
+      read: (filepath) => files.get(filepath)?.contents ?? null,
+      rename: (from, to) => {
+        const entry = files.get(from)
+        if (entry === undefined) return false
+        files.delete(from)
+        files.set(to, entry)
+        return true
+      },
       remove: (filepath) => {
         files.delete(filepath)
       }
@@ -2016,6 +2041,8 @@ describe('lock contention', () => {
 
 describe('the sync mutex', () => {
   const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
+  const NOW = Date.UTC(2026, 0, 1)
+  const STALE_MS = 10 * 60 * 1000
 
   function syncDeps(overrides: Parameters<typeof createDeps>[0] = {}) {
     return createDeps({
@@ -2046,17 +2073,22 @@ describe('the sync mutex', () => {
     expect(deps.files.has(LOCK_PATH)).toBe(false)
   })
 
+  it('leaves no temp file behind after claiming', async () => {
+    const deps = syncDeps()
+
+    await runGitSync('faq', undefined, deps)
+
+    expect([...deps.files.keys()]).toEqual([])
+  })
+
   /**
    * Failing closed loses nothing — the content is still in Strapi's database
    * and the next save retries — whereas proceeding would reintroduce exactly
    * the concurrent `rebase --abort` the lock exists to prevent.
    */
   it('refuses to run while another writer holds a fresh lock', async () => {
-    const clock = { ms: Date.UTC(2026, 0, 1) }
-    const files = new Map([
-      [LOCK_PATH, formatLockOwner(clock.ms, 999, 'strapi-vm')]
-    ])
-    const deps = syncDeps({ files, clock })
+    const clock = { ms: NOW }
+    const deps = syncDeps({ files: heldLock(NOW), clock })
 
     const result = await runGitSync('faq', undefined, deps)
 
@@ -2071,11 +2103,8 @@ describe('the sync mutex', () => {
   })
 
   it('reclaims a lock whose holder died', async () => {
-    const clock = { ms: Date.UTC(2026, 0, 1) }
-    const files = new Map([
-      [LOCK_PATH, formatLockOwner(clock.ms - 11 * 60 * 1000, 999, 'strapi-vm')]
-    ])
-    const deps = syncDeps({ files, clock })
+    const clock = { ms: NOW }
+    const deps = syncDeps({ files: heldLock(NOW - STALE_MS - 1), clock })
 
     expect(await runGitSync('faq', undefined, deps)).toMatchObject({
       outcome: 'synced'
@@ -2083,26 +2112,39 @@ describe('the sync mutex', () => {
   })
 
   /**
-   * Reclaiming a lock we cannot parse would destroy a live holder's on any
-   * hiccup in the format, so an unreadable one is waited out and reported
-   * rather than discarded.
+   * Staleness reads the mtime, never the contents, so a lock left truncated by
+   * a process killed mid-write still ages out instead of wedging the repo
+   * permanently.
    */
-  it('waits out a lock file it cannot read instead of destroying it', async () => {
-    const files = new Map([[LOCK_PATH, 'garbage written by something else']])
-    const deps = syncDeps({ files })
+  it('reclaims a stale lock even when its contents are unreadable', async () => {
+    const clock = { ms: NOW }
+    const deps = syncDeps({ files: heldLock(NOW - STALE_MS - 1, ''), clock })
 
-    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
-    expect(deps.files.get(LOCK_PATH)).toBe('garbage written by something else')
+    expect(await runGitSync('faq', undefined, deps)).toMatchObject({
+      outcome: 'synced'
+    })
   })
 
-  it('round-trips the owner line the workflow also parses', () => {
-    const at = Date.UTC(2026, 0, 1, 12, 30)
-    const owner = formatLockOwner(at, 4242, 'strapi-vm')
+  it('waits out a fresh lock it cannot read rather than stealing it', async () => {
+    const clock = { ms: NOW }
+    const deps = syncDeps({ files: heldLock(NOW, ''), clock })
 
-    expect(owner).toContain(`epoch=${Math.floor(at / 1000)}`)
-    expect(owner).toContain('pid=4242')
-    expect(parseLockEpochMs(owner)).toBe(at)
-    expect(parseLockEpochMs('no epoch here')).toBeNull()
+    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
+    expect(deps.files.has(LOCK_PATH)).toBe(true)
+  })
+
+  /**
+   * The acquire loop must check the deadline and sleep on every pass. An
+   * earlier version skipped both whenever a reclaim looked possible, so a lock
+   * that always looked reclaimable spun forever and hung the lifecycle hook.
+   */
+  it('always sleeps and eventually times out rather than spinning', async () => {
+    const clock = { ms: NOW }
+    const deps = syncDeps({ files: heldLock(NOW), clock })
+
+    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
+    expect(deps.sleeps.length).toBeGreaterThan(0)
+    expect(deps.sleeps.every((ms) => ms > 0)).toBe(true)
   })
 
   it('serialises the navigation commit path too', async () => {
@@ -2111,5 +2153,79 @@ describe('the sync mutex', () => {
     await gitCommitAndPush(`${REPO}/src/config/nav.json`, 'nav: update', deps)
 
     expect(deps.files.has(LOCK_PATH)).toBe(false)
+  })
+})
+
+describe('sync lock primitives', () => {
+  const NOW = Date.UTC(2026, 0, 1)
+  const STALE_MS = 10 * 60 * 1000
+
+  it('admits only one of two contenders racing to claim', async () => {
+    const files = new Map<string, LockEntry>()
+    const first = createDeps({ files })
+    const second = createDeps({ files })
+
+    const a = await acquireSyncLock(REPO, first)
+    const b = await acquireSyncLock(REPO, second)
+
+    expect(a).not.toBeInstanceOf(Error)
+    expect(b).toBeInstanceOf(Error)
+  })
+
+  /**
+   * Reclaiming by rename rather than delete is what makes this safe: the loser
+   * of the rename finds the file gone and backs off, where a delete-then-create
+   * let both remove it and both go on to hold it.
+   */
+  it('admits only one of two contenders racing to reclaim the same stale lock', async () => {
+    const clock = { ms: NOW }
+    const files = heldLock(NOW - STALE_MS - 1)
+    const first = createDeps({ files, clock })
+    const second = createDeps({ files, clock })
+
+    const a = await acquireSyncLock(REPO, first)
+    const b = await acquireSyncLock(REPO, second)
+
+    expect(a).not.toBeInstanceOf(Error)
+    expect(b).toBeInstanceOf(Error)
+    expect([...files.keys()]).toEqual([LOCK_PATH])
+  })
+
+  /**
+   * A holder that overran the staleness window can have its lock reclaimed and
+   * replaced. Releasing unconditionally would delete the replacement's lock and
+   * admit a third writer.
+   */
+  it('does not remove a lock that now belongs to someone else', async () => {
+    const files = new Map<string, LockEntry>()
+    const deps = createDeps({ files })
+
+    const lock = await acquireSyncLock(REPO, deps)
+    if (lock instanceof Error) throw lock
+
+    // Someone reclaimed ours and took the lock in the meantime.
+    files.set(LOCK_PATH, { contents: 'pid=999 host=other\n', mtimeMs: NOW })
+    lock.release()
+
+    expect(files.get(LOCK_PATH)?.contents).toBe('pid=999 host=other\n')
+  })
+
+  it('removes the lock when it is still ours', async () => {
+    const files = new Map<string, LockEntry>()
+    const deps = createDeps({ files })
+
+    const lock = await acquireSyncLock(REPO, deps)
+    if (lock instanceof Error) throw lock
+    lock.release()
+
+    expect(files.has(LOCK_PATH)).toBe(false)
+  })
+
+  it('identifies the holder for a human reading the lock', () => {
+    const owner = formatLockOwner(NOW, 4242, 'strapi-vm', 'abc123')
+
+    expect(owner).toContain('pid=4242')
+    expect(owner).toContain('host=strapi-vm')
+    expect(owner).toContain('nonce=abc123')
   })
 })

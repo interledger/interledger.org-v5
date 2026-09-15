@@ -48,13 +48,25 @@ const LOCK_BACKOFF_MS = 250
  * `git rebase --abort` on state they assume is their own — so without this each
  * can abort the other's in-progress rebase.
  *
- * An `O_EXCL` create is the primitive: it makes the create and the owner
- * details one atomic write, so a holder is never visible without them, and both
- * sides have it (`{ flag: 'wx' }` here, `set -o noclobber` in bash). `flock`
- * would need a helper process to stay held across separate `exec` calls.
+ * The protocol, mirrored in both languages:
  *
- * It lives under `.git/`, so it is never committed. Keep the path, the owner
- * line format and the staleness window in step with the workflow.
+ * - **Claim** by writing the owner details to a temp file and then `link`ing it
+ *   into place. `link` is atomic and fails when the target exists, and because
+ *   the contents are already written the lock is never visible half-formed. An
+ *   `O_EXCL` create would not do: it makes only the *creation* exclusive, so a
+ *   process killed before its write leaves an empty lock behind.
+ * - **Expire** on the file's mtime, never on its contents, so even a truncated
+ *   lock ages out instead of wedging the repository.
+ * - **Reclaim** by `rename`ing the stale lock aside — renaming fails once
+ *   another contender has moved it, so exactly one of them wins.
+ * - **Release** only after checking the contents are still ours, since a lock
+ *   we overran may already belong to someone else.
+ *
+ * `flock` would need a helper process to stay held across separate `exec`
+ * calls, which is why it is not used here.
+ *
+ * It lives under `.git/`, so it is never committed. Keep the path and the
+ * staleness window in step with the workflow; the owner format is per-side.
  */
 const SYNC_LOCK_FILE = '.git/strapi-sync.lock'
 /** Roughly the longest a healthy sync or workflow integrate should hold the lock. */
@@ -203,11 +215,24 @@ export type GitExec = (
  */
 export interface LockFs {
   /**
-   * Atomically creates the file with these contents, failing if it exists.
-   * Returns false when another holder already has it.
+   * Writes `contents` to `tempPath`, then links it atomically into `lockPath`.
+   * Returns false when someone already holds the lock.
+   *
+   * Two steps rather than an exclusive create, because `O_EXCL` only makes the
+   * *creation* exclusive — the write that follows is separate, so a process
+   * killed in between leaves an empty lock file. Linking a fully written file
+   * into place means the lock is never visible without its owner details.
    */
-  create: (filepath: string, contents: string) => boolean
+  claim: (lockPath: string, tempPath: string, contents: string) => boolean
+  /** Modification time in milliseconds, or null when the path does not exist. */
+  mtimeMs: (filepath: string) => number | null
+  /** Contents, or null only when the file does not exist. Other errors throw. */
   read: (filepath: string) => string | null
+  /**
+   * Atomically moves `from` to `to`. Returns false when `from` has already gone,
+   * which is how exactly one contender wins a race to reclaim a stale lock.
+   */
+  rename: (from: string, to: string) => boolean
   remove: (filepath: string) => void
 }
 
@@ -244,22 +269,41 @@ function execInRepo(
   })
 }
 
+/** Narrows a thrown filesystem error to its errno code. */
+function errorCode(error: Error): string | undefined {
+  return (error as NodeJS.ErrnoException).code
+}
+
 const defaultLockFs: LockFs = {
-  create: (filepath, contents) => {
-    // `wx` is O_CREAT|O_EXCL: the create and the write are one operation, so a
-    // holder is never visible without its owner details.
-    const written = tryCatch(() =>
-      fs.writeFileSync(filepath, contents, { flag: 'wx' })
-    )
-    if (!(written instanceof Error)) return true
-    if ((written as NodeJS.ErrnoException).code === 'EEXIST') return false
-    throw written
+  claim: (lockPath, tempPath, contents) => {
+    fs.writeFileSync(tempPath, contents)
+    const linked = tryCatch(() => fs.linkSync(tempPath, lockPath))
+    // The temp file has served its purpose either way: on success the lock is
+    // its second link, on failure it is rubbish.
+    fs.rmSync(tempPath, { force: true })
+    if (!(linked instanceof Error)) return true
+    if (errorCode(linked) === 'EEXIST') return false
+    throw linked
   },
-  // A null here means "no lock file", which is a real absence rather than a
-  // swallowed failure: the caller treats it as "not held".
+  mtimeMs: (filepath) => {
+    const stats = tryCatch(() => fs.statSync(filepath))
+    if (!(stats instanceof Error)) return stats.mtimeMs
+    if (errorCode(stats) === 'ENOENT') return null
+    throw stats
+  },
+  // Only a missing file is null. Every other error propagates: treating an
+  // unreadable lock as absent used to send the acquire loop spinning.
   read: (filepath) => {
     const contents = tryCatch(() => fs.readFileSync(filepath, 'utf8'))
-    return contents instanceof Error ? null : contents
+    if (!(contents instanceof Error)) return contents
+    if (errorCode(contents) === 'ENOENT') return null
+    throw contents
+  },
+  rename: (from, to) => {
+    const renamed = tryCatch(() => fs.renameSync(from, to))
+    if (!(renamed instanceof Error)) return true
+    if (errorCode(renamed) === 'ENOENT') return false
+    throw renamed
   },
   remove: (filepath) => fs.rmSync(filepath, { force: true })
 }
@@ -594,22 +638,20 @@ async function execWithLockRetry(
 // ── Sync mutex ───────────────────────────────────────────────────────────────
 
 /**
- * One line of `key=value` pairs, because the workflow parses this file too and
- * a shell can read this shape without a JSON parser. `epoch` is seconds so bash
- * can do the staleness arithmetic directly.
+ * Identifies a lock holder. Purely diagnostic and for the ownership check on
+ * release — staleness comes from the file's mtime, never from this text, so an
+ * empty or truncated lock still expires normally instead of wedging.
+ *
+ * The nonce distinguishes two acquisitions by the same process, which is what
+ * makes the release ownership check meaningful.
  */
 export function formatLockOwner(
   nowMs: number,
   pid: number,
-  host: string
+  host: string,
+  nonce: string
 ): string {
-  const epoch = Math.floor(nowMs / 1000)
-  return `epoch=${epoch} pid=${pid} host=${host} at=${new Date(nowMs).toISOString()}\n`
-}
-
-export function parseLockEpochMs(contents: string): number | null {
-  const match = contents.match(/\bepoch=(\d+)\b/)
-  return match ? Number(match[1]) * 1000 : null
+  return `pid=${pid} host=${host} nonce=${nonce} at=${new Date(nowMs).toISOString()}\n`
 }
 
 export interface SyncLock {
@@ -631,15 +673,20 @@ export async function acquireSyncLock(
 ): Promise<SyncLock | Error> {
   const lockPath = path.join(repoRoot, SYNC_LOCK_FILE)
   const deadline = deps.now() + SYNC_LOCK_WAIT_MS
+  const nonce = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`
+  const owner = formatLockOwner(deps.now(), process.pid, os.hostname(), nonce)
+  const tempPath = `${lockPath}.${nonce}`
 
   for (;;) {
-    const owner = formatLockOwner(deps.now(), process.pid, os.hostname())
-    if (deps.lockFs.create(lockPath, owner)) {
-      return { release: () => deps.lockFs.remove(lockPath) }
+    if (deps.lockFs.claim(lockPath, tempPath, owner)) {
+      return { release: () => releaseSyncLock(lockPath, owner, deps) }
     }
 
-    if (reclaimStaleLock(lockPath, deps)) continue
+    reclaimStaleLock(lockPath, nonce, deps)
 
+    // Both guards run on every iteration, unconditionally. An earlier version
+    // skipped them whenever a reclaim looked possible, so a lock that always
+    // looked reclaimable spun without ever sleeping or reaching the deadline.
     if (deps.now() >= deadline) {
       const held = deps.lockFs.read(lockPath)?.trim() ?? 'unknown holder'
       return new Error(
@@ -653,27 +700,58 @@ export async function acquireSyncLock(
 }
 
 /**
- * Removes a lock whose holder is gone. Without this a process killed mid-sync
- * would block every later save permanently.
+ * Removes the lock only while we still own it.
+ *
+ * A holder that overran the staleness window may have had its lock reclaimed
+ * and replaced by another writer. Removing unconditionally would then delete
+ * that writer's lock and admit a third.
  */
-function reclaimStaleLock(lockPath: string, deps: GitSyncDeps): boolean {
-  const contents = deps.lockFs.read(lockPath)
-  // Released between our failed create and this read — the next create wins it.
-  if (contents === null) return true
+function releaseSyncLock(
+  lockPath: string,
+  owner: string,
+  deps: GitSyncDeps
+): void {
+  const held = deps.lockFs.read(lockPath)
+  if (held === owner) {
+    deps.lockFs.remove(lockPath)
+    return
+  }
+  if (held !== null) {
+    console.warn(
+      `⚠️  Sync lock at ${lockPath} is no longer ours; leaving it for ${held.trim()}`
+    )
+  }
+}
 
-  const acquiredAt = parseLockEpochMs(contents)
-  // Deliberately not reclaimed on sight: discarding a lock we cannot parse would
-  // destroy a live holder's on any hiccup in the format. Wait it out instead and
-  // let the acquisition timeout report it for a human.
-  if (acquiredAt === null) return false
+/**
+ * Clears a lock whose holder is gone, so one killed process cannot block every
+ * later run and editor save permanently.
+ *
+ * The reclaim is a rename, not a delete: renaming fails once another contender
+ * has moved the same file, so exactly one of them wins. Deleting instead let
+ * two waiters both remove it and both go on to hold it at once.
+ *
+ * Age comes from the file's mtime, so a lock with truncated or unreadable
+ * contents still expires rather than wedging the repository forever.
+ */
+function reclaimStaleLock(
+  lockPath: string,
+  nonce: string,
+  deps: GitSyncDeps
+): void {
+  const heldSince = deps.lockFs.mtimeMs(lockPath)
+  // Already gone — the next claim wins it.
+  if (heldSince === null) return
+  if (deps.now() - heldSince < SYNC_LOCK_STALE_MS) return
 
-  if (deps.now() - acquiredAt < SYNC_LOCK_STALE_MS) return false
+  const asidePath = `${lockPath}.stale.${nonce}`
+  if (!deps.lockFs.rename(lockPath, asidePath)) return
 
   console.warn(
-    `⚠️  Reclaiming a stale sync lock at ${lockPath} (${contents.trim()})`
+    `⚠️  Reclaimed a stale sync lock at ${lockPath} ` +
+      `(held since ${new Date(heldSince).toISOString()})`
   )
-  deps.lockFs.remove(lockPath)
-  return true
+  deps.lockFs.remove(asidePath)
 }
 
 /**
