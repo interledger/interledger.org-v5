@@ -68,7 +68,17 @@ function applyScroll(y: number): void {
   globalThis.scrollTo({ top: y, behavior: 'instant' })
 }
 
+function isLastAccordionItem(item: HTMLElement): boolean {
+  const root = item.closest(ACCORDION_SELECTOR)
+  if (!root) return false
+  const items = root.querySelectorAll(ITEM_SELECTOR)
+  return items.length > 0 && items[items.length - 1] === item
+}
+
 export function scrollQuestionIntoView(item: HTMLElement): void {
+  // Snapping the last question under the header bottoms the page and
+  // drags a sticky sibling (FAQ section nav) with it. Leave it in place.
+  if (isLastAccordionItem(item)) return
   if (prefersReducedMotion()) {
     item.scrollIntoView({ block: 'start' })
     return

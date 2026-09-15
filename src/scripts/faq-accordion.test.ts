@@ -28,6 +28,7 @@ type FakeItem = {
   removeAttribute: ReturnType<typeof vi.fn>
   getBoundingClientRect: () => { top: number }
   querySelector: (selector: string) => FakePanel | FakeSummary | null
+  closest?: (selector: string) => unknown
 }
 
 function makeItem(open = false): {
@@ -51,6 +52,7 @@ function makeItem(open = false): {
     scrollIntoView: vi.fn(),
     removeAttribute: vi.fn(),
     getBoundingClientRect: () => ({ top: 400 }),
+    closest: () => null,
     querySelector: (selector: string) => {
       if (selector === '[data-faq-panel]') return panel
       if (selector === 'summary') return summary
@@ -184,6 +186,33 @@ describe('handleFaqItemClick', () => {
     expect(a.panel.style.transition).toBe('')
     expect(scrollTo).toHaveBeenCalledOnce()
     expect(scrollTo).toHaveBeenCalledWith(400 + 300 - 76, { immediate: true })
+  })
+
+  it('does not snap the last question under the header', () => {
+    stubMatchMedia(false)
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('requestAnimationFrame', vi.fn())
+
+    const a = makeItem(true)
+    a.item.dataset.faqExpanded = 'true'
+    a.panel.dataset.open = 'true'
+    const b = makeItem(false)
+    const accordion = {
+      querySelectorAll: (selector: string) =>
+        selector === '[data-faq-item]' ? [a.item, b.item] : []
+    }
+    b.item.closest = (selector: string) =>
+      selector === '[data-faq-accordion]' ? accordion : null
+
+    handleFaqItemClick(
+      b.item as unknown as HTMLDetailsElement,
+      [a.item, b.item] as unknown as HTMLDetailsElement[]
+    )
+
+    expect(b.item.open).toBe(true)
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(b.item.scrollIntoView).not.toHaveBeenCalled()
   })
 
   it('collapses an already expanded item without scrolling', () => {
