@@ -248,6 +248,14 @@ jobs:
             # conflict markers in src/content — a worse state than not starting, and
             # exactly what the unmerged guard below exists to prevent. Refusing early keeps
             # the checkout untouched.
+            #
+            # This is a snapshot, and deliberately so. Strapi stays up through the
+            # integrate, and the sync mutex serialises git commands, not the MDX writes
+            # that happen in the lifecycle hook before one. A save landing between this
+            # check and the rebase can still stop it. That costs a failed run with a clear
+            # message and an untouched checkout, which is the same outcome as catching it
+            # here — so closing the window would mean stopping the CMS for the duration,
+            # which is a far worse trade for a collision this rare.
             COLLIDING="$(comm -12 \
               <(git ls-files --others --exclude-standard | sort) \
               <(git diff --name-only --diff-filter=A "HEAD..origin/$DEPLOY_BRANCH" | sort))"
