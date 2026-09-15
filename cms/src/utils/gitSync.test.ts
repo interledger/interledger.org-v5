@@ -2229,3 +2229,49 @@ describe('sync lock primitives', () => {
     expect(owner).toContain('nonce=abc123')
   })
 })
+
+describe('startup recovery and the mutex', () => {
+  const NOW = Date.UTC(2026, 0, 1)
+
+  function startupDeps(options: Parameters<typeof createDeps>[0] = {}) {
+    return createDeps({
+      existing: [REPO, path.join(REPO, '.git')],
+      respond: () => 'staging',
+      ...options
+    })
+  }
+
+  /**
+   * Unlocked, a CMS restart landing while the workflow is mid-rebase would
+   * abort the workflow's integration out from under it.
+   */
+  it('holds the mutex while clearing an interrupted operation', async () => {
+    const deps = startupDeps({
+      existing: [
+        REPO,
+        path.join(REPO, '.git'),
+        path.join(REPO, '.git/rebase-merge')
+      ],
+      responses: { [PROBE_COMMAND]: '.git/rebase-merge' }
+    })
+
+    await validateGitSyncRepoOnStartup(deps)
+
+    expect(deps.commands).toContain('git rebase --abort')
+    expect(deps.files.has(LOCK_PATH)).toBe(false)
+  })
+
+  /**
+   * Refusing to start Strapi because a daily job holds the lock would turn a
+   * brief race into an outage, and the first editor save recovers anyway.
+   */
+  it('boots without recovering when another writer holds the lock', async () => {
+    const clock = { ms: NOW }
+    const deps = startupDeps({ files: heldLock(NOW), clock })
+
+    await expect(validateGitSyncRepoOnStartup(deps)).resolves.toBeUndefined()
+
+    expect(deps.commands).not.toContain('git rebase --abort')
+    expect(deps.files.has(LOCK_PATH)).toBe(true)
+  })
+})

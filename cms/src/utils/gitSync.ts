@@ -401,7 +401,27 @@ export async function validateGitSyncRepoOnStartup(
 
   // A restart is the natural moment to clear a checkout an earlier run left
   // mid-operation, and doing it here puts the state in the boot log.
-  const recovered = await recoverInterruptedOperation(repoRoot, deps)
+  //
+  // Under the mutex: unlocked, a restart landing while the workflow is mid
+  // rebase would `git rebase --abort` its integration out from under it.
+  const lock = await acquireSyncLock(repoRoot, deps)
+  if (lock instanceof Error) {
+    // Deliberately not fatal. The other writer holds the lock legitimately and
+    // will finish shortly; the first editor save recovers anything it leaves.
+    // Refusing to boot over a daily job's lock would turn a race into an outage.
+    console.warn(
+      `⚠️  Skipping startup recovery: ${lock.message}. ` +
+        `The next content sync will recover any interrupted operation.`
+    )
+    console.log(
+      `✅ Git sync repository validated: ${repoRoot} (branch: ${branch})`
+    )
+    return
+  }
+
+  const recovered = await tryCatchAsync(() =>
+    recoverInterruptedOperation(repoRoot, deps)
+  ).finally(() => lock.release())
   if (recovered instanceof Error) throw recovered
 
   console.log(
