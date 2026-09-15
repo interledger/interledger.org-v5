@@ -21,6 +21,7 @@ export {
   type SocialIconName
 } from './shared/url'
 export { tryCatch, tryCatchAsync } from './shared/tryCatch'
+export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
@@ -134,6 +135,16 @@ export {
   paginatePodcastEpisodes,
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
+export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
+// From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
+// (via getCollection) at module scope, so re-exporting these two through it
+// would pull that server-only dependency into any client bundle that imports
+// them from the @/utils barrel.
+export {
+  matchesBlogSearch,
+  filterBlogPosts,
+  type BlogSearchFilters
+} from './main/blogSearchFilters'
 export {
   ALL_GRANTEE_YEAR_SLUG,
   GRANTEE_TAG_PREFIX,

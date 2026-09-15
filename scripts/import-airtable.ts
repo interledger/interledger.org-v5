@@ -102,7 +102,7 @@ async function writeAirtableJson(data: TableRecord[]) {
   // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
   // stringify output would fail lint and bury every real change under thousands of lines
   // of formatting churn. Formatting here keeps a local run and the automated sync in
-  // .github/workflows/strapi-rebuild-and-sync.yml byte-identical.
+  // .github/workflows/sync-airtable.yml byte-identical.
   const config = await prettier.resolveConfig(filePath)
   const formatted = await prettier.format(JSON.stringify(data, null, 2), {
     ...config,

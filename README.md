@@ -368,11 +368,12 @@ This all lives in one workflow, `.github/workflows/scheduled-content-sync.yml`, 
 1. Pulls the latest commit for that branch onto the VM.
 2. Rebuilds and restarts the Strapi service **only if** `/cms` changed since the last time this job ran (a manual `workflow_dispatch` run always rebuilds, so it can be used to recover from a bad prior deploy). This is the code deploy step — content types, lifecycles, plugins — not content.
 3. Runs `pnpm run sync:all` in `cms/` to sync content, navigation, and media, regardless of whether a rebuild happened.
-4. Runs `pnpm run sync:airtable` from the repo root and, if `src/data/airtable/grantee-data.json` changed, commits just that one file and pushes it to the branch. See [Grantee Data (Airtable Integration)](#grantee-data-airtable-integration).
 
 - **Schedule**: 08:00 SAST daily (`06:00 UTC` — South Africa Standard Time has no daylight saving).
 - **Manual/on-demand run**: trigger `workflow_dispatch` on `scheduled-content-sync.yml` when a change needs to land before the next scheduled run — it always rebuilds and then syncs.
-- **Failure notification**: posts to the `frontend-team` Slack channel if any stage fails; the message names the stage (Strapi rebuild/content sync, or Airtable grantee sync).
+- **Failure notification**: posts to the `frontend-team` Slack channel if the rebuild or the sync fails.
+
+Grantee data from Airtable is deliberately **not** part of this job — it needs no VM, no Strapi, and no systemd. It runs on its own schedule in `.github/workflows/sync-airtable.yml` and opens a pull request rather than pushing to a branch. See [Grantee Data (Airtable Integration)](#grantee-data-airtable-integration).
 
 ### Hosting Architecture
 
@@ -765,9 +766,7 @@ To make the work funded through Interledger Foundation grants easier to explore,
 
 ### Syncing Data from Airtable
 
-The sync runs automatically at the end of the daily Strapi rebuild — see [Content Sync Schedule](#content-sync-schedule) — for both `staging` and `playground`. When the fetched data differs from what is committed, the workflow commits `src/data/airtable/grantee-data.json` on its own as `chore(data): sync grantee data from Airtable` and pushes to the branch, which triggers a Netlify build. When nothing changed it is a no-op — no empty commit.
-
-To run it by hand, locally or to land a change before the next scheduled run:
+Run the script by hand, locally or to preview a change before the next scheduled run:
 
 ```sh
 pnpm run sync:airtable
@@ -783,9 +782,22 @@ pnpm run sync:airtable
 **Requirements:**
 
 - `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
-- In CI the token comes from the `ENV_AIRTABLE_API_TOKEN` secret on the `strapi-staging` and `strapi-playground` GitHub Environments
+- In CI the token comes from the `AIRTABLE_API_TOKEN` secret on the `staging` GitHub Actions environment
 
 The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as constants at the top of `scripts/import-airtable.ts`. They reference Airtable IDs (stable across renames), not field names — so editors can rename fields in Airtable without breaking the script.
+
+### Automated Sync
+
+`.github/workflows/sync-airtable.yml` runs the same script on a schedule and, when the data has changed, **opens a pull request against `staging`** rather than committing to it. The grantee directory is public-facing data, so a person sees every change before it ships.
+
+- **Schedule**: 09:00 SAST daily (`07:00 UTC`), one hour after the Strapi content sync so it branches from a settled `staging`. `workflow_dispatch` runs it on demand.
+- **When nothing changed**: the run is a true no-op — no branch, no empty commit, no PR. It reports the decision in the run summary and exits green.
+- **When something changed**: the workflow commits `src/data/airtable/grantee-data.json` as `chore(data): sync grantee data from Airtable`, force-pushes the branch `chore/airtable-grantee-sync`, and opens a PR — or refreshes the existing one, so there is never more than one open.
+- **The PR body** reports the record-count delta (e.g. `267 → 269`), so the change can be sanity-checked without reading ~4,900 lines of JSON.
+- **Merging it** triggers a Netlify build of staging, same as any other merge.
+- **Secrets**: the job runs in the `staging` GitHub Actions environment, which holds both the Airtable token and the GitHub App credential used to open the PR.
+
+The branch is recreated from `staging` on every run, which keeps the PR at exactly one commit and means it can never develop a merge conflict. The flip side: anything committed to that branch by hand is discarded on the next run.
 
 ## Developers Roadmap (Linear Integration)
 

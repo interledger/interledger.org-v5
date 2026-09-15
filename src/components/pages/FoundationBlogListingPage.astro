@@ -109,15 +109,17 @@ const featuredPosts = showFeatured
           )
         }
       </BlogIndexFoundation>
-      <Pagination
-        baseUrl={basePath}
-        length={page.lastPage}
-        currentPage={page.currentPage}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        label={title}
-        class="mt-section"
-      />
+      <div data-blog-pagination>
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          label={title}
+          class="mt-section"
+        />
+      </div>
       <div class="mt-section">
         <CtaStrip
           heading={t('blog.cta.heading')}

@@ -1,7 +1,4 @@
 name: Strapi Rebuild & Sync
-# Rebuilds the Strapi service if /cms changed, syncs content/navigation/media into it, then
-# refreshes src/data/airtable/grantee-data.json and commits it back to the deploy branch.
-#
 # Shared implementation behind every entry point that rebuilds and syncs a Strapi VM:
 #   - scheduled-content-sync.yml — the daily run across staging and playground
 #   - build-and-sync.yml         — a manual run against one selected branch
@@ -42,18 +39,11 @@ jobs:
       cancel-in-progress: false
     runs-on: strapi-vm
     environment: ${{ inputs.branch == 'playground' && 'strapi-playground' || 'strapi-staging' }}
-    outputs:
-      # Names the stage that failed, so the Slack alert doesn't blame the rebuild for an Airtable
-      # outage. Only two stages can fail and a failure in the first skips the second, so the
-      # two-way expression is exact: anything other than the Airtable step failing means the
-      # rebuild/sync stage did.
-      failed_stage: ${{ steps.airtable-sync.outcome == 'failure' && 'Airtable grantee sync' || 'Strapi rebuild/content sync' }}
     env:
       DEPLOY_PATH: ${{ vars.ENV_DEPLOY_PATH }}
       STRAPI_SERVICE_NAME: ${{ vars.ENV_STRAPI_SERVICE_NAME }}
       STRAPI_URL: ${{ vars.ENV_STRAPI_URL }}
       STRAPI_API_TOKEN: ${{ secrets.ENV_STRAPI_API_TOKEN }}
-      AIRTABLE_API_TOKEN: ${{ secrets.ENV_AIRTABLE_API_TOKEN }}
       SYNC_FORCE: ${{ vars.ENV_SYNC_FORCE }}
       DEPLOY_BRANCH: ${{ inputs.branch }}
       FORCE_REBUILD: ${{ inputs.force_rebuild }}
@@ -97,13 +87,6 @@ jobs:
 
           if [ -z "${STRAPI_API_TOKEN:-}" ]; then
             echo "Error: ENV_STRAPI_API_TOKEN is not set for this environment."
-            exit 1
-          fi
-
-          # Checked here rather than in the Airtable step it belongs to: that step runs last,
-          # so a missing token would otherwise surface only after a full rebuild.
-          if [ -z "${AIRTABLE_API_TOKEN:-}" ]; then
-            echo "Error: ENV_AIRTABLE_API_TOKEN is not set for this environment."
             exit 1
           fi
 
@@ -490,13 +473,13 @@ jobs:
           payload: |
             {
               "channel": "frontend-team",
-              "text": "❌ ${{ needs.rebuild-and-sync.outputs.failed_stage || 'Strapi rebuild/sync' }} failed for *${{ inputs.branch }}* in *${{ github.repository }}*",
+              "text": "❌ Strapi rebuild/sync failed for *${{ inputs.branch }}* in *${{ github.repository }}*",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "❌ *${{ needs.rebuild-and-sync.outputs.failed_stage || 'Strapi rebuild/sync' }} failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ inputs.branch }}\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                    "text": "❌ *Strapi Rebuild/Sync Failed*\n*Workflow:* ${{ github.workflow }}\n*Branch:* ${{ inputs.branch }}\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
                   }
                 }
               ]

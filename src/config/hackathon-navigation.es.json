@@ -27,6 +27,10 @@
         {
           "label": "Código de conducta",
           "href": "/es/hackathon/code-conduct"
+        },
+        {
+          "label": "Política de IA",
+          "href": "/es/hackathon/ai-policy"
         }
       ]
     }

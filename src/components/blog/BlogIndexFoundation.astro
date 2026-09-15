@@ -5,14 +5,17 @@ import {
   buildUmamiAttrs,
   getBlogThumbnail,
   getBlogPostPath,
-  getReadingTime
+  getReadingTime,
+  translateTerm
 } from '@/utils'
 import type { Locale } from '@/utils'
 import type { CollectionEntry } from 'astro:content'
+import Icon from '@/components/shared/Icon.astro'
 import TaxonomyFilter from '@/components/shared/TaxonomyFilter.astro'
 import ContentLangFilter from './ContentLangFilter.astro'
 import ContentLangNotice from './ContentLangNotice.astro'
 import BlogCard from './BlogCard.astro'
+import BlogSearchResultTemplate from './BlogSearchResultTemplate.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -50,6 +53,13 @@ const postAttrs = (href: string, linkText: string) =>
     href,
     linkText
   })
+
+const categoryLabels = Object.fromEntries(
+  allTerms.map((term) => [term, translateTerm('blog.categories', term, t)])
+)
+// Not routeLocale-scoped: the index covers both content languages in one
+// file (see blogSearch.ts), so it lives at a single, unprefixed URL.
+const searchIndexUrl = '/blog-search-index.json'
 ---
 
 <h1
@@ -62,9 +72,38 @@ const postAttrs = (href: string, linkText: string) =>
 
 <section
   aria-label={t('aria.blog.filters_label')}
+  data-blog-search-root
+  data-search-index-url={searchIndexUrl}
+  data-selected-content-lang={contentLang}
+  data-selected-category={isTermFallback ? undefined : selectedTerm}
+  data-pathname={Astro.url.pathname}
+  data-lang={routeLocale}
+  data-category-labels={JSON.stringify(categoryLabels)}
+  data-searching-label={t('blog.search.searching')}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
-  <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+  <div
+    class="flex flex-col gap-md tablet:flex-row tablet:items-center tablet:gap-xl"
+  >
+    <div class="relative w-full max-w-100 tablet:w-100">
+      <label for="blog-search" class="sr-only">
+        {t('blog.search.label')}
+      </label>
+      <Icon
+        name="search"
+        class="pointer-events-none absolute top-1/2 left-lg size-5 -translate-y-1/2 text-neutral-75"
+      />
+      <input
+        id="blog-search"
+        type="search"
+        placeholder={t('blog.search.placeholder')}
+        autocomplete="off"
+        class="w-full rounded-lg border border-neutral-50 bg-white py-md ps-3xl pe-lg text-base text-neutral-900 outline-none transition-colors placeholder:text-neutral-75 focus:border-primary focus:ring-1 focus:ring-primary [&::-webkit-search-cancel-button]:cursor-pointer"
+      />
+    </div>
+
+    <ContentLangFilter routeLocale={routeLocale} contentLang={contentLang} />
+  </div>
 
   <TaxonomyFilter
     collection="foundation-blog"
@@ -75,37 +114,101 @@ const postAttrs = (href: string, linkText: string) =>
     contentLangOverride={contentLangOverride}
   />
 
-  <ContentLangNotice
-    routeLocale={routeLocale}
-    contentLang={contentLang}
-    totalEntries={totalEntries}
-  />
+  <div data-blog-lang-notice>
+    <ContentLangNotice
+      routeLocale={routeLocale}
+      contentLang={contentLang}
+      totalEntries={totalEntries}
+    />
+  </div>
+
+  <p
+    class="m-0 text-body-sm-emphasis text-primary"
+    data-blog-search-count
+    data-results-template={t('blog.search.results', { count: '{count}' })}
+    hidden
+  >
+  </p>
+
+  {
+    /* Announcement channel for search results — see blog-search.ts. Never
+  hidden, so live-region updates actually reach the a11y tree. */
+  }
+  <p class="sr-only" role="status" aria-live="polite" data-blog-search-status>
+  </p>
 </section>
 
 {
-  isTermFallback && (
-    <p class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg">
-      {t('blog.empty_tag_lang.message')}
-    </p>
-  )
+  /* Everything the search swaps out lives in one region so it can be marked
+aria-busy while a search is in flight. The status node that announces the
+outcome deliberately sits outside it, in the filters section: announcements
+from inside an aria-busy container are deferred. */
 }
-
-<ol class="list-none p-0 m-0 flex flex-col gap-2xl">
+<div data-blog-results-region>
   {
-    posts.map((blogPostEntry) => {
-      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = getBlogPostPath(blogPostEntry)
-      const thumbnail = getBlogThumbnail(blogPostEntry)
-      return (
-        <BlogCard
-          blogData={blogPostEntry.data}
-          umamiAttrs={postAttrs}
-          excerpt={excerpt}
-          postPath={postPath}
-          thumbnail={thumbnail}
-          readingTime={getReadingTime(blogPostEntry.body)}
-        />
-      )
-    })
+    isTermFallback && (
+      <p
+        class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+        data-blog-term-fallback
+      >
+        {t('blog.empty_tag_lang.message')}
+      </p>
+    )
   }
-</ol>
+
+  <p
+    class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+    data-blog-search-empty
+    hidden
+  >
+    {t('blog.search.empty')}
+  </p>
+
+  <p
+    class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+    data-blog-search-error
+    hidden
+  >
+    {t('blog.search.error')}
+  </p>
+
+  <ol
+    class="list-none p-0 m-0 flex flex-col gap-2xl"
+    aria-label={t('aria.blog.posts_list')}
+    data-blog-list
+  >
+    {
+      posts.map((blogPostEntry) => {
+        const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+        const postPath = getBlogPostPath(blogPostEntry)
+        const thumbnail = getBlogThumbnail(blogPostEntry)
+        return (
+          <BlogCard
+            blogData={blogPostEntry.data}
+            umamiAttrs={postAttrs}
+            excerpt={excerpt}
+            postPath={postPath}
+            thumbnail={thumbnail}
+            readingTime={getReadingTime(blogPostEntry.body)}
+          />
+        )
+      })
+    }
+  </ol>
+
+  <ol
+    class="list-none p-0 m-0 flex flex-col gap-2xl"
+    aria-label={t('aria.blog.search_results')}
+    data-blog-search-results
+    hidden
+  >
+  </ol>
+</div>
+
+<BlogSearchResultTemplate />
+
+<script>
+  import { initBlogSearch } from '@/scripts/blog-search'
+
+  initBlogSearch()
+</script>

@@ -1,0 +1,253 @@
+name: Sync Airtable Grantee Data
+# Fetches the grantee directory data from Airtable. If the data changed, opens a pull request
+# against staging. It never commits to staging directly: the grantee directory is public-facing
+# data, so a person sees every change before it ships.
+#
+# This runs on a hosted runner, not on strapi-vm. The git credential on that VM belongs to the
+# strapi service user and the Actions runner does not inherit it, so a push from there fails
+# with "could not read Username". A hosted runner with an App token carries its own credential.
+
+on:
+  schedule:
+    # 09:00 SAST. One hour after the Strapi content sync, which pushes to staging — the offset
+    # means this workflow branches from a settled staging rather than a mid-sync one.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  # Two runs would force-push the same branch and could both try to create the PR. Never cancel
+  # a run between the push and the PR creation: that would leave a branch with no pull request.
+  group: sync-airtable
+  cancel-in-progress: false
+
+# Deliberately empty. `permissions:` governs ONLY the automatic GITHUB_TOKEN, and this workflow
+# never uses it: actions/checkout is handed the App token, and gh reads GH_TOKEN. Granting the
+# unused token contents/pull-requests write would be both pointless and misleading about what
+# actually authorizes the push and the PR.
+#
+# The operative grant is the GitHub App's own installation permissions, set in the App settings
+# and not in this file. It needs:
+#   Contents:      Read & write  (push the sync branch)
+#   Pull requests: Read & write  (POST /repos/{owner}/{repo}/pulls — read-only returns 403)
+permissions: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    # The GitHub App secrets live on this environment rather than at repository level, so the
+    # App credential stays controlled and does not reach every other workflow in the repo.
+    # AIRTABLE_API_TOKEN sits alongside them, because this job reads both.
+    environment: staging
+
+    env:
+      AIRTABLE_JSON: src/data/airtable/grantee-data.json
+      SYNC_BRANCH: chore/airtable-grantee-sync
+      BASE_BRANCH: staging
+
+    steps:
+      # Minted before the checkout so actions/checkout can persist it as the credential every
+      # later git command uses. A PR opened with this token triggers pr-checks.yml; one opened
+      # with the default GITHUB_TOKEN would not, and would land with no status checks at all.
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PUBLISH_APP_ID }}
+          private-key: ${{ secrets.PUBLISH_APP_PRIVATE_KEY }}
+
+      # ref is explicit: a scheduled run already uses the default branch, but workflow_dispatch
+      # lets someone pick any ref, and the PR base is always staging — so the branch has to be
+      # cut from staging or the diff would carry unrelated commits.
+      - name: Check out staging
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      # --ignore-scripts: the sync needs tsx, prettier and dotenv only, never a native build.
+      # Same reasoning as the test jobs in pr-checks.yml.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Sync grantee data from Airtable
+        id: sync
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # The script fails without the token too, but only after it reaches Airtable. Fail
+          # here, where the message names the secret and where it is configured.
+          if [ -z "${AIRTABLE_API_TOKEN:-}" ]; then
+            echo "Error: AIRTABLE_API_TOKEN is not set on the 'staging' environment."
+            exit 1
+          fi
+
+          # import-airtable.ts resolves './src/data/airtable' against the CWD, so it must run
+          # from the repo root. actions/checkout leaves us there.
+          pnpm run sync:airtable
+
+          # The script Prettier-formats its own output (see writeAirtableJson), so this is a
+          # tripwire rather than a fix-up. If that ever drifts from .prettierrc, fail here and
+          # not as a red `pnpm run lint` on somebody else's PR days later.
+          pnpm exec prettier --check "$AIRTABLE_JSON"
+
+          if git diff --quiet -- "$AIRTABLE_JSON"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Grantee data is unchanged — no branch, no commit, no pull request."
+            echo "Grantee data unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # Record counts give a reviewer a one-line sanity check on an otherwise opaque
+          # multi-thousand-line JSON diff. HEAD still holds the old file — nothing is committed
+          # yet. jq ships on ubuntu-latest.
+          {
+            echo "before_count=$(git show "HEAD:$AIRTABLE_JSON" | jq length)"
+            echo "after_count=$(jq length < "$AIRTABLE_JSON")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push the sync branch
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          # -B rebuilds the branch from the current staging every run, so it always carries
+          # exactly one commit and can never develop a merge conflict.
+          git checkout -B "$SYNC_BRANCH"
+
+          # Commit this one path. Nothing else should be dirty on a fresh runner, but the
+          # pathspec form makes that a guarantee rather than an assumption.
+          git commit -m 'chore(data): sync grantee data from Airtable' -- "$AIRTABLE_JSON"
+
+          # --force, not --force-with-lease: a shallow checkout has no origin ref for the lease
+          # to compare against. This workflow owns the branch and recreates it every run.
+          git push --force origin "HEAD:refs/heads/$SYNC_BRANCH"
+
+      - name: Open or update the pull request
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BEFORE_COUNT: ${{ steps.sync.outputs.before_count }}
+          AFTER_COUNT: ${{ steps.sync.outputs.after_count }}
+        run: |
+          set -euo pipefail
+
+          BODY_FILE="$RUNNER_TEMP/pr-body.md"
+
+          # Composed as { quoted heredoc; printf; quoted heredoc } rather than one interpolating
+          # heredoc: a quoted heredoc keeps every backtick as literal text, while an unquoted one
+          # would run the backticked markdown as command substitution. printf injects the counts.
+          {
+            cat <<'EOF'
+          ## Summary
+
+          Automated refresh of the grantee directory data from Airtable, opened by
+          `.github/workflows/sync-airtable.yml`. No human wrote this diff — all of it is
+          regenerated output from `pnpm run sync:airtable`.
+
+          EOF
+            printf 'Records: **%s → %s**\n\n' "$BEFORE_COUNT" "$AFTER_COUNT"
+            cat <<'EOF'
+          A record enters the directory when an editor sets **Published on Website** in the
+          Airtable Projects table, and leaves when that flag is cleared. A record can also change
+          without entering or leaving — check the file diff for those.
+
+          ## Related Issue
+
+          None — a schedule opens this pull request.
+
+          ## Manual Test
+
+          Reading the diff is the test. To see it rendered, check out this branch, run
+          `pnpm run start`, and open `/grant/grantee-directory`.
+
+          Worth a skim for:
+
+          - a plausible record-count change; a large drop usually means records were unpublished
+          - a reordering-only diff, which means somebody changed the Airtable view's sort rather
+            than the data
+
+          ## Checks
+
+          - [x] `pnpm run sync:airtable` — generated the updated file
+          - [x] `pnpm exec prettier --check src/data/airtable/grantee-data.json` — passed before the PR was opened
+
+          ## PR Checklist
+
+          - [x] PR title follows Conventional Commits
+          - [x] Scope is focused — exactly one file
+          - [ ] Linked issue included — N/A, scheduled automation
+
+          ---
+
+          This branch is rebuilt from `staging` and force-pushed on every run, so any commit
+          pushed to it by hand will be discarded. To make a change, close this PR and open
+          your own.
+          EOF
+          } > "$BODY_FILE"
+
+          # '// empty' matters: without it gh prints the string "null" when no PR is open, and
+          # `[ -n "null" ]` is true — so it would take the update path and `gh pr edit null`.
+          PR_NUMBER="$(gh pr list \
+            --head "$SYNC_BRANCH" \
+            --base "$BASE_BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [ -n "$PR_NUMBER" ]; then
+            # The force-push already moved the PR head; only the body is stale.
+            gh pr edit "$PR_NUMBER" --body-file "$BODY_FILE"
+            PR_URL="$(gh pr view "$PR_NUMBER" --json url --jq .url)"
+            echo "Updated existing pull request: $PR_URL"
+          else
+            PR_URL="$(gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$SYNC_BRANCH" \
+              --title 'chore(data): sync grantee data from Airtable' \
+              --body-file "$BODY_FILE")"
+            echo "Opened pull request: $PR_URL"
+          fi
+
+          echo "Grantee data changed: $BEFORE_COUNT → $AFTER_COUNT records. $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+
+  notify-slack:
+    runs-on: ubuntu-latest
+    needs: sync
+    # A daily job that fails silently is a job that is not running. SLACK_BOT_TOKEN is a
+    # repository secret, so this job needs no environment.
+    if: ${{ failure() }}
+    steps:
+      - name: Notify Slack on failure
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "frontend-team",
+              "text": "❌ Airtable grantee sync failed in *${{ github.repository }}*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Airtable Grantee Sync Failed*\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }

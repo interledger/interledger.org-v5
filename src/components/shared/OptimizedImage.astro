@@ -239,7 +239,10 @@ const imgSrc = media ? undefined : src
   for (const img of document.querySelectorAll<HTMLImageElement>(
     'img[data-blur-placeholder]'
   )) {
-    if (img.complete) {
+    // `complete` alone is not enough: it is also true for an image that has
+    // already failed, so a cached 404 would strip the placeholder and leave an
+    // empty box. A decoded image always reports a non-zero naturalWidth.
+    if (img.complete && img.naturalWidth > 0) {
       dropBlurPlaceholder(img)
     } else {
       // Only on `load`: a failed image should keep the blur rather than fall
