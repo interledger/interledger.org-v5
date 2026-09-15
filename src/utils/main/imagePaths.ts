@@ -32,16 +32,19 @@ export const DEFAULT_CDN_WIDTHS = [640, 1280, 1920] as const
 export const AVATAR_CDN_WIDTHS = [240, 480] as const
 
 /**
- * CDN width for a blog search-result thumbnail.
+ * Width ladder for blog search-result thumbnails.
  *
- * Search rows are built in the browser from the JSON catalog, so they cannot
- * emit a `<picture>` srcset and instead take a single URL — which
- * `getOptimizedImage` derives from the widest entry in the ladder it is given.
- * On the default ladder that is 1920, for a column that is ~340 CSS px wide
- * (`desktop:basis-[30%]`, capped at 220 px tall). One rung at 640 still covers
- * that column at DPR 2 while sending a fraction of the bytes.
+ * Search rows are built in the browser from the JSON catalog, so they cannot be
+ * rendered through `OptimizedImage`. The srcset is instead precomputed at build
+ * time and shipped in the catalog, which is why this ladder exists separately
+ * from the default one.
+ *
+ * The row is ~420 CSS px on desktop (`basis-[30%]` of the 1440px content cap)
+ * and full-width below it (~358 px on a 390px phone). 640 covers both at DPR 1
+ * and 1280 covers DPR 2-3; 1920 is never reachable at this size, so offering it
+ * would only bill transforms nothing selects.
  */
-export const SEARCH_THUMBNAIL_CDN_WIDTHS = [640] as const
+export const SEARCH_THUMBNAIL_CDN_WIDTHS = [640, 1280] as const
 
 /**
  * Encoding quality, shared by the two things that can produce a variant: the

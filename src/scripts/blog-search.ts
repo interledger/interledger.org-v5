@@ -117,7 +117,28 @@ export function syncSearchHrefs(
   }
 }
 
-export function initBlogSearch(): void {
+/** Every element the search touches, resolved once. */
+interface BlogSearchDom {
+  root: HTMLElement
+  input: HTMLInputElement
+  staticList: HTMLElement
+  searchResults: HTMLOListElement
+  emptyState: HTMLElement
+  rowTemplate: HTMLTemplateElement
+  categoryTemplate: HTMLTemplateElement
+  langNotice: HTMLElement | null
+  searchCount: HTMLElement | null
+  searchStatus: HTMLElement | null
+  pagination: HTMLElement | null
+  resultsRegion: HTMLElement | null
+  searchError: HTMLElement | null
+  /** Only on a term-fallback route, where the static list is every post for
+   * the language rather than the filtered term. */
+  termFallbackNotice: HTMLElement | null
+}
+
+/** Resolves the search DOM, or null on a page that has no search on it. */
+function collectSearchDom(): BlogSearchDom | null {
   const root = document.querySelector<HTMLElement>('[data-blog-search-root]')
   const input = document.getElementById('blog-search')
   const staticList = document.querySelector<HTMLElement>('[data-blog-list]')
@@ -126,29 +147,6 @@ export function initBlogSearch(): void {
   )
   const emptyState = document.querySelector<HTMLElement>(
     '[data-blog-search-empty]'
-  )
-  const langNotice = document.querySelector<HTMLElement>(
-    '[data-blog-lang-notice]'
-  )
-  const searchCount = document.querySelector<HTMLElement>(
-    '[data-blog-search-count]'
-  )
-  const searchStatus = document.querySelector<HTMLElement>(
-    '[data-blog-search-status]'
-  )
-  const pagination = document.querySelector<HTMLElement>(
-    '[data-blog-pagination]'
-  )
-  const resultsRegion = document.querySelector<HTMLElement>(
-    '[data-blog-results-region]'
-  )
-  const searchError = document.querySelector<HTMLElement>(
-    '[data-blog-search-error]'
-  )
-  // Only rendered on a term-fallback route, where the static list is every post
-  // for the language rather than the filtered term.
-  const termFallbackNotice = document.querySelector<HTMLElement>(
-    '[data-blog-term-fallback]'
   )
   const rowTemplate = document.getElementById('blog-search-result-template')
   const categoryTemplate = document.querySelector<HTMLTemplateElement>(
@@ -164,49 +162,131 @@ export function initBlogSearch(): void {
     !(rowTemplate instanceof HTMLTemplateElement) ||
     !categoryTemplate
   ) {
-    return
+    return null
   }
 
-  // Captured non-null so nested function declarations (e.g.
-  // searchResultContext) don't re-trigger the null check on `root`.
-  const searchRoot = root
+  return {
+    root,
+    input,
+    staticList,
+    searchResults,
+    emptyState,
+    rowTemplate,
+    categoryTemplate,
+    langNotice: document.querySelector('[data-blog-lang-notice]'),
+    searchCount: document.querySelector('[data-blog-search-count]'),
+    searchStatus: document.querySelector('[data-blog-search-status]'),
+    pagination: document.querySelector('[data-blog-pagination]'),
+    resultsRegion: document.querySelector('[data-blog-results-region]'),
+    searchError: document.querySelector('[data-blog-search-error]'),
+    termFallbackNotice: document.querySelector('[data-blog-term-fallback]')
+  }
+}
 
-  const rawIndexUrl = root.dataset.searchIndexUrl
-  if (!rawIndexUrl) return
-  // Captured non-null, like searchRoot above: the guard's narrowing does not
-  // reach the nested function declarations below.
-  const indexUrl = rawIndexUrl
+/** The page-load visibility the static listing returns to. */
+interface StaticViewBaseline {
+  initialStaticHidden: boolean
+  initialEmptyHidden: boolean
+}
 
-  const lang = (root.dataset.selectedContentLang ?? '') as Locale
-  // Raw category term, absent on /category/all and on term-fallback pages
-  // (where the static list itself shows every post for the language).
-  const category = root.dataset.selectedCategory || undefined
-  const categoryLabels = JSON.parse(
-    root.dataset.categoryLabels ?? '{}'
-  ) as Record<string, string>
+export type BlogSearchViewMode =
+  | ({ mode: 'static' } & StaticViewBaseline)
+  | ({ mode: 'error' } & StaticViewBaseline)
+  | { mode: 'searching'; awaitingFetch: boolean }
+  | { mode: 'results'; resultCount: number }
 
-  const initialStaticHidden = staticList.hidden
-  const initialEmptyHidden = emptyState.hidden
-  const resultsTemplate = searchCount?.dataset.resultsTemplate ?? '{count}'
-  // Server-rendered and never change; read once so each announcement and the
-  // visible copy it mirrors can't drift apart.
-  const emptyMessage = emptyState.textContent?.trim() ?? ''
-  const errorMessage = searchError?.textContent?.trim() ?? ''
-  const searchingMessage = searchRoot.dataset.searchingLabel ?? ''
+export interface BlogSearchViewState {
+  staticHidden: boolean
+  emptyHidden: boolean
+  resultsHidden: boolean
+  countHidden: boolean
+  errorHidden: boolean
+  langNoticeHidden: boolean
+  paginationHidden: boolean
+  termFallbackHidden: boolean
+  busy: boolean
+}
 
-  let debounceHandle: number | undefined
-  let requestId = 0
-  let lastTrackedQuery = ''
-
-  function trackCommittedSearch() {
-    const trimmed = input.value.trim()
-    if (!trimmed || trimmed === lastTrackedQuery) return
-    lastTrackedQuery = trimmed
-    trackSearch(trimmed)
+/**
+ * What each part of the listing should show in a given mode.
+ *
+ * Pure and separate from the DOM writes in `createSearchView` so the decisions
+ * that are easy to get wrong — pagination hiding the moment a query starts
+ * rather than when results land, the term-fallback notice travelling with the
+ * static listing it describes, the empty state and the results list being
+ * mutually exclusive — are testable without a DOM.
+ */
+export function computeSearchViewState(
+  input: BlogSearchViewMode
+): BlogSearchViewState {
+  if (input.mode === 'static' || input.mode === 'error') {
+    return {
+      staticHidden: input.initialStaticHidden,
+      emptyHidden: input.initialEmptyHidden,
+      resultsHidden: true,
+      countHidden: true,
+      errorHidden: input.mode !== 'error',
+      langNoticeHidden: false,
+      paginationHidden: false,
+      termFallbackHidden: false,
+      busy: false
+    }
   }
 
-  function syncFilterHrefs() {
-    syncSearchHrefs(searchRoot, input.value, window.location.origin)
+  if (input.mode === 'searching') {
+    return {
+      staticHidden: true,
+      emptyHidden: true,
+      resultsHidden: true,
+      countHidden: true,
+      errorHidden: true,
+      langNoticeHidden: true,
+      paginationHidden: true,
+      termFallbackHidden: true,
+      // Only a real fetch is worth marking busy; a cached filter resolves in
+      // the same tick.
+      busy: input.awaitingFetch
+    }
+  }
+
+  const hasResults = input.resultCount > 0
+  return {
+    staticHidden: true,
+    emptyHidden: hasResults,
+    resultsHidden: !hasResults,
+    countHidden: false,
+    errorHidden: true,
+    langNoticeHidden: true,
+    paginationHidden: true,
+    termFallbackHidden: true,
+    busy: false
+  }
+}
+
+interface SearchViewConfig extends StaticViewBaseline {
+  resultsTemplate: string
+  emptyMessage: string
+  errorMessage: string
+  searchingMessage: string
+  lang: Locale
+  categoryLabels: Record<string, string>
+}
+
+interface SearchView {
+  showStatic(): void
+  showSearching(awaitingFetch: boolean): void
+  showResults(entries: BlogSearchEntry[]): void
+  showError(): void
+}
+
+/** Owns every DOM write and every announcement. */
+function createSearchView(
+  dom: BlogSearchDom,
+  config: SearchViewConfig
+): SearchView {
+  const baseline: StaticViewBaseline = {
+    initialStaticHidden: config.initialStaticHidden,
+    initialEmptyHidden: config.initialEmptyHidden
   }
 
   /**
@@ -223,128 +303,122 @@ export function initBlogSearch(): void {
    * screen readers anyway, and re-announcing an identical count is just noise.
    */
   function announce(message: string) {
+    const { searchStatus } = dom
     if (!searchStatus || searchStatus.textContent === message) return
     searchStatus.textContent = message
   }
 
-  /**
-   * Marks the region whose contents the search replaces. The live region that
-   * announces the outcome sits outside it on purpose — updates to a live
-   * region inside an aria-busy container are held back until it clears.
-   */
-  function setBusy(busy: boolean) {
-    if (!resultsRegion) return
-    if (busy) {
-      resultsRegion.setAttribute('aria-busy', 'true')
-    } else {
-      resultsRegion.removeAttribute('aria-busy')
+  function applyViewState(state: BlogSearchViewState) {
+    dom.staticList.hidden = state.staticHidden
+    dom.emptyState.hidden = state.emptyHidden
+    dom.searchResults.hidden = state.resultsHidden
+    if (dom.searchCount) dom.searchCount.hidden = state.countHidden
+    if (dom.searchError) dom.searchError.hidden = state.errorHidden
+    if (dom.langNotice) dom.langNotice.hidden = state.langNoticeHidden
+    if (dom.pagination) dom.pagination.hidden = state.paginationHidden
+    if (dom.termFallbackNotice) {
+      dom.termFallbackNotice.hidden = state.termFallbackHidden
+    }
+    // The live region sits outside this container on purpose: updates to a
+    // live region inside an aria-busy element are held back until it clears.
+    if (dom.resultsRegion) {
+      if (state.busy) {
+        dom.resultsRegion.setAttribute('aria-busy', 'true')
+      } else {
+        dom.resultsRegion.removeAttribute('aria-busy')
+      }
     }
   }
 
-  function showStatic() {
-    staticList.hidden = initialStaticHidden
-    emptyState.hidden = initialEmptyHidden
-    searchResults.hidden = true
-    searchResults.replaceChildren()
-    if (langNotice) langNotice.hidden = false
-    if (searchCount) searchCount.hidden = true
-    if (pagination) pagination.hidden = false
-    if (searchError) searchError.hidden = true
-    // Belongs to the static listing it describes, so it comes back with it.
-    if (termFallbackNotice) termFallbackNotice.hidden = false
-    setBusy(false)
-    // Nothing to report while browsing; also lets the next search announce
-    // even if it lands on the same count as the previous one.
-    announce('')
-  }
-
-  // Applied as soon as a non-empty query starts a search (before the index
-  // fetch resolves), not just once results render — otherwise the static list
-  // and pagination stay visible for the debounce+fetch window of the first
-  // search, and Prev/Next would navigate away without `?q=`.
-  function enterSearchMode() {
-    staticList.hidden = true
-    if (langNotice) langNotice.hidden = true
-    if (pagination) pagination.hidden = true
-    if (searchError) searchError.hidden = true
-    // Describes the static term-filtered listing, not the search results, and
-    // lives outside staticList — so it needs hiding of its own or it sits above
-    // the results claiming nothing was found.
-    if (termFallbackNotice) termFallbackNotice.hidden = true
-  }
-
-  /**
-   * The index fetch failed. Restoring the static listing alone would read as
-   * "here are your results" while the input, `?q=` and filter links all still
-   * say a search is active, so say plainly that search is unavailable. The
-   * query is left in the field: it is the user's work, and a reload retries it.
-   */
-  function showSearchError() {
-    showStatic()
-    if (searchError) searchError.hidden = false
-    announce(errorMessage)
-  }
-
-  function searchResultContext(): SearchResultContext {
+  function resultContext(): SearchResultContext {
     return {
-      pathname: searchRoot.dataset.pathname ?? window.location.pathname,
-      lang: (searchRoot.dataset.lang ?? lang) as Locale,
-      categoryLabels
+      pathname: dom.root.dataset.pathname ?? window.location.pathname,
+      lang: (dom.root.dataset.lang ?? config.lang) as Locale,
+      categoryLabels: config.categoryLabels
     }
   }
 
-  function showSearchResults(entries: BlogSearchEntry[]) {
-    const context = searchResultContext()
-    searchResults.replaceChildren(
-      ...entries.map((entry) =>
-        createSearchResultRow(entry, rowTemplate, categoryTemplate, context)
+  return {
+    showStatic() {
+      applyViewState(computeSearchViewState({ mode: 'static', ...baseline }))
+      dom.searchResults.replaceChildren()
+      // Nothing to report while browsing; also lets the next search announce
+      // even if it lands on the same count as the previous one.
+      announce('')
+    },
+
+    showSearching(awaitingFetch: boolean) {
+      applyViewState(
+        computeSearchViewState({ mode: 'searching', awaitingFetch })
       )
-    )
-    const hasResults = entries.length > 0
-    searchResults.hidden = !hasResults
-    emptyState.hidden = hasResults
-    setBusy(false)
+      if (awaitingFetch) announce(config.searchingMessage)
+    },
 
-    const countMessage = resultsTemplate.replace(
-      '{count}',
-      String(entries.length)
-    )
-    if (searchCount) {
-      // Unhide before writing, so the text is never set on a `display: none`
-      // node — harmless for this visual-only node today, but it keeps the
-      // ordering correct if a live region is ever attached to it again.
-      searchCount.hidden = false
-      searchCount.textContent = countMessage
+    showResults(entries: BlogSearchEntry[]) {
+      const context = resultContext()
+      dom.searchResults.replaceChildren(
+        ...entries.map((entry) =>
+          createSearchResultRow(
+            entry,
+            dom.rowTemplate,
+            dom.categoryTemplate,
+            context
+          )
+        )
+      )
+      applyViewState(
+        computeSearchViewState({ mode: 'results', resultCount: entries.length })
+      )
+
+      const countMessage = config.resultsTemplate.replace(
+        '{count}',
+        String(entries.length)
+      )
+      if (dom.searchCount) dom.searchCount.textContent = countMessage
+      // A zero-result search is the case most worth hearing about, and the
+      // visible empty-state copy is more useful than "0 Results".
+      announce(
+        entries.length > 0 ? countMessage : config.emptyMessage || countMessage
+      )
+    },
+
+    showError() {
+      applyViewState(computeSearchViewState({ mode: 'error', ...baseline }))
+      dom.searchResults.replaceChildren()
+      announce(config.errorMessage)
     }
-
-    // A zero-result search is the case most worth hearing about, and the
-    // visible empty-state copy is more useful than "0 Results" — reuse it
-    // rather than duplicating the string.
-    announce(hasResults ? countMessage : emptyMessage || countMessage)
   }
+}
+
+interface SearchControllerConfig {
+  indexUrl: string
+  lang: Locale
+  category: string | undefined
+  view: SearchView
+  getQuery: () => string
+}
+
+/** Owns debouncing, stale-response guarding, and filtering against the index. */
+function createSearchController(config: SearchControllerConfig) {
+  const { indexUrl, lang, category, view, getQuery } = config
+  let debounceHandle: number | undefined
+  let requestId = 0
 
   async function runSearch(query: string) {
     const trimmed = query.trim()
     const myRequestId = ++requestId
 
     if (!trimmed) {
-      showStatic()
+      view.showStatic()
       return
     }
 
-    // Enter search mode (hide the static list and pagination) as soon as we
-    // know we're searching — not only once results render — so the chrome
-    // doesn't stay live during the debounce+fetch window of the first search.
-    enterSearchMode()
-
-    // Only the fetch takes real time, and only the first one: once the catalog
-    // is cached the filter is synchronous, so announcing "Searching…" on every
-    // keystroke would be noise ahead of the count that immediately follows.
-    const needsFetch = !isIndexCached(indexUrl)
-    if (needsFetch) {
-      setBusy(true)
-      announce(searchingMessage)
-    }
+    // Enter search mode as soon as we know we're searching — not only once
+    // results render — so the static list and pagination don't stay visible
+    // through the debounce+fetch window of the first search, where Prev/Next
+    // would navigate away without `?q=`.
+    const awaitingFetch = !isIndexCached(indexUrl)
+    view.showSearching(awaitingFetch)
 
     let index: BlogSearchEntry[]
     try {
@@ -352,28 +426,83 @@ export function initBlogSearch(): void {
     } catch {
       // Fail closed: keep the static, JS-independent listing on screen, but
       // say why rather than passing it off as search results.
-      if (myRequestId === requestId) showSearchError()
+      if (myRequestId === requestId) view.showError()
       return
     }
 
-    if (myRequestId !== requestId || input.value.trim() !== trimmed) return
+    if (myRequestId !== requestId || getQuery().trim() !== trimmed) return
 
-    const matches = index.filter((entry) =>
-      matchesBlogSearch(entry, { q: trimmed, lang, category })
+    view.showResults(
+      index.filter((entry) =>
+        matchesBlogSearch(entry, { q: trimmed, lang, category })
+      )
     )
-    showSearchResults(matches)
   }
 
-  function scheduleSearch(query: string) {
-    window.clearTimeout(debounceHandle)
-    debounceHandle = window.setTimeout(() => {
-      void runSearch(query)
-      updateUrlQuery(query.trim())
-    }, DEBOUNCE_MS)
+  return {
+    runSearch,
+    scheduleSearch(query: string) {
+      window.clearTimeout(debounceHandle)
+      debounceHandle = window.setTimeout(() => {
+        void runSearch(query)
+        updateUrlQuery(query.trim())
+      }, DEBOUNCE_MS)
+    },
+    cancelScheduled() {
+      window.clearTimeout(debounceHandle)
+    }
+  }
+}
+
+export function initBlogSearch(): void {
+  const dom = collectSearchDom()
+  if (!dom) return
+
+  const { root, input } = dom
+  const indexUrl = root.dataset.searchIndexUrl
+  if (!indexUrl) return
+
+  const lang = (root.dataset.selectedContentLang ?? '') as Locale
+  const view = createSearchView(dom, {
+    // Server-rendered and never change; read once so each announcement and the
+    // visible copy it mirrors can't drift apart.
+    resultsTemplate: dom.searchCount?.dataset.resultsTemplate ?? '{count}',
+    emptyMessage: dom.emptyState.textContent?.trim() ?? '',
+    errorMessage: dom.searchError?.textContent?.trim() ?? '',
+    searchingMessage: root.dataset.searchingLabel ?? '',
+    initialStaticHidden: dom.staticList.hidden,
+    initialEmptyHidden: dom.emptyState.hidden,
+    lang,
+    categoryLabels: JSON.parse(root.dataset.categoryLabels ?? '{}') as Record<
+      string,
+      string
+    >
+  })
+
+  const controller = createSearchController({
+    indexUrl,
+    lang,
+    // Raw category term, absent on /category/all and on term-fallback pages
+    // (where the static list itself shows every post for the language).
+    category: root.dataset.selectedCategory || undefined,
+    view,
+    getQuery: () => input.value
+  })
+
+  function syncFilterHrefs() {
+    syncSearchHrefs(root, input.value, window.location.origin)
+  }
+
+  let lastTrackedQuery = ''
+  function trackCommittedSearch() {
+    const trimmed = input.value.trim()
+    if (!trimmed || trimmed === lastTrackedQuery) return
+    lastTrackedQuery = trimmed
+    trackSearch(trimmed)
   }
 
   input.addEventListener('input', () => {
-    scheduleSearch(input.value)
+    controller.scheduleSearch(input.value)
     // Ahead of the debounce, so a click landing mid-debounce still carries
     // the query the user can see in the field.
     syncFilterHrefs()
@@ -390,8 +519,8 @@ export function initBlogSearch(): void {
       event.preventDefault()
       input.value = ''
       lastTrackedQuery = ''
-      window.clearTimeout(debounceHandle)
-      showStatic()
+      controller.cancelScheduled()
+      view.showStatic()
       updateUrlQuery('')
       syncFilterHrefs()
     }
@@ -406,7 +535,7 @@ export function initBlogSearch(): void {
   )
   if (initialQuery) {
     input.value = initialQuery
-    void runSearch(initialQuery)
+    void controller.runSearch(initialQuery)
   }
   // After hydration, so a deep-linked `?q=` is already on the filter links
   // before the first click.

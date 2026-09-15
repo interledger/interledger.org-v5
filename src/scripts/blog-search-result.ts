@@ -1,5 +1,5 @@
 import type { BlogSearchEntry } from '@/utils/main/blogSearch'
-import type { BlogThumbnail } from '@/types/blog'
+import type { BlogSearchThumbnail } from '@/types/blog'
 import type { Locale } from '@/utils/main/locales'
 import { buildUmamiAttrs, type UmamiAttrs } from '@/utils/main/umami'
 
@@ -64,7 +64,10 @@ function applyUmamiAttrs(el: HTMLElement, attrs: UmamiAttrs): void {
  * handler. Cleared on `load` only: a failed image should keep the blur rather
  * than collapse to an empty box.
  */
-function applyThumbnail(img: HTMLImageElement, thumbnail: BlogThumbnail): void {
+function applyThumbnail(
+  img: HTMLImageElement,
+  thumbnail: BlogSearchThumbnail
+): void {
   const { blur } = thumbnail
   if (blur) {
     // Validated against BLUR_PLACEHOLDER_RE when the catalog was built, so it
@@ -73,6 +76,10 @@ function applyThumbnail(img: HTMLImageElement, thumbnail: BlogThumbnail): void {
     img.dataset.blurPlaceholder = ''
   }
 
+  // Before `src`, so the preload scanner picks the candidate the sizes
+  // attribute in BlogSearchResultTemplate.astro selects rather than starting
+  // the fallback fetch first.
+  if (thumbnail.srcset) img.srcset = thumbnail.srcset
   img.src = thumbnail.src
   img.alt = thumbnail.alt
 
@@ -81,7 +88,11 @@ function applyThumbnail(img: HTMLImageElement, thumbnail: BlogThumbnail): void {
     img.style.backgroundImage = 'none'
     img.removeAttribute('data-blur-placeholder')
   }
-  if (img.complete) {
+  // `complete` is also true for an image that has already *failed*, so it
+  // cannot stand alone here: a cached 404 would strip the placeholder and
+  // leave an empty box. A decoded image always reports a non-zero
+  // naturalWidth, so the pair distinguishes loaded from failed.
+  if (img.complete && img.naturalWidth > 0) {
     dropBlurPlaceholder()
   } else {
     img.addEventListener('load', dropBlurPlaceholder, { once: true })

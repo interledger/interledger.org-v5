@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { CollectionEntry } from 'astro:content'
 
 // `./blogSearch` -> `./i18` -> `./locales` reaches into Astro's virtual modules
@@ -21,6 +21,11 @@ vi.mock('astro:content', async () => {
 })
 
 const { getBlogSearchIndex } = await import('./blogSearch')
+const {
+  setImageCdnEnabledForTests,
+  setDeployedImageSourcesForTests,
+  setOptimizedImageVariantCatalogForTests
+} = await import('./images')
 
 type Entry = CollectionEntry<'foundation-blog'>
 
@@ -73,6 +78,67 @@ describe('getBlogSearchIndex', () => {
     getCollectionMock.mockResolvedValue([])
 
     await expect(getBlogSearchIndex()).resolves.toEqual([])
+  })
+
+  describe('thumbnails', () => {
+    const IMAGE = '/img/foundation-blog/mapped.jpg'
+
+    afterEach(() => {
+      setImageCdnEnabledForTests(null)
+      setDeployedImageSourcesForTests(null)
+      setOptimizedImageVariantCatalogForTests(null)
+    })
+
+    it('ships a srcset covering both rungs, with src on the narrowest', async () => {
+      setImageCdnEnabledForTests(true)
+      setDeployedImageSourcesForTests([IMAGE])
+      getCollectionMock.mockResolvedValue([
+        makePost({ slug: 'p', date: '2026-01-01', featureImage: IMAGE })
+      ])
+
+      const [entry] = await getBlogSearchIndex()
+
+      expect(entry.thumbnail?.srcset).toContain('640w')
+      expect(entry.thumbnail?.srcset).toContain('1280w')
+      expect(entry.thumbnail?.srcset).not.toContain('1920w')
+      // Narrowest rung, not fullSrc: fullSrc is the widest in CDN mode and the
+      // original-dimension file in build mode.
+      expect(entry.thumbnail?.src).toContain('w=640')
+    })
+
+    it('uses a numbered variant in build mode rather than the full-size file', async () => {
+      // Regression guard: cdnWidths only steers CDN mode, so a non-CDN build
+      // used to put the original-dimension -full.webp in a ~420px row.
+      setImageCdnEnabledForTests(false)
+      setOptimizedImageVariantCatalogForTests([
+        '/img/optimized/foundation-blog/mapped-640.webp',
+        '/img/optimized/foundation-blog/mapped-1280.webp',
+        '/img/optimized/foundation-blog/mapped-full.webp'
+      ])
+      getCollectionMock.mockResolvedValue([
+        makePost({ slug: 'p', date: '2026-01-01', featureImage: IMAGE })
+      ])
+
+      const [entry] = await getBlogSearchIndex()
+
+      expect(entry.thumbnail?.src).toBe(
+        '/img/optimized/foundation-blog/mapped-640.webp'
+      )
+      expect(entry.thumbnail?.src).not.toContain('-full')
+    })
+
+    it('falls back to the raw path with no srcset when nothing is optimizable', async () => {
+      setImageCdnEnabledForTests(true)
+      setDeployedImageSourcesForTests([])
+      getCollectionMock.mockResolvedValue([
+        makePost({ slug: 'p', date: '2026-01-01', legacy: true })
+      ])
+
+      const [entry] = await getBlogSearchIndex()
+
+      expect(entry.thumbnail?.src).toBe('/img/tech-thumbnail.svg')
+      expect(entry.thumbnail?.srcset).toBeUndefined()
+    })
   })
 
   it('puts every searchable field into searchText', async () => {

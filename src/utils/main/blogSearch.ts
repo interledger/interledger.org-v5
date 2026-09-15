@@ -1,11 +1,11 @@
 import { getCollection } from 'astro:content'
-import type { BlogThumbnail } from '@/types/blog'
+import type { BlogSearchThumbnail, BlogThumbnail } from '@/types/blog'
 import { foldSearchText } from '../shared/foldSearchText'
 import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
 import { getBlogPostPath, defaultLocale } from './i18'
-import { getOptimizedImage } from './images'
+import { buildImageSrcset, getOptimizedImage } from './images'
 import {
   SEARCH_THUMBNAIL_CDN_WIDTHS,
   sanitizeBlurPlaceholder
@@ -38,7 +38,7 @@ export interface BlogSearchEntry {
   categories: string[]
   date: string
   postPath: string
-  thumbnail: BlogThumbnail | null
+  thumbnail: BlogSearchThumbnail | null
   locale: Locale
   searchText: string
 }
@@ -48,30 +48,42 @@ function stripMarkdownSyntax(body: string): string {
 }
 
 /**
- * Client-rendered search rows use a plain <img> (no build-time <picture>
- * pipeline), so route the thumbnail through the same single-URL-context
- * pattern as getHeroSectionStyle/VideoEmbed: take the optimized/CDN fullSrc,
- * falling back to the raw path when optimization isn't available (SVG/GIF
- * sources, or a source not yet in the deployed-sources catalog).
+ * Build the thumbnail a client-rendered search row gets.
  *
- * The narrow ladder matters here: fullSrc is the widest rung offered, so the
- * default would hand a ~340 px column a 1920 px file. The LQIP rides along so
- * search rows blur up like the static BlogCard does, and is sanitised now
- * rather than in the browser — it ends up inside a CSS `url()`, and the
+ * Rows are cloned from a `<template>` in the browser, so they never pass
+ * through `OptimizedImage`'s build-time `<picture>`. The responsive data is
+ * therefore precomputed here and shipped in the catalog: a `srcset` the row's
+ * plain `<img>` can use, so the browser still picks per device rather than
+ * being handed one fixed width.
+ *
+ * `src` is the narrowest variant rather than `fullSrc`, because `fullSrc`
+ * means different things in the two image modes: the widest CDN rung with the
+ * CDN on, but the *original-dimension* `-full.webp` in build-encoder mode,
+ * which would put a full-size file in a ~420px row on any non-CDN build. It
+ * only falls back to `fullSrc`, then the raw path, when there are no variants
+ * at all (an SVG, or a source missing from this deploy's catalog).
+ *
+ * The LQIP rides along so rows blur up like the static BlogCard, sanitised
+ * here rather than in the browser — it ends up inside a CSS `url()`, and the
  * catalog is the last point where the value is still ours to validate.
  */
 function toSearchThumbnail(
   thumbnail: BlogThumbnail | null
-): BlogThumbnail | null {
+): BlogSearchThumbnail | null {
   if (!thumbnail) return null
-  const fullSrc = getOptimizedImage(
+
+  const { variants, fullSrc } = getOptimizedImage(
     thumbnail.src,
     SEARCH_THUMBNAIL_CDN_WIDTHS
-  ).fullSrc
+  )
+  const narrowest = variants[0]?.src
   const blur = sanitizeBlurPlaceholder(thumbnail.blur)
+  const srcset = variants.length > 0 ? buildImageSrcset(variants) : undefined
+
   return {
-    src: fullSrc ?? thumbnail.src,
+    src: narrowest ?? fullSrc ?? thumbnail.src,
     alt: thumbnail.alt,
+    ...(srcset ? { srcset } : {}),
     ...(blur ? { blur } : {})
   }
 }
