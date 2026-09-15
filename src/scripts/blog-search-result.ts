@@ -9,13 +9,21 @@ import { buildUmamiAttrs, type UmamiAttrs } from '@/utils/main/umami'
 // with no astro:content dependency.
 const DATE_LOCALE_MAP: Record<Locale, string> = { es: 'es-ES', en: 'en-US' }
 
-function formatSearchResultDate(date: Date, lang: Locale): string {
+/**
+ * Frontmatter dates are date-only, so they arrive as UTC midnight. Formatting
+ * that in the viewer's zone rolls it back a day everywhere west of Greenwich
+ * — the whole Americas would see a search row dated one day before the same
+ * post's byline, which the build renders in UTC. Pinning the zone keeps the
+ * authored date, and matches how the roadmap and grantee dates are formatted.
+ */
+export function formatSearchResultDate(date: Date, lang: Locale): string {
   if (Number.isNaN(date.getTime())) return ''
   const locale = DATE_LOCALE_MAP[lang] ?? DATE_LOCALE_MAP.en
   return date.toLocaleDateString(locale, {
     month: 'short',
     day: 'numeric',
-    year: 'numeric'
+    year: 'numeric',
+    timeZone: 'UTC'
   })
 }
 
