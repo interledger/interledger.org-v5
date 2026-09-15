@@ -80,6 +80,9 @@ export const ui = {
     'blog.search.label': 'Search blog posts',
     'blog.search.placeholder': 'Search',
     'blog.search.results': '{count} Results',
+    'blog.search.searching': 'Searching…',
+    'blog.search.error':
+      'Search is unavailable right now. Showing all posts instead — please try again later.',
     'blog.search.empty':
       'No results found. Please adjust your keyword search or filter settings.',
     'blog.empty_tag_lang.message':
@@ -204,6 +207,8 @@ export const ui = {
     'aria.authors_bios': 'About the authors',
     'aria.article_categories': 'Article categories',
     'aria.blog.filters_label': 'Filters',
+    'aria.blog.posts_list': 'Blog posts',
+    'aria.blog.search_results': 'Search results',
     'contact.title': 'Contact us',
     'contact.description': 'Get in touch with the Interledger Foundation.',
     'contact.support_heading': 'Get in touch',
@@ -462,6 +467,8 @@ export const ui = {
     'blog.search.label': 'Buscar publicaciones del blog',
     'blog.search.placeholder': 'Buscar',
     'blog.search.results': '{count} resultados',
+    'blog.search.searching': '',
+    'blog.search.error': '',
     'blog.search.empty':
       'No se encontraron resultados. Ajusta tu búsqueda o los filtros seleccionados.',
     'blog.empty_tag_lang.message':
@@ -582,6 +589,8 @@ export const ui = {
     'aria.authors_bios': 'Acerca de los autores',
     'aria.article_categories': 'Categorías del artículo',
     'aria.blog.filters_label': 'Filtros',
+    'aria.blog.posts_list': '',
+    'aria.blog.search_results': '',
     'contact.title': '',
     'contact.description': '',
     'contact.support_heading': '',

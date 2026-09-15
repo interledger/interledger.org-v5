@@ -79,6 +79,7 @@ const searchIndexUrl = '/blog-search-index.json'
   data-pathname={Astro.url.pathname}
   data-lang={routeLocale}
   data-category-labels={JSON.stringify(categoryLabels)}
+  data-searching-label={t('blog.search.searching')}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
   <div
@@ -138,47 +139,71 @@ const searchIndexUrl = '/blog-search-index.json'
 </section>
 
 {
-  isTermFallback && (
-    <p class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg">
-      {t('blog.empty_tag_lang.message')}
-    </p>
-  )
+  /* Everything the search swaps out lives in one region so it can be marked
+aria-busy while a search is in flight. The status node that announces the
+outcome deliberately sits outside it, in the filters section: announcements
+from inside an aria-busy container are deferred. */
 }
-
-<p
-  class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
-  data-blog-search-empty
-  hidden
->
-  {t('blog.search.empty')}
-</p>
-
-<ol class="list-none p-0 m-0 flex flex-col gap-2xl" data-blog-list>
+<div data-blog-results-region>
   {
-    posts.map((blogPostEntry) => {
-      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-      const postPath = getBlogPostPath(blogPostEntry)
-      const thumbnail = getBlogThumbnail(blogPostEntry)
-      return (
-        <BlogCard
-          blogData={blogPostEntry.data}
-          umamiAttrs={postAttrs}
-          excerpt={excerpt}
-          postPath={postPath}
-          thumbnail={thumbnail}
-          readingTime={getReadingTime(blogPostEntry.body)}
-        />
-      )
-    })
+    isTermFallback && (
+      <p
+        class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+        data-blog-term-fallback
+      >
+        {t('blog.empty_tag_lang.message')}
+      </p>
+    )
   }
-</ol>
 
-<ol
-  class="list-none p-0 m-0 flex flex-col gap-2xl"
-  data-blog-search-results
-  hidden
->
-</ol>
+  <p
+    class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+    data-blog-search-empty
+    hidden
+  >
+    {t('blog.search.empty')}
+  </p>
+
+  <p
+    class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+    data-blog-search-error
+    hidden
+  >
+    {t('blog.search.error')}
+  </p>
+
+  <ol
+    class="list-none p-0 m-0 flex flex-col gap-2xl"
+    aria-label={t('aria.blog.posts_list')}
+    data-blog-list
+  >
+    {
+      posts.map((blogPostEntry) => {
+        const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+        const postPath = getBlogPostPath(blogPostEntry)
+        const thumbnail = getBlogThumbnail(blogPostEntry)
+        return (
+          <BlogCard
+            blogData={blogPostEntry.data}
+            umamiAttrs={postAttrs}
+            excerpt={excerpt}
+            postPath={postPath}
+            thumbnail={thumbnail}
+            readingTime={getReadingTime(blogPostEntry.body)}
+          />
+        )
+      })
+    }
+  </ol>
+
+  <ol
+    class="list-none p-0 m-0 flex flex-col gap-2xl"
+    aria-label={t('aria.blog.search_results')}
+    data-blog-search-results
+    hidden
+  >
+  </ol>
+</div>
 
 <BlogSearchResultTemplate />
 

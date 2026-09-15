@@ -32,6 +32,11 @@ interface FakePost {
   categories?: string[]
   locale?: string
   body?: string
+  thumbnailImage?: string
+  featureImage?: string
+  featureImageAlt?: string
+  featureImageBlur?: string
+  legacy?: boolean
 }
 
 // Minimal stand-in for a content collection entry; only the fields
@@ -48,7 +53,11 @@ function makePost(post: FakePost): Entry {
       categories: post.categories ?? [],
       locale: post.locale ?? 'en',
       featured: false,
-      legacy: false,
+      legacy: post.legacy ?? false,
+      thumbnailImage: post.thumbnailImage,
+      featureImage: post.featureImage,
+      featureImageAlt: post.featureImageAlt,
+      featureImageBlur: post.featureImageBlur,
       articleBios: [],
       relatedArticles: []
     }
@@ -64,6 +73,137 @@ describe('getBlogSearchIndex', () => {
     getCollectionMock.mockResolvedValue([])
 
     await expect(getBlogSearchIndex()).resolves.toEqual([])
+  })
+
+  it('puts every searchable field into searchText', async () => {
+    // A regression that quietly drops one of these would leave search unable to
+    // find posts by that field, with every other test still green.
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'rafiki-dpg',
+        date: '2026-01-01',
+        title: 'Rafiki is a Digital Public Good',
+        description: 'Recognised by the DPGA',
+        categories: ['Engineering', 'News'],
+        body: 'The certification covers interoperability and open standards.'
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.searchText).toContain('rafiki is a digital public good')
+    expect(entry.searchText).toContain('recognised by the dpga')
+    expect(entry.searchText).toContain('interoperability')
+    expect(entry.searchText).toContain('engineering')
+    expect(entry.searchText).toContain('news')
+  })
+
+  it('folds accents in searchText so an unaccented query still matches', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'es-post',
+        date: '2026-01-01',
+        locale: 'es',
+        title: 'Política de pagos',
+        description: 'Investigación sobre inclusión',
+        body: 'Regulación y tecnología.'
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.searchText).toContain('politica de pagos')
+    expect(entry.searchText).toContain('investigacion')
+    expect(entry.searchText).toContain('regulacion')
+    expect(entry.searchText).not.toMatch(/[áéíóúñ]/)
+  })
+
+  it('strips markdown so body prose is searchable as plain text', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'md-post',
+        date: '2026-01-01',
+        body: 'A **bold** claim about [open payments](https://example.com).'
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.searchText).toContain('open payments')
+    expect(entry.searchText).not.toContain('**')
+    expect(entry.searchText).not.toContain('](')
+  })
+
+  it('maps the fields a result row renders', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'mapped-post',
+        date: '2026-03-04',
+        title: 'Mapped post',
+        description: 'A short description',
+        categories: ['News'],
+        featureImage: '/img/foundation-blog/mapped.jpg',
+        featureImageAlt: 'Alt text',
+        featureImageBlur: 'data:image/webp;base64,UklGRg=='
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.id).toBe('mapped-post')
+    expect(entry.title).toBe('Mapped post')
+    expect(entry.descriptionSnippet).toBe('A short description')
+    expect(entry.categories).toEqual(['News'])
+    expect(entry.date).toBe(new Date('2026-03-04').toISOString())
+    expect(entry.postPath).toBe('/blog/mapped-post')
+    expect(entry.locale).toBe('en')
+    // No variant catalog in tests, so src falls back to the raw path — what
+    // matters here is that alt and the LQIP survive into the catalog.
+    expect(entry.thumbnail).toEqual({
+      src: '/img/foundation-blog/mapped.jpg',
+      alt: 'Alt text',
+      blur: 'data:image/webp;base64,UklGRg=='
+    })
+  })
+
+  it('drops a blur that is not a webp data URI', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'bad-blur',
+        date: '2026-01-01',
+        featureImage: '/img/foundation-blog/x.jpg',
+        featureImageBlur: 'javascript:alert(1)'
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.thumbnail?.blur).toBeUndefined()
+  })
+
+  it('falls back to the excerpt when a post has no description', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({
+        slug: 'no-description',
+        date: '2026-01-01',
+        description: '',
+        body: 'Opening line of the post body.'
+      })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.descriptionSnippet).toContain('Opening line of the post body.')
+  })
+
+  it('has no thumbnail when the post has no images and is not legacy', async () => {
+    getCollectionMock.mockResolvedValue([
+      makePost({ slug: 'no-images', date: '2026-01-01' })
+    ])
+
+    const [entry] = await getBlogSearchIndex()
+
+    expect(entry.thumbnail).toBeNull()
   })
 
   it('sorts entries newest-first, matching the blog listing order', async () => {

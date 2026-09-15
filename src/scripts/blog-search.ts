@@ -22,6 +22,11 @@ const QUERY_PARAM = 'q'
 const indexCache = new Map<string, BlogSearchEntry[]>()
 const indexFetches = new Map<string, Promise<BlogSearchEntry[]>>()
 
+/** Whether a search against `url` can resolve without a network round trip. */
+function isIndexCached(url: string): boolean {
+  return indexCache.has(url)
+}
+
 async function loadIndex(url: string): Promise<BlogSearchEntry[]> {
   const cached = indexCache.get(url)
   if (cached) return cached
@@ -134,6 +139,17 @@ export function initBlogSearch(): void {
   const pagination = document.querySelector<HTMLElement>(
     '[data-blog-pagination]'
   )
+  const resultsRegion = document.querySelector<HTMLElement>(
+    '[data-blog-results-region]'
+  )
+  const searchError = document.querySelector<HTMLElement>(
+    '[data-blog-search-error]'
+  )
+  // Only rendered on a term-fallback route, where the static list is every post
+  // for the language rather than the filtered term.
+  const termFallbackNotice = document.querySelector<HTMLElement>(
+    '[data-blog-term-fallback]'
+  )
   const rowTemplate = document.getElementById('blog-search-result-template')
   const categoryTemplate = document.querySelector<HTMLTemplateElement>(
     '[data-blog-search-category-template]'
@@ -155,8 +171,11 @@ export function initBlogSearch(): void {
   // searchResultContext) don't re-trigger the null check on `root`.
   const searchRoot = root
 
-  const indexUrl = root.dataset.searchIndexUrl
-  if (!indexUrl) return
+  const rawIndexUrl = root.dataset.searchIndexUrl
+  if (!rawIndexUrl) return
+  // Captured non-null, like searchRoot above: the guard's narrowing does not
+  // reach the nested function declarations below.
+  const indexUrl = rawIndexUrl
 
   const lang = (root.dataset.selectedContentLang ?? '') as Locale
   // Raw category term, absent on /category/all and on term-fallback pages
@@ -169,9 +188,11 @@ export function initBlogSearch(): void {
   const initialStaticHidden = staticList.hidden
   const initialEmptyHidden = emptyState.hidden
   const resultsTemplate = searchCount?.dataset.resultsTemplate ?? '{count}'
-  // Server-rendered and never changes; read once so the announcement and the
-  // visible empty state can't drift apart.
+  // Server-rendered and never change; read once so each announcement and the
+  // visible copy it mirrors can't drift apart.
   const emptyMessage = emptyState.textContent?.trim() ?? ''
+  const errorMessage = searchError?.textContent?.trim() ?? ''
+  const searchingMessage = searchRoot.dataset.searchingLabel ?? ''
 
   let debounceHandle: number | undefined
   let requestId = 0
@@ -206,6 +227,20 @@ export function initBlogSearch(): void {
     searchStatus.textContent = message
   }
 
+  /**
+   * Marks the region whose contents the search replaces. The live region that
+   * announces the outcome sits outside it on purpose — updates to a live
+   * region inside an aria-busy container are held back until it clears.
+   */
+  function setBusy(busy: boolean) {
+    if (!resultsRegion) return
+    if (busy) {
+      resultsRegion.setAttribute('aria-busy', 'true')
+    } else {
+      resultsRegion.removeAttribute('aria-busy')
+    }
+  }
+
   function showStatic() {
     staticList.hidden = initialStaticHidden
     emptyState.hidden = initialEmptyHidden
@@ -214,6 +249,10 @@ export function initBlogSearch(): void {
     if (langNotice) langNotice.hidden = false
     if (searchCount) searchCount.hidden = true
     if (pagination) pagination.hidden = false
+    if (searchError) searchError.hidden = true
+    // Belongs to the static listing it describes, so it comes back with it.
+    if (termFallbackNotice) termFallbackNotice.hidden = false
+    setBusy(false)
     // Nothing to report while browsing; also lets the next search announce
     // even if it lands on the same count as the previous one.
     announce('')
@@ -227,6 +266,23 @@ export function initBlogSearch(): void {
     staticList.hidden = true
     if (langNotice) langNotice.hidden = true
     if (pagination) pagination.hidden = true
+    if (searchError) searchError.hidden = true
+    // Describes the static term-filtered listing, not the search results, and
+    // lives outside staticList — so it needs hiding of its own or it sits above
+    // the results claiming nothing was found.
+    if (termFallbackNotice) termFallbackNotice.hidden = true
+  }
+
+  /**
+   * The index fetch failed. Restoring the static listing alone would read as
+   * "here are your results" while the input, `?q=` and filter links all still
+   * say a search is active, so say plainly that search is unavailable. The
+   * query is left in the field: it is the user's work, and a reload retries it.
+   */
+  function showSearchError() {
+    showStatic()
+    if (searchError) searchError.hidden = false
+    announce(errorMessage)
   }
 
   function searchResultContext(): SearchResultContext {
@@ -247,6 +303,7 @@ export function initBlogSearch(): void {
     const hasResults = entries.length > 0
     searchResults.hidden = !hasResults
     emptyState.hidden = hasResults
+    setBusy(false)
 
     const countMessage = resultsTemplate.replace(
       '{count}',
@@ -280,13 +337,22 @@ export function initBlogSearch(): void {
     // doesn't stay live during the debounce+fetch window of the first search.
     enterSearchMode()
 
+    // Only the fetch takes real time, and only the first one: once the catalog
+    // is cached the filter is synchronous, so announcing "Searching…" on every
+    // keystroke would be noise ahead of the count that immediately follows.
+    const needsFetch = !isIndexCached(indexUrl)
+    if (needsFetch) {
+      setBusy(true)
+      announce(searchingMessage)
+    }
+
     let index: BlogSearchEntry[]
     try {
       index = await loadIndex(indexUrl)
     } catch {
-      // Fail closed: revert to the static, JS-independent listing rather
-      // than leaving the page with nothing shown.
-      if (myRequestId === requestId) showStatic()
+      // Fail closed: keep the static, JS-independent listing on screen, but
+      // say why rather than passing it off as search results.
+      if (myRequestId === requestId) showSearchError()
       return
     }
 
