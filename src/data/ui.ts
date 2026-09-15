@@ -464,13 +464,12 @@ export const ui = {
       'Hay más publicaciones disponibles en inglés',
     'blog.lang_filter.view_in_en': 'Ver en inglés',
     'blog.lang_filter.results': '{totalEntries} resultados',
-    'blog.search.label': 'Buscar publicaciones del blog',
-    'blog.search.placeholder': 'Buscar',
-    'blog.search.results': '{count} resultados',
+    'blog.search.label': '',
+    'blog.search.placeholder': '',
+    'blog.search.results': '',
     'blog.search.searching': '',
     'blog.search.error': '',
-    'blog.search.empty':
-      'No se encontraron resultados. Ajusta tu búsqueda o los filtros seleccionados.',
+    'blog.search.empty': '',
     'blog.empty_tag_lang.message':
       'No se encontraron publicaciones para esta etiqueta en el idioma seleccionado',
     'blog.empty_tag_lang.cta': 'Ver todas las publicaciones',
