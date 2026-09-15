@@ -1,0 +1,112 @@
+{
+  "collectionName": "components_blocks_internal_adverts",
+  "info": {
+    "displayName": "Internal Advert",
+    "icon": "bullhorn",
+    "description": "Bordered card that promotes another Interledger property from inside a blog post. Every field is optional, but fill in at least three of them, and at least one of the headline or the body."
+  },
+  "options": {},
+  "attributes": {
+    "helperText": {
+      "type": "string",
+      "description": "Short label above the card. Example: Know more.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "logo": {
+      "type": "component",
+      "component": "shared.localized-media",
+      "repeatable": false,
+      "required": false,
+      "description": "Logo of the property you promote. Drawn at 44 x 44. Leave the alternative text empty when the label beside it says the same thing.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "logoLabel": {
+      "type": "string",
+      "description": "Name shown beside the logo. Example: Web Monetization.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "headline": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "body": {
+      "type": "customField",
+      "customField": "plugin::ckeditor5.CKEditor",
+      "options": {
+        "preset": "basicMarkdownPreset"
+      },
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "socialLinks": {
+      "type": "component",
+      "component": "shared.social-link",
+      "repeatable": true,
+      "required": false,
+      "max": 6,
+      "description": "Social profiles of the property you promote. Each one renders as a square icon button.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "buttonText": {
+      "type": "string",
+      "description": "Label of the call-to-action button. The button needs both a label and a link to render.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "buttonLink": {
+      "type": "string",
+      "description": "Target of the call-to-action button.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "buttonExternal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Open the link in a new tab and show the external icon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "buttonDocument": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat the link as a downloadable document and show the download icon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

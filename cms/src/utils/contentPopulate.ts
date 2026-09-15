@@ -132,6 +132,12 @@ const FOUNDATION_BLOG_BLOCKS = {
   'blocks.code-block': {},
   'blocks.quote': {
     populate: { authorImage: true }
+  },
+  'blocks.internal-advert': {
+    populate: {
+      logo: { populate: { image: true } },
+      socialLinks: true
+    }
   }
 } as const
 

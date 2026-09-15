@@ -808,6 +808,91 @@ export interface BlocksInfoCards extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksInternalAdvert extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_internal_adverts'
+  info: {
+    description: 'Bordered card that promotes another Interledger property from inside a blog post. Every field is optional, but fill in at least three of them, and at least one of the headline or the body.'
+    displayName: 'Internal Advert'
+    icon: 'bullhorn'
+  }
+  attributes: {
+    body: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    buttonDocument: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    buttonExternal: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    buttonLink: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    buttonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    headline: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    helperText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    logo: Schema.Attribute.Component<'shared.localized-media', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    logoLabel: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    socialLinks: Schema.Attribute.Component<'shared.social-link', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 6
+        },
+        number
+      >
+  }
+}
+
 export interface BlocksNavigationCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_navigation_cards'
   info: {
@@ -1695,6 +1780,24 @@ export interface SharedSection extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedSocialLink extends Struct.ComponentSchema {
+  collectionName: 'components_shared_social_links'
+  info: {
+    description: 'One social profile button. The icon comes from the link host, so LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other host gets a generic link icon.'
+    displayName: 'Social Link'
+    icon: 'link'
+  }
+  attributes: {
+    url: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -1721,6 +1824,7 @@ declare module '@strapi/strapi' {
       'blocks.image-block': BlocksImageBlock
       'blocks.info-card': BlocksInfoCard
       'blocks.info-cards': BlocksInfoCards
+      'blocks.internal-advert': BlocksInternalAdvert
       'blocks.navigation-card': BlocksNavigationCard
       'blocks.number-tile': BlocksNumberTile
       'blocks.number-tiles': BlocksNumberTiles
@@ -1752,6 +1856,7 @@ declare module '@strapi/strapi' {
       'shared.report-date': SharedReportDate
       'shared.secondary-cta-link': SharedSecondaryCtaLink
       'shared.section': SharedSection
+      'shared.social-link': SharedSocialLink
     }
   }
 }
