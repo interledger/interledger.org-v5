@@ -13,6 +13,11 @@ const REPEAT_SUPPRESSION_MS = 15 * 60 * 1_000
 const MAX_DETAIL_CHARS = 1_000
 /** A Slack section block rejects text over 3000 characters. A long path list has to stop somewhere. */
 const MAX_LISTED_PATHS = 20
+/**
+ * Character budget for one rendered list, well inside the 3000-character
+ * section limit so the surrounding heading and hint text still fit.
+ */
+const MAX_LIST_CHARS = 2_000
 
 /** How the residual resolver settled a conflict that `-X theirs` could not take on its own. */
 export interface ResolvedPath {
@@ -53,6 +58,12 @@ export interface GitSyncAlert {
   resolvedPaths?: ResolvedPath[]
   /** Upstream commits whose changes were superseded, as `<sha> <subject>`. */
   supersededCommits?: string[]
+  /**
+   * The conflict probe could not enumerate what was overwritten, so the lists
+   * above are incomplete. The message says so rather than implying the
+   * overwrite was empty.
+   */
+  detailsUnavailable?: boolean
 }
 
 export type NotifyGitSync = (alert: GitSyncAlert) => Promise<void>
@@ -135,11 +146,25 @@ function field(label: string, value: string) {
   return { type: 'mrkdwn', text: `*${label}:*\n${value}` }
 }
 
-/** Renders a path list as a code block, capped so the block stays inside Slack's 3000-char limit. */
+/**
+ * Renders a path list as a code block that fits inside a Slack section.
+ *
+ * Capped by characters as well as entries: a section rejects text over 3000
+ * characters, and twenty long paths or commit subjects reach that on their own
+ * — which would drop the alert exactly when it matters.
+ */
 export function formatPathList(paths: string[]): string {
-  const shown = paths.slice(0, MAX_LISTED_PATHS)
+  const shown: string[] = []
+  let budget = MAX_LIST_CHARS
+
+  for (const line of paths.slice(0, MAX_LISTED_PATHS)) {
+    if (budget - line.length < 0) break
+    shown.push(line)
+    budget -= line.length + 1 // the newline joining it to the previous entry
+  }
+
   const overflow = paths.length - shown.length
-  const lines = overflow > 0 ? [...shown, `…and ${overflow} more`] : [...shown]
+  const lines = overflow > 0 ? [...shown, `…and ${overflow} more`] : shown
   return `\`\`\`${lines.join('\n')}\`\`\``
 }
 
@@ -165,9 +190,15 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
   const resolved = input.resolvedPaths ?? []
   const superseded = input.supersededCommits ?? []
 
+  // Counted over the union: the two lists are kept disjoint upstream, but a
+  // path present in both must still be one file here, not two.
+  const affected = new Set([...overwritten, ...resolved.map((r) => r.path)])
+
   // A distinct emoji and verb from both other states (❌ failed, ✅ recovered)
   // so the channel reads at a glance.
-  const text = `⚠️ Strapi git sync overwrote ${overwritten.length + resolved.length} file(s) on ${input.hostname}`
+  const text = input.detailsUnavailable
+    ? `⚠️ Strapi git sync may have overwritten branch changes on ${input.hostname}`
+    : `⚠️ Strapi git sync overwrote ${affected.size} file(s) on ${input.hostname}`
 
   const fields = contextFields(input, environment)
   if (input.commitMessage) fields.push(field('Commit', input.commitMessage))
@@ -175,17 +206,18 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
     fields.push(field('Editor', `${input.author.name} <${input.author.email}>`))
   }
 
+  const headline = input.detailsUnavailable
+    ? `⚠️ *Strapi git sync may have overwritten branch changes*\n` +
+      `A CMS save was rebased onto commits already on the branch and the CMS wins ` +
+      `any conflict, but this checkout's git is too old to list what was overwritten ` +
+      `(\`git merge-tree --write-tree\` needs git 2.38+). Compare the branch against ` +
+      `the commit below if something looks wrong.`
+    : `⚠️ *Strapi git sync overwrote branch changes*\n` +
+      `A CMS save conflicted with commits already on the branch. Policy is that the ` +
+      `CMS wins, so the editor's version was kept.`
+
   const blocks: unknown[] = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text:
-          `⚠️ *Strapi git sync overwrote branch changes*\n` +
-          `A CMS save conflicted with commits already on the branch. Policy is that the ` +
-          `CMS wins, so the editor's version was kept.`
-      }
-    },
+    { type: 'section', text: { type: 'mrkdwn', text: headline } },
     { type: 'section', fields }
   ]
 
@@ -326,7 +358,11 @@ export function createSlackGitSyncNotifier(
   overrides: Partial<SlackNotifierDeps> = {}
 ): NotifyGitSync {
   const deps = { ...defaultNotifierDeps, ...overrides }
-  const throttle = new Map<string, ThrottleEntry>()
+  // Two maps, not one. A recovery clears the failure throttle so the next
+  // outage alerts immediately; sharing one map would let that same recovery
+  // erase the conflict fingerprints and re-post a conflict already announced.
+  const failureThrottle = new Map<string, ThrottleEntry>()
+  const conflictThrottle = new Map<string, ThrottleEntry>()
   let unhealthy = false
 
   async function post(url: string, payload: SlackPayload): Promise<void> {
@@ -359,6 +395,7 @@ export function createSlackGitSyncNotifier(
    */
   async function postThrottled(
     url: string,
+    throttle: Map<string, ThrottleEntry>,
     fingerprint: string,
     alert: GitSyncAlert,
     hostname: string
@@ -402,6 +439,7 @@ export function createSlackGitSyncNotifier(
       ]
       await postThrottled(
         url,
+        conflictThrottle,
         `conflict:${[...paths].sort().join(',')}`,
         alert,
         hostname
@@ -412,7 +450,9 @@ export function createSlackGitSyncNotifier(
     if (alert.outcome === 'healthy') {
       if (!unhealthy) return
       unhealthy = false
-      throttle.clear()
+      // Only the failure fingerprints. Conflict notices are an audit trail,
+      // not a health signal, and must survive an unrelated recovery.
+      failureThrottle.clear()
       await post(url, buildSlackPayload({ ...alert, hostname }))
       return
     }
@@ -420,7 +460,7 @@ export function createSlackGitSyncNotifier(
     unhealthy = true
 
     const fingerprint = redactSecrets(alert.reason ?? 'unknown failure')
-    await postThrottled(url, fingerprint, alert, hostname)
+    await postThrottled(url, failureThrottle, fingerprint, alert, hostname)
   }
 }
 

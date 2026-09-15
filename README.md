@@ -312,9 +312,13 @@ on page copy, so a developer sweep that collides with a live edit yields.
   the same file** still merges in normally — a frontmatter backfill is not
   reverted just because someone was editing the body.
 - **Existence conflicts** (a PR deletes a page an editor is editing, or the
-  reverse) are also resolved toward the CMS. This resolution is confined to
+  reverse) are also resolved toward the CMS, but **only for an editor save**.
+  That resolver lives in the Strapi lifecycle hooks, and is confined to
   `src/content/` and `public/uploads/img/original`; an unresolved path outside
-  them aborts the sync for a human to settle, rather than guessing.
+  them aborts the sync for a human to settle, rather than guessing. The daily
+  `strapi-rebuild-and-sync` workflow does **not** resolve existence conflicts —
+  it aborts the rebase, fails the run and alerts, because by then nobody is
+  watching a specific page and the right answer is not mechanical.
 - **Nothing is lost from history.** The rebase replays the editor's commit on
   top of the PR, so the superseded commit and its content stay reachable.
 - **Every overwrite is announced.** A `⚠️ Strapi git sync overwrote branch

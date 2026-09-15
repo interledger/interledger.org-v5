@@ -1,5 +1,5 @@
 // Error handling
-export { tryCatchAsync } from './tryCatch'
+export { tryCatch, tryCatchAsync } from './tryCatch'
 
 // Shared content-type shapes
 export { type AuthorBio } from './contentTypes'

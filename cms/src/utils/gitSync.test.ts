@@ -11,7 +11,9 @@ import {
   buildPushCommand,
   buildRebaseCommand,
   buildRebaseContinueCommand,
+  formatLockOwner,
   isUnmerged,
+  parseLockEpochMs,
   recoverInterruptedOperation,
   createDebouncedGitSync,
   expandHomeDir,
@@ -47,7 +49,13 @@ interface FakeDeps extends GitSyncDeps {
   alerts: GitSyncAlert[]
   /** Every delay `sleep` was asked for, in order. */
   sleeps: number[]
+  /** The in-memory filesystem backing the sync lock. */
+  files: Map<string, string>
+  /** Mutable clock, advanced by `sleep`. */
+  clock: { ms: number }
 }
+
+const LOCK_PATH = path.join(REPO, '.git/strapi-sync.lock')
 
 type FakeResponse =
   | string
@@ -68,9 +76,17 @@ function createDeps(
     respond?: (command: string) => string | GitCommandError
     responses?: Record<string, FakeResponse>
     existing?: string[]
+    files?: Map<string, string>
+    clock?: { ms: number }
   } = {}
 ): FakeDeps {
-  const { respond, responses = {}, existing = [REPO, ...STAGE_DIRS] } = options
+  const {
+    respond,
+    responses = {},
+    existing = [REPO, ...STAGE_DIRS],
+    files = new Map<string, string>(),
+    clock = { ms: Date.UTC(2026, 0, 1) }
+  } = options
   const commands: string[] = []
   const alerts: GitSyncAlert[] = []
   const sleeps: number[] = []
@@ -81,6 +97,8 @@ function createDeps(
     commands,
     alerts,
     sleeps,
+    files,
+    clock,
     exec: async (command) => {
       commands.push(command)
       const prefix = prefixes.find((p) => command.startsWith(p))
@@ -96,7 +114,23 @@ function createDeps(
     },
     sleep: async (ms) => {
       sleeps.push(ms)
-    }
+      // Time only moves when something waits, so a lock timeout is reached
+      // deterministically rather than by the test's own wall clock.
+      clock.ms += ms
+    },
+    // An in-memory stand-in for the O_EXCL lock file.
+    lockFs: {
+      create: (filepath, contents) => {
+        if (files.has(filepath)) return false
+        files.set(filepath, contents)
+        return true
+      },
+      read: (filepath) => files.get(filepath) ?? null,
+      remove: (filepath) => {
+        files.delete(filepath)
+      }
+    },
+    now: () => clock.ms
   }
 }
 
@@ -143,6 +177,29 @@ function status(...lines: [string, string][]): string {
   return lines
     .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}`)
     .join('\n')
+}
+
+/** Returns each value in turn, repeating the last one once exhausted. */
+function sequenceOf(...values: (string | GitCommandError)[]) {
+  let index = 0
+  return () => values[Math.min(index++, values.length - 1)]
+}
+
+/**
+ * A merge-tree probe result, in git's real shape: exit non-zero with
+ * `<tree>\0<path>\0…\0\0<informational messages>` on stdout. The trailing
+ * message section is part of the format and must not be read as paths.
+ */
+function probeConflictOutput(...paths: string[]): GitCommandError {
+  const messages = paths.flatMap((p) => [
+    '1',
+    p,
+    'CONFLICT (contents)',
+    `CONFLICT (content): Merge conflict in ${p}\n`
+  ])
+  return gitFailure('git merge-tree', {
+    stdout: ['tree-oid', ...paths, '', ...messages].join('\0') + '\0'
+  })
 }
 
 beforeEach(() => {
@@ -1021,14 +1078,13 @@ describe('createDebouncedGitSync', () => {
   })
 
   it('never rejects, even if a dependency throws', async () => {
+    // Built from createDeps so it keeps every other dependency real; only the
+    // one under test throws.
     const deps: FakeDeps = {
-      commands: [],
-      alerts: [],
+      ...createDeps(),
       exec: async () => {
         throw new Error('spawn ENOMEM')
-      },
-      fileExists: () => true,
-      notify: async () => {}
+      }
     }
     const scheduler = createDebouncedGitSync(deps, DELAY)
 
@@ -1429,31 +1485,8 @@ describe('runGitSync conflict handling', () => {
   const REBASE_PREFIX = 'git -c rebase.autoStash'
   const CONTINUE_PREFIX = 'git -c core.editor=true rebase --continue'
 
-  /** Returns each value in turn, repeating the last one once exhausted. */
-  function sequence(...values: (string | GitCommandError)[]) {
-    let index = 0
-    return () => values[Math.min(index++, values.length - 1)]
-  }
-
-  /**
-   * A merge-tree probe result, in git's real shape: exit non-zero with
-   * `<tree>\0<path>\0…\0\0<informational messages>` on stdout. The trailing
-   * message section is part of the format and must not be read as paths.
-   */
-  function probeConflict(...paths: string[]): GitCommandError {
-    const messages = paths.flatMap((p) => [
-      '1',
-      p,
-      'CONFLICT (contents)',
-      `CONFLICT (content): Merge conflict in ${p}\n`
-    ])
-    return gitFailure('git merge-tree', {
-      stdout: ['tree-oid', ...paths, '', ...messages].join('\0') + '\0'
-    })
-  }
-
   function rejectedThenAccepted() {
-    return sequence(
+    return sequenceOf(
       gitFailure('git push', { stderr: '! [rejected] non-fast-forward' }),
       ''
     )
@@ -1465,7 +1498,7 @@ describe('runGitSync conflict handling', () => {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
         'git push': rejectedThenAccepted(),
-        'git merge-tree': probeConflict(CONFLICT_PATH),
+        'git merge-tree': probeConflictOutput(CONFLICT_PATH),
         'git log --oneline': '09b7eba fix(content): unwrap prose'
       }
     })
@@ -1489,7 +1522,7 @@ describe('runGitSync conflict handling', () => {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
         'git push': rejectedThenAccepted(),
-        'git merge-tree': probeConflict(
+        'git merge-tree': probeConflictOutput(
           CONFLICT_PATH,
           'src/content/faqs/b c.mdx'
         ),
@@ -1515,7 +1548,7 @@ describe('runGitSync conflict handling', () => {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
         'git push': rejectedThenAccepted(),
-        'git merge-tree': probeConflict(CONFLICT_PATH),
+        'git merge-tree': probeConflictOutput(CONFLICT_PATH),
         'git log --oneline': '09b7eba fix(content): unwrap prose'
       }
     })
@@ -1542,10 +1575,14 @@ describe('runGitSync conflict handling', () => {
     const deps = createDeps({
       responses: {
         // Clean at the start, unmerged once the rebase stops, clean again after.
-        [STATUS_COMMAND]: sequence(CONTENT, status(['DU', CONFLICT_PATH]), ''),
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['DU', CONFLICT_PATH]),
+          ''
+        ),
         [BRANCH_COMMAND]: 'staging',
         'git push': rejectedThenAccepted(),
-        'git merge-tree': probeConflict(CONFLICT_PATH),
+        'git merge-tree': probeConflictOutput(CONFLICT_PATH),
         [REBASE_PREFIX]: gitFailure('git rebase', {
           stderr: 'CONFLICT (modify/delete)'
         })
@@ -1567,7 +1604,11 @@ describe('runGitSync conflict handling', () => {
   it('deletes the page when the editor deleted it and the upstream modified it', async () => {
     const deps = createDeps({
       responses: {
-        [STATUS_COMMAND]: sequence(CONTENT, status(['UD', CONFLICT_PATH]), ''),
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UD', CONFLICT_PATH]),
+          ''
+        ),
         [BRANCH_COMMAND]: 'staging',
         'git push': rejectedThenAccepted(),
         [REBASE_PREFIX]: gitFailure('git rebase', {
@@ -1592,7 +1633,10 @@ describe('runGitSync conflict handling', () => {
   it('refuses to resolve an unmerged path outside the CMS-owned directories', async () => {
     const deps = createDeps({
       responses: {
-        [STATUS_COMMAND]: sequence(CONTENT, status(['UU', 'src/utils/foo.ts'])),
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UU', 'src/utils/foo.ts'])
+        ),
         [BRANCH_COMMAND]: 'staging',
         'git push': gitFailure('git push', { stderr: '! [rejected]' }),
         [REBASE_PREFIX]: gitFailure('git rebase', { stderr: 'CONFLICT' })
@@ -1614,7 +1658,7 @@ describe('runGitSync conflict handling', () => {
     const deps = createDeps({
       responses: {
         // Nothing unmerged, so the resolver has nothing to fix and gives up.
-        [STATUS_COMMAND]: sequence(CONTENT, ''),
+        [STATUS_COMMAND]: sequenceOf(CONTENT, ''),
         [BRANCH_COMMAND]: 'staging',
         'git push': gitFailure('git push', { stderr: '! [rejected]' }),
         [REBASE_PREFIX]: gitFailure('git rebase', {
@@ -1637,7 +1681,7 @@ describe('runGitSync conflict handling', () => {
   it('treats autostash-pop residue as a failure rather than committing markers', async () => {
     const deps = createDeps({
       responses: {
-        [STATUS_COMMAND]: sequence(CONTENT, status(['UU', CONFLICT_PATH])),
+        [STATUS_COMMAND]: sequenceOf(CONTENT, status(['UU', CONFLICT_PATH])),
         [BRANCH_COMMAND]: 'staging',
         'git push': gitFailure('git push', { stderr: '! [rejected]' })
       }
@@ -1655,7 +1699,7 @@ describe('runGitSync conflict handling', () => {
       responses: {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
-        'git push': sequence(
+        'git push': sequenceOf(
           gitFailure('git push', {
             stderr: "fatal: Unable to create '.git/index.lock': File exists."
           }),
@@ -1785,5 +1829,287 @@ describe('recovering a checkout an interrupted sync left behind', () => {
       reason: 'no-changes'
     })
     expect(deps.commands.some((c) => c.startsWith('git push'))).toBe(false)
+  })
+})
+
+// ── Review fixes (PR #702) ───────────────────────────────────────────────────
+
+describe('the CMS-owned path boundary', () => {
+  const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
+  const REBASE_PREFIX = 'git -c rebase.autoStash'
+
+  /**
+   * `public/uploads/img/original` has no trailing slash of its own, so a bare
+   * `startsWith` would also match the sibling `…/original-backup/`. The residual
+   * resolver runs `git rm -f`, so that would put developer files inside a
+   * boundary whose entire purpose is to keep deletions away from them.
+   */
+  it('does not treat a sibling of the uploads directory as CMS-owned', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UD', 'public/uploads/img/original-backup/old.jpg'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': gitFailure('git push', { stderr: '! [rejected]' }),
+        [REBASE_PREFIX]: gitFailure('git rebase', { stderr: 'CONFLICT' })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(deps.commands).toContain('git rebase --abort')
+    expect(deps.commands.some((c) => c.startsWith('git rm'))).toBe(false)
+  })
+
+  it('still treats the uploads directory itself as CMS-owned', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UD', 'public/uploads/img/original/hero.jpg']),
+          ''
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        [REBASE_PREFIX]: gitFailure('git rebase', { stderr: 'CONFLICT' })
+      }
+    })
+
+    const result = await runGitSync('upload', undefined, deps)
+
+    expect(result).toMatchObject({ outcome: 'synced' })
+    expect(commandStartingWith(deps, 'git rm -f')).toContain(
+      'public/uploads/img/original/hero.jpg'
+    )
+  })
+})
+
+describe('conflict reporting', () => {
+  const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
+  const PATH = 'src/content/faqs/a.mdx'
+  const REBASE_PREFIX = 'git -c rebase.autoStash'
+
+  /**
+   * The probe reports every conflicted path, existence conflicts included, so
+   * without this the same file appears as both a hunk overwrite it never was
+   * and a resolved existence conflict — and the Slack summary counts it twice.
+   */
+  it('reports an existence conflict once, not as an overwrite as well', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(CONTENT, status(['DU', PATH]), ''),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        'git merge-tree': probeConflictOutput(PATH),
+        [REBASE_PREFIX]: gitFailure('git rebase', { stderr: 'CONFLICT' })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'synced',
+      conflict: {
+        overwrittenPaths: [],
+        resolvedPaths: [{ path: PATH, action: 'kept-cms' }]
+      }
+    })
+  })
+
+  /**
+   * `merge-tree --write-tree` needs git 2.38. Collapsing "probe failed" into
+   * "no conflict" would let a silent `-X theirs` overwrite go unannounced,
+   * which is the one thing this alert exists to prevent.
+   */
+  it('still announces an overwrite when the probe cannot run', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        'git merge-tree': gitFailure('git merge-tree', {
+          stderr: "error: unknown option `write-tree'"
+        })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'synced',
+      conflict: { detailsUnavailable: true, overwrittenPaths: [] }
+    })
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'healthy' },
+      { outcome: 'conflict-resolved', detailsUnavailable: true }
+    ])
+  })
+
+  it('stays silent when the probe runs and finds nothing', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        )
+      }
+    })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts.map((a) => a.outcome)).toEqual(['healthy'])
+  })
+})
+
+describe('lock contention', () => {
+  const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
+  const lockError = (command: string) =>
+    gitFailure(command, {
+      stderr: "fatal: Unable to create '.git/index.lock': File exists."
+    })
+
+  it.each([
+    ['git add', 'git add'],
+    ['git commit', 'git commit']
+  ])('retries %s rather than failing the sync', async (_label, prefix) => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        [prefix]: sequenceOf(lockError(prefix), '')
+      }
+    })
+
+    expect(await runGitSync('faq', undefined, deps)).toMatchObject({
+      outcome: 'synced'
+    })
+    expect(deps.commands.filter((c) => c.startsWith(prefix))).toHaveLength(2)
+  })
+
+  it('gives up on a lock that never clears', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git add': lockError('git add')
+      }
+    })
+
+    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
+    expect(deps.commands.filter((c) => c.startsWith('git add'))).toHaveLength(4)
+  })
+})
+
+describe('the sync mutex', () => {
+  const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
+
+  function syncDeps(overrides: Parameters<typeof createDeps>[0] = {}) {
+    return createDeps({
+      ...overrides,
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        ...(overrides.responses ?? {})
+      }
+    })
+  }
+
+  it('takes the lock for the duration and releases it afterwards', async () => {
+    const deps = syncDeps()
+
+    expect(await runGitSync('faq', undefined, deps)).toMatchObject({
+      outcome: 'synced'
+    })
+    expect(deps.files.has(LOCK_PATH)).toBe(false)
+  })
+
+  it('releases the lock even when the sync fails', async () => {
+    const deps = syncDeps({
+      responses: { 'git push': gitFailure('git push', { stderr: 'boom' }) }
+    })
+
+    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
+    expect(deps.files.has(LOCK_PATH)).toBe(false)
+  })
+
+  /**
+   * Failing closed loses nothing — the content is still in Strapi's database
+   * and the next save retries — whereas proceeding would reintroduce exactly
+   * the concurrent `rebase --abort` the lock exists to prevent.
+   */
+  it('refuses to run while another writer holds a fresh lock', async () => {
+    const clock = { ms: Date.UTC(2026, 0, 1) }
+    const files = new Map([
+      [LOCK_PATH, formatLockOwner(clock.ms, 999, 'strapi-vm')]
+    ])
+    const deps = syncDeps({ files, clock })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(deps.commands).toEqual([])
+    expect(deps.alerts[0]).toMatchObject({
+      outcome: 'failed',
+      reason: expect.stringContaining('sync lock')
+    })
+    // Still held: waiting must never remove someone else's live lock.
+    expect(deps.files.has(LOCK_PATH)).toBe(true)
+  })
+
+  it('reclaims a lock whose holder died', async () => {
+    const clock = { ms: Date.UTC(2026, 0, 1) }
+    const files = new Map([
+      [LOCK_PATH, formatLockOwner(clock.ms - 11 * 60 * 1000, 999, 'strapi-vm')]
+    ])
+    const deps = syncDeps({ files, clock })
+
+    expect(await runGitSync('faq', undefined, deps)).toMatchObject({
+      outcome: 'synced'
+    })
+  })
+
+  /**
+   * Reclaiming a lock we cannot parse would destroy a live holder's on any
+   * hiccup in the format, so an unreadable one is waited out and reported
+   * rather than discarded.
+   */
+  it('waits out a lock file it cannot read instead of destroying it', async () => {
+    const files = new Map([[LOCK_PATH, 'garbage written by something else']])
+    const deps = syncDeps({ files })
+
+    expect((await runGitSync('faq', undefined, deps)).outcome).toBe('failed')
+    expect(deps.files.get(LOCK_PATH)).toBe('garbage written by something else')
+  })
+
+  it('round-trips the owner line the workflow also parses', () => {
+    const at = Date.UTC(2026, 0, 1, 12, 30)
+    const owner = formatLockOwner(at, 4242, 'strapi-vm')
+
+    expect(owner).toContain(`epoch=${Math.floor(at / 1000)}`)
+    expect(owner).toContain('pid=4242')
+    expect(parseLockEpochMs(owner)).toBe(at)
+    expect(parseLockEpochMs('no epoch here')).toBeNull()
+  })
+
+  it('serialises the navigation commit path too', async () => {
+    const deps = createDeps({ existing: [REPO] })
+
+    await gitCommitAndPush(`${REPO}/src/config/nav.json`, 'nav: update', deps)
+
+    expect(deps.files.has(LOCK_PATH)).toBe(false)
   })
 })

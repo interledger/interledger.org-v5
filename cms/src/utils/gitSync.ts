@@ -3,7 +3,7 @@ import os from 'os'
 import path from 'path'
 import { exec } from 'child_process'
 import { PATHS, getProjectRoot } from './paths'
-import { tryCatchAsync } from './tryCatch'
+import { tryCatch, tryCatchAsync } from './tryCatch'
 import {
   isSlackAlertingConfigured,
   notifyGitSyncToSlack,
@@ -37,12 +37,42 @@ const PUSH_BACKOFF_MS = 750
  */
 const MAX_RESOLVE_ROUNDS = 10
 
+/** Retries for a command that failed only because another process held the repo lock. */
+const MAX_LOCK_ATTEMPTS = 4
+const LOCK_BACKOFF_MS = 250
+
+/**
+ * Advisory mutex shared with `.github/workflows/strapi-rebuild-and-sync.yml`.
+ *
+ * Both writers run git against the same checkout, and both call
+ * `git rebase --abort` on state they assume is their own — so without this each
+ * can abort the other's in-progress rebase.
+ *
+ * An `O_EXCL` create is the primitive: it makes the create and the owner
+ * details one atomic write, so a holder is never visible without them, and both
+ * sides have it (`{ flag: 'wx' }` here, `set -o noclobber` in bash). `flock`
+ * would need a helper process to stay held across separate `exec` calls.
+ *
+ * It lives under `.git/`, so it is never committed. Keep the path, the owner
+ * line format and the staleness window in step with the workflow.
+ */
+const SYNC_LOCK_FILE = '.git/strapi-sync.lock'
+/** Roughly the longest a healthy sync or workflow integrate should hold the lock. */
+const SYNC_LOCK_STALE_MS = 10 * 60 * 1_000
+const SYNC_LOCK_WAIT_MS = 30 * 1_000
+const SYNC_LOCK_POLL_MS = 250
+
 /**
  * The residual resolver runs `git rm -f`, so it is confined to the directories
  * the CMS owns. An unmerged path outside them belongs to a developer and is
  * never resolved automatically — the rebase is aborted and a human decides.
+ *
+ * `UPLOADS_DIR` gets the trailing slash the other prefixes already carry:
+ * without it, `startsWith` would also match a sibling like
+ * `public/uploads/img/original-backup/`, putting a developer's files inside a
+ * boundary whose whole purpose is to keep `git rm -f` away from them.
  */
-const RESOLVABLE_PREFIXES = [CONTENT_DIR, UPLOADS_DIR] as const
+const RESOLVABLE_PREFIXES = [CONTENT_DIR, `${UPLOADS_DIR}/`] as const
 
 /**
  * Another git process held the lock. The daily sync and editor saves run
@@ -129,7 +159,22 @@ export interface ConflictResolution {
   resolvedPaths: ResolvedPath[]
   /** Upstream commits whose changes were superseded, as `<sha> <subject>`. */
   supersededCommits: string[]
+  /**
+   * The probe could not enumerate what was overwritten, so the lists above are
+   * incomplete. The alert says so rather than implying nothing was lost.
+   */
+  detailsUnavailable?: boolean
 }
+
+/**
+ * The read-only probe's verdict. `unavailable` is deliberately distinct from
+ * `clean`: on a git too old for `merge-tree --write-tree` we cannot list what
+ * a `-X theirs` rebase overwrote, but we must still say that it might have.
+ */
+type ConflictProbe =
+  | { kind: 'clean' }
+  | { kind: 'unavailable' }
+  | { kind: 'conflict'; resolution: ConflictResolution }
 
 /**
  * The result of one sync attempt. This type shows the difference between
@@ -152,12 +197,29 @@ export type GitExec = (
   cwd: string
 ) => Promise<string | GitCommandError>
 
+/**
+ * Filesystem primitives the sync mutex needs, injected so lock behaviour is
+ * testable without touching a real filesystem.
+ */
+export interface LockFs {
+  /**
+   * Atomically creates the file with these contents, failing if it exists.
+   * Returns false when another holder already has it.
+   */
+  create: (filepath: string, contents: string) => boolean
+  read: (filepath: string) => string | null
+  remove: (filepath: string) => void
+}
+
 export interface GitSyncDeps {
   exec: GitExec
   fileExists: (filepath: string) => boolean
   notify: NotifyGitSync
   /** Injected so the push backoff is testable without real time passing. */
   sleep: (ms: number) => Promise<void>
+  lockFs: LockFs
+  /** Milliseconds since the epoch. Injected so lock staleness is testable. */
+  now: () => number
 }
 
 function execInRepo(
@@ -182,11 +244,33 @@ function execInRepo(
   })
 }
 
+const defaultLockFs: LockFs = {
+  create: (filepath, contents) => {
+    // `wx` is O_CREAT|O_EXCL: the create and the write are one operation, so a
+    // holder is never visible without its owner details.
+    const written = tryCatch(() =>
+      fs.writeFileSync(filepath, contents, { flag: 'wx' })
+    )
+    if (!(written instanceof Error)) return true
+    if ((written as NodeJS.ErrnoException).code === 'EEXIST') return false
+    throw written
+  },
+  // A null here means "no lock file", which is a real absence rather than a
+  // swallowed failure: the caller treats it as "not held".
+  read: (filepath) => {
+    const contents = tryCatch(() => fs.readFileSync(filepath, 'utf8'))
+    return contents instanceof Error ? null : contents
+  },
+  remove: (filepath) => fs.rmSync(filepath, { force: true })
+}
+
 export const defaultGitSyncDeps: GitSyncDeps = {
   exec: execInRepo,
   fileExists: (filepath) => fs.existsSync(filepath),
   notify: notifyGitSyncToSlack,
-  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+  sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  lockFs: defaultLockFs,
+  now: () => Date.now()
 }
 
 // ── Shell + path helpers ─────────────────────────────────────────────────────
@@ -326,7 +410,7 @@ async function getGitStatus(
   cwd: string,
   deps: GitSyncDeps
 ): Promise<GitStatusChange[] | GitCommandError> {
-  const output = await deps.exec('git status --porcelain', cwd)
+  const output = await execWithLockRetry('git status --porcelain', cwd, deps)
   if (output instanceof GitCommandError) return output
   if (!output) return []
 
@@ -477,6 +561,147 @@ function isRetryable(error: GitCommandError): boolean {
   return RETRYABLE_ERROR.test(error.combinedOutput)
 }
 
+/**
+ * Runs a command, retrying while git reports that another process holds the
+ * repository lock.
+ *
+ * Every mutation in this file shares a checkout with the daily workflow and
+ * with this process's own immediate navigation commits, so `index.lock`
+ * contention is expected on `add` and `commit`, not only on `push`. Without
+ * this the collision surfaces as an ordinary sync failure and pages someone.
+ */
+async function execWithLockRetry(
+  command: string,
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<string | GitCommandError> {
+  let result = await deps.exec(command, repoRoot)
+
+  for (
+    let attempt = 1;
+    attempt < MAX_LOCK_ATTEMPTS &&
+    result instanceof GitCommandError &&
+    isRetryable(result);
+    attempt++
+  ) {
+    await deps.sleep(LOCK_BACKOFF_MS * attempt)
+    result = await deps.exec(command, repoRoot)
+  }
+
+  return result
+}
+
+// ── Sync mutex ───────────────────────────────────────────────────────────────
+
+/**
+ * One line of `key=value` pairs, because the workflow parses this file too and
+ * a shell can read this shape without a JSON parser. `epoch` is seconds so bash
+ * can do the staleness arithmetic directly.
+ */
+export function formatLockOwner(
+  nowMs: number,
+  pid: number,
+  host: string
+): string {
+  const epoch = Math.floor(nowMs / 1000)
+  return `epoch=${epoch} pid=${pid} host=${host} at=${new Date(nowMs).toISOString()}\n`
+}
+
+export function parseLockEpochMs(contents: string): number | null {
+  const match = contents.match(/\bepoch=(\d+)\b/)
+  return match ? Number(match[1]) * 1000 : null
+}
+
+export interface SyncLock {
+  release: () => void
+}
+
+/**
+ * Takes the mutex described at {@link SYNC_LOCK_FILE}, waiting for the current
+ * holder and reclaiming one that has clearly died.
+ *
+ * Returns an Error rather than proceeding when the wait times out. Failing
+ * closed loses nothing — the content is still in Strapi's database and the next
+ * save retries — whereas failing open would reintroduce exactly the concurrent
+ * `rebase --abort` this exists to prevent.
+ */
+export async function acquireSyncLock(
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<SyncLock | Error> {
+  const lockPath = path.join(repoRoot, SYNC_LOCK_FILE)
+  const deadline = deps.now() + SYNC_LOCK_WAIT_MS
+
+  for (;;) {
+    const owner = formatLockOwner(deps.now(), process.pid, os.hostname())
+    if (deps.lockFs.create(lockPath, owner)) {
+      return { release: () => deps.lockFs.remove(lockPath) }
+    }
+
+    if (reclaimStaleLock(lockPath, deps)) continue
+
+    if (deps.now() >= deadline) {
+      const held = deps.lockFs.read(lockPath)?.trim() ?? 'unknown holder'
+      return new Error(
+        `Timed out after ${SYNC_LOCK_WAIT_MS}ms waiting for the sync lock ` +
+          `at ${lockPath}, held by: ${held}`
+      )
+    }
+
+    await deps.sleep(SYNC_LOCK_POLL_MS)
+  }
+}
+
+/**
+ * Removes a lock whose holder is gone. Without this a process killed mid-sync
+ * would block every later save permanently.
+ */
+function reclaimStaleLock(lockPath: string, deps: GitSyncDeps): boolean {
+  const contents = deps.lockFs.read(lockPath)
+  // Released between our failed create and this read — the next create wins it.
+  if (contents === null) return true
+
+  const acquiredAt = parseLockEpochMs(contents)
+  // Deliberately not reclaimed on sight: discarding a lock we cannot parse would
+  // destroy a live holder's on any hiccup in the format. Wait it out instead and
+  // let the acquisition timeout report it for a human.
+  if (acquiredAt === null) return false
+
+  if (deps.now() - acquiredAt < SYNC_LOCK_STALE_MS) return false
+
+  console.warn(
+    `⚠️  Reclaiming a stale sync lock at ${lockPath} (${contents.trim()})`
+  )
+  deps.lockFs.remove(lockPath)
+  return true
+}
+
+/**
+ * Runs `work` while holding the mutex, releasing it whatever happens.
+ *
+ * Reports its own acquisition failure, because `work` reports everything that
+ * happens once the lock is held and a timeout would otherwise be the one
+ * outage that never reaches Slack.
+ */
+async function withSyncLock(
+  repoRoot: string,
+  deps: GitSyncDeps,
+  context: ReportContext,
+  work: () => Promise<GitSyncResult>
+): Promise<GitSyncResult> {
+  const lock = await acquireSyncLock(repoRoot, deps)
+  if (lock instanceof Error) {
+    console.error(`⚠️  ${lock.message}`)
+    return report({ outcome: 'failed', error: lock }, context, deps)
+  }
+
+  try {
+    return await work()
+  } finally {
+    lock.release()
+  }
+}
+
 // ── Interrupted-operation recovery ───────────────────────────────────────────
 
 /**
@@ -543,14 +768,13 @@ async function describeConflict(
   repoRoot: string,
   upstreamRef: string,
   deps: GitSyncDeps
-): Promise<ConflictResolution | undefined> {
+): Promise<ConflictProbe> {
   const probe = await deps.exec(
     buildConflictProbeCommand(upstreamRef),
     repoRoot
   )
-  // A clean merge exits zero. So does a git too old for `--write-tree`, which
-  // reports an unknown option on stderr — either way there is nothing to say.
-  if (!(probe instanceof GitCommandError)) return undefined
+  // A clean merge exits zero, and there is genuinely nothing to report.
+  if (!(probe instanceof GitCommandError)) return { kind: 'clean' }
 
   // stdout is `<tree-oid>\0<path>\0…\0\0<informational messages>`. The file
   // list ends at an empty field, and an "Auto-merging"/"CONFLICT" message
@@ -561,7 +785,19 @@ async function describeConflict(
   const paths = (
     endOfPaths === -1 ? fields.slice(1) : fields.slice(1, endOfPaths)
   ).filter(Boolean)
-  if (paths.length === 0) return undefined
+
+  // A conflict always names at least one path. Exiting non-zero with none
+  // means the probe itself could not run — `merge-tree --write-tree` needs
+  // git >= 2.38. That is not the same as "no conflict": the rebase may still
+  // overwrite something, and `-X theirs` resolves silently, so the caller has
+  // to know the difference or the overwrite goes unannounced.
+  if (paths.length === 0) {
+    console.warn(
+      `⚠️  Conflict probe unavailable, so overwritten paths cannot be listed: ` +
+        probe.message
+    )
+    return { kind: 'unavailable' }
+  }
 
   const log = await deps.exec(
     `git log --oneline --no-decorate HEAD..${shellQuote(upstreamRef)} -- ` +
@@ -570,10 +806,13 @@ async function describeConflict(
   )
 
   return {
-    overwrittenPaths: paths,
-    resolvedPaths: [],
-    supersededCommits:
-      log instanceof GitCommandError ? [] : log.split('\n').filter(Boolean)
+    kind: 'conflict',
+    resolution: {
+      overwrittenPaths: paths,
+      resolvedPaths: [],
+      supersededCommits:
+        log instanceof GitCommandError ? [] : log.split('\n').filter(Boolean)
+    }
   }
 }
 
@@ -734,7 +973,20 @@ async function pushWithRebase(
       continue
     }
 
-    conflict = (await describeConflict(repoRoot, upstreamRef, deps)) ?? conflict
+    const probe = await describeConflict(repoRoot, upstreamRef, deps)
+    if (probe.kind === 'conflict') {
+      conflict = probe.resolution
+    } else if (probe.kind === 'unavailable') {
+      // The rebase below resolves conflicting hunks silently, so without the
+      // probe we cannot tell whether it overwrote anything. Announce the
+      // possibility rather than stay quiet about a potential overwrite.
+      conflict ??= {
+        overwrittenPaths: [],
+        resolvedPaths: [],
+        supersededCommits: [],
+        detailsUnavailable: true
+      }
+    }
 
     const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
     if (resolved instanceof GitCommandError) {
@@ -746,10 +998,18 @@ async function pushWithRebase(
     }
 
     if (resolved.length > 0) {
+      // The probe reports every conflicted path, including the existence
+      // conflicts the resolver then settles, so the two lists would otherwise
+      // name the same file twice — once as a hunk overwrite it never was, and
+      // once correctly. Keep them disjoint at the source.
+      const settled = new Set(resolved.map((r) => r.path))
       conflict = {
-        overwrittenPaths: conflict?.overwrittenPaths ?? [],
+        overwrittenPaths: (conflict?.overwrittenPaths ?? []).filter(
+          (p) => !settled.has(p)
+        ),
         supersededCommits: conflict?.supersededCommits ?? [],
-        resolvedPaths: resolved
+        resolvedPaths: resolved,
+        detailsUnavailable: conflict?.detailsUnavailable
       }
     }
   }
@@ -843,15 +1103,20 @@ async function commitAndPush(
     return { outcome: 'failed', error: branch }
   }
 
-  const added = await deps.exec(buildAddCommand(addPaths), repoRoot)
+  const added = await execWithLockRetry(
+    buildAddCommand(addPaths),
+    repoRoot,
+    deps
+  )
   if (added instanceof GitCommandError) {
     console.error(`⚠️  Git sync failed to stage: ${added.message}`)
     return { outcome: 'failed', error: added }
   }
 
-  const committed = await deps.exec(
+  const committed = await execWithLockRetry(
     buildCommitCommand(message, author),
-    repoRoot
+    repoRoot,
+    deps
   )
   if (committed instanceof GitCommandError) {
     if (committed.combinedOutput.includes('nothing to commit')) {
@@ -935,11 +1200,16 @@ async function report(
   // the CMS superseded. Nothing lints a direct push to the deploy branch, so
   // without this the overwrite is invisible until it surfaces weeks later.
   if (result.outcome === 'synced' && result.conflict) {
-    const { overwrittenPaths, resolvedPaths, supersededCommits } =
-      result.conflict
+    const {
+      overwrittenPaths,
+      resolvedPaths,
+      supersededCommits,
+      detailsUnavailable
+    } = result.conflict
+    const named = [...overwrittenPaths, ...resolvedPaths.map((r) => r.path)]
     console.warn(
       `⚠️  Git sync overwrote branch changes in favour of the CMS: ` +
-        [...overwrittenPaths, ...resolvedPaths.map((r) => r.path)].join(', ')
+        (named.length > 0 ? named.join(', ') : 'paths unavailable')
     )
     const sent = await tryCatchAsync(() =>
       deps.notify({
@@ -950,7 +1220,8 @@ async function report(
         author: context.author,
         overwrittenPaths,
         resolvedPaths,
-        supersededCommits
+        supersededCommits,
+        detailsUnavailable
       })
     )
     if (sent instanceof Error) {
@@ -992,8 +1263,12 @@ export async function runGitSync(
     )
   }
 
+  // Held across the whole sync, so the workflow cannot start a rebase (or abort
+  // ours) partway through. A failure to acquire is reported like any other.
   const result = await tryCatchAsync(() =>
-    syncContentDirectories(label, repoRoot, context, deps)
+    withSyncLock(repoRoot, deps, { label, repoRoot }, () =>
+      syncContentDirectories(label, repoRoot, context, deps)
+    )
   )
   if (!(result instanceof Error)) return result
 
@@ -1191,7 +1466,12 @@ export async function gitCommitAndPush(
   }
 
   const result = await tryCatchAsync(() =>
-    commitExplicitPaths(filepath, message, repoRoot, deps)
+    withSyncLock(
+      repoRoot,
+      deps,
+      { label: 'navigation', repoRoot, commitMessage: message },
+      () => commitExplicitPaths(filepath, message, repoRoot, deps)
+    )
   )
   if (!(result instanceof Error)) return result
 

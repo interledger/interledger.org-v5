@@ -28,7 +28,7 @@ export default defineConfig({
       // diff nothing can commit.
       thresholds: {
         statements: 64,
-        branches: 62,
+        branches: 65,
         functions: 70,
         lines: 65
       }

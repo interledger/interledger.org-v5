@@ -100,8 +100,25 @@ Implementation notes that are easy to get wrong:
   commit of its own for up to ~75s during its retry loop, and dropping `HEAD~1`
   blindly inside that window would discard another writer's work. `--soft` keeps
   the content staged, so the next save retries it.
-- **Lock contention is retried, not reported.** The daily sync and editor saves
-  share a checkout, so `index.lock` collisions are expected.
+- **Lock contention is retried, not reported.** The daily workflow and editor
+  saves share a checkout, so `index.lock` collisions are expected. The retry
+  covers the status read, `git add`, `git commit` and `git push` — every command
+  that takes the repository lock.
+- **Both writers take one advisory mutex.** `.git/strapi-sync.lock`, created
+  with `O_EXCL` (`fs.writeFileSync(…, { flag: 'wx' })` here, `set -o noclobber`
+  in the workflow) so the create and the owner details are one atomic write.
+  Without it each side's `git rebase --abort` could discard a rebase the other
+  had in flight, since the workflow integrates **before** it stops the Strapi
+  service. A holder that dies is reclaimed after 10 minutes, so a killed process
+  cannot block saves permanently; a sync that cannot acquire within 30s fails
+  and is retried by the next save rather than proceeding unserialised. The
+  file's line format is parsed by both sides — keep them in step.
+- **`autoStash` covers tracked modifications only.** A page Strapi has written
+  but not yet staged is untracked, and a rebase refuses to start if an incoming
+  commit adds that same path. The lifecycle sync stages and commits before it
+  ever rebases, so it is unaffected; the workflow stages the CMS-owned paths
+  before rebasing for the same reason. This fails safely either way — the
+  checkout is not left mid-rebase.
 
 ### Git Sync Repository Target
 

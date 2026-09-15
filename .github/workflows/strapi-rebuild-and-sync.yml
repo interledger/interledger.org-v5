@@ -130,6 +130,63 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
+          # ── Sync mutex ────────────────────────────────────────────────────────────────
+          # Shared with Strapi's git sync (cms/src/utils/gitSync.ts, SYNC_LOCK_FILE). Both
+          # writers run git against this checkout and both call `git rebase --abort` on
+          # state they assume is their own, so without this each can abort the other's
+          # in-progress rebase. Keep the path, the line format and the staleness window in
+          # step with that file.
+          #
+          # `set -o noclobber` makes the redirect O_CREAT|O_EXCL, so the create and the
+          # write are one atomic operation and a holder is never visible without its
+          # owner details.
+          SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
+          SYNC_LOCK_STALE_SECONDS=600
+          SYNC_LOCK_WAIT_SECONDS=30
+
+          acquire_sync_lock() {
+            local waited=0
+            while true; do
+              if (set -o noclobber; echo "epoch=$(date +%s) pid=$$ host=$(hostname) at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$SYNC_LOCK") 2>/dev/null; then
+                return 0
+              fi
+
+              # Reclaim a lock whose holder died, otherwise one killed process would block
+              # every later run and every editor save permanently.
+              #
+              # No `\b` in the pattern: that is a GNU extension, and silently matching
+              # nothing on any other sed would make every lock look unreadable.
+              local held epoch age
+              held="$(cat "$SYNC_LOCK" 2>/dev/null || true)"
+              epoch="$(printf '%s' "$held" | sed -n 's/.*epoch=\([0-9][0-9]*\).*/\1/p')"
+              if [ -n "$epoch" ]; then
+                age=$(( $(date +%s) - epoch ))
+                if [ "$age" -ge "$SYNC_LOCK_STALE_SECONDS" ]; then
+                  echo "::warning::Reclaiming a stale sync lock (${age}s old): $held"
+                  rm -f "$SYNC_LOCK"
+                  continue
+                fi
+              fi
+              # An unparseable lock is deliberately *not* discarded on sight — doing that
+              # would destroy a live holder's lock on any parsing hiccup. Wait it out and
+              # let the timeout below report it for a human instead.
+
+              if [ "$waited" -ge "$SYNC_LOCK_WAIT_SECONDS" ]; then
+                echo "Error: timed out after ${waited}s waiting for the sync lock at $SYNC_LOCK."
+                echo "Held by: ${held:-<unreadable>}"
+                return 1
+              fi
+              sleep 1
+              waited=$(( waited + 1 ))
+            done
+          }
+
+          # Acquire first, then arm the trap. Arming it earlier would make a *failed*
+          # acquisition delete the lock belonging to whichever writer already holds it.
+          acquire_sync_lock
+          release_sync_lock() { rm -f "$SYNC_LOCK"; }
+          trap release_sync_lock EXIT
+
           # An operation interrupted by a conflict fails every later git command in this
           # checkout, including the integrate below, and used to need a hand to clear.
           # Strapi's git sync now clears its own (cms/src/utils/gitSync.ts), but a
@@ -184,6 +241,27 @@ jobs:
             echo "::warning::$DEPLOY_PATH diverged from origin/$DEPLOY_BRANCH — replaying local commits on top (CMS wins)."
             git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
 
+            # autoStash covers tracked modifications only, so a page Strapi has written but
+            # not yet staged is untracked and unprotected. That only matters when an
+            # incoming commit adds the same path, where git refuses to detach HEAD with a
+            # message ("could not detach HEAD") that says nothing about the cause.
+            #
+            # Checked rather than worked around: staging the file first does let the rebase
+            # start, but the autostash pop then collides on the same path and leaves
+            # conflict markers in src/content — a worse state than not starting, and
+            # exactly what the unmerged guard below exists to prevent. Refusing early keeps
+            # the checkout untouched.
+            COLLIDING="$(comm -12 \
+              <(git ls-files --others --exclude-standard | sort) \
+              <(git diff --name-only --diff-filter=A "HEAD..origin/$DEPLOY_BRANCH" | sort))"
+            if [ -n "$COLLIDING" ]; then
+              echo "Error: $DEPLOY_BRANCH adds files that already exist untracked in $DEPLOY_PATH:"
+              printf '%s\n' "$COLLIDING"
+              echo "Strapi wrote these but has not committed them yet. Re-run once its sync has,"
+              echo "or remove them if they are stale."
+              exit 1
+            fi
+
             if ! git -c rebase.autoStash=true -c rerere.enabled=false \
                    rebase -X theirs "origin/$DEPLOY_BRANCH"; then
               # Leaving it mid-rebase would break every later editor save as well as the next
@@ -195,11 +273,20 @@ jobs:
               git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
               exit 1
             fi
+          fi
 
-            # Push so the next run is a plain fast-forward again. Non-fatal: the rebuild and
-            # sync below are still valid against this tree, and the next run retries.
+          # Outside the divergence branch on purpose. `git merge --ff-only` also exits 0
+          # when origin is already an ancestor of HEAD — the state after a commit was made
+          # locally but its push failed — so a check inside that branch would skip the only
+          # push and strand the commit. Nothing else would pick it up either: the Airtable
+          # step below exits early when its JSON is unchanged.
+          #
+          # Non-fatal: the rebuild and sync below are still valid against this tree, and
+          # the next run retries.
+          if [ "$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")" -gt 0 ]; then
+            echo "Pushing $(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD") local commit(s) to $DEPLOY_BRANCH."
             git push origin "HEAD:$DEPLOY_BRANCH" || \
-              echo "::warning::Recovered commits not pushed; the next run will retry."
+              echo "::warning::Local commits not pushed; the next run will retry."
           fi
 
           # Defensive check: after a clean `-X theirs` rebase nothing can be unmerged, so
@@ -285,6 +372,36 @@ jobs:
           # import-airtable.ts resolves './src/data/airtable' against the CWD, so this has to run
           # from the repo root — not cms/, where the previous step left off.
           cd "$DEPLOY_PATH"
+
+          # The same mutex the integrate step takes, restated because each `run:` is a fresh
+          # shell and sourcing a committed script would fail on the first run after this lands,
+          # before the VM has pulled it. The canonical version — and the contract shared with
+          # cms/src/utils/gitSync.ts — is in the step above; keep the two in step.
+          #
+          # Needed here because the retry loop below calls `git rebase --abort`, which would
+          # otherwise discard a rebase Strapi's git sync had in flight.
+          SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
+          waited=0
+          until (set -o noclobber; echo "epoch=$(date +%s) pid=$$ host=$(hostname) at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$SYNC_LOCK") 2>/dev/null; do
+            held="$(cat "$SYNC_LOCK" 2>/dev/null || true)"
+            # No `\b`: it is a GNU extension, and matching nothing elsewhere would make
+            # every lock look unreadable. An unreadable one is waited out, not discarded.
+            epoch="$(printf '%s' "$held" | sed -n 's/.*epoch=\([0-9][0-9]*\).*/\1/p')"
+            if [ -n "$epoch" ] && [ $(( $(date +%s) - epoch )) -ge 600 ]; then
+              echo "::warning::Reclaiming a stale sync lock: $held"
+              rm -f "$SYNC_LOCK"
+              continue
+            fi
+            if [ "$waited" -ge 30 ]; then
+              echo "Error: timed out waiting for the sync lock at $SYNC_LOCK."
+              echo "Held by: ${held:-<unreadable>}"
+              exit 1
+            fi
+            sleep 1
+            waited=$(( waited + 1 ))
+          done
+          # Armed only after acquiring, so a timeout cannot delete the holder's lock.
+          trap 'rm -f "$SYNC_LOCK"' EXIT
 
           echo "Syncing grantee data from Airtable..."
           pnpm run sync:airtable

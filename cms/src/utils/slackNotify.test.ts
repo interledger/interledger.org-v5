@@ -4,6 +4,7 @@ import {
   createSlackGitSyncNotifier,
   getSlackWebhookUrl,
   isSlackAlertingConfigured,
+  formatPathList,
   redactSecrets,
   truncateDetail,
   type FetchLike,
@@ -509,6 +510,132 @@ describe('conflict-resolved alerts', () => {
 
     await notify(conflict)
     await notify({ ...conflict, overwrittenPaths: ['src/content/faqs/z.mdx'] })
+
+    expect(posts).toHaveLength(2)
+  })
+})
+
+// ── Review fixes (PR #702) ───────────────────────────────────────────────────
+
+describe('conflict alert accounting', () => {
+  const base: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone'
+  }
+
+  it('counts a path once even if it appears in both lists', () => {
+    const payload = buildSlackPayload({
+      ...base,
+      hostname: 'strapi-vm',
+      overwrittenPaths: ['src/content/faqs/a.mdx'],
+      resolvedPaths: [{ path: 'src/content/faqs/a.mdx', action: 'kept-cms' }]
+    })
+
+    expect(payload.text).toContain('overwrote 1 file(s)')
+  })
+
+  it('says the details are unavailable rather than implying nothing was lost', () => {
+    const payload = buildSlackPayload({
+      ...base,
+      hostname: 'strapi-vm',
+      detailsUnavailable: true,
+      overwrittenPaths: [],
+      resolvedPaths: []
+    })
+
+    expect(payload.text).toContain('may have overwritten')
+    expect(payload.text).not.toContain('0 file(s)')
+    expect(JSON.stringify(payload.blocks)).toContain('2.38')
+  })
+})
+
+describe('formatPathList', () => {
+  /**
+   * A Slack section rejects text over 3000 characters, so a cap on entries
+   * alone would drop the alert exactly when it carries the most detail.
+   */
+  it('stays inside a section limit even with long paths', () => {
+    const paths = Array.from(
+      { length: 20 },
+      (_, i) =>
+        `src/content/foundation-pages/${'very-long-slug-segment/'.repeat(12)}${i}.mdx`
+    )
+
+    const rendered = formatPathList(paths)
+
+    expect(rendered.length).toBeLessThan(3000)
+    expect(rendered).toContain('more')
+  })
+
+  it('lists everything when it comfortably fits', () => {
+    const rendered = formatPathList(['a.mdx', 'b.mdx'])
+
+    expect(rendered).toBe('```a.mdx\nb.mdx```')
+  })
+})
+
+describe('conflict and failure throttles are independent', () => {
+  const conflict: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone',
+    overwrittenPaths: ['src/content/faqs/a.mdx']
+  }
+
+  /**
+   * A recovery clears the failure throttle so the next outage alerts at once.
+   * Sharing one map would let that recovery erase the conflict fingerprint and
+   * re-announce an overwrite that was already reported.
+   */
+  it('a recovery does not re-post a conflict already announced', async () => {
+    let clock = 0
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: () => clock,
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+
+    await notify(conflict)
+    expect(posts).toHaveLength(1)
+
+    clock += 60_000
+    await notify(failure)
+    clock += 60_000
+    await notify({
+      outcome: 'healthy',
+      label: 'faq',
+      repoRoot: '/staging-clone'
+    })
+
+    // The same conflict, still inside the 15-minute suppression window.
+    clock += 60_000
+    await notify(conflict)
+
+    expect(posts.map((p) => p.payload.text)).toEqual([
+      expect.stringContaining('overwrote'),
+      expect.stringContaining('failed'),
+      expect.stringContaining('recovered')
+    ])
+  })
+
+  it('a conflict does not clear an open failure', async () => {
+    let clock = 0
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: () => clock,
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+
+    await notify(failure)
+    await notify(conflict)
+    // Same failure, still throttled: the conflict must not have reset it.
+    clock += 60_000
+    await notify(failure)
 
     expect(posts).toHaveLength(2)
   })
