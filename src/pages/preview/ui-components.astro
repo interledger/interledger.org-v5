@@ -6,6 +6,7 @@ import Icon from '@/components/shared/Icon.astro'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import InternalAdvert from '@/components/blocks/InternalAdvert.astro'
 
 const containerClass = `mx-auto max-w-content px-lg`
 ---
@@ -400,6 +401,60 @@ const containerClass = `mx-auto max-w-content px-lg`
             description="A strip can also render without a heading."
             primaryButtonText="Get started"
             primaryButtonLink="#cta-strip"
+          />
+        </div>
+      </section>
+    </div>
+
+    <div class={containerClass}>
+      <section id="internal-advert" class="mb-3xl">
+        <h2 class="font-poppins mb-xl text-h3">Internal advert</h2>
+        <p class="mb-2xl text-body-lg-standard">
+          Blog-only card promoting another Interledger property. Every field is
+          optional, so the examples below drop them one at a time. Resize
+          through the 810 / 1200 thresholds to see the headline scale.
+        </p>
+
+        <div class="flex max-w-[416px] flex-col gap-2xl">
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Web Monetization"
+            headline="Revolutionizing the digital content economy."
+            socialLinks={[
+              'https://www.linkedin.com/company/interledger-foundation/',
+              'https://www.instagram.com/interledgerfoundation/'
+            ]}
+            buttonText="Visit Web Monetization"
+            buttonLink="https://webmonetization.org"
+            buttonExternal={true}
+          >
+            Web Monetization connects publishers, creators and their audiences,
+            turning engagement into revenue. No friction, no barriers, no
+            limits.
+          </InternalAdvert>
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            headline="Headline, label and a call to action."
+            buttonText="Read more"
+            buttonLink="#internal-advert"
+          />
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            socialLinks={['https://github.com/interledger']}
+          >
+            A card can carry a body with no headline above it. The block then
+            takes its accessible name from the fallback label.
+          </InternalAdvert>
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            headline="An unrecognized host falls back to a generic link icon."
+            socialLinks={['https://interledger.social/@interledger']}
           />
         </div>
       </section>

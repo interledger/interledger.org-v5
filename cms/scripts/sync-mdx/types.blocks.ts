@@ -405,6 +405,35 @@ export interface HackathonAnimationBlock extends StrapiBlockBase {
   __component: 'blocks.hackathon-animation'
 }
 
+/**
+ * blocks.internal-advert — bordered card promoting another Interledger
+ * property from inside a blog post.
+ *
+ * Every field is optional in the schema. The rules that make the card coherent
+ * are cross-field (at least three elements, and at least a headline or a body),
+ * so the handler enforces them rather than the schema.
+ *
+ * `body` comes from the JSX children (markdown). `logo.image` is a Strapi media
+ * ID after import, or null in dry-run, matching ImageBlockBlock.
+ */
+export interface InternalAdvertBlock extends StrapiBlockBase {
+  __component: 'blocks.internal-advert'
+  helperText?: string
+  logo?: {
+    image: number | null
+    /** null when omitted in MDX; '' when explicitly empty (decorative). */
+    alternativeText: string | null
+  }
+  logoLabel?: string
+  headline?: string
+  body?: string
+  socialLinks?: Array<{ url: string }>
+  buttonText?: string
+  buttonLink?: string
+  buttonExternal?: boolean
+  buttonDocument?: boolean
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -433,3 +462,4 @@ export type ParsedBlock =
   | CtaLinkBlock
   | CtaButtonsBlock
   | HackathonAnimationBlock
+  | InternalAdvertBlock
