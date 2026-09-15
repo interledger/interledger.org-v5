@@ -20,7 +20,7 @@ export {
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
 } from './shared/url'
-export { tryCatchAsync } from './shared/tryCatch'
+export { tryCatch, tryCatchAsync } from './shared/tryCatch'
 export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
