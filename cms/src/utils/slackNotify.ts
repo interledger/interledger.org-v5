@@ -68,6 +68,24 @@ export interface GitSyncAlert {
 
 export type NotifyGitSync = (alert: GitSyncAlert) => Promise<void>
 
+/**
+ * Groups repeated conflicts over the same files into one notice.
+ *
+ * Normally the path set is the identity. When the probe could not enumerate
+ * paths there is no set, and keying on it alone would give every such alert the
+ * same fingerprint — so unrelated saves would suppress one another for fifteen
+ * minutes, and the first save's commit and editor would stand in for all of
+ * them. The commit message discriminates those.
+ */
+export function conflictFingerprint(alert: GitSyncAlert): string {
+  const paths = [
+    ...(alert.overwrittenPaths ?? []),
+    ...(alert.resolvedPaths ?? []).map((r) => r.path)
+  ]
+  if (paths.length > 0) return `conflict:${[...paths].sort().join(',')}`
+  return `conflict:unlisted:${alert.label}:${alert.commitMessage ?? ''}`
+}
+
 interface SlackResponse {
   ok: boolean
   status: number
@@ -433,14 +451,10 @@ export function createSlackGitSyncNotifier(
     // Fingerprinted on the path set, so repeated saves to the same pages during
     // one conflict window collapse into a single notice.
     if (alert.outcome === 'conflict-resolved') {
-      const paths = [
-        ...(alert.overwrittenPaths ?? []),
-        ...(alert.resolvedPaths ?? []).map((r) => r.path)
-      ]
       await postThrottled(
         url,
         conflictThrottle,
-        `conflict:${[...paths].sort().join(',')}`,
+        conflictFingerprint(alert),
         alert,
         hostname
       )

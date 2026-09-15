@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   buildSlackPayload,
+  conflictFingerprint,
   createSlackGitSyncNotifier,
   getSlackWebhookUrl,
   isSlackAlertingConfigured,
@@ -638,5 +639,60 @@ describe('conflict and failure throttles are independent', () => {
     await notify(failure)
 
     expect(posts).toHaveLength(2)
+  })
+})
+
+describe('conflictFingerprint', () => {
+  const base: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone'
+  }
+
+  it('groups repeats over the same files regardless of order', () => {
+    const a = conflictFingerprint({ ...base, overwrittenPaths: ['a', 'b'] })
+    const b = conflictFingerprint({ ...base, overwrittenPaths: ['b', 'a'] })
+
+    expect(a).toBe(b)
+  })
+
+  it('counts a hunk overwrite and an existence conflict on one path as one', () => {
+    const a = conflictFingerprint({ ...base, overwrittenPaths: ['a'] })
+    const b = conflictFingerprint({
+      ...base,
+      resolvedPaths: [{ path: 'a', action: 'kept-cms' }]
+    })
+
+    expect(a).toBe(b)
+  })
+
+  /**
+   * With no paths to key on, a shared fingerprint would let unrelated saves
+   * suppress one another for the whole 15-minute window, and the first save's
+   * commit and editor would be shown for every later overwrite.
+   */
+  it('keeps unlisted conflicts apart by commit', () => {
+    const a = conflictFingerprint({
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update a'
+    })
+    const b = conflictFingerprint({
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update b'
+    })
+
+    expect(a).not.toBe(b)
+  })
+
+  it('still groups repeats of the same unlisted conflict', () => {
+    const alert = {
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update a'
+    }
+
+    expect(conflictFingerprint(alert)).toBe(conflictFingerprint({ ...alert }))
   })
 })
