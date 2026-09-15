@@ -117,46 +117,51 @@ jobs:
           # Shared with Strapi's git sync (cms/src/utils/gitSync.ts, SYNC_LOCK_FILE). Both
           # writers run git against this checkout and both call `git rebase --abort` on
           # state they assume is their own, so without this each can abort the other's
-          # in-progress rebase. Keep the path, the line format and the staleness window in
-          # step with that file.
+          # in-progress rebase. Keep the path and the staleness window in step with that
+          # file; the owner line is only ever read by a human, so its shape is per-side.
           #
-          # `set -o noclobber` makes the redirect O_CREAT|O_EXCL, so the create and the
-          # write are one atomic operation and a holder is never visible without its
-          # owner details.
+          # The protocol, mirroring gitSync.ts:
+          #   claim    write the owner line to a temp file, then `ln` it into place. `ln`
+          #            is atomic and fails when the target exists, and the contents are
+          #            already written, so the lock is never visible half-formed. An
+          #            exclusive-create redirect would not do: a process killed between
+          #            the create and the write leaves an empty lock behind.
+          #   expire   on the file's mtime, never its contents, so even a truncated lock
+          #            ages out instead of wedging the checkout.
+          #   reclaim  `mv` the stale lock aside — mv fails once another contender has
+          #            moved it, so exactly one of them wins.
+          #   release  only after checking the contents are still ours.
           SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
-          SYNC_LOCK_STALE_SECONDS=600
+          SYNC_LOCK_STALE_MINUTES=10
           SYNC_LOCK_WAIT_SECONDS=30
+          SYNC_LOCK_OWNER="pid=$$ host=$(hostname) run=${GITHUB_RUN_ID:-manual} at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
           acquire_sync_lock() {
-            local waited=0
+            local waited=0 tmp
+            tmp="$SYNC_LOCK.$$.$RANDOM"
             while true; do
-              if (set -o noclobber; echo "epoch=$(date +%s) pid=$$ host=$(hostname) at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$SYNC_LOCK") 2>/dev/null; then
+              printf '%s\n' "$SYNC_LOCK_OWNER" > "$tmp"
+              if ln "$tmp" "$SYNC_LOCK" 2>/dev/null; then
+                rm -f "$tmp"
                 return 0
               fi
+              rm -f "$tmp"
 
               # Reclaim a lock whose holder died, otherwise one killed process would block
               # every later run and every editor save permanently.
               #
-              # No `\b` in the pattern: that is a GNU extension, and silently matching
-              # nothing on any other sed would make every lock look unreadable.
-              local held epoch age
-              held="$(cat "$SYNC_LOCK" 2>/dev/null || true)"
-              epoch="$(printf '%s' "$held" | sed -n 's/.*epoch=\([0-9][0-9]*\).*/\1/p')"
-              if [ -n "$epoch" ]; then
-                age=$(( $(date +%s) - epoch ))
-                if [ "$age" -ge "$SYNC_LOCK_STALE_SECONDS" ]; then
-                  echo "::warning::Reclaiming a stale sync lock (${age}s old): $held"
-                  rm -f "$SYNC_LOCK"
-                  continue
+              # `find` exits 0 whether or not it matched, so staleness has to be read from
+              # its output — testing the exit status would report every lock as stale.
+              if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin "+$SYNC_LOCK_STALE_MINUTES" 2>/dev/null)" ]; then
+                if mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
+                  echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
+                  rm -f "$SYNC_LOCK.stale.$$"
                 fi
               fi
-              # An unparseable lock is deliberately *not* discarded on sight — doing that
-              # would destroy a live holder's lock on any parsing hiccup. Wait it out and
-              # let the timeout below report it for a human instead.
 
               if [ "$waited" -ge "$SYNC_LOCK_WAIT_SECONDS" ]; then
                 echo "Error: timed out after ${waited}s waiting for the sync lock at $SYNC_LOCK."
-                echo "Held by: ${held:-<unreadable>}"
+                echo "Held by: $(cat "$SYNC_LOCK" 2>/dev/null || echo '<unreadable>')"
                 return 1
               fi
               sleep 1
@@ -164,10 +169,19 @@ jobs:
             done
           }
 
+          # Only while it is still ours: a lock we overran may have been reclaimed and
+          # replaced, and removing it blindly would delete the new holder's.
+          release_sync_lock() {
+            if [ "$(cat "$SYNC_LOCK" 2>/dev/null || true)" = "$SYNC_LOCK_OWNER" ]; then
+              rm -f "$SYNC_LOCK"
+            fi
+          }
+
           # Acquire first, then arm the trap. Arming it earlier would make a *failed*
           # acquisition delete the lock belonging to whichever writer already holds it.
+          # The trap is a safety net for the `exit 1`s below; the happy path releases
+          # explicitly as soon as the git work is done.
           acquire_sync_lock
-          release_sync_lock() { rm -f "$SYNC_LOCK"; }
           trap release_sync_lock EXIT
 
           # An operation interrupted by a conflict fails every later git command in this
@@ -284,6 +298,17 @@ jobs:
 
           NEW_SHA="$(git rev-parse HEAD)"
 
+          # The git work is done, so the lock goes back now rather than at the end of the
+          # step. Everything below is a rebuild (npm, systemd) and `sync:all`, which writes
+          # into Strapi over HTTP with `x-skip-mdx-export` and touches no git state — none
+          # of it needs serialising.
+          #
+          # Holding on through the rebuild was actively harmful: a full rebuild outlasts the
+          # staleness window, so the lock expired while still held, an editor save reclaimed
+          # it, and git ran concurrently anyway — the exact thing the lock exists to stop.
+          release_sync_lock
+          trap - EXIT
+
           # force_rebuild lets a caller rebuild with no new commits, so a run can recover from a
           # bad prior deploy without waiting for the next cms/ commit.
           if [ "${FORCE_REBUILD:-false}" = "true" ] || \
@@ -364,27 +389,33 @@ jobs:
           # Needed here because the retry loop below calls `git rebase --abort`, which would
           # otherwise discard a rebase Strapi's git sync had in flight.
           SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
+          SYNC_LOCK_OWNER="pid=$$ host=$(hostname) run=${GITHUB_RUN_ID:-manual} step=airtable at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           waited=0
-          until (set -o noclobber; echo "epoch=$(date +%s) pid=$$ host=$(hostname) at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$SYNC_LOCK") 2>/dev/null; do
-            held="$(cat "$SYNC_LOCK" 2>/dev/null || true)"
-            # No `\b`: it is a GNU extension, and matching nothing elsewhere would make
-            # every lock look unreadable. An unreadable one is waited out, not discarded.
-            epoch="$(printf '%s' "$held" | sed -n 's/.*epoch=\([0-9][0-9]*\).*/\1/p')"
-            if [ -n "$epoch" ] && [ $(( $(date +%s) - epoch )) -ge 600 ]; then
-              echo "::warning::Reclaiming a stale sync lock: $held"
-              rm -f "$SYNC_LOCK"
-              continue
+          while true; do
+            TMP="$SYNC_LOCK.$$.$RANDOM"
+            printf '%s\n' "$SYNC_LOCK_OWNER" > "$TMP"
+            if ln "$TMP" "$SYNC_LOCK" 2>/dev/null; then rm -f "$TMP"; break; fi
+            rm -f "$TMP"
+
+            # Staleness from mtime, read from find's output — find exits 0 either way.
+            # Reclaim by `mv` so only one contender can win it.
+            if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin +10 2>/dev/null)" ] \
+               && mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
+              echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
+              rm -f "$SYNC_LOCK.stale.$$"
             fi
+
             if [ "$waited" -ge 30 ]; then
               echo "Error: timed out waiting for the sync lock at $SYNC_LOCK."
-              echo "Held by: ${held:-<unreadable>}"
+              echo "Held by: $(cat "$SYNC_LOCK" 2>/dev/null || echo '<unreadable>')"
               exit 1
             fi
             sleep 1
             waited=$(( waited + 1 ))
           done
-          # Armed only after acquiring, so a timeout cannot delete the holder's lock.
-          trap 'rm -f "$SYNC_LOCK"' EXIT
+          # Armed only after acquiring, and owner-checked: a lock we overran may have been
+          # reclaimed and replaced, and removing it blindly would delete the new holder's.
+          trap '[ "$(cat "$SYNC_LOCK" 2>/dev/null || true)" = "$SYNC_LOCK_OWNER" ] && rm -f "$SYNC_LOCK"' EXIT
 
           echo "Syncing grantee data from Airtable..."
           pnpm run sync:airtable
