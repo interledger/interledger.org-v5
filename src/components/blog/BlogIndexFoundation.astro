@@ -124,10 +124,16 @@ const searchIndexUrl = '/blog-search-index.json'
   <p
     class="m-0 text-body-sm-emphasis text-primary"
     data-blog-search-count
-    aria-live="polite"
     data-results-template={t('blog.search.results', { count: '{count}' })}
     hidden
   >
+  </p>
+
+  {
+    /* Announcement channel for search results — see blog-search.ts. Never
+  hidden, so live-region updates actually reach the a11y tree. */
+  }
+  <p class="sr-only" role="status" aria-live="polite" data-blog-search-status>
   </p>
 </section>
 

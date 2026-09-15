@@ -128,6 +128,9 @@ export function initBlogSearch(): void {
   const searchCount = document.querySelector<HTMLElement>(
     '[data-blog-search-count]'
   )
+  const searchStatus = document.querySelector<HTMLElement>(
+    '[data-blog-search-status]'
+  )
   const pagination = document.querySelector<HTMLElement>(
     '[data-blog-pagination]'
   )
@@ -166,6 +169,9 @@ export function initBlogSearch(): void {
   const initialStaticHidden = staticList.hidden
   const initialEmptyHidden = emptyState.hidden
   const resultsTemplate = searchCount?.dataset.resultsTemplate ?? '{count}'
+  // Server-rendered and never changes; read once so the announcement and the
+  // visible empty state can't drift apart.
+  const emptyMessage = emptyState.textContent?.trim() ?? ''
 
   let debounceHandle: number | undefined
   let requestId = 0
@@ -182,6 +188,24 @@ export function initBlogSearch(): void {
     syncSearchHrefs(searchRoot, input.value, window.location.origin)
   }
 
+  /**
+   * Replace the text of the `sr-only` live region.
+   *
+   * It is deliberately a separate node from the visible count, and is never
+   * toggled with `hidden`: Tailwind's preflight makes `[hidden]` `display:
+   * none !important`, and text written into a `display: none` node never
+   * reaches the accessibility tree, so a live region that is hidden while
+   * being written announces nothing. `sr-only` clips the node instead of
+   * removing it, which keeps it announceable.
+   *
+   * An unchanged message is left alone: writing the same text is a no-op for
+   * screen readers anyway, and re-announcing an identical count is just noise.
+   */
+  function announce(message: string) {
+    if (!searchStatus || searchStatus.textContent === message) return
+    searchStatus.textContent = message
+  }
+
   function showStatic() {
     staticList.hidden = initialStaticHidden
     emptyState.hidden = initialEmptyHidden
@@ -190,6 +214,9 @@ export function initBlogSearch(): void {
     if (langNotice) langNotice.hidden = false
     if (searchCount) searchCount.hidden = true
     if (pagination) pagination.hidden = false
+    // Nothing to report while browsing; also lets the next search announce
+    // even if it lands on the same count as the previous one.
+    announce('')
   }
 
   // Applied as soon as a non-empty query starts a search (before the index
@@ -220,13 +247,23 @@ export function initBlogSearch(): void {
     const hasResults = entries.length > 0
     searchResults.hidden = !hasResults
     emptyState.hidden = hasResults
+
+    const countMessage = resultsTemplate.replace(
+      '{count}',
+      String(entries.length)
+    )
     if (searchCount) {
-      searchCount.textContent = resultsTemplate.replace(
-        '{count}',
-        String(entries.length)
-      )
+      // Unhide before writing, so the text is never set on a `display: none`
+      // node — harmless for this visual-only node today, but it keeps the
+      // ordering correct if a live region is ever attached to it again.
       searchCount.hidden = false
+      searchCount.textContent = countMessage
     }
+
+    // A zero-result search is the case most worth hearing about, and the
+    // visible empty-state copy is more useful than "0 Results" — reuse it
+    // rather than duplicating the string.
+    announce(hasResults ? countMessage : emptyMessage || countMessage)
   }
 
   async function runSearch(query: string) {
