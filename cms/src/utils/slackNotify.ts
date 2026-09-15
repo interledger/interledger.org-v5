@@ -224,12 +224,16 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
     fields.push(field('Editor', `${input.author.name} <${input.author.email}>`))
   }
 
+  // The unavailable-details wording must not point at anything it cannot show:
+  // when the probe fails there are no paths and usually no superseded commits
+  // either, so it names the commit that won and how to look the rest up.
   const headline = input.detailsUnavailable
     ? `⚠️ *Strapi git sync may have overwritten branch changes*\n` +
       `A CMS save was rebased onto commits already on the branch and the CMS wins ` +
       `any conflict, but this checkout's git is too old to list what was overwritten ` +
-      `(\`git merge-tree --write-tree\` needs git 2.38+). Compare the branch against ` +
-      `the commit below if something looks wrong.`
+      `(\`git merge-tree --write-tree\` needs git 2.38+). Find the commit named below ` +
+      `with \`git log --oneline\` on the deploy branch and check what it replaced; ` +
+      `upgrading git on this host restores the file list.`
     : `⚠️ *Strapi git sync overwrote branch changes*\n` +
       `A CMS save conflicted with commits already on the branch. Policy is that the ` +
       `CMS wins, so the editor's version was kept.`

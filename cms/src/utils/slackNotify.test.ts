@@ -549,6 +549,27 @@ describe('conflict alert accounting', () => {
     expect(payload.text).not.toContain('0 file(s)')
     expect(JSON.stringify(payload.blocks)).toContain('2.38')
   })
+
+  /**
+   * The wording used to promise "the commit below", but nothing renders a sha
+   * when the probe failed — so the operator was pointed at something that was
+   * not there.
+   */
+  it('only points at references the message actually renders', () => {
+    const rendered = JSON.stringify(
+      buildSlackPayload({
+        ...base,
+        hostname: 'strapi-vm',
+        detailsUnavailable: true,
+        commitMessage: 'faq: update a',
+        supersededCommits: []
+      }).blocks
+    )
+
+    expect(rendered).toContain('faq: update a')
+    expect(rendered).not.toContain('the commit below')
+    expect(rendered).toMatch(/git log --oneline/)
+  })
 })
 
 describe('formatPathList', () => {
