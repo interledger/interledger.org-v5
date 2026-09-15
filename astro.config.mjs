@@ -12,6 +12,7 @@ import rehypeUmamiLinks from './src/utils/main/rehypeUmamiLinks.ts'
 import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTables.ts'
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
+import { validateInternalLinks } from './src/integrations/validate-internal-links.ts'
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
@@ -146,7 +147,11 @@ export default defineConfig({
         if (pathname.includes('/preview')) return false
         return !isDemoPathname(pathname)
       }
-    })
+    }),
+    // Must stay last. Integration hooks run in array order, and this one reads
+    // the finished dist tree — including files other integrations write during
+    // their own astro:build:done (sitemap XML, Pagefind, _redirects).
+    validateInternalLinks()
   ],
   vite: {
     // Pin the image CDN decision at build time so SSR routes (prerender = false)
