@@ -1,4 +1,5 @@
 import type { BlogSearchEntry } from '@/utils/main/blogSearch'
+import type { BlogThumbnail } from '@/types/blog'
 import type { Locale } from '@/utils/main/locales'
 import { buildUmamiAttrs, type UmamiAttrs } from '@/utils/main/umami'
 
@@ -48,6 +49,42 @@ function requireElement<T extends Element>(
 function applyUmamiAttrs(el: HTMLElement, attrs: UmamiAttrs): void {
   for (const [key, value] of Object.entries(attrs)) {
     if (value) el.setAttribute(key, value)
+  }
+}
+
+/**
+ * Point the row's <img> at the thumbnail, blurring up from the LQIP when the
+ * catalog carries one.
+ *
+ * The placeholder is a CSS background sitting behind the image, and CSS has no
+ * "loaded" signal, so it has to be cleared in JS — otherwise a source with
+ * transparency keeps showing the blur through its own alpha channel forever.
+ * OptimizedImage.astro ships the same logic for server-rendered images, but it
+ * only scans the DOM once at startup, so rows built later need their own
+ * handler. Cleared on `load` only: a failed image should keep the blur rather
+ * than collapse to an empty box.
+ */
+function applyThumbnail(img: HTMLImageElement, thumbnail: BlogThumbnail): void {
+  const { blur } = thumbnail
+  if (blur) {
+    // Validated against BLUR_PLACEHOLDER_RE when the catalog was built, so it
+    // cannot break out of the url().
+    img.style.backgroundImage = `url('${blur}')`
+    img.dataset.blurPlaceholder = ''
+  }
+
+  img.src = thumbnail.src
+  img.alt = thumbnail.alt
+
+  if (!blur) return
+  const dropBlurPlaceholder = () => {
+    img.style.backgroundImage = 'none'
+    img.removeAttribute('data-blur-placeholder')
+  }
+  if (img.complete) {
+    dropBlurPlaceholder()
+  } else {
+    img.addEventListener('load', dropBlurPlaceholder, { once: true })
   }
 }
 
@@ -122,8 +159,7 @@ export function createSearchResultRow(
       row,
       '[data-blog-search-thumbnail]'
     )
-    img.src = entry.thumbnail.src
-    img.alt = entry.thumbnail.alt
+    applyThumbnail(img, entry.thumbnail)
     thumbnailWrap.hidden = false
   }
 

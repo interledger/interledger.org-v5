@@ -6,6 +6,10 @@ import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
 import { getBlogPostPath, defaultLocale } from './i18'
 import { getOptimizedImage } from './images'
+import {
+  SEARCH_THUMBNAIL_CDN_WIDTHS,
+  sanitizeBlurPlaceholder
+} from './imagePaths'
 import type { Locale } from './locales'
 
 // matchesBlogSearch/filterBlogPosts live in blogSearchFilters.ts and are
@@ -49,13 +53,27 @@ function stripMarkdownSyntax(body: string): string {
  * pattern as getHeroSectionStyle/VideoEmbed: take the optimized/CDN fullSrc,
  * falling back to the raw path when optimization isn't available (SVG/GIF
  * sources, or a source not yet in the deployed-sources catalog).
+ *
+ * The narrow ladder matters here: fullSrc is the widest rung offered, so the
+ * default would hand a ~340 px column a 1920 px file. The LQIP rides along so
+ * search rows blur up like the static BlogCard does, and is sanitised now
+ * rather than in the browser — it ends up inside a CSS `url()`, and the
+ * catalog is the last point where the value is still ours to validate.
  */
 function toSearchThumbnail(
   thumbnail: BlogThumbnail | null
 ): BlogThumbnail | null {
   if (!thumbnail) return null
-  const fullSrc = getOptimizedImage(thumbnail.src).fullSrc
-  return fullSrc ? { src: fullSrc, alt: thumbnail.alt } : thumbnail
+  const fullSrc = getOptimizedImage(
+    thumbnail.src,
+    SEARCH_THUMBNAIL_CDN_WIDTHS
+  ).fullSrc
+  const blur = sanitizeBlurPlaceholder(thumbnail.blur)
+  return {
+    src: fullSrc ?? thumbnail.src,
+    alt: thumbnail.alt,
+    ...(blur ? { blur } : {})
+  }
 }
 
 /**
