@@ -10,6 +10,7 @@ import {
   extractAnchorIds,
   extractLinkTargets,
   formatFindings,
+  loadNetlifyRules,
   netlifyRuleToMatcher,
   normalizeInternalPath,
   parseNetlifyRedirectRules,
@@ -114,6 +115,23 @@ describe('classifyHref', () => {
 
   it('flags an undecodable path rather than silently passing it', () => {
     expect(classifyHref('/a%2', CTX)?.malformed).toBe(true)
+  })
+
+  it('ignores an empty or whitespace-only value', () => {
+    // `<a href="">` is real markup; without this it would resolve to the
+    // current page and report a phantom target.
+    expect(classifyHref('', CTX)).toBeNull()
+    expect(classifyHref('   ', CTX)).toBeNull()
+  })
+
+  it('keeps an undecodable fragment as written', () => {
+    // The path decodes, so this is not `malformed`; the fragment just cannot be
+    // decoded, and has to survive for the id comparison to stand a chance.
+    expect(classifyHref('/a#b%2', CTX)).toEqual({
+      pathname: '/a',
+      fragment: 'b%2',
+      malformed: false
+    })
   })
 
   it('decodes percent-encoded paths and fragments', () => {
@@ -247,6 +265,45 @@ describe('parseNetlifyRedirectRules', () => {
   })
 })
 
+describe('loadNetlifyRules', () => {
+  // Both guards fail the build in every mode, so a regression here stops
+  // deploys — or, worse, silently drops :param coverage and reports working
+  // links as broken.
+  it('compiles the rules in a readable file', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'toml-'))
+    tempDirs.push(dir)
+    const file = path.join(dir, 'netlify.toml')
+    await writeFile(
+      file,
+      '[[redirects]]\n  from = "/summit/:year/talk/:slug"\n'
+    )
+
+    const rules = await loadNetlifyRules(file)
+    expect(rules).toHaveLength(1)
+    expect(rules[0].test('/summit/2025/talk/x')).toBe(true)
+  })
+
+  it('throws when the file cannot be read', async () => {
+    const missing = path.join(tmpdir(), 'no-such-netlify.toml')
+    await expect(loadNetlifyRules(missing)).rejects.toThrow(
+      /could not read .*no-such-netlify\.toml/
+    )
+  })
+
+  it('throws when the file has no redirect rules', async () => {
+    // A reorganised netlify.toml must not silently drop the :param rules: the
+    // check would then report every /summit/:year/talk/:slug link as broken.
+    const dir = await mkdtemp(path.join(tmpdir(), 'toml-'))
+    tempDirs.push(dir)
+    const file = path.join(dir, 'netlify.toml')
+    await writeFile(file, '[build]\n  command = "pnpm build"\n')
+
+    await expect(loadNetlifyRules(file)).rejects.toThrow(
+      /found no \[\[redirects\]\] rules/
+    )
+  })
+})
+
 describe('netlifyRuleToMatcher', () => {
   it('matches one segment per :param', () => {
     const rule = netlifyRuleToMatcher('/summit/:year/talk/:slug')
@@ -355,9 +412,15 @@ afterEach(async () => {
   tempDirs = []
 })
 
+/**
+ * Runs strict by default, so the cases below assert on what the check
+ * classifies as broken rather than on the warn/fail decision. Pass
+ * `{ strict: false }` to exercise the default build behaviour.
+ */
 async function runCheck(
   files: Record<string, string>,
-  routes: ResolvedRouteInput[] = []
+  routes: ResolvedRouteInput[] = [],
+  { strict = true }: { strict?: boolean } = {}
 ): Promise<CheckRun> {
   const distDir = await mkdtemp(path.join(tmpdir(), 'link-check-'))
   tempDirs.push(distDir)
@@ -378,6 +441,10 @@ async function runCheck(
   } as never)
   await hooks['astro:routes:resolved']({ routes } as never)
 
+  const previous = process.env.LINK_CHECK
+  if (strict) process.env.LINK_CHECK = 'strict'
+  else delete process.env.LINK_CHECK
+
   let error: Error | null = null
   try {
     await hooks['astro:build:done']({
@@ -389,6 +456,9 @@ async function runCheck(
     } as never)
   } catch (err) {
     error = err as Error
+  } finally {
+    if (previous === undefined) delete process.env.LINK_CHECK
+    else process.env.LINK_CHECK = previous
   }
 
   return { info, warn, error }
@@ -515,6 +585,16 @@ describe('validateInternalLinks', () => {
     expect(error).toBeNull()
   })
 
+  it('does not check a fragment on a non-HTML target', async () => {
+    // The file exists, so the link resolves; there is no document to read ids
+    // out of, and treating that as a missing fragment would be a false alarm.
+    const { error } = await runCheck({
+      'index.html': '<a href="/paper.pdf#page=2">x</a>',
+      'paper.pdf': '%PDF-1.4'
+    })
+    expect(error).toBeNull()
+  })
+
   it('does not check fragments behind an SSR route', async () => {
     const { error, info } = await runCheck(
       { 'index.html': '<a href="/tech/roadmap#phase-2">x</a>' },
@@ -577,16 +657,27 @@ describe('validateInternalLinks', () => {
     expect(error?.message).toContain('no HTML to scan')
   })
 
-  it('skips entirely when LINK_CHECK=off', async () => {
-    process.env.LINK_CHECK = 'off'
-    try {
-      const { error, warn } = await runCheck({
-        'index.html': '<a href="/node/1365">x</a>'
-      })
+  describe('warn vs strict', () => {
+    const brokenLink = { 'index.html': '<a href="/node/1365">x</a>' }
+
+    it('warns without failing the build by default', async () => {
+      const { error, warn } = await runCheck(brokenLink, [], { strict: false })
       expect(error).toBeNull()
-      expect(warn.join('\n')).toContain('LINK_CHECK=off')
-    } finally {
-      delete process.env.LINK_CHECK
-    }
+      expect(warn.join('\n')).toContain('/node/1365')
+    })
+
+    it('fails the build under LINK_CHECK=strict', async () => {
+      const { error } = await runCheck(brokenLink)
+      expect(error?.message).toContain('/node/1365')
+    })
+
+    it('still fails on a missing dist regardless of mode', async () => {
+      // The zero-HTML guard means the check never ran at all, which is not a
+      // finding to warn about — it makes any verdict meaningless.
+      const { error } = await runCheck({ 'robots.txt': 'x' }, [], {
+        strict: false
+      })
+      expect(error?.message).toContain('no HTML to scan')
+    })
   })
 })

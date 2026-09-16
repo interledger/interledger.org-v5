@@ -212,10 +212,11 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
 ## Internal Link Validation
 
 `src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
-`astro:build:done` and **fails the build** on any internal link or fragment that
-this deploy does not serve. It replaced `starlight-links-validator`, which only
-ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of the
-places real breakage lives.
+`astro:build:done` and reports internal links and fragments that this deploy
+does not serve — warning by default, failing the build under
+`LINK_CHECK=strict` (see below). It replaced `starlight-links-validator`, which
+only ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of
+the places real breakage lives.
 
 - **Never resolve a target against a route's `patternRegex`.** `[...page].astro`
   compiles to `^(?:\/(.*?))?\/?$`, and in a JS regex `.` matches `/`, so it
@@ -242,18 +243,23 @@ places real breakage lives.
 - **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
   canonical and `og:url` are all emitted that way, and that is where a whole
   class of breakage hid.
-- **Escape hatches:** `INTERNAL_LINK_EXCEPTIONS` (a flat list of targets, exact
-  match, no globs; each entry carries a comment saying why) for permanent
-  exemptions, and `LINK_CHECK=off` to skip the check. An entry that stops being
+- **Findings warn; only Force Reset fails.** Editors commit MDX straight to
+  `staging` with no PR and fix most of their own broken links quickly, so
+  failing every build would stop staging far more often than it would prevent
+  anything reaching production — and a PR to `staging` is built merged with
+  `staging`, so it would block developers on someone else's pending typo.
+  `LINK_CHECK=strict` turns findings into a build failure, and only a production
+  publish via `reset.yml` sets it. That gate runs **before** the force-push, so a finding
+  leaves the branch untouched: Netlify is never triggered and the live site is
+  unchanged rather than rolled back. Broken links therefore accumulate on
+  staging as warnings and must be cleared before the next publish.
+- **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
+  globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is
-  reported as a warning, never a failure. The env switch exists because Strapi
-  lifecycle hooks commit MDX straight to `staging` with no PR, so a content
-  editor's typo can otherwise block a deploy with no developer in the loop.
+  reported as a warning, never a failure.
 - **Blind spots**, neither checked nor reported — a clean run is not a
   whole-site guarantee: `url()` in emitted CSS, `og:image`, JS-generated
-  anchors, external URLs, and anything only an SSR route renders. The success
-  message states its own scope instead: the carriers scanned, and how many
-  fragments it skipped behind a redirect or SSR route.
+  anchors, external URLs, and anything only an SSR route renders.
 - **`hreflang` is opt-out.** `buildCanonicalMeta` maps a slug across locales
   without knowing which pages were built, so pages whose twin may not exist pass
   `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
