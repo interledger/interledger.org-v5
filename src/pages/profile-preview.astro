@@ -63,7 +63,11 @@ const displayRole = role ?? tagline
 const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
 ---
 
-<BaseLayout title={`[PREVIEW] ${name}`} description={displayRole ?? name}>
+<BaseLayout
+  title={`[PREVIEW] ${name}`}
+  description={displayRole ?? name}
+  localeAlternates={false}
+>
   <main class="pb-3xl">
     <div class="bg-yellow-400 text-black text-center py-sm font-semibold">
       PREVIEW MODE - This content is not published

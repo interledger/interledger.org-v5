@@ -118,7 +118,11 @@ const resolvedCta =
 const content = page.content || []
 ---
 
-<HackathonPageLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+<HackathonPageLayout
+  title={`[PREVIEW] ${title}`}
+  description={metaDescription}
+  localeAlternates={false}
+>
   <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
     PREVIEW MODE - This content is not published
   </div>
