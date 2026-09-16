@@ -1,6 +1,6 @@
 /**
- * Build-time guardrail: fails the build when an internal link points at
- * something this deploy does not serve. Links are computed — a blog card's
+ * Build-time guardrail: reports internal links that point at something this
+ * deploy does not serve. Links are computed — a blog card's
  * `href`, a CMS-authored CTA, an `hreflang` — so the rendered HTML is the only
  * reliable signal; this scans `dist/**\/*.html` in `astro:build:done`.
  *
@@ -11,14 +11,14 @@
  * `patternRegex`** — `[...page]` compiles to a regex matching every path, so
  * one catch-all silently passes every broken link forever.
  *
- * Blind spots, named in the success message so a clean run is not read as a
- * whole-site guarantee: `url()` in emitted CSS, `og:image`, JS-generated
- * anchors, external URLs, and anything only an SSR route renders.
+ * Blind spots, neither checked nor reported — a clean run is not a whole-site
+ * guarantee: `url()` in emitted CSS, `og:image`, JS-generated anchors, external
+ * URLs, and anything only an SSR route renders.
  *
- * Escape hatches: `INTERNAL_LINK_EXCEPTIONS` (permanent, each with a comment
- * saying why) and `LINK_CHECK=off`, which exists because Strapi lifecycle hooks
- * commit MDX straight to `staging` with no PR — a content editor's typo must
- * not block a deploy with no developer in the loop.
+ * Findings warn by default and fail the build under `LINK_CHECK=strict`, which
+ * only a Force Reset production publish sets — see {@link isStrict}.
+ * `INTERNAL_LINK_EXCEPTIONS` permanently exempts a target, each with a comment
+ * saying why.
  */
 import type { AstroIntegration, IntegrationResolvedRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
@@ -496,6 +496,18 @@ async function collectFiles(dir: string, base = dir): Promise<string[]> {
   return out
 }
 
+/**
+ * Whether a finding fails the build rather than warning.
+ *
+ * Warn by default: editors commit to `staging` with no PR and fix most of their
+ * own broken links, so failing there costs more than it prevents. Only Force
+ * Reset sets strict, and it runs before the force-push — so a finding stops the
+ * publish rather than breaking production.
+ */
+function isStrict(): boolean {
+  return process.env.LINK_CHECK === 'strict'
+}
+
 /** A fragment that always resolves, per the HTML spec. */
 function isAlwaysValidFragment(fragment: string): boolean {
   return fragment === '' || fragment.toLowerCase() === 'top'
@@ -520,13 +532,6 @@ export function validateInternalLinks(): AstroIntegration {
       },
 
       'astro:build:done': async ({ dir, logger }) => {
-        if (process.env.LINK_CHECK === 'off') {
-          logger.warn(
-            'LINK_CHECK=off — internal link validation skipped. Broken links will ship.'
-          )
-          return
-        }
-
         const distDir = fileURLToPath(dir)
         const allFiles = await collectFiles(distDir)
         const htmlFiles = allFiles.filter((file) => file.endsWith('.html'))
@@ -650,16 +655,17 @@ export function validateInternalLinks(): AstroIntegration {
           )
         }
 
-        // State coverage alongside the verdict. A bare all-clear reads as a
-        // whole-site guarantee, which this cannot give.
+        // State coverage alongside every verdict, clean or not. A bare
+        // all-clear reads as a whole-site guarantee, which this cannot give,
+        // and a bare finding list says nothing about what went unchecked.
         const scanned =
           `${htmlFiles.length} HTML file(s), ${refs.size} unique internal target(s) ` +
           `(href, src, srcset, action, poster; fragments included)`
+        const skipped = fragmentsSkipped
+          ? ` ${fragmentsSkipped} fragment(s) behind a redirect or SSR route were not checked.`
+          : ''
 
         if (findings.size === 0) {
-          const skipped = fragmentsSkipped
-            ? ` ${fragmentsSkipped} fragment(s) behind a redirect or SSR route were not checked.`
-            : ''
           logger.info(`${scanned} — all resolve.${skipped}`)
           return
         }
@@ -668,19 +674,38 @@ export function validateInternalLinks(): AstroIntegration {
           ([, a], [, b]) => b.count - a.count
         )
 
-        throw new Error(
-          `Internal link validation failed: ${findings.size} unresolvable target(s).\n` +
-            `Fix the link, add a redirect in redirects.ts, or add an entry to ` +
-            `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
-            formatFindings(entries)
-        )
+        const report =
+          `${scanned} — ${findings.size} do not resolve.${skipped}\n` +
+          `Fix the link, add a redirect in redirects.ts, or add an entry to ` +
+          `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
+          formatFindings(entries)
+
+        if (!isStrict()) {
+          logger.warn(
+            `${report}\nThis build still succeeds, but publishing to ` +
+              `production will fail until these are fixed.`
+          )
+          return
+        }
+
+        throw new Error(`Internal link validation failed: ${report}`)
       }
     }
   }
 }
 
-async function loadNetlifyRules(): Promise<RegExp[]> {
-  const tomlPath = fileURLToPath(new URL('../../netlify.toml', import.meta.url))
+const NETLIFY_TOML_PATH = fileURLToPath(
+  new URL('../../netlify.toml', import.meta.url)
+)
+
+/**
+ * Both guards here fail the build in every mode, so they take the path as a
+ * parameter — otherwise the only way to reach them is to break the real
+ * `netlify.toml`.
+ */
+export async function loadNetlifyRules(
+  tomlPath: string = NETLIFY_TOML_PATH
+): Promise<RegExp[]> {
   let toml: string
   try {
     toml = await readFile(tomlPath, 'utf8')
