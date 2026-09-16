@@ -268,6 +268,30 @@ export {
   formatCountdown
 } from './adminSession'
 
+// Server-status notice: browser-safe state machine (admin panel imports this
+// module directly) and the node-only endpoint half
+export {
+  SERVER_STATUS_PATH,
+  UNREACHABLE_FAILURE_THRESHOLD,
+  type ServerStatusPayload,
+  type ServerReachability,
+  type ServerNotice,
+  type ServerStatusState,
+  type ServerStatusEvent,
+  createInitialServerStatusState,
+  parseServerStatusPayload,
+  nextServerStatus,
+  getServerNotice,
+  getPollDelayMs
+} from './serverStatus'
+export {
+  DEV_BUILD_ID,
+  type ServerStatusContext,
+  resolveAdminIndexHtmlPath,
+  readAdminBuildId,
+  createServerStatusHandler
+} from './serverStatusEndpoint'
+
 // Relative link / path-segment slash normalization
 export {
   ensureLeadingSlash,
