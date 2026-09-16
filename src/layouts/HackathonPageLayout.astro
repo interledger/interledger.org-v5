@@ -19,6 +19,8 @@ interface Props {
   ogImageUrl?: string
   canonicalURL?: string
   noindex?: boolean
+  /** See BaseLayout. */
+  localeAlternates?: boolean
   /** Emits `<link rel="preload">` for the hackathon hero LCP candidate in `<head>`. */
   heroLcpPreload?: HeroLcpPreloadConfig
 }
@@ -33,6 +35,7 @@ const {
   ogImageUrl = new URL('/img/og-hackathon.png', site).href,
   canonicalURL,
   noindex = false,
+  localeAlternates = true,
   heroLcpPreload
 } = Astro.props
 
@@ -52,6 +55,7 @@ Astro.locals.site = 'hackathon'
   theme="dark"
   bodyClass="flex min-h-full min-w-[360px] flex-col overflow-x-clip bg-neutral-150 text-neutral-50"
   noindex={noindex}
+  localeAlternates={localeAlternates}
 >
   <Fragment slot="head">
     <link
