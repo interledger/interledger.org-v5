@@ -249,6 +249,25 @@ export {
   normalizeNavigationInput
 } from './navigationLifecycle'
 
+// Admin session lifespans + expiry countdown (shared with config/admin.ts;
+// admin-panel code imports this module directly, never through this barrel)
+export {
+  IDLE_SESSION_LIFESPAN_SECONDS,
+  IDLE_REFRESH_TOKEN_LIFESPAN_SECONDS,
+  MAX_SESSION_LIFESPAN_SECONDS,
+  SESSION_WARNING_THRESHOLD_MS,
+  SESSION_CRITICAL_THRESHOLD_MS,
+  type SessionPhase,
+  type AccessTokenPayload,
+  type TokenStorageState,
+  decodeAccessTokenPayload,
+  resolveLatestIatSeconds,
+  resolveIdleLifespanSeconds,
+  getSessionDeadlineMs,
+  getSessionPhase,
+  formatCountdown
+} from './adminSession'
+
 // Relative link / path-segment slash normalization
 export {
   ensureLeadingSlash,

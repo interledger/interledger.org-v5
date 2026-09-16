@@ -1,3 +1,11 @@
+// Imported rather than inlined so the admin panel's session-expiry countdown
+// and Strapi's session manager can never disagree about how long a session
+// lives. Relative path, not `@/utils`: the barrel pulls in node-only modules.
+import {
+  IDLE_SESSION_LIFESPAN_SECONDS,
+  MAX_SESSION_LIFESPAN_SECONDS
+} from '../src/utils/adminSession'
+
 const getPreviewPathname = (
   uid: string,
   {
@@ -32,9 +40,9 @@ export default ({ env }) => {
     auth: {
       secret: env('ADMIN_JWT_SECRET'),
       sessions: {
-        maxRefreshTokenLifespan: 63072000, // 2 years
-        maxSessionLifespan: 63072000, // 2 years
-        idleSessionLifespan: 259200 // 72 hours
+        maxRefreshTokenLifespan: MAX_SESSION_LIFESPAN_SECONDS, // 2 years
+        maxSessionLifespan: MAX_SESSION_LIFESPAN_SECONDS, // 2 years
+        idleSessionLifespan: IDLE_SESSION_LIFESPAN_SECONDS // 72 hours
       }
     },
     apiToken: {
