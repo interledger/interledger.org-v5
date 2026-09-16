@@ -21,6 +21,7 @@ export const redirects = {
   '/hacktoberfest-0': '/tech/hacktoberfest',
   '/hacktoberfest-2023': '/tech/hacktoberfest',
   '/hacktoberfest': '/tech/hacktoberfest',
+  '/developers/hacktoberfest': '/tech/hacktoberfest',
   '/ambassadors': '/grant/fellowship',
   '/grant/ambassadors': '/grant/fellowship',
   '/grant/ambassadors/faq': '/grant/fellowship/faq',
@@ -73,6 +74,8 @@ export const redirects = {
     '/es/grant/innovation/financial-services',
   '/es/grant/servicios-financieros-digitales':
     '/es/grant/innovation/financial-services',
+  '/es/financial-services': '/es/grant/innovation/financial-services',
+  '/es/education': '/es/grant/education',
   '/es/educacion': '/es/grant/education',
   '/es/embajadores': '/es/grant/fellowship',
   '/es/grant-web': '/es/grant/innovation/grant-web',
