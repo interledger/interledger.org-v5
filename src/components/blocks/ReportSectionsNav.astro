@@ -35,7 +35,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
   aria-label={t('report.sections_nav')}
   class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
 >
-  <ol class="m-0 flex flex-col gap-2xl p-0">
+  <ol class="m-0 flex list-none flex-col gap-2xl p-0">
     {
       sections.map((section, index) => (
         <li class="m-0">
@@ -75,19 +75,27 @@ const sectionNavAttrs = (id: string, heading: string) =>
 </script>
 
 <style>
-  /* Reuse the shared 5px <ol> marker; tighter gutter than body copy, orchid
+  /* Circle markers (not decimal) — tighter gutter than body copy, orchid
      when the section is in view. */
   :global([data-report-nav] ol) {
+    list-style: none;
     margin: 0;
     padding-inline-start: 0;
   }
   :global([data-report-nav] ol > li) {
+    position: relative;
     margin: 0;
     padding-inline-start: var(--spacing-lg);
   }
   :global([data-report-nav] ol > li::before) {
+    content: '';
+    position: absolute;
     left: 0;
     top: calc(0.5em - (var(--ol-marker-size, 5px) / 2) + 1px);
+    width: var(--ol-marker-size, 5px);
+    height: var(--ol-marker-size, 5px);
+    border-radius: 50%;
+    background-color: var(--color-neutral-900);
     transform: none;
   }
   :global([data-report-nav] ol > li:has([data-active='true'])::before) {
