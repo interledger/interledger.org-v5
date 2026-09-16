@@ -177,6 +177,15 @@ export function getSessionDeadlineMs(
   return (iatSeconds + idleLifespanSeconds) * 1000
 }
 
+/**
+ * How often the countdown should recompute. A 30-second tick is plenty while
+ * the deadline is hours away; once the dialog is up and counting down from two
+ * minutes, the displayed number has to move every second.
+ */
+export function getTickIntervalMs(phase: SessionPhase): number {
+  return phase === 'critical' ? 1_000 : 30_000
+}
+
 export function getSessionPhase(remainingMs: number): SessionPhase {
   if (remainingMs <= 0) return 'expired'
   if (remainingMs <= SESSION_CRITICAL_THRESHOLD_MS) return 'critical'

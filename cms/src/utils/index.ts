@@ -265,6 +265,7 @@ export {
   resolveIdleLifespanSeconds,
   getSessionDeadlineMs,
   getSessionPhase,
+  getTickIntervalMs,
   formatCountdown
 } from './adminSession'
 

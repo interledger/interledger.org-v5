@@ -9,6 +9,7 @@ import {
   formatCountdown,
   getSessionDeadlineMs,
   getSessionPhase,
+  getTickIntervalMs,
   resolveIdleLifespanSeconds,
   resolveLatestIatSeconds
 } from './adminSession'
@@ -227,6 +228,20 @@ describe('getSessionPhase', () => {
   it('reports expired at and past the deadline', () => {
     expect(getSessionPhase(0)).toBe('expired')
     expect(getSessionPhase(-5000)).toBe('expired')
+  })
+})
+
+// ── getTickIntervalMs ───────────────────────────────────────────────────────
+
+describe('getTickIntervalMs', () => {
+  it('ticks every second only once the dialog is counting down', () => {
+    expect(getTickIntervalMs('critical')).toBe(1_000)
+  })
+
+  it('ticks slowly the rest of the time', () => {
+    expect(getTickIntervalMs('ok')).toBe(30_000)
+    expect(getTickIntervalMs('warning')).toBe(30_000)
+    expect(getTickIntervalMs('expired')).toBe(30_000)
   })
 })
 
