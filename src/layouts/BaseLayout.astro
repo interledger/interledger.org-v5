@@ -22,6 +22,11 @@ interface Props {
   datePublished?: string
   /** Demo/QA pages: robots noindex,nofollow */
   noindex?: boolean
+  /**
+   * Emit cross-locale `hreflang` alternates. Off where the twin may not exist
+   * or is not a translation — e.g. paginated listings past page 1.
+   */
+  localeAlternates?: boolean
 }
 
 // `site` is set by the microsite layout's frontmatter, which runs before the
@@ -47,7 +52,8 @@ const {
   bodyClass = '',
   bodyStyle = '',
   datePublished,
-  noindex = false
+  noindex = false,
+  localeAlternates = true
 } = Astro.props
 
 const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
@@ -84,8 +90,8 @@ const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
       ogType={ogType}
       ogImageUrl={ogImageUrl}
       canonicalURL={canonicalURL}
-      hreflang={canonicalMeta.hreflang}
-      xDefault={canonicalMeta.xDefault}
+      hreflang={localeAlternates ? canonicalMeta.hreflang : undefined}
+      xDefault={localeAlternates ? canonicalMeta.xDefault : undefined}
       datePublished={datePublished}
       noindex={noindex}
     />
