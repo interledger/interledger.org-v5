@@ -269,6 +269,20 @@ export {
   formatCountdown
 } from './adminSession'
 
+// Admin notice precedence + route-wrap guard (admin panel imports these
+// modules directly)
+export {
+  type AdminNotice,
+  resolveAdminNotice,
+  shouldShowSessionDialog
+} from './adminNotice'
+export {
+  NOTICES_ROUTE_ID,
+  type AdminRouteShape,
+  type AdminRouteWrapDecision,
+  decideAdminRouteWrap
+} from './adminRoutes'
+
 // Server-status notice: browser-safe state machine (admin panel imports this
 // module directly) and the node-only endpoint half
 export {

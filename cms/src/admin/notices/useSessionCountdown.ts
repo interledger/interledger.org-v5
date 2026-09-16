@@ -31,6 +31,8 @@ export interface SessionCountdown {
   /** Formatted time left, empty while no deadline is known. */
   label: string
   isRefreshing: boolean
+  /** The last "stay signed in" attempt failed; the session itself may be fine. */
+  refreshFailed: boolean
   staySignedIn: () => Promise<void>
 }
 
@@ -88,9 +90,13 @@ export function useSessionCountdown(clockOffsetMs: number): SessionCountdown {
   const remainingMs =
     deadlineMs === null ? null : deadlineMs - (now + clockOffsetMs)
 
-  let phase: SessionPhase = 'ok'
-  if (refreshFailed) phase = 'expired'
-  else if (remainingMs !== null) phase = getSessionPhase(remainingMs)
+  // The clock is the only thing that decides "expired". A failed refresh must
+  // not: `refreshAccessToken` swallows network errors and returns null exactly
+  // as it does for a dead session, so treating a failure as terminal would tell
+  // someone with a perfectly good session to sign in again mid-deploy — losing
+  // the very work this warning exists to protect.
+  const phase: SessionPhase =
+    remainingMs === null ? 'ok' : getSessionPhase(remainingMs)
 
   const tickIntervalMs = getTickIntervalMs(phase)
 
@@ -134,6 +140,7 @@ export function useSessionCountdown(clockOffsetMs: number): SessionCountdown {
     phase,
     label: remainingMs === null ? '' : formatCountdown(remainingMs),
     isRefreshing,
+    refreshFailed,
     staySignedIn
   }
 }

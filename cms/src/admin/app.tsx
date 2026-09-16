@@ -3,6 +3,7 @@ import {
   defaultMarkdownPreset
 } from '@_sh/strapi-plugin-ckeditor'
 import type { PluginConfig, Preset } from '@_sh/strapi-plugin-ckeditor'
+import type { StrapiApp } from '@strapi/admin/strapi-admin'
 // Import only from the unified `ckeditor5` package — never mix with individual
 // `@ckeditor/ckeditor5-*` entry points or the admin loads two copies of core
 // and throws `ckeditor-duplicated-modules`.
@@ -12,6 +13,7 @@ import {
   type HeadingOption
 } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
+import { NOTICES_ROUTE_ID, decideAdminRouteWrap } from '../utils/adminRoutes'
 import {
   collapseSoftWraps,
   healStrandedListItemBreaks,
@@ -236,8 +238,54 @@ const myPluginConfig: PluginConfig = {
   presets: [markdownPresetNoH1, basicMarkdownPreset]
 }
 
+/**
+ * Captured in `register`, used in `bootstrap`. Strapi hands `register` the full
+ * StrapiApp but gives `bootstrap` only a handful of methods — no `router` —
+ * and the route wrapping below has to happen in the bootstrap phase.
+ */
+let strapiApp: StrapiApp | null = null
+
+/**
+ * Wrap every authenticated route in the notices layout, so the top bar renders
+ * on every admin page inside Strapi's providers.
+ *
+ * This is the last statement of `bootstrap()` on purpose, and must stay there.
+ * `Router.createSettingsLink` looks the settings route up with
+ * `findIndex(r => r.path === 'settings/*')` and then tests `if (!settingsIndex)`
+ * — once the routes are nested, findIndex returns -1, `!(-1)` is false, and it
+ * dereferences `routes[-1]`, white-screening the admin. Every plugin's
+ * `addSettingsLink` runs before our bootstrap, so this is safe today; a plugin
+ * added later that registers a settings link from its own bootstrap would break
+ * it, which is what the guard below fails open on.
+ */
+function wrapRoutesWithNotices(app: StrapiApp): void {
+  app.router.addRoute((routes) => {
+    const decision = decideAdminRouteWrap(routes)
+
+    if (decision === 'unrecognized-route-tree') {
+      console.error(
+        '[cms-notices] settings route not found at the top level — skipping the notice bar'
+      )
+    }
+    if (decision !== 'wrap') return routes
+
+    return [
+      {
+        id: NOTICES_ROUTE_ID,
+        lazy: async () => {
+          const { AdminNoticesLayout } =
+            await import('./notices/AdminNoticesLayout')
+          return { Component: AdminNoticesLayout }
+        },
+        children: routes
+      }
+    ]
+  })
+}
+
 export default {
-  register(_app: unknown) {
+  register(app: StrapiApp) {
+    strapiApp = app
     setPluginConfig(myPluginConfig)
   },
 
@@ -524,5 +572,8 @@ export default {
       childList: true,
       subtree: true
     })
+
+    // Keep last — see wrapRoutesWithNotices for why the ordering matters.
+    if (strapiApp) wrapRoutesWithNotices(strapiApp)
   }
 }
