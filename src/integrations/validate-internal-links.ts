@@ -91,10 +91,22 @@ function attrPattern(name: string): RegExp {
   return pattern
 }
 
+/**
+ * Forces a flat copy of a string cut out of a larger one.
+ *
+ * A V8 substring is a view onto its parent, so an id kept past its own page's
+ * scan holds that page's whole HTML. `pageIds` keeps ids for every page, so
+ * without this the check pins ~1GB of `dist` and OOMs the Netlify build.
+ */
+function detachFromParent(value: string): string {
+  return Buffer.from(value, 'utf8').toString('utf8')
+}
+
 function getAttr(tag: string, name: string): string | null {
   const match = tag.match(attrPattern(name))
   if (!match) return null
-  return match[1] ?? match[2] ?? null
+  const value = match[1] ?? match[2] ?? null
+  return value === null ? null : detachFromParent(value)
 }
 
 const NAMED_ENTITIES: Record<string, string> = {
