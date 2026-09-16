@@ -209,6 +209,57 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
   Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises
   the CDN path and runs the audit.
 
+## Internal Link Validation
+
+`src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
+`astro:build:done` and **fails the build** on any internal link or fragment that
+this deploy does not serve. It replaced `starlight-links-validator`, which only
+ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of the
+places real breakage lives.
+
+- **Never resolve a target against a route's `patternRegex`.** `[...page].astro`
+  compiles to `^(?:\/(.*?))?\/?$`, and in a JS regex `.` matches `/`, so it
+  matches every path on the site. 26 of the dynamic routes are catch-alls like
+  this — use one and the check passes every broken link forever, silently.
+  `astro:routes:resolved` is read for exactly two things: literal SSR route
+  patterns and literal redirect sources. Prerendered routes are covered by the
+  files they emitted, which is an exact set.
+- **Valid targets** = dist files ∪ dist index directories ∪ `redirects.ts`
+  sources ∪ SSR routes ∪ the `:param` rules parsed from `netlify.toml` (those
+  four never reach `dist/_redirects`, and Netlify applies them first), plus two
+  small allowlists: `/robots.txt` and `/_redirects` exactly, and anything under
+  `/.netlify/` or `/.well-known/`.
+- **Register it last** in `astro.config.mjs`. Hooks run in array order and it
+  reads files other integrations write in their own `astro:build:done` — the
+  sitemap XML in particular.
+- **HTML-entity-decode before splitting on `#` or `?`.** `&#38;` contains a
+  literal `#`, and every `/.netlify/images` URL separates params with it.
+- **Never scan `data-*`.** Over two million values, and
+  `data-umami-event-link-text` holds free prose that parses as phantom schemes
+  and fragments. Carriers are `href`, `src`, `srcset`, `action`, `poster`.
+- **Protocol-relative `//host/path` is external**, not the internal path
+  `/host/path`. Test it before the leading-slash check.
+- **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
+  canonical and `og:url` are all emitted that way, and that is where a whole
+  class of breakage hid.
+- **Escape hatches:** `INTERNAL_LINK_EXCEPTIONS` (a flat list of targets, exact
+  match, no globs; each entry carries a comment saying why) for permanent
+  exemptions, and `LINK_CHECK=off` to skip the check. An entry that stops being
+  needed — its target resolves now, or nothing links to it any more — is
+  reported as a warning, never a failure. The env switch exists because Strapi
+  lifecycle hooks commit MDX straight to `staging` with no PR, so a content
+  editor's typo can otherwise block a deploy with no developer in the loop.
+- **Blind spots**, neither checked nor reported — a clean run is not a
+  whole-site guarantee: `url()` in emitted CSS, `og:image`, JS-generated
+  anchors, external URLs, and anything only an SSR route renders. The success
+  message states its own scope instead: the carriers scanned, and how many
+  fragments it skipped behind a redirect or SSR route.
+- **`hreflang` is opt-out.** `buildCanonicalMeta` maps a slug across locales
+  without knowing which pages were built, so pages whose twin may not exist pass
+  `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
+  opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
+  not the translation of page 4 of the ES blog anyway.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)

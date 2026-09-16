@@ -282,6 +282,13 @@ Workflows include:
 
 Pull requests must pass all checks before merging.
 
+Two build-time checks can fail the build on their own:
+
+- **Internal link validation** fails on any internal link or fragment this deploy does not serve, including `hreflang` and canonical tags. Runs on every build, local ones included. Skip with `LINK_CHECK=off`, which exists because Strapi commits content straight to `staging` with no PR (see [Content Synchronization](#content-synchronization)), so an editor's typo must not be able to block a deploy with no developer in the loop.
+- **Image optimization audit** fails when an image bypasses `OptimizedImage` and ships unoptimized. Only runs in Netlify Image CDN mode, so a plain local `pnpm build` skips it; CI sets `IMAGE_CDN=on`, and you can reproduce it with `IMAGE_CDN=on pnpm build`. Escape hatch for a deliberate raw image: `data-allow-unoptimized` on the tag.
+
+See `CLAUDE.md` for how each check works and what it deliberately does not cover.
+
 ## Content Workflow
 
 ### Content Synchronization
