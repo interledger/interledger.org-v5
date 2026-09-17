@@ -15,6 +15,7 @@ import {
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 import { areAdminNoticesDisabled } from '../utils/adminNotice'
 import { NOTICES_ROUTE_ID, decideAdminRouteWrap } from '../utils/adminRoutes'
+import { AdminNoticesLayout } from './notices/AdminNoticesLayout'
 import {
   collapseSoftWraps,
   healStrandedListItemBreaks,
@@ -273,11 +274,14 @@ function wrapRoutesWithNotices(app: StrapiApp): void {
     return [
       {
         id: NOTICES_ROUTE_ID,
-        lazy: async () => {
-          const { AdminNoticesLayout } =
-            await import('./notices/AdminNoticesLayout')
-          return { Component: AdminNoticesLayout }
-        },
+        // Imported eagerly, never lazily. A route-level `lazy` that rejects
+        // bubbles to the root errorElement, and this route is an ancestor of
+        // the entire authenticated admin — so a chunk the deploy just removed
+        // would replace the whole CMS with an error page. That is also the
+        // exact moment the notice is supposed to be telling the editor to
+        // reload, and during an outage the chunk could not load at all. The
+        // error boundary inside the layout only covers render-time failures.
+        Component: AdminNoticesLayout,
         children: routes
       }
     ]
