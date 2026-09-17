@@ -93,6 +93,7 @@ export function useServerStatus(): ServerStatus {
     if (isDisabled()) return
 
     let cancelled = false
+    let isPolling = false
     let timer: ReturnType<typeof setTimeout> | undefined
     let latest = createInitialServerStatusState()
 
@@ -102,9 +103,21 @@ export function useServerStatus(): ServerStatus {
     }
 
     const poll = async () => {
-      if (cancelled) return
+      // One request at a time. Without this, a visibility or online event
+      // arriving mid-request starts a second poll: both would then apply their
+      // results in whatever order the network returns them (a stale failure
+      // landing after a fresh success could push the failure counter to
+      // "unreachable" against a healthy server) and both would schedule a
+      // follow-up, permanently doubling the polling rate.
+      if (cancelled || isPolling) return
+      isPolling = true
 
-      const result = await fetchServerStatus()
+      let result: Awaited<ReturnType<typeof fetchServerStatus>>
+      try {
+        result = await fetchServerStatus()
+      } finally {
+        isPolling = false
+      }
       if (cancelled) return
 
       apply(
@@ -120,9 +133,12 @@ export function useServerStatus(): ServerStatus {
         )
       )
 
+      if (timer) clearTimeout(timer)
       timer = setTimeout(poll, getPollDelayMs(latest))
     }
 
+    // Skipped while a request is already in flight — its result is moments
+    // away and will reschedule the loop itself.
     const pollNow = () => {
       if (timer) clearTimeout(timer)
       void poll()
