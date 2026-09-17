@@ -12,12 +12,22 @@ describe('resolveAdminNotice', () => {
     expect(resolveAdminNotice('none', 'warning')).toBe('session-warning')
   })
 
-  it.each(['outdated', 'unreachable', 'restarted'] as const)(
+  it.each(['outdated', 'unreachable'] as const)(
     'ranks the %s server notice above the session warning',
     (serverNotice) => {
       expect(resolveAdminNotice(serverNotice, 'warning')).toBe(serverNotice)
     }
   )
+
+  it('ranks the session warning above the informational restart notice', () => {
+    // `restarted` is sticky. If it outranked the countdown, dismissing it once
+    // would keep the session bar hidden for the rest of the session.
+    expect(resolveAdminNotice('restarted', 'warning')).toBe('session-warning')
+  })
+
+  it('still shows the restart notice when the session has time left', () => {
+    expect(resolveAdminNotice('restarted', 'ok')).toBe('restarted')
+  })
 
   it('leaves the critical and expired phases to the dialog', () => {
     expect(resolveAdminNotice('none', 'critical')).toBe('none')

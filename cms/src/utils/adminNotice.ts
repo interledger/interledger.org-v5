@@ -12,16 +12,27 @@ import type { ServerNotice } from './serverStatus'
 export type AdminNotice = ServerNotice | 'session-warning'
 
 /**
- * Server trouble outranks the session countdown. That ordering is deliberate:
- * while the CMS is unreachable a "stay signed in" button cannot work, and
- * "reload before saving" is the more urgent instruction either way.
+ * Ordering, most urgent first: outdated, unreachable, session-warning,
+ * restarted.
+ *
+ * The two red server notices outrank the countdown — while the CMS is
+ * unreachable a "stay signed in" button cannot work, and "reload before
+ * saving" is the more urgent instruction either way. But `restarted` ranks
+ * *below* the countdown: it is a purely informational "retry that save",
+ * whereas an expiring session is time-critical. That is also what keeps a
+ * dismissal from masking later trouble — `restarted` is sticky, so if it
+ * outranked the warning, dismissing it once would suppress the session bar for
+ * the rest of the session.
  */
 export function resolveAdminNotice(
   serverNotice: ServerNotice,
   sessionPhase: SessionPhase
 ): AdminNotice {
-  if (serverNotice !== 'none') return serverNotice
-  return sessionPhase === 'warning' ? 'session-warning' : 'none'
+  if (serverNotice === 'outdated' || serverNotice === 'unreachable') {
+    return serverNotice
+  }
+  if (sessionPhase === 'warning') return 'session-warning'
+  return serverNotice
 }
 
 /**
