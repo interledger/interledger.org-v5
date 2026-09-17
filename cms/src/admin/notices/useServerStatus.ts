@@ -148,23 +148,22 @@ export function useServerStatus(): ServerStatus {
       if (document.visibilityState === 'visible') pollNow()
     }
 
-    // Vite fires this when a lazy chunk 404s — direct proof this tab's bundle
-    // no longer matches what the server is serving.
-    const handleAssetLoadFailure = () => {
-      apply(nextServerStatus(latest, { type: 'asset-load-failure' }))
-    }
-
     void poll()
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('online', pollNow)
-    window.addEventListener('vite:preloadError', handleAssetLoadFailure)
+    // Vite fires this when a lazy chunk fails to load. That usually means a
+    // deploy replaced the bundle, but a transient outage looks identical — so
+    // ask the server rather than assuming. Telling someone to reload when the
+    // build never changed would destroy the unsaved work this is meant to
+    // protect; the poll confirms it within a second if the build really moved.
+    window.addEventListener('vite:preloadError', pollNow)
 
     return () => {
       cancelled = true
       if (timer) clearTimeout(timer)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('online', pollNow)
-      window.removeEventListener('vite:preloadError', handleAssetLoadFailure)
+      window.removeEventListener('vite:preloadError', pollNow)
     }
   }, [])
 

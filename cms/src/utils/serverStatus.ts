@@ -65,7 +65,6 @@ export type ServerStatusEvent =
       observedAtMs: number
     }
   | { type: 'poll-failure' }
-  | { type: 'asset-load-failure' }
 
 export function createInitialServerStatusState(): ServerStatusState {
   return {
@@ -158,9 +157,6 @@ export function nextServerStatus(
       return applyPollSuccess(prev, event.payload, event.observedAtMs)
     case 'poll-failure':
       return applyPollFailure(prev)
-    case 'asset-load-failure':
-      // A lazy chunk 404'd: proof the bundle is stale, no poll needed.
-      return prev.outdated ? prev : { ...prev, outdated: true }
   }
 }
 

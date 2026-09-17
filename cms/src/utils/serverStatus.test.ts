@@ -125,13 +125,15 @@ describe('nextServerStatus build identity', () => {
     expect(getServerNotice(state)).toBe('restarted')
   })
 
-  it('treats a lazy-chunk load failure as proof the bundle is stale', () => {
-    const state = nextServerStatus(succeed(createInitialServerStatusState()), {
-      type: 'asset-load-failure'
-    })
+  it('only reports a stale bundle on evidence from the server', () => {
+    // A failed lazy chunk is not evidence on its own — an outage looks the
+    // same — so the client re-polls instead of flagging it. Nothing but a
+    // changed build id sets this.
+    const down = fail(succeed(createInitialServerStatusState()), 3)
 
-    expect(state.outdated).toBe(true)
-    expect(getServerNotice(state)).toBe('outdated')
+    expect(down.outdated).toBe(false)
+    expect(succeed(down).outdated).toBe(false)
+    expect(succeed(down, { buildId: 'build-2' }).outdated).toBe(true)
   })
 })
 
