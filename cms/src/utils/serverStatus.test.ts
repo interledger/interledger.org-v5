@@ -154,6 +154,17 @@ describe('nextServerStatus restart reporting', () => {
     expect(getServerNotice(laterPoll)).toBe('none')
   })
 
+  it('stays silent when the very first poll only succeeds after downtime', () => {
+    // The tab has no baseline to compare against — it never spoke to a
+    // previous process, so it cannot claim this one replaced anything.
+    const noBaselineYet = fail(createInitialServerStatusState(), 2)
+    const firstEverSuccess = succeed(noBaselineYet)
+
+    expect(firstEverSuccess.restarted).toBe(false)
+    expect(firstEverSuccess.outdated).toBe(false)
+    expect(getServerNotice(firstEverSuccess)).toBe('none')
+  })
+
   it('does not report a restart when the same process answers again', () => {
     const down = fail(succeed(createInitialServerStatusState()), 2)
     const backUp = succeed(down)

@@ -111,7 +111,11 @@ function applyPollSuccess(
   payload: ServerStatusPayload,
   observedAtMs: number
 ): ServerStatusState {
-  const isFirstObservation = prev.firstBuildId === null
+  // Both flags compare against the identity captured on the first successful
+  // poll, so neither can fire until there is one. A tab whose very first poll
+  // lands after an outage has no baseline to compare with: it never spoke to
+  // the previous process, so it must not claim the server changed.
+  const hasBaseline = prev.firstBuildId !== null
   const hadObservedDowntime = prev.consecutiveFailures > 0
 
   return {
@@ -120,11 +124,12 @@ function applyPollSuccess(
     firstBootId: prev.firstBootId ?? payload.bootId,
     firstBuildId: prev.firstBuildId ?? payload.buildId,
     outdated:
-      prev.outdated ||
-      (!isFirstObservation && payload.buildId !== prev.firstBuildId),
+      prev.outdated || (hasBaseline && payload.buildId !== prev.firstBuildId),
     restarted:
       prev.restarted ||
-      (hadObservedDowntime && payload.bootId !== prev.firstBootId),
+      (hasBaseline &&
+        hadObservedDowntime &&
+        payload.bootId !== prev.firstBootId),
     clockOffsetMs: payload.serverTime - observedAtMs
   }
 }
