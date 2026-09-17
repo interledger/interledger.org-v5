@@ -123,6 +123,11 @@ export function useSessionCountdown(clockOffsetMs: number): SessionCountdown {
     // Rotates the refresh cookie and resets the idle window. It also stores the
     // new token and notifies Strapi's own `onTokenUpdate`, so Redux stays in
     // sync — never call `setOnTokenUpdate` here, it is a single global slot.
+    //
+    // Not to be confused with the internal `refreshAccessToken`, which returns
+    // null on failure: the exported `attemptTokenRefresh` turns that null into
+    // a thrown TokenRefreshError, so an Error is the only failure shape here
+    // and `instanceof Error` catches every one of them.
     const result = await tryCatchAsync(() => attemptTokenRefresh())
     setIsRefreshing(false)
 
