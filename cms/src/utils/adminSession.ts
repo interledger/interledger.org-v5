@@ -169,7 +169,22 @@ export function resolveIdleLifespanSeconds({
   return Math.min(idleLifespan, MAX_SESSION_LIFESPAN_SECONDS)
 }
 
-/** Wall-clock instant the session dies unless something refreshes it. */
+/**
+ * Wall-clock instant the session dies unless something refreshes it.
+ *
+ * Models the idle deadline only. Strapi also enforces an absolute one —
+ * `absoluteExpiresAt = loginAt + maxSessionLifespan`, carried across every
+ * rotation — which this cannot see: the access token payload is just
+ * `{ userId, sessionId, type, iat, exp }`, and no endpoint reports the session
+ * row, so `loginAt` is simply not available to the browser. Surfacing it would
+ * need a new authenticated route.
+ *
+ * Left unmodelled deliberately. It can only bind after a single session chain
+ * has been refreshed continuously for the full two years, at least once every
+ * idle window. The realistic version of this problem — `maxSessionLifespan`
+ * configured *below* the idle window — is handled, by the clamp in
+ * `resolveIdleLifespanSeconds`.
+ */
 export function getSessionDeadlineMs(
   iatSeconds: number,
   idleLifespanSeconds: number
