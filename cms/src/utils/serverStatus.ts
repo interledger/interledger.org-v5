@@ -47,9 +47,18 @@ export type ServerNotice = 'none' | 'outdated' | 'unreachable' | 'restarted'
 export interface ServerStatusState {
   reachability: ServerReachability
   consecutiveFailures: number
-  /** First identifiers we saw; the bundle in this tab belongs to them. */
-  firstBootId: string | null
+  /**
+   * The build this tab's bundle belongs to — pinned to the first successful
+   * poll, because that is the deploy the loaded JavaScript came from.
+   */
   firstBuildId: string | null
+  /**
+   * The process that answered the *previous* successful poll. Restart detection
+   * compares against this rather than the first one ever seen: a silent restart
+   * between polls moves the current process on without any downtime, and a
+   * later network blip would otherwise be reported as a restart.
+   */
+  lastBootId: string | null
   /** Sticky: the admin bundle in this tab is stale and must be reloaded. */
   outdated: boolean
   /** Sticky: the server came back on a new process after observed downtime. */
@@ -70,8 +79,8 @@ export function createInitialServerStatusState(): ServerStatusState {
   return {
     reachability: 'unknown',
     consecutiveFailures: 0,
-    firstBootId: null,
     firstBuildId: null,
+    lastBootId: null,
     outdated: false,
     restarted: false,
     clockOffsetMs: 0
@@ -110,25 +119,24 @@ function applyPollSuccess(
   payload: ServerStatusPayload,
   observedAtMs: number
 ): ServerStatusState {
-  // Both flags compare against the identity captured on the first successful
-  // poll, so neither can fire until there is one. A tab whose very first poll
-  // lands after an outage has no baseline to compare with: it never spoke to
-  // the previous process, so it must not claim the server changed.
-  const hasBaseline = prev.firstBuildId !== null
+  // Neither flag can fire before there is something to compare against. A tab
+  // whose very first poll lands after an outage never spoke to the previous
+  // process, so it must not claim the server changed.
   const hadObservedDowntime = prev.consecutiveFailures > 0
 
   return {
     reachability: 'healthy',
     consecutiveFailures: 0,
-    firstBootId: prev.firstBootId ?? payload.bootId,
     firstBuildId: prev.firstBuildId ?? payload.buildId,
+    lastBootId: payload.bootId,
     outdated:
-      prev.outdated || (hasBaseline && payload.buildId !== prev.firstBuildId),
+      prev.outdated ||
+      (prev.firstBuildId !== null && payload.buildId !== prev.firstBuildId),
     restarted:
       prev.restarted ||
-      (hasBaseline &&
+      (prev.lastBootId !== null &&
         hadObservedDowntime &&
-        payload.bootId !== prev.firstBootId),
+        payload.bootId !== prev.lastBootId),
     clockOffsetMs: payload.serverTime - observedAtMs
   }
 }

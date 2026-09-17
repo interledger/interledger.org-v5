@@ -167,6 +167,19 @@ describe('nextServerStatus restart reporting', () => {
     expect(getServerNotice(firstEverSuccess)).toBe('none')
   })
 
+  it('does not report a restart when a silent restart preceded the outage', () => {
+    // boot-1 seen, then boot-2 answers with no downtime in between, then a
+    // network blip that boot-2 recovers from. Nothing restarted across that
+    // outage, so comparing against the *first* boot id would have lied.
+    let state = succeed(createInitialServerStatusState())
+    state = succeed(state, { bootId: 'boot-2' })
+    state = fail(state, 2)
+    state = succeed(state, { bootId: 'boot-2' })
+
+    expect(state.restarted).toBe(false)
+    expect(getServerNotice(state)).toBe('none')
+  })
+
   it('does not report a restart when the same process answers again', () => {
     const down = fail(succeed(createInitialServerStatusState()), 2)
     const backUp = succeed(down)
