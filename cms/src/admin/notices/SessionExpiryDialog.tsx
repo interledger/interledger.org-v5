@@ -8,8 +8,8 @@
  */
 import { Button, Dialog } from '@strapi/design-system'
 import { useAuth } from '@strapi/admin/strapi-admin'
-import * as React from 'react'
 
+import { tryCatchAsync } from '../../utils/tryCatch'
 import type { SessionCountdown } from './useSessionCountdown'
 
 interface SessionExpiryDialogProps {
@@ -43,7 +43,18 @@ export function SessionExpiryDialog({
               onClick={() => {
                 // Sign out on our terms rather than waiting for the next
                 // background 401 to yank this dialog away mid-read.
-                void logout()
+                //
+                // This dialog is modal and has no cancel button, so if logout
+                // ever failed to navigate the editor would be trapped with no
+                // way to reach the login page. Strapi's logout awaits an RTK
+                // Query trigger, which resolves rather than throws on a 401, so
+                // it always clears local state today — the fallback is here
+                // because being wrong about that would strand someone.
+                void tryCatchAsync(() => logout()).then((result) => {
+                  if (result instanceof Error) {
+                    window.location.href = '/admin/auth/login'
+                  }
+                })
               }}
             >
               Sign in again
