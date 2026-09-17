@@ -273,6 +273,8 @@ export {
 // modules directly)
 export {
   type AdminNotice,
+  DISABLE_NOTICES_ENV_VAR,
+  areAdminNoticesDisabled,
   resolveAdminNotice,
   shouldShowSessionDialog
 } from './adminNotice'

@@ -429,7 +429,7 @@ Code lives in `src/admin/notices/`, with the logic in `src/utils/adminSession.ts
 | `idleSessionLifespan` (72h)         | `config/admin.ts`                            | How long a session survives without activity. Drives the countdown.                                                     |
 | `maxSessionLifespan` (2 years)      | `config/admin.ts`                            | Absolute ceiling.                                                                                                       |
 | Both constants                      | `src/utils/adminSession.ts`                  | Imported by `config/admin.ts` — change them **there**, not in the config, so the server and the countdown cannot drift. |
-| `STRAPI_ADMIN_DISABLE_NOTICES=true` | build-time env                               | Compiles the notices out of the bundle.                                                                                 |
+| `STRAPI_ADMIN_DISABLE_NOTICES=true` | build-time env                               | Turns the notices off entirely — the layout route is never added, so nothing mounts and nothing polls.                  |
 | `@strapi/design-system` `2.2.0`     | `package.json` **and** `pnpm-workspace.yaml` | Pinned in two places. Bump both together, and only alongside Strapi.                                                    |
 
 "Remember me" at login extends the idle window to 14 days (Strapi's default,

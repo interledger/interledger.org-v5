@@ -31,15 +31,6 @@ export interface ServerStatus {
   clockOffsetMs: number
 }
 
-function isDisabled(): boolean {
-  // `typeof` guard first: Vite only replaces env vars it knows about, so an
-  // unset one would otherwise hit an undefined `process` in the browser.
-  return (
-    typeof process !== 'undefined' &&
-    process.env?.STRAPI_ADMIN_DISABLE_NOTICES === 'true'
-  )
-}
-
 function getBackendUrl(): string {
   const strapiGlobal = (
     window as unknown as { strapi?: { backendURL?: string } }
@@ -90,8 +81,6 @@ export function useServerStatus(): ServerStatus {
   )
 
   React.useEffect(() => {
-    if (isDisabled()) return
-
     let cancelled = false
     let isPolling = false
     let timer: ReturnType<typeof setTimeout> | undefined

@@ -11,6 +11,22 @@ import type { ServerNotice } from './serverStatus'
 
 export type AdminNotice = ServerNotice | 'session-warning'
 
+/** Build-time kill switch, checked once before the notices layout is mounted. */
+export const DISABLE_NOTICES_ENV_VAR = 'STRAPI_ADMIN_DISABLE_NOTICES'
+
+/**
+ * Whether to skip the notices entirely — no bar, no dialog, no polling.
+ *
+ * Takes the env bag rather than reading `process.env` itself: Vite only inlines
+ * the `STRAPI_ADMIN_*` vars it knows about, so an unset one leaves `process`
+ * undefined in the browser and the caller has to guard for that.
+ */
+export function areAdminNoticesDisabled(
+  env: Record<string, string | undefined> | undefined
+): boolean {
+  return env?.[DISABLE_NOTICES_ENV_VAR] === 'true'
+}
+
 /**
  * Ordering, most urgent first: outdated, unreachable, session-warning,
  * restarted.

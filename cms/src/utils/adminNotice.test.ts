@@ -1,5 +1,36 @@
 import { describe, expect, it } from 'vitest'
-import { resolveAdminNotice, shouldShowSessionDialog } from './adminNotice'
+import {
+  DISABLE_NOTICES_ENV_VAR,
+  areAdminNoticesDisabled,
+  resolveAdminNotice,
+  shouldShowSessionDialog
+} from './adminNotice'
+
+// ── areAdminNoticesDisabled ─────────────────────────────────────────────────
+
+describe('areAdminNoticesDisabled', () => {
+  it('disables the notices only for the exact string "true"', () => {
+    expect(areAdminNoticesDisabled({ [DISABLE_NOTICES_ENV_VAR]: 'true' })).toBe(
+      true
+    )
+    expect(
+      areAdminNoticesDisabled({ [DISABLE_NOTICES_ENV_VAR]: 'false' })
+    ).toBe(false)
+    expect(areAdminNoticesDisabled({ [DISABLE_NOTICES_ENV_VAR]: '1' })).toBe(
+      false
+    )
+  })
+
+  it('stays enabled when the variable is unset', () => {
+    expect(areAdminNoticesDisabled({})).toBe(false)
+  })
+
+  it('stays enabled when there is no env at all', () => {
+    // Vite leaves `process` undefined in the browser for vars it did not
+    // inline, so the caller can legitimately pass nothing.
+    expect(areAdminNoticesDisabled(undefined)).toBe(false)
+  })
+})
 
 // ── resolveAdminNotice ──────────────────────────────────────────────────────
 

@@ -13,6 +13,7 @@ import {
   type HeadingOption
 } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
+import { areAdminNoticesDisabled } from '../utils/adminNotice'
 import { NOTICES_ROUTE_ID, decideAdminRouteWrap } from '../utils/adminRoutes'
 import {
   collapseSoftWraps,
@@ -574,6 +575,12 @@ export default {
     })
 
     // Keep last — see wrapRoutesWithNotices for why the ordering matters.
-    if (strapiApp) wrapRoutesWithNotices(strapiApp)
+    // Gating here rather than inside the hooks is what makes the kill switch
+    // mean what it says: without the route, nothing mounts and the notices
+    // chunk is never even fetched.
+    const adminEnv = typeof process !== 'undefined' ? process.env : undefined
+    if (strapiApp && !areAdminNoticesDisabled(adminEnv)) {
+      wrapRoutesWithNotices(strapiApp)
+    }
   }
 }
