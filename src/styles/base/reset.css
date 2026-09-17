@@ -110,7 +110,9 @@
   }
 
   /* Single-line fields are 40px (--spacing-3xl-tight). Textareas stay auto.
-     :where() keeps specificity at 0 so h-* / py-* utilities can override. */
+     Do not put py-* on these inputs: utilities beat this layer, so vertical
+     padding inside 40px clips the value. Override height with h-* if a
+     field must be taller; :where() keeps specificity at 0 for that. */
   :where(
     input:not(
       [type='hidden'],
