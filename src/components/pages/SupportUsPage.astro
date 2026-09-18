@@ -16,6 +16,7 @@ import Section from '@/components/shared/Section.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Faq from '@/components/blocks/Faq.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import FaqItem from '@/components/shared/FaqItem.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import { faqAccordionGroupName } from '@/scripts/faq-accordion'
@@ -66,6 +67,21 @@ const GIVING_EMAIL = 'giving@interledger.org'
  * page path or the document path when Jesse provides one.
  */
 const CASE_FOR_SUPPORT_URL: string | null = null
+
+/**
+ * Stand-ins until Radu supplies artwork (INTORG-1252). SVG on purpose: the
+ * encoder skips SVGs by design, so a placeholder needs no optimized variants
+ * and no entry in the deployed-sources catalog to render correctly in either
+ * image mode.
+ *
+ * Both are `alt=""` because a placeholder carries no information a screen
+ * reader should hear. Swapping in the real images means writing real alt text
+ * at the same time.
+ */
+const PLACEHOLDER_IMAGES = {
+  why: '/img/support/placeholder-why.svg',
+  waysToDonate: '/img/support/placeholder-ways-to-donate.svg'
+} as const
 
 /**
  * Seat counts are static copy: Fundraise Up exposes no seats-remaining value
@@ -203,25 +219,22 @@ const bodyClass =
     </PageHero>
 
     <Section aria-labelledby="why-heading">
-      <h2 id="why-heading" class={headingClass}>{t('support.why.heading')}</h2>
-      <p class={`mb-2xl ${bodyClass}`}>{t('support.why.body_1')}</p>
-      <p class={`mb-2xl ${bodyClass}`}>{t('support.why.body_2')}</p>
-      <p class={`mb-xl ${bodyClass}`}>{t('support.why.body_3')}</p>
-      {
-        CASE_FOR_SUPPORT_URL && (
-          <LinkButton
-            href={CASE_FOR_SUPPORT_URL}
-            variant="secondary"
-            class="w-full tablet:w-auto"
-            linkText={t('support.why.cta')}
-            umamiLabel="button_cta"
-            umamiBaseComponent="case_for_support"
-          >
-            {t('support.why.cta')}
-            <Icon name="arrow-right" slot="icon-right" />
-          </LinkButton>
-        )
-      }
+      <SplitLayout
+        imageSrc={PLACEHOLDER_IMAGES.why}
+        imageAlt=""
+        imagePosition="right"
+        displayRatio="1:1"
+        ctaText={CASE_FOR_SUPPORT_URL ? t('support.why.cta') : undefined}
+        ctaLink={CASE_FOR_SUPPORT_URL ?? undefined}
+        ctaStyle="secondary"
+      >
+        <h2 id="why-heading" class={headingClass}>
+          {t('support.why.heading')}
+        </h2>
+        <p class={`mb-2xl ${bodyClass}`}>{t('support.why.body_1')}</p>
+        <p class={`mb-2xl ${bodyClass}`}>{t('support.why.body_2')}</p>
+        <p class={`mb-0 ${bodyClass}`}>{t('support.why.body_3')}</p>
+      </SplitLayout>
     </Section>
 
     <Section aria-labelledby="circles-heading">
@@ -341,24 +354,36 @@ const bodyClass =
     </Section>
 
     <Section id="ways-to-donate" aria-labelledby="ways-heading">
-      <h2 id="ways-heading" class={headingClass}>
-        {t('support.ways.heading')}
-      </h2>
-      <p class={`mb-2xl ${bodyClass}`}>{t('support.ways.body')}</p>
-      <p class={`mb-lg ${bodyClass}`}>{t('support.ways.check_intro')}</p>
       <!--
-        `<address>` is the correct element for contact details of the nearest
-        article or the document as a whole, which is what this is. `not-italic`
-        undoes the UA default so it matches the surrounding copy.
+        Image on the left here and on the right in "Why We're Raising Funds",
+        so the two split sections alternate rather than stacking two identical
+        layouts down the page.
       -->
-      <address
-        class="mb-0 not-italic text-body-lg-emphasis tablet:text-body-lg-emphasis-md text-neutral-900"
-        aria-label={t('support.ways.address_label')}
+      <SplitLayout
+        imageSrc={PLACEHOLDER_IMAGES.waysToDonate}
+        imageAlt=""
+        imagePosition="left"
+        displayRatio="1:1"
       >
-        Interledger Foundation<br />
-        PO Box 860991<br />
-        Minneapolis, MN 55486-0991
-      </address>
+        <h2 id="ways-heading" class={headingClass}>
+          {t('support.ways.heading')}
+        </h2>
+        <p class={`mb-2xl ${bodyClass}`}>{t('support.ways.body')}</p>
+        <p class={`mb-lg ${bodyClass}`}>{t('support.ways.check_intro')}</p>
+        <!--
+          `<address>` is the correct element for contact details of the nearest
+          article or the document as a whole, which is what this is.
+          `not-italic` undoes the UA default so it matches the surrounding copy.
+        -->
+        <address
+          class="mb-0 not-italic text-body-lg-emphasis tablet:text-body-lg-emphasis-md text-neutral-900"
+          aria-label={t('support.ways.address_label')}
+        >
+          Interledger Foundation<br />
+          PO Box 860991<br />
+          Minneapolis, MN 55486-0991
+        </address>
+      </SplitLayout>
     </Section>
 
     <Section>
