@@ -395,14 +395,6 @@ export const ui = {
       'Fund an Open, Fair, and Inclusive Financial System',
     'support.hero.intro':
       'The Interledger Foundation is building the infrastructure that gives everyone access to the global economy. Join one of our Founding Circles with unique benefits and impact.',
-    'support.tiers.heading': 'Join a Founding Circle',
-    'support.tier.sustaining.pitch':
-      'Become one of 50 Founding Sustaining Members with a recurring gift of $10/month or $100 annually.',
-    'support.tier.champions.pitch':
-      'Become one of 10 Founding Champions with a gift of $1,000 or more.',
-    'support.tier.visionaries.pitch':
-      'Become one of 3 Founding Visionaries with a strategic gift of $25,000 or more.',
-    'support.tier.visionaries.cta': 'Talk to our team',
     'support.community.body':
       'Not ready to make a financial commitment? Join our free Community Membership to become part of the movement.',
     'support.community.cta': 'Join our Community Membership',
@@ -423,6 +415,9 @@ export const ui = {
     'support.circles.body_3': 'Be among the first to fund what comes next.',
     'support.circle.benefits_label': 'Benefits',
     'support.circle.seats': '{available} of {total} seats available',
+    'support.circle.sustaining.amount': '$10/month or $100 annually',
+    'support.circle.champions.amount': '$1,000 or more',
+    'support.circle.visionaries.amount': '$25,000 or more',
     'support.circle.sustaining.heading': 'Founding Sustaining Members',
     'support.circle.sustaining.summary':
       'A recurring gift that grows our community, one member at a time.',
@@ -443,7 +438,7 @@ export const ui = {
     'support.priorities.heading': 'Every Dollar Working Towards Our Mission',
     'support.priorities.body':
       'Our founding endowment covers our core operating expenses and base programs. The gifts you make will go towards expanding our work.',
-    'support.priorities.expand_label': 'Our Strategic Funding Priorities',
+    'support.priorities.subheading': 'Our Strategic Funding Priorities',
     'support.priorities.cdfi.term':
       'Community Development Financial Institutions (CDFIs)',
     'support.priorities.cdfi.description':
@@ -852,11 +847,6 @@ export const ui = {
     'support.description': '',
     'support.hero.heading': '',
     'support.hero.intro': '',
-    'support.tiers.heading': '',
-    'support.tier.sustaining.pitch': '',
-    'support.tier.champions.pitch': '',
-    'support.tier.visionaries.pitch': '',
-    'support.tier.visionaries.cta': '',
     'support.community.body': '',
     'support.community.cta': '',
     'support.case_for_support.cta': '',
@@ -871,6 +861,9 @@ export const ui = {
     'support.circles.body_3': '',
     'support.circle.benefits_label': '',
     'support.circle.seats': '',
+    'support.circle.sustaining.amount': '',
+    'support.circle.champions.amount': '',
+    'support.circle.visionaries.amount': '',
     'support.circle.sustaining.heading': '',
     'support.circle.sustaining.summary': '',
     'support.circle.sustaining.benefits': '',
@@ -884,7 +877,7 @@ export const ui = {
     'support.circle.join_cta': '',
     'support.priorities.heading': '',
     'support.priorities.body': '',
-    'support.priorities.expand_label': '',
+    'support.priorities.subheading': '',
     'support.priorities.cdfi.term': '',
     'support.priorities.cdfi.description': '',
     'support.priorities.colombia.term': '',
