@@ -2,42 +2,28 @@
 /**
  * One Founding Circle tier on /support-us (INTORG-1247).
  *
- * Heading, seat count, one-line summary, a disclosure for the benefits, and a
- * CTA supplied by the caller — either a Fundraise Up element or an ordinary
- * `LinkButton`, which is why the CTA arrives through a slot rather than as
- * props. The Visionaries tier books a meeting instead of opening checkout.
+ * Heading, seat count, gift amount, summary, benefits, and a CTA supplied by
+ * the caller — either a Fundraise Up element or an ordinary `LinkButton`,
+ * which is why the CTA arrives through a slot rather than as props. The
+ * Visionaries tier books a meeting instead of opening checkout.
  *
- * The benefits disclosure is a native `<details>`, matching `FaqItem`:
- * keyboard-operable and screen-reader-announced with no JavaScript, and it
- * still works if the accordion script never loads. It is deliberately *not*
- * wired to `initFaqAccordion` — these are three independent disclosures, and
- * the exclusive grouping that script provides would close one tier's benefits
- * when a donor opened another's while comparing them.
+ * Benefits are always visible rather than sitting behind a disclosure: what a
+ * donor gets is the reason to pick one tier over another, so hiding it behind
+ * a click makes the three cards impossible to compare at a glance.
  */
-import Icon from '@/components/shared/Icon.astro'
-import { buildUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   heading: string
   /** Seats line, e.g. "50 of 50 seats available". */
   seats: string
+  /** Gift size for this tier, e.g. "$1,000 or more". */
+  amount: string
   summary: string
   benefits: string
-  /** Distinguishes this card's analytics events from its siblings'. */
-  tierId: string
+  benefitsLabel: string
 }
 
-const { heading, seats, summary, benefits, tierId } = Astro.props
-const { routeLocale } = Astro.locals
-const t = useTranslations(routeLocale)
-
-const benefitsToggleUmamiAttrs = buildUmamiAttrs({
-  pathname: Astro.url.pathname,
-  lang: routeLocale,
-  label: 'toggle',
-  baseComponent: `founding_circle_${tierId}`,
-  ariaLabel: `${t('support.circle.benefits_label')} — ${heading}`
-})
+const { heading, seats, amount, summary, benefits, benefitsLabel } = Astro.props
 ---
 
 <article
@@ -58,25 +44,20 @@ const benefitsToggleUmamiAttrs = buildUmamiAttrs({
     <p class="mb-0 text-body-sm-emphasis text-primary">{seats}</p>
   </div>
 
+  <p class="mb-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900">
+    {amount}
+  </p>
+
   <p
     class="mb-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-100"
   >
     {summary}
   </p>
 
-  <details class="group border-t border-neutral-25 pt-lg">
-    <summary
-      class="flex cursor-pointer list-none items-center justify-between gap-lg rounded-sm text-body-sm-emphasis text-neutral-900 [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-link"
-      {...benefitsToggleUmamiAttrs}
-    >
-      {t('support.circle.benefits_label')}
-      <Icon
-        name="arrow-down"
-        class="size-6 shrink-0 text-link transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
-      />
-    </summary>
-    <p class="mt-md mb-0 text-body-sm-standard text-neutral-75">{benefits}</p>
-  </details>
+  <div class="flex flex-col gap-xs border-t border-neutral-25 pt-lg">
+    <p class="mb-0 text-body-sm-emphasis text-neutral-900">{benefitsLabel}</p>
+    <p class="mb-0 text-body-sm-standard text-neutral-75">{benefits}</p>
+  </div>
 
   <!--
     `mt-auto` pins the CTA to the card's bottom edge so the three buttons line

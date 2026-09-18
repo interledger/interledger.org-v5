@@ -74,25 +74,25 @@ const CASE_FOR_SUPPORT_URL: string | null = null
  */
 const circles = [
   {
-    id: 'sustaining',
     heading: t('support.circle.sustaining.heading'),
     seats: t('support.circle.seats', { available: 50, total: 50 }),
+    amount: t('support.circle.sustaining.amount'),
     summary: t('support.circle.sustaining.summary'),
     benefits: t('support.circle.sustaining.benefits'),
     elementId: FUNDRAISE_UP_ELEMENTS.sustaining
   },
   {
-    id: 'champions',
     heading: t('support.circle.champions.heading'),
     seats: t('support.circle.seats', { available: 10, total: 10 }),
+    amount: t('support.circle.champions.amount'),
     summary: t('support.circle.champions.summary'),
     benefits: t('support.circle.champions.benefits'),
     elementId: FUNDRAISE_UP_ELEMENTS.champions
   },
   {
-    id: 'visionaries',
     heading: t('support.circle.visionaries.heading'),
     seats: t('support.circle.seats', { available: 3, total: 3 }),
+    amount: t('support.circle.visionaries.amount'),
     summary: t('support.circle.visionaries.summary'),
     benefits: t('support.circle.visionaries.benefits'),
     elementId: null
@@ -202,70 +202,6 @@ const bodyClass =
       />
     </PageHero>
 
-    <!--
-      The three tier CTAs sit directly under the hero: a donor who arrived
-      ready to give should not have to scroll past the rationale to find the
-      button. The detailed Founding Circles section further down repeats them
-      for a donor who needs convincing first.
-    -->
-    <Section aria-labelledby="tiers-heading">
-      <!--
-        Visually hidden rather than absent: the design goes straight from the
-        hero into three unlabelled CTAs, but that leaves a screen-reader user
-        landing in a list of prices with no idea what they are choosing
-        between. The h2 also keeps the hierarchy unbroken down to the h3s in
-        the Founding Circles section below.
-      -->
-      <h2 id="tiers-heading" class="sr-only">{t('support.tiers.heading')}</h2>
-      <ul
-        class="m-0 grid list-none grid-cols-1 gap-xl p-0 tablet:grid-cols-3"
-        role="list"
-      >
-        <li class="m-0 flex flex-col gap-lg">
-          <p class={`mb-0 ${bodyClass}`}>
-            {t('support.tier.sustaining.pitch')}
-          </p>
-          <FundraiseUpElement elementId={FUNDRAISE_UP_ELEMENTS.sustaining} />
-        </li>
-        <li class="m-0 flex flex-col gap-lg">
-          <p class={`mb-0 ${bodyClass}`}>{t('support.tier.champions.pitch')}</p>
-          <FundraiseUpElement elementId={FUNDRAISE_UP_ELEMENTS.champions} />
-        </li>
-        <li class="m-0 flex flex-col gap-lg">
-          <p class={`mb-0 ${bodyClass}`}>
-            {t('support.tier.visionaries.pitch')}
-          </p>
-          <LinkButton
-            href={VISIONARY_MEETING_URL}
-            external
-            variant="primary"
-            class="w-full tablet:w-auto"
-            linkText={t('support.tier.visionaries.cta')}
-            umamiLabel="button_cta"
-            umamiBaseComponent="founding_circle_visionaries"
-          >
-            {t('support.tier.visionaries.cta')}
-            <Icon name="external-link" slot="icon-right" />
-          </LinkButton>
-        </li>
-      </ul>
-    </Section>
-
-    <Section data-stack="cta">
-      <p class={`mb-xl ${bodyClass}`}>{t('support.community.body')}</p>
-      <LinkButton
-        href={communityHref}
-        variant="secondary"
-        class="w-full tablet:w-auto"
-        linkText={t('support.community.cta')}
-        umamiLabel="button_cta"
-        umamiBaseComponent="community_membership"
-      >
-        {t('support.community.cta')}
-        <Icon name="arrow-right" slot="icon-right" />
-      </LinkButton>
-    </Section>
-
     <Section aria-labelledby="why-heading">
       <h2 id="why-heading" class={headingClass}>{t('support.why.heading')}</h2>
       <p class={`mb-2xl ${bodyClass}`}>{t('support.why.body_1')}</p>
@@ -310,9 +246,10 @@ const bodyClass =
               <FoundingCircleCard
                 heading={circle.heading}
                 seats={circle.seats}
+                amount={circle.amount}
                 summary={circle.summary}
                 benefits={circle.benefits}
-                tierId={circle.id}
+                benefitsLabel={t('support.circle.benefits_label')}
               >
                 <Fragment slot="cta">
                   {circle.elementId ? (
@@ -339,27 +276,48 @@ const bodyClass =
       </ul>
     </Section>
 
+    <!--
+      `data-stack="cta"` closes the gap to the cards above: the free membership
+      is the "none of these are for me" option belonging to that group, not a
+      section of its own.
+    -->
+    <Section data-stack="cta" class="text-center">
+      <p class={`mb-xl ${bodyClass}`}>{t('support.community.body')}</p>
+      <!--
+        `text-center` on the section centres the copy and, because the button
+        is an inline-flex anchor, centres it too — no extra flex wrapper. It
+        stays full-width on mobile, where a centred pill would look stranded.
+      -->
+      <LinkButton
+        href={communityHref}
+        variant="secondary"
+        class="w-full tablet:w-auto"
+        linkText={t('support.community.cta')}
+        umamiLabel="button_cta"
+        umamiBaseComponent="community_membership"
+      >
+        {t('support.community.cta')}
+        <Icon name="arrow-right" slot="icon-right" />
+      </LinkButton>
+    </Section>
+
     <Section aria-labelledby="priorities-heading">
       <h2 id="priorities-heading" class={headingClass}>
         {t('support.priorities.heading')}
       </h2>
       <p class={`mb-2xl ${bodyClass}`}>{t('support.priorities.body')}</p>
 
-      <details class="group border-t border-neutral-25 pt-lg">
-        <summary
-          class="flex cursor-pointer list-none items-center justify-between gap-lg rounded-sm text-h5 tablet:text-h5-md text-neutral-900 [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-link"
+      <div class="border-t border-neutral-25 pt-lg">
+        <h3
+          class="mb-xl text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900"
         >
-          {t('support.priorities.expand_label')}
-          <Icon
-            name="arrow-down"
-            class="size-8 shrink-0 text-link transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none"
-          />
-        </summary>
+          {t('support.priorities.subheading')}
+        </h3>
         <!--
           A definition list, not a bulleted list: each row is a named priority
           paired with its explanation, which is exactly what <dl> encodes.
         -->
-        <dl class="mt-xl mb-0 flex flex-col gap-lg">
+        <dl class="mb-0 flex flex-col gap-lg">
           {
             priorities.map((priority) => (
               <div>
@@ -373,7 +331,7 @@ const bodyClass =
             ))
           }
         </dl>
-      </details>
+      </div>
     </Section>
 
     <Section id="ways-to-donate" aria-labelledby="ways-heading">
