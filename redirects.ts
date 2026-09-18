@@ -24,7 +24,9 @@ export const redirects = {
   '/developers/hacktoberfest': '/tech/hacktoberfest',
   '/ambassadors': '/grant/fellowship',
   '/grant/ambassadors': '/grant/fellowship',
-  '/grant/ambassadors/faq': '/grant/fellowship/faq',
+  // The ambassador FAQ is now the `faqSection` on the fellowship page itself,
+  // so there is no separate FAQ route to land on.
+  '/grant/ambassadors/faq': '/grant/fellowship',
   // EN twins of the `/es/grant*` entries below. `/grant` is a route prefix
   // with no page of its own, so without these the bare paths 404 [INTORG-1218].
   '/grant': '/grant/our-grantmaking',
@@ -91,7 +93,7 @@ export const redirects = {
   '/es/grant/educacion': '/es/grant/education',
   '/es/grant/embajadores': '/es/grant/fellowship',
   '/es/grant/ambassadors': '/es/grant/fellowship',
-  '/es/grant/ambassadors/faq': '/es/grant/fellowship/faq',
+  '/es/grant/ambassadors/faq': '/es/grant/fellowship',
   '/es/grant': '/es/grant/our-grantmaking',
   '/es/grants': '/es/grant/our-grantmaking',
   '/es/grants/our-grantmaking': '/es/grant/our-grantmaking',
@@ -132,8 +134,6 @@ export const redirects = {
     '/blog/transforming-financial-access',
   '/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments':
     '/blog/reflections-2025-payments-canada-summit',
-  '/news/construyendo-el-futuro-juntos-student-hacks-mexico-2026':
-    '/blog/building-future-together-student-hacks-mexico-2026',
 
   // Foundation blog: /news merged into /blog.
   '/news/2025-digital-financial-services-grant':
@@ -657,20 +657,24 @@ export const redirects = {
   '/developers/blog/rafiki-cards-work-week-2026':
     '/blog/rafiki-cards-work-week-2026',
   '/es/developers/blog/el-universo-interledger':
-    '/es/blog/el-universo-interledger',
+    '/es/blog/interledger-universe/',
 
   // Spanish developer blog content
   '/developers/blog/es': '/es/blog',
   '/developers/blog/2025-06-04-ES-El-Universo-Interledger':
-    '/es/blog/el-universo-interledger',
+    '/es/blog/interledger-universe/',
+
+  // /summit is still served by Drupal, which applies its own redirects, so
+  // nothing below reaches Netlify. Commented out rather than deleted —
+  // restore it when /summit moves to this site.
 
   // Summit pages
-  '/summit/key-information': '/summit/media-kit',
-  '/summit/2025-summit-schedule': '/summit/schedule',
+  // '/summit/key-information': '/summit/media-kit',
+  // '/summit/2025-summit-schedule': '/summit/schedule',
   '/summit/code-of-conduct': '/hackathon/code-conduct',
 
   // Summit pages (Spanish)
-  '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
+  // '/es/summit/schedule': '/es/summit/programa-del-interledger-summit-2025',
 
   // Hackathon microsite.
   '/hackathon': '/hackathon/overview',
@@ -685,6 +689,7 @@ export const redirects = {
   '/hackathon/resources/documentation': '/hackathon/open-payments',
   '/hackathon/code-of-conduct': '/hackathon/code-conduct',
   '/hackathons/code-conduct': '/hackathon/code-conduct',
+  '/hackathon/schedule': '/hackathon/overview',
   '/summit/hackathon': '/hackathon/overview',
   '/summit/hackathon-2024': '/hackathon/overview',
   '/summit/hackathon-venue': '/hackathon/overview',
@@ -709,7 +714,6 @@ export const redirects = {
   '/summit/judging-process-and-criteria': '/hackathon/faq',
   '/summit/submitting-your-solution': '/hackathon/faq',
   '/summit/code-conduct': '/hackathon/code-conduct',
-  '/hackathon/schedule': '/hackathon/overview',
   '/summit/interledger-foundation-hackathons': '/hackathon/overview',
   '/summit/hackathons/terms-conditions': '/hackathon/code-conduct',
 
@@ -748,31 +752,30 @@ export const redirects = {
     '/es/hackathon/participation',
   '/es/summit/hackaton/preguntas-frecuentes': '/es/hackathon/faq',
   '/es/summit//hackathons/faqs': '/es/hackathon/faq',
-  '/es/summit/hackaton': '/es/hackathon/overview',
+  '/es/summit/hackaton': '/es/hackathon/overview'
 
-  // Summit talks and speakers
-  // Old singular routes (redirect directly to final destination)
-  '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
-    '/summit/2024/talks/future-payments-your-pocket',
-  '/summit/2024/talk/get-started-interledger-tech-stack':
-    '/summit/2024/talks/codius-fireside-chat',
-  '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
-  '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
-  '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
-    '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
-  '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
-    '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
-  '/summit/2025/talk/miplata':
-    '/summit/2025/talks/miplata-payroll-reaches-home',
-  '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
-  '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
-    '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
-  '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
-  '/summit/2025/speaker/alejandra-cullen':
-    '/summit/2025/speakers/alejandra-cullen-benitez',
-  '/summit/2025/talk/rafiki-open-payments':
-    '/summit/2025/talks/evolution-rafiki-open-payments-2025',
-  '/summit/2025/talk/evolutio-rafiki-open-payments-2025':
-    '/summit/2025/talks/evolution-rafiki-open-payments-2025'
+  // Summit talks and speakers. Old singular routes — see the note above.
+  // '/summit/2024/talk/future-finance-gatehubs-adoption-rafiki-enhancing-open-payments':
+  //   '/summit/2024/talks/future-payments-your-pocket',
+  // '/summit/2024/talk/get-started-interledger-tech-stack':
+  //   '/summit/2024/talks/codius-fireside-chat',
+  // '/summit/2025/talk/rafiki': '/summit/2025/talks/evolution-rafiki-2025',
+  // '/summit/2025/talk/kanzu-code': '/summit/2025/talks/kanzu-finance',
+  // '/summit/2025/talk/philanthropic-puzzle-connecting-internet-freedom-and-financial-inclusion-funding':
+  //   '/summit/2025/talks/rights-rails-how-philanthropy-links-access-capacity-inclusive-payment-systems',
+  // '/summit/2025/talk/use-regional-sub-networks-permissionless-use-interledger':
+  //   '/summit/2025/talks/keynote-liquidity',
+  // '/summit/2025/talk/closing-pleanary': '/summit/2025/talks/closing-plenary',
+  // '/summit/2025/talk/miplata':
+  //   '/summit/2025/talks/miplata-payroll-reaches-home',
+  // '/summit/2025/talk/liquidity': '/summit/2025/talks/keynote-liquidity',
+  // '/summit/2025/talk/prototype-production-activating-real-world-web-monetization-chimoney-app':
+  //   '/summit/2025/talks/chimoneys-ilp-stack-chimoney-app-updates',
+  // '/summit/2025/speaker/alan-davids': '/summit/2025/speakers/allan-davids',
+  // '/summit/2025/speaker/alejandra-cullen':
+  //   '/summit/2025/speakers/alejandra-cullen-benitez',
+  // '/summit/2025/talk/rafiki-open-payments':
+  //   '/summit/2025/talks/evolution-rafiki-open-payments-2025',
+  // '/summit/2025/talk/evolutio-rafiki-open-payments-2025':
+  //   '/summit/2025/talks/evolution-rafiki-open-payments-2025'
 }
