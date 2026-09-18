@@ -253,6 +253,18 @@ the places real breakage lives.
   leaves the branch untouched: Netlify is never triggered and the live site is
   unchanged rather than rolled back. Broken links therefore accumulate on
   staging as warnings and must be cleared before the next publish.
+- **A rollback can outrun the check.** `verify` builds the target SHA's own
+  tree, so `LINK_CHECK=strict` is inert on any commit predating the integration.
+  That stays a warning, not a failure — a rollback target already ran, and
+  blocking an incident rollback over its pre-existing link rot inverts the
+  priority. `reset.yml` guarantees only that the skip is loud: it reports up
+  front whether the SHA carries the check. Running the current validator against
+  an old tree is not an option — `redirects.ts` reaches the check only through
+  `astro:routes:resolved`, and the `prerender = false` routes appear nowhere in
+  `dist`, so any out-of-build runner reports all ~460 redirect sources and every
+  SSR route as broken. The workflow file itself always comes from the dispatch
+  ref, never from the SHA being published, so a rollback never degrades the next
+  run.
 - **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
   globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is
