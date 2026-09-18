@@ -1,0 +1,82 @@
+---
+/**
+ * Fundraise Up installation code (INTORG-1247).
+ *
+ * Render into a layout's `head` slot. It is deliberately **not** in
+ * `BaseLayout`: only `/support-us` needs it, and keeping a third-party script
+ * off the other ~200 routes is the cheapest Core Web Vitals win available.
+ * Moving it site-wide later — which Fundraise Up's own docs recommend, and
+ * which their Overlay and Sticky Button elements require — means rendering
+ * this same component from `BaseLayout` instead.
+ *
+ * The snippet below is the one from Dashboard -> Settings -> Installation for
+ * account `APUEUABQ`, re-indented by Prettier but otherwise unchanged. Never
+ * alter what it *does*: it is account-specific, and the version marker
+ * (`o.v=5`) is what gates access to the JavaScript API this page's analytics
+ * depend on. Re-copy it from the dashboard rather than patching it by hand.
+ *
+ * `is:inline` is required. Without it Astro would process the snippet as a
+ * module and defer it, and the synchronous `window.FundraiseUp` stub — the
+ * thing that lets `initFundraiseUpAnalytics()` call `.on()` before the widget
+ * bundle arrives — would no longer exist at first paint.
+ *
+ * Fundraise Up explicitly warns against loading this through a tag manager,
+ * as that breaks their conversion reporting. Hence the inline script rather
+ * than routing it through any shared analytics plumbing.
+ */
+interface Props {
+  /**
+   * Routes checkout through Fundraise Up's test mode: the full donor flow
+   * runs, including success and decline states, but no card is charged and no
+   * donation reaches the live ledger.
+   *
+   * Must be set *before* the install snippet, so it is a separate script tag
+   * above it rather than a line inside it.
+   */
+  testMode?: boolean
+}
+
+const { testMode = false } = Astro.props
+---
+
+{
+  /*
+    Shaves a round trip off the first checkout open. No `crossorigin`: the
+    install snippet injects a plain <script src> with no crossorigin attribute,
+    so the widget is fetched in no-cors mode. A crossorigin preconnect would
+    warm a CORS connection the browser then cannot reuse for it.
+  */
+}
+<link rel="preconnect" href="https://cdn.fundraiseup.com" />
+
+{testMode && <script is:inline>window.fundraiseup_livemode = false</script>}
+
+<!-- Fundraise Up: the new standard for online giving -->
+<script is:inline>
+  /* eslint-disable no-var, prefer-rest-params -- vendor snippet, kept as issued */
+  ;(function (w, d, s, n, a) {
+    if (!w[n]) {
+      var l = 'call,catch,on,once,set,then,track,openCheckout'.split(','),
+        i,
+        o = function (n) {
+          return 'function' == typeof n
+            ? o.l.push([arguments]) && o
+            : function () {
+                return o.l.push([n, arguments]) && o
+              }
+        },
+        t = d.getElementsByTagName(s)[0],
+        j = d.createElement(s)
+      j.async = !0
+      j.src = 'https://cdn.fundraiseup.com/widget/' + a + ''
+      t.parentNode.insertBefore(j, t)
+      o.s = Date.now()
+      o.v = 5
+      o.h = w.location.href
+      o.l = []
+      for (i = 0; i < 8; i++) o[l[i]] = o(l[i])
+      w[n] = o
+    }
+  })(window, document, 'script', 'FundraiseUp', 'APUEUABQ')
+</script>
+<!-- End Fundraise Up -->
