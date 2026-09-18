@@ -24,9 +24,11 @@ describe('internal-advert serializer', () => {
         { url: 'https://www.linkedin.com/company/web-monetization/' },
         { url: 'https://www.instagram.com/webmonetization/' }
       ],
-      buttonText: 'Visit Web Monetization',
-      buttonLink: 'https://webmonetization.org',
-      buttonExternal: true
+      cta: {
+        text: 'Visit Web Monetization',
+        link: 'https://webmonetization.org',
+        external: true
+      }
     })
 
     expect(result).toBe(
@@ -90,8 +92,7 @@ describe('internal-advert serializer', () => {
   it('drops a half-specified button, and its flags with it', () => {
     const result = serialize({
       ...minimal,
-      buttonText: 'Visit',
-      buttonExternal: true
+      cta: { text: 'Visit', external: true }
     })
 
     expect(result).not.toContain('buttonText=')
@@ -109,8 +110,7 @@ describe('internal-advert serializer', () => {
       serialize({
         helperText: 'Know more',
         logoLabel: 'Web Monetization',
-        buttonText: 'Visit',
-        buttonLink: '/x'
+        cta: { text: 'Visit', link: '/x' }
       })
     ).toThrow(/needs a headline or a body/)
   })
@@ -146,10 +146,12 @@ describe('internal-advert serializer', () => {
     expect(() =>
       serialize({
         ...minimal,
-        buttonText: 'Visit',
-        buttonLink: '/x',
-        buttonExternal: true,
-        buttonDocument: true
+        cta: {
+          text: 'Visit',
+          link: '/x',
+          external: true,
+          document: true
+        }
       })
     ).toThrow(/cannot be both external and document/)
   })

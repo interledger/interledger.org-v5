@@ -136,7 +136,8 @@ const FOUNDATION_BLOG_BLOCKS = {
   'blocks.internal-advert': {
     populate: {
       logo: { populate: { image: true } },
-      socialLinks: true
+      socialLinks: true,
+      cta: true
     }
   }
 } as const

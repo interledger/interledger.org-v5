@@ -428,10 +428,17 @@ export interface InternalAdvertBlock extends StrapiBlockBase {
   headline?: string
   body?: string
   socialLinks?: Array<{ url: string }>
-  buttonText?: string
-  buttonLink?: string
-  buttonExternal?: boolean
-  buttonDocument?: boolean
+  /**
+   * `shared.secondary-cta-link`, the same component the cards use. The MDX
+   * keeps the button flat (`buttonText`, `buttonLink`, …) and the handler
+   * folds it into this component, which is what Card Grid does too.
+   */
+  cta?: {
+    text: string
+    link: string
+    external?: boolean
+    document?: boolean
+  }
 }
 
 // ---------------------------------------------------------------------------

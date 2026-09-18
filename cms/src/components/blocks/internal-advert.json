@@ -70,38 +70,12 @@
         }
       }
     },
-    "buttonText": {
-      "type": "string",
-      "description": "Label of the call-to-action button. The button needs both a label and a link to render.",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "buttonLink": {
-      "type": "string",
-      "description": "Target of the call-to-action button.",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "buttonExternal": {
-      "type": "boolean",
-      "default": false,
-      "description": "Open the link in a new tab and show the external icon.",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "buttonDocument": {
-      "type": "boolean",
-      "default": false,
-      "description": "Treat the link as a downloadable document and show the download icon.",
+    "cta": {
+      "type": "component",
+      "component": "shared.secondary-cta-link",
+      "repeatable": false,
+      "required": false,
+      "description": "One call-to-action button. The card allows a maximum of one.",
       "pluginOptions": {
         "i18n": {
           "localized": true

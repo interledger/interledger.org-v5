@@ -149,11 +149,12 @@ async function handleInternalAdvert(
       block.socialLinks = socialUrls.map((url) => ({ url }))
     }
 
+    // Strapi keeps the button in `shared.secondary-cta-link`, so `link` picks
+    // up the admin's own upload-origin and leading-slash normalisation.
     if (hasButton) {
-      block.buttonText = buttonText
-      block.buttonLink = buttonLink
-      if (buttonExternal) block.buttonExternal = true
-      if (buttonDocument) block.buttonDocument = true
+      block.cta = { text: buttonText!, link: buttonLink! }
+      if (buttonExternal) block.cta.external = true
+      if (buttonDocument) block.cta.document = true
     }
 
     return [block]

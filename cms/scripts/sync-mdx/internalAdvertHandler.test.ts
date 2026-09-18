@@ -49,9 +49,11 @@ Web Monetization connects publishers and creators.
           { url: 'https://www.linkedin.com/company/web-monetization/' },
           { url: 'https://www.instagram.com/webmonetization/' }
         ],
-        buttonText: 'Visit Web Monetization',
-        buttonLink: 'https://webmonetization.org',
-        buttonExternal: true
+        cta: {
+          text: 'Visit Web Monetization',
+          link: 'https://webmonetization.org',
+          external: true
+        }
       }
     ])
   })
@@ -97,8 +99,7 @@ Web Monetization connects publishers and creators.
 
     const blocks = await parseMdxToBlocks(mdx, ctx)
 
-    expect(blocks[0]).not.toHaveProperty('buttonText')
-    expect(blocks[0]).not.toHaveProperty('buttonExternal')
+    expect(blocks[0]).not.toHaveProperty('cta')
   })
 
   it('rejects a card with neither headline nor body', async () => {

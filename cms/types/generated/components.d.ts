@@ -828,27 +828,7 @@ export interface BlocksInternalAdvert extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    buttonDocument: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<false>
-    buttonExternal: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<false>
-    buttonLink: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    buttonText: Schema.Attribute.String &
+    cta: Schema.Attribute.Component<'shared.secondary-cta-link', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

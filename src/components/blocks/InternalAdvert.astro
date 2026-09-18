@@ -40,6 +40,14 @@ interface SocialLinkEntry {
   url?: string
 }
 
+/** `shared.secondary-cta-link`, as the Strapi preview sends it. */
+interface SecondaryCtaLink {
+  link?: string
+  text?: string
+  external?: boolean
+  document?: boolean
+}
+
 interface Props {
   /** Small label above the card. Example: "Know more". */
   helperText?: string
@@ -54,10 +62,13 @@ interface Props {
   body?: string
   /** Profile URLs (MDX) or populated Strapi components (preview). */
   socialLinks?: (string | SocialLinkEntry)[]
+  /** Flat button props, as exported MDX passes them. */
   buttonText?: string
   buttonLink?: string
   buttonExternal?: boolean
   buttonDocument?: boolean
+  /** The same button as a component, as the Strapi preview passes it. */
+  cta?: SecondaryCtaLink | null
   /** Optional Umami page-segment override. */
   umamiContext?: string
 }
@@ -74,6 +85,7 @@ const {
   buttonLink,
   buttonExternal,
   buttonDocument,
+  cta,
   umamiContext
 } = Astro.props
 
@@ -94,14 +106,23 @@ function resolveLogo(): { src: string; alt: string } | null {
 
 const resolvedLogo = resolveLogo()
 
+// Strapi sends the button as a `shared.secondary-cta-link` component, exported
+// MDX sends the same four values as flat props. Read whichever arrived.
+const button = {
+  text: cta?.text ?? buttonText,
+  link: cta?.link ?? buttonLink,
+  external: cta?.external ?? buttonExternal,
+  document: cta?.document ?? buttonDocument
+}
+
 // Both halves or neither: a label with no href is dead, an href with no label
 // is unreadable (same rule as CtaStrip).
-const hasButton = Boolean(buttonText?.trim() && buttonLink?.trim())
+const hasButton = Boolean(button.text?.trim() && button.link?.trim())
 const resolvedButton = hasButton
   ? resolveCtaLink({
-      url: buttonLink!,
-      external: buttonExternal,
-      document: buttonDocument
+      url: button.link!,
+      external: button.external,
+      document: button.document
     })
   : null
 
@@ -185,7 +206,7 @@ const umamiBase = {
               width={LOGO_SIZE}
               height={LOGO_SIZE}
               sizes={`${LOGO_SIZE}px`}
-              class="size-11 object-contain"
+              class="size-11 rounded-none object-contain"
               pictureClass="block shrink-0 size-11"
             />
           )}
@@ -207,7 +228,7 @@ const umamiBase = {
       )}
 
       {hasBody && (
-        <div class="text-body-sm-standard text-neutral-75 [&_a]:underline [&_a]:underline-offset-2 [&_p]:m-0 [&_p]:text-inherit">
+        <div class="text-body-sm-standard text-neutral-75 [&_:is(a,p,ul,ol,li)]:text-body-sm-standard [&_a]:underline [&_a]:underline-offset-2 [&_p]:text-inherit [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
           {bodyHtml ? <Fragment set:html={bodyHtml} /> : <slot />}
         </div>
       )}
@@ -240,17 +261,17 @@ const umamiBase = {
           variant="secondary"
           size="lg"
           external={resolvedButton.external}
-          document={buttonDocument}
+          document={button.document}
           iconSide={resolvedButton.icon ? 'right' : 'none'}
           class="w-full"
           {...buildUmamiAttrs({
             ...umamiBase,
             label: 'button_cta',
-            href: buttonLink,
-            linkText: buttonText
+            href: button.link,
+            linkText: button.text
           })}
         >
-          {buttonText}
+          {button.text}
           {resolvedButton.icon && (
             <Icon name={resolvedButton.icon} slot="icon-right" />
           )}

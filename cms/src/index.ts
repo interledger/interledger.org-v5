@@ -1290,10 +1290,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       headline: 'Headline',
       body: 'Body',
       socialLinks: 'Social Buttons',
-      buttonText: 'Button Text',
-      buttonLink: 'Button URL',
-      buttonExternal: 'External Link',
-      buttonDocument: 'Document Download'
+      cta: 'Button'
     },
     'shared.social-link': {
       url: 'Profile URL'
@@ -1581,26 +1578,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       authorLink:
         'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
     },
+    // Strapi renders a description for a scalar field only. `logo`,
+    // `socialLinks` and `cta` are components, so a description on them never
+    // reaches the form. Their guidance belongs on the child component's own
+    // fields instead (Anca, #706).
     'blocks.internal-advert': {
-      helperText: 'Small label above the card. For example: Know more.',
-      logo: 'Logo of the property you promote. Drawn at 44 x 44. Leave the alternative text empty when the Logo Label beside it already says the same thing.',
+      helperText: 'Small label at the top of the card. For example: Know more.',
       logoLabel: 'Name shown beside the logo. For example: Web Monetization.',
       headline:
         'Fill in a Headline or a Body, or both. The card does not render without one of them.',
-      body: 'Fill in a Headline or a Body, or both. The card does not render without one of them.',
-      socialLinks:
-        'Social profiles of the property you promote, one button each. Paste the profile URL and the icon follows from it: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognised. Any other address gets a plain link icon.',
-      buttonText:
-        'The button needs both a label and a URL. Filling in only one drops the whole button.',
-      buttonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
-      buttonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      buttonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      body: 'Fill in a Headline or a Body, or both. The card does not render without one of them.'
     },
     'shared.social-link': {
-      url: 'Full profile URL, starting with https://. The icon follows from the address.'
+      url: 'Full profile URL, starting with https://. The icon follows from the address: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other address gets a plain link icon.'
     }
   }
 
@@ -1984,14 +1974,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'headline', size: 12 }],
       [{ name: 'body', size: 12 }],
       [{ name: 'socialLinks', size: 12 }],
-      [
-        { name: 'buttonText', size: 6 },
-        { name: 'buttonLink', size: 6 }
-      ],
-      [
-        { name: 'buttonExternal', size: 6 },
-        { name: 'buttonDocument', size: 6 }
-      ]
+      [{ name: 'cta', size: 12 }]
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],

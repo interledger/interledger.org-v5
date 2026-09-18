@@ -14,6 +14,14 @@ interface LocalizedMediaField {
   alternativeText?: string | null
 }
 
+/** `shared.secondary-cta-link`, the same component the cards use. */
+interface SecondaryCtaLink {
+  link?: string
+  text?: string
+  external?: boolean
+  document?: boolean
+}
+
 interface InternalAdvertBlock {
   helperText?: string
   logo?: LocalizedMediaField
@@ -21,10 +29,7 @@ interface InternalAdvertBlock {
   headline?: string
   body?: string
   socialLinks?: { url?: string }[]
-  buttonText?: string
-  buttonLink?: string
-  buttonExternal?: boolean
-  buttonDocument?: boolean
+  cta?: SecondaryCtaLink
 }
 
 /**
@@ -57,9 +62,12 @@ export function serialize(block: InternalAdvertBlock): string {
 
   // Both halves or neither: a label with no href is dead, an href with no
   // label is unreadable (same rule as CTA Strip).
-  const hasButton = Boolean(
-    block.buttonText?.trim() && block.buttonLink?.trim()
-  )
+  const cta = block.cta
+  const ctaText = cta?.text?.trim()
+  // The admin's write path already reduces an absolute CMS upload URL to a
+  // path, because `link` is in relativeLinks' HREF_LIKE_FIELDS. Trim only.
+  const ctaLink = cta?.link?.trim()
+  const hasButton = Boolean(ctaText && ctaLink)
 
   const socialUrls = (block.socialLinks ?? [])
     .map((link) => link?.url?.trim())
@@ -91,9 +99,9 @@ export function serialize(block: InternalAdvertBlock): string {
     })
   }
 
-  if (block.buttonExternal && block.buttonDocument) {
+  if (cta?.external && cta?.document) {
     fieldErrors.push({
-      path: ['buttonExternal'],
+      path: ['cta', 'external'],
       message:
         'Internal Advert button cannot be both external and document. Pick one: external opens a new tab, document downloads a file.'
     })
@@ -123,12 +131,14 @@ export function serialize(block: InternalAdvertBlock): string {
     socialUrls.length > 0
       ? `socialLinks={[${socialUrls.map((url) => `"${esc(url)}"`).join(', ')}]}`
       : null,
-    hasButton ? `buttonText="${esc(block.buttonText!.trim())}"` : null,
-    hasButton ? `buttonLink="${esc(block.buttonLink!.trim())}"` : null,
+    // Strapi keeps the CTA in a component, the MDX keeps it flat. Card Grid
+    // does the same, so the exported attributes stay readable.
+    hasButton ? `buttonText="${esc(ctaText!)}"` : null,
+    hasButton ? `buttonLink="${esc(ctaLink!)}"` : null,
     // The flags follow the button they belong to. A dropped button must not
     // leave its flags behind.
-    hasButton && block.buttonExternal ? 'buttonExternal={true}' : null,
-    hasButton && block.buttonDocument ? 'buttonDocument={true}' : null
+    hasButton && cta?.external ? 'buttonExternal={true}' : null,
+    hasButton && cta?.document ? 'buttonDocument={true}' : null
   ]
     .filter(Boolean)
     .join(' ')

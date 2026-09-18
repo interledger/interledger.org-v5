@@ -37,9 +37,11 @@ describe('InternalAdvert round-trip (serialize → parse)', () => {
           { url: 'https://www.linkedin.com/company/web-monetization/' },
           { url: 'https://www.instagram.com/webmonetization/' }
         ],
-        buttonText: 'Visit Web Monetization',
-        buttonLink: 'https://webmonetization.org',
-        buttonExternal: true
+        cta: {
+          text: 'Visit Web Monetization',
+          link: 'https://webmonetization.org',
+          external: true
+        }
       }),
       ctxWith({ '/uploads/wm-logo.svg': 7 })
     )
@@ -56,9 +58,11 @@ describe('InternalAdvert round-trip (serialize → parse)', () => {
           { url: 'https://www.linkedin.com/company/web-monetization/' },
           { url: 'https://www.instagram.com/webmonetization/' }
         ],
-        buttonText: 'Visit Web Monetization',
-        buttonLink: 'https://webmonetization.org',
-        buttonExternal: true
+        cta: {
+          text: 'Visit Web Monetization',
+          link: 'https://webmonetization.org',
+          external: true
+        }
       }
     ])
   })
@@ -110,17 +114,21 @@ describe('InternalAdvert round-trip (serialize → parse)', () => {
       serialize({
         helperText: 'Know more',
         headline: 'A headline',
-        buttonText: 'Download the report',
-        buttonLink: '/uploads/report.pdf',
-        buttonDocument: true
+        cta: {
+          text: 'Download the report',
+          link: '/uploads/report.pdf',
+          document: true
+        }
       }),
       ctxWith()
     )
 
     expect(blocks[0]).toMatchObject({
-      buttonText: 'Download the report',
-      buttonLink: '/uploads/report.pdf',
-      buttonDocument: true
+      cta: {
+        text: 'Download the report',
+        link: '/uploads/report.pdf',
+        document: true
+      }
     })
   })
 
@@ -129,16 +137,18 @@ describe('InternalAdvert round-trip (serialize → parse)', () => {
       serialize({
         helperText: 'Know more',
         headline: 'A headline',
-        buttonText: 'Visit',
-        buttonLink: '/x',
-        buttonExternal: false,
-        buttonDocument: false
+        cta: {
+          text: 'Visit',
+          link: '/x',
+          external: false,
+          document: false
+        }
       }),
       ctxWith()
     )
 
-    expect(blocks[0]).not.toHaveProperty('buttonExternal')
-    expect(blocks[0]).not.toHaveProperty('buttonDocument')
+    expect(blocks[0]?.cta).not.toHaveProperty('external')
+    expect(blocks[0]?.cta).not.toHaveProperty('document')
   })
 
   it('round-trips markdown inside the body', async () => {
