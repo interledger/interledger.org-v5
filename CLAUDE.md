@@ -243,6 +243,10 @@ the places real breakage lives.
 - **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
   canonical and `og:url` are all emitted that way, and that is where a whole
   class of breakage hid.
+- **Relative links resolve against the served URL.** `about-us/index.html` is
+  served at `/about-us/`, and against the slashless form `new URL` drops a
+  segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
+  dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
 - **Findings warn; only Force Reset fails.** Editors commit MDX straight to
   `staging` with no PR and fix most of their own broken links quickly, so
   failing every build would stop staging far more often than it would prevent

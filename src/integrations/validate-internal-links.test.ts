@@ -10,6 +10,7 @@ import {
   extractAnchorIds,
   extractLinkTargets,
   formatFindings,
+  isServedWithTrailingSlash,
   loadNetlifyRules,
   netlifyRuleToMatcher,
   normalizeInternalPath,
@@ -22,7 +23,13 @@ import {
   type TargetIndex
 } from './validate-internal-links'
 
-const CTX = { fromPathname: '/blog/post', siteHost: 'interledger.org' }
+// A directory-index page: `blog/post/index.html`, which Netlify serves at
+// `/blog/post/`. `servedWithTrailingSlash` only changes relative resolution.
+const CTX = {
+  fromPathname: '/blog/post',
+  siteHost: 'interledger.org',
+  servedWithTrailingSlash: true
+}
 
 describe('decodeHtmlEntities', () => {
   it('decodes the numeric ampersand that hides inside CDN URLs', () => {
@@ -102,9 +109,23 @@ describe('classifyHref', () => {
     expect(classifyHref('#', CTX)?.fragment).toBe('')
   })
 
-  it('resolves relative links against the current page', () => {
-    expect(classifyHref('../other', CTX)?.pathname).toBe('/other')
-    expect(classifyHref('./sibling', CTX)?.pathname).toBe('/blog/sibling')
+  it('resolves relative links against the URL the browser shows', () => {
+    // Netlify 301s /blog/post to /blog/post/, so the base carries the slash.
+    // Resolving against the slashless form would drop `post` and give
+    // /blog/sibling — a working link reported as broken, or vice versa.
+    expect(classifyHref('./sibling', CTX)?.pathname).toBe('/blog/post/sibling')
+    expect(classifyHref('../other', CTX)?.pathname).toBe('/blog/other')
+  })
+
+  it('resolves relative links on a page served without a trailing slash', () => {
+    // `404.html` has no directory of its own, so /404 never gains a slash.
+    const ctx = { ...CTX, fromPathname: '/404', servedWithTrailingSlash: false }
+    expect(classifyHref('./sibling', ctx)?.pathname).toBe('/sibling')
+  })
+
+  it('does not double the slash when resolving relative to the root', () => {
+    const ctx = { ...CTX, fromPathname: '/', servedWithTrailingSlash: true }
+    expect(classifyHref('./sibling', ctx)?.pathname).toBe('/sibling')
   })
 
   it('ignores runtime endpoints', () => {
@@ -179,6 +200,16 @@ describe('distFileToTargets', () => {
     expect(distFileToTargets('img/a%20b.png')).toEqual(
       expect.arrayContaining(['/img/a%20b.png', '/img/a b.png'])
     )
+  })
+})
+
+describe('isServedWithTrailingSlash', () => {
+  it('is true only for a directory index', () => {
+    expect(isServedWithTrailingSlash('about-us/index.html')).toBe(true)
+    expect(isServedWithTrailingSlash('index.html')).toBe(true)
+    // No directory of its own, so /404 never gains a slash.
+    expect(isServedWithTrailingSlash('404.html')).toBe(false)
+    expect(isServedWithTrailingSlash('img/a.png')).toBe(false)
   })
 })
 
@@ -610,6 +641,17 @@ describe('validateInternalLinks', () => {
         '<link rel="alternate" hreflang="es" href="https://interledger.org/es/blog/category/all/14">'
     })
     expect(error?.message).toContain('/es/blog/category/all/14')
+  })
+
+  it('resolves a relative link against the page the browser actually serves', async () => {
+    // Regression: `blog/post/index.html` is served at /blog/post/, so `sibling`
+    // is /blog/post/sibling. Resolving against /blog/post looked for
+    // /blog/sibling and reported a working link as broken.
+    const { error } = await runCheck({
+      'blog/post/index.html': '<a href="sibling">next</a>',
+      'blog/post/sibling/index.html': '<p>here</p>'
+    })
+    expect(error).toBeNull()
   })
 
   it('ignores external and protocol-relative links', async () => {

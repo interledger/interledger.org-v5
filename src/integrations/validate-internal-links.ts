@@ -24,7 +24,11 @@ import type { AstroIntegration, IntegrationResolvedRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { hasUrlScheme, stripTrailingSlash } from '../utils/shared/url'
+import {
+  addTrailingSlash,
+  hasUrlScheme,
+  stripTrailingSlash
+} from '../utils/shared/url'
 import { INTERNAL_LINK_EXCEPTIONS } from './internal-link-exceptions'
 
 const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
@@ -184,6 +188,8 @@ export interface ClassifyContext {
   fromPathname: string
   /** Origin host from `config.site`, e.g. `interledger.org`. */
   siteHost: string
+  /** Whether the page's own URL ends in `/`. Only relative links care. */
+  servedWithTrailingSlash: boolean
 }
 
 /**
@@ -194,7 +200,7 @@ export interface ClassifyContext {
  */
 export function classifyHref(
   raw: string,
-  { fromPathname, siteHost }: ClassifyContext
+  { fromPathname, siteHost, servedWithTrailingSlash }: ClassifyContext
 ): ClassifiedLink | null {
   const value = decodeHtmlEntities(raw).trim()
   if (!value) return null
@@ -228,9 +234,14 @@ export function classifyHref(
     if (host !== siteHost.replace(/^www\./, '')) return null
     working = `${url.pathname}${url.search}${url.hash}`
   } else if (!value.startsWith('/')) {
-    // Relative link. None in the build today, but content could add one.
+    // Relative link. The base is the URL as served, not the normalised lookup
+    // key: without the trailing slash `new URL` drops the last segment, so
+    // `comments` on `/about-us/` would resolve to `/comments`.
+    const base = servedWithTrailingSlash
+      ? addTrailingSlash(fromPathname)
+      : fromPathname
     try {
-      const resolved = new URL(value, `https://${siteHost}${fromPathname}`)
+      const resolved = new URL(value, `https://${siteHost}${base}`)
       working = `${resolved.pathname}${resolved.search}${resolved.hash}`
     } catch {
       return null
@@ -378,6 +389,16 @@ export function distFileToTargets(relPath: string): string[] {
   }
 
   return [...out]
+}
+
+/**
+ * Whether this dist file is served with a trailing slash.
+ *
+ * `about-us/index.html` is served at `/about-us/`, but a bare `404.html` is
+ * served at `/404` — hence reading the file shape rather than assuming.
+ */
+export function isServedWithTrailingSlash(relPath: string): boolean {
+  return path.basename(relPath) === 'index.html'
 }
 
 export interface TargetIndex {
@@ -579,10 +600,15 @@ export function validateInternalLinks(): AstroIntegration {
           const [ownPath] = distFileToTargets(relPath).sort(
             (a, b) => a.length - b.length
           )
+          const servedWithTrailingSlash = isServedWithTrailingSlash(relPath)
           pageIds.set(relPath, ids)
 
           for (const raw of targets) {
-            const link = classifyHref(raw, { fromPathname: ownPath, siteHost })
+            const link = classifyHref(raw, {
+              fromPathname: ownPath,
+              siteHost,
+              servedWithTrailingSlash
+            })
             if (!link) continue
 
             const key = link.fragment
