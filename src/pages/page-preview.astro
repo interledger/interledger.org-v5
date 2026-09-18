@@ -97,11 +97,7 @@ const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
 ---
 
-<BaseLayout
-  title={`[PREVIEW] ${title}`}
-  description={metaDescription}
-  localeAlternates={false}
->
+<BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
   <TableScrollSupport />
   <main class="pb-3xl">
     <!-- Preview Banner -->
