@@ -16,7 +16,7 @@ export const socialLinks: SocialLink[] = [
     labelKey: 'footer.youtube'
   },
   {
-    href: 'https://interledger.social/about',
+    href: 'https://interledger.social/@Interledger',
     icon: 'mastodon',
     labelKey: 'footer.mastodon'
   },

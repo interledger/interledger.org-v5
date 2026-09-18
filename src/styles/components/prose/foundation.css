@@ -186,18 +186,40 @@
     }
   }
 
-  /* Bullet and numbered list styles for list items inside Paragraphs */
+  /* Triangle bullets sit on the content edge. Zero the default ul indent
+     so the list is flush with the paragraph above. */
   [data-prose] [data-component='Paragraph'] ul {
-    list-style:none;
-  }    
-
-  [data-prose] [data-component='Paragraph'] ul > li, [data-prose] [data-component='Paragraph'] ol > li {
-    position: relative;
-    padding-inline-start: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-    @variant tablet {
-      padding-inline-start: var(--spacing-lg);
+    list-style: none;
+    padding-inline-start: 0;
+    margin-inline-start: 0;
+    margin-block-end: var(--spacing-xl);
+    @variant desktop {
+      margin-block-end: var(--spacing-2xl);
     }
+  }
+
+  [data-prose] [data-component='Paragraph'] ul > li {
+    position: relative;
+    /* Same gutter as disc lists in default.css / cards (spacing-xl). */
+    padding-inline-start: var(--spacing-xl);
+    margin-bottom: var(--spacing-lg);
+    @variant desktop {
+      margin-bottom: var(--spacing-xl);
+    }
+  }
+
+  [data-prose] [data-component='Paragraph'] ol {
+    list-style: decimal outside none;
+    padding-inline-start: var(--spacing-2xl);
+    margin-inline-start: 0;
+    margin-block-end: var(--spacing-xl);
+    @variant desktop {
+      margin-block-end: var(--spacing-2xl);
+    }
+  }
+
+  [data-prose] [data-component='Paragraph'] ol > li {
+    margin-bottom: var(--spacing-lg);
     @variant desktop {
       margin-bottom: var(--spacing-xl);
     }
@@ -207,9 +229,10 @@
     content: '';
     position: absolute;
     top: var(--spacing-xs);
-    left: calc(-1*var(--spacing-lg));
+    left: 0;
     width: var(--spacing-lg);
     height: var(--spacing-lg);
+    border-radius: 0;
     background-color: var(--color-tangerine-100);
     mask: url('/img/bullet-point.svg') no-repeat center / contain;
     -webkit-mask: url('/img/bullet-point.svg') no-repeat center / contain;
@@ -217,17 +240,10 @@
       top: var(--spacing-sm);
     }
   }
-  
-  [data-prose] [data-component='Paragraph'] ol > li::marker {
-    color: var(--color-tangerine-100);
-  }
 
   @variant dark {
     [data-prose] [data-component='Paragraph'] ul > li::before {
       background-color: var(--color-aqua-mint-100);
-    }
-    [data-prose] [data-component='Paragraph'] ol > li::marker {
-      color:var(--color-aqua-mint-100);
     }
   }
 }

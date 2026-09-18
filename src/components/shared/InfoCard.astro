@@ -42,7 +42,7 @@ const imageAltText = imageAlt?.trim() || heading
       <h3 class="m-0 !mt-0 !mb-0 !text-h3 text-neutral-900 dark:text-aqua-mint-100 tablet:!text-h3-md desktop:!text-h3-lg">
         {heading}
       </h3>
-      <div class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 dark:text-neutral-50 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_ul]:mb-0 [&_ul]:list-disc [&_ul]:ps-2xl [&_li]:mb-md [&_li:last-child]:mb-0">
+      <div class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 dark:text-neutral-50 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_:is(p,ul,ol):first-child]:mt-0 [&_:is(ul,ol)]:mb-0">
         <slot />
       </div>
     </article>
