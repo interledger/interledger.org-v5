@@ -49,7 +49,7 @@ describe('video-embed serializer', () => {
       title: 'Q&A: "Live" Session'
     })
 
-    expect(result).toContain('Q&amp;A: &quot;Live&quot; Session')
+    expect(result).toContain('Q&A: &quot;Live&quot; Session')
     expect(result).not.toContain('\\"')
   })
 

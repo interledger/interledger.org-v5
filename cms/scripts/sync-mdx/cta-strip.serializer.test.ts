@@ -93,7 +93,7 @@ describe('cta-strip serializer', () => {
     expect(result).not.toContain('secondaryButtonLink')
   })
 
-  it('HTML-entity encodes characters that would break a JSX attribute', () => {
+  it('HTML-entity encodes the quote that would break a JSX attribute, and nothing else', () => {
     const result = serialize({
       heading: 'The "best" offer & more <here>',
       description: 'Body.',
@@ -102,8 +102,9 @@ describe('cta-strip serializer', () => {
     })
 
     // Not backslash-escaped (\" breaks MDX parsing); entity-encoded instead.
+    // `&` and the angle brackets are ordinary text between the quotes.
     expect(result).toContain(
-      'heading="The &quot;best&quot; offer &amp; more &lt;here&gt;"'
+      'heading="The &quot;best&quot; offer & more <here>"'
     )
     expect(result).not.toContain('\\"')
   })
