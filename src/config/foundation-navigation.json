@@ -205,6 +205,15 @@
               "openInNewTab": true
             }
           ]
+        },
+        {
+          "label": "Support Our Work",
+          "items": [
+            {
+              "label": "Support Us",
+              "href": "/support-us"
+            }
+          ]
         }
       ]
     }
