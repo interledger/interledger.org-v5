@@ -37,7 +37,7 @@ const topics = [
 ] as const
 
 const inputClasses =
-  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
 
 const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 
@@ -240,7 +240,7 @@ const optionClasses = [
                   aria-required="true"
                   rows="6"
                   maxlength="3000"
-                  class={`${inputClasses} resize-y`}
+                  class={`${inputClasses} resize-y py-md`}
                   data-error-required={t('contact.error.message_required')}
                 ></textarea>
                 <p id="message-error" class={errorClasses} role="alert">

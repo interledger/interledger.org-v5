@@ -243,6 +243,10 @@ the places real breakage lives.
 - **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
   canonical and `og:url` are all emitted that way, and that is where a whole
   class of breakage hid.
+- **Relative links resolve against the served URL.** `about-us/index.html` is
+  served at `/about-us/`, and against the slashless form `new URL` drops a
+  segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
+  dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
 - **Findings warn; only Force Reset fails.** Editors commit MDX straight to
   `staging` with no PR and fix most of their own broken links quickly, so
   failing every build would stop staging far more often than it would prevent
@@ -253,6 +257,23 @@ the places real breakage lives.
   leaves the branch untouched: Netlify is never triggered and the live site is
   unchanged rather than rolled back. Broken links therefore accumulate on
   staging as warnings and must be cleared before the next publish.
+- **A rollback can outrun the check.** `verify` builds the target SHA's own
+  tree, so `LINK_CHECK=strict` is inert on any commit predating the integration.
+  That stays a warning, not a failure — a rollback target already ran, and
+  blocking an incident rollback over its pre-existing link rot inverts the
+  priority. `reset.yml` guarantees only that the skip is loud: it reports up
+  front whether the SHA carries the check. Running the current validator against
+  an old tree is not an option — `redirects.ts` reaches the check only through
+  `astro:routes:resolved`, and the `prerender = false` routes appear nowhere in
+  `dist`, so any out-of-build runner reports all ~460 redirect sources and every
+  SSR route as broken. The workflow file itself always comes from the dispatch
+  ref, never from the SHA being published, so a rollback never degrades the next
+  run.
+- **Redirect destinations are checked, and fail like any other broken link.**
+  Read `route.redirect`, never `route.redirectRoute` — Astro matches the latter
+  against lowercased, slashless keys, so it is `undefined` for a destination
+  written with a slash. Exempt by **source**: the destination is a link target,
+  so listing it would also hide direct links to that path.
 - **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
   globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is

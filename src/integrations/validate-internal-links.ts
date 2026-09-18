@@ -24,7 +24,11 @@ import type { AstroIntegration, IntegrationResolvedRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { hasUrlScheme, stripTrailingSlash } from '../utils/shared/url'
+import {
+  addTrailingSlash,
+  hasUrlScheme,
+  stripTrailingSlash
+} from '../utils/shared/url'
 import { INTERNAL_LINK_EXCEPTIONS } from './internal-link-exceptions'
 
 const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
@@ -58,13 +62,15 @@ export type LinkFindingReason =
   | 'missing-upload'
   | 'missing-fragment'
   | 'malformed-url'
+  | 'redirect-to-missing'
 
 const REASON_LABEL: Record<LinkFindingReason, string> = {
   'missing-page': 'no page, redirect, or SSR route',
   'missing-asset': 'no such file in the build',
   'missing-upload': 'upload missing from this deploy',
   'missing-fragment': 'no element with that id',
-  'malformed-url': 'malformed URL'
+  'malformed-url': 'malformed URL',
+  'redirect-to-missing': 'redirect lands on nothing this deploy serves'
 }
 
 const MAX_REPORTED = 25
@@ -184,6 +190,8 @@ export interface ClassifyContext {
   fromPathname: string
   /** Origin host from `config.site`, e.g. `interledger.org`. */
   siteHost: string
+  /** Whether the page's own URL ends in `/`. Only relative links care. */
+  servedWithTrailingSlash: boolean
 }
 
 /**
@@ -194,7 +202,7 @@ export interface ClassifyContext {
  */
 export function classifyHref(
   raw: string,
-  { fromPathname, siteHost }: ClassifyContext
+  { fromPathname, siteHost, servedWithTrailingSlash }: ClassifyContext
 ): ClassifiedLink | null {
   const value = decodeHtmlEntities(raw).trim()
   if (!value) return null
@@ -228,9 +236,14 @@ export function classifyHref(
     if (host !== siteHost.replace(/^www\./, '')) return null
     working = `${url.pathname}${url.search}${url.hash}`
   } else if (!value.startsWith('/')) {
-    // Relative link. None in the build today, but content could add one.
+    // Relative link. The base is the URL as served, not the normalised lookup
+    // key: without the trailing slash `new URL` drops the last segment, so
+    // `comments` on `/about-us/` would resolve to `/comments`.
+    const base = servedWithTrailingSlash
+      ? addTrailingSlash(fromPathname)
+      : fromPathname
     try {
-      const resolved = new URL(value, `https://${siteHost}${fromPathname}`)
+      const resolved = new URL(value, `https://${siteHost}${base}`)
       working = `${resolved.pathname}${resolved.search}${resolved.hash}`
     } catch {
       return null
@@ -380,11 +393,21 @@ export function distFileToTargets(relPath: string): string[] {
   return [...out]
 }
 
+/**
+ * Whether this dist file is served with a trailing slash.
+ *
+ * `about-us/index.html` is served at `/about-us/`, but a bare `404.html` is
+ * served at `/404` — hence reading the file shape rather than assuming.
+ */
+export function isServedWithTrailingSlash(relPath: string): boolean {
+  return path.basename(relPath) === 'index.html'
+}
+
 export interface TargetIndex {
   /** Normalised target → dist-relative file path. */
   files: Map<string, string>
-  /** Literal redirect sources from `redirects.ts`, via the route table. */
-  redirects: Set<string>
+  /** Literal redirect source → destination, from `redirects.ts` via the route table. */
+  redirects: Map<string, string>
   /** Literal `prerender = false` route patterns. */
   ssr: Set<string>
   /** Compiled `netlify.toml` `:param` rules. */
@@ -414,12 +437,30 @@ export function resolveTarget(
 }
 
 /**
+ * Redirects whose destination this deploy does not serve, as `[from, to]`.
+ *
+ * Every redirect is checked, not just linked ones — nothing links to most of
+ * them. Chains fall out for free: each hop is its own entry.
+ */
+export function findBrokenRedirects(index: TargetIndex): [string, string][] {
+  const broken: [string, string][] = []
+  for (const [from, to] of index.redirects) {
+    // No destination recorded, or it leaves the site — nothing to resolve.
+    if (!to || hasUrlScheme(to)) continue
+    if (resolveTarget(index, normalizeInternalPath(to)) === 'none') {
+      broken.push([from, to])
+    }
+  }
+  return broken
+}
+
+/**
  * The fields of a resolved route this check reads. Naming the subset keeps `patternRegex`
  * out of reach and lets a test build a route without faking Astro's dozen other fields.
  */
 export type ResolvedRouteInput = Pick<
   IntegrationResolvedRoute,
-  'pattern' | 'params' | 'type' | 'isPrerendered'
+  'pattern' | 'params' | 'type' | 'isPrerendered' | 'redirect'
 >
 
 /**
@@ -428,17 +469,24 @@ export type ResolvedRouteInput = Pick<
  * `pathname` is `undefined` before `getStaticPaths()` runs anyway.
  */
 export function partitionRoutes(routes: readonly ResolvedRouteInput[]): {
-  redirects: Set<string>
+  redirects: Map<string, string>
   ssr: Set<string>
 } {
-  const redirects = new Set<string>()
+  const redirects = new Map<string, string>()
   const ssr = new Set<string>()
 
   for (const route of routes) {
     if (route.params.length > 0) continue
     const pattern = normalizeInternalPath(route.pattern)
     if (route.type === 'redirect') {
-      redirects.add(pattern)
+      // Not `redirectRoute`: Astro matches that against lowercased, slashless
+      // keys, so it is undefined for a destination written with a slash.
+      const to =
+        typeof route.redirect === 'string'
+          ? route.redirect
+          : route.redirect?.destination
+      // Added either way — links resolve against the source, destination or not.
+      redirects.set(pattern, to ?? '')
     } else if (!route.isPrerendered) {
       ssr.add(pattern)
     }
@@ -453,7 +501,7 @@ export function partitionRoutes(routes: readonly ResolvedRouteInput[]): {
 
 export interface Finding {
   reason: LinkFindingReason
-  /** A page the bad link appears on. */
+  /** A page the bad link appears on, or the destination of a broken redirect. */
   file: string
   count: number
 }
@@ -466,12 +514,15 @@ function classifyMissingReason(pathname: string): LinkFindingReason {
 
 /** One line per distinct target, truncated with an overflow note. */
 export function formatFindings(entries: Array<[string, Finding]>): string {
-  const lines = entries
-    .slice(0, MAX_REPORTED)
-    .map(
-      ([target, { reason, file, count }]) =>
-        `  - ${target} (${REASON_LABEL[reason]}, ${count} link(s), e.g. ${file})`
-    )
+  const lines = entries.slice(0, MAX_REPORTED).map(([target, finding]) => {
+    const { reason, file, count } = finding
+    // A redirect has no occurrences to count — `file` is where it points.
+    const detail =
+      reason === 'redirect-to-missing'
+        ? `→ ${file}`
+        : `${count} link(s), e.g. ${file}`
+    return `  - ${target} (${REASON_LABEL[reason]}, ${detail})`
+  })
   const overflow =
     entries.length > MAX_REPORTED
       ? `\n  …and ${entries.length - MAX_REPORTED} more`
@@ -579,10 +630,15 @@ export function validateInternalLinks(): AstroIntegration {
           const [ownPath] = distFileToTargets(relPath).sort(
             (a, b) => a.length - b.length
           )
+          const servedWithTrailingSlash = isServedWithTrailingSlash(relPath)
           pageIds.set(relPath, ids)
 
           for (const raw of targets) {
-            const link = classifyHref(raw, { fromPathname: ownPath, siteHost })
+            const link = classifyHref(raw, {
+              fromPathname: ownPath,
+              siteHost,
+              servedWithTrailingSlash
+            })
             if (!link) continue
 
             const key = link.fragment
@@ -646,6 +702,22 @@ export function validateInternalLinks(): AstroIntegration {
           }
         }
 
+        // Must run before the stale sweep below, or an exempted redirect
+        // reports as stale.
+        for (const [from, to] of findBrokenRedirects(index)) {
+          // Matched on the source. `exceptions` is the same set the link loop
+          // uses, so listing the destination would also silence direct links.
+          if (exceptions.has(from)) {
+            usedExceptions.add(from)
+            continue
+          }
+          findings.set(from, {
+            reason: 'redirect-to-missing',
+            file: to,
+            count: 1
+          })
+        }
+
         for (const target of exceptions) {
           if (usedExceptions.has(target)) continue
           logger.warn(
@@ -676,7 +748,8 @@ export function validateInternalLinks(): AstroIntegration {
 
         const report =
           `${scanned} — ${findings.size} do not resolve.${skipped}\n` +
-          `Fix the link, add a redirect in redirects.ts, or add an entry to ` +
+          `Fix the link or the redirect's destination, add a redirect in ` +
+          `redirects.ts, or add an entry to ` +
           `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
           formatFindings(entries)
 

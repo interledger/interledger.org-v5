@@ -70,6 +70,26 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      # `verify` builds the target SHA, so LINK_CHECK below is inert on any
+      # commit predating the check. Warn, don't fail: a rollback target's broken
+      # links are pre-existing. The point is that a green run must not read as
+      # validated when nothing was scanned.
+      - name: Report whether the link check can run at this SHA
+        if: env.BUILD == 'true'
+        shell: bash
+        env:
+          TARGET_SHA: ${{ github.event.inputs.target_sha }}
+        run: |
+          set -euo pipefail
+
+          # Anchored so a commented-out registration doesn't read as a pass.
+          if grep -qE '^[[:space:]]*validateInternalLinks\(\)' astro.config.mjs; then
+            echo "✓ Internal link validation is registered — the build runs it in strict mode."
+            exit 0
+          fi
+
+          echo "::warning title=Publishing without link validation::$TARGET_SHA does not register the internal link check, so this publish is NOT link-validated."
+
       # IMAGE_CDN=on builds the same shape Netlify ships, and skips the ~17 min
       # encode. LINK_CHECK=strict turns link findings from a warning into a
       # failure — set nowhere else, so this is where broken links stop a deploy.

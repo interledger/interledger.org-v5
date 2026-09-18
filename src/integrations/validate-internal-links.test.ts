@@ -9,7 +9,9 @@ import {
   distFileToTargets,
   extractAnchorIds,
   extractLinkTargets,
+  findBrokenRedirects,
   formatFindings,
+  isServedWithTrailingSlash,
   loadNetlifyRules,
   netlifyRuleToMatcher,
   normalizeInternalPath,
@@ -22,7 +24,13 @@ import {
   type TargetIndex
 } from './validate-internal-links'
 
-const CTX = { fromPathname: '/blog/post', siteHost: 'interledger.org' }
+// A directory-index page: `blog/post/index.html`, which Netlify serves at
+// `/blog/post/`. `servedWithTrailingSlash` only changes relative resolution.
+const CTX = {
+  fromPathname: '/blog/post',
+  siteHost: 'interledger.org',
+  servedWithTrailingSlash: true
+}
 
 describe('decodeHtmlEntities', () => {
   it('decodes the numeric ampersand that hides inside CDN URLs', () => {
@@ -102,9 +110,23 @@ describe('classifyHref', () => {
     expect(classifyHref('#', CTX)?.fragment).toBe('')
   })
 
-  it('resolves relative links against the current page', () => {
-    expect(classifyHref('../other', CTX)?.pathname).toBe('/other')
-    expect(classifyHref('./sibling', CTX)?.pathname).toBe('/blog/sibling')
+  it('resolves relative links against the URL the browser shows', () => {
+    // Netlify 301s /blog/post to /blog/post/, so the base carries the slash.
+    // Resolving against the slashless form would drop `post` and give
+    // /blog/sibling — a working link reported as broken, or vice versa.
+    expect(classifyHref('./sibling', CTX)?.pathname).toBe('/blog/post/sibling')
+    expect(classifyHref('../other', CTX)?.pathname).toBe('/blog/other')
+  })
+
+  it('resolves relative links on a page served without a trailing slash', () => {
+    // `404.html` has no directory of its own, so /404 never gains a slash.
+    const ctx = { ...CTX, fromPathname: '/404', servedWithTrailingSlash: false }
+    expect(classifyHref('./sibling', ctx)?.pathname).toBe('/sibling')
+  })
+
+  it('does not double the slash when resolving relative to the root', () => {
+    const ctx = { ...CTX, fromPathname: '/', servedWithTrailingSlash: true }
+    expect(classifyHref('./sibling', ctx)?.pathname).toBe('/sibling')
   })
 
   it('ignores runtime endpoints', () => {
@@ -179,6 +201,16 @@ describe('distFileToTargets', () => {
     expect(distFileToTargets('img/a%20b.png')).toEqual(
       expect.arrayContaining(['/img/a%20b.png', '/img/a b.png'])
     )
+  })
+})
+
+describe('isServedWithTrailingSlash', () => {
+  it('is true only for a directory index', () => {
+    expect(isServedWithTrailingSlash('about-us/index.html')).toBe(true)
+    expect(isServedWithTrailingSlash('index.html')).toBe(true)
+    // No directory of its own, so /404 never gains a slash.
+    expect(isServedWithTrailingSlash('404.html')).toBe(false)
+    expect(isServedWithTrailingSlash('img/a.png')).toBe(false)
   })
 })
 
@@ -331,12 +363,33 @@ describe('partitionRoutes', () => {
 
   it('collects literal redirect sources and SSR routes', () => {
     const { redirects, ssr } = partitionRoutes([
-      route({ pattern: '/home', type: 'redirect' }),
+      route({ pattern: '/home', type: 'redirect', redirect: '/' }),
       route({ pattern: '/tech/roadmap', isPrerendered: false }),
       route({ pattern: '/about-us' })
     ])
-    expect([...redirects]).toEqual(['/home'])
+    expect([...redirects]).toEqual([['/home', '/']])
     expect([...ssr]).toEqual(['/tech/roadmap'])
+  })
+
+  it('reads the destination from either redirect form', () => {
+    const { redirects } = partitionRoutes([
+      route({ pattern: '/a', type: 'redirect', redirect: '/plain' }),
+      route({
+        pattern: '/b',
+        type: 'redirect',
+        redirect: { status: 301, destination: '/object' }
+      })
+    ])
+    expect(redirects.get('/a')).toBe('/plain')
+    expect(redirects.get('/b')).toBe('/object')
+  })
+
+  it('still records a redirect whose destination is unknown', () => {
+    // Links are checked against the source, so that must resolve regardless.
+    const { redirects } = partitionRoutes([
+      route({ pattern: '/home', type: 'redirect' })
+    ])
+    expect(redirects.has('/home')).toBe(true)
   })
 
   it('drops dynamic routes entirely', () => {
@@ -354,7 +407,7 @@ describe('partitionRoutes', () => {
 describe('resolveTarget', () => {
   const index: TargetIndex = {
     files: new Map([['/about-us', 'about-us/index.html']]),
-    redirects: new Set(['/home']),
+    redirects: new Map([['/home', '/about-us']]),
     ssr: new Set(['/tech/roadmap']),
     netlifyRules: [netlifyRuleToMatcher('/summit/:year/talk/:slug')]
   }
@@ -375,6 +428,46 @@ describe('resolveTarget', () => {
 
   it('reports anything else as unresolvable', () => {
     expect(resolveTarget(index, '/node/1365')).toBe('none')
+  })
+})
+
+describe('findBrokenRedirects', () => {
+  const index = (redirects: Map<string, string>): TargetIndex => ({
+    files: new Map([
+      ['/about-us', 'about-us/index.html'],
+      ['/tech/overview', 'tech/overview/index.html']
+    ]),
+    redirects,
+    ssr: new Set(['/tech/roadmap']),
+    netlifyRules: []
+  })
+
+  it('passes a redirect whose destination resolves', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '/about-us']])))).toEqual(
+      []
+    )
+  })
+
+  it('reports a redirect whose destination is not served', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '/gone']])))).toEqual([
+      ['/a', '/gone']
+    ])
+  })
+
+  it('normalises a trailing slash on the destination', () => {
+    // Five real destinations are written this way; the index has no slash.
+    expect(
+      findBrokenRedirects(index(new Map([['/a', '/tech/overview/']])))
+    ).toEqual([])
+  })
+
+  it('skips an external destination', () => {
+    const external = new Map([['/a', 'https://example.com/x']])
+    expect(findBrokenRedirects(index(external))).toEqual([])
+  })
+
+  it('skips a redirect with no known destination', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '']])))).toEqual([])
   })
 })
 
@@ -612,6 +705,17 @@ describe('validateInternalLinks', () => {
     expect(error?.message).toContain('/es/blog/category/all/14')
   })
 
+  it('resolves a relative link against the page the browser actually serves', async () => {
+    // Regression: `blog/post/index.html` is served at /blog/post/, so `sibling`
+    // is /blog/post/sibling. Resolving against /blog/post looked for
+    // /blog/sibling and reported a working link as broken.
+    const { error } = await runCheck({
+      'blog/post/index.html': '<a href="sibling">next</a>',
+      'blog/post/sibling/index.html': '<p>here</p>'
+    })
+    expect(error).toBeNull()
+  })
+
   it('ignores external and protocol-relative links', async () => {
     const { error } = await runCheck({
       'index.html':
@@ -655,6 +759,39 @@ describe('validateInternalLinks', () => {
   it('throws when there is no HTML to scan', async () => {
     const { error } = await runCheck({ 'robots.txt': 'User-agent: *' })
     expect(error?.message).toContain('no HTML to scan')
+  })
+
+  describe('redirect destinations', () => {
+    const redirectTo = (
+      pattern: string,
+      redirect: string
+    ): ResolvedRouteInput => ({
+      pattern,
+      params: [],
+      type: 'redirect',
+      isPrerendered: true,
+      redirect
+    })
+
+    it('fails when a redirect lands on nothing this deploy serves', async () => {
+      const { error } = await runCheck({ 'index.html': '<p>x</p>' }, [
+        redirectTo('/old', '/gone')
+      ])
+      expect(error?.message).toContain('/old')
+      expect(error?.message).toContain('/gone')
+    })
+
+    it('exempts one by source, and does not then call it stale', async () => {
+      // `/es/404` is the one entry in INTERNAL_LINK_EXCEPTIONS. Nothing links
+      // to it here, so the only thing that can mark it used is the redirect
+      // sweep — which therefore has to run before the staleness check. Move it
+      // after and this warns.
+      const { error, warn } = await runCheck({ 'index.html': '<p>x</p>' }, [
+        redirectTo('/es/404', '/gone')
+      ])
+      expect(error).toBeNull()
+      expect(warn.join('\n')).not.toContain('Stale link exception')
+    })
   })
 
   describe('warn vs strict', () => {
