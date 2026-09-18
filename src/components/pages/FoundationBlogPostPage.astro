@@ -1,11 +1,12 @@
 ---
 import {
   useTranslations,
+  getBlogPosts,
   resolveRelatedPosts,
   defaultLocale,
   type Locale
 } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import AuthorBio from '@/components/shared/AuthorBio.astro'
 import RelatedArticles from '@/components/blog/RelatedArticles.astro'
@@ -28,7 +29,10 @@ interface Props {
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const posts = await getCollection('foundation-blog')
+// Gated, so a related-articles slug can never link to a post that has not
+// launched. On production no static path exists for a future-dated post, so
+// this page never renders for one in the first place.
+const posts = await getBlogPosts()
 
 const mdxPost = posts.find(
   (post) => post.data.pathSlug === slug && post.data.locale === contentLocale
