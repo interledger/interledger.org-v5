@@ -782,15 +782,15 @@ describe('validateInternalLinks', () => {
     })
 
     it('exempts one by source, and does not then call it stale', async () => {
-      // `/es/404` is the one entry in INTERNAL_LINK_EXCEPTIONS. Nothing links
-      // to it here, so the only thing that can mark it used is the redirect
-      // sweep — which therefore has to run before the staleness check. Move it
-      // after and this warns.
+      // Nothing links to `/es/404`, so only the redirect sweep can mark it
+      // used — it therefore has to run before the staleness check. Move it
+      // after and this warns. Asserted per target: other entries in the real
+      // INTERNAL_LINK_EXCEPTIONS are legitimately stale in this fixture.
       const { error, warn } = await runCheck({ 'index.html': '<p>x</p>' }, [
         redirectTo('/es/404', '/gone')
       ])
       expect(error).toBeNull()
-      expect(warn.join('\n')).not.toContain('Stale link exception')
+      expect(warn.join('\n')).not.toContain('Stale link exception: /es/404')
     })
   })
 
