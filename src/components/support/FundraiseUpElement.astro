@@ -1,0 +1,74 @@
+---
+/**
+ * Placement anchor for one Fundraise Up Element (INTORG-1247).
+ *
+ * Fundraise Up positions an Element by finding a hidden anchor whose `href` is
+ * the Element's ID and rendering into that spot. The anchor itself is the
+ * whole API — the dashboard's "HTML CODE" field hands you exactly
+ * `<a href="#XVSHSPQU" style="display: none"></a>` and nothing else. What
+ * appears is decided in the dashboard, not here: a Donation Form renders
+ * inline, a Donate Button renders Fundraise Up's own button that opens the
+ * Checkout modal.
+ *
+ * That last point is the constraint worth knowing before redesigning this
+ * page: a Donate Button's appearance is dashboard-controlled (label, colours,
+ * radius, border — see the BUTTON tab), not ours. Dropping our own
+ * `LinkButton` in its place needs one of two things from Fundraise Up that we
+ * do not currently have:
+ *
+ *   1. a **Donate Link** element URL (`https://donate.…/-/XXXXXXXX`), which
+ *      can sit on any anchor we style ourselves, or
+ *   2. the **campaign** ID for `FundraiseUp.openCheckout(campaignId, …)`,
+ *      which takes a campaign ID and not an element ID.
+ *
+ * Until Jesse supplies one of those, this component is the supported route.
+ *
+ * `style="display: none"` is kept as an inline attribute rather than a
+ * Tailwind class on purpose: it is part of the vendor's documented contract,
+ * and a utility class would put the anchor's visibility at the mercy of our
+ * own CSS ordering.
+ */
+import { useTranslations } from '@/utils'
+
+interface Props {
+  /** Element ID from Dashboard -> Elements, e.g. `XVSHSPQU`. */
+  elementId: string
+  /**
+   * Height reserved for the Element before its script paints, in px.
+   *
+   * The Element renders asynchronously from a third-party bundle, so without
+   * a reserved box everything below it jumps when it lands. Defaults to 48px,
+   * the height of our own `lg` buttons, which is the right reservation for a
+   * Donate Button. An inline Donation Form needs a much larger value.
+   */
+  reservedHeight?: number
+  /** Extra classes for the wrapper, e.g. width constraints. */
+  class?: string
+}
+
+const { elementId, reservedHeight = 48, class: className } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+---
+
+<div
+  class:list={['fundraise-up-element', className]}
+  style={`min-block-size: ${reservedHeight}px`}
+  data-fundraise-up-element={elementId}
+>
+  <a href={`#${elementId}`} style="display: none"></a>
+
+  {
+    /*
+      Fundraise Up is entirely JavaScript-driven, so with JS off or blocked the
+      anchor above stays an empty hidden link and the donor hits a dead end.
+      Point them at the offline routes the page already documents rather than
+      leaving the space blank.
+    */
+  }
+  <noscript>
+    <p class="mb-0 text-body-sm-standard text-neutral-75">
+      <a href="#ways-to-donate">{t('support.donate.noscript')}</a>
+    </p>
+  </noscript>
+</div>

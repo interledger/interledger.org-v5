@@ -390,7 +390,117 @@ export const ui = {
     'not_found.card3_title': 'Join the movement',
     'not_found.card3_description':
       'Discover events, join the community, and find ways to participate in the future of Open Payments.',
-    'not_found.card3_cta': 'Community'
+    'not_found.card3_cta': 'Community',
+    'support.title': 'Support Us',
+    'support.description':
+      'Support the Interledger Foundation. Join a Founding Circle with a recurring gift, a major gift, or a strategic partnership, and help build open payment infrastructure for everyone.',
+    'support.hero.heading':
+      'Fund an Open, Fair, and Inclusive Financial System',
+    'support.hero.intro':
+      'The Interledger Foundation is building the infrastructure that gives everyone access to the global economy. Join one of our Founding Circles with unique benefits and impact.',
+    'support.tiers.heading': 'Join a Founding Circle',
+    'support.tier.sustaining.pitch':
+      'Become one of 50 Founding Sustaining Members with a recurring gift of $10/month or $100 annually.',
+    'support.tier.champions.pitch':
+      'Become one of 10 Founding Champions with a gift of $1,000 or more.',
+    'support.tier.visionaries.pitch':
+      'Become one of 3 Founding Visionaries with a strategic gift of $25,000 or more.',
+    'support.tier.visionaries.cta': 'Talk to our team',
+    'support.community.body':
+      'Not ready to make a financial commitment? Join our free Community Membership to become part of the movement.',
+    'support.community.cta': 'Join our Community Membership',
+    'support.case_for_support.cta': 'Read our Case for Support',
+    'support.why.heading': "Why We're Raising Funds",
+    'support.why.body_1':
+      '1.3 billion adults worldwide still lack access to the formal financial system, and current funding is not adequate to close that gap.',
+    'support.why.body_2':
+      'Last grant cycle, we could fund only 3 of nearly 450 Fellowship applications. Our NextGen university program has reached only a small number of the hundreds of institutions we could partner with. That gap repeats across almost every program we run.',
+    'support.why.body_3':
+      'Our founding endowment covers our core costs. Your gift funds what comes next.',
+    'support.why.cta': 'Read our full Case for Support',
+    'support.circles.heading': 'The Founding Circles',
+    'support.circles.body_1':
+      'For six years, the Interledger Foundation has built its grant programs, community, and credibility with great care. We are now building our donor community with that same intention and purpose.',
+    'support.circles.body_2':
+      'Our Founding Circles recognize the people and organizations who choose to support this next chapter from the beginning. Each Founding Circle intentionally has limited seats, creating a community where early supporters can connect more closely with our work, share ideas, and help us shape how this community grows.',
+    'support.circles.body_3': 'Be among the first to fund what comes next.',
+    'support.circle.benefits_label': 'Benefits',
+    'support.circle.seats': '{available} of {total} seats available',
+    'support.circle.sustaining.heading': 'Founding Sustaining Members',
+    'support.circle.sustaining.summary':
+      'A recurring gift that grows our community, one member at a time.',
+    'support.circle.sustaining.benefits':
+      'Founding Sustaining Members enjoy all the benefits of our Community Members, plus an exclusive swag pack and additional unique benefits to be decided upon in partnership with you.',
+    'support.circle.champions.heading': 'Founding Champions',
+    'support.circle.champions.summary':
+      'Flexible, high-impact support to help us build our next chapter.',
+    'support.circle.champions.benefits':
+      'Founding Champions enjoy all the benefits of our Sustaining Members, plus a premium swag pack, a free ticket to the Summit with the VIP Interledger Summit experience, and additional unique benefits to be decided upon in partnership with you.',
+    'support.circle.visionaries.heading': 'Founding Visionaries',
+    'support.circle.visionaries.summary':
+      'Major gifts, shaped around the strategic priorities you care about.',
+    'support.circle.visionaries.benefits':
+      'Founding Visionaries enjoy all the benefits of our Champions, plus unique engagement opportunities tailored to your interest.',
+    'support.circle.visionaries.cta': 'Schedule a meeting',
+    'support.circle.join_cta': 'Join Now',
+    'support.priorities.heading': 'Every Dollar Working Towards Our Mission',
+    'support.priorities.body':
+      'Our founding endowment covers our core operating expenses and base programs. The gifts you make will go towards expanding our work.',
+    'support.priorities.expand_label': 'Our Strategic Funding Priorities',
+    'support.priorities.cdfi.term':
+      'Community Development Financial Institutions (CDFIs)',
+    'support.priorities.cdfi.description':
+      'Strengthening mission-driven lenders in underserved communities.',
+    'support.priorities.colombia.term': 'Colombia',
+    'support.priorities.colombia.description':
+      "Proving our model at scale in one of the world's most promising markets for financial inclusion and interoperability.",
+    'support.priorities.cofunding.term': 'Co-Funding & Grants',
+    'support.priorities.cofunding.description':
+      'Scaling our flagship grants programs and funding the ecosystem with partners.',
+    'support.priorities.community.term': 'Growing our Community',
+    'support.priorities.community.description':
+      'Building the large, dedicated network of advocates to win the fights that money cannot.',
+    'support.priorities.policy.term': 'Policy and Regulatory Breakthroughs',
+    'support.priorities.policy.description':
+      'Ensuring that the regulators currently writing the rules for global payments do it with open infrastructure and interoperability.',
+    'support.ways.heading': 'Ways To Donate',
+    'support.ways.body':
+      'Use the buttons above to give with a credit card, Apple Pay, Google Pay, PayPal, ACH transfer, or cryptocurrency.',
+    'support.ways.check_intro':
+      'For gifts of $100 or more, you can also mail a check to:',
+    'support.ways.address_label': 'Mailing address for checks',
+    'support.ways.ratings_label': 'Our accountability ratings',
+    'support.donate.noscript':
+      'Donating online needs JavaScript. See other ways to give.',
+    'support.faq.heading': 'FAQs',
+    'support.faq.tax.question': 'Is my donation tax-deductible?',
+    'support.faq.tax.answer':
+      'The Interledger Foundation is a tax-exempt 501(c)(3) public charity. Gifts made by US taxpayers are tax-deductible to the fullest extent of the law. Please consult your tax advisor for other jurisdictions.',
+    'support.faq.contact.question':
+      'Who can I contact with questions about giving?',
+    'support.faq.contact.answer':
+      'Email us, or schedule some time with our Director of Fundraising, Jesse Ward.',
+    'support.faq.contact.email_cta': 'giving@interledger.org',
+    'support.faq.contact.meeting_cta': 'Schedule a meeting with Jesse Ward',
+    'support.faq.funding.question':
+      'How is the Interledger Foundation funded, and how is my gift used?',
+    'support.faq.funding.answer':
+      'The Interledger Foundation was established in 2020 with a founding endowment from Stefan Thomas, co-creator of the Interledger Protocol. That endowment currently allows us to cover our core operating costs and most of our existing programs. Your gifts will directly expand our work.',
+    'support.faq.circles.question':
+      'What is special about the Founding Circles?',
+    'support.faq.circles.answer':
+      'Each donor community will have a core group of Founding Circle members who help us make strategic decisions that will help us grow, enhance engagement, and align each community with the appropriate strategic funding priority. Seats are limited and retained for as long as an existing member stays engaged.',
+    'support.faq.crypto.question':
+      'Is the Interledger Foundation a cryptocurrency project?',
+    'support.faq.crypto.answer':
+      'No — this is a common misconception. The Interledger Protocol is ledger-agnostic: designed to work with any currency that can be tracked digitally, including traditional fiat currencies and mobile money. We do not have a crypto token, and we do not operate a blockchain. Our work is focused on open payment infrastructure for real-world financial inclusion.',
+    'support.faq.finances.question':
+      "How can I verify the Foundation's finances and accountability?",
+    'support.faq.finances.answer':
+      'As a private operating foundation, we file annual Form 990-PF returns with the IRS, which are publicly available. We publish information about our grantmaking on our website, and grantee reports are publicly accessible on our community forum.',
+    'support.faq.involved.question': 'Can I get involved without donating?',
+    'support.faq.involved.answer':
+      'Absolutely. You can join our free Community Membership, contribute to our open-source repositories on GitHub, attend our monthly community calls, or explore our open grant opportunities if your work advances open payment infrastructure.'
   },
   es: {
     'site.title.foundation': 'Interledger Foundation',
@@ -743,6 +853,76 @@ export const ui = {
     'not_found.card2_cta': '',
     'not_found.card3_title': '',
     'not_found.card3_description': '',
-    'not_found.card3_cta': ''
+    'not_found.card3_cta': '',
+    'support.title': '',
+    'support.description': '',
+    'support.hero.heading': '',
+    'support.hero.intro': '',
+    'support.tiers.heading': '',
+    'support.tier.sustaining.pitch': '',
+    'support.tier.champions.pitch': '',
+    'support.tier.visionaries.pitch': '',
+    'support.tier.visionaries.cta': '',
+    'support.community.body': '',
+    'support.community.cta': '',
+    'support.case_for_support.cta': '',
+    'support.why.heading': '',
+    'support.why.body_1': '',
+    'support.why.body_2': '',
+    'support.why.body_3': '',
+    'support.why.cta': '',
+    'support.circles.heading': '',
+    'support.circles.body_1': '',
+    'support.circles.body_2': '',
+    'support.circles.body_3': '',
+    'support.circle.benefits_label': '',
+    'support.circle.seats': '',
+    'support.circle.sustaining.heading': '',
+    'support.circle.sustaining.summary': '',
+    'support.circle.sustaining.benefits': '',
+    'support.circle.champions.heading': '',
+    'support.circle.champions.summary': '',
+    'support.circle.champions.benefits': '',
+    'support.circle.visionaries.heading': '',
+    'support.circle.visionaries.summary': '',
+    'support.circle.visionaries.benefits': '',
+    'support.circle.visionaries.cta': '',
+    'support.circle.join_cta': '',
+    'support.priorities.heading': '',
+    'support.priorities.body': '',
+    'support.priorities.expand_label': '',
+    'support.priorities.cdfi.term': '',
+    'support.priorities.cdfi.description': '',
+    'support.priorities.colombia.term': '',
+    'support.priorities.colombia.description': '',
+    'support.priorities.cofunding.term': '',
+    'support.priorities.cofunding.description': '',
+    'support.priorities.community.term': '',
+    'support.priorities.community.description': '',
+    'support.priorities.policy.term': '',
+    'support.priorities.policy.description': '',
+    'support.ways.heading': '',
+    'support.ways.body': '',
+    'support.ways.check_intro': '',
+    'support.ways.address_label': '',
+    'support.ways.ratings_label': '',
+    'support.donate.noscript': '',
+    'support.faq.heading': '',
+    'support.faq.tax.question': '',
+    'support.faq.tax.answer': '',
+    'support.faq.contact.question': '',
+    'support.faq.contact.answer': '',
+    'support.faq.contact.email_cta': '',
+    'support.faq.contact.meeting_cta': '',
+    'support.faq.funding.question': '',
+    'support.faq.funding.answer': '',
+    'support.faq.circles.question': '',
+    'support.faq.circles.answer': '',
+    'support.faq.crypto.question': '',
+    'support.faq.crypto.answer': '',
+    'support.faq.finances.question': '',
+    'support.faq.finances.answer': '',
+    'support.faq.involved.question': '',
+    'support.faq.involved.answer': ''
   }
 } as const
