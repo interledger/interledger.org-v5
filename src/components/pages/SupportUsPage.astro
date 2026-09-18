@@ -231,7 +231,7 @@ const bodyClass =
       <p class={`mb-2xl ${bodyClass}`}>{t('support.circles.body_1')}</p>
       <p class={`mb-2xl ${bodyClass}`}>{t('support.circles.body_2')}</p>
       <p
-        class="mb-block-heading text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900"
+        class="mb-block-heading text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900"
       >
         {t('support.circles.body_3')}
       </p>
@@ -277,11 +277,12 @@ const bodyClass =
     </Section>
 
     <!--
-      `data-stack="cta"` closes the gap to the cards above: the free membership
-      is the "none of these are for me" option belonging to that group, not a
-      section of its own.
+      Sits between the two gaps the stack offers: `data-stack="cta"` alone
+      (32px) crowded the cards, the full section gap (64/80/120px) pushed this
+      too far from them. Padding tops the 32px up to 48px without fighting
+      `page-stack` on specificity, which a margin utility here would.
     -->
-    <Section data-stack="cta" class="text-center">
+    <Section data-stack="cta" class="text-center pt-lg">
       <p class={`mb-xl ${bodyClass}`}>{t('support.community.body')}</p>
       <!--
         `text-center` on the section centres the copy and, because the button
@@ -307,24 +308,29 @@ const bodyClass =
       </h2>
       <p class={`mb-2xl ${bodyClass}`}>{t('support.priorities.body')}</p>
 
-      <div class="border-t border-neutral-25 pt-lg">
+      <div>
         <h3
-          class="mb-xl text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900"
+          class="mb-xl text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900"
         >
           {t('support.priorities.subheading')}
         </h3>
         <!--
           A definition list, not a bulleted list: each row is a named priority
           paired with its explanation, which is exactly what <dl> encodes.
+
+          The term carries h5 type so it reads as the heading of its row rather
+          than as bold body copy, and the description sits at the page's body
+          size — the pair has to stay legible as one unit, so sizing the term
+          up without the description would leave the two visibly mismatched.
         -->
-        <dl class="mb-0 flex flex-col gap-lg">
+        <dl class="mb-0 flex flex-col gap-xl">
           {
             priorities.map((priority) => (
               <div>
-                <dt class="text-body-sm-emphasis text-neutral-900">
+                <dt class="mb-xs text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900">
                   {priority.term}
                 </dt>
-                <dd class="m-0 text-body-sm-standard text-neutral-75">
+                <dd class="m-0 text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-75">
                   {priority.description}
                 </dd>
               </div>
