@@ -1283,6 +1283,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonExternal: 'Secondary External Link',
       secondaryButtonDocument: 'Secondary Document Download'
     },
+    'blocks.internal-advert': {
+      helperText: 'Helper Text',
+      logo: 'Logo',
+      logoLabel: 'Logo Label',
+      headline: 'Headline',
+      body: 'Body',
+      socialLinks: 'Social Buttons',
+      cta: 'Button'
+    },
+    'shared.social-link': {
+      url: 'Profile URL'
+    },
     'blocks.image-block': {
       media: 'Image',
       tabletImage: 'Tablet image variant (optional)',
@@ -1565,6 +1577,21 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.quote': {
       authorLink:
         'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    // Strapi renders a description for a scalar field only. `logo`,
+    // `socialLinks` and `cta` are components, so a description on them never
+    // reaches the form. Their guidance belongs on the child component's own
+    // fields instead (Anca, #706).
+    'blocks.internal-advert': {
+      helperText:
+        'Small label at the top of the card. It always renders in capitals, whichever way you type it. For example: Know more.',
+      logoLabel: 'Name shown beside the logo. For example: Web Monetization.',
+      headline:
+        'Fill in a Headline or a Body, or both. The card does not render without one of them.',
+      body: 'Fill in a Headline or a Body, or both. The card does not render without one of them.'
+    },
+    'shared.social-link': {
+      url: 'Full profile URL, starting with https://. The icon follows from the address: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other address gets a plain link icon.'
     }
   }
 
@@ -1938,6 +1965,17 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'secondaryButtonExternal', size: 6 },
         { name: 'secondaryButtonDocument', size: 6 }
       ]
+    ],
+    'blocks.internal-advert': [
+      [{ name: 'helperText', size: 12 }],
+      [
+        { name: 'logo', size: 6 },
+        { name: 'logoLabel', size: 6 }
+      ],
+      [{ name: 'headline', size: 12 }],
+      [{ name: 'body', size: 12 }],
+      [{ name: 'socialLinks', size: 12 }],
+      [{ name: 'cta', size: 12 }]
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],
