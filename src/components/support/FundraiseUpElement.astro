@@ -10,11 +10,13 @@
  * inline, a Donate Button renders Fundraise Up's own button that opens the
  * Checkout modal.
  *
- * That last point is the constraint worth knowing before redesigning this
- * page: a Donate Button's appearance is dashboard-controlled (label, colours,
- * radius, border — see the BUTTON tab), not ours. Dropping our own
- * `LinkButton` in its place needs one of two things from Fundraise Up that we
- * do not currently have:
+ * **A rendered Donate Button is an iframe, so no CSS of ours can reach it.**
+ * Confirmed against the live widget: it replaces the anchor with
+ * `<iframe class="fun-element-donateButton">`, pinned to 129x56 by inline
+ * `!important` rules. Its colours, label, radius and focus ring all come from
+ * the dashboard's BUTTON tab, and our design tokens cannot override any of
+ * them. To put the orchid `LinkButton` here instead, we need one of two
+ * things from Fundraise Up that we do not currently have:
  *
  *   1. a **Donate Link** element URL (`https://donate.…/-/XXXXXXXX`), which
  *      can sit on any anchor we style ourselves, or
@@ -37,16 +39,17 @@ interface Props {
    * Height reserved for the Element before its script paints, in px.
    *
    * The Element renders asynchronously from a third-party bundle, so without
-   * a reserved box everything below it jumps when it lands. Defaults to 48px,
-   * the height of our own `lg` buttons, which is the right reservation for a
-   * Donate Button. An inline Donation Form needs a much larger value.
+   * a reserved box everything below it jumps when it lands. 56px is the
+   * measured height of a rendered Donate Button iframe, which Fundraise Up
+   * pins with `!important` (129×56). An inline Donation Form is much taller
+   * and must pass its own value.
    */
   reservedHeight?: number
   /** Extra classes for the wrapper, e.g. width constraints. */
   class?: string
 }
 
-const { elementId, reservedHeight = 48, class: className } = Astro.props
+const { elementId, reservedHeight = 56, class: className } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 ---
