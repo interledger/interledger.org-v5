@@ -1,8 +1,24 @@
 ---
-const { class: className, id } = Astro.props
+/**
+ * A page section: full-bleed gutter plus the standard centred content column.
+ *
+ * Carries no vertical margin of its own — the `page-stack` utility on `<main>`
+ * owns the rhythm between sections (see `src/styles/README.md`).
+ *
+ * Remaining attributes are forwarded to the `<section>`, so a caller can label
+ * it (`aria-labelledby`) or opt out of the stack gap (`data-stack="cta"`)
+ * without this component needing to know about either.
+ */
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props extends Omit<HTMLAttributes<'section'>, 'class'> {
+  class?: string
+}
+
+const { class: className, ...rest } = Astro.props
 ---
 
-<section class:list={[className, 'px-content']} id={id}>
+<section class:list={[className, 'px-content']} {...rest}>
   <div class="content-column">
     <slot />
   </div>
