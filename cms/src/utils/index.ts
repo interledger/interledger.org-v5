@@ -249,6 +249,66 @@ export {
   normalizeNavigationInput
 } from './navigationLifecycle'
 
+// Admin session lifespans + expiry countdown (shared with config/admin.ts;
+// admin-panel code imports this module directly, never through this barrel)
+export {
+  IDLE_SESSION_LIFESPAN_SECONDS,
+  IDLE_REFRESH_TOKEN_LIFESPAN_SECONDS,
+  MAX_SESSION_LIFESPAN_SECONDS,
+  SESSION_WARNING_THRESHOLD_MS,
+  SESSION_CRITICAL_THRESHOLD_MS,
+  type SessionPhase,
+  type AccessTokenPayload,
+  type TokenStorageState,
+  decodeAccessTokenPayload,
+  resolveLatestIatSeconds,
+  resolveIdleLifespanSeconds,
+  getSessionDeadlineMs,
+  getSessionPhase,
+  getTickIntervalMs,
+  formatCountdown
+} from './adminSession'
+
+// Admin notice precedence + route-wrap guard (admin panel imports these
+// modules directly)
+export {
+  type AdminNotice,
+  DISABLE_NOTICES_ENV_VAR,
+  areAdminNoticesDisabled,
+  resolveAdminNotice,
+  shouldShowSessionDialog
+} from './adminNotice'
+export {
+  NOTICES_ROUTE_ID,
+  type AdminRouteShape,
+  type AdminRouteWrapDecision,
+  decideAdminRouteWrap
+} from './adminRoutes'
+
+// Server-status notice: browser-safe state machine (admin panel imports this
+// module directly) and the node-only endpoint half
+export {
+  SERVER_STATUS_PATH,
+  UNREACHABLE_FAILURE_THRESHOLD,
+  type ServerStatusPayload,
+  type ServerReachability,
+  type ServerNotice,
+  type ServerStatusState,
+  type ServerStatusEvent,
+  createInitialServerStatusState,
+  parseServerStatusPayload,
+  nextServerStatus,
+  getServerNotice,
+  getPollDelayMs
+} from './serverStatus'
+export {
+  DEV_BUILD_ID,
+  type ServerStatusContext,
+  resolveAdminIndexHtmlPath,
+  readAdminBuildId,
+  createServerStatusHandler
+} from './serverStatusEndpoint'
+
 // Relative link / path-segment slash normalization
 export {
   ensureLeadingSlash,
