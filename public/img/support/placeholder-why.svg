@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" width="640" height="480" role="img" aria-label="Image placeholder">
+  <rect width="640" height="480" rx="24" fill="#EAECFE"/>
+  <g fill="none" stroke="#80409D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.55">
+    <rect x="212" y="170" width="216" height="156" rx="14"/>
+    <circle cx="262" cy="216" r="18"/>
+    <path d="M222 302l58-58 44 44 38-32 56 46"/>
+  </g>
+  <text x="320" y="382" text-anchor="middle" font-family="Poppins, system-ui, sans-serif" font-size="24" font-weight="500" fill="#80409D" opacity="0.8">Placeholder image</text>
+  <text x="320" y="414" text-anchor="middle" font-family="Poppins, system-ui, sans-serif" font-size="18" fill="#80409D" opacity="0.6">Why We&#8217;re Raising Funds</text>
+</svg>

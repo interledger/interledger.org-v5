@@ -1,0 +1,77 @@
+---
+/**
+ * Placement anchor for one Fundraise Up Element (INTORG-1247).
+ *
+ * Fundraise Up positions an Element by finding a hidden anchor whose `href` is
+ * the Element's ID and rendering into that spot. The anchor itself is the
+ * whole API — the dashboard's "HTML CODE" field hands you exactly
+ * `<a href="#XVSHSPQU" style="display: none"></a>` and nothing else. What
+ * appears is decided in the dashboard, not here: a Donation Form renders
+ * inline, a Donate Button renders Fundraise Up's own button that opens the
+ * Checkout modal.
+ *
+ * **A rendered Donate Button is an iframe, so no CSS of ours can reach it.**
+ * Confirmed against the live widget: it replaces the anchor with
+ * `<iframe class="fun-element-donateButton">`, pinned to 129x56 by inline
+ * `!important` rules. Its colours, label, radius and focus ring all come from
+ * the dashboard's BUTTON tab, and our design tokens cannot override any of
+ * them. To put the orchid `LinkButton` here instead, we need one of two
+ * things from Fundraise Up that we do not currently have:
+ *
+ *   1. a **Donate Link** element URL (`https://donate.…/-/XXXXXXXX`), which
+ *      can sit on any anchor we style ourselves, or
+ *   2. the **campaign** ID for `FundraiseUp.openCheckout(campaignId, …)`,
+ *      which takes a campaign ID and not an element ID.
+ *
+ * Until Jesse supplies one of those, this component is the supported route.
+ *
+ * `style="display: none"` is kept as an inline attribute rather than a
+ * Tailwind class on purpose: it is part of the vendor's documented contract,
+ * and a utility class would put the anchor's visibility at the mercy of our
+ * own CSS ordering.
+ */
+import { useTranslations } from '@/utils'
+
+interface Props {
+  /** Element ID from Dashboard -> Elements, e.g. `XVSHSPQU`. */
+  elementId: string
+  /**
+   * Height reserved for the Element before its script paints, in px.
+   *
+   * The Element renders asynchronously from a third-party bundle, so without
+   * a reserved box everything below it jumps when it lands. 56px is the
+   * measured height of a rendered Donate Button iframe, which Fundraise Up
+   * pins with `!important` (129×56). An inline Donation Form is much taller
+   * and must pass its own value.
+   */
+  reservedHeight?: number
+  /** Extra classes for the wrapper, e.g. width constraints. */
+  class?: string
+}
+
+const { elementId, reservedHeight = 56, class: className } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+---
+
+<div
+  class:list={['fundraise-up-element', className]}
+  style={`min-block-size: ${reservedHeight}px`}
+  data-fundraise-up-element={elementId}
+>
+  <a href={`#${elementId}`} style="display: none"></a>
+
+  {
+    /*
+      Fundraise Up is entirely JavaScript-driven, so with JS off or blocked the
+      anchor above stays an empty hidden link and the donor hits a dead end.
+      Point them at the offline routes the page already documents rather than
+      leaving the space blank.
+    */
+  }
+  <noscript>
+    <p class="mb-0 text-body-sm-standard text-neutral-75">
+      <a href="#ways-to-donate">{t('support.donate.noscript')}</a>
+    </p>
+  </noscript>
+</div>
