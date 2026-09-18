@@ -21,6 +21,7 @@ vi.mock('astro:content', async () => {
 })
 
 const { getBlogSearchIndex } = await import('./blogSearch')
+const { setPublishGateForTests } = await import('./blogPosts')
 const {
   setImageCdnEnabledForTests,
   setDeployedImageSourcesForTests,
@@ -78,6 +79,38 @@ describe('getBlogSearchIndex', () => {
     getCollectionMock.mockResolvedValue([])
 
     await expect(getBlogSearchIndex()).resolves.toEqual([])
+  })
+
+  describe('publish gate', () => {
+    const NOW = new Date('2026-09-18T09:30:00.000Z')
+    const POSTS = [
+      makePost({ slug: 'live', date: '2026-09-01' }),
+      makePost({ slug: 'scheduled', date: '2026-12-01' })
+    ]
+
+    afterEach(() => {
+      setPublishGateForTests(null)
+    })
+
+    it('omits a future-dated post on production', async () => {
+      // The index is a client-side catalog: a post left in here would stay
+      // findable by search even with no listing page behind it.
+      setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+      getCollectionMock.mockResolvedValue(POSTS)
+
+      const index = await getBlogSearchIndex()
+
+      expect(index.map((entry) => entry.id)).toEqual(['live'])
+    })
+
+    it('keeps it everywhere else, newest-first', async () => {
+      setPublishGateForTests({ hideFuturePosts: false, now: NOW })
+      getCollectionMock.mockResolvedValue(POSTS)
+
+      const index = await getBlogSearchIndex()
+
+      expect(index.map((entry) => entry.id)).toEqual(['scheduled', 'live'])
+    })
   })
 
   describe('thumbnails', () => {
