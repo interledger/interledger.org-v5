@@ -191,8 +191,14 @@ const umamiBase = {
       aria-label={headlineId ? undefined : t('internalAdvert.block_label')}
       class="font-poppins flex flex-col gap-lg rounded-3xl border border-neutral-50 bg-neutral-0 p-lg tablet:p-xl"
     >
+      {/*
+        Capitals come from CSS, not from what the editor types, so every card
+        matches (Radu, 2026-09-18). Doing it here rather than in the stored
+        value also keeps the text readable for a screen reader, which
+        announces the underlying characters.
+      */}
       {helperText && (
-        <p class="m-0 text-caption text-neutral-75">{helperText}</p>
+        <p class="m-0 text-caption uppercase text-neutral-75">{helperText}</p>
       )}
 
       {(resolvedLogo || logoLabel) && (

@@ -1583,7 +1583,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     // reaches the form. Their guidance belongs on the child component's own
     // fields instead (Anca, #706).
     'blocks.internal-advert': {
-      helperText: 'Small label at the top of the card. For example: Know more.',
+      helperText:
+        'Small label at the top of the card. It always renders in capitals, whichever way you type it. For example: Know more.',
       logoLabel: 'Name shown beside the logo. For example: Web Monetization.',
       headline:
         'Fill in a Headline or a Body, or both. The card does not render without one of them.',
