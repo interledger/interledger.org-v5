@@ -7,7 +7,7 @@
 import '../styles/tailwind.css'
 import SeoHead from '@/components/shared/SeoHead.astro'
 import SmoothScroll from '@/components/shared/SmoothScroll.astro'
-import { useTranslations, buildCanonicalMeta } from '@/utils'
+import { useTranslations, buildCanonicalMeta, isPreviewPathname } from '@/utils'
 
 interface Props {
   title: string
@@ -24,7 +24,8 @@ interface Props {
   noindex?: boolean
   /**
    * Emit cross-locale `hreflang` alternates. Off where the twin may not exist
-   * or is not a translation — e.g. paginated listings past page 1.
+   * or is not a translation — e.g. paginated listings past page 1. Preview
+   * routes are gated centrally below and don't need to pass this.
    */
   localeAlternates?: boolean
 }
@@ -55,6 +56,12 @@ const {
   noindex = false,
   localeAlternates = true
 } = Astro.props
+
+// Preview routes need a query param that hreflang URLs can't carry, so their
+// alternates 500 on `Missing documentId`. Gating by pathname here means a new
+// preview route can't reintroduce them by forgetting the prop.
+const emitLocaleAlternates =
+  localeAlternates && !isPreviewPathname(Astro.url.pathname)
 
 const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
 ---
@@ -90,8 +97,8 @@ const PROD_UMAMI_WEBSITE_ID = '50d81dd1-bd02-4f82-8a55-34a09ccbbbd9'
       ogType={ogType}
       ogImageUrl={ogImageUrl}
       canonicalURL={canonicalURL}
-      hreflang={localeAlternates ? canonicalMeta.hreflang : undefined}
-      xDefault={localeAlternates ? canonicalMeta.xDefault : undefined}
+      hreflang={emitLocaleAlternates ? canonicalMeta.hreflang : undefined}
+      xDefault={emitLocaleAlternates ? canonicalMeta.xDefault : undefined}
       datePublished={datePublished}
       noindex={noindex}
     />
