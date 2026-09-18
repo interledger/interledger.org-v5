@@ -124,11 +124,17 @@ export {
 export {
   FEATURED_POST_LIMIT,
   TECH_BLOG_FALLBACK_THUMBNAIL,
+  byPublishDateDesc,
   getFeaturedPosts,
   getBlogThumbnail,
   getReadingTime,
-  resolveRelatedPosts
+  resolveRelatedPosts,
+  sortByPublishDateDesc
 } from './main/blog'
+// The single gated reader every blog collection access goes through — see
+// blogPosts.ts. Like blogSearch below, it imports astro:content at module
+// scope, so it must not be pulled into a client bundle.
+export { getBlogPosts, getGatedCollection } from './main/blogPosts'
 export {
   PODCAST_PAGE_SIZE,
   type PodcastPageData,
