@@ -9,6 +9,7 @@ import {
   distFileToTargets,
   extractAnchorIds,
   extractLinkTargets,
+  findBrokenRedirects,
   formatFindings,
   isServedWithTrailingSlash,
   loadNetlifyRules,
@@ -362,12 +363,33 @@ describe('partitionRoutes', () => {
 
   it('collects literal redirect sources and SSR routes', () => {
     const { redirects, ssr } = partitionRoutes([
-      route({ pattern: '/home', type: 'redirect' }),
+      route({ pattern: '/home', type: 'redirect', redirect: '/' }),
       route({ pattern: '/tech/roadmap', isPrerendered: false }),
       route({ pattern: '/about-us' })
     ])
-    expect([...redirects]).toEqual(['/home'])
+    expect([...redirects]).toEqual([['/home', '/']])
     expect([...ssr]).toEqual(['/tech/roadmap'])
+  })
+
+  it('reads the destination from either redirect form', () => {
+    const { redirects } = partitionRoutes([
+      route({ pattern: '/a', type: 'redirect', redirect: '/plain' }),
+      route({
+        pattern: '/b',
+        type: 'redirect',
+        redirect: { status: 301, destination: '/object' }
+      })
+    ])
+    expect(redirects.get('/a')).toBe('/plain')
+    expect(redirects.get('/b')).toBe('/object')
+  })
+
+  it('still records a redirect whose destination is unknown', () => {
+    // Links are checked against the source, so that must resolve regardless.
+    const { redirects } = partitionRoutes([
+      route({ pattern: '/home', type: 'redirect' })
+    ])
+    expect(redirects.has('/home')).toBe(true)
   })
 
   it('drops dynamic routes entirely', () => {
@@ -385,7 +407,7 @@ describe('partitionRoutes', () => {
 describe('resolveTarget', () => {
   const index: TargetIndex = {
     files: new Map([['/about-us', 'about-us/index.html']]),
-    redirects: new Set(['/home']),
+    redirects: new Map([['/home', '/about-us']]),
     ssr: new Set(['/tech/roadmap']),
     netlifyRules: [netlifyRuleToMatcher('/summit/:year/talk/:slug')]
   }
@@ -406,6 +428,46 @@ describe('resolveTarget', () => {
 
   it('reports anything else as unresolvable', () => {
     expect(resolveTarget(index, '/node/1365')).toBe('none')
+  })
+})
+
+describe('findBrokenRedirects', () => {
+  const index = (redirects: Map<string, string>): TargetIndex => ({
+    files: new Map([
+      ['/about-us', 'about-us/index.html'],
+      ['/tech/overview', 'tech/overview/index.html']
+    ]),
+    redirects,
+    ssr: new Set(['/tech/roadmap']),
+    netlifyRules: []
+  })
+
+  it('passes a redirect whose destination resolves', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '/about-us']])))).toEqual(
+      []
+    )
+  })
+
+  it('reports a redirect whose destination is not served', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '/gone']])))).toEqual([
+      ['/a', '/gone']
+    ])
+  })
+
+  it('normalises a trailing slash on the destination', () => {
+    // Five real destinations are written this way; the index has no slash.
+    expect(
+      findBrokenRedirects(index(new Map([['/a', '/tech/overview/']])))
+    ).toEqual([])
+  })
+
+  it('skips an external destination', () => {
+    const external = new Map([['/a', 'https://example.com/x']])
+    expect(findBrokenRedirects(index(external))).toEqual([])
+  })
+
+  it('skips a redirect with no known destination', () => {
+    expect(findBrokenRedirects(index(new Map([['/a', '']])))).toEqual([])
   })
 })
 
@@ -697,6 +759,39 @@ describe('validateInternalLinks', () => {
   it('throws when there is no HTML to scan', async () => {
     const { error } = await runCheck({ 'robots.txt': 'User-agent: *' })
     expect(error?.message).toContain('no HTML to scan')
+  })
+
+  describe('redirect destinations', () => {
+    const redirectTo = (
+      pattern: string,
+      redirect: string
+    ): ResolvedRouteInput => ({
+      pattern,
+      params: [],
+      type: 'redirect',
+      isPrerendered: true,
+      redirect
+    })
+
+    it('fails when a redirect lands on nothing this deploy serves', async () => {
+      const { error } = await runCheck({ 'index.html': '<p>x</p>' }, [
+        redirectTo('/old', '/gone')
+      ])
+      expect(error?.message).toContain('/old')
+      expect(error?.message).toContain('/gone')
+    })
+
+    it('exempts one by source, and does not then call it stale', async () => {
+      // `/es/404` is the one entry in INTERNAL_LINK_EXCEPTIONS. Nothing links
+      // to it here, so the only thing that can mark it used is the redirect
+      // sweep — which therefore has to run before the staleness check. Move it
+      // after and this warns.
+      const { error, warn } = await runCheck({ 'index.html': '<p>x</p>' }, [
+        redirectTo('/es/404', '/gone')
+      ])
+      expect(error).toBeNull()
+      expect(warn.join('\n')).not.toContain('Stale link exception')
+    })
   })
 
   describe('warn vs strict', () => {

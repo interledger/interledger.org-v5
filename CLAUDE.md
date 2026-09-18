@@ -269,6 +269,11 @@ the places real breakage lives.
   SSR route as broken. The workflow file itself always comes from the dispatch
   ref, never from the SHA being published, so a rollback never degrades the next
   run.
+- **Redirect destinations are checked, and fail like any other broken link.**
+  Read `route.redirect`, never `route.redirectRoute` — Astro matches the latter
+  against lowercased, slashless keys, so it is `undefined` for a destination
+  written with a slash. Exempt by **source**: the destination is a link target,
+  so listing it would also hide direct links to that path.
 - **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
   globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is
