@@ -136,6 +136,15 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
+
+// Main site: Publish gate (future-dated content is hidden on production only)
+export {
+  hideFuturePosts,
+  isPublishedAt,
+  resolveGateNow,
+  shouldHideFuturePosts
+} from './main/publishGate'
+
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
 // (via getCollection) at module scope, so re-exporting these two through it
 // would pull that server-only dependency into any client bundle that imports
