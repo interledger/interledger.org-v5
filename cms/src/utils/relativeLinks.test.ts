@@ -84,6 +84,29 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     })
   })
 
+  it('reduces an upload URL on the internal advert CTA, which sits two components deep', () => {
+    // The editor follows the Document Download helper text, presses Copy Link
+    // in the Media Library, and pastes the absolute CMS origin. The advert
+    // keeps its button in shared.secondary-cta-link inside a dynamic zone, so
+    // the walker has to reach `link` two levels down (Anca, #706).
+    const data = {
+      content: [
+        {
+          __component: 'blocks.internal-advert',
+          cta: {
+            text: 'Read the report',
+            link: 'http://localhost:1337/uploads/img/original/policy_blueprint_91f6021429.pdf',
+            document: true
+          }
+        }
+      ]
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.content[0].cta.link).toBe(
+      '/uploads/img/original/policy_blueprint_91f6021429.pdf'
+    )
+  })
+
   it('normalizes fields nested inside a single component', () => {
     const data = {
       ctaStrip: {
