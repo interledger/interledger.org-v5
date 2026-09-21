@@ -390,20 +390,20 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
-| Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)    |
-| ----------------------- | ---------------- | ---------------- | ------------------ |
-| `text-h1`               | 56 / 68 SemiBold | 70 / 76 SemiBold | 100 / 100 SemiBold |
-| `text-h2`               | 32 / 40 SemiBold | 36 / 48 SemiBold | 56 / 64 SemiBold   |
-| `text-h3`               | 28 / 36 Medium   | 28 / 36 Medium   | 40 / 56 Medium     |
-| `text-h4`               | 18 / 28 Regular  | 20 / 30 Regular  | 24 / 34 Regular    |
-| `text-h5`               | 16 / 26 Regular  | 18 / 28 Regular  | 20 / 30 Regular    |
-| `text-body-lg-emphasis` | 15 / 24 Medium   | 16 / 26 Medium   | _(same as -md)_    |
-| `text-body-lg-standard` | 15 / 24 Regular  | 16 / 26 Regular  | _(same as -md)_    |
-| `text-body-sm-emphasis` | 14 / 24 Medium   | _(same)_         | _(same)_           |
-| `text-body-sm-standard` | 14 / 24 Regular  | _(same)_         | _(same)_           |
-| `text-caption`          | 13 / 16 Regular  | _(same)_         | _(same)_           |
+| Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)  |
+| ----------------------- | ---------------- | ---------------- | ---------------- |
+| `text-h1`               | 40 / 48 Bold     | 56 / 64 Bold     | 76 / 84 Bold     |
+| `text-h2`               | 32 / 40 SemiBold | 40 / 48 SemiBold | 56 / 64 SemiBold |
+| `text-h3`               | 24 / 32 Medium   | 28 / 36 Medium   | 40 / 48 Medium   |
+| `text-h4`               | 20 / 30 Medium   | 22 / 32 Medium   | 28 / 40 Medium   |
+| `text-h5`               | 18 / 28 Regular  | _(same)_         | 20 / 30 Regular  |
+| `text-body-lg-emphasis` | 16 / 26 SemiBold | _(same)_         | _(same)_         |
+| `text-body-lg-standard` | 16 / 26 Regular  | _(same)_         | _(same)_         |
+| `text-body-sm-emphasis` | 14 / 22 SemiBold | _(same)_         | _(same)_         |
+| `text-body-sm-standard` | 14 / 22 Regular  | _(same)_         | _(same)_         |
+| `text-caption`          | 13 / 18 Regular  | _(same)_         | _(same)_         |
 
-`body-lg-*` only ships mobile + `-md` tokens (Tablet and Desktop are identical in the spec). `body-sm-*` and `caption` are identical across all tiers, so they have a single token each.
+`body-lg-*`, `body-sm-*`, and `caption` are identical across all three tiers. `body-lg-*` still keeps a redundant `-md` token: ~15 call sites already reference `tablet:text-body-lg-standard-md` / `tablet:text-body-lg-emphasis-md`, and Tailwind silently emits nothing for an undefined utility, so removing the token needs a codemod of those call sites in the same change, not a standalone deletion. See `theme.css` for the same note on `text-h5-md`.
 
 #### Standalone line-height utilities
 
@@ -415,7 +415,7 @@ The line-heights baked into `text-*` utilities are also exposed as standalone `l
 <div class="leading-h3 tablet:leading-h3-md desktop:leading-h3-lg">…</div>
 ```
 
-Available: `leading-h{1..5}` (with `-md` / `-lg` tiers), `leading-body-lg` + `leading-body-lg-md`, `leading-body-sm`, `leading-caption`. (`body-lg-emphasis` and `body-lg-standard` share line-heights, so there's a single `leading-body-lg`.)
+Available: `leading-h{1..5}` (with `-md` / `-lg` tiers), `leading-body-lg`, `leading-body-sm`, `leading-caption`. (`body-lg-emphasis` and `body-lg-standard` share line-heights and are identical across all tiers, so there's a single `leading-body-lg`.)
 
 ### Spacing
 
