@@ -24,7 +24,6 @@ src/styles/
 │   ├── navigation.css       # Header nav, mobile drawer, language switcher chrome
 │   └── prose/              # Prose variants by content type
 │       ├── default.css      # Default prose (all pages)
-│       ├── base-typography.css  # Common h2, h3, p, lists
 │       ├── foundation.css   # [data-prose] specific
 │       ├── blog.css        # [data-prose-blog] specific
 │       ├── summit.css      # [data-prose-summit] specific
@@ -298,11 +297,10 @@ The prose CSS files (`blog.css`, `summit.css`, etc.) use raw CSS properties with
 Prose styles are layered for flexibility:
 
 1. **default.css** - Applies to all `<main>` elements (no attribute needed)
-2. **base-typography.css** - Common h2, h3, p, lists for foundation + blog
-3. **foundation.css** - Overrides link styles for `[data-prose]`
-4. **blog.css** - Adds code, spacing for `[data-prose-blog]`
-5. **table.css** - Shared table styles for `[data-prose-blog]` and `[data-prose-faq]`
-6. **summit.css** - Normalizes headings for `[data-prose-summit]`
+2. **foundation.css** - Overrides link styles for `[data-prose]`
+3. **blog.css** - Adds code, spacing for `[data-prose-blog]`
+4. **table.css** - Shared table styles for `[data-prose-blog]` and `[data-prose-faq]`
+5. **summit.css** - Normalizes headings for `[data-prose-summit]`
 
 ### Example Usage
 
