@@ -376,20 +376,16 @@ The Figma design file is the source of truth — variable collections plus Mobil
 
 ### Font
 
-The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600 / ExtraBold 800), self-hosted under `public/fonts/`. It's the default `body { font-family }`, so it applies everywhere unless overridden. Use the `font-poppins` Tailwind utility only when overriding a different font context (e.g. inside a component that sets its own font-family).
+The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600 / Bold 700 / ExtraBold 800), self-hosted under `public/fonts/`. It's the default `body { font-family }`, so it applies everywhere unless overridden. Use the `font-poppins` Tailwind utility only when overriding a different font context (e.g. inside a component that sets its own font-family).
 
 ### Typography (responsive, breakpoint variants)
 
 Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tailwind's responsive prefixes; the token suffix mirrors the variant prefix:
 
 ```html
-<h1 class="font-poppins text-h1 tablet:text-h1-md desktop:text-h1-lg">
-  Headline
-</h1>
-<p class="font-poppins text-body-lg-standard tablet:text-body-lg-standard-md">
-  Body
-</p>
-<small class="font-poppins text-caption">Caption</small>
+<h1 class="text-h1 tablet:text-h1-md desktop:text-h1-lg">Headline</h1>
+<p class="text-body-lg-standard tablet:text-body-lg-standard-md">Body</p>
+<small class="text-caption">Caption</small>
 ```
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
