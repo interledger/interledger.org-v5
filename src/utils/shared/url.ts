@@ -145,3 +145,27 @@ export function getSocialIconName(
   if (host.includes('mastodon')) return 'mastodon'
   return FALLBACK_SOCIAL_ICON
 }
+
+// Proper nouns, so these are not translated. They exist to name a social icon
+// button, which is otherwise a glyph with no accessible name.
+const SOCIAL_PLATFORM_NAMES: Record<SocialIconName, string> = {
+  youtube: 'YouTube',
+  slack: 'Slack',
+  github: 'GitHub',
+  x: 'X',
+  mastodon: 'Mastodon',
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram'
+}
+
+/**
+ * Names the platform `url` points at, for the accessible name of an icon-only
+ * social button. Falls back to the host when no platform matches, so an
+ * unrecognized profile still reads as something, and to null when the URL
+ * cannot be parsed at all.
+ */
+export function getSocialPlatformName(url: string): string | null {
+  const icon = getSocialIconName(url)
+  if (icon !== FALLBACK_SOCIAL_ICON) return SOCIAL_PLATFORM_NAMES[icon]
+  return getHostname(url)
+}

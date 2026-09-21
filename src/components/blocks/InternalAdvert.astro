@@ -1,0 +1,288 @@
+---
+/**
+ * Internal advert — bordered card that promotes another Interledger property
+ * from inside a blog post (INTORG-824, Figma "Blog AD" 1206:27201).
+ *
+ * Every field is optional. The card renders only when it has a headline or a
+ * body, because the rest of it is furniture around those two.
+ *
+ * MDX: body as children, everything else as props, `socialLinks` a static
+ * string array. Strapi preview: `body` as a markdown string prop and `logo` as
+ * a populated media object.
+ *
+ * Foundation is light only (src/styles/README.md), and this block renders on
+ * blog posts alone, so there are no `dark:` utilities here.
+ */
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
+import LinkButton from '@/components/shared/LinkButton.astro'
+import {
+  buildUmamiAttrs,
+  getSocialIconName,
+  getSocialPlatformName,
+  parseMarkdown,
+  resolveCtaLink,
+  useTranslations
+} from '@/utils'
+
+interface StrapiMedia {
+  url?: string
+  alternativeText?: string | null
+}
+
+/** Strapi wraps media in `shared.localized-media`; MDX passes a public path. */
+interface LocalizedMedia {
+  image?: StrapiMedia | null
+  alternativeText?: string | null
+}
+
+interface SocialLinkEntry {
+  url?: string
+}
+
+/** `shared.secondary-cta-link`, as the Strapi preview sends it. */
+interface SecondaryCtaLink {
+  link?: string
+  text?: string
+  external?: boolean
+  document?: boolean
+}
+
+interface Props {
+  /** Small label above the card. Example: "Know more". */
+  helperText?: string
+  /** Public path (MDX) or populated Strapi component (preview). */
+  logo?: string | LocalizedMedia | null
+  /** Alternative text for the logo. MDX only; Strapi carries its own. */
+  logoAlt?: string
+  /** Name shown beside the logo. */
+  logoLabel?: string
+  headline?: string
+  /** Markdown body from Strapi; omitted when MDX supplies children. */
+  body?: string
+  /** Profile URLs (MDX) or populated Strapi components (preview). */
+  socialLinks?: (string | SocialLinkEntry)[]
+  /** Flat button props, as exported MDX passes them. */
+  buttonText?: string
+  buttonLink?: string
+  buttonExternal?: boolean
+  buttonDocument?: boolean
+  /** The same button as a component, as the Strapi preview passes it. */
+  cta?: SecondaryCtaLink | null
+  /** Optional Umami page-segment override. */
+  umamiContext?: string
+}
+
+const {
+  helperText,
+  logo,
+  logoAlt,
+  logoLabel,
+  headline,
+  body,
+  socialLinks,
+  buttonText,
+  buttonLink,
+  buttonExternal,
+  buttonDocument,
+  cta,
+  umamiContext
+} = Astro.props
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const LOGO_SIZE = 44
+
+function resolveLogo(): { src: string; alt: string } | null {
+  if (!logo) return null
+  if (typeof logo === 'string') return { src: logo, alt: logoAlt ?? '' }
+  const src = logo.image?.url
+  if (!src) return null
+  // The component's own alternative text wins over the media file's, so an
+  // editor can blank it per placement when the label already names the logo.
+  return { src, alt: logo.alternativeText ?? logo.image?.alternativeText ?? '' }
+}
+
+const resolvedLogo = resolveLogo()
+
+// Strapi sends the button as a `shared.secondary-cta-link` component, exported
+// MDX sends the same four values as flat props. Read whichever arrived.
+const button = {
+  text: cta?.text ?? buttonText,
+  link: cta?.link ?? buttonLink,
+  external: cta?.external ?? buttonExternal,
+  document: cta?.document ?? buttonDocument
+}
+
+// Both halves or neither: a label with no href is dead, an href with no label
+// is unreadable (same rule as CtaStrip).
+const hasButton = Boolean(button.text?.trim() && button.link?.trim())
+const resolvedButton = hasButton
+  ? resolveCtaLink({
+      url: button.link!,
+      external: button.external,
+      document: button.document
+    })
+  : null
+
+// The icon comes from the host, so an editor supplies a URL and nothing else.
+// An unrecognized host still renders, with the generic link glyph and the host
+// as its accessible name.
+const resolvedSocials = (socialLinks ?? [])
+  .map((entry) => (typeof entry === 'string' ? entry : entry?.url))
+  .filter((url): url is string => Boolean(url?.trim()))
+  .map((url) => {
+    const platform = getSocialPlatformName(url)
+    return {
+      url,
+      icon: getSocialIconName(url),
+      label: platform
+        ? logoLabel?.trim()
+          ? t('internalAdvert.social_link', { name: logoLabel, platform })
+          : t('internalAdvert.social_link_generic', { platform })
+        : url
+    }
+  })
+
+// `body` arrives as a markdown string from the Strapi dynamic-zone renderer,
+// and as slot children from exported MDX. Support both.
+const hasBody = Boolean(body?.trim()) || Astro.slots.has('default')
+const bodyHtml = body?.trim()
+  ? await parseMarkdown(body, {
+      page: umamiContext,
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : null
+
+const hasHeadline = Boolean(headline?.trim())
+
+// Everything else on the card is furniture. Without one of these two there is
+// nothing to read, so render nothing rather than an empty bordered box.
+const hasReadableContent = hasHeadline || hasBody
+
+if (!hasReadableContent) {
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[InternalAdvert] Skipping render on ${Astro.url.pathname}: needs a headline or a body.`
+  )
+}
+
+// Stable for this render; unique across multiple adverts on one page.
+const headlineId = hasHeadline
+  ? `internal-advert-heading-${crypto.randomUUID()}`
+  : undefined
+
+const umamiBase = {
+  currentPath: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: routeLocale,
+  baseComponent: 'internal_advert'
+}
+---
+
+{
+  hasReadableContent && (
+    <aside
+      data-component="InternalAdvert"
+      data-umami-component="internal_advert"
+      aria-labelledby={headlineId}
+      aria-label={headlineId ? undefined : t('internalAdvert.block_label')}
+      class="font-poppins flex flex-col gap-lg rounded-3xl border border-neutral-50 bg-neutral-0 p-lg tablet:p-xl"
+    >
+      {/*
+        Capitals come from CSS, not from what the editor types, so every card
+        matches (Radu, 2026-09-18). Doing it here rather than in the stored
+        value also keeps the text readable for a screen reader, which
+        announces the underlying characters.
+      */}
+      {helperText && (
+        <p class="m-0 text-caption uppercase text-neutral-75">{helperText}</p>
+      )}
+
+      {(resolvedLogo || logoLabel) && (
+        <div class="flex items-center gap-sm">
+          {resolvedLogo && (
+            /* Fixed box with both dimensions set, so the row reserves its
+               height before the logo decodes and the card does not shift. */
+            <OptimizedImage
+              src={resolvedLogo.src}
+              alt={resolvedLogo.alt}
+              width={LOGO_SIZE}
+              height={LOGO_SIZE}
+              sizes={`${LOGO_SIZE}px`}
+              class="size-11 rounded-none object-contain"
+              pictureClass="block shrink-0 size-11"
+            />
+          )}
+          {logoLabel && (
+            <p class="m-0 text-body-sm-standard text-neutral-100">
+              {logoLabel}
+            </p>
+          )}
+        </div>
+      )}
+
+      {hasHeadline && (
+        <h2
+          id={headlineId}
+          class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg"
+        >
+          {headline}
+        </h2>
+      )}
+
+      {hasBody && (
+        <div class="text-body-sm-standard text-neutral-75 [&_:is(a,p,ul,ol,li)]:text-body-sm-standard [&_a]:underline [&_a]:underline-offset-2 [&_p]:text-inherit [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
+          {bodyHtml ? <Fragment set:html={bodyHtml} /> : <slot />}
+        </div>
+      )}
+
+      {resolvedSocials.length > 0 && (
+        <ul role="list" class="m-0 flex list-none flex-wrap gap-md p-0">
+          {resolvedSocials.map((social) => (
+            <li>
+              <LinkButton
+                href={social.url}
+                variant="secondary"
+                size="lg"
+                iconOnly={true}
+                external={true}
+                aria-label={social.label}
+                linkText={social.label}
+                umamiLabel="link"
+                umamiBaseComponent="internal_advert_social"
+              >
+                <Icon name={social.icon} class="size-5" />
+              </LinkButton>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {hasButton && resolvedButton && (
+        <LinkButton
+          href={resolvedButton.href}
+          variant="secondary"
+          size="lg"
+          external={resolvedButton.external}
+          document={button.document}
+          iconSide={resolvedButton.icon ? 'right' : 'none'}
+          class="w-full"
+          {...buildUmamiAttrs({
+            ...umamiBase,
+            label: 'button_cta',
+            href: button.link,
+            linkText: button.text
+          })}
+        >
+          {button.text}
+          {resolvedButton.icon && (
+            <Icon name={resolvedButton.icon} slot="icon-right" />
+          )}
+        </LinkButton>
+      )}
+    </aside>
+  )
+}

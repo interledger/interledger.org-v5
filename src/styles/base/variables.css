@@ -51,8 +51,8 @@
     --color-prose: var(--color-neutral-100);
 
     /* Layout tokens — no @theme namespace available */
-    --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
-    --site-header-height-desktop: 4.75rem; /* 76px — foundation desktop nav row */
+    --site-header-height: 4.5rem; /* 72px — tablet/mobile header bar and drawer offset */
+    --site-header-height-desktop: 5rem; /* 80px — foundation desktop nav row */
 
     /* Space below a block title (markdown h2, EventCard, CardGrid gap, etc.).
        `mb-block-heading` / `gap-block-heading` read this. Start at 3xl. */
