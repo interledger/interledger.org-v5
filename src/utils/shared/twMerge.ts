@@ -26,9 +26,7 @@ const FONT_SIZE_TOKENS = [
   'h5-md',
   'h5-lg',
   'body-lg-emphasis',
-  'body-lg-emphasis-md',
   'body-lg-standard',
-  'body-lg-standard-md',
   'body-sm-emphasis',
   'body-sm-standard'
 ]

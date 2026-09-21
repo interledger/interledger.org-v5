@@ -384,7 +384,7 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 
 ```html
 <h1 class="text-h1 tablet:text-h1-md desktop:text-h1-lg">Headline</h1>
-<p class="text-body-lg-standard tablet:text-body-lg-standard-md">Body</p>
+<p class="text-body-lg-standard">Body</p>
 <small class="text-caption">Caption</small>
 ```
 
@@ -403,7 +403,7 @@ Each `text-*` utility carries font-size, line-height, and font-weight together. 
 | `text-body-sm-standard` | 14 / 22 Regular  | _(same)_         | _(same)_         |
 | `text-caption`          | 13 / 18 Regular  | _(same)_         | _(same)_         |
 
-`body-lg-*`, `body-sm-*`, and `caption` are identical across all three tiers. `body-lg-*` still keeps a redundant `-md` token: ~15 call sites already reference `tablet:text-body-lg-standard-md` / `tablet:text-body-lg-emphasis-md`, and Tailwind silently emits nothing for an undefined utility, so removing the token needs a codemod of those call sites in the same change, not a standalone deletion. See `theme.css` for the same note on `text-h5-md`.
+`body-lg-*`, `body-sm-*`, and `caption` are identical across all three tiers, so each has a single token — no `-md` / `-lg` variants. `text-body-lg-standard-md` / `text-body-lg-emphasis-md` used to exist too, until their values also collapsed to duplicates of the base token; they were removed along with their ~18 call sites in one change. `text-h5-md` is kept for consistency, since h1–h4 all have three distinct tier tokens — see the note in `theme.css`.
 
 #### Standalone line-height utilities
 

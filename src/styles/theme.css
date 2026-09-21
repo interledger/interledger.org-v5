@@ -303,24 +303,15 @@
   --text-h5-lg--line-height: 1.875rem;
   --text-h5-lg--font-weight: 400;
 
-  /* body-lg-emphasis: 16/26 SemiBold, identical across all three tiers.
-     The pre-redesign 15/24 mobile step is gone, so the -md token duplicates
-     the base. Kept for its call sites — see the H5 note above. */
+  /* body-lg-emphasis: 16/26 SemiBold, identical across all three tiers */
   --text-body-lg-emphasis: 1rem;
   --text-body-lg-emphasis--line-height: 1.625rem;
   --text-body-lg-emphasis--font-weight: 600;
-  --text-body-lg-emphasis-md: 1rem;
-  --text-body-lg-emphasis-md--line-height: 1.625rem;
-  --text-body-lg-emphasis-md--font-weight: 600;
 
-  /* body-lg-standard: 16/26 Regular, identical across all three tiers.
-     -md duplicates the base, as above. */
+  /* body-lg-standard: 16/26 Regular, identical across all three tiers */
   --text-body-lg-standard: 1rem;
   --text-body-lg-standard--line-height: 1.625rem;
   --text-body-lg-standard--font-weight: 400;
-  --text-body-lg-standard-md: 1rem;
-  --text-body-lg-standard-md--line-height: 1.625rem;
-  --text-body-lg-standard-md--font-weight: 400;
 
   /* body-sm-emphasis: 14/22 SemiBold, identical across all three tiers */
   --text-body-sm-emphasis: 0.875rem;
