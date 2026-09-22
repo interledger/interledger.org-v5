@@ -9,6 +9,8 @@ import { buttonVariants } from '@/components/shared/buttonVariants'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import Icon from '@/components/shared/Icon.astro'
+import FilterDropdown from '@/components/shared/FilterDropdown.astro'
+import FilterDropdownOption from '@/components/shared/FilterDropdownOption.astro'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -44,30 +46,6 @@ const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
 const helperClasses = 'mb-0 text-caption text-neutral-75'
 
 const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
-
-const summaryClasses = [
-  'list-none flex gap-md items-center cursor-pointer font-thin',
-  'p-xs rounded-lg border border-transparent',
-  'group-open:text-neutral-100 group-open:[&_svg]:-rotate-90',
-  '[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out',
-  'focus-visible:outline-none focus-visible:border focus-visible:border-primary'
-].join(' ')
-
-const dropdownClasses = [
-  'list-none m-0 p-sm [&_li]:m-0',
-  'absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))] z-1',
-  'bg-neutral-0 rounded-xl border border-neutral-25',
-  'min-w-[12rem]'
-].join(' ')
-
-const optionClasses = [
-  'flex gap-md items-center w-full px-sm py-xs',
-  'rounded-lg border border-transparent bg-transparent text-left cursor-pointer',
-  'text-body-sm-standard text-neutral-75',
-  'hover:bg-neutral-25 hover:text-neutral-100',
-  'focus-visible:outline-none focus-visible:border focus-visible:border-primary',
-  'aria-selected:bg-neutral-25 aria-selected:text-neutral-100'
-].join(' ')
 ---
 
 <FoundationPageLayout
@@ -176,55 +154,40 @@ const optionClasses = [
                 <div
                   class="flex flex-wrap items-center gap-md text-body-sm-emphasis text-neutral-75"
                 >
-                  <details id="topic-details" class="group relative">
-                    <summary
-                      id="topic-summary"
-                      class={summaryClasses}
-                      aria-haspopup="listbox"
-                      aria-expanded="false"
-                      aria-controls="topic-listbox"
-                    >
-                      <span class="flex items-center gap-xs">
-                        {t('contact.topic')}
-                        <Icon
-                          name="arrow-right-keyboard"
-                          class="size-5 rotate-90"
-                          aria-hidden="true"
-                        />
-                      </span>
-                      <span
-                        id="topic-selected"
-                        class="text-primary"
-                        aria-live="polite"
-                      >
-                        {t('contact.topic.placeholder')}
-                      </span>
-                    </summary>
-                    <ul
-                      id="topic-listbox"
-                      class={dropdownClasses}
-                      role="listbox"
-                      tabindex="-1"
-                      aria-labelledby="topic-summary"
-                    >
-                      {
-                        topics.map((topic) => (
-                          <li role="presentation">
-                            <button
-                              type="button"
-                              id={`topic-option-${topic.value.replaceAll(' ', '-')}`}
-                              class={optionClasses}
-                              role="option"
-                              data-value={topic.value}
-                              aria-selected="false"
-                            >
-                              {topic.label}
-                            </button>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </details>
+                  <FilterDropdown
+                    id="topic-details"
+                    label={t('contact.topic')}
+                    value={t('contact.topic.placeholder')}
+                    summaryId="topic-summary"
+                    panelId="topic-listbox"
+                    valueId="topic-selected"
+                    valueLive
+                    summaryClass="font-thin"
+                    summaryProps={{
+                      'aria-haspopup': 'listbox',
+                      'aria-expanded': 'false',
+                      'aria-controls': 'topic-listbox'
+                    }}
+                    panelProps={{
+                      role: 'listbox',
+                      tabindex: -1,
+                      'aria-labelledby': 'topic-summary'
+                    }}
+                  >
+                    {
+                      topics.map((topic) => (
+                        <FilterDropdownOption
+                          id={`topic-option-${topic.value.replaceAll(' ', '-')}`}
+                          role="option"
+                          data-value={topic.value}
+                          data-label={topic.label}
+                          selected={false}
+                        >
+                          {topic.label}
+                        </FilterDropdownOption>
+                      ))
+                    }
+                  </FilterDropdown>
                 </div>
               </div>
 
@@ -363,7 +326,7 @@ const optionClasses = [
 
   function selectTopic(option: HTMLButtonElement) {
     const value = option.dataset.value ?? ''
-    const text = option.textContent?.trim() ?? ''
+    const text = option.dataset.label ?? option.textContent?.trim() ?? ''
     if (topicInput) topicInput.value = value
     if (topicSelected) topicSelected.textContent = text
     topicOptions.forEach((opt) => {
@@ -424,26 +387,6 @@ const optionClasses = [
           break
       }
     })
-  })
-
-  topicDetails?.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && topicDetails.open) {
-      setTopicOpen(false)
-      topicSummary?.focus()
-    }
-  })
-
-  topicDetails?.addEventListener('focusout', (e: FocusEvent) => {
-    if (!topicDetails.contains(e.relatedTarget as Node)) {
-      setTopicOpen(false)
-    }
-  })
-
-  document.addEventListener('pointerdown', (e: PointerEvent) => {
-    if (!topicDetails?.open) return
-    if (e.target instanceof Node && !topicDetails.contains(e.target)) {
-      setTopicOpen(false)
-    }
   })
 
   const syncEmailError = emailInput
