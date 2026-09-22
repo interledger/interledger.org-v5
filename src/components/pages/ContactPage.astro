@@ -249,48 +249,46 @@ const optionClasses = [
                 </p>
               </div>
 
-              <div class="flex flex-col gap-s">
-                <div data-netlify-recaptcha="true"></div>
-                <p
-                  id="recaptcha-error"
-                  class={errorClasses}
-                  role="alert"
-                  tabindex="-1"
-                >
-                  {t('contact.error.captcha')}
-                </p>
-              </div>
+              <div data-netlify-recaptcha="true" class="empty:hidden"></div>
 
-              <div class="flex flex-col gap-s">
-                <p
-                  id="submit-error"
-                  class={errorClasses}
-                  role="alert"
-                  tabindex="-1"
+              <p
+                id="recaptcha-error"
+                class={errorClasses}
+                role="alert"
+                tabindex="-1"
+              >
+                {t('contact.error.captcha')}
+              </p>
+
+              <p
+                id="submit-error"
+                class={errorClasses}
+                role="alert"
+                tabindex="-1"
+              >
+                {t('contact.error.submit')}
+              </p>
+
+              <div>
+                <button
+                  type="submit"
+                  id="contact-submit"
+                  class={buttonVariants({
+                    variant: 'primary',
+                    iconSide: 'right',
+                    size: 'lg'
+                  })}
+                  data-label-default={t('contact.submit')}
+                  data-label-busy={t('contact.submitting')}
+                  {...submitButtonUmamiAttrs}
                 >
-                  {t('contact.error.submit')}
-                </p>
-                <div>
-                  <button
-                    type="submit"
-                    id="contact-submit"
-                    class={buttonVariants({
-                      variant: 'primary',
-                      iconSide: 'right',
-                      size: 'lg'
-                    })}
-                    data-label-default={t('contact.submit')}
-                    data-label-busy={t('contact.submitting')}
-                    {...submitButtonUmamiAttrs}
-                  >
-                    <span id="contact-submit-label">{t('contact.submit')}</span>
-                    <Icon
-                      name="arrow-right"
-                      class="size-5 shrink-0"
-                      aria-hidden="true"
-                    />
-                  </button>
-                </div>
+                  <span id="contact-submit-label">{t('contact.submit')}</span>
+                  <Icon
+                    name="arrow-right"
+                    class="size-5 shrink-0"
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
             </form>
           </div>
