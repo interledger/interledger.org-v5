@@ -5,6 +5,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import {
   classifyHref,
+  compileNetlifyRule,
   decodeHtmlEntities,
   distFileToTargets,
   extractAnchorIds,
@@ -13,13 +14,13 @@ import {
   formatFindings,
   isServedWithTrailingSlash,
   loadNetlifyRules,
-  netlifyRuleToMatcher,
   normalizeInternalPath,
   parseNetlifyRedirectRules,
   partitionRoutes,
   resolveTarget,
   validateInternalLinks,
   type Finding,
+  type NetlifyRule,
   type ResolvedRouteInput,
   type TargetIndex
 } from './validate-internal-links'
@@ -278,9 +279,19 @@ describe('parseNetlifyRedirectRules', () => {
   to = "/es/summit/:year/talks/:slug"
 `
     expect(parseNetlifyRedirectRules(toml)).toEqual([
-      '/summit/:year/talk/:slug',
-      '/es/summit/:year/talk/:slug'
+      { from: '/summit/:year/talk/:slug', to: '/summit/:year/talks/:slug' },
+      {
+        from: '/es/summit/:year/talk/:slug',
+        to: '/es/summit/:year/talks/:slug'
+      }
     ])
+  })
+
+  it('records a block with no destination', () => {
+    // The source still has to match, or links through it report as broken.
+    expect(
+      parseNetlifyRedirectRules('[[redirects]]\n  from = "/old"\n')
+    ).toEqual([{ from: '/old', to: '' }])
   })
 
   it('returns nothing when there are no redirect blocks', () => {
@@ -312,7 +323,7 @@ describe('loadNetlifyRules', () => {
 
     const rules = await loadNetlifyRules(file)
     expect(rules).toHaveLength(1)
-    expect(rules[0].test('/summit/2025/talk/x')).toBe(true)
+    expect(rules[0].pattern.test('/summit/2025/talk/x')).toBe(true)
   })
 
   it('throws when the file cannot be read', async () => {
@@ -336,19 +347,44 @@ describe('loadNetlifyRules', () => {
   })
 })
 
-describe('netlifyRuleToMatcher', () => {
+describe('compileNetlifyRule', () => {
+  const substitute = (rule: NetlifyRule, pathname: string): string =>
+    pathname.replace(rule.pattern, rule.replacement)
+
   it('matches one segment per :param', () => {
-    const rule = netlifyRuleToMatcher('/summit/:year/talk/:slug')
-    expect(rule.test('/summit/2025/talk/rafiki')).toBe(true)
-    expect(rule.test('/summit/2025/talk/rafiki/')).toBe(true)
+    const { pattern } = compileNetlifyRule(
+      '/summit/:year/talk/:slug',
+      '/summit/:year/talks/:slug'
+    )
+    expect(pattern.test('/summit/2025/talk/rafiki')).toBe(true)
+    expect(pattern.test('/summit/2025/talk/rafiki/')).toBe(true)
     // A :param must not swallow a slash, or the rule covers paths Netlify
     // would never redirect.
-    expect(rule.test('/summit/2025/talk/a/b')).toBe(false)
-    expect(rule.test('/summit/2025/talks/rafiki')).toBe(false)
+    expect(pattern.test('/summit/2025/talk/a/b')).toBe(false)
+    expect(pattern.test('/summit/2025/talks/rafiki')).toBe(false)
+  })
+
+  it('puts the matched values back into the destination', () => {
+    const rule = compileNetlifyRule(
+      '/summit/:year/talk/:slug',
+      '/summit/:year/talks/:slug'
+    )
+    expect(substitute(rule, '/summit/2025/talk/rafiki')).toBe(
+      '/summit/2025/talks/rafiki'
+    )
   })
 
   it('treats * as a splat', () => {
-    expect(netlifyRuleToMatcher('/old/*').test('/old/a/b/c')).toBe(true)
+    const rule = compileNetlifyRule('/old/*', '/new/:splat')
+    expect(rule.pattern.test('/old/a/b/c')).toBe(true)
+    expect(substitute(rule, '/old/a/b/c')).toBe('/new/a/b/c')
+  })
+
+  it('numbers groups by position, not by kind', () => {
+    // A splat before a :param takes the first group; reading them in two
+    // passes would swap them.
+    const rule = compileNetlifyRule('/*/talk/:slug', '/:slug/under/:splat')
+    expect(substitute(rule, '/a/b/talk/rafiki')).toBe('/rafiki/under/a/b')
   })
 })
 
@@ -406,10 +442,18 @@ describe('partitionRoutes', () => {
 
 describe('resolveTarget', () => {
   const index: TargetIndex = {
-    files: new Map([['/about-us', 'about-us/index.html']]),
+    files: new Map([
+      ['/about-us', 'about-us/index.html'],
+      ['/summit/2025/talks/x', 'summit/2025/talks/x/index.html']
+    ]),
     redirects: new Map([['/home', '/about-us']]),
     ssr: new Set(['/tech/roadmap']),
-    netlifyRules: [netlifyRuleToMatcher('/summit/:year/talk/:slug')]
+    netlifyRules: [
+      compileNetlifyRule(
+        '/summit/:year/talk/:slug',
+        '/summit/:year/talks/:slug'
+      )
+    ]
   }
 
   it('resolves through each layer', () => {
@@ -418,6 +462,35 @@ describe('resolveTarget', () => {
     expect(resolveTarget(index, '/tech/roadmap')).toBe('ssr')
     expect(resolveTarget(index, '/summit/2025/talk/x')).toBe('netlify-redirect')
     expect(resolveTarget(index, '/robots.txt')).toBe('allowed')
+  })
+
+  it('rejects a netlify rule whose destination is not served', () => {
+    // Matching a `from` is not a resolution: the singular URL redirects, but
+    // the plural one it lands on is not in this build.
+    expect(resolveTarget(index, '/summit/2025/talk/gone')).toBe('none')
+  })
+
+  it('accepts a netlify destination that resolves through another layer', () => {
+    const viaRedirect: TargetIndex = {
+      ...index,
+      files: new Map(),
+      redirects: new Map([['/summit/2025/talks/x', '/about-us']])
+    }
+    expect(resolveTarget(viaRedirect, '/summit/2025/talk/x')).toBe(
+      'netlify-redirect'
+    )
+  })
+
+  it('accepts a netlify rule that leaves the site or records no destination', () => {
+    const offSite: TargetIndex = {
+      ...index,
+      netlifyRules: [
+        compileNetlifyRule('/legacy/:slug', 'https://example.org/:slug'),
+        compileNetlifyRule('/nowhere/:slug', '')
+      ]
+    }
+    expect(resolveTarget(offSite, '/legacy/x')).toBe('netlify-redirect')
+    expect(resolveTarget(offSite, '/nowhere/x')).toBe('netlify-redirect')
   })
 
   it('does not allowlist the sitemap, which is a real file by then', () => {

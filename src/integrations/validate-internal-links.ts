@@ -331,34 +331,65 @@ export function extractAnchorIds(html: string): Set<string> {
   return scanDocument(html).ids
 }
 
+export interface NetlifyRedirect {
+  from: string
+  to: string
+}
+
 /**
- * Extracts the `from` of each `[[redirects]]` block in a `netlify.toml`.
- * Hand-rolled because four rules in a file we own don't justify a TOML parser.
+ * Extracts the `from` and `to` of each `[[redirects]]` block in a
+ * `netlify.toml`. Hand-rolled because four rules in a file we own don't justify
+ * a TOML parser.
  */
-export function parseNetlifyRedirectRules(toml: string): string[] {
-  const froms: string[] = []
+export function parseNetlifyRedirectRules(toml: string): NetlifyRedirect[] {
+  const rules: NetlifyRedirect[] = []
   for (const block of toml.split(/\[\[redirects\]\]/).slice(1)) {
     // Stop at the next table header so a `from` further down the file can't be
     // attributed to this block.
     const scoped = block.split(/\n\s*\[/)[0]
-    const match = scoped.match(/^\s*from\s*=\s*"([^"]*)"/m)
-    if (match) froms.push(match[1])
+    const from = scoped.match(/^\s*from\s*=\s*"([^"]*)"/m)
+    if (!from) continue
+    const to = scoped.match(/^\s*to\s*=\s*"([^"]*)"/m)
+    rules.push({ from: from[1], to: to?.[1] ?? '' })
   }
-  return froms
+  return rules
+}
+
+export interface NetlifyRule {
+  /** Matches the rule's `from`, capturing one group per `:param` and `*`. */
+  pattern: RegExp
+  /** The `to` with each `:param` rewritten to the `$n` group it came from. */
+  replacement: string
 }
 
 /**
- * Compiles a Netlify redirect `from` into a matcher.
+ * Compiles a Netlify redirect into a matcher for its `from` and a substitution
+ * for its `to`.
  *
  * `:param` matches exactly one segment — `/summit/:year/talk/:slug` must not
- * swallow `/summit/2025/talk/a/b` — while a `*` splat matches the rest.
+ * swallow `/summit/2025/talk/a/b` — while a `*` splat matches the rest. Both
+ * capture, so a path that matched can be turned back into its destination.
  */
-export function netlifyRuleToMatcher(from: string): RegExp {
+export function compileNetlifyRule(from: string, to: string): NetlifyRule {
+  const params: string[] = []
   const body = from
     .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*/g, '.*')
-    .replace(/:[A-Za-z_][A-Za-z0-9_]*/g, '[^/]+')
-  return new RegExp(`^${body}/?$`)
+    // One pass over both token kinds, so `params` stays in capture-group order.
+    .replace(/\*|:[A-Za-z_][A-Za-z0-9_]*/g, (token) => {
+      if (token === '*') {
+        params.push('splat')
+        return '(.*)'
+      }
+      params.push(token.slice(1))
+      return '([^/]+)'
+    })
+
+  const replacement = to.replace(
+    /:[A-Za-z_][A-Za-z0-9_]*/g,
+    (token) => `$${params.indexOf(token.slice(1)) + 1}`
+  )
+
+  return { pattern: new RegExp(`^${body}/?$`), replacement }
 }
 
 // ---------------------------------------------------------------------------
@@ -411,7 +442,7 @@ export interface TargetIndex {
   /** Literal `prerender = false` route patterns. */
   ssr: Set<string>
   /** Compiled `netlify.toml` `:param` rules. */
-  netlifyRules: RegExp[]
+  netlifyRules: NetlifyRule[]
 }
 
 export type ResolutionKind =
@@ -430,10 +461,20 @@ export function resolveTarget(
   if (index.files.has(pathname)) return 'file'
   if (index.redirects.has(pathname)) return 'redirect'
   if (index.ssr.has(pathname)) return 'ssr'
-  if (index.netlifyRules.some((rule) => rule.test(pathname))) {
-    return 'netlify-redirect'
-  }
-  return 'none'
+
+  const rule = index.netlifyRules.find(({ pattern }) => pattern.test(pathname))
+  if (!rule) return 'none'
+
+  // Matching a `from` only moves the question along, so the destination is
+  // checked like any other redirect's. `findBrokenRedirects` cannot cover these
+  // — a `:param` source is a pattern, not an entry it could walk — so a link
+  // arriving here is the only moment the concrete destination is knowable.
+  const to = pathname.replace(rule.pattern, rule.replacement)
+  // No destination recorded, or it leaves the site — nothing to resolve.
+  if (!to || hasUrlScheme(to)) return 'netlify-redirect'
+  return resolveTarget(index, normalizeInternalPath(to)) === 'none'
+    ? 'none'
+    : 'netlify-redirect'
 }
 
 /**
@@ -778,7 +819,7 @@ const NETLIFY_TOML_PATH = fileURLToPath(
  */
 export async function loadNetlifyRules(
   tomlPath: string = NETLIFY_TOML_PATH
-): Promise<RegExp[]> {
+): Promise<NetlifyRule[]> {
   let toml: string
   try {
     toml = await readFile(tomlPath, 'utf8')
@@ -791,16 +832,16 @@ export async function loadNetlifyRules(
     )
   }
 
-  const froms = parseNetlifyRedirectRules(toml)
+  const rules = parseNetlifyRedirectRules(toml)
 
   // Same doctrine as the zero-HTML guard: a reorganised netlify.toml must not
   // silently drop /summit/:year/talk/:slug coverage.
-  if (froms.length === 0) {
+  if (rules.length === 0) {
     throw new Error(
       `Internal link validation found no [[redirects]] rules in ${tomlPath}. ` +
         `Either they moved, or the parser needs updating — both make this check wrong.`
     )
   }
 
-  return froms.map(netlifyRuleToMatcher)
+  return rules.map(({ from, to }) => compileNetlifyRule(from, to))
 }
