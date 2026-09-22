@@ -4,6 +4,7 @@ import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.ast
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import ProfileHeroBand from '@/components/shared/ProfileHeroBand.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -89,10 +90,7 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
         <TranslationDisclaimer isVisible={isFallback} />
       </Breadcrumbs>
     </div>
-    <div
-      class={`${heroColorClass} h-[240px] tablet:h-[300px] desktop:h-[400px]`}
-    >
-    </div>
+    <ProfileHeroBand heroColorClass={heroColorClass} />
     <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
       <div
         class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}

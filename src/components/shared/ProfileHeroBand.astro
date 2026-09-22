@@ -1,0 +1,113 @@
+---
+/**
+ * Decorative colour strip at the top of a profile detail page.
+ *
+ * The band is a flat `bg-*` fill from `profileColors.ts` with the Interledger
+ * network motif layered over it. The motif's curves converge on (188.435,
+ * 716.829) in its 1043x1070 viewBox, and the design puts the avatar bubble
+ * there so the lines read as connecting to the photo. The CSS below is what
+ * pins that point to the bubble at every breakpoint.
+ *
+ * The exports marked the spot with a lavender disc the same hue as the bubble.
+ * That disc was dropped from both files: `--grid-offset-y` now carries it well
+ * clear of the bubble that was meant to hide it, where it would read as a
+ * second, empty avatar.
+ *
+ * The avatar itself lives in ProfileDetailPage as a *sibling* of this band,
+ * pulled up over it with a negative margin. That keeps it clear of the
+ * `overflow-hidden` that crops the artwork, and it paints on top by document
+ * order without needing a z-index.
+ */
+interface Props {
+  heroColorClass: string
+}
+
+const { heroColorClass } = Astro.props
+---
+
+<div class={`profile-hero-band relative overflow-hidden ${heroColorClass}`}>
+  <div class="profile-hero-band__grid" aria-hidden="true"></div>
+</div>
+
+<style>
+  .profile-hero-band {
+    /*
+     * The band height drives the artwork's scale and every anchor offset
+     * below, so it lives here as a token rather than as a Tailwind utility —
+     * one place to change, no chance of the two drifting apart.
+     */
+    --band-h: 240px;
+
+    height: var(--band-h);
+  }
+
+  .profile-hero-band__grid {
+    /*
+     * Artwork size as a multiple of the band height, and the single knob for
+     * making the motif larger or smaller. 1070/400 would render the export 1:1
+     * at `desktop:`; this is that zoom level plus ~7%, so the artwork reaches
+     * further across the band. Width follows via --art-w, so the scale stays
+     * uniform. The anchor below is proportional, so it holds at any value here.
+     */
+    --grid-scale: 2.8542;
+    /*
+     * Nudge the motif below the exact bubble-centre anchor, so the curves meet
+     * the bubble a little above its middle rather than running through it.
+     */
+    --grid-offset-y: 220px;
+    --grid-src: url('/img/profile-band-grid.svg');
+
+    /*
+     * Avatar bubble centre, relative to the band. The content column is
+     * `max-w-250 px-2xl m-auto`, so its left edge is `max(0px, 50% - 500px)`;
+     * add the 32px gutter and the bubble's radius (80/110/120).
+     */
+    --bubble-x: max(112px, 50% - 388px);
+    --bubble-y: 200px;
+
+    --art-h: calc(var(--grid-scale) * var(--band-h));
+    --art-w: calc(var(--art-h) * 1043 / 1070);
+
+    position: absolute;
+    left: var(--bubble-x);
+    top: calc(var(--bubble-y) + var(--grid-offset-y));
+    height: var(--art-h);
+    width: var(--art-w);
+    background: var(--grid-src) no-repeat left top / 100% 100%;
+    /*
+     * Pull back by the convergence point's own offset inside the artwork
+     * (188.435/1043 of the width, 716.829/1070 of the height) to land it on the
+     * anchor. translate() percentages resolve against this element's own box,
+     * so this holds at any --grid-scale with no per-breakpoint arithmetic.
+     */
+    transform: translate(-18.0666%, -66.9934%);
+    pointer-events: none;
+  }
+
+  @media (min-width: 810px) {
+    .profile-hero-band {
+      --band-h: 300px;
+    }
+
+    .profile-hero-band__grid {
+      --bubble-x: max(142px, 50% - 358px);
+      --bubble-y: 290px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .profile-hero-band {
+      --band-h: 400px;
+    }
+
+    .profile-hero-band__grid {
+      --bubble-x: max(152px, 50% - 348px);
+      --bubble-y: 360px;
+    }
+  }
+
+  /* Swapping the custom property keeps only the matching URL fetched. */
+  :global(html[data-theme='dark']) .profile-hero-band__grid {
+    --grid-src: url('/img/profile-band-grid-dark.svg');
+  }
+</style>
