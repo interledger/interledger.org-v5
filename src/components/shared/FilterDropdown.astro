@@ -1,0 +1,108 @@
+---
+/**
+ * Label + caret + value trigger with a right-aligned panel.
+ * Options go in the default slot. Escape / focus-out / outside click close
+ * every instance via the bundled script below.
+ */
+import Icon from '@/components/shared/Icon.astro'
+import { twMerge } from '@/utils'
+import {
+  FILTER_DROPDOWN_PANEL_CLASS,
+  FILTER_DROPDOWN_SUMMARY_CLASS
+} from '@/components/shared/filterDropdown'
+import type { HTMLAttributes } from 'astro/types'
+
+interface Props extends Omit<HTMLAttributes<'details'>, 'class'> {
+  label: string
+  value: string
+  class?: string
+  panelClass?: string
+  summaryClass?: string
+  summaryId?: string
+  panelId?: string
+  valueId?: string
+  valueLive?: boolean
+  summaryProps?: HTMLAttributes<'summary'>
+  panelProps?: HTMLAttributes<'ul'>
+}
+
+const {
+  label,
+  value,
+  class: className,
+  panelClass,
+  summaryClass,
+  summaryId,
+  panelId,
+  valueId,
+  valueLive = false,
+  summaryProps,
+  panelProps,
+  ...detailsProps
+} = Astro.props
+---
+
+<details
+  {...detailsProps}
+  class={twMerge('group relative', className)}
+  data-component="FilterDropdown"
+  data-filter-dropdown
+>
+  <summary
+    id={summaryId}
+    class={twMerge(FILTER_DROPDOWN_SUMMARY_CLASS, summaryClass)}
+    {...summaryProps}
+  >
+    <span class="flex items-center gap-xs">
+      {label}
+      <Icon name="arrow-right-keyboard" class="rotate-90" />
+    </span>
+    <span
+      id={valueId}
+      class="text-primary"
+      aria-live={valueLive ? 'polite' : undefined}
+    >
+      {value}
+    </span>
+  </summary>
+  <ul
+    id={panelId}
+    class={twMerge(FILTER_DROPDOWN_PANEL_CLASS, panelClass)}
+    {...panelProps}
+  >
+    <slot />
+  </ul>
+</details>
+
+<script>
+  function bindFilterDropdown(details: HTMLDetailsElement) {
+    if (details.dataset.filterDropdownBound === 'true') return
+    details.dataset.filterDropdownBound = 'true'
+
+    const summary = details.querySelector<HTMLElement>('summary')
+
+    details.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && details.open) {
+        details.open = false
+        summary?.focus()
+      }
+    })
+
+    details.addEventListener('focusout', (event: FocusEvent) => {
+      if (!details.contains(event.relatedTarget as Node)) {
+        details.open = false
+      }
+    })
+
+    document.addEventListener('pointerdown', (event: PointerEvent) => {
+      if (!details.open) return
+      if (event.target instanceof Node && !details.contains(event.target)) {
+        details.open = false
+      }
+    })
+  }
+
+  document
+    .querySelectorAll<HTMLDetailsElement>('[data-filter-dropdown]')
+    .forEach(bindFilterDropdown)
+</script>
