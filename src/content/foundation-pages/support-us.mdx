@@ -27,7 +27,12 @@ A recurring gift that grows our community, one member at a time.
 Founding Sustaining Members enjoy all the benefits of our Community Members, plus an exclusive swag pack and additional unique benefits to be decided upon in partnership with you.
 
 <div slot="cta">
-  <FundraiseUpElement elementId="XVSHSPQU" />
+  <CtaButtons
+    spacing="none"
+    umamiLabel="button_card"
+    umamiBaseComponent="founding_circle_sustaining"
+    buttons={[{ text: 'Donate', link: '#XVSHSPQU', style: 'primary' }]}
+  />
 </div>
 
 </InfoCard>
@@ -44,7 +49,12 @@ Flexible, high-impact support to help us build our next chapter.
 Founding Champions enjoy all the benefits of our Sustaining Members, plus a premium swag pack, a free ticket to the Summit with the VIP Interledger Summit experience, and additional unique benefits to be decided upon in partnership with you.
 
 <div slot="cta">
-  <FundraiseUpElement elementId="XMWLAVRZ" />
+  <CtaButtons
+    spacing="none"
+    umamiLabel="button_card"
+    umamiBaseComponent="founding_circle_champions"
+    buttons={[{ text: 'Donate', link: '#XMWLAVRZ', style: 'primary' }]}
+  />
 </div>
 
 </InfoCard>
@@ -173,7 +183,9 @@ Our founding endowment covers our core operating expenses and base programs. The
 
 </Paragraph>
 
-<FundraiseUpElement elementId="XVSHSPQU" />
+<CtaButtons
+  buttons={[{ text: 'Donate', link: '#XVSHSPQU', style: 'primary' }]}
+/>
 
 <SplitLayout imagePosition="right" imageSrc="/img/support/charity-navigator.png" imageAlt="Charity Navigator and Candid Platinum Transparency 2026">
 
