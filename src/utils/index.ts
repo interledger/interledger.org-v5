@@ -17,6 +17,7 @@ export {
   isExternalHref,
   getHostname,
   getSocialIconName,
+  getSocialPlatformName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
 } from './shared/url'

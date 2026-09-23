@@ -65,6 +65,66 @@ describe('prepareHtmlForMarkdown', () => {
   })
 })
 
+describe('prepareHtmlForMarkdown, whitespace at the edge of a bold run', () => {
+  it('moves a trailing space out of the run', () => {
+    expect(
+      prepareHtmlForMarkdown('<p><strong>Location: </strong>Ruta N</p>')
+    ).toBe('<p><strong>Location:</strong> Ruta N</p>')
+  })
+
+  it('moves a leading space out of the run', () => {
+    expect(
+      prepareHtmlForMarkdown('<p>are open<strong> until</strong></p>')
+    ).toBe('<p>are open <strong>until</strong></p>')
+  })
+
+  it('moves whitespace off both edges at once', () => {
+    expect(prepareHtmlForMarkdown('<p>x<em> y </em>z</p>')).toBe(
+      '<p>x <em>y</em> z</p>'
+    )
+  })
+
+  it('rewrites a non-breaking space as an ordinary one', () => {
+    expect(
+      prepareHtmlForMarkdown('<p><strong>Themes and Funding\u00a0</strong></p>')
+    ).toBe('<p><strong>Themes and Funding</strong> </p>')
+  })
+
+  it('unwraps a run holding nothing but whitespace', () => {
+    expect(prepareHtmlForMarkdown('<p>a<strong>\u00a0</strong>b</p>')).toBe(
+      '<p>a b</p>'
+    )
+  })
+
+  it('trims the inner run before the outer one, so nested whitespace reaches the outside', () => {
+    expect(
+      prepareHtmlForMarkdown('<p><strong><em> deep </em></strong></p>')
+    ).toBe('<p> <strong><em>deep</em></strong> </p>')
+  })
+
+  it('keeps a run whose only child renders on its own', () => {
+    expect(
+      prepareHtmlForMarkdown('<p><strong> <img src="a.png"> </strong></p>')
+    ).toBe('<p> <strong><img src="a.png"></strong> </p>')
+  })
+
+  it('leaves whitespace inside inline code alone', () => {
+    const html = '<p><code> spaced </code></p>'
+    expect(prepareHtmlForMarkdown(html)).toBe(html)
+  })
+
+  it('leaves a bold run with no edge whitespace untouched', () => {
+    const html = '<p>a <strong>bold</strong> b</p>'
+    expect(prepareHtmlForMarkdown(html)).toBe(html)
+  })
+
+  it('keeps a soft break inside the run, which is not whitespace to trim', () => {
+    expect(prepareHtmlForMarkdown('<p><strong>a<br>b</strong></p>')).toBe(
+      `<p><strong>a${PH}b</strong></p>`
+    )
+  })
+})
+
 describe('restoreSoftBreaks', () => {
   it('writes each placeholder back as a line break', () => {
     expect(restoreSoftBreaks(`1. one${PH}two`)).toBe('1. one<br />two')

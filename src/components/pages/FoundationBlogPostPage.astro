@@ -18,6 +18,7 @@ import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.ast
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CodeBlock from '@/components/blocks/CodeBlock.astro'
+import InternalAdvert from '@/components/blocks/InternalAdvert.astro'
 
 interface Props {
   slug: string
@@ -61,7 +62,8 @@ const relatedPosts = resolveRelatedPosts(
       Paragraph,
       VideoEmbed,
       ImageBlock,
-      CodeBlock
+      CodeBlock,
+      InternalAdvert
     }}
   />
   <Fragment slot="after-article">

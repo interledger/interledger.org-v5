@@ -34,6 +34,7 @@ import { serialize as eventCard } from './event-card.serializer'
 import { serialize as ctaLink } from './cta-link.serializer'
 import { serialize as ctaButtons } from './cta-buttons.serializer'
 import { serialize as hackathonAnimation } from './hackathon-animation.serializer'
+import { serialize as internalAdvert } from './internal-advert.serializer'
 
 export { sanitizeCardGridsInDocumentData }
 
@@ -59,7 +60,8 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.event-card': eventCard,
   'shared.cta-link': ctaLink,
   'blocks.cta-buttons': ctaButtons,
-  'blocks.hackathon-animation': hackathonAnimation
+  'blocks.hackathon-animation': hackathonAnimation,
+  'blocks.internal-advert': internalAdvert
 }
 
 /**
