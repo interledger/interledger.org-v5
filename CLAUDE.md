@@ -241,8 +241,8 @@ the places real breakage lives.
 - **Protocol-relative `//host/path` is external**, not the internal path
   `/host/path`. Test it before the leading-slash check.
 - **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
-  canonical and `og:url` are all emitted that way, and that is where a whole
-  class of breakage hid.
+  canonical are both emitted that way, and that is where a whole class of
+  breakage hid.
 - **Relative links resolve against the served URL.** `about-us/index.html` is
   served at `/about-us/`, and against the slashless form `new URL` drops a
   segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
@@ -279,8 +279,10 @@ the places real breakage lives.
   needed — its target resolves now, or nothing links to it any more — is
   reported as a warning, never a failure.
 - **Blind spots**, neither checked nor reported — a clean run is not a
-  whole-site guarantee: `url()` in emitted CSS, `og:image`, JS-generated
-  anchors, external URLs, and anything only an SSR route renders.
+  whole-site guarantee: `url()` in emitted CSS, `og:image` and `og:url`
+  (`<meta content>` isn't scanned; `og:url` shares canonical's value, so it is
+  covered indirectly), JS-generated anchors, external URLs, and anything only
+  an SSR route renders.
 - **`hreflang` is opt-out.** `buildCanonicalMeta` maps a slug across locales
   without knowing which pages were built, so pages whose twin may not exist pass
   `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1

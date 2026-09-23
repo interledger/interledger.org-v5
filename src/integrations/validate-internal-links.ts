@@ -231,7 +231,9 @@ export function classifyHref(
     }
     if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
     // Self-origin absolute URLs are internal links written the long way:
-    // canonical, og:url and hreflang alternates are all emitted this way.
+    // canonical and hreflang alternates are emitted this way. og:url is too,
+    // but it lives in <meta content>, which isn't scanned; it shares
+    // canonical's value, so a broken one surfaces there.
     const host = url.host.replace(/^www\./, '')
     if (host !== siteHost.replace(/^www\./, '')) return null
     working = `${url.pathname}${url.search}${url.hash}`
