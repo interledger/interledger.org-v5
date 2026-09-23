@@ -32,18 +32,9 @@ export const redirects = {
   '/grantee-directory': '/grant/grantee-directory',
   '/grant/grantee-database': '/grant/grantee-directory',
 
-  // Grantee directory moved every tag listing under an explicit `/tag/`
-  // segment, so the old `all` year-sentinel and bare year/tag pairs redirect
-  // to the prefixed shape [INTORG-1112].
-  //
-  // The /:year/:tag wildcard also matches canonical /:year/tag/:slug.
-  // public/_redirects lists more-specific rules first so those 404
-  // instead of looping (Astro emits these 301s after that file).
+  // The grantee directory's legacy tag URLs redirect from public/_redirects,
+  // which can order them and write a working splat [INTORG-1112].
   '/grant/grantee-directory/all': '/grant/grantee-directory',
-  '/grant/grantee-directory/all/[tag]/[...page]':
-    '/grant/grantee-directory/tag/[tag]/[...page]',
-  '/grant/grantee-directory/[year]/[tag]/[...page]':
-    '/grant/grantee-directory/[year]/tag/[tag]/[...page]',
   '/interledger': '/tech/interledger-protocol',
   '/open-payments': '/tech/open-payments',
   '/web-monetization': '/tech/web-monetization',
@@ -95,12 +86,8 @@ export const redirects = {
   '/es/grantee-directory': '/es/grant/grantee-directory',
   '/es/grant/grantee-database': '/es/grant/grantee-directory',
 
-  // See the EN twins above [INTORG-1112]. Same public/_redirects guard.
+  // See the EN twin above [INTORG-1112].
   '/es/grant/grantee-directory/all': '/es/grant/grantee-directory',
-  '/es/grant/grantee-directory/all/[tag]/[...page]':
-    '/es/grant/grantee-directory/tag/[tag]/[...page]',
-  '/es/grant/grantee-directory/[year]/[tag]/[...page]':
-    '/es/grant/grantee-directory/[year]/tag/[tag]/[...page]',
   '/es/contacto': '/es/contact',
   '/es/grant/open-payments-sdk': '/es/grant/innovation/sdk',
   '/es/node/1760': '/es/grant/innovation/accelerator',
