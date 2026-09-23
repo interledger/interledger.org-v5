@@ -54,6 +54,7 @@ const renderedItems = await Promise.all(
 >
   {
     renderedHeading && headingId && (
+      // Deliberate Figma-verified exception: h2 uses the h4 token here.
       <h2
         id={headingId}
         class="m-0 text-h4 text-neutral-900 tablet:text-h4-md dark:text-neutral-50 desktop:text-h4-lg"

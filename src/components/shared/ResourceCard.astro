@@ -52,8 +52,9 @@ const overlayUmamiAttrs = buildUmamiAttrs({
 <article
   class="relative flex h-full flex-col gap-xl rounded-3xl border border-neutral-50 bg-white dark:border-neutral-75 dark:bg-neutral-900 p-xl tablet:flex-row tablet:items-start tablet:gap-2xl"
 >
+  {/* Deliberate Figma-verified exception: h3 uses the h4 token at desktop. */}
   <h3
-    class="m-0 shrink-0 text-h3 text-neutral-900 dark:text-neutral-0 tablet:w-1/2 tablet:text-h3-md desktop:text-h4-lg"
+    class="m-0 shrink-0 text-neutral-900 dark:text-neutral-0 tablet:w-1/2 desktop:text-h4-lg"
   >
     {heading}
   </h3>

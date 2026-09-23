@@ -80,9 +80,7 @@ const detailsAttrs = projectUrl
       class="flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl"
     >
       <div class="flex min-w-0 flex-col gap-sm">
-        <h3
-          class="m-0 text-h3 text-neutral-150 tablet:text-h3-md desktop:text-h3-lg"
-        >
+        <h3 class="m-0 text-neutral-150">
           {grantee.name}
         </h3>
         {
@@ -96,13 +94,13 @@ const detailsAttrs = projectUrl
       {
         grantee.budgetLabel && (
           <div class="shrink-0 desktop:text-right">
-            <p class="m-0 flex items-start gap-sm font-poppins font-semibold text-h2 text-neutral-150 tablet:text-h2-md desktop:justify-end desktop:text-h2-lg">
+            <p class="m-0 flex items-start gap-sm text-h3 text-neutral-150 tablet:text-h3-md desktop:justify-end desktop:text-h3-lg">
               <span>{grantee.budgetLabel}</span>
-              <span class="self-end mb-sm whitespace-nowrap text-h3 font-normal tablet:text-h3-md desktop:text-h3-lg">
+              <span class="self-end mb-sm whitespace-nowrap text-h4  tablet:text-h4-md desktop:text-h4-lg">
                 {t('grantee.currency')}
               </span>
             </p>
-            <p class="m-0 text-body-sm-standard text-neutral-75">
+            <p class="m-0 text-body-lg-standard text-neutral-75">
               {t('grantee.amount_label')}
             </p>
           </div>

@@ -78,7 +78,7 @@ const optionClasses = [
     <div class="content-column">
       <Breadcrumbs breadcrumbs={breadcrumbs} />
 
-      <h1 class="text-h1 text-neutral-900 mb-2xl">
+      <h1 class="text-neutral-900 mb-2xl">
         {t('contact.title')}
       </h1>
 
@@ -102,8 +102,11 @@ const optionClasses = [
           </div>
 
           <div id="form-wrapper">
+            {
+              /* Deliberate Figma-verified exception: h2 uses the h4 token here. */
+            }
             <h2
-              class="text-h4-lg text-neutral-900 mb-2xl"
+              class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 mb-2xl"
               id="contact-form-heading"
             >
               {t('contact.form_heading')}
