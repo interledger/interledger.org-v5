@@ -7,6 +7,8 @@ import {
   localizeRoute
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
+import FilterDropdown from '@/components/shared/FilterDropdown.astro'
+import FilterDropdownOption from '@/components/shared/FilterDropdownOption.astro'
 import PillLink from '@/components/shared/PillLink.astro'
 import GranteeCard from './GranteeCard.astro'
 import GranteeSearchResultTemplate from './GranteeSearchResultTemplate.astro'
@@ -36,26 +38,6 @@ const allLabel = t('grantee.filter.all')
 const selectedYearLabel =
   years.find((option) => option.value === selectedYear)?.label ?? allLabel
 
-const summaryClasses = `
-list-none flex gap-md items-center cursor-pointer
-p-xs rounded-lg border border-transparent
-group-open:text-neutral-100 group-open:[&_svg]:-rotate-90
-[&_svg]:transition-all motion-safe:[&_svg]:duration-500 [&_svg]:ease-in-out
-focus-visible:outline-none focus-visible:border focus-visible:border-primary
-`
-const dropdownClasses = `
-list-none m-0 p-sm [&_li]:m-0
-absolute top-[calc(var(--spacing-xl)+var(--spacing-xs))] z-1
-bg-neutral-0 rounded-xl border border-neutral-25
-min-w-[8rem]
-`
-const optionClasses = `
-flex gap-md items-center w-full px-sm py-xs rounded-lg border border-transparent
-no-underline text-left text-body-sm-standard text-neutral-75
-hover:bg-neutral-25 hover:text-neutral-100
-focus-visible:outline-none focus-visible:border focus-visible:border-link
-[&[aria-current='page']]:text-neutral-100
-`
 // Deferred (data-track-event, not data-umami-event): year/tag hrefs pick up
 // a live `?q=` as the query changes. Umami's bundled script intercepts
 // data-umami-event clicks (preventDefault, then navigate) and can drop that
@@ -144,55 +126,38 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
       <div
         class="flex shrink-0 flex-wrap items-center gap-md text-body-sm-emphasis text-neutral-75"
       >
-        <details data-grantee-year-details class="group relative">
-          <summary class={summaryClasses}>
-            <span class="flex items-center gap-xs">
-              {t('grantee.filter.year')}
-              <Icon name="arrow-right-keyboard" class="rotate-90" />
-            </span>
-            <span class="text-primary">{selectedYearLabel}</span>
-          </summary>
-          <ul class={dropdownClasses}>
-            <li>
-              <a
-                href={allYearsHref}
-                class={optionClasses}
-                aria-current={!selectedYear ? 'page' : undefined}
-                {...filterAttrs(allLabel, allYearsHref, 'content_year_filter')}
-              >
-                {allLabel}
-                {!selectedYear && <Icon name="check" class="size-2.5" />}
-              </a>
-            </li>
-            {
-              years.map((option) => {
-                const isActive = selectedYear === option.value
-                const href = getGranteeFilterUrl(
-                  directoryPath,
-                  option.value,
-                  selectedTag
-                )
-                return (
-                  <li>
-                    <a
-                      href={href}
-                      class={optionClasses}
-                      aria-current={isActive ? 'page' : undefined}
-                      {...filterAttrs(
-                        option.label,
-                        href,
-                        'content_year_filter'
-                      )}
-                    >
-                      {option.label}
-                      {isActive && <Icon name="check" class="size-2.5" />}
-                    </a>
-                  </li>
-                )
-              })
-            }
-          </ul>
-        </details>
+        <FilterDropdown
+          data-grantee-year-details
+          label={t('grantee.filter.year')}
+          value={selectedYearLabel}
+        >
+          <FilterDropdownOption
+            href={allYearsHref}
+            selected={!selectedYear}
+            {...filterAttrs(allLabel, allYearsHref, 'content_year_filter')}
+          >
+            {allLabel}
+          </FilterDropdownOption>
+          {
+            years.map((option) => {
+              const isActive = selectedYear === option.value
+              const href = getGranteeFilterUrl(
+                directoryPath,
+                option.value,
+                selectedTag
+              )
+              return (
+                <FilterDropdownOption
+                  href={href}
+                  selected={isActive}
+                  {...filterAttrs(option.label, href, 'content_year_filter')}
+                >
+                  {option.label}
+                </FilterDropdownOption>
+              )
+            })
+          }
+        </FilterDropdown>
       </div>
     </div>
     <ul
@@ -293,22 +258,4 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
   import { initGranteeSearch } from '@/scripts/grantee-search'
 
   initGranteeSearch()
-
-  const details = document.querySelector<HTMLDetailsElement>(
-    '[data-grantee-year-details]'
-  )
-  const summary = details?.querySelector<HTMLElement>('summary')
-
-  details?.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && details.open) {
-      details.open = false
-      summary?.focus()
-    }
-  })
-
-  details?.addEventListener('focusout', (event: FocusEvent) => {
-    if (!details.contains(event.relatedTarget as Node)) {
-      details.open = false
-    }
-  })
 </script>

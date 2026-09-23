@@ -1,0 +1,59 @@
+---
+/**
+ * One row in a FilterDropdown panel. Renders a link when `href` is set,
+ * otherwise a button. The check mark shows for aria-current=page (links)
+ * or aria-selected (listbox buttons) — same treatment as the blog filter.
+ */
+import Icon from '@/components/shared/Icon.astro'
+import { twMerge } from '@/utils'
+import {
+  FILTER_DROPDOWN_CHECK_CLASS,
+  FILTER_DROPDOWN_OPTION_CLASS
+} from '@/components/shared/filterDropdown'
+import type { HTMLAttributes } from 'astro/types'
+
+type Props = Omit<HTMLAttributes<'a'>, 'class' | 'href'> &
+  Omit<HTMLAttributes<'button'>, 'class' | 'type'> & {
+    href?: string
+    selected?: boolean
+    class?: string
+    listItemRole?: string | null | undefined
+  }
+
+const {
+  href,
+  selected = false,
+  class: className,
+  listItemRole,
+  ...rest
+} = Astro.props
+
+const optionClass = twMerge(FILTER_DROPDOWN_OPTION_CLASS, className)
+const itemRole = listItemRole ?? (href ? undefined : 'presentation')
+---
+
+<li role={itemRole}>
+  {
+    href ? (
+      <a
+        href={href}
+        class={optionClass}
+        aria-current={selected ? 'page' : undefined}
+        {...rest}
+      >
+        <slot />
+        <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
+      </a>
+    ) : (
+      <button
+        type="button"
+        class={optionClass}
+        aria-selected={selected ? 'true' : 'false'}
+        {...rest}
+      >
+        <slot />
+        <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
+      </button>
+    )
+  }
+</li>
