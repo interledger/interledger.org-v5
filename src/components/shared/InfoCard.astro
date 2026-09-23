@@ -12,10 +12,29 @@ interface Props {
   heading: string
   imageSrc?: string
   imageAlt?: string | null
+  /**
+   * `bordered` is the secondary treatment: no fill, a neutral-50 hairline and
+   * the white page surface, matching TitleCard/ResourceCard. Use it where a
+   * row of cards would otherwise be a wall of ice-indigo.
+   */
+  variant?: 'filled' | 'bordered'
 }
 
-const { heading, imageSrc, imageAlt } = Astro.props
+const { heading, imageSrc, imageAlt, variant = 'filled' } = Astro.props
 const imageAltText = imageAlt?.trim() || heading
+
+/**
+ * A card's call to action goes in the `cta` slot, not the body, so it can pin
+ * to the bottom of the card. Cards in a row stretch to the tallest one, and a
+ * CTA left in the body sits wherever that card's copy happens to end — which
+ * reads as a mistake once the cards are bordered.
+ */
+const hasCta = Astro.slots.has('cta')
+
+const surfaceClass =
+  variant === 'bordered'
+    ? 'border border-neutral-50 bg-white dark:border-neutral-75 dark:bg-neutral-900'
+    : 'bg-ice-indigo-100 dark:bg-neutral-100'
 ---
 
 {
@@ -37,7 +56,7 @@ const imageAltText = imageAlt?.trim() || heading
   ) : (
     <article
       data-component="InfoCard"
-      class="flex flex-1 flex-col gap-lg rounded-3xl bg-ice-indigo-100 p-lg text-neutral-900 dark:bg-neutral-100 dark:text-neutral-50 tablet:gap-xl tablet:p-xl"
+      class={`flex flex-1 flex-col gap-lg rounded-3xl p-lg text-neutral-900 dark:text-neutral-50 tablet:gap-xl tablet:p-xl ${surfaceClass}`}
     >
       <h3 class="m-0 !mt-0 !mb-0 !text-h3 text-neutral-900 dark:text-aqua-mint-100 tablet:!text-h3-md desktop:!text-h3-lg">
         {heading}
@@ -45,6 +64,11 @@ const imageAltText = imageAlt?.trim() || heading
       <div class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 dark:text-neutral-50 [&_p]:mb-lg [&_p:last-child]:mb-0 [&_:is(p,ul,ol):first-child]:mt-0 [&_:is(ul,ol)]:mb-0">
         <slot />
       </div>
+      {hasCta && (
+        <div class="mt-auto">
+          <slot name="cta" />
+        </div>
+      )}
     </article>
   )
 }
