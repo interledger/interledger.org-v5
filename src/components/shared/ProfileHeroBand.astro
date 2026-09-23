@@ -3,15 +3,14 @@
  * Decorative colour strip at the top of a profile detail page.
  *
  * The band is a flat `bg-*` fill from `profileColors.ts` with the Interledger
- * network motif layered over it. The motif's curves converge on (188.435,
- * 716.829) in its 1043x1070 viewBox, and the design puts the avatar bubble
- * there so the lines read as connecting to the photo. The CSS below is what
- * pins that point to the bubble at every breakpoint.
+ * network motif layered over it, placed so the motif's curves run into the
+ * avatar bubble and read as connecting to the photo. The CSS below carries the
+ * placement measured off the design.
  *
- * The exports marked the spot with a lavender disc the same hue as the bubble.
- * That disc was dropped from both files: `--grid-offset-y` now carries it well
- * clear of the bubble that was meant to hide it, where it would read as a
- * second, empty avatar.
+ * The exports carried a lavender disc at (188.435, 716.829) in the 1043x1070
+ * viewBox, the same hue as the bubble, marking an earlier anchor point. It was
+ * dropped from both files: nothing covers it under the current placement, where
+ * it would read as a second, empty avatar.
  *
  * The avatar itself lives in ProfileDetailPage as a *sibling* of this band,
  * pulled up over it with a negative margin. That keeps it clear of the
@@ -36,52 +35,114 @@ const { heroColorClass } = Astro.props
      * below, so it lives here as a token rather than as a Tailwind utility —
      * one place to change, no chance of the two drifting apart.
      */
-    --band-h: 240px;
+    --band-h: 260px;
 
     height: var(--band-h);
   }
 
   .profile-hero-band__grid {
     /*
-     * Artwork size as a multiple of the band height, and the single knob for
-     * making the motif larger or smaller. 1070/400 would render the export 1:1
-     * at `desktop:`; this is that zoom level plus ~7%, so the artwork reaches
-     * further across the band. Width follows via --art-w, so the scale stays
-     * uniform. The anchor below is proportional, so it holds at any value here.
+     * Artwork size as a multiple of the band height. 1070/400 would render the
+     * export 1:1; every tier is tuned from there by eye. Width follows via
+     * --art-w, so the scale stays uniform, and the placement below is
+     * proportional, so it holds at any value here.
      */
-    --grid-scale: 2.8542;
+    --grid-scale: 2.5;
     /*
-     * Nudge the motif below the exact bubble-centre anchor, so the curves meet
-     * the bubble a little above its middle rather than running through it.
+     * Nudge knobs, applied on top of the placement below. The 20px shift right
+     * keeps the leftmost node clear of the band's left edge once the artwork is
+     * stuck to the bubble.
      */
-    --grid-offset-y: 220px;
+    --grid-offset-x: 20px;
+    --grid-offset-y: -55px;
     --grid-src: url('/img/profile-band-grid.svg');
 
     /*
-     * Avatar bubble centre, relative to the band. The content column is
-     * `max-w-250 px-2xl m-auto`, so its left edge is `max(0px, 50% - 500px)`;
-     * add the 32px gutter and the bubble's radius (80/110/120).
+     * Avatar bubble position, the reference both axes are placed against.
+     * --bubble-x is measured from the band's left: the `max-w-narrow` (720px)
+     * column's left edge inside its `px-content` gutter, plus the bubble's
+     * radius (80/110/120, from `avatarSizeClass`). It is exact, and the mobile
+     * stick below depends on that.
+     *
+     * --bubble-y is the vertical counterpart — band height, less the content
+     * column's negative pull (-mt-6xl / -mt-7xl), plus the same radius — but it
+     * is only exact from `tablet:` up. At the narrow tiers the band height moved
+     * during tuning and this was left alone, so treat it as a fixed origin that
+     * --grid-offset-y is tuned against, not as the bubble's real centre.
      */
-    --bubble-x: max(112px, 50% - 388px);
+    --bubble-x: max(96px, 50% - 280px);
     --bubble-y: 200px;
 
     --art-h: calc(var(--grid-scale) * var(--band-h));
     --art-w: calc(var(--art-h) * 1043 / 1070);
 
+    /*
+     * Horizontal placement, as a pair: --grid-left is where in the band the
+     * artwork lands, --grid-anchor-x is which point of the artwork lands there.
+     * Mobile sticks to the avatar bubble, so the curves keep meeting the photo
+     * on the narrowest screens: the artwork's convergence point (188.435/1043 of
+     * its width) sits on the bubble's centre. Tablet and desktop override both
+     * to 50% and simply centre the artwork in the band, which is what the design
+     * does.
+     */
+    --grid-left: var(--bubble-x);
+    --grid-anchor-x: 18.0666%;
+
     position: absolute;
-    left: var(--bubble-x);
+    /*
+     * Vertical placement starts from the design, where the artwork's midpoint
+     * sits on the bubble's centre — checked against two artwork nodes
+     * independently, the wine node at (23.2, 521.7) and the ocean node at
+     * (188.4, 326), which agree on it. --grid-offset-y then shifts it from
+     * there, per width.
+     */
+    left: calc(var(--grid-left) + var(--grid-offset-x));
     top: calc(var(--bubble-y) + var(--grid-offset-y));
     height: var(--art-h);
     width: var(--art-w);
     background: var(--grid-src) no-repeat left top / 100% 100%;
-    /*
-     * Pull back by the convergence point's own offset inside the artwork
-     * (188.435/1043 of the width, 716.829/1070 of the height) to land it on the
-     * anchor. translate() percentages resolve against this element's own box,
-     * so this holds at any --grid-scale with no per-breakpoint arithmetic.
-     */
-    transform: translate(-18.0666%, -66.9934%);
+    transform: translate(calc(-1 * var(--grid-anchor-x)), -50%);
     pointer-events: none;
+  }
+
+  /*
+   * Per-width tuning, done against the rendered page rather than derived. The
+   * artwork is a fixed composition dropped into a band whose height changes, so
+   * how much of it shows, and which part, does not scale smoothly — hence the
+   * extra steps between the design-system tiers.
+   *
+   * These stack: every query below a given width still matches, so a value set
+   * once carries upward until something restates it. Anything a wider tier
+   * should not inherit has to be repeated there.
+   */
+
+  @media (min-width: 490px) {
+    .profile-hero-band {
+      --band-h: 220px;
+    }
+
+    .profile-hero-band__grid {
+      --grid-scale: 2.8;
+      --grid-offset-y: -135px;
+    }
+  }
+
+  @media (min-width: 575px) {
+    .profile-hero-band {
+      --band-h: 240px;
+    }
+
+    .profile-hero-band__grid {
+      --grid-scale: 2.7;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .profile-hero-band__grid {
+      --grid-scale: 3;
+      --grid-anchor-x: 15%;
+      --grid-offset-y: -145px;
+    }
   }
 
   @media (min-width: 810px) {
@@ -90,8 +151,26 @@ const { heroColorClass } = Astro.props
     }
 
     .profile-hero-band__grid {
-      --bubble-x: max(142px, 50% - 358px);
       --bubble-y: 290px;
+      --grid-scale: 2.8;
+      /*
+       * From tablet up the artwork is centred in the band rather than stuck to
+       * the bubble, which is what the design does. Desktop inherits all three.
+       */
+      --grid-left: 50%;
+      --grid-anchor-x: 50%;
+      --grid-offset-x: 0px;
+      /*
+       * Lifts the artwork clear of the bubble reference so the four-node row at
+       * viewBox y≈521.8 lands ~42% down the band.
+       */
+      --grid-offset-y: -155px;
+    }
+  }
+
+  @media (min-width: 927px) {
+    .profile-hero-band__grid {
+      --grid-scale: 3.1;
     }
   }
 
@@ -101,8 +180,13 @@ const { heroColorClass } = Astro.props
     }
 
     .profile-hero-band__grid {
-      --bubble-x: max(152px, 50% - 348px);
       --bubble-y: 360px;
+      /*
+       * Restated, not inherited: the 810px query also matches here, so without
+       * this the tablet lift would leak into desktop. --grid-scale is the
+       * opposite case — desktop deliberately keeps the 3.1 set at 927px.
+       */
+      --grid-offset-y: 15px;
     }
   }
 
