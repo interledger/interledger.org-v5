@@ -38,7 +38,6 @@ import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
-import FundraiseUpElement from '@/components/support/FundraiseUpElement.astro'
 
 interface Props {
   slug: string
@@ -86,13 +85,21 @@ const breadcrumbs = [
 ]
 
 /**
- * Pages whose MDX places a Fundraise Up Element. The install script loads per
- * page rather than from BaseLayout so the other ~200 routes don't pay for a
- * third-party bundle — see FundraiseUpScript.astro for what moving it
- * site-wide would buy and cost. An Element renders nothing without it.
+ * Fundraise Up swaps its own donate button into any anchor whose href is an
+ * Element ID (Dashboard → Elements, account APUEUABQ), so a donate button is
+ * authored as an ordinary CTA link and needs no component of its own. What it
+ * does need is the install script, which loads per page rather than from
+ * BaseLayout so the other ~200 routes don't pay for a third-party bundle —
+ * see FundraiseUpScript.astro for what moving it site-wide would buy.
+ *
+ * Matching the IDs rather than any `#anchor` keeps that specific: a page full
+ * of ordinary in-page links doesn't pull in the bundle. IDs come from the
+ * dashboard, so a new Element is one entry here.
  */
-const FUNDRAISE_UP_SLUGS = new Set(['support-us'])
-const needsFundraiseUp = FUNDRAISE_UP_SLUGS.has(mdxPage.data.pathSlug)
+const FUNDRAISE_UP_ELEMENT_IDS = ['XVSHSPQU', 'XMWLAVRZ']
+const needsFundraiseUp = FUNDRAISE_UP_ELEMENT_IDS.some((id) =>
+  mdxPage.body?.includes(`#${id}`)
+)
 
 const heroLcpPreload =
   heroTitle && (heroImage || heroImageMobile)
@@ -177,8 +184,7 @@ const heroLcpPreload =
               EventWhere,
               EventApply,
               LogoCarousel,
-              ImageBlock,
-              FundraiseUpElement
+              ImageBlock
             }}
           />
         </div>
