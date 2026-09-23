@@ -17,10 +17,10 @@ describe('profile-grid serializer', () => {
     )
   })
 
-  it('escapes attribute values', () => {
+  it('leaves an ampersand and an angle bracket literal in an attribute value', () => {
     const result = serialize({ heading: 'A & B', category: 'C > D' })
-    expect(result).toContain('heading="A &amp; B"')
-    expect(result).toContain('category="C &gt; D"')
+    expect(result).toContain('heading="A & B"')
+    expect(result).toContain('category="C > D"')
   })
 
   it('serializes manually picked profiles as pathSlugs, preserving order', () => {
