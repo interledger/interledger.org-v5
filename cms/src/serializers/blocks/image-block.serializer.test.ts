@@ -110,7 +110,7 @@ describe('image-block serializer', () => {
       }
     })
 
-    expect(result).toContain('alt="Q&amp;A: &quot;Live&quot; Session"')
+    expect(result).toContain('alt="Q&A: &quot;Live&quot; Session"')
     expect(result).not.toContain('\\"')
   })
 
