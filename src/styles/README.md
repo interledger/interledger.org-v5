@@ -394,6 +394,21 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
+#### Bare headings already get the right size — don't add the class above by default
+
+`base/reset.css` sets `h1`–`h6` to their matching `text-h*` token automatically (`h6` shares `h5`, since no `--text-h6` token exists):
+
+```html
+<h1>Headline</h1>
+<!-- renders at text-h1 / text-h1-md / text-h1-lg — no class needed -->
+```
+
+Any component that still adds `text-h1 tablet:text-h1-md desktop:text-h1-lg` (or any other exact-match token) on a heading is just duplicating this default — Tailwind's utility layer would win either way, so the explicit class changes nothing except adding noise. Only add a `text-h*` class on a heading when the design genuinely calls for a size that doesn't match its semantic level (e.g. an `<h2>` styled at the `h3` scale) — and leave a short comment saying so, since a bare mismatch like that reads as a bug otherwise.
+
+**Narrow-width templates get one tier down automatically, too.** Any heading inside an element carrying `max-w-narrow` (the blog post layout, the profile detail page) is scoped by its own rule in `reset.css` — `h1` renders at the `h2` token, `h2` at `h3`, and so on — again with no class needed. This is keyed off the real `max-w-narrow` utility class rather than a dedicated marker, so it only fires where a template is actually narrow.
+
+This also covers prose content (`[data-prose]`, `[data-prose-blog]`, `[data-prose-faq]`) — a heading is still just a bare `h1`–`h6` element as far as the selector is concerned, regardless of a `[data-prose]` ancestor, so it doesn't need its own copy of these rules.
+
 | Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)  |
 | ----------------------- | ---------------- | ---------------- | ---------------- |
 | `text-h1`               | 40 / 48 Bold     | 56 / 64 Bold     | 76 / 84 Bold     |
