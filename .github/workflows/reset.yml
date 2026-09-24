@@ -3,6 +3,7 @@ name: Force Reset
 # Use this to roll forward or back to any known commit in either environment.
 # Not applicable to staging — staging is the default branch and must preserve full history; its head is never reset.
 # Requires a full 40-character SHA — authenticated via a GitHub App token to bypass branch protections.
+# A production publish builds the SHA first and refuses to push if the build fails; playground does not.
 # For playground, the Strapi VM checkout is hard reset afterwards so it follows the force-pushed head
 # (a force push is non-fast-forward, so the VM's `git pull --ff-only` in scheduled-content-sync.yml
 # would fail otherwise).
@@ -30,9 +31,15 @@ permissions:
   contents: write
 
 jobs:
-  publish:
+  # The only gate into production: publishing is a force-push, not a merge, so
+  # pr-checks.yml never sees these commits. Running before `publish` means a
+  # failure leaves the branch untouched and never triggers Netlify.
+  verify:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
+    # The build runs for production only; the SHA check runs for both, so this
+    # job is never skipped and `publish` can depend on it plainly.
+    env:
+      BUILD: ${{ github.event.inputs.environment == 'production' }}
 
     steps:
       - name: Validate SHA input shape
@@ -46,6 +53,61 @@ jobs:
             exit 1
           fi
 
+      - name: Checkout the SHA being published
+        if: env.BUILD == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+        if: env.BUILD == 'true'
+
+      - uses: actions/setup-node@v4
+        if: env.BUILD == 'true'
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # `verify` builds the target SHA, so LINK_CHECK below is inert on any
+      # commit predating the check. Warn, don't fail: a rollback target's broken
+      # links are pre-existing. The point is that a green run must not read as
+      # validated when nothing was scanned.
+      - name: Report whether the link check can run at this SHA
+        if: env.BUILD == 'true'
+        shell: bash
+        env:
+          TARGET_SHA: ${{ github.event.inputs.target_sha }}
+        run: |
+          set -euo pipefail
+
+          # Anchored so a commented-out registration doesn't read as a pass.
+          if grep -qE '^[[:space:]]*validateInternalLinks\(\)' astro.config.mjs; then
+            echo "✓ Internal link validation is registered — the build runs it in strict mode."
+            exit 0
+          fi
+
+          echo "::warning title=Publishing without link validation::$TARGET_SHA does not register the internal link check, so this publish is NOT link-validated."
+
+      # IMAGE_CDN=on builds the same shape Netlify ships, and skips the ~17 min
+      # encode. LINK_CHECK=strict turns link findings from a warning into a
+      # failure — set nowhere else, so this is where broken links stop a deploy.
+      - name: Build
+        if: env.BUILD == 'true'
+        env:
+          IMAGE_CDN: 'on'
+          LINK_CHECK: 'strict'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
