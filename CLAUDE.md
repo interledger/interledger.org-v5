@@ -277,13 +277,17 @@ to one Strapi entry, and `sync:mdx` refuses the whole content type
 - **New collection?** Add it to `CONTENT_COLLECTION_NAMING_RULES` in
   `cms/src/utils/contentCollections.ts`. A test fails when that map and
   `PATHS.CONTENT` drift, so a collection cannot ship unchecked.
-- **A case-only rename needs the content store cleared.** Delete
-  `node_modules/.astro` before the next build. Astro keeps its content store
-  there, and a rename that only changes case leaves the entry id untouched, so
-  the incremental sync keeps the old `filePath` and emits it as an import
-  specifier. macOS resolves it anyway and Linux does not, so the build passes
-  locally and fails in CI or on Netlify. On Netlify use "Clear cache and deploy
-  site", which drops the cached `node_modules`.
+- **A case-only rename staled the content store, so the build evicts it.**
+  Astro keeps the store in `node_modules/.astro/data-store.json` and derives
+  each entry id from the lowercased filename. A rename that only changes case
+  keeps the id, so the incremental sync refreshes the entry but holds the old
+  `filePath` and emits it as an import specifier. macOS resolves it and Linux
+  does not, so the build passed locally and failed on Netlify, which restores
+  `node_modules` from its build cache (INTORG-1237). `prebuild` now runs
+  `scripts/evict-content-store.mjs`, which drops the store. A cold sync and a
+  warm one both measure about 0.4s, because every collection is file-based.
+  `astro dev` does not run `prebuild`, so restart the dev server after such a
+  rename.
 - **Keep the module pure.** The check runs in a CI job that installs with
   `--ignore-scripts`, so `mdxFilenames.ts` and the script must not reach
   sharp, prettier or Strapi. That is why the script imports `../src/utils/*`

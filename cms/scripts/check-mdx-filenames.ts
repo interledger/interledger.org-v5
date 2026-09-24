@@ -69,15 +69,16 @@ function fix(projectRoot: string, findings: Finding[]): void {
  * a rename that only changes case leaves the entry id untouched. The
  * incremental sync therefore refreshes the entry but keeps its old
  * `filePath`, which Astro then emits as an import specifier. A
- * case-insensitive filesystem resolves it anyway, so the build only breaks on
- * Linux.
+ * case-insensitive filesystem resolves it anyway, so only Linux breaks.
+ *
+ * `pnpm run build` drops the store first (see
+ * `scripts/evict-content-store.mjs`), so only a running dev server needs this.
  */
 function warnAboutStaleContentStore(): void {
   console.error(
-    '\n⚠️  Delete node_modules/.astro before the next build. A rename that only' +
-      "\nchanges case leaves a stale path in Astro's content store, which builds" +
-      '\nfine on macOS and fails on Linux. On Netlify, use "Clear cache and' +
-      '\ndeploy site", because it restores node_modules from its build cache.'
+    '\n⚠️  Restart `pnpm start` after this rename. A rename that only changes' +
+      "\ncase leaves a stale path in Astro's content store, and a running dev" +
+      '\nserver keeps serving it. Builds evict the store themselves.'
   )
 }
 
