@@ -84,15 +84,15 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
   noindex={noindex}
 >
   <main class="pb-3xl" data-pillar="mission">
-    <header
-      class={`${heroColorClass} h-[200px] tablet:h-[230px] desktop:h-[320px]`}
+    <div class="max-w-250 m-auto px-2xl pt-page-offset">
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={isFallback} />
+      </Breadcrumbs>
+    </div>
+    <div
+      class={`${heroColorClass} h-[240px] tablet:h-[300px] desktop:h-[400px]`}
     >
-      <div class="max-w-250 m-auto px-2xl pt-2xl tablet:pt-4xl desktop:pt-5xl">
-        <Breadcrumbs breadcrumbs={breadcrumbs} breakBeforeLastItem>
-          <TranslationDisclaimer isVisible={isFallback} />
-        </Breadcrumbs>
-      </div>
-    </header>
+    </div>
     <div class="max-w-250 m-auto px-2xl -mt-6xl tablet:-mt-6xl desktop:-mt-7xl">
       <div
         class={`relative shrink-0 overflow-hidden rounded-full ${avatarSizeClass} ${avatarColorClass}`}
