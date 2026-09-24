@@ -4,6 +4,12 @@ import type { CollectionEntry } from 'astro:content'
 // blogPosts only reaches astro:content for getCollection — its other imports
 // are type-only — but the mock still re-exports `z`, since anything that pulls
 // in `./locales` at runtime needs it (same convention as blogSearch.test.ts).
+vi.mock('astro:config/client', () => ({
+  i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
+}))
+vi.mock('astro:i18n', () => ({
+  toCodes: (locales: string[]) => locales
+}))
 const getCollectionMock = vi.fn().mockResolvedValue([])
 vi.mock('astro:content', async () => {
   const { z } = await import('zod')
@@ -20,17 +26,25 @@ interface FakePost {
   date: string
   locale?: string
   categories?: string[]
+  localizes?: string
 }
 
 function makePost({
   slug,
   date,
   locale = 'en',
-  categories = []
+  categories = [],
+  localizes
 }: FakePost): CollectionEntry<'foundation-blog'> {
   return {
     id: slug,
-    data: { pathSlug: slug, date: new Date(date), locale, categories }
+    data: {
+      pathSlug: slug,
+      date: new Date(date),
+      locale,
+      categories,
+      localizes
+    }
   } as unknown as CollectionEntry<'foundation-blog'>
 }
 
@@ -156,5 +170,71 @@ describe('getGatedCollection', () => {
       'tomorrow',
       'next-month'
     ])
+  })
+})
+
+describe('orphaned translations', () => {
+  // getLocalizedPaths builds every ES route from the EN entry list, so a
+  // translation outliving its scheduled original would be listed, filtered and
+  // indexed with no page behind it (INTORG-1239).
+  const SCHEDULED_EN = makePost({ slug: 'scheduled', date: '2026-12-01' })
+  const PAST_ES = makePost({
+    slug: 'programado',
+    date: '2025-01-15',
+    locale: 'es',
+    localizes: 'scheduled'
+  })
+
+  it('drops a past-dated translation whose original is still scheduled', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    getCollectionMock.mockResolvedValue([SCHEDULED_EN, PAST_ES])
+
+    expect(await getBlogPosts()).toEqual([])
+  })
+
+  it('keeps a translation whose original survived', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    const liveEn = makePost({ slug: 'live', date: '2026-09-01' })
+    const liveEs = makePost({
+      slug: 'en-vivo',
+      date: '2025-01-15',
+      locale: 'es',
+      localizes: 'live'
+    })
+    getCollectionMock.mockResolvedValue([liveEn, liveEs])
+
+    expect(slugsOf(await getBlogPosts())).toEqual(['live', 'en-vivo'])
+  })
+
+  it('keeps both when the gate is off, so staging still reviews the pair', async () => {
+    setPublishGateForTests({ hideFuturePosts: false, now: NOW })
+    getCollectionMock.mockResolvedValue([SCHEDULED_EN, PAST_ES])
+
+    expect(slugsOf(await getBlogPosts())).toEqual(['scheduled', 'programado'])
+  })
+
+  it('leaves a translation with a dangling localizes alone — not this gate\u2019s bug', async () => {
+    setPublishGateForTests({ hideFuturePosts: false, now: NOW })
+    const orphan = makePost({
+      slug: 'huerfano',
+      date: '2025-01-15',
+      locale: 'es',
+      localizes: 'never-existed'
+    })
+    getCollectionMock.mockResolvedValue([orphan])
+
+    expect(slugsOf(await getBlogPosts())).toEqual(['huerfano'])
+  })
+
+  it('does not treat a standalone ES post (no localizes) as an orphan', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    const standalone = makePost({
+      slug: 'independiente',
+      date: '2025-01-15',
+      locale: 'es'
+    })
+    getCollectionMock.mockResolvedValue([SCHEDULED_EN, standalone])
+
+    expect(slugsOf(await getBlogPosts())).toEqual(['independiente'])
   })
 })

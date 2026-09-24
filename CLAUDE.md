@@ -308,6 +308,15 @@ reviewable.
   language-switcher map, which is exactly how a scheduled post leaks. Ungated
   collections pass straight through `getGatedCollection`, so the two
   collection-agnostic callers (`getLocalizedPaths`, `buildMap`) use it too.
+- **The gate cascades to translations.** Filtering each entry on its own `date`
+  is not enough: `getLocalizedPaths` builds every ES route from the EN entry
+  list, and nothing forces a translation to carry its original's date. A
+  translation dated in the past therefore outlives a scheduled original and gets
+  listed, filtered and indexed while no route exists for it — a 404 link
+  (INTORG-1239). `getGatedCollection` drops any entry whose `localizes` target
+  did not survive the date filter. Only inside the gated branch: a dangling
+  `localizes` with the gate off is a pre-existing content bug, not this gate's
+  business.
 - **Gated by collection name, not field shape.** `GATED_COLLECTIONS` lists
   `foundation-blog` only. `reports` also has a `date`, but it is an object
   (`{ publishDate, lastUpdated }`) — sniffing for the field would gate the wrong

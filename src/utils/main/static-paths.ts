@@ -47,9 +47,11 @@ type Options = {
  *   - EN never falls back to ES content
  *
  * Reads through the publish gate, so on production no path is emitted for a
- * future-dated post and its URL falls through to 404.astro. Because ES paths
- * are derived from the EN entry list, a scheduled EN post takes its own
- * translation off the map with it.
+ * future-dated post and its URL falls through to 404.astro. ES paths are
+ * derived from the EN entry list, so a scheduled EN post emits no route for its
+ * translation either — and `getGatedCollection` drops that orphaned translation
+ * from the collection as well, so the listings and the search index cannot link
+ * to the route this function declined to build.
  */
 export async function getLocalizedPaths(
   collection: CollectionType,

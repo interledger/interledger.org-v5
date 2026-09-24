@@ -5,7 +5,7 @@ import {
 } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
 import { sortByPublishDateDesc } from './blog'
-import type { Locale } from './locales'
+import { defaultLocale, type Locale } from './locales'
 import { hideFuturePosts, isPublishedAt, resolveGateNow } from './publishGate'
 
 /**
@@ -72,16 +72,64 @@ function resolveGate(): { enabled: boolean; now: Date } {
 }
 
 /**
- * Reads the publish date off an entry of an unknown collection.
+ * Reads frontmatter off an entry of an unknown collection.
  *
  * Typed as `unknown` rather than narrowed: `collection !== 'foundation-blog'`
  * does not narrow the generic `C`, so `entry.data` stays opaque inside a
- * generic function. The `instanceof Date` guard is what keeps an object-shaped
- * `date` (see `reports`) out of trouble.
+ * generic function. Each field is therefore guarded at the point of use.
+ */
+interface GatedEntryData {
+  date?: unknown
+  locale?: unknown
+  pathSlug?: unknown
+  localizes?: unknown
+}
+
+function readData(entry: unknown): GatedEntryData {
+  return (entry as { data?: GatedEntryData })?.data ?? {}
+}
+
+/**
+ * The `instanceof Date` guard is what keeps an object-shaped `date` (see
+ * `reports`) out of trouble.
  */
 function readPublishDate(entry: unknown): Date | undefined {
-  const value = (entry as { data?: { date?: unknown } })?.data?.date
+  const value = readData(entry).date
   return value instanceof Date ? value : undefined
+}
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined
+}
+
+/**
+ * Drops translations whose original did not survive the date gate.
+ *
+ * The gate filters each entry on its own `date`, but `getLocalizedPaths` builds
+ * every non-default-locale route from the *default-locale* entry list — so a
+ * translation is only reachable when its `localizes` target is still there.
+ * Nothing forces a translation to carry its original's date, so a translation
+ * dated in the past outlives a scheduled original: the listing, the category
+ * pills, the cross-language routes and the search index would all advertise a
+ * URL that was never built (INTORG-1239).
+ *
+ * Runs only inside the gated branch. With the gate off nothing is removed, and
+ * a translation whose `localizes` never resolved is a pre-existing content bug
+ * this deliberately does not touch.
+ */
+function dropOrphanedTranslations<T>(published: T[]): T[] {
+  const survivingOriginals = new Set(
+    published
+      .filter((entry) => readData(entry).locale === defaultLocale)
+      .map((entry) => readString(readData(entry).pathSlug))
+      .filter((slug): slug is string => slug !== undefined)
+  )
+
+  return published.filter((entry) => {
+    const localizes = readString(readData(entry).localizes)
+    if (!localizes) return true
+    return survivingOriginals.has(localizes)
+  })
 }
 
 /**
@@ -101,7 +149,10 @@ export async function getGatedCollection<C extends CollectionKey>(
   const { enabled, now } = resolveGate()
   if (!enabled) return entries
 
-  return entries.filter((entry) => isPublishedAt(readPublishDate(entry), now))
+  const published = entries.filter((entry) =>
+    isPublishedAt(readPublishDate(entry), now)
+  )
+  return dropOrphanedTranslations(published)
 }
 
 /**
