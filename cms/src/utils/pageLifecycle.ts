@@ -23,6 +23,7 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   resolveFilenameSlug
 } from './mdx'
+import { mdxRelativePath } from './mdxFilenames'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -108,12 +109,13 @@ export interface PageLifecycleConfig<
   ) => Promise<string>
 }
 
+/** Strips the surrounding slashes and whitespace a CMS-authored pathSlug may carry. */
 function normalizePathSlug(pathSlug: unknown): string {
   return pathSlug == null
     ? ''
     : String(pathSlug)
-        .replace(/^\/+|\/+$/g, '')
         .trim()
+        .replace(/^\/+|\/+$/g, '')
 }
 
 /**
@@ -129,18 +131,11 @@ export function resolvePageFilepath(
   page: Pick<PageData, 'pathSlug'>,
   locale: string = defaultLang
 ): string {
-  const normalized = normalizePathSlug(page.pathSlug)
-
-  if (!normalized) {
-    throw new Error('pathSlug is required')
-  }
-  const segments = normalized.split('/').filter(Boolean)
-  const fileBase = segments[segments.length - 1]!
-  const parentDirs = segments.slice(0, -1)
-  if (locale !== defaultLang) {
-    return path.join(outputDir, locale, ...parentDirs, `${fileBase}.mdx`)
-  }
-  return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
+  const relativePath = mdxRelativePath('page', {
+    pathSlug: normalizePathSlug(page.pathSlug),
+    locale
+  })
+  return path.join(outputDir, ...relativePath.split('/'))
 }
 
 function getOutputDir<T extends UID.ContentType>(

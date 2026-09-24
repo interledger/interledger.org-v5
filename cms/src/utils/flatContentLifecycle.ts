@@ -9,7 +9,8 @@
 import fs from 'fs'
 import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
-import { LOCALES, defaultLang, formatMdx, resolveFilenameSlug } from './mdx'
+import { LOCALES, defaultLang, formatMdx } from './mdx'
+import { mdxSubpath, type MdxNamingRule } from './mdxFilenames'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -55,11 +56,11 @@ export interface FlatLocaleMdxLifecycleConfig<
   /** Receives entry and optional englishSlug for non-en locales (for localizes frontmatter). */
   generateContent: (entry: T, englishSlug?: string) => string
   /**
-   * Maps pathSlug to a flat filename stem (no .mdx). Defaults to identity.
-   * `section` is passed for cross-section content types, whose pathSlug is
-   * section-relative and so does not identify a file on its own.
+   * How the filename is derived. `flat-section` prefixes the section for
+   * cross-section content types, whose pathSlug is section-relative and so
+   * does not identify a file on its own. Defaults to `flat`.
    */
-  toMdxFilename?: (pathSlug: string, section?: string | null) => string
+  namingRule?: Extract<MdxNamingRule, 'flat' | 'flat-section'>
   populate?: Modules.Documents.Params.Populate.Any<U>
 }
 
@@ -85,19 +86,16 @@ export function createFlatLocaleMdxLifecycle<
     getBaseDir,
     generateContent,
     populate,
-    toMdxFilename = (pathSlug: string) => pathSlug
+    namingRule = 'flat'
   } = config
 
-  function resolveFileSlug(
+  function resolveFilename(
     locale: string,
     pathSlug: string,
     section: string | null,
     englishSlug?: string
   ): string {
-    return toMdxFilename(
-      resolveFilenameSlug(locale, pathSlug, englishSlug),
-      section
-    )
+    return mdxSubpath(namingRule, { pathSlug, locale, englishSlug, section })
   }
 
   async function fetchPublished(
@@ -123,13 +121,13 @@ export function createFlatLocaleMdxLifecycle<
 
   async function writeMdxFile(entry: T, englishSlug?: string): Promise<string> {
     const baseDir = getBaseDir(entry.locale)
-    const slug = resolveFileSlug(
+    const filename = resolveFilename(
       entry.locale ?? defaultLang,
       entry.pathSlug,
       entry.section ?? null,
       englishSlug
     )
-    const filepath = path.join(baseDir, `${slug}.mdx`)
+    const filepath = path.join(baseDir, filename)
     await fs.promises.mkdir(baseDir, { recursive: true })
     await fs.promises.writeFile(
       filepath,
@@ -174,7 +172,7 @@ export function createFlatLocaleMdxLifecycle<
   ): string {
     return path.join(
       getBaseDir(locale),
-      `${toMdxFilename(pathSlug, section)}.mdx`
+      resolveFilename(locale, pathSlug, section)
     )
   }
 
@@ -260,7 +258,7 @@ export function createFlatLocaleMdxLifecycle<
 
       if (filenameChanged && oldPathSlug) {
         console.log(
-          `🗑️  ${label} moved from "${toMdxFilename(oldPathSlug, oldSection)}" to "${toMdxFilename(currentEnSlug!, currentSection)}", deleting old MDX files`
+          `🗑️  ${label} moved from "${resolveFilename(defaultLang, oldPathSlug, oldSection)}" to "${resolveFilename(defaultLang, currentEnSlug!, currentSection)}", deleting old MDX files`
         )
         deleteOldFiles(oldPathSlug, oldSection)
       }
@@ -303,13 +301,13 @@ export function createFlatLocaleMdxLifecycle<
       } else {
         // Non-English files are named after the English slug, not their own.
         const enEntry = await fetchPublished(result.documentId, defaultLang)
-        const filenameSlug = resolveFileSlug(
+        const filename = resolveFilename(
           locale,
           result.pathSlug,
           section,
           enEntry?.pathSlug
         )
-        const filepath = path.join(getBaseDir(locale), `${filenameSlug}.mdx`)
+        const filepath = path.join(getBaseDir(locale), filename)
         if (fs.existsSync(filepath)) {
           try {
             fs.unlinkSync(filepath)
