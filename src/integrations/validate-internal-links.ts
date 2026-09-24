@@ -5,11 +5,12 @@
  * reliable signal; this scans `dist/**\/*.html` in `astro:build:done`.
  *
  * Off-the-shelf checkers know only files on disk, missing both redirects
- * (`redirects.ts`, `netlify.toml`) and `prerender = false` routes, which emit
- * no HTML. `astro:routes:resolved` covers both, but read it for literal SSR
- * patterns and redirect sources only: **never resolve against a route's
- * `patternRegex`** — `[...page]` compiles to a regex matching every path, so
- * one catch-all silently passes every broken link forever.
+ * (`redirects.ts`, `_redirects`, `netlify.toml`) and `prerender = false`
+ * routes, which emit no HTML. `astro:routes:resolved` covers `redirects.ts` and
+ * SSR routes, but read it for literal SSR patterns and redirect sources only:
+ * **never resolve against a route's `patternRegex`** — `[...page]` compiles to
+ * a regex matching every path, so one catch-all silently passes every broken
+ * link forever.
  *
  * Blind spots, neither checked nor reported — a clean run is not a whole-site
  * guarantee: `url()` in emitted CSS, `og:image`, JS-generated anchors, external
@@ -29,6 +30,7 @@ import {
   hasUrlScheme,
   stripTrailingSlash
 } from '../utils/shared/url'
+import { tryCatchAsync } from '../utils/shared/tryCatch'
 import { INTERNAL_LINK_EXCEPTIONS } from './internal-link-exceptions'
 
 const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
@@ -357,11 +359,33 @@ export function parseNetlifyRedirectRules(toml: string): NetlifyRedirect[] {
   return rules
 }
 
+/** Netlify's status for a rule that names none. */
+const DEFAULT_REDIRECT_STATUS = 301
+
+/** From here up, a rule serves an error page rather than its destination. */
+const FIRST_ERROR_STATUS = 400
+
+/** Parses a Netlify `_redirects` file: one `from to [status]` rule per line. */
+export function parseRedirectsFile(
+  text: string
+): Array<NetlifyRedirect & { status: number }> {
+  return text
+    .split('\n')
+    .map((line) => line.trim().split(/\s+/))
+    .filter(([from]) => from && !from.startsWith('#'))
+    .map(([from, to = '', status]) => ({
+      from,
+      to,
+      status: status ? Number.parseInt(status, 10) : DEFAULT_REDIRECT_STATUS
+    }))
+}
+
 export interface NetlifyRule {
   /** Matches the rule's `from`, capturing one group per `:param` and `*`. */
   pattern: RegExp
   /** The `to` with each `:param` rewritten to the `$n` group it came from. */
   replacement: string
+  status: number
 }
 
 /**
@@ -372,7 +396,11 @@ export interface NetlifyRule {
  * swallow `/summit/2025/talk/a/b` — while a `*` splat matches the rest. Both
  * capture, so a path that matched can be turned back into its destination.
  */
-export function compileNetlifyRule(from: string, to: string): NetlifyRule {
+export function compileNetlifyRule(
+  from: string,
+  to: string,
+  status: number = DEFAULT_REDIRECT_STATUS
+): NetlifyRule {
   const params: string[] = []
   const body = from
     .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
@@ -391,7 +419,7 @@ export function compileNetlifyRule(from: string, to: string): NetlifyRule {
     (token) => `$${params.indexOf(token.slice(1)) + 1}`
   )
 
-  return { pattern: new RegExp(`^${body}/?$`), replacement }
+  return { pattern: new RegExp(`^${body}/?$`), replacement, status }
 }
 
 // ---------------------------------------------------------------------------
@@ -443,7 +471,7 @@ export interface TargetIndex {
   redirects: Map<string, string>
   /** Literal `prerender = false` route patterns. */
   ssr: Set<string>
-  /** Compiled `netlify.toml` `:param` rules. */
+  /** Compiled `dist/_redirects` then `netlify.toml` rules, Netlify's order. */
   netlifyRules: NetlifyRule[]
 }
 
@@ -464,8 +492,12 @@ export function resolveTarget(
   if (index.redirects.has(pathname)) return 'redirect'
   if (index.ssr.has(pathname)) return 'ssr'
 
+  // Files are checked first, as on Netlify: a real page beats any rule, so
+  // only a missing grantee tag page reaches the 404 rule that matches it.
   const rule = index.netlifyRules.find(({ pattern }) => pattern.test(pathname))
   if (!rule) return 'none'
+  // A 404 rule serves /404.html, a real file — following it would pass the link.
+  if (rule.status >= FIRST_ERROR_STATUS) return 'none'
 
   // Matching a `from` only moves the question along, so the destination is
   // checked like any other redirect's. `findBrokenRedirects` cannot cover these
@@ -609,7 +641,7 @@ function isAlwaysValidFragment(fragment: string): boolean {
 
 export function validateInternalLinks(): AstroIntegration {
   let siteHost = 'localhost'
-  let routeRedirects = new Set<string>()
+  let routeRedirects = new Map<string, string>()
   let routeSsr = new Set<string>()
 
   return {
@@ -640,7 +672,11 @@ export function validateInternalLinks(): AstroIntegration {
           )
         }
 
-        const netlifyRules = await loadNetlifyRules()
+        // Netlify reads `_redirects` before `netlify.toml`.
+        const netlifyRules = [
+          ...(await loadRedirectsFile(path.join(distDir, '_redirects'))),
+          ...(await loadNetlifyRules())
+        ]
 
         const files = new Map<string, string>()
         for (const relPath of allFiles) {
@@ -846,4 +882,18 @@ export async function loadNetlifyRules(
   }
 
   return rules.map(({ from, to }) => compileNetlifyRule(from, to))
+}
+
+/**
+ * Rules from the built `_redirects`: `public/_redirects` plus what the adapter
+ * emits. No file means no rules — links relying on them then report as broken.
+ */
+export async function loadRedirectsFile(
+  filePath: string
+): Promise<NetlifyRule[]> {
+  const text = await tryCatchAsync(() => readFile(filePath, 'utf8'))
+  if (text instanceof Error) return []
+  return parseRedirectsFile(text).map(({ from, to, status }) =>
+    compileNetlifyRule(from, to, status)
+  )
 }

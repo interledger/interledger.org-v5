@@ -227,10 +227,12 @@ the places real breakage lives.
   patterns and literal redirect sources. Prerendered routes are covered by the
   files they emitted, which is an exact set.
 - **Valid targets** = dist files ∪ dist index directories ∪ `redirects.ts`
-  sources ∪ SSR routes ∪ the `:param` rules parsed from `netlify.toml` (those
-  four never reach `dist/_redirects`, and Netlify applies them first), plus two
+  sources ∪ SSR routes ∪ the rules in `dist/_redirects`, then `netlify.toml`
+  (Netlify's order; the toml rules never reach `dist/_redirects`), plus two
   small allowlists: `/robots.txt` and `/_redirects` exactly, and anything under
-  `/.netlify/` or `/.well-known/`.
+  `/.netlify/` or `/.well-known/`. Files are checked before rules, as on
+  Netlify, and a 404 rule never counts as a resolution — `/404.html` is a real
+  file, so following it would pass the link.
 - **Register it last** in `astro.config.mjs`. Hooks run in array order and it
   reads files other integrations write in their own `astro:build:done` — the
   sitemap XML in particular.

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
   classifyHref,
   compileNetlifyRule,
@@ -14,8 +14,10 @@ import {
   formatFindings,
   isServedWithTrailingSlash,
   loadNetlifyRules,
+  loadRedirectsFile,
   normalizeInternalPath,
   parseNetlifyRedirectRules,
+  parseRedirectsFile,
   partitionRoutes,
   resolveTarget,
   validateInternalLinks,
@@ -347,6 +349,24 @@ describe('loadNetlifyRules', () => {
   })
 })
 
+describe('parseRedirectsFile', () => {
+  it('reads from, to and status, skipping comments and blank lines', () => {
+    const text = '# comment\n\n/a    /b    301\n  /c\t/d  404  \n/e /f\n'
+    expect(parseRedirectsFile(text)).toEqual([
+      { from: '/a', to: '/b', status: 301 },
+      { from: '/c', to: '/d', status: 404 },
+      { from: '/e', to: '/f', status: 301 }
+    ])
+  })
+})
+
+describe('loadRedirectsFile', () => {
+  it('treats a missing file as no rules', async () => {
+    const missing = path.join(tmpdir(), 'no-such-dir', '_redirects')
+    await expect(loadRedirectsFile(missing)).resolves.toEqual([])
+  })
+})
+
 describe('compileNetlifyRule', () => {
   const substitute = (rule: NetlifyRule, pathname: string): string =>
     pathname.replace(rule.pattern, rule.replacement)
@@ -501,6 +521,55 @@ describe('resolveTarget', () => {
 
   it('reports anything else as unresolvable', () => {
     expect(resolveTarget(index, '/node/1365')).toBe('none')
+  })
+
+  it('treats a 404 rule as unresolved, not as its /404.html destination', () => {
+    // 404.html is a real file, so following the destination would pass it.
+    const withErrorRule: TargetIndex = {
+      ...index,
+      files: new Map([['/404.html', '404.html']]),
+      netlifyRules: [compileNetlifyRule('/gone/*', '/404.html', 404)]
+    }
+    expect(resolveTarget(withErrorRule, '/gone/x')).toBe('none')
+  })
+
+  // Regression for the grantee-directory rules: its legacy 301s must resolve
+  // and its 404 guards must not.
+  describe('against the real public/_redirects', () => {
+    const dir = '/grant/grantee-directory'
+    const pages = [
+      `${dir}/tag/accessibility`,
+      `${dir}/tag/accessibility/2`,
+      `${dir}/2020/tag/accessibility`,
+      `/es${dir}/tag/accessibility`,
+      `/es${dir}/2020/tag/accessibility`
+    ]
+
+    const realIndex = async (): Promise<TargetIndex> => ({
+      files: new Map([
+        ['/404.html', '404.html'],
+        ...pages.map((page): [string, string] => [page, `${page}/index.html`])
+      ]),
+      redirects: new Map(),
+      ssr: new Set(),
+      netlifyRules: await loadRedirectsFile(
+        fileURLToPath(new URL('../../public/_redirects', import.meta.url))
+      )
+    })
+
+    it.each([
+      [`${dir}/2020/tag/accessibility`, 'file'],
+      [`${dir}/2020/tag/nonexistent`, 'none'],
+      [`${dir}/tag/nonexistent`, 'none'],
+      [`${dir}/all/accessibility`, 'netlify-redirect'],
+      [`${dir}/all/accessibility/2`, 'netlify-redirect'],
+      [`${dir}/2020/accessibility`, 'netlify-redirect'],
+      [`/es${dir}/2020/tag/nonexistent`, 'none'],
+      [`/es${dir}/all/accessibility`, 'netlify-redirect'],
+      [`/es${dir}/2020/accessibility`, 'netlify-redirect']
+    ])('%s → %s', async (pathname, expected) => {
+      expect(resolveTarget(await realIndex(), pathname)).toBe(expected)
+    })
   })
 })
 
@@ -694,6 +763,21 @@ describe('validateInternalLinks', () => {
       ]
     )
     expect(error).toBeNull()
+  })
+
+  it('reads the built _redirects, where a 404 rule is not a resolution', async () => {
+    const { error } = await runCheck({
+      _redirects: '/old/:slug  /new/:slug  301\n/new/*  /404.html  404\n',
+      '404.html': '',
+      'new/a/index.html': '',
+      'index.html': [
+        '<a href="/old/a">legacy, lands on a page</a>',
+        '<a href="/new/a">canonical, a real page wins over the 404 rule</a>',
+        '<a href="/new/gone">404 rule</a>'
+      ].join('')
+    })
+    expect(error?.message).toContain('1 do not resolve')
+    expect(error?.message).toContain('/new/gone')
   })
 
   it('fails on an undecodable URL', async () => {
