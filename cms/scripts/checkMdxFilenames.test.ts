@@ -5,6 +5,7 @@ import { execFileSync } from 'child_process'
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import {
   findFilenameMismatches,
+  isCaseOnlyRename,
   isRenameBlocked,
   readCollection,
   renameFile,
@@ -150,6 +151,14 @@ describe('findFilenameMismatches', () => {
 
 // These spawn real `git` processes, which are slow when the whole suite runs
 // in parallel, so they get more room than the default per-test timeout.
+describe('isCaseOnlyRename', () => {
+  it('is true only when the two names differ by case alone', () => {
+    expect(isCaseOnlyRename('Post.mdx', 'post.mdx')).toBe(true)
+    expect(isCaseOnlyRename('post.mdx', 'post.mdx')).toBe(false)
+    expect(isCaseOnlyRename('a.mdx', 'b.mdx')).toBe(false)
+  })
+})
+
 describe('filesystem operations', { timeout: 30_000 }, () => {
   let repo: string
   let collection: string

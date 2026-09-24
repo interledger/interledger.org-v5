@@ -177,6 +177,11 @@ export function checkMdxFilenames(projectRoot: string): CheckResult {
   return { checked, findings }
 }
 
+/** True when two names differ only by letter case. */
+export function isCaseOnlyRename(from: string, to: string): boolean {
+  return from !== to && from.toLowerCase() === to.toLowerCase()
+}
+
 /**
  * True when the derived name already belongs to a different file.
  *
@@ -189,7 +194,7 @@ export function isRenameBlocked(
   from: string,
   to: string
 ): boolean {
-  if (from.toLowerCase() === to.toLowerCase()) return false
+  if (isCaseOnlyRename(from, to)) return false
   return fs.existsSync(path.join(dir, to))
 }
 
@@ -206,7 +211,7 @@ export function renameFile(dir: string, from: string, to: string): void {
 
   fs.mkdirSync(path.dirname(path.join(dir, to)), { recursive: true })
 
-  if (from.toLowerCase() === to.toLowerCase()) {
+  if (isCaseOnlyRename(from, to)) {
     const staging = `${to}.rename-staging`
     gitMv(from, staging)
     gitMv(staging, to)

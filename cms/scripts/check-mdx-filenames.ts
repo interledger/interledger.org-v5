@@ -12,6 +12,7 @@ import { CONTENT_COLLECTIONS } from '../src/utils/contentCollections'
 import {
   checkMdxFilenames,
   collectionDir,
+  isCaseOnlyRename,
   isRenameBlocked,
   renameFile,
   type Finding
@@ -41,6 +42,8 @@ function report(findings: Finding[], checked: number): void {
  * editor can say which content to keep.
  */
 function fix(projectRoot: string, findings: Finding[]): void {
+  let caseOnly = 0
+
   for (const finding of findings) {
     if (!finding.expected) continue
     const dir = collectionDir(projectRoot, finding.collection)
@@ -54,8 +57,28 @@ function fix(projectRoot: string, findings: Finding[]): void {
     }
 
     renameFile(dir, finding.actual, finding.expected)
+    if (isCaseOnlyRename(finding.actual, finding.expected)) caseOnly += 1
     console.log(`🔤 Renamed ${finding.actual} → ${finding.expected}`)
   }
+
+  if (caseOnly > 0) warnAboutStaleContentStore()
+}
+
+/**
+ * Astro keeps its content store in `node_modules/.astro/data-store.json`, and
+ * a rename that only changes case leaves the entry id untouched. The
+ * incremental sync therefore refreshes the entry but keeps its old
+ * `filePath`, which Astro then emits as an import specifier. A
+ * case-insensitive filesystem resolves it anyway, so the build only breaks on
+ * Linux.
+ */
+function warnAboutStaleContentStore(): void {
+  console.error(
+    '\n⚠️  Delete node_modules/.astro before the next build. A rename that only' +
+      "\nchanges case leaves a stale path in Astro's content store, which builds" +
+      '\nfine on macOS and fails on Linux. On Netlify, use "Clear cache and' +
+      '\ndeploy site", because it restores node_modules from its build cache.'
+  )
 }
 
 function main(): void {
