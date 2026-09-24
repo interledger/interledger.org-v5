@@ -12,6 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
+- Redirects: literal paths go in `redirects.ts`; any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
 
 ## Code Style
 
@@ -208,6 +209,88 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
   installed) and will **hang on an interactive install prompt** — don't use it.
   Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises
   the CDN path and runs the audit.
+
+## Internal Link Validation
+
+`src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
+`astro:build:done` and reports internal links and fragments that this deploy
+does not serve — warning by default, failing the build under
+`LINK_CHECK=strict` (see below). It replaced `starlight-links-validator`, which
+only ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of
+the places real breakage lives.
+
+- **Never resolve a target against a route's `patternRegex`.** `[...page].astro`
+  compiles to `^(?:\/(.*?))?\/?$`, and in a JS regex `.` matches `/`, so it
+  matches every path on the site. 26 of the dynamic routes are catch-alls like
+  this — use one and the check passes every broken link forever, silently.
+  `astro:routes:resolved` is read for exactly two things: literal SSR route
+  patterns and literal redirect sources. Prerendered routes are covered by the
+  files they emitted, which is an exact set.
+- **Valid targets** = dist files ∪ dist index directories ∪ `redirects.ts`
+  sources ∪ SSR routes ∪ the rules in `dist/_redirects`, then `netlify.toml`
+  (Netlify's order; the toml rules never reach `dist/_redirects`), plus two
+  small allowlists: `/robots.txt` and `/_redirects` exactly, and anything under
+  `/.netlify/` or `/.well-known/`. Files are checked before rules, as on
+  Netlify, and a 404 rule never counts as a resolution — `/404.html` is a real
+  file, so following it would pass the link.
+- **Register it last** in `astro.config.mjs`. Hooks run in array order and it
+  reads files other integrations write in their own `astro:build:done` — the
+  sitemap XML in particular.
+- **HTML-entity-decode before splitting on `#` or `?`.** `&#38;` contains a
+  literal `#`, and every `/.netlify/images` URL separates params with it.
+- **Never scan `data-*`.** Over two million values, and
+  `data-umami-event-link-text` holds free prose that parses as phantom schemes
+  and fragments. Carriers are `href`, `src`, `srcset`, `action`, `poster`.
+- **Protocol-relative `//host/path` is external**, not the internal path
+  `/host/path`. Test it before the leading-slash check.
+- **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
+  canonical are both emitted that way, and that is where a whole class of
+  breakage hid.
+- **Relative links resolve against the served URL.** `about-us/index.html` is
+  served at `/about-us/`, and against the slashless form `new URL` drops a
+  segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
+  dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
+- **Findings warn; only Force Reset fails.** Editors commit MDX straight to
+  `staging` with no PR and fix most of their own broken links quickly, so
+  failing every build would stop staging far more often than it would prevent
+  anything reaching production — and a PR to `staging` is built merged with
+  `staging`, so it would block developers on someone else's pending typo.
+  `LINK_CHECK=strict` turns findings into a build failure, and only a production
+  publish via `reset.yml` sets it. That gate runs **before** the force-push, so a finding
+  leaves the branch untouched: Netlify is never triggered and the live site is
+  unchanged rather than rolled back. Broken links therefore accumulate on
+  staging as warnings and must be cleared before the next publish.
+- **A rollback can outrun the check.** `verify` builds the target SHA's own
+  tree, so `LINK_CHECK=strict` is inert on any commit predating the integration.
+  That stays a warning, not a failure — a rollback target already ran, and
+  blocking an incident rollback over its pre-existing link rot inverts the
+  priority. `reset.yml` guarantees only that the skip is loud: it reports up
+  front whether the SHA carries the check. Running the current validator against
+  an old tree is not an option — `redirects.ts` reaches the check only through
+  `astro:routes:resolved`, and the `prerender = false` routes appear nowhere in
+  `dist`, so any out-of-build runner reports all ~460 redirect sources and every
+  SSR route as broken. The workflow file itself always comes from the dispatch
+  ref, never from the SHA being published, so a rollback never degrades the next
+  run.
+- **Redirect destinations are checked, and fail like any other broken link.**
+  Read `route.redirect`, never `route.redirectRoute` — Astro matches the latter
+  against lowercased, slashless keys, so it is `undefined` for a destination
+  written with a slash. Exempt by **source**: the destination is a link target,
+  so listing it would also hide direct links to that path.
+- **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
+  globs; each entry carries a comment saying why). An entry that stops being
+  needed — its target resolves now, or nothing links to it any more — is
+  reported as a warning, never a failure.
+- **Blind spots**, neither checked nor reported — a clean run is not a
+  whole-site guarantee: `url()` in emitted CSS, `og:image` and `og:url`
+  (`<meta content>` isn't scanned; `og:url` shares canonical's value, so it is
+  covered indirectly), JS-generated anchors, external URLs, and anything only
+  an SSR route renders.
+- **`hreflang` is opt-out.** `buildCanonicalMeta` maps a slug across locales
+  without knowing which pages were built, so pages whose twin may not exist pass
+  `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
+  opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
+  not the translation of page 4 of the ES blog anyway.
 
 ## The Publish Gate (future-dated blog posts)
 
