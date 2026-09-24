@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_blocks_donation_cards",
+  "info": {
+    "displayName": "Donation Cards",
+    "icon": "heart",
+    "description": "Row of giving tiers. A page carrying this block loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID."
+  },
+  "options": {},
+  "attributes": {
+    "ariaLabel": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": { "i18n": { "localized": true } }
+    },
+    "cards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.donation-card",
+      "pluginOptions": { "i18n": { "localized": true } }
+    }
+  }
+}

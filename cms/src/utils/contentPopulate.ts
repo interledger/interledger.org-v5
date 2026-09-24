@@ -114,7 +114,8 @@ const FOUNDATION_PAGE_BLOCKS = {
       where: true,
       apply: { populate: { primaryCta: true } }
     }
-  }
+  },
+  'blocks.donation-cards': { cards: true }
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {

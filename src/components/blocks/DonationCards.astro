@@ -1,0 +1,148 @@
+---
+/**
+ * Donation Cards block — the giving tiers on a fundraising page.
+ *
+ * A tier is a fixed shape (amount, one-line summary, seats, benefits, one
+ * CTA), not free prose, so the cards arrive as a static array prop rather than
+ * as child elements — the same shape as `NumberTiles` and `CtaButtons`, which
+ * keeps the MDX ↔ Strapi round trip to plain text fields.
+ *
+ * Presence of this block is what marks a foundation page as a fundraising
+ * page: `FoundationContentPage` loads the Fundraise Up install script when it
+ * finds one, so a donate CTA pointing at an Element ID works without any
+ * per-page wiring.
+ */
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import { resolveCtaLink } from '@/utils'
+
+/**
+ * Figma gives each tier its own dot — warmer and smaller for the entry tier,
+ * darker and larger as the gift grows — so colour and size are the card's
+ * position rather than something an editor picks. A fourth card starts the
+ * sequence again.
+ */
+const ACCENT_CLASS = [
+  'size-[1.625rem] bg-coral-red-50',
+  'size-8 bg-periwinkle-100',
+  'size-[3.125rem] bg-royal-purple-150'
+] as const
+
+interface DonationCard {
+  heading: string
+  /** Gift size, e.g. "$10/month or $100 annually". */
+  amount: string
+  summary?: string
+  /** Seats line, e.g. "50 of 50 seats available". Static copy — Fundraise Up exposes no seat count. */
+  seats?: string
+  benefits: string
+  /** Defaults to "Benefits"; a prop so a translated page can set its own. */
+  benefitsLabel?: string
+  ctaText: string
+  ctaLink: string
+  ctaExternal?: boolean
+  ctaDocument?: boolean
+}
+
+interface Props {
+  cards?: DonationCard[]
+  /** Labels the grid for screen readers when the section has no visible heading. */
+  ariaLabel: string
+}
+
+const { cards = [], ariaLabel } = Astro.props
+
+const resolved = cards
+  .filter((card) => card?.heading?.trim() && card?.ctaLink?.trim())
+  .map((card) => ({
+    ...card,
+    cta: resolveCtaLink({
+      url: card.ctaLink.trim(),
+      external: card.ctaExternal,
+      document: card.ctaDocument,
+      internalIcon: 'arrow-right'
+    })
+  }))
+
+/**
+ * `group` drives the hover treatment: the card tints and its dot grows 30%.
+ * `focus-within` mirrors it so a keyboard user gets the same affordance when
+ * the CTA takes focus. ice-mint-100 is the design system's #e5f9f4.
+ */
+const cardClass =
+  'group relative flex h-full flex-col gap-lg rounded-3xl border border-neutral-50 bg-white p-lg text-neutral-900 transition-colors duration-200 hover:bg-ice-mint-100 focus-within:bg-ice-mint-100 dark:border-neutral-75 dark:bg-neutral-900 dark:text-neutral-50 dark:hover:bg-neutral-150 dark:focus-within:bg-neutral-150 tablet:p-xl'
+
+const bodyClass = 'm-0 text-base text-neutral-100 dark:text-neutral-50'
+
+/** The gift size and the benefits label sit a step above the card's body copy. */
+const leadClass =
+  'm-0 text-h5 font-bold text-neutral-100 dark:text-neutral-50 tablet:text-h5-md desktop:text-h5-lg'
+---
+
+{
+  resolved.length > 0 && (
+    <section
+      data-component="DonationCards"
+      aria-label={ariaLabel}
+      class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 desktop:grid-cols-3"
+    >
+      {resolved.map((card, index) => (
+        <article class={cardClass}>
+          <span
+            aria-hidden="true"
+            class:list={[
+              'block shrink-0 origin-top-left rounded-full transition-transform duration-200 group-hover:scale-130 group-focus-within:scale-130 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+              ACCENT_CLASS[index % ACCENT_CLASS.length]
+            ]}
+          />
+
+          <h3 class="m-0 !mt-0 !mb-0 !text-h3 tablet:!text-h3-md desktop:!text-h3-lg">
+            {card.heading}
+          </h3>
+
+          <p class={leadClass}>{card.amount}</p>
+
+          {card.summary && <p class={bodyClass}>{card.summary}</p>}
+
+          {card.seats && (
+            <p class="m-0 text-base font-bold text-orchid-100 dark:text-orchid-50">
+              {card.seats}
+            </p>
+          )}
+
+          <hr class="m-0 border-0 border-t border-neutral-50 dark:border-neutral-75" />
+
+          <p class={leadClass}>{card.benefitsLabel ?? 'Benefits'}</p>
+
+          <p class={bodyClass}>{card.benefits}</p>
+
+          {/* mt-auto pins every CTA to the bottom, so a shorter card's button
+              still lines up with the others in the row.
+
+              The button's stretched ::after covers the whole card, so clicking
+              anywhere on the card follows the CTA while the page keeps one tab
+              stop and one accessible name. A Fundraise Up CTA is the exception:
+              their script replaces our anchor with its own iframe button, which
+              takes the pseudo-element with it, so those cards stay
+              button-only until Fundraise Up gives us a donate-link URL. */}
+          <div class="mt-auto pt-lg">
+            <LinkButton
+              href={card.cta.href}
+              class="after:absolute after:inset-0 after:content-['']"
+              variant="primary"
+              external={card.cta.external}
+              document={card.cta.document}
+              iconSide={card.cta.icon ? 'right' : 'none'}
+              linkText={card.ctaText}
+              umamiLabel="button_card"
+              umamiBaseComponent="donation_card"
+            >
+              {card.ctaText}
+              {card.cta.icon && <Icon name={card.cta.icon} slot="icon-right" />}
+            </LinkButton>
+          </div>
+        </article>
+      ))}
+    </section>
+  )
+}

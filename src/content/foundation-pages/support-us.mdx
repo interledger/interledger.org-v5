@@ -13,81 +13,45 @@ heroCtas:
 locale: 'en'
 ---
 
-<CardGrid ariaLabel="Founding Circle membership tiers" variant="Info" columns="Three">
-<InfoCard heading="Founding Sustaining Members" variant="bordered">
-
-**$10/month or $100 annually**
-
-A recurring gift that grows our community, one member at a time.
-
-50 of 50 seats available
-
-**Benefits**
-
-Founding Sustaining Members enjoy all the benefits of our Community Members, plus an exclusive swag pack and additional unique benefits to be decided upon in partnership with you.
-
-<div slot="cta">
-  <CtaButtons
-    spacing="none"
-    umamiLabel="button_card"
-    umamiBaseComponent="founding_circle_sustaining"
-    buttons={[{ text: 'Donate', link: '#XVSHSPQU', style: 'primary' }]}
-  />
-</div>
-
-</InfoCard>
-<InfoCard heading="Founding Champions" variant="bordered">
-
-**A gift of $1,000 or more**
-
-Flexible, high-impact support to help us build our next chapter.
-
-10 of 10 seats available
-
-**Benefits**
-
-Founding Champions enjoy all the benefits of our Sustaining Members, plus a premium swag pack, a free ticket to the Summit with the VIP Interledger Summit experience, and additional unique benefits to be decided upon in partnership with you.
-
-<div slot="cta">
-  <CtaButtons
-    spacing="none"
-    umamiLabel="button_card"
-    umamiBaseComponent="founding_circle_champions"
-    buttons={[{ text: 'Donate', link: '#XMWLAVRZ', style: 'primary' }]}
-  />
-</div>
-
-</InfoCard>
-<InfoCard heading="Founding Visionaries" variant="bordered">
-
-**A gift of $25,000 or more**
-
-Major gifts, shaped around the strategic priorities you care about.
-
-3 of 3 seats available
-
-**Benefits**
-
-Founding Visionaries enjoy all the benefits of our Champions, plus unique engagement opportunities tailored to your interest.
-
-<div slot="cta">
-  <CtaButtons
-    spacing="none"
-    umamiLabel="button_card"
-    umamiBaseComponent="founding_circle_visionaries"
-    buttons={[
-      {
-        text: 'Schedule a meeting',
-        link: 'https://meetings-eu1.hubspot.com/jesse-ward',
-        style: 'primary',
-        external: true
-      }
-    ]}
-  />
-</div>
-
-</InfoCard>
-</CardGrid>
+<DonationCards
+  ariaLabel="Founding Circle membership tiers"
+  cards={[
+    {
+      heading: 'Founding Sustaining Members',
+      amount: '$10/month or $100 annually',
+      summary:
+        'A recurring gift that grows our community, one member at a time.',
+      seats: '50 of 50 seats available',
+      benefits:
+        'Founding Sustaining Members enjoy all the benefits of our Community Members, plus an exclusive swag pack and additional unique benefits to be decided upon in partnership with you.',
+      ctaText: 'Donate',
+      ctaLink: '#XVSHSPQU'
+    },
+    {
+      heading: 'Founding Champions',
+      amount: 'A gift of $1,000 or more',
+      summary:
+        'Flexible, high-impact support to help us build our next chapter.',
+      seats: '10 of 10 seats available',
+      benefits:
+        'Founding Champions enjoy all the benefits of our Sustaining Members, plus a premium swag pack, a free ticket to the Summit with the VIP Interledger Summit experience, and additional unique benefits to be decided upon in partnership with you.',
+      ctaText: 'Donate',
+      ctaLink: '#XMWLAVRZ'
+    },
+    {
+      heading: 'Founding Visionaries',
+      amount: 'A gift of $25,000 or more',
+      summary:
+        'Major gifts, shaped around the strategic priorities you care about.',
+      seats: '3 of 3 seats available',
+      benefits:
+        'Founding Visionaries enjoy all the benefits of our Champions, plus unique engagement opportunities tailored to your interest.',
+      ctaText: 'Schedule a meeting',
+      ctaLink: 'https://meetings-eu1.hubspot.com/jesse-ward',
+      ctaExternal: true
+    }
+  ]}
+/>
 
 <CtaStrip
   primaryButtonText="Become a member"
