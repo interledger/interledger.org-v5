@@ -12,6 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
+- Redirects: literal paths go in `redirects.ts`; any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
 
 ## Code Style
 

@@ -45,16 +45,14 @@ describe('faq serializer', () => {
     expect(result.indexOf('First')).toBeLessThan(result.indexOf('Second'))
   })
 
-  it('escapes characters that would break a JSX attribute', () => {
+  it('escapes only the quote that would break a JSX attribute', () => {
     const result = serialize({
       heading: 'A & B',
       items: [{ ...validItem, question: 'Is it "free" & <open>?' }]
     })
 
-    expect(result).toContain('heading="A &amp; B"')
-    expect(result).toContain(
-      'question="Is it &quot;free&quot; &amp; &lt;open&gt;?"'
-    )
+    expect(result).toContain('heading="A & B"')
+    expect(result).toContain('question="Is it &quot;free&quot; & <open>?"')
   })
 
   it('escapes MDX braces in the answer', () => {

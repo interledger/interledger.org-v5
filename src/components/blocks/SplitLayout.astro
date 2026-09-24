@@ -34,21 +34,25 @@ interface Props {
 
 const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
 
-/** Full class strings so Tailwind can detect them at build time. */
+/**
+ * Full class strings so Tailwind can detect them at build time. The split
+ * opens at `desktop` (1200px), matching TextMediaSection on the homepage:
+ * two columns plus the 120px gutter leave each side too narrow on a tablet.
+ */
 const GRID_COLS_BY_ORDER_AND_RATIO = {
   // media column first in the DOM (imagePosition=left)
   left: {
-    '1:1': 'tablet:grid-cols-2',
+    '1:1': 'desktop:grid-cols-2',
     // content:media 2:1 → media 1fr, content 2fr
-    '2:1': 'tablet:grid-cols-[1fr_2fr]',
+    '2:1': 'desktop:grid-cols-[1fr_2fr]',
     // content:media 1:2 → media 2fr, content 1fr
-    '1:2': 'tablet:grid-cols-[2fr_1fr]'
+    '1:2': 'desktop:grid-cols-[2fr_1fr]'
   },
   // content column first in the DOM (imagePosition=right)
   right: {
-    '1:1': 'tablet:grid-cols-2',
-    '2:1': 'tablet:grid-cols-[2fr_1fr]',
-    '1:2': 'tablet:grid-cols-[1fr_2fr]'
+    '1:1': 'desktop:grid-cols-2',
+    '2:1': 'desktop:grid-cols-[2fr_1fr]',
+    '1:2': 'desktop:grid-cols-[1fr_2fr]'
   }
 } as const satisfies Record<
   'left' | 'right',
@@ -101,7 +105,7 @@ const mediaFirst = imagePosition === 'left'
 
 const gridColsClass = hasMedia
   ? GRID_COLS_BY_ORDER_AND_RATIO[mediaFirst ? 'left' : 'right'][displayRatio]
-  : 'tablet:grid-cols-1'
+  : 'desktop:grid-cols-1'
 
 const columnClass = 'w-full min-w-0'
 const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
@@ -110,7 +114,7 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
 <div
   data-component="SplitLayout"
   class:list={[
-    'flex flex-col gap-3xl tablet:grid tablet:items-center tablet:gap-6xl',
+    'flex flex-col gap-3xl desktop:grid desktop:items-center desktop:gap-6xl',
     gridColsClass
   ]}
 >
