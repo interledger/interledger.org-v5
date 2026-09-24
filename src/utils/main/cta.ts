@@ -104,10 +104,11 @@ export function resolveCtaLink({
   // for an absolute URL (hackathon register is authored that way).
   const external = externalFlag ?? isExternalHref(url)
 
-  // Guard on the scheme, not on `external`: an author may tick "external" on a
-  // site-relative path, and `mailto:` / `tel:` links carry a scheme without
-  // being http(s). Either way, prefixing a slash would break the href.
-  const href = hasUrlScheme(url) ? url : ensureLeadingSlash(url)
+  // Guard on the shape of the URL, not on `external`: an author may tick
+  // "external" on a site path, `mailto:` / `tel:` carry a scheme without being
+  // http(s), and slashing a bare `#anchor` turns it into a homepage jump.
+  const href =
+    hasUrlScheme(url) || url.startsWith('#') ? url : ensureLeadingSlash(url)
 
   const icon: CtaIconName | null = isDocument
     ? 'download'

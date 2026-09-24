@@ -30,6 +30,10 @@ describe('resolveCtaLink', () => {
         '//cdn.example.com/x.pdf'
       )
     })
+
+    it('leaves a bare anchor alone rather than sending it to the homepage', () => {
+      expect(resolveCtaLink({ url: '#cta-strip' }).href).toBe('#cta-strip')
+    })
   })
 
   describe('external', () => {
