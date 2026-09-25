@@ -13,6 +13,11 @@ import {
 } from 'ckeditor5'
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 import {
+  DISABLED_ROW_CSS,
+  INJECT_COLUMN_IN_TABLE_HOOK,
+  markDisabledListRows
+} from './disabledListRows'
+import {
   collapseSoftWraps,
   healStrandedListItemBreaks,
   prepareHtmlForMarkdown,
@@ -241,7 +246,11 @@ export default {
     setPluginConfig(myPluginConfig)
   },
 
-  bootstrap(_app: unknown) {
+  bootstrap(app: {
+    registerHook: (name: string, fn: typeof markDisabledListRows) => void
+  }) {
+    app.registerHook(INJECT_COLUMN_IN_TABLE_HOOK, markDisabledListRows)
+
     // TEMP UI Fix: inject styles until Strapi supports proper theming
     const style = document.createElement('style')
     style.textContent = `
@@ -322,6 +331,7 @@ export default {
         bottom: -2rem;
         right: 0;
       }
+      ${DISABLED_ROW_CSS}
     `
     document.head.appendChild(style)
 

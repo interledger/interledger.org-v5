@@ -26,6 +26,7 @@ export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
+export { parseRedirectConfig, toAstroRedirects } from './shared/redirects'
 export {
   parseStatNumber,
   formatStatNumber,

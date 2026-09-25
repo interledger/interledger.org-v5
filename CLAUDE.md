@@ -12,7 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
-- Redirects: literal paths go in `redirects.ts`; any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
+- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` on every save — never hand-edit that file, the next CMS save overwrites it. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file (so re-seeding keeps it) but out of Astro. Root `redirects.ts` only loads and validates it for `astro.config.mjs`; seed a fresh Strapi from the file with `pnpm sync:redirects` (from `cms/`). Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
 
 ## Code Style
 

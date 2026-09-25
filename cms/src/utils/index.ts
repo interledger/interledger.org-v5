@@ -127,6 +127,30 @@ export {
   type SectionScopedSlugCheck
 } from './sectionScopedSlug'
 
+// Redirects (editor-owned literal redirects → src/config/redirects.json)
+export {
+  REDIRECT_CATEGORIES,
+  REDIRECT_TYPE_STATUS,
+  type RedirectCategory,
+  type RedirectType,
+  type RedirectStatus,
+  type RedirectEntry,
+  type RedirectRule,
+  type RedirectConfig,
+  type RedirectFinder,
+  type RedirectLinkCheck,
+  normalizeRedirectSource,
+  normalizeRedirectInput,
+  isRedirectEnabled,
+  redirectDeleteError,
+  validateRedirectInput,
+  validateRedirectLinks,
+  validateAndSaveRedirect,
+  type RedirectWrite,
+  serializeRedirectConfig,
+  redirectConfigToEntries
+} from './redirects'
+
 // Card grid variants (serializers, sync handlers, admin picker)
 export {
   CARD_GRID_COLUMNS,
@@ -209,8 +233,10 @@ export {
   createDebouncedGitSync,
   scheduleGitSync,
   settledGitSync,
-  gitCommitAndPush
+  gitCommitAndPush,
+  withGitSyncLock
 } from './gitSync'
+export { type AsyncLock, createAsyncLock } from './asyncLock'
 
 // Lifecycle factories
 export {
@@ -263,6 +289,7 @@ export {
   createNavigationLifecycle,
   normalizeNavigationInput
 } from './navigationLifecycle'
+export { createRedirectsLifecycle } from './redirectsLifecycle'
 
 // Relative link / path-segment slash normalization
 export {

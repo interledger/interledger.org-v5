@@ -1,0 +1,61 @@
+{
+  "kind": "collectionType",
+  "collectionName": "redirects",
+  "info": {
+    "singularName": "redirect",
+    "pluralName": "redirects",
+    "displayName": "Redirect",
+    "description": "Send an old URL to its new home. Saving rewrites src/config/redirects.json and deploys with the next build. Redirects can't be deleted: switch Enabled off instead."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    },
+    "listView": {
+      "disabledFlag": "enabled"
+    }
+  },
+  "attributes": {
+    "source": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "destination": {
+      "type": "string",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "site_pages",
+        "site_pages_es",
+        "policy_advocacy",
+        "blog_news_migration",
+        "blog_taxonomy",
+        "developers_blog_migration",
+        "hackathon",
+        "summit"
+      ],
+      "required": true,
+      "default": "site_pages"
+    },
+    "redirectType": {
+      "type": "enumeration",
+      "enum": ["permanent", "temporary"],
+      "required": true,
+      "default": "permanent"
+    },
+    "enabled": {
+      "type": "boolean",
+      "required": true,
+      "default": true
+    },
+    "note": {
+      "type": "text"
+    }
+  }
+}

@@ -16,6 +16,9 @@ import {
   validateFaqSections,
   validateSectionScopedSlug,
   type SectionScopedSlugFinder,
+  validateAndSaveRedirect,
+  redirectDeleteError,
+  type RedirectFinder,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -175,6 +178,8 @@ export function registerAsyncDocumentValidation(
     return next()
   })
 }
+
+const REDIRECT_UID = 'api::redirect.redirect'
 
 /**
  * Content types whose `pathSlug` is relative to their `section`, so the slug
@@ -2361,6 +2366,44 @@ export default {
         )
       )
     )
+
+    // Redirects: refuse deletes (editors switch "Enabled" off instead), then
+    // canonicalize the paths and reject anything that isn't one literal path
+    // (patterns belong in public/_redirects) and any self-redirect or chain,
+    // before it reaches the DB and the exported redirects.json. The check and
+    // the write run under one lock (validateAndSaveRedirect), so two saves
+    // can't each pass the chain check and commit a chain between them.
+    //
+    // Matching `delete` covers every document-service delete: Strapi 5's
+    // document service has no deleteMany action, and the admin's bulk delete
+    // calls documents().delete once per entry, so it lands here too. Only
+    // strapi.db.query(uid).delete/deleteMany skip document middleware; that is
+    // server-side code, and the lifecycle's afterDelete/afterDeleteMany keep
+    // redirects.json in step with it.
+    strapi.documents.use(async (ctx, next) => {
+      if (ctx.uid === REDIRECT_UID && ctx.action === 'delete') {
+        throw redirectDeleteError()
+      }
+      if (
+        ctx.uid === REDIRECT_UID &&
+        (ctx.action === 'create' || ctx.action === 'update')
+      ) {
+        const saved = await validateAndSaveRedirect(
+          {
+            documents: strapi.documents(
+              REDIRECT_UID
+            ) as unknown as RedirectFinder,
+            data: ctx.params.data ?? {},
+            documentId: ctx.params.documentId,
+            isCreate: ctx.action === 'create'
+          },
+          () => next()
+        )
+        if (saved instanceof Error) throw saved
+        return saved
+      }
+      return next()
+    })
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB

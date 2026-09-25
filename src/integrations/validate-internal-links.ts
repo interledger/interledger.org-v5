@@ -828,7 +828,8 @@ export function validateInternalLinks(): AstroIntegration {
         const report =
           `${scanned} — ${findings.size} do not resolve.${skipped}\n` +
           `Fix the link or the redirect's destination, add a redirect in ` +
-          `redirects.ts, or add an entry to ` +
+          `Strapi (Content Manager → Redirect; patterns go in public/_redirects), ` +
+          `or add an entry to ` +
           `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
           formatFindings(entries)
 

@@ -4,6 +4,7 @@ import path from 'path'
 import { exec } from 'child_process'
 import { PATHS, getProjectRoot } from './paths'
 import { tryCatchAsync } from './tryCatch'
+import { createAsyncLock } from './asyncLock'
 import {
   isSlackAlertingConfigured,
   notifyGitSyncToSlack,
@@ -418,6 +419,43 @@ async function report(
   return result
 }
 
+// ── Checkout lock ────────────────────────────────────────────────────────────
+
+const gitSyncLock = createAsyncLock()
+
+/**
+ * Run `fn` while no other git sync touches the checkout. Every sync entry
+ * point ({@link runGitSync}, {@link gitCommitAndPush}, and so the debounced
+ * scheduler) goes through here: two overlapping saves otherwise run `git add`,
+ * `commit` and `pull --rebase` concurrently in one checkout, which fails on
+ * `.git/index.lock` or sweeps one save's files into the other's commit.
+ *
+ * A lifecycle that writes a file and then commits it should hold the lock for
+ * both, so a slower save can't write an older snapshot and commit it last.
+ * Calls made inside `fn` run straight away rather than queueing behind it, so
+ * `gitCommitAndPush` inside the critical section doesn't deadlock. They do
+ * not serialize against each other, so await them in turn.
+ *
+ * Holders run one at a time in call order. Never rejects: a throw from `fn`
+ * comes back as an `Error` and the next holder still runs. See
+ * {@link createAsyncLock} for the re-entrancy rules.
+ */
+export function withGitSyncLock<T>(
+  fn: () => T | Promise<T>
+): Promise<T | Error> {
+  return gitSyncLock.run(fn)
+}
+
+/**
+ * The lock only rejects if its own machinery breaks, since every body passed
+ * to it already turns failures into results. Keep the never-rejects contract
+ * even then.
+ */
+function lockFailure(error: Error): GitSyncResult {
+  console.error(`⚠️  Git sync lock failed unexpectedly: ${error.message}`)
+  return { outcome: 'failed', error }
+}
+
 // ── Sync ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -432,6 +470,17 @@ export async function runGitSync(
   label: string,
   context?: SyncContext,
   deps: GitSyncDeps = defaultGitSyncDeps
+): Promise<GitSyncResult> {
+  const result = await withGitSyncLock(() =>
+    runGitSyncUnlocked(label, context, deps)
+  )
+  return result instanceof Error ? lockFailure(result) : result
+}
+
+async function runGitSyncUnlocked(
+  label: string,
+  context: SyncContext | undefined,
+  deps: GitSyncDeps
 ): Promise<GitSyncResult> {
   if (isGitSyncDisabled()) return { outcome: 'skipped', reason: 'disabled' }
 
@@ -586,6 +635,17 @@ export async function gitCommitAndPush(
   filepath: string | string[],
   message: string,
   deps: GitSyncDeps = defaultGitSyncDeps
+): Promise<GitSyncResult> {
+  const result = await withGitSyncLock(() =>
+    gitCommitAndPushUnlocked(filepath, message, deps)
+  )
+  return result instanceof Error ? lockFailure(result) : result
+}
+
+async function gitCommitAndPushUnlocked(
+  filepath: string | string[],
+  message: string,
+  deps: GitSyncDeps
 ): Promise<GitSyncResult> {
   if (isGitSyncDisabled()) {
     console.log('⏭️  Git sync commit skipped via STRAPI_DISABLE_GIT_SYNC')

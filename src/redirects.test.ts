@@ -1,14 +1,63 @@
 import { describe, expect, it } from 'vitest'
 import { redirects } from '../redirects'
+import redirectConfigJson from './config/redirects.json'
+import redirectSchema from '../cms/src/api/redirect/content-types/redirect/schema.json'
+import { parseRedirectConfig } from './utils/shared/redirects'
+import { REDIRECT_CATEGORIES, type RedirectConfig } from './types/redirects'
 
-describe('redirects.ts', () => {
-  // Astro's Netlify adapter emits a dynamic redirect's [...rest] destination
-  // as a literal `*`, so every match lands on a 404, and appends it after
-  // public/_redirects, where it cannot be ordered [INTORG-1112].
-  it('has no dynamic sources — write those in public/_redirects', () => {
-    const dynamic = Object.keys(redirects).filter((source) =>
-      source.includes('[')
+const config = parseRedirectConfig(redirectConfigJson) as RedirectConfig
+const rules = REDIRECT_CATEGORIES.flatMap((category) => config[category])
+const enabledRules = rules.filter((rule) => rule.enabled !== false)
+const enabledSources = new Set(enabledRules.map((rule) => rule.source))
+
+function withoutTrailingSlash(path: string): string {
+  return path.length > 1 ? path.replace(/\/+$/, '') : path
+}
+
+/**
+ * The on-site path a destination lands on, as Netlify matches sources: query,
+ * fragment and trailing slash dropped. Mirrors redirectTargetPath in
+ * cms/src/utils/redirects.ts.
+ */
+function targetPath(destination: string): string {
+  return withoutTrailingSlash(destination.split(/[?#]/, 1)[0]!)
+}
+
+describe('src/config/redirects.json', () => {
+  // Parsing also enforces the path rules Strapi applies on save (literal
+  // sources, / or https:// destinations) and unique sources; see
+  // src/utils/shared/redirects.test.ts.
+  it('parses', () => {
+    expect(parseRedirectConfig(redirectConfigJson)).not.toBeInstanceOf(Error)
+  })
+
+  it('has no redirect that points at itself', () => {
+    const selfRedirects = rules.filter(
+      (rule) =>
+        withoutTrailingSlash(rule.source) === targetPath(rule.destination)
     )
-    expect(dynamic).toEqual([])
+    expect(selfRedirects).toEqual([])
+  })
+
+  // A chain costs visitors an extra round trip and hides the real target from
+  // the link validator. Point the first hop straight at the last one. Only
+  // enabled rules reach Astro, so only they can chain.
+  it('has no chains', () => {
+    const chains = enabledRules.filter((rule) =>
+      enabledSources.has(targetPath(rule.destination))
+    )
+    expect(chains).toEqual([])
+  })
+
+  it('reaches Astro as one entry per enabled rule', () => {
+    expect(Object.keys(redirects)).toHaveLength(enabledRules.length)
+  })
+})
+
+describe('Strapi redirect schema', () => {
+  it('offers exactly the categories the JSON is grouped by', () => {
+    expect(redirectSchema.attributes.category.enum).toEqual([
+      ...REDIRECT_CATEGORIES
+    ])
   })
 })
