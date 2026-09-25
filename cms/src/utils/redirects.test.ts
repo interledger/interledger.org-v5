@@ -62,14 +62,14 @@ describe('validateRedirectInput', () => {
     ).toBeUndefined()
   })
 
-  it('accepts an absolute https destination', () => {
-    expect(
-      validateRedirectInput(
-        { source: '/docs', destination: 'https://example.org/docs' },
-        create
-      )
-    ).toBeUndefined()
-  })
+  it.each(['https://example.org/docs', 'HTTPS://Example.org/docs'])(
+    'accepts an absolute https destination (%s)',
+    (destination) => {
+      expect(
+        validateRedirectInput({ source: '/docs', destination }, create)
+      ).toBeUndefined()
+    }
+  )
 
   it('accepts & in a source, as the legacy blog tag URLs use', () => {
     expect(
@@ -110,6 +110,10 @@ describe('validateRedirectInput', () => {
     ['a relative path', 'new-page'],
     ['a protocol-relative URL', '//evil.example/x'],
     ['a mailto link', 'mailto:hi@example.org'],
+    ['an insecure http URL', 'http://example.org/docs'],
+    ['an uppercase insecure HTTP URL', 'HTTP://example.org/docs'],
+    ['an https URL with no host', 'https:///docs'],
+    ['a bare https scheme', 'https://'],
     ['an empty string', '']
   ])('rejects a destination with %s', (_label, destination) => {
     expect(

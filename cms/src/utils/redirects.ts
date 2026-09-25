@@ -64,7 +64,19 @@ export type RedirectConfig = Record<RedirectCategory, RedirectRule[]>
 // Anything that makes a source a pattern, a query or a fragment rather than
 // one literal path. `[` is Astro's dynamic-route syntax; `:`/`*` are Netlify's.
 const NON_LITERAL_SOURCE = /[[\]:*?#\s]/
-const ABSOLUTE_URL = /^https?:\/\//i
+
+// `https://` followed directly by a host. The URL parser alone isn't enough:
+// it skips extra slashes, so `https:///docs` would parse with host `docs`.
+const HTTPS_WITH_HOST = /^https:\/\/[^/?#\s]/i
+
+/**
+ * True for an absolute `https:` URL with a host, so `http://…`,
+ * `https:///path` and a bare `https://` are all rejected.
+ */
+function isHttpsUrl(value: string): boolean {
+  if (!HTTPS_WITH_HOST.test(value) || !URL.canParse(value)) return false
+  return new URL(value).hostname !== ''
+}
 
 /** Trims and drops a trailing slash, which Astro would ignore anyway. */
 export function normalizeRedirectSource(source: string): string {
@@ -104,7 +116,7 @@ function destinationError(
     return 'Enter the new path, e.g. /new-page'
   }
   const trimmed = destination.trim()
-  if (!trimmed.startsWith('/') && !ABSOLUTE_URL.test(trimmed)) {
+  if (!trimmed.startsWith('/') && !isHttpsUrl(trimmed)) {
     return 'The new path must start with / or be a full https:// URL'
   }
   if (trimmed.startsWith('//')) return 'The new path must not start with //'
