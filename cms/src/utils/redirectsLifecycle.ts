@@ -59,7 +59,6 @@ async function exportAndCommitRedirects(
   action: 'add' | 'update' | 'delete',
   event: RedirectEvent
 ): Promise<void> {
-  if (shouldSkipMdxExport()) return
   try {
     const outputPath = writeRedirectsFile(await fetchAllRedirects())
     const subject = event.result?.source ?? 'redirects'
@@ -71,24 +70,43 @@ async function exportAndCommitRedirects(
   }
 }
 
+// Every export writes the same file, so two overlapping saves must not
+// interleave: the slower one could write an older snapshot and commit it
+// last, dropping the other edit. Queued exports run one at a time, and each
+// reads the database only once the previous one has committed, so the last
+// file written is always the latest state. Never rejects (see the catch
+// above), so one failed export can't stall the queue.
+let exportQueue: Promise<void> = Promise.resolve()
+
+function queueExport(
+  action: 'add' | 'update' | 'delete',
+  event: RedirectEvent
+): Promise<void> {
+  // Read while the save's request is still the current one: the skip header
+  // lives on its context, and a queued export may run well after it.
+  if (shouldSkipMdxExport()) return Promise.resolve()
+  exportQueue = exportQueue.then(() => exportAndCommitRedirects(action, event))
+  return exportQueue
+}
+
 export function createRedirectsLifecycle() {
   return {
     async afterCreate(event: RedirectEvent) {
-      await exportAndCommitRedirects('add', event)
+      await queueExport('add', event)
     },
 
     async afterUpdate(event: RedirectEvent) {
-      await exportAndCommitRedirects('update', event)
+      await queueExport('update', event)
     },
 
     async afterDelete(event: RedirectEvent) {
-      await exportAndCommitRedirects('delete', event)
+      await queueExport('delete', event)
     },
 
     // Editors can't delete (see redirectDeleteError), but a developer removing
     // rows from the Strapi console still has to leave the file in step.
     async afterDeleteMany() {
-      await exportAndCommitRedirects('delete', {})
+      await queueExport('delete', {})
     }
   }
 }

@@ -91,6 +91,55 @@ describe('createRedirectsLifecycle', () => {
     ])
   })
 
+  // Two saves close together: the first save's read is slow, the second lands
+  // meanwhile. Unserialized, the first export wrote its older snapshot and
+  // committed it last, dropping the second edit from the file.
+  it('commits the latest state when saves overlap', async () => {
+    const a = {
+      source: '/a',
+      destination: '/x',
+      category: 'hackathon' as const
+    }
+    const b = {
+      source: '/b',
+      destination: '/y',
+      category: 'hackathon' as const
+    }
+    // What the database holds at each read: before and after the second save.
+    const snapshots: RedirectEntry[][] = [[a], [a, b]]
+    let releaseFirstRead!: () => void
+    const firstReadGate = new Promise<void>((resolve) => {
+      releaseFirstRead = resolve
+    })
+    let reads = 0
+    vi.stubGlobal('strapi', {
+      documents: () => ({
+        findMany: async () => {
+          const read = reads++
+          if (read === 0) await firstReadGate
+          return snapshots[read]
+        }
+      })
+    })
+    const committedSources: string[][] = []
+    gitCommitAndPush.mockImplementation(async () => {
+      committedSources.push(
+        (readOutput().hackathon as { source: string }[]).map((r) => r.source)
+      )
+    })
+    const lifecycle = createRedirectsLifecycle()
+
+    const firstSave = lifecycle.afterUpdate({ result: { source: '/a' } })
+    const secondSave = lifecycle.afterCreate({ result: { source: '/b' } })
+    releaseFirstRead()
+    await Promise.all([firstSave, secondSave])
+
+    expect(committedSources).toEqual([['/a'], ['/a', '/b']])
+    expect(
+      (readOutput().hackathon as { source: string }[]).map((r) => r.source)
+    ).toEqual(['/a', '/b'])
+  })
+
   it('writes nothing when the request asks to skip the export', async () => {
     skipExport = true
     const findMany = stubStrapi([])
