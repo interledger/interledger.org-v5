@@ -195,6 +195,12 @@ export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
 export { detectVideoProvider } from './main/video'
 export { getHeroSectionStyle } from './main/heroSectionStyle'
 export {
+  buildCodeTheme,
+  LIGHT_CODE_PALETTE,
+  DARK_CODE_PALETTE,
+  type CodeThemePalette
+} from './main/codeTheme'
+export {
   resolveCtaLink,
   resolveDownloadName,
   type CtaIconName,
