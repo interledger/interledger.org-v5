@@ -1,0 +1,39 @@
+{
+  "sources": {
+    "valid": [
+      "/about",
+      "/about/",
+      "/es/grant/fellowship",
+      "/blog/tag/community-&-events"
+    ],
+    "invalid": [
+      "about",
+      "https://interledger.org/old",
+      "/es/summit//hackathons",
+      "/summit/:year/talk",
+      "/news/*",
+      "/blog/[slug]",
+      "/old?x=1",
+      "/old#top",
+      "/old page"
+    ]
+  },
+  "destinations": {
+    "valid": [
+      "/",
+      "/new-page",
+      "/tech/overview/",
+      "https://example.org/docs",
+      "HTTPS://Example.org/docs"
+    ],
+    "invalid": [
+      "new-page",
+      "//evil.example/x",
+      "mailto:hi@example.org",
+      "http://example.org/docs",
+      "HTTP://example.org/docs",
+      "https:///docs",
+      "https://"
+    ]
+  }
+}

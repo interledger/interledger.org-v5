@@ -13,6 +13,7 @@ import {
   type RedirectEntry,
   type RedirectFinder
 } from './redirects'
+import pathCases from './redirectPathCases.json'
 
 function fieldErrors(err: unknown): { path: string[]; message: string }[] {
   const details = (err as { details?: { errors?: unknown[] } }).details
@@ -453,4 +454,44 @@ describe('redirectDeleteError', () => {
   it('tells the editor to switch the redirect off instead', () => {
     expect(redirectDeleteError().message).toContain('Enabled')
   })
+})
+
+// The same cases drive the Astro loader's copy of these rules
+// (src/utils/shared/redirects.test.ts), so the two can't drift apart.
+describe('validateRedirectInput path cases shared with the loader', () => {
+  const create = { isCreate: true }
+
+  it.each(pathCases.sources.valid)('accepts source %s', (source) => {
+    expect(
+      validateRedirectInput({ source, destination: '/elsewhere' }, create)
+    ).toBeUndefined()
+  })
+
+  it.each(pathCases.sources.invalid)('rejects source %s', (source) => {
+    expect(
+      erroredFields(
+        validateRedirectInput({ source, destination: '/elsewhere' }, create)
+      )
+    ).toEqual(['source'])
+  })
+
+  it.each(pathCases.destinations.valid)(
+    'accepts destination %s',
+    (destination) => {
+      expect(
+        validateRedirectInput({ source: '/old', destination }, create)
+      ).toBeUndefined()
+    }
+  )
+
+  it.each(pathCases.destinations.invalid)(
+    'rejects destination %s',
+    (destination) => {
+      expect(
+        erroredFields(
+          validateRedirectInput({ source: '/old', destination }, create)
+        )
+      ).toEqual(['destination'])
+    }
+  )
 })

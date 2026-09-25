@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseRedirectConfig, toAstroRedirects } from './redirects'
 import { REDIRECT_CATEGORIES, type RedirectConfig } from '../../types/redirects'
+import pathCases from '../../../cms/src/utils/redirectPathCases.json'
 
 function emptyConfig(): RedirectConfig {
   return Object.fromEntries(
@@ -82,6 +83,52 @@ describe('parseRedirectConfig', () => {
     const result = parseRedirectConfig({ hackathon: [rule] })
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain('hackathon[0]')
+  })
+})
+
+// The same cases drive Strapi's save validation (validateRedirectInput in
+// cms/src/utils/redirects.test.ts), so a file Strapi could never have written
+// fails the build, and the two copies of the rules can't drift apart.
+describe('parseRedirectConfig path rules shared with Strapi', () => {
+  function parseOne(source: string, destination: string) {
+    return parseRedirectConfig({
+      site_pages: [{ source, destination, status: 301 }]
+    })
+  }
+
+  it.each(pathCases.sources.valid)('accepts source %s', (source) => {
+    expect(parseOne(source, '/elsewhere')).not.toBeInstanceOf(Error)
+  })
+
+  it.each(pathCases.sources.invalid)('rejects source %s', (source) => {
+    const result = parseOne(source, '/elsewhere')
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('site_pages[0].source')
+  })
+
+  it.each(pathCases.destinations.valid)(
+    'accepts destination %s',
+    (destination) => {
+      expect(parseOne('/old', destination)).not.toBeInstanceOf(Error)
+    }
+  )
+
+  it.each(pathCases.destinations.invalid)(
+    'rejects destination %s',
+    (destination) => {
+      const result = parseOne('/old', destination)
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toContain('site_pages[0].destination')
+    }
+  )
+
+  it('rejects a source listed twice, even across categories', () => {
+    const result = parseRedirectConfig({
+      site_pages: [{ source: '/dup', destination: '/a', status: 301 }],
+      hackathon: [{ source: '/dup', destination: '/b', status: 301 }]
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('/dup')
   })
 })
 

@@ -7,7 +7,6 @@ import { REDIRECT_CATEGORIES, type RedirectConfig } from './types/redirects'
 
 const config = parseRedirectConfig(redirectConfigJson) as RedirectConfig
 const rules = REDIRECT_CATEGORIES.flatMap((category) => config[category])
-const sources = new Set(rules.map((rule) => rule.source))
 const enabledRules = rules.filter((rule) => rule.enabled !== false)
 const enabledSources = new Set(enabledRules.map((rule) => rule.source))
 
@@ -16,29 +15,11 @@ function withoutTrailingSlash(path: string): string {
 }
 
 describe('src/config/redirects.json', () => {
+  // Parsing also enforces the path rules Strapi applies on save (literal
+  // sources, / or https:// destinations) and unique sources; see
+  // src/utils/shared/redirects.test.ts.
   it('parses', () => {
     expect(parseRedirectConfig(redirectConfigJson)).not.toBeInstanceOf(Error)
-  })
-
-  // Astro's Netlify adapter emits a dynamic redirect's [...rest] destination
-  // as a literal `*`, so every match lands on a 404, and appends it after
-  // public/_redirects, where it cannot be ordered [INTORG-1112].
-  it('has no pattern sources — write those in public/_redirects', () => {
-    const patterns = rules
-      .map((rule) => rule.source)
-      .filter((source) => /[[\]:*]/.test(source))
-    expect(patterns).toEqual([])
-  })
-
-  it('has only root-relative sources without a double slash', () => {
-    const malformed = rules
-      .map((rule) => rule.source)
-      .filter((source) => !source.startsWith('/') || source.includes('//'))
-    expect(malformed).toEqual([])
-  })
-
-  it('lists each source once across all categories', () => {
-    expect(sources.size).toBe(rules.length)
   })
 
   it('has no redirect that points at itself', () => {
