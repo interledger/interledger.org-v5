@@ -28,6 +28,8 @@ interface Props {
   headerTheme?: 'light' | 'dark'
   bodyClass?: string
   noindex?: boolean
+  /** See BaseLayout. */
+  localeAlternates?: boolean
   /** Emits `<link rel="preload">` for homepage or PageHero LCP candidates in `<head>`. */
   heroLcpPreload?: HeroLcpPreloadConfig
 }
@@ -45,6 +47,7 @@ const {
   headerTheme = 'light',
   bodyClass = defaultBodyClass,
   noindex = false,
+  localeAlternates = true,
   heroLcpPreload
 } = Astro.props
 ---
@@ -59,6 +62,7 @@ const {
   theme="light"
   bodyClass={bodyClass}
   noindex={noindex}
+  localeAlternates={localeAlternates}
 >
   <Fragment slot="head">
     <slot name="head" />
