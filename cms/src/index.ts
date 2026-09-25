@@ -16,9 +16,7 @@ import {
   validateFaqSections,
   validateSectionScopedSlug,
   type SectionScopedSlugFinder,
-  normalizeRedirectInput,
-  validateRedirectInput,
-  validateRedirectLinks,
+  validateAndSaveRedirect,
   redirectDeleteError,
   type RedirectFinder,
   validateGrantInfoCards,
@@ -2372,7 +2370,9 @@ export default {
     // Redirects: refuse deletes (editors switch "Enabled" off instead), then
     // canonicalize the paths and reject anything that isn't one literal path
     // (patterns belong in public/_redirects) and any self-redirect or chain,
-    // before it reaches the DB and the exported redirects.json.
+    // before it reaches the DB and the exported redirects.json. The check and
+    // the write run under one lock (validateAndSaveRedirect), so two saves
+    // can't each pass the chain check and commit a chain between them.
     //
     // Matching `delete` covers every document-service delete: Strapi 5's
     // document service has no deleteMany action, and the admin's bulk delete
@@ -2388,18 +2388,19 @@ export default {
         ctx.uid === REDIRECT_UID &&
         (ctx.action === 'create' || ctx.action === 'update')
       ) {
-        const data = ctx.params.data ?? {}
-        normalizeRedirectInput(data)
-        const validationErr =
-          validateRedirectInput(data, { isCreate: ctx.action === 'create' }) ??
-          (await validateRedirectLinks({
+        const saved = await validateAndSaveRedirect(
+          {
             documents: strapi.documents(
               REDIRECT_UID
             ) as unknown as RedirectFinder,
-            data,
-            documentId: ctx.params.documentId
-          }))
-        if (validationErr) throw validationErr
+            data: ctx.params.data ?? {},
+            documentId: ctx.params.documentId,
+            isCreate: ctx.action === 'create'
+          },
+          () => next()
+        )
+        if (saved instanceof Error) throw saved
+        return saved
       }
       return next()
     })

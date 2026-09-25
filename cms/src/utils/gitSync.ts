@@ -1,10 +1,10 @@
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { AsyncLocalStorage } from 'async_hooks'
 import { exec } from 'child_process'
 import { PATHS, getProjectRoot } from './paths'
 import { tryCatchAsync } from './tryCatch'
+import { createAsyncLock } from './asyncLock'
 import {
   isSlackAlertingConfigured,
   notifyGitSyncToSlack,
@@ -421,17 +421,7 @@ async function report(
 
 // ── Checkout lock ────────────────────────────────────────────────────────────
 
-/**
- * One hold on the lock. `released` flips when the holder's work settles, so
- * async work it started that outlives it (a timer, a stray promise) inherits
- * the context but can't mistake itself for the holder.
- */
-interface GitSyncLockHold {
-  released: boolean
-}
-
-const lockHolder = new AsyncLocalStorage<GitSyncLockHold>()
-let lockTail: Promise<unknown> = Promise.resolve()
+const gitSyncLock = createAsyncLock()
 
 /**
  * Run `fn` while no other git sync touches the checkout. Every sync entry
@@ -447,24 +437,13 @@ let lockTail: Promise<unknown> = Promise.resolve()
  * not serialize against each other, so await them in turn.
  *
  * Holders run one at a time in call order. Never rejects: a throw from `fn`
- * comes back as an `Error` and the next holder still runs.
+ * comes back as an `Error` and the next holder still runs. See
+ * {@link createAsyncLock} for the re-entrancy rules.
  */
 export function withGitSyncLock<T>(
   fn: () => T | Promise<T>
 ): Promise<T | Error> {
-  const current = lockHolder.getStore()
-  if (current && !current.released) return tryCatchAsync(fn)
-
-  const run = lockTail.then(() => {
-    const hold: GitSyncLockHold = { released: false }
-    return lockHolder
-      .run(hold, () => tryCatchAsync(fn))
-      .finally(() => {
-        hold.released = true
-      })
-  })
-  lockTail = run
-  return run
+  return gitSyncLock.run(fn)
 }
 
 /**

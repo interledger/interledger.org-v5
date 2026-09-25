@@ -14,6 +14,7 @@
  */
 
 import { errors } from '@strapi/utils'
+import { createAsyncLock } from './asyncLock'
 
 export const REDIRECT_CATEGORIES = [
   'site_pages',
@@ -383,6 +384,46 @@ export async function validateRedirectLinks(
     )
   }
   return undefined
+}
+
+/** One redirect create or update, as the document-service middleware sees it. */
+export interface RedirectWrite {
+  documents: RedirectFinder
+  /** Raw `ctx.params.data`; normalized in place before it is saved. */
+  data: Record<string, unknown>
+  /** Present on update, absent on create. */
+  documentId?: string
+  isCreate: boolean
+}
+
+// validateRedirectLinks reads the other redirects and then the write lands, so
+// two saves checked side by side (/a → /b and /b → /c) could each pass before
+// the other's row exists and commit a chain together. Holding one lock from
+// the check until the row is written closes that gap.
+const redirectWriteLock = createAsyncLock()
+
+/**
+ * Normalizes, validates and saves one redirect as a single critical section:
+ * no other redirect write is checked or saved in between. Returns the saved
+ * document, or the error to refuse the write with: a field-level
+ * ValidationError from the checks, or whatever `save` failed with (e.g.
+ * Strapi's own unique-source error), unchanged.
+ */
+export function validateAndSaveRedirect<T>(
+  write: RedirectWrite,
+  save: () => Promise<T>
+): Promise<T | Error> {
+  return redirectWriteLock.run(async () => {
+    normalizeRedirectInput(write.data)
+    const invalid =
+      validateRedirectInput(write.data, { isCreate: write.isCreate }) ??
+      (await validateRedirectLinks({
+        documents: write.documents,
+        data: write.data,
+        documentId: write.documentId
+      }))
+    return invalid ?? save()
+  })
 }
 
 function statusToRedirectType(status: number): RedirectType | Error {

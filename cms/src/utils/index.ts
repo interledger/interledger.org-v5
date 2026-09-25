@@ -130,6 +130,8 @@ export {
   redirectDeleteError,
   validateRedirectInput,
   validateRedirectLinks,
+  validateAndSaveRedirect,
+  type RedirectWrite,
   serializeRedirectConfig,
   redirectConfigToEntries
 } from './redirects'
@@ -219,6 +221,7 @@ export {
   gitCommitAndPush,
   withGitSyncLock
 } from './gitSync'
+export { type AsyncLock, createAsyncLock } from './asyncLock'
 
 // Lifecycle factories
 export {

@@ -8,6 +8,7 @@ import {
   redirectConfigToEntries,
   redirectDeleteError,
   redirectTargetPath,
+  validateAndSaveRedirect,
   serializeRedirectConfig,
   validateRedirectInput,
   validateRedirectLinks,
@@ -582,5 +583,112 @@ describe('validateRedirectLinks with a query or fragment destination', () => {
         data: { source: '/docs', destination: 'https://example.org/second' }
       })
     ).resolves.toBeUndefined()
+  })
+})
+
+describe('validateAndSaveRedirect', () => {
+  /** A fake store whose saves take effect only once `release` is called. */
+  function slowStore(rows: Row[]) {
+    let release!: () => void
+    const released = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    let nextId = rows.length
+    const save = (data: Record<string, unknown>) => async () => {
+      await released
+      const row = {
+        documentId: `new-${nextId++}`,
+        source: String(data.source),
+        destination: String(data.destination)
+      }
+      rows.push(row)
+      return row
+    }
+    return { documents: fakeFinder(rows), save, release }
+  }
+
+  // Both saves passed the chain check side by side, before either row
+  // existed, and together committed /a → /b → /c.
+  it('refuses the second half of a chain saved concurrently', async () => {
+    const rows: Row[] = []
+    const store = slowStore(rows)
+    const first = { source: '/a', destination: '/b' }
+    const second = { source: '/b', destination: '/c' }
+
+    const firstSave = validateAndSaveRedirect(
+      { documents: store.documents, data: first, isCreate: true },
+      store.save(first)
+    )
+    const secondSave = validateAndSaveRedirect(
+      { documents: store.documents, data: second, isCreate: true },
+      store.save(second)
+    )
+    store.release()
+    const [firstResult, secondResult] = await Promise.all([
+      firstSave,
+      secondSave
+    ])
+
+    expect(firstResult).not.toBeInstanceOf(Error)
+    expect(erroredFields(secondResult)).toEqual(['source'])
+    expect(rows.map((row) => row.source)).toEqual(['/a'])
+  })
+
+  it('saves the normalized data', async () => {
+    const rows: Row[] = []
+    const store = slowStore(rows)
+    const data = { source: ' /old/ ', destination: ' /new ' }
+    store.release()
+
+    await validateAndSaveRedirect(
+      { documents: store.documents, data, isCreate: true },
+      store.save(data)
+    )
+
+    expect(rows).toEqual([
+      { documentId: 'new-0', source: '/old', destination: '/new' }
+    ])
+  })
+
+  it('returns a validation error without saving', async () => {
+    let saved = false
+    const result = await validateAndSaveRedirect(
+      {
+        documents: fakeFinder([]),
+        data: { source: '/a/:b', destination: '/c' },
+        isCreate: true
+      },
+      async () => {
+        saved = true
+      }
+    )
+
+    expect(erroredFields(result)).toEqual(['source'])
+    expect(saved).toBe(false)
+  })
+
+  it('returns the save’s own error unchanged and frees the lock', async () => {
+    const dbError = new Error('source must be unique')
+    const failed = await validateAndSaveRedirect(
+      {
+        documents: fakeFinder([]),
+        data: { source: '/a', destination: '/b' },
+        isCreate: true
+      },
+      async () => {
+        throw dbError
+      }
+    )
+    const next = await validateAndSaveRedirect(
+      {
+        documents: fakeFinder([]),
+        data: { source: '/c', destination: '/d' },
+        isCreate: true
+      },
+      async () => 'saved'
+    )
+
+    expect(failed).toBe(dbError)
+    expect(next).toBe('saved')
   })
 })
