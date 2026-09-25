@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
+import { gitCommitAndPush, getTargetRepoRoot, withGitSyncLock } from './gitSync'
 import { shouldSkipMdxExport } from './pageLifecycle'
 import { PATHS } from './paths'
 import { serializeRedirectConfig, type RedirectEntry } from './redirects'
@@ -70,23 +70,22 @@ async function exportAndCommitRedirects(
   }
 }
 
-// Every export writes the same file, so two overlapping saves must not
-// interleave: the slower one could write an older snapshot and commit it
-// last, dropping the other edit. Queued exports run one at a time, and each
-// reads the database only once the previous one has committed, so the last
-// file written is always the latest state. Never rejects (see the catch
-// above), so one failed export can't stall the queue.
-let exportQueue: Promise<void> = Promise.resolve()
-
-function queueExport(
+/**
+ * Holds the checkout lock across the database read, the file write and the
+ * commit. Every export writes the same file, so a slower save could otherwise
+ * write an older snapshot and commit it last, dropping the other edit. Under
+ * the lock each export reads the database only once the previous one has
+ * committed, so the last file written is always the latest state.
+ */
+async function queueExport(
   action: 'add' | 'update' | 'delete',
   event: RedirectEvent
 ): Promise<void> {
   // Read while the save's request is still the current one: the skip header
   // lives on its context, and a queued export may run well after it.
-  if (shouldSkipMdxExport()) return Promise.resolve()
-  exportQueue = exportQueue.then(() => exportAndCommitRedirects(action, event))
-  return exportQueue
+  if (shouldSkipMdxExport()) return
+  // exportAndCommitRedirects catches its own failures, so this never errors.
+  await withGitSyncLock(() => exportAndCommitRedirects(action, event))
 }
 
 export function createRedirectsLifecycle() {

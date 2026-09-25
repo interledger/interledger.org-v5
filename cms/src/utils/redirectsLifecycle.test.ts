@@ -10,7 +10,11 @@ const outputPath = path.join(repoRoot, 'src/config/redirects.json')
 const gitCommitAndPush = vi.fn()
 let skipExport = false
 
-vi.mock('./gitSync', () => ({
+// The real lock, so the overlap test below exercises the serialization the
+// lifecycle relies on; only the git side effects are faked.
+vi.mock('./gitSync', async (importOriginal) => ({
+  withGitSyncLock: (await importOriginal<typeof import('./gitSync')>())
+    .withGitSyncLock,
   getTargetRepoRoot: () => repoRoot,
   gitCommitAndPush: (...args: unknown[]) => gitCommitAndPush(...args)
 }))
@@ -92,8 +96,8 @@ describe('createRedirectsLifecycle', () => {
   })
 
   // Two saves close together: the first save's read is slow, the second lands
-  // meanwhile. Unserialized, the first export wrote its older snapshot and
-  // committed it last, dropping the second edit from the file.
+  // meanwhile. Without the checkout lock, the first export wrote its older
+  // snapshot and committed it last, dropping the second edit from the file.
   it('commits the latest state when saves overlap', async () => {
     const a = {
       source: '/a',

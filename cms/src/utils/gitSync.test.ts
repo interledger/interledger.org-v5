@@ -17,6 +17,7 @@ import {
   shellQuote,
   toGitPath,
   validateGitSyncRepoOnStartup,
+  withGitSyncLock,
   type GitSyncDeps
 } from './gitSync'
 import type { GitSyncAlert } from './slackNotify'
@@ -1198,5 +1199,150 @@ describe('gitCommitAndPush', () => {
     expect(result.outcome).toBe('failed')
     if (result.outcome !== 'failed') return
     expect(result.error.message).toContain('Authentication failed')
+  })
+})
+
+// ── Checkout lock ────────────────────────────────────────────────────────────
+
+/** A promise the test resolves by hand, to hold work open mid-flight. */
+function gate(): { opened: Promise<void>; open: () => void } {
+  let open!: () => void
+  const opened = new Promise<void>((resolve) => {
+    open = resolve
+  })
+  return { opened, open }
+}
+
+describe('withGitSyncLock', () => {
+  it('runs holders one at a time, in call order', async () => {
+    const events: string[] = []
+    const first = gate()
+
+    const a = withGitSyncLock(async () => {
+      events.push('a:start')
+      await first.opened
+      events.push('a:end')
+    })
+    const b = withGitSyncLock(async () => {
+      events.push('b:start')
+    })
+    await Promise.resolve()
+    expect(events).toEqual(['a:start'])
+
+    first.open()
+    await Promise.all([a, b])
+    expect(events).toEqual(['a:start', 'a:end', 'b:start'])
+  })
+
+  it('returns a throw as an Error and still runs the next holder', async () => {
+    const failed = withGitSyncLock(() => {
+      throw new Error('boom')
+    })
+    const next = withGitSyncLock(() => 'ran')
+
+    expect(await failed).toBeInstanceOf(Error)
+    expect(await next).toBe('ran')
+  })
+
+  it('runs a nested call straight away instead of deadlocking', async () => {
+    const result = await withGitSyncLock(() => withGitSyncLock(() => 'inner'))
+    expect(result).toBe('inner')
+  })
+
+  it('queues work that outlives its hold behind the next holder', async () => {
+    const events: string[] = []
+    const later = gate()
+    let leaked: Promise<unknown> | undefined
+
+    await withGitSyncLock(() => {
+      // Started inside the hold, runs after it: it inherits the context but
+      // must not be mistaken for the holder.
+      leaked = later.opened.then(() =>
+        withGitSyncLock(() => events.push('leaked'))
+      )
+    })
+    const blocker = gate()
+    const held = withGitSyncLock(async () => {
+      events.push('held:start')
+      await blocker.opened
+      events.push('held:end')
+    })
+
+    later.open()
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(events).toEqual(['held:start'])
+
+    blocker.open()
+    await Promise.all([held, leaked])
+    expect(events).toEqual(['held:start', 'held:end', 'leaked'])
+  })
+})
+
+describe('sync entry points share the checkout lock', () => {
+  const NAV = `${REPO}/src/config/foundation-navigation.json`
+
+  /**
+   * Deps whose commit command blocks until the test opens `commitGate`, so a
+   * second sync can be started while the first is mid-`git commit`.
+   */
+  function blockingCommitDeps(commitGate: Promise<void>) {
+    const events: string[] = []
+    const deps = createDeps({
+      existing: [REPO, ...STAGE_DIRS],
+      respond: (command) =>
+        command === STATUS_COMMAND
+          ? status(['M', 'src/content/faqs/a.mdx'])
+          : ''
+    })
+    const exec = deps.exec
+    deps.exec = async (command, cwd) => {
+      const name = command === STATUS_COMMAND ? 'status' : 'commit'
+      events.push(`${name}:start`)
+      if (name === 'commit' && !events.includes('commit:end')) {
+        await commitGate
+      }
+      const result = await exec(command, cwd)
+      events.push(`${name}:end`)
+      return result
+    }
+    return { deps, events }
+  }
+
+  // Before the lock, the scheduler's flush ran `git status` and its commit
+  // while an explicit commit was still in flight in the same checkout.
+  it('holds a debounced flush until an explicit commit finishes', async () => {
+    const commitGate = gate()
+    const { deps, events } = blockingCommitDeps(commitGate.opened)
+
+    const explicit = gitCommitAndPush(NAV, 'nav: update', deps)
+    const flush = runGitSync('faq', undefined, deps)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(events).toEqual(['commit:start'])
+
+    commitGate.open()
+    await Promise.all([explicit, flush])
+    expect(events).toEqual([
+      'commit:start',
+      'commit:end',
+      'status:start',
+      'status:end',
+      'commit:start',
+      'commit:end'
+    ])
+  })
+
+  it('holds an explicit commit while a lifecycle holds the lock', async () => {
+    const held = gate()
+    const deps = createDeps({ existing: [REPO] })
+
+    const holder = withGitSyncLock(() => held.opened)
+    const commit = gitCommitAndPush(NAV, 'nav: update', deps)
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(deps.commands).toEqual([])
+
+    held.open()
+    await Promise.all([holder, commit])
+    expect(deps.commands).toHaveLength(1)
   })
 })

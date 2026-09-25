@@ -216,7 +216,8 @@ export {
   createDebouncedGitSync,
   scheduleGitSync,
   settledGitSync,
-  gitCommitAndPush
+  gitCommitAndPush,
+  withGitSyncLock
 } from './gitSync'
 
 // Lifecycle factories

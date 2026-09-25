@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { gitCommitAndPush, getTargetRepoRoot } from './gitSync'
+import { gitCommitAndPush, getTargetRepoRoot, withGitSyncLock } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
 import { ensureLeadingSlash } from './relativeLinks'
@@ -218,20 +218,54 @@ function deleteNavigationFiles<T extends UID.ContentType>(
   return deletedPaths
 }
 
+/**
+ * Runs a navigation file change and its commit as one critical section, so a
+ * slower save can't write an older snapshot over a newer one and commit it
+ * last. Failures are logged, not thrown: the entry is already saved, and the
+ * next save rewrites the file from the database.
+ */
+async function underGitSyncLock(
+  label: string,
+  work: () => Promise<void>
+): Promise<void> {
+  const result = await withGitSyncLock(work)
+  if (result instanceof Error) {
+    console.error(`❌ Failed to export ${label} navigation:`, result)
+  }
+}
+
 async function exportAndCommitNavigation<T extends UID.ContentType>(
   config: NavigationLifecycleConfig<T>,
   action: string
 ): Promise<void> {
+  // Read while the save's request is still current: the skip header lives on
+  // its context, and a queued export may run well after it.
   if (shouldSkipMdxExport()) return
   const label = uidToLogLabel(config.contentTypeUid)
-  console.log(`📝 ${action} ${label} JSON`)
-  const outputPaths = await exportAllLocales(config)
-  if (outputPaths.length > 0) {
-    await gitCommitAndPush(
-      outputPaths,
-      `${label}: ${action.toLowerCase()} navigation`
-    )
-  }
+  await underGitSyncLock(label, async () => {
+    console.log(`📝 ${action} ${label} JSON`)
+    const outputPaths = await exportAllLocales(config)
+    if (outputPaths.length > 0) {
+      await gitCommitAndPush(
+        outputPaths,
+        `${label}: ${action.toLowerCase()} navigation`
+      )
+    }
+  })
+}
+
+async function deleteAndCommitNavigation<T extends UID.ContentType>(
+  config: NavigationLifecycleConfig<T>
+): Promise<void> {
+  if (shouldSkipMdxExport()) return
+  const label = uidToLogLabel(config.contentTypeUid)
+  await underGitSyncLock(label, async () => {
+    console.log(`🗑️  Deleting ${label} JSON`)
+    const deletedPaths = deleteNavigationFiles(config)
+    if (deletedPaths.length > 0) {
+      await gitCommitAndPush(deletedPaths, `${label}: delete navigation`)
+    }
+  })
 }
 
 export function normalizeNavigationInput(data: NavigationData): void {
@@ -277,15 +311,7 @@ export function createNavigationLifecycle<T extends UID.ContentType>(
     },
 
     async afterDelete(_event: Event) {
-      if (shouldSkipMdxExport()) return
-      console.log(`🗑️  Deleting ${uidToLogLabel(config.contentTypeUid)} JSON`)
-      const deletedPaths = deleteNavigationFiles(config)
-      if (deletedPaths.length > 0) {
-        await gitCommitAndPush(
-          deletedPaths,
-          `${uidToLogLabel(config.contentTypeUid)}: delete navigation`
-        )
-      }
+      await deleteAndCommitNavigation(config)
     }
   }
 }
