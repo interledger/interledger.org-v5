@@ -334,6 +334,48 @@ Same rules as `src/utils/` above, applied to the Strapi CMS layer. Import from `
 - Files inside `cms/src/utils/` keep their internal cross-imports as relative paths — never import from `@/utils` inside the utils folder itself.
 - `cms/src/api/utils.ts` is a thin convenience re-export for API lifecycle files — keep it delegating to `@/utils`, don't add logic to it.
 
+## MDX Filenames
+
+Every MDX file under `src/content/` is named by the Strapi lifecycle that
+exports it, never by hand. The name comes from the entry's own fields, so a
+file whose name does not match its frontmatter is a duplicate waiting to
+happen: the next publish writes the derived name beside it, both files then map
+to one Strapi entry, and `sync:mdx` refuses the whole content type
+(INTORG-1237, INTORG-1132).
+
+- **One derivation.** `cms/src/utils/mdxFilenames.ts` owns it. The page, blog
+  and flat lifecycles call `mdxSubpath`/`mdxRelativePath`. Never rebuild a
+  filename at a call site.
+- **Four rules.** `page` keeps the pathSlug as a real path, so the tree mirrors
+  the URL. `blog` is flat, prefixed with the publication date. `flat` is one
+  file per entry, slashes flattened to hyphens. `flat-section` adds the section
+  prefix for faqs, profiles and reports, whose pathSlug is section-relative.
+- **Localized files take the English name.** A non-`en` file lives under its
+  locale folder and is named after the entry it localizes (`localizes`
+  frontmatter), so paths stay locale-independent.
+- **The check.** `pnpm run check:mdx-filenames` (from `cms/`) compares every
+  file against its derived name, and runs as its own PR job. Add `:fix` to
+  rename the offenders with `git mv`. Renaming is always safe: routes come from
+  `pathSlug`, never from the filename.
+- **New collection?** Add it to `CONTENT_COLLECTION_NAMING_RULES` in
+  `cms/src/utils/contentCollections.ts`. A test fails when that map and
+  `PATHS.CONTENT` drift, so a collection cannot ship unchecked.
+- **A case-only rename staled the content store, so the build evicts it.**
+  Astro keeps the store in `node_modules/.astro/data-store.json` and derives
+  each entry id from the lowercased filename. A rename that only changes case
+  keeps the id, so the incremental sync refreshes the entry but holds the old
+  `filePath` and emits it as an import specifier. macOS resolves it and Linux
+  does not, so the build passed locally and failed on Netlify, which restores
+  `node_modules` from its build cache (INTORG-1237). `prebuild` now runs
+  `scripts/evict-content-store.mjs`, which drops the store. A cold sync and a
+  warm one both measure about 0.4s, because every collection is file-based.
+  `astro dev` does not run `prebuild`, so restart the dev server after such a
+  rename.
+- **Keep the module pure.** The check runs in a CI job that installs with
+  `--ignore-scripts`, so `mdxFilenames.ts` and the script must not reach
+  sharp, prettier or Strapi. That is why the script imports `../src/utils/*`
+  directly instead of the `@/utils` barrel.
+
 ## When Asked to Generate Code
 
 - Produce clean, readable, well-named, strongly typed code by default

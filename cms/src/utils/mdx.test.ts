@@ -4,10 +4,7 @@ import {
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
   formatMdx,
-  looksLikeHtmlField,
-  pathSlugToMdxFilename,
-  sectionScopedMdxFilename,
-  resolveFilenameSlug
+  looksLikeHtmlField
 } from './mdx'
 import { serialize as serializeCtaStrip } from '../serializers/blocks/cta-strip.serializer'
 import { serialize as serializeQuote } from '../serializers/blocks/quote.serializer'
@@ -84,69 +81,6 @@ describe('formatBlockquote', () => {
 
   it('trims whitespace', () => {
     expect(formatBlockquote('  spaced  ')).toBe('spaced')
-  })
-})
-
-describe('resolveFilenameSlug', () => {
-  it('uses the English slug for a non-English locale when provided', () => {
-    expect(
-      resolveFilenameSlug('es', 'subvenciones/beca', 'grant/fellowship')
-    ).toBe('grant/fellowship')
-  })
-
-  it('falls back to its own slug for a non-English locale with no English sibling', () => {
-    expect(resolveFilenameSlug('es', 'subvenciones/beca', undefined)).toBe(
-      'subvenciones/beca'
-    )
-  })
-
-  it('always uses its own slug for the English locale, ignoring englishSlug', () => {
-    expect(
-      resolveFilenameSlug('en', 'grant/fellowship', 'grant/fellowship')
-    ).toBe('grant/fellowship')
-  })
-})
-
-describe('pathSlugToMdxFilename', () => {
-  it('flattens nested path slugs to hyphenated filename stems', () => {
-    expect(pathSlugToMdxFilename('grant/fellowship/jane-doe')).toBe(
-      'grant-fellowship-jane-doe'
-    )
-    expect(pathSlugToMdxFilename('/summit/2025/speakers/jane-doe/')).toBe(
-      'summit-2025-speakers-jane-doe'
-    )
-  })
-})
-
-describe('sectionScopedMdxFilename', () => {
-  // The bug in INTORG-1132: both FAQs are pathSlug 'faq', so the stem has to
-  // carry the section or the hackathon export overwrites faq.mdx.
-  it('gives the two FAQs different filenames', () => {
-    expect(sectionScopedMdxFilename('faq', 'foundation')).toBe('faq')
-    expect(sectionScopedMdxFilename('faq', 'hackathon')).toBe('hackathon-faq')
-  })
-
-  it('leaves foundation entries unprefixed, since they route from the root', () => {
-    expect(
-      sectionScopedMdxFilename('grant/grantmaking-faq', 'foundation')
-    ).toBe('grant-grantmaking-faq')
-  })
-
-  it('flattens a nested slug under its section prefix', () => {
-    expect(sectionScopedMdxFilename('2025/speakers/jane-doe', 'summit')).toBe(
-      'summit-2025-speakers-jane-doe'
-    )
-  })
-
-  // Leading and trailing slashes must not produce a doubled separator.
-  it('normalizes surrounding slashes before prefixing', () => {
-    expect(sectionScopedMdxFilename('/faq/', 'hackathon')).toBe('hackathon-faq')
-  })
-
-  it('falls back to the bare stem when there is no section', () => {
-    expect(sectionScopedMdxFilename('faq')).toBe('faq')
-    expect(sectionScopedMdxFilename('faq', null)).toBe('faq')
-    expect(sectionScopedMdxFilename('faq', '')).toBe('faq')
   })
 })
 

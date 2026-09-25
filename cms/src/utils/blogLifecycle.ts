@@ -9,9 +9,9 @@ import {
   formatMdx,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
-  resolveFilenameSlug,
   ckeditorFieldToParsedMarkdown
 } from './mdx'
+import { mdxSubpath } from './mdxFilenames'
 import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
@@ -129,17 +129,6 @@ async function fetchBlogPost(
   }
 }
 
-function generateFilename({
-  date,
-  pathSlug
-}: {
-  date: string
-  pathSlug: string
-}): string {
-  const prefix = date ? `${date}-` : ''
-  return `${prefix}${pathSlug}.mdx`
-}
-
 /** Fields needed to resolve the English pathSlug used in blog filenames. */
 export type BlogSlugSource = {
   pathSlug?: string | null
@@ -181,15 +170,11 @@ export function resolveBlogMdxFilename(
   post: BlogSlugSource & { date?: string | null; locale?: string | null },
   englishSlug?: string | null
 ): string {
-  const locale = (post.locale || defaultLang).trim() || defaultLang
-  const resolvedEnglishSlug = resolveBlogEnglishSlug(post, englishSlug)
-  return generateFilename({
-    date: post.date ?? '',
-    pathSlug: resolveFilenameSlug(
-      locale,
-      (post.pathSlug || '').trim(),
-      resolvedEnglishSlug
-    )
+  return mdxSubpath('blog', {
+    pathSlug: (post.pathSlug || '').trim(),
+    locale: post.locale,
+    englishSlug: resolveBlogEnglishSlug(post, englishSlug),
+    date: post.date
   })
 }
 
@@ -406,7 +391,10 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
    */
   function deleteOldBlogFiles(oldEnSlug: string, oldDate: string): void {
     for (const locale of LOCALES) {
-      const filename = generateFilename({ date: oldDate, pathSlug: oldEnSlug })
+      const filename = mdxSubpath('blog', {
+        pathSlug: oldEnSlug,
+        date: oldDate
+      })
       const filepath = path.join(getOutputPath(locale), filename)
       deleteMdxIfExists(filepath, locale)
     }

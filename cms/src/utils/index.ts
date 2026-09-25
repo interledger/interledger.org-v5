@@ -59,14 +59,32 @@ export {
   PODCAST_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
+// Locales
+export { defaultLang, LOCALES } from './locales'
+
+// MDX filename derivation (lifecycles + scripts/check-mdx-filenames.ts).
+// The slug helpers behind these stay internal to mdxFilenames.ts, so a caller
+// cannot rebuild a filename by hand and drift from the rule.
+export {
+  mdxSubpath,
+  mdxRelativePath,
+  type MdxNamingRule,
+  type MdxNameFields
+} from './mdxFilenames'
+
+// Naming rule per exported content collection
+export {
+  CONTENT_COLLECTIONS,
+  CONTENT_COLLECTION_NAMING_RULES,
+  type ContentCollection
+} from './contentCollections'
+
 // MDX generation
 export {
   type Hero,
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
-  defaultLang,
-  LOCALES,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
@@ -78,10 +96,7 @@ export {
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
-  uidToLogLabel,
-  resolveFilenameSlug,
-  pathSlugToMdxFilename,
-  sectionScopedMdxFilename
+  uidToLogLabel
 } from './mdx'
 export {
   validateNoNestedJsx,

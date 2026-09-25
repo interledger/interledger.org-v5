@@ -18,8 +18,7 @@ import {
   getContentPath,
   getTargetRepoRoot,
   createFlatLocaleMdxLifecycle,
-  generateFaqMdx,
-  sectionScopedMdxFilename
+  generateFaqMdx
 } from '../../../../utils'
 import type { FaqBase } from '../../types'
 
@@ -33,7 +32,7 @@ export default createFlatLocaleMdxLifecycle<Faq, 'api::faq.faq'>({
   contentTypeUid: 'api::faq.faq',
   label: 'faq',
   getBaseDir: (locale) => getContentPath(getTargetRepoRoot(), 'faqs', locale),
-  toMdxFilename: sectionScopedMdxFilename,
+  namingRule: 'flat-section',
   generateContent: generateFaqMdx,
   populate: { faqSections: { populate: { items: true } } }
 })
