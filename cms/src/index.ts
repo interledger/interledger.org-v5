@@ -2372,8 +2372,14 @@ export default {
     // Redirects: refuse deletes (editors switch "Enabled" off instead), then
     // canonicalize the paths and reject anything that isn't one literal path
     // (patterns belong in public/_redirects) and any self-redirect or chain,
-    // before it reaches the DB and the exported redirects.json. The admin's
-    // bulk delete calls documents().delete per entry, so it is caught too.
+    // before it reaches the DB and the exported redirects.json.
+    //
+    // Matching `delete` covers every document-service delete: Strapi 5's
+    // document service has no deleteMany action, and the admin's bulk delete
+    // calls documents().delete once per entry, so it lands here too. Only
+    // strapi.db.query(uid).delete/deleteMany skip document middleware; that is
+    // server-side code, and the lifecycle's afterDelete/afterDeleteMany keep
+    // redirects.json in step with it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.uid === REDIRECT_UID && ctx.action === 'delete') {
         throw redirectDeleteError()

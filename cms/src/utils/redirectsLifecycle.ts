@@ -102,8 +102,10 @@ export function createRedirectsLifecycle() {
       await queueExport('delete', event)
     },
 
-    // Editors can't delete (see redirectDeleteError), but a developer removing
-    // rows from the Strapi console still has to leave the file in step.
+    // Editors can't delete: every document-service delete, the admin's bulk
+    // delete included, is refused (see redirectDeleteError). This hook and
+    // afterDelete cover only strapi.db.query deletes from server-side code,
+    // which skip document middleware but must still leave the file in step.
     async afterDeleteMany() {
       await queueExport('delete', {})
     }
