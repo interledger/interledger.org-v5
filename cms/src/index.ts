@@ -16,6 +16,11 @@ import {
   validateFaqSections,
   validateSectionScopedSlug,
   type SectionScopedSlugFinder,
+  normalizeRedirectInput,
+  validateRedirectInput,
+  validateRedirectLinks,
+  redirectDeleteError,
+  type RedirectFinder,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -175,6 +180,8 @@ export function registerAsyncDocumentValidation(
     return next()
   })
 }
+
+const REDIRECT_UID = 'api::redirect.redirect'
 
 /**
  * Content types whose `pathSlug` is relative to their `section`, so the slug
@@ -2361,6 +2368,35 @@ export default {
         )
       )
     )
+
+    // Redirects: refuse deletes (editors switch "Enabled" off instead), then
+    // canonicalize the paths and reject anything that isn't one literal path
+    // (patterns belong in public/_redirects) and any self-redirect or chain,
+    // before it reaches the DB and the exported redirects.json. The admin's
+    // bulk delete calls documents().delete per entry, so it is caught too.
+    strapi.documents.use(async (ctx, next) => {
+      if (ctx.uid === REDIRECT_UID && ctx.action === 'delete') {
+        throw redirectDeleteError()
+      }
+      if (
+        ctx.uid === REDIRECT_UID &&
+        (ctx.action === 'create' || ctx.action === 'update')
+      ) {
+        const data = ctx.params.data ?? {}
+        normalizeRedirectInput(data)
+        const validationErr =
+          validateRedirectInput(data, { isCreate: ctx.action === 'create' }) ??
+          (await validateRedirectLinks({
+            documents: strapi.documents(
+              REDIRECT_UID
+            ) as unknown as RedirectFinder,
+            data,
+            documentId: ctx.params.documentId
+          }))
+        if (validationErr) throw validationErr
+      }
+      return next()
+    })
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB

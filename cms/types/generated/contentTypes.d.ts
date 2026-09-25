@@ -1350,6 +1350,67 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
   }
 }
 
+export interface ApiRedirectRedirect extends Struct.CollectionTypeSchema {
+  collectionName: 'redirects'
+  info: {
+    description: "Send an old URL to its new home. Saving rewrites src/config/redirects.json and deploys with the next build. Redirects can't be deleted: switch Enabled off instead."
+    displayName: 'Redirect'
+    pluralName: 'redirects'
+    singularName: 'redirect'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: false
+    }
+    listView: {
+      disabledFlag: 'enabled'
+    }
+  }
+  attributes: {
+    category: Schema.Attribute.Enumeration<
+      [
+        'site_pages',
+        'site_pages_es',
+        'policy_advocacy',
+        'blog_news_migration',
+        'blog_taxonomy',
+        'developers_blog_migration',
+        'hackathon',
+        'summit'
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'site_pages'>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    destination: Schema.Attribute.String & Schema.Attribute.Required
+    enabled: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>
+    locale: Schema.Attribute.String & Schema.Attribute.Private
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::redirect.redirect'
+    > &
+      Schema.Attribute.Private
+    note: Schema.Attribute.Text
+    publishedAt: Schema.Attribute.DateTime
+    redirectType: Schema.Attribute.Enumeration<['permanent', 'temporary']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'permanent'>
+    source: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiReportReport extends Struct.CollectionTypeSchema {
   collectionName: 'reports'
   info: {
@@ -1996,6 +2057,7 @@ declare module '@strapi/strapi' {
       'api::hackathon-page.hackathon-page': ApiHackathonPageHackathonPage
       'api::podcast-page.podcast-page': ApiPodcastPagePodcastPage
       'api::profile-page.profile-page': ApiProfilePageProfilePage
+      'api::redirect.redirect': ApiRedirectRedirect
       'api::report.report': ApiReportReport
       'api::summit-navigation.summit-navigation': ApiSummitNavigationSummitNavigation
       'api::summit-page.summit-page': ApiSummitPageSummitPage

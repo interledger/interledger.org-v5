@@ -1,0 +1,2304 @@
+{
+  "site_pages": [
+    {
+      "source": "/about",
+      "destination": "/about-us",
+      "status": 301,
+      "enabled": false
+    },
+    {
+      "source": "/ambassadors",
+      "destination": "/grant/fellowship",
+      "status": 301
+    },
+    {
+      "source": "/art",
+      "destination": "/grant/future-money/",
+      "status": 301
+    },
+    {
+      "source": "/developers",
+      "destination": "/tech/dev-portal",
+      "status": 301
+    },
+    {
+      "source": "/developers/hacktoberfest",
+      "destination": "/tech/hacktoberfest",
+      "status": 301
+    },
+    {
+      "source": "/developers/roadmap",
+      "destination": "/tech/roadmap",
+      "status": 301
+    },
+    {
+      "source": "/education",
+      "destination": "/grant/education",
+      "status": 301
+    },
+    {
+      "source": "/financial-services",
+      "destination": "/grant/innovation/financial-services",
+      "status": 301
+    },
+    {
+      "source": "/get-involved",
+      "destination": "/community",
+      "status": 301
+    },
+    {
+      "source": "/grant",
+      "destination": "/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/grant-web",
+      "destination": "/grant/innovation/grant-web",
+      "status": 301
+    },
+    {
+      "source": "/grant/ambassadors",
+      "destination": "/grant/fellowship",
+      "status": 301
+    },
+    {
+      "source": "/grant/ambassadors/faq",
+      "destination": "/grant/fellowship",
+      "status": 301,
+      "note": "The ambassador FAQ is now the FAQ section on the fellowship page, so there is no separate FAQ route."
+    },
+    {
+      "source": "/grant/financial-services",
+      "destination": "/grant/innovation/financial-services",
+      "status": 301
+    },
+    {
+      "source": "/grant/grant-web",
+      "destination": "/grant/innovation/grant-web",
+      "status": 301
+    },
+    {
+      "source": "/grant/grantee-database",
+      "destination": "/grant/grantee-directory",
+      "status": 301
+    },
+    {
+      "source": "/grant/grantee-directory/all",
+      "destination": "/grant/grantee-directory",
+      "status": 301,
+      "note": "The legacy tag URLs under this path redirect from public/_redirects, which can order them [INTORG-1112]."
+    },
+    {
+      "source": "/grant/local-impact",
+      "destination": "/grant/local-impact-grant",
+      "status": 301
+    },
+    {
+      "source": "/grant/open-payments-accelerator",
+      "destination": "/grant/innovation/accelerator",
+      "status": 301
+    },
+    {
+      "source": "/grant/open-payments-sdk",
+      "destination": "/grant/innovation/sdk",
+      "status": 301
+    },
+    {
+      "source": "/grantee-directory",
+      "destination": "/grant/grantee-directory",
+      "status": 301
+    },
+    {
+      "source": "/grants",
+      "destination": "/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/grants/our-grantmaking",
+      "destination": "/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/hacktoberfest",
+      "destination": "/tech/hacktoberfest",
+      "status": 301
+    },
+    {
+      "source": "/hacktoberfest-0",
+      "destination": "/tech/hacktoberfest",
+      "status": 301
+    },
+    {
+      "source": "/hacktoberfest-2023",
+      "destination": "/tech/hacktoberfest",
+      "status": 301
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "status": 301
+    },
+    {
+      "source": "/interledger",
+      "destination": "/tech/interledger-protocol",
+      "status": 301
+    },
+    {
+      "source": "/join-network",
+      "destination": "/tech/overview",
+      "status": 301
+    },
+    {
+      "source": "/media",
+      "destination": "/press",
+      "status": 301
+    },
+    {
+      "source": "/mission",
+      "destination": "/about-us",
+      "status": 301
+    },
+    {
+      "source": "/open-payments",
+      "destination": "/tech/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/open-payments-accelerator",
+      "destination": "/grant/innovation/accelerator",
+      "status": 301
+    },
+    {
+      "source": "/overview",
+      "destination": "/tech/overview/",
+      "status": 301
+    },
+    {
+      "source": "/team/alex-shin",
+      "destination": "/team",
+      "status": 301
+    },
+    {
+      "source": "/team/chris-lawrence",
+      "destination": "/team",
+      "status": 301
+    },
+    {
+      "source": "/team/team-member-hackathon-2025-judge-sabine-schaller",
+      "destination": "/team",
+      "status": 301
+    },
+    {
+      "source": "/terms-service",
+      "destination": "/terms-of-service",
+      "status": 301
+    },
+    {
+      "source": "/today",
+      "destination": "/developers/rfcs/interledger-protocol/",
+      "status": 301
+    },
+    {
+      "source": "/values",
+      "destination": "/about-us",
+      "status": 301
+    },
+    {
+      "source": "/vision",
+      "destination": "/about-us",
+      "status": 301
+    },
+    {
+      "source": "/web-monetization",
+      "destination": "/tech/web-monetization",
+      "status": 301
+    }
+  ],
+  "site_pages_es": [
+    {
+      "source": "/es/art",
+      "destination": "/es/grant/future-money/",
+      "status": 301
+    },
+    {
+      "source": "/es/contacto",
+      "destination": "/es/contact",
+      "status": 301
+    },
+    {
+      "source": "/es/educacion",
+      "destination": "/es/grant/education",
+      "status": 301
+    },
+    {
+      "source": "/es/education",
+      "destination": "/es/grant/education",
+      "status": 301
+    },
+    {
+      "source": "/es/embajadores",
+      "destination": "/es/grant/fellowship",
+      "status": 301
+    },
+    {
+      "source": "/es/equipo",
+      "destination": "/es/team",
+      "status": 301
+    },
+    {
+      "source": "/es/estandares-abiertos",
+      "destination": "/es/tech/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/eventos",
+      "destination": "/es/events",
+      "status": 301
+    },
+    {
+      "source": "/es/financial-services",
+      "destination": "/es/grant/innovation/financial-services",
+      "status": 301
+    },
+    {
+      "source": "/es/grant",
+      "destination": "/es/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/es/grant-web",
+      "destination": "/es/grant/innovation/grant-web",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/ambassadors",
+      "destination": "/es/grant/fellowship",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/ambassadors/faq",
+      "destination": "/es/grant/fellowship",
+      "status": 301,
+      "note": "The ambassador FAQ is now the FAQ section on the fellowship page, so there is no separate FAQ route."
+    },
+    {
+      "source": "/es/grant/educacion",
+      "destination": "/es/grant/education",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/embajadores",
+      "destination": "/es/grant/fellowship",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/grant-web",
+      "destination": "/es/grant/innovation/grant-web",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/grantee-database",
+      "destination": "/es/grant/grantee-directory",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/grantee-directory/all",
+      "destination": "/es/grant/grantee-directory",
+      "status": 301,
+      "note": "The legacy tag URLs under this path redirect from public/_redirects, which can order them [INTORG-1112]."
+    },
+    {
+      "source": "/es/grant/open-payments-sdk",
+      "destination": "/es/grant/innovation/sdk",
+      "status": 301
+    },
+    {
+      "source": "/es/grant/servicios-financieros-digitales",
+      "destination": "/es/grant/innovation/financial-services",
+      "status": 301
+    },
+    {
+      "source": "/es/grantee-directory",
+      "destination": "/es/grant/grantee-directory",
+      "status": 301
+    },
+    {
+      "source": "/es/grants",
+      "destination": "/es/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/es/grants/our-grantmaking",
+      "destination": "/es/grant/our-grantmaking",
+      "status": 301,
+      "note": "`/grant` is a route prefix with no page of its own, so without this the bare path 404s [INTORG-1218]."
+    },
+    {
+      "source": "/es/hacktoberfest",
+      "destination": "/es/tech/hacktoberfest",
+      "status": 301
+    },
+    {
+      "source": "/es/home",
+      "destination": "/es",
+      "status": 301
+    },
+    {
+      "source": "/es/interledger",
+      "destination": "/es/tech/interledger-protocol",
+      "status": 301
+    },
+    {
+      "source": "/es/involucrese",
+      "destination": "/es/community",
+      "status": 301
+    },
+    {
+      "source": "/es/medios",
+      "destination": "/es/press",
+      "status": 301
+    },
+    {
+      "source": "/es/node/1760",
+      "destination": "/es/grant/innovation/accelerator",
+      "status": 301
+    },
+    {
+      "source": "/es/node/1774",
+      "destination": "/es/grant/local-impact-grant",
+      "status": 301
+    },
+    {
+      "source": "/es/open-payments",
+      "destination": "/es/tech/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/open-payments-es",
+      "destination": "/es/tech/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/servicios-financieros-digitales",
+      "destination": "/es/grant/innovation/financial-services",
+      "status": 301
+    },
+    {
+      "source": "/es/sobre-nosotros",
+      "destination": "/es/about-us",
+      "status": 301
+    },
+    {
+      "source": "/es/suscribase",
+      "destination": "/es/subscribe",
+      "status": 301
+    },
+    {
+      "source": "/es/web-monetization",
+      "destination": "/es/tech/web-monetization",
+      "status": 301
+    }
+  ],
+  "policy_advocacy": [
+    {
+      "source": "/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions",
+      "destination": "/es/policy-and-advocacy/stablecoins-low-cost-transactions",
+      "status": 301
+    },
+    {
+      "source": "/es/policy-and-advocacy/security-profile-interledger-open-source-technologies",
+      "destination": "/es/policy-and-advocacy/security-profile-interledger",
+      "status": 301
+    },
+    {
+      "source": "/es/politica-defensa",
+      "destination": "/es/policy-and-advocacy",
+      "status": 301
+    },
+    {
+      "source": "/es/politica-y-defensa",
+      "destination": "/es/policy-and-advocacy",
+      "status": 301
+    },
+    {
+      "source": "/network-fees-interledger-ecosystem",
+      "destination": "/policy-and-advocacy/network-fees-interledger-ecosystem",
+      "status": 301
+    },
+    {
+      "source": "/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions",
+      "destination": "/policy-and-advocacy/stablecoins-low-cost-transactions",
+      "status": 301
+    },
+    {
+      "source": "/policy-and-advocacy/security-profile-interledger-open-source-technologies",
+      "destination": "/policy-and-advocacy/security-profile-interledger",
+      "status": 301
+    },
+    {
+      "source": "/role-stablecoins-facilitating-low-value-low-cost-transactions",
+      "destination": "/policy-and-advocacy/stablecoins-low-cost-transactions",
+      "status": 301
+    },
+    {
+      "source": "/security-profile-interledger-open-source-technologies",
+      "destination": "/policy-and-advocacy/security-profile-interledger",
+      "status": 301
+    }
+  ],
+  "blog_news_migration": [
+    {
+      "source": "/blog/2021/04/14/introducing-the-interledger-foundation",
+      "destination": "/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web",
+      "status": 301
+    },
+    {
+      "source": "/es/news/2025-digital-financial-services-grant",
+      "destination": "/es/blog/2025-digital-financial-services-grant",
+      "status": 301
+    },
+    {
+      "source": "/es/news/2025-digital-financial-services-grant-recipient-miplata",
+      "destination": "/es/blog/2025-digital-financial-services-grant-recipient-miplata",
+      "status": 301
+    },
+    {
+      "source": "/es/news/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations",
+      "destination": "/es/blog/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations",
+      "status": 301
+    },
+    {
+      "source": "/es/news/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro",
+      "destination": "/es/blog/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro",
+      "status": 301
+    },
+    {
+      "source": "/es/news/ad-filtering-dev-summit-23-web-monetization-100-ad-filter",
+      "destination": "/es/blog/ad-filtering-dev-summit-23-web-monetization-100-ad-filter",
+      "status": 301
+    },
+    {
+      "source": "/es/news/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem",
+      "destination": "/es/blog/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem",
+      "status": 301
+    },
+    {
+      "source": "/es/news/announcing-awardees-interledger-nextgen-higher-education-grant-program",
+      "destination": "/es/blog/announcing-awardees-interledger-nextgen-higher-education-grant-program",
+      "status": 301
+    },
+    {
+      "source": "/es/news/announcing-formal-launch-interledger-foundation",
+      "destination": "/es/blog/announcing-formal-launch-interledger-foundation",
+      "status": 301
+    },
+    {
+      "source": "/es/news/announcing-interledger-foundations-web-monetization-extension-beta-release",
+      "destination": "/es/blog/announcing-interledger-foundations-web-monetization-extension-beta-release",
+      "status": 301
+    },
+    {
+      "source": "/es/news/announcing-new-ilp-testnet-wallet",
+      "destination": "/es/blog/announcing-new-ilp-testnet-wallet",
+      "status": 301
+    },
+    {
+      "source": "/es/news/announcing-twelve-recipients-our-financial-services-awards",
+      "destination": "/es/blog/announcing-twelve-recipients-our-financial-services-awards",
+      "status": 301
+    },
+    {
+      "source": "/es/news/are-financial-rights-human-rights",
+      "destination": "/es/blog/are-financial-rights-human-rights",
+      "status": 301
+    },
+    {
+      "source": "/es/news/banking-without-banks-what-africa-can-teach-us-about-financial-access",
+      "destination": "/es/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/es/news/beyond-hackathon-building-future-open-payments-through-collaboration",
+      "destination": "/es/blog/beyond-hackathon-building-future-open-payments-through-collaboration",
+      "status": 301
+    },
+    {
+      "source": "/es/news/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives",
+      "destination": "/es/blog/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives",
+      "status": 301
+    },
+    {
+      "source": "/es/news/bridging-technology-and-policy",
+      "destination": "/es/blog/bridging-technology-and-policy",
+      "status": 301
+    },
+    {
+      "source": "/es/news/building-future-cross-border-remittances-chimoney-and-interledger",
+      "destination": "/es/blog/building-future-cross-border-remittances-chimoney-and-interledger",
+      "status": 301
+    },
+    {
+      "source": "/es/news/building-real-solutions-interledger-hackathon-winners-2025",
+      "destination": "/es/blog/building-real-solutions-interledger-hackathon-winners-2025",
+      "status": 301
+    },
+    {
+      "source": "/es/news/call-papers-program",
+      "destination": "/es/blog/call-papers-program",
+      "status": 301
+    },
+    {
+      "source": "/es/news/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle",
+      "destination": "/es/blog/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle",
+      "status": 301
+    },
+    {
+      "source": "/es/news/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems",
+      "destination": "/es/blog/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems",
+      "status": 301
+    },
+    {
+      "source": "/es/news/collaborative-work-week-peoples-clearinghouse",
+      "destination": "/es/blog/collaborative-work-week-peoples-clearinghouse",
+      "status": 301
+    },
+    {
+      "source": "/es/news/designing-digital-money-2026-blog-series",
+      "destination": "/es/blog/designing-digital-money-2026-blog-series",
+      "status": 301
+    },
+    {
+      "source": "/es/news/digital-financial-inclusion-igniting-sustainable-development-goals",
+      "destination": "/es/blog/digital-financial-inclusion-igniting-sustainable-development-goals",
+      "status": 301
+    },
+    {
+      "source": "/es/news/exploring-community-based-identification-systems",
+      "destination": "/es/blog/exploring-community-based-identification-systems",
+      "status": 301
+    },
+    {
+      "source": "/es/news/financial-inclusion-20-financial-cooperatives-enabling-inclusivity",
+      "destination": "/es/blog/financial-inclusion-20-financial-cooperatives-enabling-inclusivity",
+      "status": 301
+    },
+    {
+      "source": "/es/news/fliqa-integrates-interledger-power-open-interoperable-payments",
+      "destination": "/es/blog/fliqa-integrates-interledger-power-open-interoperable-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/news/future-banking-and-payments-digital",
+      "destination": "/es/blog/future-banking-and-payments-digital",
+      "status": 301
+    },
+    {
+      "source": "/es/news/future-financial-inclusion-starts-trust",
+      "destination": "/es/blog/future-financial-inclusion-starts-trust",
+      "status": 301
+    },
+    {
+      "source": "/es/news/get-hacking",
+      "destination": "/es/blog/get-hacking",
+      "status": 301
+    },
+    {
+      "source": "/es/news/grantee-report-quarterly-roundup",
+      "destination": "/es/blog/grantee-report-quarterly-roundup",
+      "status": 301
+    },
+    {
+      "source": "/es/news/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions",
+      "destination": "/es/blog/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions",
+      "status": 301
+    },
+    {
+      "source": "/es/news/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda",
+      "destination": "/es/blog/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda",
+      "status": 301
+    },
+    {
+      "source": "/es/news/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions",
+      "destination": "/es/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions",
+      "status": 301
+    },
+    {
+      "source": "/es/news/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon",
+      "destination": "/es/blog/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon",
+      "status": 301
+    },
+    {
+      "source": "/es/news/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger",
+      "destination": "/es/blog/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger",
+      "status": 301
+    },
+    {
+      "source": "/es/news/hacktoberfest-interledger-2025-open-source-celebration",
+      "destination": "/es/blog/hacktoberfest-interledger-2025-open-source-celebration",
+      "status": 301
+    },
+    {
+      "source": "/es/news/hacktoberfest-interledger-join-open-payments-movement",
+      "destination": "/es/blog/hacktoberfest-interledger-join-open-payments-movement",
+      "status": 301
+    },
+    {
+      "source": "/es/news/hacktoberfest-interledger-pay-web-forward",
+      "destination": "/es/blog/hacktoberfest-interledger-pay-web-forward",
+      "status": 301
+    },
+    {
+      "source": "/es/news/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion",
+      "destination": "/es/blog/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/es/news/highlights-afrilabs-2024",
+      "destination": "/es/blog/highlights-afrilabs-2024",
+      "status": 301
+    },
+    {
+      "source": "/es/news/history-and-promise-interledger-qa-co-founder-stefan-thomas",
+      "destination": "/es/blog/history-and-promise-interledger-qa-co-founder-stefan-thomas",
+      "status": 301
+    },
+    {
+      "source": "/es/news/how-interledger-protocol-ilp-powers-web-monetization",
+      "destination": "/es/blog/how-interledger-protocol-ilp-powers-web-monetization",
+      "status": 301
+    },
+    {
+      "source": "/es/news/inside-usiu-africa-open-payments-workshop-what-students-built",
+      "destination": "/es/blog/inside-usiu-africa-open-payments-workshop-what-students-built",
+      "status": 301
+    },
+    {
+      "source": "/es/news/insights-futuremoney-podcast-interledger-campus",
+      "destination": "/es/blog/insights-futuremoney-podcast-interledger-campus",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-campus",
+      "destination": "/es/blog/interledger-campus",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-comes-colombia-help-build-internet-opportunity",
+      "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-accepting-letters-intent-loi-institutions-seeking-shape-future-digital",
+      "destination": "/es/blog/shaping-future-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-and-bowie-state-create-new-partnership",
+      "destination": "/es/blog/interledger-foundation-and-bowie-state-create-new-partnership",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital",
+      "destination": "/es/blog/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company",
+      "destination": "/es/blog/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-announces-newest-grantee-mifos-initiative",
+      "destination": "/es/blog/interledger-foundation-announces-newest-grantee-mifos-initiative",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media",
+      "destination": "/es/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web",
+      "destination": "/es/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-launches-interledger-campus-grant-program-support-student-led",
+      "destination": "/es/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation",
+      "destination": "/es/blog/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial",
+      "destination": "/es/blog/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-partners-bowie-state-university",
+      "destination": "/es/blog/interledger-foundation-partners-bowie-state-university",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-partners-chimoney",
+      "destination": "/es/blog/interledger-foundation-partners-chimoney",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-partners-here-support-waag",
+      "destination": "/es/blog/interledger-foundation-partners-waag-and-here-support",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-partners-waag-and-here-support",
+      "destination": "/es/blog/interledger-foundation-partners-waag-and-here-support",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-foundation-partners-wallet-guru",
+      "destination": "/es/blog/interledger-foundation-partners-wallet-guru",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-hackathon-intro-open-payments-live-qa-ilf-experts",
+      "destination": "/es/blog/interledger-hackathon-intro-open-payments-live-qa-ilf-experts",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-internet-governance-forum-2025",
+      "destination": "/es/blog/interledger-internet-governance-forum-2025",
+      "status": 301
+    },
+    {
+      "source": "/es/news/interledger-summit-workshop-week",
+      "destination": "/es/blog/interledger-summit-workshop-week",
+      "status": 301
+    },
+    {
+      "source": "/es/news/introducing-2024-digital-money-blog-series",
+      "destination": "/es/blog/introducing-2024-digital-money-blog-series",
+      "status": 301
+    },
+    {
+      "source": "/es/news/introducing-2025-interledger-foundation-ambassadors-cohort",
+      "destination": "/es/blog/introducing-2025-interledger-foundation-ambassadors-cohort",
+      "status": 301
+    },
+    {
+      "source": "/es/news/introducing-besspay-plugin-project",
+      "destination": "/es/blog/introducing-besspay-plugin-project",
+      "status": 301
+    },
+    {
+      "source": "/es/news/introducing-parliamentarian-track-interledger-summit-2024",
+      "destination": "/es/blog/introducing-parliamentarian-track-interledger-summit-2024",
+      "status": 301
+    },
+    {
+      "source": "/es/news/july-2025-quarterly-roundup",
+      "destination": "/es/blog/july-2025-quarterly-roundup",
+      "status": 301
+    },
+    {
+      "source": "/es/news/kanzu-microloans-real-time-credit-access-underserved",
+      "destination": "/es/blog/kanzu-microloans-real-time-credit-access-underserved",
+      "status": 301
+    },
+    {
+      "source": "/es/news/making-money-move-julaire-halls-mission-financial-inclusion",
+      "destination": "/es/blog/making-money-move-julaire-halls-mission-financial-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mexico-joins-interledger-network",
+      "destination": "/es/blog/mexico-joins-interledger-network",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mobile-money-ecosystem-africa",
+      "destination": "/es/blog/mobile-money-ecosystem-africa",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mobile-money-ecosystem-asia-pacific",
+      "destination": "/es/blog/mobile-money-ecosystem-asia-pacific",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mobile-money-ecosystem-europe",
+      "destination": "/es/blog/mobile-money-ecosystem-europe",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mobile-money-ecosystem-latin-america-and-caribbean",
+      "destination": "/es/blog/mobile-money-ecosystem-latin-america-and-caribbean",
+      "status": 301
+    },
+    {
+      "source": "/es/news/mobile-money-ecosystem-north-america",
+      "destination": "/es/blog/mobile-money-ecosystem-north-america",
+      "status": 301
+    },
+    {
+      "source": "/es/news/multiple-sides-friction-good-bad-and-how-use-it",
+      "destination": "/es/blog/multiple-sides-friction-good-bad-and-how-use-it",
+      "status": 301
+    },
+    {
+      "source": "/es/news/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico",
+      "destination": "/es/blog/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico",
+      "status": 301
+    },
+    {
+      "source": "/es/news/open-design-confronting-harmful-patterns-digital-finance",
+      "destination": "/es/blog/open-design-confronting-harmful-patterns-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/es/news/open-payments-help-roscas-modernise-global-impact",
+      "destination": "/es/blog/open-payments-help-roscas-modernise-global-impact",
+      "status": 301
+    },
+    {
+      "source": "/es/news/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time",
+      "destination": "/es/blog/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time",
+      "status": 301
+    },
+    {
+      "source": "/es/news/rafiki-remit-advancing-seamless-remittances-pakistan",
+      "destination": "/es/blog/rafiki-remit-advancing-seamless-remittances-pakistan",
+      "status": 301
+    },
+    {
+      "source": "/es/news/redefining-financial-inclusion-chimoney",
+      "destination": "/es/blog/redefining-financial-inclusion-chimoney",
+      "status": 301
+    },
+    {
+      "source": "/es/news/reflections-2025-payments-canada-summit",
+      "destination": "/es/blog/reflections-2025-payments-canada-summit",
+      "status": 301
+    },
+    {
+      "source": "/es/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments",
+      "destination": "/es/blog/reflections-2025-payments-canada-summit",
+      "status": 301
+    },
+    {
+      "source": "/es/news/reflections-un-open-source-week-2025",
+      "destination": "/es/blog/reflections-un-open-source-week-2025",
+      "status": 301
+    },
+    {
+      "source": "/es/news/reimagining-e-commerce-and-social-media",
+      "destination": "/es/blog/reimagining-e-commerce-and-social-media",
+      "status": 301
+    },
+    {
+      "source": "/es/news/revolutionizing-global-payouts-and-boosting-financial-inclusion",
+      "destination": "/es/blog/revolutionizing-global-payouts-and-boosting-financial-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/es/news/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota",
+      "destination": "/es/blog/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota",
+      "status": 301
+    },
+    {
+      "source": "/es/news/shanghai-flip-phones-and-robots-interledger-engineering-adventure",
+      "destination": "/es/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure",
+      "status": 301
+    },
+    {
+      "source": "/es/news/shaping-future-digital-finance",
+      "destination": "/es/blog/shaping-future-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/es/news/strategic-shift-interledger-foundation",
+      "destination": "/es/blog/strategic-shift-interledger-foundation",
+      "status": 301
+    },
+    {
+      "source": "/es/news/transforming-financial-access",
+      "destination": "/es/blog/transforming-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/es/news/turning-headlines-backyard-conversations-lessons-2025-ofn-conference",
+      "destination": "/es/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference",
+      "status": 301
+    },
+    {
+      "source": "/es/news/uct-financial-innovation-hub-and-interledger-foundation-hackathon",
+      "destination": "/es/blog/uct-financial-innovation-hub-and-interledger-foundation-hackathon",
+      "status": 301
+    },
+    {
+      "source": "/es/news/unleashing-real-time-potential-streaming-payments",
+      "destination": "/es/blog/unleashing-real-time-potential-streaming-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/news/village-banking-stokvels-and-saccos-are-transforming-financial-access",
+      "destination": "/es/blog/transforming-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/es/news/web-isnt-free",
+      "destination": "/es/blog/web-isnt-free",
+      "status": 301
+    },
+    {
+      "source": "/es/news/web-monetization-meets-googles-offerwall",
+      "destination": "/es/blog/web-monetization-meets-googles-offerwall",
+      "status": 301
+    },
+    {
+      "source": "/es/news/welcome-our-new-ambassadors",
+      "destination": "/es/blog/welcome-our-new-ambassadors",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-april",
+      "destination": "/es/blog/whats-happened-april",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-august",
+      "destination": "/es/blog/whats-happened-august",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-december",
+      "destination": "/es/blog/whats-happened-december",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-july",
+      "destination": "/es/blog/whats-happened-july",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-june",
+      "destination": "/es/blog/whats-happened-june",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-march-news-updates-global-trends",
+      "destination": "/es/blog/whats-happened-march-news-updates-global-trends",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-may",
+      "destination": "/es/blog/whats-happened-may",
+      "status": 301
+    },
+    {
+      "source": "/es/news/whats-happened-september",
+      "destination": "/es/blog/whats-happened-september",
+      "status": 301
+    },
+    {
+      "source": "/es/news/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia",
+      "destination": "/es/blog/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia",
+      "status": 301
+    },
+    {
+      "source": "/es/news/why-campuses-are-becoming-testbeds-digital-finance",
+      "destination": "/es/blog/why-campuses-are-becoming-testbeds-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/es/news/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic",
+      "destination": "/es/blog/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic",
+      "status": 301
+    },
+    {
+      "source": "/es/news/why-we-funded-research-who-gets-left-out-instant-payments",
+      "destination": "/es/blog/why-we-funded-research-who-gets-left-out-instant-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/news/why-we-weighed-federal-reserves-payment-account-proposal",
+      "destination": "/es/blog/why-we-weighed-federal-reserves-payment-account-proposal",
+      "status": 301
+    },
+    {
+      "source": "/es/news/work-weeks-2025-building-future-financial-interoperability-heart-transylvania",
+      "destination": "/es/blog/work-weeks-2025-building-future-financial-interoperability-heart-transylvania",
+      "status": 301
+    },
+    {
+      "source": "/es/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken",
+      "destination": "/es/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken",
+      "status": 301
+    },
+    {
+      "source": "/news/2025-digital-financial-services-grant",
+      "destination": "/blog/2025-digital-financial-services-grant",
+      "status": 301
+    },
+    {
+      "source": "/news/2025-digital-financial-services-grant-recipient-miplata",
+      "destination": "/blog/2025-digital-financial-services-grant-recipient-miplata",
+      "status": 301
+    },
+    {
+      "source": "/news/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations",
+      "destination": "/blog/2025-interledger-policy-activation-grantee-alliance-digital-finance-and-fintech-associations",
+      "status": 301
+    },
+    {
+      "source": "/news/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro",
+      "destination": "/blog/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro",
+      "status": 301
+    },
+    {
+      "source": "/news/ad-filtering-dev-summit-23-web-monetization-100-ad-filter",
+      "destination": "/blog/ad-filtering-dev-summit-23-web-monetization-100-ad-filter",
+      "status": 301
+    },
+    {
+      "source": "/news/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem",
+      "destination": "/blog/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem",
+      "status": 301
+    },
+    {
+      "source": "/news/announcing-awardees-interledger-nextgen-higher-education-grant-program",
+      "destination": "/blog/announcing-awardees-interledger-nextgen-higher-education-grant-program",
+      "status": 301
+    },
+    {
+      "source": "/news/announcing-formal-launch-interledger-foundation",
+      "destination": "/blog/announcing-formal-launch-interledger-foundation",
+      "status": 301
+    },
+    {
+      "source": "/news/announcing-interledger-foundations-web-monetization-extension-beta-release",
+      "destination": "/blog/announcing-interledger-foundations-web-monetization-extension-beta-release",
+      "status": 301
+    },
+    {
+      "source": "/news/announcing-new-ilp-testnet-wallet",
+      "destination": "/blog/announcing-new-ilp-testnet-wallet",
+      "status": 301
+    },
+    {
+      "source": "/news/announcing-twelve-recipients-our-financial-services-awards",
+      "destination": "/blog/announcing-twelve-recipients-our-financial-services-awards",
+      "status": 301
+    },
+    {
+      "source": "/news/are-financial-rights-human-rights",
+      "destination": "/blog/are-financial-rights-human-rights",
+      "status": 301
+    },
+    {
+      "source": "/news/banking-without-banks-what-africa-can-teach-us-about-financial-access",
+      "destination": "/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/news/beyond-hackathon-building-future-open-payments-through-collaboration",
+      "destination": "/blog/beyond-hackathon-building-future-open-payments-through-collaboration",
+      "status": 301
+    },
+    {
+      "source": "/news/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives",
+      "destination": "/blog/bridging-digital-divide-improve-underserved-and-unbanked-financial-lives",
+      "status": 301
+    },
+    {
+      "source": "/news/bridging-technology-and-policy",
+      "destination": "/blog/bridging-technology-and-policy",
+      "status": 301
+    },
+    {
+      "source": "/news/building-future-cross-border-remittances-chimoney-and-interledger",
+      "destination": "/blog/building-future-cross-border-remittances-chimoney-and-interledger",
+      "status": 301
+    },
+    {
+      "source": "/news/building-real-solutions-interledger-hackathon-winners-2025",
+      "destination": "/blog/building-real-solutions-interledger-hackathon-winners-2025",
+      "status": 301
+    },
+    {
+      "source": "/news/call-papers-program",
+      "destination": "/blog/call-papers-program",
+      "status": 301
+    },
+    {
+      "source": "/news/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle",
+      "destination": "/blog/call-proposals-now-open-digital-financial-services-grant-july-2025-cycle",
+      "status": 301
+    },
+    {
+      "source": "/news/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems",
+      "destination": "/blog/case-digital-currencies-unlocking-future-interoperable-digital-financial-systems",
+      "status": 301
+    },
+    {
+      "source": "/news/collaborative-work-week-peoples-clearinghouse",
+      "destination": "/blog/collaborative-work-week-peoples-clearinghouse",
+      "status": 301
+    },
+    {
+      "source": "/news/designing-digital-money-2026-blog-series",
+      "destination": "/blog/designing-digital-money-2026-blog-series",
+      "status": 301
+    },
+    {
+      "source": "/news/digital-financial-inclusion-igniting-sustainable-development-goals",
+      "destination": "/blog/digital-financial-inclusion-igniting-sustainable-development-goals",
+      "status": 301
+    },
+    {
+      "source": "/news/exploring-community-based-identification-systems",
+      "destination": "/blog/exploring-community-based-identification-systems",
+      "status": 301
+    },
+    {
+      "source": "/news/financial-inclusion-20-financial-cooperatives-enabling-inclusivity",
+      "destination": "/blog/financial-inclusion-20-financial-cooperatives-enabling-inclusivity",
+      "status": 301
+    },
+    {
+      "source": "/news/fliqa-integrates-interledger-power-open-interoperable-payments",
+      "destination": "/blog/fliqa-integrates-interledger-power-open-interoperable-payments",
+      "status": 301
+    },
+    {
+      "source": "/news/future-banking-and-payments-digital",
+      "destination": "/blog/future-banking-and-payments-digital",
+      "status": 301
+    },
+    {
+      "source": "/news/future-financial-inclusion-starts-trust",
+      "destination": "/blog/future-financial-inclusion-starts-trust",
+      "status": 301
+    },
+    {
+      "source": "/news/get-hacking",
+      "destination": "/blog/get-hacking",
+      "status": 301
+    },
+    {
+      "source": "/news/grantee-report-quarterly-roundup",
+      "destination": "/blog/grantee-report-quarterly-roundup",
+      "status": 301
+    },
+    {
+      "source": "/news/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions",
+      "destination": "/blog/grantee-spotlight-boost-msmes-besspay-plugins-seamless-payment-solutions",
+      "status": 301
+    },
+    {
+      "source": "/news/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda",
+      "destination": "/blog/grantee-spotlight-kanzu-microloans-bridges-financial-divide-uganda",
+      "status": 301
+    },
+    {
+      "source": "/news/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions",
+      "destination": "/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions",
+      "status": 301
+    },
+    {
+      "source": "/news/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon",
+      "destination": "/blog/hack-uct-2024-highlights-and-achievements-our-student-bootcamp-and-hackathon",
+      "status": 301
+    },
+    {
+      "source": "/news/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger",
+      "destination": "/blog/hacktoberfest-2024-celebrating-open-source-and-community-impact-interledger",
+      "status": 301
+    },
+    {
+      "source": "/news/hacktoberfest-interledger-2025-open-source-celebration",
+      "destination": "/blog/hacktoberfest-interledger-2025-open-source-celebration",
+      "status": 301
+    },
+    {
+      "source": "/news/hacktoberfest-interledger-join-open-payments-movement",
+      "destination": "/blog/hacktoberfest-interledger-join-open-payments-movement",
+      "status": 301
+    },
+    {
+      "source": "/news/hacktoberfest-interledger-pay-web-forward",
+      "destination": "/blog/hacktoberfest-interledger-pay-web-forward",
+      "status": 301
+    },
+    {
+      "source": "/news/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion",
+      "destination": "/blog/harnessing-future-insights-global-technology-retreat-digital-trust-and-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/news/highlights-afrilabs-2024",
+      "destination": "/blog/highlights-afrilabs-2024",
+      "status": 301
+    },
+    {
+      "source": "/news/history-and-promise-interledger-qa-co-founder-stefan-thomas",
+      "destination": "/blog/history-and-promise-interledger-qa-co-founder-stefan-thomas",
+      "status": 301
+    },
+    {
+      "source": "/news/how-interledger-protocol-ilp-powers-web-monetization",
+      "destination": "/blog/how-interledger-protocol-ilp-powers-web-monetization",
+      "status": 301
+    },
+    {
+      "source": "/news/inside-usiu-africa-open-payments-workshop-what-students-built",
+      "destination": "/blog/inside-usiu-africa-open-payments-workshop-what-students-built",
+      "status": 301
+    },
+    {
+      "source": "/news/insights-futuremoney-podcast-interledger-campus",
+      "destination": "/blog/insights-futuremoney-podcast-interledger-campus",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-awards-20000-five-organizations-explore-community-centered-financial",
+      "destination": "/blog/interledger-awards-20-000-to-five-organizations-to-explore-community-centered-financial-infrastructure",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-campus",
+      "destination": "/blog/interledger-campus",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-comes-colombia-help-build-internet-opportunity",
+      "destination": "/blog/interledger-comes-colombia-help-build-internet-opportunity",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-accepting-letters-intent-loi-institutions-seeking-shape-future-digital",
+      "destination": "/blog/shaping-future-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-and-bowie-state-create-new-partnership",
+      "destination": "/blog/interledger-foundation-and-bowie-state-create-new-partnership",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital",
+      "destination": "/blog/interledger-foundation-and-small-foundation-partner-alliancedfa-strengthen-inclusive-digital",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company",
+      "destination": "/blog/interledger-foundation-announces-historic-partnership-jordan-payments-and-clearing-company",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-announces-newest-grantee-mifos-initiative",
+      "destination": "/blog/interledger-foundation-announces-newest-grantee-mifos-initiative",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media",
+      "destination": "/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web",
+      "destination": "/blog/interledger-foundation-launches-build-more-equitable-and-creative-opportunities-web",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-launches-interledger-campus-grant-program-support-student-led",
+      "destination": "/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation",
+      "destination": "/blog/interledger-foundation-launches-local-impact-mini-grants-empower-community-led-innovation",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial",
+      "destination": "/blog/interledger-foundation-launches-nextgen-higher-education-grant-shape-future-digital-financial",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-partners-bowie-state-university",
+      "destination": "/blog/interledger-foundation-partners-bowie-state-university",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-partners-chimoney",
+      "destination": "/blog/interledger-foundation-partners-chimoney",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-partners-here-support-waag",
+      "destination": "/blog/interledger-foundation-partners-waag-and-here-support",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-partners-waag-and-here-support",
+      "destination": "/blog/interledger-foundation-partners-waag-and-here-support",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-foundation-partners-wallet-guru",
+      "destination": "/blog/interledger-foundation-partners-wallet-guru",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-hackathon-intro-open-payments-live-qa-ilf-experts",
+      "destination": "/blog/interledger-hackathon-intro-open-payments-live-qa-ilf-experts",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-internet-governance-forum-2025",
+      "destination": "/blog/interledger-internet-governance-forum-2025",
+      "status": 301
+    },
+    {
+      "source": "/news/interledger-summit-workshop-week",
+      "destination": "/blog/interledger-summit-workshop-week",
+      "status": 301
+    },
+    {
+      "source": "/news/introducing-2024-digital-money-blog-series",
+      "destination": "/blog/introducing-2024-digital-money-blog-series",
+      "status": 301
+    },
+    {
+      "source": "/news/introducing-2025-interledger-foundation-ambassadors-cohort",
+      "destination": "/blog/introducing-2025-interledger-foundation-ambassadors-cohort",
+      "status": 301
+    },
+    {
+      "source": "/news/introducing-besspay-plugin-project",
+      "destination": "/blog/introducing-besspay-plugin-project",
+      "status": 301
+    },
+    {
+      "source": "/news/introducing-parliamentarian-track-interledger-summit-2024",
+      "destination": "/blog/introducing-parliamentarian-track-interledger-summit-2024",
+      "status": 301
+    },
+    {
+      "source": "/news/july-2025-quarterly-roundup",
+      "destination": "/blog/july-2025-quarterly-roundup",
+      "status": 301
+    },
+    {
+      "source": "/news/kanzu-microloans-real-time-credit-access-underserved",
+      "destination": "/blog/kanzu-microloans-real-time-credit-access-underserved",
+      "status": 301
+    },
+    {
+      "source": "/news/making-money-move-julaire-halls-mission-financial-inclusion",
+      "destination": "/blog/making-money-move-julaire-halls-mission-financial-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/news/mexico-joins-interledger-network",
+      "destination": "/blog/mexico-joins-interledger-network",
+      "status": 301
+    },
+    {
+      "source": "/news/mobile-money-ecosystem-africa",
+      "destination": "/blog/mobile-money-ecosystem-africa",
+      "status": 301
+    },
+    {
+      "source": "/news/mobile-money-ecosystem-asia-pacific",
+      "destination": "/blog/mobile-money-ecosystem-asia-pacific",
+      "status": 301
+    },
+    {
+      "source": "/news/mobile-money-ecosystem-europe",
+      "destination": "/blog/mobile-money-ecosystem-europe",
+      "status": 301
+    },
+    {
+      "source": "/news/mobile-money-ecosystem-latin-america-and-caribbean",
+      "destination": "/blog/mobile-money-ecosystem-latin-america-and-caribbean",
+      "status": 301
+    },
+    {
+      "source": "/news/mobile-money-ecosystem-north-america",
+      "destination": "/blog/mobile-money-ecosystem-north-america",
+      "status": 301
+    },
+    {
+      "source": "/news/multiple-sides-friction-good-bad-and-how-use-it",
+      "destination": "/blog/multiple-sides-friction-good-bad-and-how-use-it",
+      "status": 301
+    },
+    {
+      "source": "/news/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico",
+      "destination": "/blog/new-interledger-foundation-grant-awarded-advance-digital-financial-inclusion-mexico",
+      "status": 301
+    },
+    {
+      "source": "/news/open-design-confronting-harmful-patterns-digital-finance",
+      "destination": "/blog/open-design-confronting-harmful-patterns-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/news/open-payments-help-roscas-modernise-global-impact",
+      "destination": "/blog/open-payments-help-roscas-modernise-global-impact",
+      "status": 301
+    },
+    {
+      "source": "/news/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time",
+      "destination": "/blog/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time",
+      "status": 301
+    },
+    {
+      "source": "/news/rafiki-remit-advancing-seamless-remittances-pakistan",
+      "destination": "/blog/rafiki-remit-advancing-seamless-remittances-pakistan",
+      "status": 301
+    },
+    {
+      "source": "/news/redefining-financial-inclusion-chimoney",
+      "destination": "/blog/redefining-financial-inclusion-chimoney",
+      "status": 301
+    },
+    {
+      "source": "/news/reflections-2025-payments-canada-summit",
+      "destination": "/blog/reflections-2025-payments-canada-summit",
+      "status": 301
+    },
+    {
+      "source": "/news/reflections-2025-payments-canada-summit-innovate-collaborate-and-transform-future-payments",
+      "destination": "/blog/reflections-2025-payments-canada-summit",
+      "status": 301
+    },
+    {
+      "source": "/news/reflections-un-open-source-week-2025",
+      "destination": "/blog/reflections-un-open-source-week-2025",
+      "status": 301
+    },
+    {
+      "source": "/news/reimagining-e-commerce-and-social-media",
+      "destination": "/blog/reimagining-e-commerce-and-social-media",
+      "status": 301
+    },
+    {
+      "source": "/news/revolutionizing-global-payouts-and-boosting-financial-inclusion",
+      "destination": "/blog/revolutionizing-global-payouts-and-boosting-financial-inclusion",
+      "status": 301
+    },
+    {
+      "source": "/news/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota",
+      "destination": "/blog/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota",
+      "status": 301
+    },
+    {
+      "source": "/news/shanghai-flip-phones-and-robots-interledger-engineering-adventure",
+      "destination": "/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure",
+      "status": 301
+    },
+    {
+      "source": "/news/shaping-future-digital-finance",
+      "destination": "/blog/shaping-future-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/news/strategic-shift-interledger-foundation",
+      "destination": "/blog/strategic-shift-interledger-foundation",
+      "status": 301
+    },
+    {
+      "source": "/news/transforming-financial-access",
+      "destination": "/blog/transforming-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/news/turning-headlines-backyard-conversations-lessons-2025-ofn-conference",
+      "destination": "/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference",
+      "status": 301
+    },
+    {
+      "source": "/news/uct-financial-innovation-hub-and-interledger-foundation-hackathon",
+      "destination": "/blog/uct-financial-innovation-hub-and-interledger-foundation-hackathon",
+      "status": 301
+    },
+    {
+      "source": "/news/unleashing-real-time-potential-streaming-payments",
+      "destination": "/blog/unleashing-real-time-potential-streaming-payments",
+      "status": 301
+    },
+    {
+      "source": "/news/village-banking-stokvels-and-saccos-are-transforming-financial-access",
+      "destination": "/blog/transforming-financial-access",
+      "status": 301
+    },
+    {
+      "source": "/news/web-isnt-free",
+      "destination": "/blog/web-isnt-free",
+      "status": 301
+    },
+    {
+      "source": "/news/web-monetization-meets-googles-offerwall",
+      "destination": "/blog/web-monetization-meets-googles-offerwall",
+      "status": 301
+    },
+    {
+      "source": "/news/welcome-our-new-ambassadors",
+      "destination": "/blog/welcome-our-new-ambassadors",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-april",
+      "destination": "/blog/whats-happened-april",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-august",
+      "destination": "/blog/whats-happened-august",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-december",
+      "destination": "/blog/whats-happened-december",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-july",
+      "destination": "/blog/whats-happened-july",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-june",
+      "destination": "/blog/whats-happened-june",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-march-news-updates-global-trends",
+      "destination": "/blog/whats-happened-march-news-updates-global-trends",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-may",
+      "destination": "/blog/whats-happened-may",
+      "status": 301
+    },
+    {
+      "source": "/news/whats-happened-september",
+      "destination": "/blog/whats-happened-september",
+      "status": 301
+    },
+    {
+      "source": "/news/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia",
+      "destination": "/blog/why-access-isnt-enough-new-research-project-explore-barriers-financial-inclusion-colombia",
+      "status": 301
+    },
+    {
+      "source": "/news/why-campuses-are-becoming-testbeds-digital-finance",
+      "destination": "/blog/why-campuses-are-becoming-testbeds-digital-finance",
+      "status": 301
+    },
+    {
+      "source": "/news/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic",
+      "destination": "/blog/why-higher-education-institutions-worldwide-should-embrace-hackathons-catalysts-academic",
+      "status": 301
+    },
+    {
+      "source": "/news/why-we-funded-research-who-gets-left-out-instant-payments",
+      "destination": "/blog/why-we-funded-research-who-gets-left-out-instant-payments",
+      "status": 301
+    },
+    {
+      "source": "/news/why-we-weighed-federal-reserves-payment-account-proposal",
+      "destination": "/blog/why-we-weighed-federal-reserves-payment-account-proposal",
+      "status": 301
+    },
+    {
+      "source": "/news/work-weeks-2025-building-future-financial-interoperability-heart-transylvania",
+      "destination": "/blog/work-weeks-2025-building-future-financial-interoperability-heart-transylvania",
+      "status": 301
+    },
+    {
+      "source": "/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken",
+      "destination": "/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken",
+      "status": 301
+    }
+  ],
+  "blog_taxonomy": [
+    {
+      "source": "/blog/category/announcements",
+      "destination": "/blog/category/news",
+      "status": 301,
+      "note": "Finalised blog categories: renamed or removed category pages [INTORG-829]."
+    },
+    {
+      "source": "/blog/category/community-&-events",
+      "destination": "/blog",
+      "status": 301,
+      "note": "Finalised blog categories: renamed or removed category pages [INTORG-829]."
+    },
+    {
+      "source": "/blog/category/grants-&-grantee-insights",
+      "destination": "/blog/category/grantmaking",
+      "status": 301,
+      "note": "Finalised blog categories: renamed or removed category pages [INTORG-829]."
+    },
+    {
+      "source": "/blog/tag/announcements",
+      "destination": "/blog/category/news",
+      "status": 301
+    },
+    {
+      "source": "/blog/tag/community-&-events",
+      "destination": "/blog",
+      "status": 301
+    },
+    {
+      "source": "/blog/tag/grants-&-grantee-insights",
+      "destination": "/blog/category/grantmaking",
+      "status": 301
+    },
+    {
+      "source": "/blog/tag/interledger-technology",
+      "destination": "/blog/category/interledger-technology",
+      "status": 301
+    },
+    {
+      "source": "/blog/tag/thought-leadership",
+      "destination": "/blog/category/thought-leadership",
+      "status": 301
+    },
+    {
+      "source": "/es/blog/category/announcements",
+      "destination": "/es/blog/category/news",
+      "status": 301,
+      "note": "Finalised blog categories: renamed or removed category pages [INTORG-829]."
+    },
+    {
+      "source": "/es/blog/category/grants-&-grantee-insights",
+      "destination": "/es/blog/category/grantmaking",
+      "status": 301,
+      "note": "Finalised blog categories: renamed or removed category pages [INTORG-829]."
+    },
+    {
+      "source": "/es/blog/tag/announcements",
+      "destination": "/es/blog/category/news",
+      "status": 301
+    },
+    {
+      "source": "/es/blog/tag/grants-&-grantee-insights",
+      "destination": "/es/blog/category/grantmaking",
+      "status": 301
+    }
+  ],
+  "developers_blog_migration": [
+    {
+      "source": "/developers/blog",
+      "destination": "/blog",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/2025-06-04-ES-El-Universo-Interledger",
+      "destination": "/es/blog/interledger-universe/",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/breakpoint-it-work-week",
+      "destination": "/blog/breakpoint-it-work-week",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/e2e-testing-wm-browser-extension",
+      "destination": "/blog/e2e-testing-wm-browser-extension",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/es",
+      "destination": "/es/blog",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/frontend-work-week",
+      "destination": "/blog/frontend-work-week",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/go-further-with-open-payments",
+      "destination": "/blog/go-further-with-open-payments",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/ilf-and-hsms",
+      "destination": "/blog/ilf-and-hsms",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/ilp-packet-lifecycle",
+      "destination": "/blog/ilp-packet-lifecycle",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/integration-tests",
+      "destination": "/blog/integration-tests",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/integrations-work-week",
+      "destination": "/blog/integrations-work-week",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks",
+      "destination": "/blog/interledger-how-to-interconnect-all-blockchains-and-value-networks",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/interledger-universe",
+      "destination": "/blog/interledger-universe",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/introducing-open-payments-php",
+      "destination": "/blog/introducing-open-payments-php",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/introducing-publisher-tools",
+      "destination": "/blog/introducing-publisher-tools",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/memorable-wallet-addresses-custom-domain",
+      "destination": "/blog/memorable-wallet-addresses-custom-domain",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/open-payments-cinderella-story",
+      "destination": "/blog/open-payments-cinderella-story",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/open-payments-java",
+      "destination": "/blog/open-payments-java",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafiki-beta-release",
+      "destination": "/blog/rafiki-beta-release",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafiki-card-integration",
+      "destination": "/blog/rafiki-card-integration",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafiki-cards-work-week-2026",
+      "destination": "/blog/rafiki-cards-work-week-2026",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafiki-low-level-intro",
+      "destination": "/blog/rafiki-low-level-intro",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafiki-tigerbeetle-integration",
+      "destination": "/blog/rafiki-tigerbeetle-integration",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/rafikis-first-security-audit",
+      "destination": "/blog/rafikis-first-security-audit",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/redesigned-publisher-tools-guide",
+      "destination": "/blog/redesigned-publisher-tools-guide",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/simple-open-payments-guide",
+      "destination": "/blog/simple-open-payments-guide",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/simple-rafiki-integration-guide",
+      "destination": "/blog/simple-rafiki-integration-guide",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features",
+      "destination": "/blog/simplifying-interledger-the-graveyard-of-possible-protocol-features",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/subscriptions-with-open-payments-poc",
+      "destination": "/blog/subscriptions-with-open-payments-poc",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/the-telemetry-tale",
+      "destination": "/blog/the-telemetry-tale",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/thoughts-on-scaling-interledger-connectors",
+      "destination": "/blog/thoughts-on-scaling-interledger-connectors",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/wallet-address-smart-redirect",
+      "destination": "/blog/wallet-address-smart-redirect",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/wallet-work-week",
+      "destination": "/blog/wallet-work-week",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/web-monetization-open-payments-part-1-connecting-wallet",
+      "destination": "/blog/web-monetization-open-payments-part-1-connecting-wallet",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/web-monetization-open-payments-part-2-payment-sessions",
+      "destination": "/blog/web-monetization-open-payments-part-2-payment-sessions",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/web-monetization-open-payments-part-3-sending-money",
+      "destination": "/blog/web-monetization-open-payments-part-3-sending-money",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/web-monetization-work-week",
+      "destination": "/blog/web-monetization-work-week",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/web-monetization-wrapped-2025",
+      "destination": "/blog/web-monetization-wrapped-2025",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/developers/blog/where-did-rafiki-money-go",
+      "destination": "/blog/where-did-rafiki-money-go",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/es/developers/blog",
+      "destination": "/es/blog",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    },
+    {
+      "source": "/es/developers/blog/el-universo-interledger",
+      "destination": "/es/blog/interledger-universe/",
+      "status": 301,
+      "note": "Developers blog merged into the foundation blog [INTORG-691]."
+    }
+  ],
+  "hackathon": [
+    {
+      "source": "/es/hackathon",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/codigo-de-conducta",
+      "destination": "/es/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/faqs",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/preguntas-frecuentes",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/recursos",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/requisitos-de-participacion",
+      "destination": "/es/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathon/resources",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathons",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/hackathons/overview",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/hackaton",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/hackaton/overview",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/hackaton/preguntas-frecuentes",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/hackaton/programa",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/code-conduct",
+      "destination": "/es/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/codigo-de-conducta",
+      "destination": "/es/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/documentacion-del-glosario-del-hackaton",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/faqs",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/participation",
+      "destination": "/es/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/participation-requirements",
+      "destination": "/es/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/preguntas-frecuentes",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/resources",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/resources/documentation",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathon/schedule",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackathons/faqs",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/preguntas-frecuentes",
+      "destination": "/es/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/programa",
+      "destination": "/es/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/recursos",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/recursos/glosario",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/recursos/open-payments",
+      "destination": "/es/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/es/summit/hackaton/requisitos-para-participar",
+      "destination": "/es/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/hackathon",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/code-of-conduct",
+      "destination": "/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/faqs",
+      "destination": "/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/participation-requirements",
+      "destination": "/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/resources",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/resources/documentation",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/hackathon/schedule",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/hackathons",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/hackathons/code-conduct",
+      "destination": "/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/hackathons/faqs",
+      "destination": "/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/hackathons/overview",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/hackathons/participation",
+      "destination": "/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/hackathons/resources",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/2025-judging-process-and-criteria",
+      "destination": "/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/summit/code-conduct",
+      "destination": "/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/summit/code-of-conduct",
+      "destination": "/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon-2024",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon-glossary-documentation",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon-venue",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/faqs",
+      "destination": "/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/participation",
+      "destination": "/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/participation-requirements",
+      "destination": "/hackathon/participation",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/resources",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/resources/documentation",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/resources/documentation/glossary",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/resources/glossary",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathon/schedule",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/summit/hackathons/terms-conditions",
+      "destination": "/hackathon/code-conduct",
+      "status": 301
+    },
+    {
+      "source": "/summit/ideation-framework",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/interledger-foundation-hackathons",
+      "destination": "/hackathon/overview",
+      "status": 301
+    },
+    {
+      "source": "/summit/judging-process-and-criteria",
+      "destination": "/hackathon/faq",
+      "status": 301
+    },
+    {
+      "source": "/summit/open-payments-and-hackathon-documentation",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/open-payments-and-hackathon-resources",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/open-payments-use-cases",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/openai-api-onboarding-guide",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/presentations",
+      "destination": "/hackathon/open-payments",
+      "status": 301
+    },
+    {
+      "source": "/summit/submitting-your-solution",
+      "destination": "/hackathon/faq",
+      "status": 301
+    }
+  ],
+  "summit": []
+}
