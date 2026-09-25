@@ -1,8 +1,9 @@
-import { getCollection } from 'astro:content'
+import type { getCollection } from 'astro:content'
 import {
   crossSectionCollections,
   type CrossSectionCollection
 } from '@/lib/templates'
+import { getGatedCollection } from './blogPosts'
 import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
@@ -44,6 +45,13 @@ type Options = {
  *   - EN is canonical
  *   - ES may fall back to EN content
  *   - EN never falls back to ES content
+ *
+ * Reads through the publish gate, so on production no path is emitted for a
+ * future-dated post and its URL falls through to 404.astro. ES paths are
+ * derived from the EN entry list, so a scheduled EN post emits no route for its
+ * translation either — and `getGatedCollection` drops that orphaned translation
+ * from the collection as well, so the listings and the search index cannot link
+ * to the route this function declined to build.
  */
 export async function getLocalizedPaths(
   collection: CollectionType,
@@ -51,7 +59,7 @@ export async function getLocalizedPaths(
   paramName: string,
   options: Options = {}
 ): Promise<LocalizedPath[]> {
-  const allEntries = await getCollection(collection)
+  const allEntries = await getGatedCollection(collection)
 
   const defaultEntries = getEntriesForDefaultLocale(
     allEntries,
@@ -153,7 +161,7 @@ async function getSectionFilteredPaths(
   lang: Locale,
   paramName: string
 ): Promise<CrossSectionPath[]> {
-  const allEntries = await getCollection(collection)
+  const allEntries = await getGatedCollection(collection)
 
   const enEntries = allEntries.filter(
     (e) => e.data.locale === defaultLocale && e.data.section === section

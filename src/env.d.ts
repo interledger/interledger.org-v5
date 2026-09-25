@@ -4,6 +4,7 @@
 
 // Injected by Vite `define` in astro.config.mjs; absent under plain vitest.
 declare const __IMAGE_CDN_ENABLED__: boolean | undefined
+declare const __HIDE_FUTURE_POSTS__: boolean | undefined
 
 declare namespace App {
   interface Locals {

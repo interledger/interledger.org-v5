@@ -11,6 +11,25 @@ export const FEATURED_POST_LIMIT = 3
 export const TECH_BLOG_FALLBACK_THUMBNAIL = '/img/tech-thumbnail.svg'
 
 /**
+ * Newest first — the order the listing, the featured strip and the search index
+ * all render in. `getCollection` yields glob order, which for date-prefixed
+ * filenames is oldest-first, so nothing may rely on the collection's own order.
+ */
+export function byPublishDateDesc(
+  a: FoundationBlogEntry,
+  b: FoundationBlogEntry
+): number {
+  return b.data.date.getTime() - a.data.date.getTime()
+}
+
+/** Newest-first copy, leaving the input array untouched. */
+export function sortByPublishDateDesc(
+  posts: FoundationBlogEntry[]
+): FoundationBlogEntry[] {
+  return [...posts].sort(byPublishDateDesc)
+}
+
+/**
  * Selects the featured posts for the listing header.
  *
  * Posts flagged `featured` win, newest first. When fewer than the limit are
@@ -23,9 +42,7 @@ export function getFeaturedPosts(
   posts: FoundationBlogEntry[],
   limit = FEATURED_POST_LIMIT
 ): FoundationBlogEntry[] {
-  const byNewest = [...posts].sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
+  const byNewest = sortByPublishDateDesc(posts)
   const featured = byNewest.filter((post) => post.data.featured)
   if (featured.length >= limit) return featured.slice(0, limit)
 

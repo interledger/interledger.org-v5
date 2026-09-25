@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('astro:config/client', () => ({
   i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
@@ -15,7 +15,9 @@ vi.mock('astro:content', async () => {
   return { z, getCollection: getCollectionMock }
 })
 
-const { getCrossSectionPaths } = await import('./static-paths')
+const { getCrossSectionPaths, getLocalizedPaths } =
+  await import('./static-paths')
+const { setPublishGateForTests } = await import('./blogPosts')
 
 function faq(data: {
   locale?: string
@@ -100,5 +102,107 @@ describe('getCrossSectionPaths', () => {
       isFallback: false,
       section: 'foundation'
     })
+  })
+})
+
+describe('getLocalizedPaths publish gate', () => {
+  const NOW = new Date('2026-09-18T09:30:00.000Z')
+
+  function post(data: {
+    pathSlug: string
+    date: string
+    locale?: string
+    localizes?: string
+  }) {
+    return {
+      data: {
+        locale: 'en',
+        localizes: undefined,
+        ...data,
+        date: new Date(data.date)
+      }
+    }
+  }
+
+  function mockBlog(entries: unknown[]) {
+    getCollectionMock.mockImplementation(async (name: string) =>
+      name === 'foundation-blog' ? entries : []
+    )
+  }
+
+  afterEach(() => {
+    setPublishGateForTests(null)
+  })
+
+  it('emits no path for a future-dated post, so its URL 404s', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    mockBlog([
+      post({ pathSlug: 'live', date: '2026-09-01' }),
+      post({ pathSlug: 'scheduled', date: '2026-12-01' })
+    ])
+
+    const paths = await getLocalizedPaths('foundation-blog', 'en', 'id')
+
+    expect(paths.map((p) => p.params.id)).toEqual(['live'])
+  })
+
+  it('emits both when the gate is off, so staging can review upcoming content', async () => {
+    setPublishGateForTests({ hideFuturePosts: false, now: NOW })
+    mockBlog([
+      post({ pathSlug: 'live', date: '2026-09-01' }),
+      post({ pathSlug: 'scheduled', date: '2026-12-01' })
+    ])
+
+    const paths = await getLocalizedPaths('foundation-blog', 'en', 'id')
+
+    expect(paths.map((p) => p.params.id)).toEqual(['live', 'scheduled'])
+  })
+
+  it('takes a translation off the map with its scheduled EN original', async () => {
+    // ES paths are derived from the EN entry list, so gating EN is enough.
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    mockBlog([
+      post({ pathSlug: 'scheduled', date: '2026-12-01' }),
+      post({
+        pathSlug: 'programado',
+        date: '2026-12-01',
+        locale: 'es',
+        localizes: 'scheduled'
+      })
+    ])
+
+    expect(await getLocalizedPaths('foundation-blog', 'es', 'id')).toEqual([])
+  })
+
+  it('falls back to EN when only the ES translation is scheduled', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    mockBlog([
+      post({ pathSlug: 'live', date: '2026-09-01' }),
+      post({
+        pathSlug: 'en-vivo',
+        date: '2026-12-01',
+        locale: 'es',
+        localizes: 'live'
+      })
+    ])
+
+    const paths = await getLocalizedPaths('foundation-blog', 'es', 'id')
+
+    expect(paths).toHaveLength(1)
+    expect(paths[0].params.id).toBe('live')
+    expect(paths[0].props).toMatchObject({ locale: 'en', isFallback: true })
+  })
+
+  it('leaves an ungated collection alone', async () => {
+    setPublishGateForTests({ hideFuturePosts: true, now: NOW })
+    getCollectionMock.mockImplementation(async (name: string) =>
+      name === 'foundation-pages'
+        ? [{ data: { pathSlug: 'about', locale: 'en' } }]
+        : []
+    )
+
+    const paths = await getLocalizedPaths('foundation-pages', 'en', 'page')
+
+    expect(paths.map((p) => p.params.page)).toEqual(['about'])
   })
 })
