@@ -14,21 +14,26 @@ This project uses **Tailwind CSS v4** with a modular architecture organized by l
 src/styles/
 ├── tailwind.css              # Main entry point - imports all modules
 ├── theme.css                 # @theme tokens: typography, spacing, colors, radius, shadows, animations
+├── interledger.css           # Starlight docs lane only — see "Starlight Docs Isolation" below
+├── atom-one-light.min.css    # Starlight docs lane only — code block highlighting theme
 ├── base/                     # Base layer - CSS reset, fonts, runtime overrides
 │   ├── typography.css        # Font-face declarations
 │   ├── reset.css            # Tailwind Preflight + keyframes + element styles
 │   └── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
 ├── components/              # Component layer - overridable by utilities
-│   ├── navigation.css       # Breadcrumb nav styles
+│   ├── navigation.css       # Header nav, mobile drawer, language switcher chrome
 │   └── prose/              # Prose variants by content type
 │       ├── default.css      # Default prose (all pages)
 │       ├── base-typography.css  # Common h2, h3, p, lists
 │       ├── foundation.css   # [data-prose] specific
 │       ├── blog.css        # [data-prose-blog] specific
 │       ├── summit.css      # [data-prose-summit] specific
+│       ├── table.css       # Shared table styles, [data-prose-blog] + [data-prose-faq]
+│       ├── rhythm.css      # Vertical rhythm between top-level prose children
 │       └── footnotes.css   # GFM footnotes under [data-prose] / [data-prose-blog]
 └── utilities/              # Utilities layer - custom @utility definitions
-    └── animations.css       # Scroll-driven animation utilities (animate-rise-in-view, etc.)
+    ├── animations.css       # Scroll-driven animation utilities (animate-rise-in-view, etc.)
+    └── spacing.css          # Section/block-heading spacing utilities (px-content, mt-section, etc.)
 ```
 
 ## Critical: Import Order
@@ -159,7 +164,7 @@ Pages can set a `data-pillar` attribute to override the primary color theme:
    }
    ```
 
-3. Add to Strapi schema and content.config.ts enum
+3. Use `data-pillar='newpillar'` directly on the page/component that needs it — there is no schema or config enum gating this; the `pillar` field was removed from the content schema (see `src/schemas/content.test.ts`).
 
 ## Design Tokens: Config vs @theme inline
 
@@ -222,7 +227,7 @@ Generates:
 
 <!-- With dynamic utilities (@theme inline) -->
 <div data-pillar="mission">
-  <h2 class="text-primary">Automatically orange!</h2>
+  <h2 class="text-primary">Automatically orchid!</h2>
 </div>
 ```
 
@@ -245,7 +250,7 @@ Generates:
   │
   ▼
 :root (variables.css)       ← Runtime overrides only
-  --color-primary: oklch(...)     ← Base value read by @theme inline
+  --color-primary: var(--color-orchid-100)  ← Base value read by @theme inline
   --color-btn-txt: var(--color-white)  ← Depends on another var
   [data-pillar='tech'] { ... }    ← Selector-scoped overrides
 ```
@@ -273,13 +278,13 @@ See tailwind docs for more.
 ### Why Prose Files Use Raw CSS (Not `@apply`)
 
 The prose CSS files (`blog.css`, `summit.css`, etc.) use raw CSS properties with
-`var(--spacing-space-m)` instead of `@apply` utilities. This is intentional:
+`var(--spacing-xl)` instead of `@apply` utilities. This is intentional:
 
 1. **CMS content is uncontrolled HTML.** Strapi renders `<table>`, `<h2>`, `<blockquote>` etc.
    We can't add Tailwind classes to those elements — selector-based styling is the only option.
 
-2. **CSS variables ARE the design system.** `var(--spacing-space-m)` resolves to the same value
-   as `p-space-m`. Using @theme variables in raw CSS is the Tailwind v4 recommended pattern
+2. **CSS variables ARE the design system.** `var(--spacing-xl)` resolves to the same value
+   as `p-xl`. Using @theme variables in raw CSS is the Tailwind v4 recommended pattern
    for styling elements you don't control.
 
 3. **Logical properties have no Tailwind equivalent.** Properties like `margin-block-end`,
@@ -295,8 +300,9 @@ Prose styles are layered for flexibility:
 1. **default.css** - Applies to all `<main>` elements (no attribute needed)
 2. **base-typography.css** - Common h2, h3, p, lists for foundation + blog
 3. **foundation.css** - Overrides link styles for `[data-prose]`
-4. **blog.css** - Adds tables, code, spacing for `[data-prose-blog]`
-5. **summit.css** - Normalizes headings for `[data-prose-summit]`
+4. **blog.css** - Adds code, spacing for `[data-prose-blog]`
+5. **table.css** - Shared table styles for `[data-prose-blog]` and `[data-prose-faq]`
+6. **summit.css** - Normalizes headings for `[data-prose-summit]`
 
 ### Example Usage
 
@@ -376,38 +382,34 @@ The Figma design file is the source of truth — variable collections plus Mobil
 
 ### Font
 
-The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600 / ExtraBold 800), self-hosted under `public/fonts/`. It's the default `body { font-family }`, so it applies everywhere unless overridden. Use the `font-poppins` Tailwind utility only when overriding a different font context (e.g. inside a component that sets its own font-family).
+The new design system uses **Poppins** (Regular 400 / Medium 500 / SemiBold 600 / Bold 700 / ExtraBold 800), self-hosted under `public/fonts/`. It's the default `body { font-family }`, so it applies everywhere unless overridden. Use the `font-poppins` Tailwind utility only when overriding a different font context (e.g. inside a component that sets its own font-family).
 
 ### Typography (responsive, breakpoint variants)
 
 Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tailwind's responsive prefixes; the token suffix mirrors the variant prefix:
 
 ```html
-<h1 class="font-poppins text-h1 tablet:text-h1-md desktop:text-h1-lg">
-  Headline
-</h1>
-<p class="font-poppins text-body-lg-standard tablet:text-body-lg-standard-md">
-  Body
-</p>
-<small class="font-poppins text-caption">Caption</small>
+<h1 class="text-h1 tablet:text-h1-md desktop:text-h1-lg">Headline</h1>
+<p class="text-body-lg-standard">Body</p>
+<small class="text-caption">Caption</small>
 ```
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
-| Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)    |
-| ----------------------- | ---------------- | ---------------- | ------------------ |
-| `text-h1`               | 56 / 68 SemiBold | 70 / 76 SemiBold | 100 / 100 SemiBold |
-| `text-h2`               | 32 / 40 SemiBold | 36 / 48 SemiBold | 56 / 64 SemiBold   |
-| `text-h3`               | 28 / 36 Medium   | 28 / 36 Medium   | 40 / 56 Medium     |
-| `text-h4`               | 18 / 28 Regular  | 20 / 30 Regular  | 24 / 34 Regular    |
-| `text-h5`               | 16 / 26 Regular  | 18 / 28 Regular  | 20 / 30 Regular    |
-| `text-body-lg-emphasis` | 15 / 24 Medium   | 16 / 26 Medium   | _(same as -md)_    |
-| `text-body-lg-standard` | 15 / 24 Regular  | 16 / 26 Regular  | _(same as -md)_    |
-| `text-body-sm-emphasis` | 14 / 24 Medium   | _(same)_         | _(same)_           |
-| `text-body-sm-standard` | 14 / 24 Regular  | _(same)_         | _(same)_           |
-| `text-caption`          | 13 / 16 Regular  | _(same)_         | _(same)_           |
+| Token base              | Mobile (default) | Tablet (`-md`)   | Desktop (`-lg`)  |
+| ----------------------- | ---------------- | ---------------- | ---------------- |
+| `text-h1`               | 40 / 48 Bold     | 56 / 64 Bold     | 76 / 84 Bold     |
+| `text-h2`               | 32 / 40 SemiBold | 40 / 48 SemiBold | 56 / 64 SemiBold |
+| `text-h3`               | 24 / 32 Medium   | 28 / 36 Medium   | 40 / 48 Medium   |
+| `text-h4`               | 20 / 30 Medium   | 22 / 32 Medium   | 28 / 40 Medium   |
+| `text-h5`               | 18 / 28 Regular  | _(same)_         | 20 / 30 Regular  |
+| `text-body-lg-emphasis` | 16 / 26 SemiBold | _(same)_         | _(same)_         |
+| `text-body-lg-standard` | 16 / 26 Regular  | _(same)_         | _(same)_         |
+| `text-body-sm-emphasis` | 14 / 22 SemiBold | _(same)_         | _(same)_         |
+| `text-body-sm-standard` | 14 / 22 Regular  | _(same)_         | _(same)_         |
+| `text-caption`          | 13 / 18 Regular  | _(same)_         | _(same)_         |
 
-`body-lg-*` only ships mobile + `-md` tokens (Tablet and Desktop are identical in the spec). `body-sm-*` and `caption` are identical across all tiers, so they have a single token each.
+`body-lg-*`, `body-sm-*`, and `caption` are identical across all three tiers, so each has a single token — no `-md` / `-lg` variants. `text-body-lg-standard-md` / `text-body-lg-emphasis-md` used to exist too, until their values also collapsed to duplicates of the base token; they were removed along with their ~18 call sites in one change. `text-h5-md` is kept for consistency, since h1–h4 all have three distinct tier tokens — see the note in `theme.css`.
 
 #### Standalone line-height utilities
 
@@ -419,7 +421,7 @@ The line-heights baked into `text-*` utilities are also exposed as standalone `l
 <div class="leading-h3 tablet:leading-h3-md desktop:leading-h3-lg">…</div>
 ```
 
-Available: `leading-h{1..5}` (with `-md` / `-lg` tiers), `leading-body-lg` + `leading-body-lg-md`, `leading-body-sm`, `leading-caption`. (`body-lg-emphasis` and `body-lg-standard` share line-heights, so there's a single `leading-body-lg`.)
+Available: `leading-h{1..5}` (with `-md` / `-lg` tiers), `leading-body-lg`, `leading-body-sm`, `leading-caption`. (`body-lg-emphasis` and `body-lg-standard` share line-heights and are identical across all tiers, so there's a single `leading-body-lg`.)
 
 ### Spacing
 
@@ -516,8 +518,6 @@ Figma's source token name is `roundend-full` (typo); corrected to `full` here.
 
 Hue families: orchid, periwinkle, soft-indigo, lavender, royal-purple, ice-indigo, lagoon, deep-teal, sea-foam, aqua-mint, ocean, ice-mint, emerald, tangerine, apricot, pistachio, forest-green, cream-orange, coral-red, raspberry, flamingo, blush, wine, rose-mint.
 
-The pillar-color semantic layer (`--color-primary`, `[data-pillar]` overrides) still uses the legacy oklch values until design picks the new-palette mapping.
-
 ### Opacity
 
 Figma defines `opacity-50` and `opacity-100`. Tailwind already provides `opacity-50` and `opacity-100` utilities — no new utilities needed. The values are exposed as `--opacity-50: 0.5` and `--opacity-100: 1` in `:root` so designers/devs can reference them in custom CSS.
@@ -530,7 +530,7 @@ Edit `components/prose/default.css` - affects all pages.
 
 ### Modify Blog Table Styles
 
-Edit `components/prose/blog.css` - only affects `[data-prose-blog]`.
+Edit `components/prose/table.css` - affects both `[data-prose-blog]` and `[data-prose-faq]`.
 
 ### Change Primary Color
 
@@ -551,7 +551,7 @@ Use `@utility` in `src/styles/utilities/` when a single `@theme` token isn't eno
 @utility animate-rise-in-view {
   animation: var(--animate-scroll-rise);
   animation-timeline: view();
-  animation-range: 0% 30%;
+  animation-range: 0% 35%;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -581,7 +581,7 @@ The site has **two separate CSS systems** that never coexist in the same browser
 - **Pages:** foundation, blog, summit, homepage — anything using `BaseLayout.astro`.
 - **CSS:** `tailwind.css`, which pulls in `theme.css`, `base/*`, `components/*`.
 - **Variables:** `--text-h*`/`--text-body-*`/`--text-caption`, `--spacing-{xs..7xl}`, `--radius-{lg..3xl,full}`, `--color-primary`, etc. from `theme.css` + `base/variables.css`.
-- **Prose:** `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`.
+- **Prose:** `[data-prose]`, `[data-prose-blog]`, `[data-prose-summit]`, `[data-prose-faq]`.
 
 ### Docs lane
 

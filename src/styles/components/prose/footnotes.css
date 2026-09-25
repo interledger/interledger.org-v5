@@ -35,11 +35,6 @@
       font-size: var(--text-body-lg-standard);
       line-height: var(--text-body-lg-standard--line-height);
       font-weight: var(--text-body-lg-standard--font-weight);
-      @variant tablet {
-        font-size: var(--text-body-lg-standard-md);
-        line-height: var(--text-body-lg-standard-md--line-height);
-        font-weight: var(--text-body-lg-standard-md--font-weight);
-      }
     }
 
     /* GFM emits `<h2 id="footnote-label" class="sr-only">`; Tailwind's

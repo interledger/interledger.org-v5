@@ -7,7 +7,7 @@ export interface TypographyPreset {
   label: string
   /** Tailwind `text-*` utility for this tier. */
   className: string
-  fontWeight: 400 | 500 | 600
+  fontWeight: 400 | 500 | 600 | 700
   fontSizePx: number
   lineHeightPx: number
 }
@@ -26,6 +26,7 @@ export const TYPOGRAPHY_TIER_HEADINGS: Record<
 export function fontWeightLabel(
   weight: TypographyPreset['fontWeight']
 ): string {
+  if (weight === 700) return 'Bold'
   if (weight === 600) return 'SemiBold'
   if (weight === 500) return 'Medium'
   return 'Regular'
@@ -35,9 +36,9 @@ const MOBILE_PRESETS: TypographyPreset[] = [
   {
     label: 'H1',
     className: 'text-h1',
-    fontWeight: 600,
-    fontSizePx: 56,
-    lineHeightPx: 68
+    fontWeight: 700,
+    fontSizePx: 40,
+    lineHeightPx: 48
   },
   {
     label: 'H2',
@@ -50,57 +51,57 @@ const MOBILE_PRESETS: TypographyPreset[] = [
     label: 'H3',
     className: 'text-h3',
     fontWeight: 500,
-    fontSizePx: 28,
-    lineHeightPx: 36
+    fontSizePx: 24,
+    lineHeightPx: 32
   },
   {
     label: 'H4',
     className: 'text-h4',
-    fontWeight: 400,
-    fontSizePx: 18,
-    lineHeightPx: 28
+    fontWeight: 500,
+    fontSizePx: 20,
+    lineHeightPx: 30
   },
   {
     label: 'H5',
     className: 'text-h5',
     fontWeight: 400,
-    fontSizePx: 16,
-    lineHeightPx: 26
+    fontSizePx: 18,
+    lineHeightPx: 28
   },
   {
     label: 'Body LG emphasis',
     className: 'text-body-lg-emphasis',
-    fontWeight: 500,
-    fontSizePx: 15,
-    lineHeightPx: 24
+    fontWeight: 600,
+    fontSizePx: 16,
+    lineHeightPx: 26
   },
   {
     label: 'Body LG standard',
     className: 'text-body-lg-standard',
     fontWeight: 400,
-    fontSizePx: 15,
-    lineHeightPx: 24
+    fontSizePx: 16,
+    lineHeightPx: 26
   },
   {
     label: 'Body SM emphasis',
     className: 'text-body-sm-emphasis',
-    fontWeight: 500,
+    fontWeight: 600,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Body SM standard',
     className: 'text-body-sm-standard',
     fontWeight: 400,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Caption',
     className: 'text-caption',
     fontWeight: 400,
     fontSizePx: 13,
-    lineHeightPx: 16
+    lineHeightPx: 18
   }
 ]
 
@@ -108,15 +109,15 @@ const TABLET_PRESETS: TypographyPreset[] = [
   {
     label: 'H1',
     className: 'text-h1-md',
-    fontWeight: 600,
-    fontSizePx: 76,
-    lineHeightPx: 90
+    fontWeight: 700,
+    fontSizePx: 56,
+    lineHeightPx: 64
   },
   {
     label: 'H2',
     className: 'text-h2-md',
     fontWeight: 600,
-    fontSizePx: 36,
+    fontSizePx: 40,
     lineHeightPx: 48
   },
   {
@@ -129,9 +130,9 @@ const TABLET_PRESETS: TypographyPreset[] = [
   {
     label: 'H4',
     className: 'text-h4-md',
-    fontWeight: 400,
-    fontSizePx: 20,
-    lineHeightPx: 30
+    fontWeight: 500,
+    fontSizePx: 22,
+    lineHeightPx: 32
   },
   {
     label: 'H5',
@@ -142,14 +143,14 @@ const TABLET_PRESETS: TypographyPreset[] = [
   },
   {
     label: 'Body LG emphasis',
-    className: 'text-body-lg-emphasis-md',
-    fontWeight: 500,
+    className: 'text-body-lg-emphasis',
+    fontWeight: 600,
     fontSizePx: 16,
     lineHeightPx: 26
   },
   {
     label: 'Body LG standard',
-    className: 'text-body-lg-standard-md',
+    className: 'text-body-lg-standard',
     fontWeight: 400,
     fontSizePx: 16,
     lineHeightPx: 26
@@ -157,23 +158,23 @@ const TABLET_PRESETS: TypographyPreset[] = [
   {
     label: 'Body SM emphasis',
     className: 'text-body-sm-emphasis',
-    fontWeight: 500,
+    fontWeight: 600,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Body SM standard',
     className: 'text-body-sm-standard',
     fontWeight: 400,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Caption',
     className: 'text-caption',
     fontWeight: 400,
     fontSizePx: 13,
-    lineHeightPx: 16
+    lineHeightPx: 18
   }
 ]
 
@@ -181,9 +182,9 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
   {
     label: 'H1',
     className: 'text-h1-lg',
-    fontWeight: 600,
-    fontSizePx: 100,
-    lineHeightPx: 100
+    fontWeight: 700,
+    fontSizePx: 76,
+    lineHeightPx: 84
   },
   {
     label: 'H2',
@@ -197,14 +198,14 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
     className: 'text-h3-lg',
     fontWeight: 500,
     fontSizePx: 40,
-    lineHeightPx: 56
+    lineHeightPx: 48
   },
   {
     label: 'H4',
     className: 'text-h4-lg',
-    fontWeight: 400,
-    fontSizePx: 24,
-    lineHeightPx: 34
+    fontWeight: 500,
+    fontSizePx: 28,
+    lineHeightPx: 40
   },
   {
     label: 'H5',
@@ -215,14 +216,14 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
   },
   {
     label: 'Body LG emphasis',
-    className: 'text-body-lg-emphasis-md',
-    fontWeight: 500,
+    className: 'text-body-lg-emphasis',
+    fontWeight: 600,
     fontSizePx: 16,
     lineHeightPx: 26
   },
   {
     label: 'Body LG standard',
-    className: 'text-body-lg-standard-md',
+    className: 'text-body-lg-standard',
     fontWeight: 400,
     fontSizePx: 16,
     lineHeightPx: 26
@@ -230,23 +231,23 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
   {
     label: 'Body SM emphasis',
     className: 'text-body-sm-emphasis',
-    fontWeight: 500,
+    fontWeight: 600,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Body SM standard',
     className: 'text-body-sm-standard',
     fontWeight: 400,
     fontSizePx: 14,
-    lineHeightPx: 24
+    lineHeightPx: 22
   },
   {
     label: 'Caption',
     className: 'text-caption',
     fontWeight: 400,
     fontSizePx: 13,
-    lineHeightPx: 16
+    lineHeightPx: 18
   }
 ]
 

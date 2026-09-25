@@ -131,9 +131,9 @@
   }
 
   [data-prose] thead th {
-    font-size: var(--text-body-lg-emphasis-md);
-    line-height: var(--text-body-lg-emphasis-md--line-height);
-    font-weight: var(--text-body-lg-emphasis-md--font-weight);
+    font-size: var(--text-body-lg-emphasis);
+    line-height: var(--text-body-lg-emphasis--line-height);
+    font-weight: var(--text-body-lg-emphasis--font-weight);
     background-color: var(--color-neutral-0);
     border-top: 1px solid var(--color-neutral-50);
   }

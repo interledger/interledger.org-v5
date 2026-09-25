@@ -113,7 +113,7 @@ const renderedItems = await Promise.all(
             >
               {timeLabel && <span class="sr-only">{timeLabel}, </span>}
               <span
-                class="text-body-lg-emphasis tablet:text-body-lg-emphasis-md [&_p]:m-0"
+                class="text-body-lg-emphasis [&_p]:m-0"
                 set:html={item.time}
               />
             </li>
@@ -138,7 +138,7 @@ const renderedItems = await Promise.all(
                 )}
                 <div
                   data-agenda-info
-                  class="m-0 text-body-sm-standard tablet:text-body-lg-standard-md [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
+                  class="m-0 text-body-sm-standard tablet:text-body-lg-standard [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
                   set:html={item.additionalInfo}
                 />
               </li>
