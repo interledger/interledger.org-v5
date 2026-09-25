@@ -7,7 +7,7 @@ import eslintPluginAstro from 'eslint-plugin-astro'
 
 export default defineConfig([
   {
-    files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx,mts,cts}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } }
   },
   js.configs.recommended,

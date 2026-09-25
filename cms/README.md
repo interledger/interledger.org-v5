@@ -408,6 +408,43 @@ The parent selector (`blockquote`) retains Astro's scoped attribute, so styles o
 
 See `Blockquote.astro` for an example using Option B.
 
+## Admin notice bar
+
+The admin panel shows a top-bar notice when an editor is about to lose work:
+
+- **Session about to expire** (amber) — counts down with a **Stay signed in**
+  button, then a dialog for the last two minutes.
+- **Cannot reach the CMS** (red) — shown while the server is down, e.g. during a
+  deploy. Saves will fail.
+- **The CMS was updated** (red) — the page is running an older admin bundle and
+  needs a reload before saving.
+
+Code lives in `src/admin/notices/`, with the logic in `src/utils/adminSession.ts`,
+`serverStatus.ts`, `adminNotice.ts` and `adminRoutes.ts`.
+
+### Settings
+
+| Setting                             | Where                                        | Notes                                                                                                                   |
+| ----------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `idleSessionLifespan` (72h)         | `config/admin.ts`                            | How long a session survives without activity. Drives the countdown.                                                     |
+| `maxSessionLifespan` (2 years)      | `config/admin.ts`                            | Absolute ceiling.                                                                                                       |
+| Both constants                      | `src/utils/adminSession.ts`                  | Imported by `config/admin.ts` — change them **there**, not in the config, so the server and the countdown cannot drift. |
+| `STRAPI_ADMIN_DISABLE_NOTICES=true` | build-time env                               | Turns the notices off entirely — the layout route is never added, so nothing mounts and nothing polls.                  |
+| `@strapi/design-system` `2.2.0`     | `package.json` **and** `pnpm-workspace.yaml` | Pinned in two places. Bump both together, and only alongside Strapi.                                                    |
+
+"Remember me" at login extends the idle window to 14 days (Strapi's default,
+not configured here).
+
+### Things to know before changing it
+
+- `GET /_cms-status` is **unauthenticated on purpose**. An authenticated poll
+  would keep refreshing the token and stop sessions from ever expiring.
+- The route wrapping in `src/admin/app.tsx` must stay the **last statement** of
+  `bootstrap()`, or the admin white-screens. The reason is commented at the
+  call site.
+- After a deploy the admin bundle is rebuilt, which is what triggers the
+  "CMS was updated" notice. A plain restart with no rebuild does not.
+
 ## Development Workflow
 
 1. **Start the CMS**:
