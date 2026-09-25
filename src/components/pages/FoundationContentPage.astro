@@ -37,6 +37,8 @@ import EventWhen from '@/components/shared/EventWhen.astro'
 import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
+import DonationCards from '@/components/blocks/DonationCards.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
 
 interface Props {
   slug: string
@@ -83,6 +85,18 @@ const breadcrumbs = [
   { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
 
+/**
+ * A page carrying Donation Cards is a fundraising page, and that is the whole
+ * signal: the block's CTAs point at Fundraise Up Element IDs, and Fundraise Up
+ * swaps its own donate button into any anchor with that href — but only once
+ * its install script is on the page.
+ *
+ * The script loads per page rather than from BaseLayout so the other ~200
+ * routes don't pay for a third-party bundle; see FundraiseUpScript.astro for
+ * what moving it site-wide would buy.
+ */
+const needsFundraiseUp = mdxPage.body?.includes('<DonationCards') ?? false
+
 const heroLcpPreload =
   heroTitle && (heroImage || heroImageMobile)
     ? { image: heroImage, imageMobile: heroImageMobile }
@@ -95,6 +109,8 @@ const heroLcpPreload =
   noindex={noindex}
   heroLcpPreload={heroLcpPreload}
 >
+  <Fragment slot="head">{needsFundraiseUp && <FundraiseUpScript />}</Fragment>
+
   <main class="page-stack pb-section" data-pillar="mission">
     {
       heroTitle ? (
@@ -164,7 +180,8 @@ const heroLcpPreload =
               EventWhere,
               EventApply,
               LogoCarousel,
-              ImageBlock
+              ImageBlock,
+              DonationCards
             }}
           />
         </div>

@@ -8,6 +8,7 @@ export function addTrailingSlash(path: string): string {
 
 /** Prepends `/` to an internal path if it doesn't already have one. */
 export function ensureLeadingSlash(path: string): string {
+  if (path.startsWith('#')) return path
   return path.startsWith('/') ? path : `/${path}`
 }
 
