@@ -31,20 +31,10 @@ turndown.addRule('underline', {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-// Locales and the filename derivation live in their own modules so that the
-// content filename check can import them without this file's prettier, sharp
-// and turndown chain. Re-exported here because most callers already read them
-// from `./mdx`.
+// Locales live in their own module so that the content filename check can
+// import them without this file's prettier, sharp and turndown chain.
+// Re-exported here because most callers already read them from `./mdx`.
 export { defaultLang, LOCALES } from './locales'
-export {
-  resolveFilenameSlug,
-  pathSlugToMdxFilename,
-  sectionScopedMdxFilename,
-  mdxSubpath,
-  mdxRelativePath,
-  type MdxNamingRule,
-  type MdxNameFields
-} from './mdxFilenames'
 
 // ── Utility functions ────────────────────────────────────────────────────────
 

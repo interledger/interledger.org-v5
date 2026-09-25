@@ -62,11 +62,10 @@ export {
 // Locales
 export { defaultLang, LOCALES } from './locales'
 
-// MDX filename derivation (lifecycles + scripts/check-mdx-filenames.ts)
+// MDX filename derivation (lifecycles + scripts/check-mdx-filenames.ts).
+// The slug helpers behind these stay internal to mdxFilenames.ts, so a caller
+// cannot rebuild a filename by hand and drift from the rule.
 export {
-  resolveFilenameSlug,
-  pathSlugToMdxFilename,
-  sectionScopedMdxFilename,
   mdxSubpath,
   mdxRelativePath,
   type MdxNamingRule,
