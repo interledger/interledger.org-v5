@@ -507,6 +507,8 @@ describe('redirectTargetPath', () => {
     ['/second?x=1', '/second'],
     ['/second#top', '/second'],
     ['/second/?x=1#top', '/second'],
+    ['/second//', '/second'],
+    ['/second///?x=1', '/second'],
     ['/', '/'],
     ['/?x=1', '/']
   ])('%s → %s', (destination, expected) => {
@@ -521,9 +523,9 @@ describe('redirectTargetPath', () => {
   )
 })
 
-// Netlify matches a source by path alone, so a query or fragment on a
-// destination doesn't stop it hitting another redirect.
-describe('validateRedirectLinks with a query or fragment destination', () => {
+// Netlify matches a source by path alone, so a query, fragment or extra
+// trailing slashes on a destination don't stop it hitting another redirect.
+describe('validateRedirectLinks with a non-canonical destination', () => {
   const rows: Row[] = [
     { documentId: 'a', source: '/second', destination: '/third' },
     { documentId: 'b', source: '/campaign', destination: '/landing?utm=1' }
@@ -549,6 +551,29 @@ describe('validateRedirectLinks with a query or fragment destination', () => {
     })
     expect(erroredFields(err)).toEqual(['source'])
     expect(fieldErrors(err)[0]!.message).toContain('/campaign')
+  })
+
+  // Any number of trailing slashes: src/redirects.test.ts strips them all
+  // when it checks the committed file, so save time has to agree.
+  it('rejects a source another redirect reaches with extra slashes', async () => {
+    const err = await validateRedirectLinks({
+      documents: fakeFinder([
+        { documentId: 'o', source: '/old', destination: '/foo//' }
+      ]),
+      data: { source: '/foo', destination: '/bar' }
+    })
+    expect(erroredFields(err)).toEqual(['source'])
+    expect(fieldErrors(err)[0]!.message).toContain('/old')
+  })
+
+  it('rejects a destination with extra slashes onto another source', async () => {
+    const err = await validateRedirectLinks({
+      documents: fakeFinder([
+        { documentId: 'f', source: '/foo', destination: '/bar' }
+      ]),
+      data: { source: '/old', destination: '/foo//' }
+    })
+    expect(erroredFields(err)).toEqual(['destination'])
   })
 
   it('ignores a destination that only shares a prefix', async () => {
