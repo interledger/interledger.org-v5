@@ -75,9 +75,7 @@ const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
 const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
 ---
 
-<h1
-  class="my-xl text-neutral-900 text-h2 tablet:text-h2-md desktop:my-3xl desktop:text-h2-lg"
->
+<h1 class="my-xl text-neutral-900 desktop:my-3xl">
   {t('grantee.title')}
 </h1>
 
@@ -86,6 +84,7 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
     {t('grantee.description')}
   </p>
   <div class="mt-3xl flex flex-col gap-sm">
+    {/* Deliberate Figma-verified exception: h2 uses the h4 token here. */}
     <h2
       class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-150"
     >

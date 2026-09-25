@@ -72,10 +72,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
 >
   {
     heading && headingId && (
-      <h2
-        id={headingId}
-        class="m-0 text-h2 font-semibold text-neutral-100 tablet:text-h2-md dark:text-neutral-0 desktop:text-h2-lg"
-      >
+      <h2 id={headingId} class="m-0 text-neutral-100 dark:text-neutral-0">
         {heading}
       </h2>
     )
@@ -85,8 +82,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
       'rounded-3xl border border-neutral-50 bg-white',
       'dark:border-neutral-75 dark:bg-neutral-100',
       'px-xl py-xl',
-      '[&_h3]:!m-0 [&_h3]:!text-h3 tablet:[&_h3]:!text-h3-md desktop:[&_h3]:!text-h3-lg',
-      'dark:[&_h3]:!text-neutral-0',
+      '[&_h3]:!m-0 dark:[&_h3]:!text-neutral-0',
       '[&_p]:!m-0',
       '[&_[data-event-meta]]:!text-h4 tablet:[&_[data-event-meta]]:!text-h4-md desktop:[&_[data-event-meta]]:!text-h4-lg',
       '[&_[data-event-copy]]:!text-h5',

@@ -43,6 +43,8 @@ const cardClasses = twMerge(
   !featured &&
     'pb-2xl border-b border-neutral-25 desktop:flex-row desktop:justify-between desktop:gap-3xl'
 )
+// Deliberate Figma-verified exception: drops to the h4 token at desktop
+// (featured cards) or from tablet (non-featured), rather than staying h3.
 const cardHeaderClasses = twMerge(
   'text-h3 text-neutral-150 underline decoration-transparent transition-all duration-200 hover-hover:group-[&:hover:not(:has(.card-nested:hover))]/card:decoration-inherit desktop:text-h4-lg',
   featured ? 'tablet:text-h3-md' : 'tablet:text-h4-md'

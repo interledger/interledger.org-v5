@@ -149,10 +149,7 @@ const headingId = headingText
 >
   {
     headingText && headingId && (
-      <h2
-        id={headingId}
-        class="m-0 text-h2 font-semibold tablet:text-h2-md desktop:text-h2-lg"
-      >
+      <h2 id={headingId} class="m-0">
         {headingText}
       </h2>
     )
@@ -193,9 +190,7 @@ const headingId = headingText
                 data-card-incomplete
                 aria-label={incompleteAriaLabel}
               >
-                <h3 class="m-0 text-h4 tablet:text-h4-md desktop:text-h4-lg">
-                  {card.heading || 'Untitled card'}
-                </h3>
+                <h3 class="m-0">{card.heading || 'Untitled card'}</h3>
                 {card.subHeading && (
                   <p class="m-0 text-body-sm-standard text-neutral-75">
                     {card.subHeading}
