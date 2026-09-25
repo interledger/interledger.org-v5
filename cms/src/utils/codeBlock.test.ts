@@ -14,3 +14,23 @@ describe('CodeBlock language list', () => {
     expect([...enumLanguages].sort()).toEqual([...CODE_BLOCK_LANGUAGES].sort())
   })
 })
+
+describe('CodeBlock availability', () => {
+  it.each([
+    'foundation-blog-post',
+    'foundation-page',
+    'summit-page',
+    'hackathon-page'
+  ])('is allowed in the %s content zone', (contentType) => {
+    const schemaPath = fileURLToPath(
+      new URL(
+        `../api/${contentType}/content-types/${contentType}/schema.json`,
+        import.meta.url
+      )
+    )
+    const schema = JSON.parse(readFileSync(schemaPath, 'utf8'))
+    const components: string[] = schema.attributes.content.components
+
+    expect(components).toContain('blocks.code-block')
+  })
+})

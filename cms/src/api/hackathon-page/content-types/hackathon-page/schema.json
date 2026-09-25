@@ -70,7 +70,8 @@
         "blocks.event-card",
         "blocks.quote",
         "blocks.hackathon-animation",
-        "blocks.image-block"
+        "blocks.image-block",
+        "blocks.code-block"
       ],
       "pluginOptions": {
         "i18n": {
