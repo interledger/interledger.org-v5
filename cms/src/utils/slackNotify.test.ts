@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   buildSlackPayload,
+  conflictFingerprint,
   createSlackGitSyncNotifier,
   getSlackWebhookUrl,
   isSlackAlertingConfigured,
+  formatPathList,
   redactSecrets,
   truncateDetail,
   type FetchLike,
@@ -403,5 +405,315 @@ describe('createSlackGitSyncNotifier', () => {
     })
 
     expect(posts).toHaveLength(1)
+  })
+})
+
+// ── Conflict-resolved alerts ─────────────────────────────────────────────────
+
+describe('conflict-resolved alerts', () => {
+  const conflict: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone',
+    commitMessage: 'faq: update a',
+    author: { name: 'Ada Lovelace', email: 'ada@example.com' },
+    overwrittenPaths: ['src/content/foundation-pages/events.mdx'],
+    resolvedPaths: [
+      { path: 'src/content/faqs/retired.mdx', action: 'deleted' }
+    ],
+    supersededCommits: ['09b7eba fix(content): unwrap prose']
+  }
+
+  function notifier(overrides: { now?: () => number } = {}) {
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: overrides.now ?? (() => 0),
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+    return { notify, posts }
+  }
+
+  it('names the overwritten files, the resolutions and the superseded commits', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({ ...conflict, hostname: 'strapi-vm' })
+    )
+
+    expect(text).toContain('src/content/foundation-pages/events.mdx')
+    expect(text).toContain('src/content/faqs/retired.mdx')
+    expect(text).toContain('09b7eba fix(content): unwrap prose')
+    expect(text).toContain('git log -p 09b7eba')
+  })
+
+  it('reads distinctly from a failure and a recovery in the channel list', () => {
+    const payload = buildSlackPayload({ ...conflict, hostname: 'strapi-vm' })
+
+    expect(payload.text).toBe(
+      '⚠️ Strapi git sync overwrote 2 file(s) on strapi-vm'
+    )
+    expect(payload.text).not.toContain('❌')
+    expect(payload.text).not.toContain('✅')
+  })
+
+  /**
+   * A conflict on an otherwise-healthy repo is the normal case. Reusing the
+   * `healthy` outcome would drop it, because that branch only posts when a
+   * failure is open.
+   */
+  it('posts even though the repo was never unhealthy', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+
+    expect(posts).toHaveLength(1)
+  })
+
+  it('does not mark the repo unhealthy, so the next success stays silent', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+    await notify({
+      outcome: 'healthy',
+      label: 'faq',
+      repoRoot: '/staging-clone'
+    })
+
+    expect(posts).toHaveLength(1)
+  })
+
+  it('throttles repeats over the same files', async () => {
+    let clock = 0
+    const { notify, posts } = notifier({ now: () => clock })
+
+    await notify(conflict)
+    clock += 60_000
+    await notify(conflict)
+
+    expect(posts).toHaveLength(1)
+
+    clock += FIFTEEN_MINUTES
+    await notify(conflict)
+    expect(posts).toHaveLength(2)
+  })
+
+  it('keeps a fingerprint separate from a failure, so neither buries the other', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(failure)
+    await notify(conflict)
+
+    expect(posts).toHaveLength(2)
+  })
+
+  it('fires again for a different set of files', async () => {
+    const { notify, posts } = notifier()
+
+    await notify(conflict)
+    await notify({ ...conflict, overwrittenPaths: ['src/content/faqs/z.mdx'] })
+
+    expect(posts).toHaveLength(2)
+  })
+})
+
+// ── Review fixes (PR #702) ───────────────────────────────────────────────────
+
+describe('conflict alert accounting', () => {
+  const base: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone'
+  }
+
+  it('counts a path once even if it appears in both lists', () => {
+    const payload = buildSlackPayload({
+      ...base,
+      hostname: 'strapi-vm',
+      overwrittenPaths: ['src/content/faqs/a.mdx'],
+      resolvedPaths: [{ path: 'src/content/faqs/a.mdx', action: 'kept-cms' }]
+    })
+
+    expect(payload.text).toContain('overwrote 1 file(s)')
+  })
+
+  it('says the details are unavailable rather than implying nothing was lost', () => {
+    const payload = buildSlackPayload({
+      ...base,
+      hostname: 'strapi-vm',
+      detailsUnavailable: true,
+      overwrittenPaths: [],
+      resolvedPaths: []
+    })
+
+    expect(payload.text).toContain('may have overwritten')
+    expect(payload.text).not.toContain('0 file(s)')
+    expect(JSON.stringify(payload.blocks)).toContain('2.38')
+  })
+
+  /**
+   * The wording used to promise "the commit below", but nothing renders a sha
+   * when the probe failed — so the operator was pointed at something that was
+   * not there.
+   */
+  it('only points at references the message actually renders', () => {
+    const rendered = JSON.stringify(
+      buildSlackPayload({
+        ...base,
+        hostname: 'strapi-vm',
+        detailsUnavailable: true,
+        commitMessage: 'faq: update a',
+        supersededCommits: []
+      }).blocks
+    )
+
+    expect(rendered).toContain('faq: update a')
+    expect(rendered).not.toContain('the commit below')
+    expect(rendered).toMatch(/git log --oneline/)
+  })
+})
+
+describe('formatPathList', () => {
+  /**
+   * A Slack section rejects text over 3000 characters, so a cap on entries
+   * alone would drop the alert exactly when it carries the most detail.
+   */
+  it('stays inside a section limit even with long paths', () => {
+    const paths = Array.from(
+      { length: 20 },
+      (_, i) =>
+        `src/content/foundation-pages/${'very-long-slug-segment/'.repeat(12)}${i}.mdx`
+    )
+
+    const rendered = formatPathList(paths)
+
+    expect(rendered.length).toBeLessThan(3000)
+    expect(rendered).toContain('more')
+  })
+
+  it('lists everything when it comfortably fits', () => {
+    const rendered = formatPathList(['a.mdx', 'b.mdx'])
+
+    expect(rendered).toBe('```a.mdx\nb.mdx```')
+  })
+})
+
+describe('conflict and failure throttles are independent', () => {
+  const conflict: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone',
+    overwrittenPaths: ['src/content/faqs/a.mdx']
+  }
+
+  /**
+   * A recovery clears the failure throttle so the next outage alerts at once.
+   * Sharing one map would let that recovery erase the conflict fingerprint and
+   * re-announce an overwrite that was already reported.
+   */
+  it('a recovery does not re-post a conflict already announced', async () => {
+    let clock = 0
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: () => clock,
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+
+    await notify(conflict)
+    expect(posts).toHaveLength(1)
+
+    clock += 60_000
+    await notify(failure)
+    clock += 60_000
+    await notify({
+      outcome: 'healthy',
+      label: 'faq',
+      repoRoot: '/staging-clone'
+    })
+
+    // The same conflict, still inside the 15-minute suppression window.
+    clock += 60_000
+    await notify(conflict)
+
+    expect(posts.map((p) => p.payload.text)).toEqual([
+      expect.stringContaining('overwrote'),
+      expect.stringContaining('failed'),
+      expect.stringContaining('recovered')
+    ])
+  })
+
+  it('a conflict does not clear an open failure', async () => {
+    let clock = 0
+    const { fetchLike, posts } = createFetch()
+    const notify = createSlackGitSyncNotifier({
+      fetch: fetchLike,
+      now: () => clock,
+      webhookUrl: () => WEBHOOK,
+      hostname: () => 'strapi-vm'
+    })
+
+    await notify(failure)
+    await notify(conflict)
+    // Same failure, still throttled: the conflict must not have reset it.
+    clock += 60_000
+    await notify(failure)
+
+    expect(posts).toHaveLength(2)
+  })
+})
+
+describe('conflictFingerprint', () => {
+  const base: GitSyncAlert = {
+    outcome: 'conflict-resolved',
+    label: 'faq',
+    repoRoot: '/staging-clone'
+  }
+
+  it('groups repeats over the same files regardless of order', () => {
+    const a = conflictFingerprint({ ...base, overwrittenPaths: ['a', 'b'] })
+    const b = conflictFingerprint({ ...base, overwrittenPaths: ['b', 'a'] })
+
+    expect(a).toBe(b)
+  })
+
+  it('counts a hunk overwrite and an existence conflict on one path as one', () => {
+    const a = conflictFingerprint({ ...base, overwrittenPaths: ['a'] })
+    const b = conflictFingerprint({
+      ...base,
+      resolvedPaths: [{ path: 'a', action: 'kept-cms' }]
+    })
+
+    expect(a).toBe(b)
+  })
+
+  /**
+   * With no paths to key on, a shared fingerprint would let unrelated saves
+   * suppress one another for the whole 15-minute window, and the first save's
+   * commit and editor would be shown for every later overwrite.
+   */
+  it('keeps unlisted conflicts apart by commit', () => {
+    const a = conflictFingerprint({
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update a'
+    })
+    const b = conflictFingerprint({
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update b'
+    })
+
+    expect(a).not.toBe(b)
+  })
+
+  it('still groups repeats of the same unlisted conflict', () => {
+    const alert = {
+      ...base,
+      detailsUnavailable: true,
+      commitMessage: 'faq: update a'
+    }
+
+    expect(conflictFingerprint(alert)).toBe(conflictFingerprint({ ...alert }))
   })
 })
