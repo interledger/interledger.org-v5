@@ -7,6 +7,7 @@ import {
   normalizeRedirectSource,
   redirectConfigToEntries,
   redirectDeleteError,
+  redirectTargetPath,
   serializeRedirectConfig,
   validateRedirectInput,
   validateRedirectLinks,
@@ -242,13 +243,15 @@ function fakeFinder(rows: Row[]): RedirectFinder {
     findMany: async ({ filters }) => {
       const { source, destination } = filters as {
         source?: string
-        destination?: { $in: string[] }
+        destination?: { $in?: string[]; $startsWith?: string }
       }
       return rows.filter(
         (row) =>
           (source === undefined || row.source === source) &&
-          (destination === undefined ||
-            destination.$in.includes(row.destination))
+          (destination?.$in === undefined ||
+            destination.$in.includes(row.destination)) &&
+          (destination?.$startsWith === undefined ||
+            row.destination.startsWith(destination.$startsWith))
       )
     }
   }
@@ -494,4 +497,90 @@ describe('validateRedirectInput path cases shared with the loader', () => {
       ).toEqual(['destination'])
     }
   )
+})
+
+describe('redirectTargetPath', () => {
+  it.each([
+    ['/second', '/second'],
+    ['/second/', '/second'],
+    ['/second?x=1', '/second'],
+    ['/second#top', '/second'],
+    ['/second/?x=1#top', '/second'],
+    ['/', '/'],
+    ['/?x=1', '/']
+  ])('%s → %s', (destination, expected) => {
+    expect(redirectTargetPath(destination)).toBe(expected)
+  })
+
+  it.each(['https://example.org/second', '//example.org/second'])(
+    'has no on-site path for %s',
+    (destination) => {
+      expect(redirectTargetPath(destination)).toBeUndefined()
+    }
+  )
+})
+
+// Netlify matches a source by path alone, so a query or fragment on a
+// destination doesn't stop it hitting another redirect.
+describe('validateRedirectLinks with a query or fragment destination', () => {
+  const rows: Row[] = [
+    { documentId: 'a', source: '/second', destination: '/third' },
+    { documentId: 'b', source: '/campaign', destination: '/landing?utm=1' }
+  ]
+  const documents = fakeFinder(rows)
+
+  it.each(['/second?x=1', '/second#top', '/second/?x=1'])(
+    'rejects a destination whose path is another source (%s)',
+    async (destination) => {
+      const err = await validateRedirectLinks({
+        documents,
+        data: { source: '/first', destination }
+      })
+      expect(erroredFields(err)).toEqual(['destination'])
+      expect(fieldErrors(err)[0]!.message).toContain('/third')
+    }
+  )
+
+  it('rejects a source another redirect reaches with a query', async () => {
+    const err = await validateRedirectLinks({
+      documents,
+      data: { source: '/landing', destination: '/home' }
+    })
+    expect(erroredFields(err)).toEqual(['source'])
+    expect(fieldErrors(err)[0]!.message).toContain('/campaign')
+  })
+
+  it('ignores a destination that only shares a prefix', async () => {
+    // /landingzone starts with "/landing", so the query returns it, but it is
+    // a different path and doesn't chain with a /landing redirect.
+    await expect(
+      validateRedirectLinks({
+        documents: fakeFinder([
+          { documentId: 'c', source: '/near', destination: '/landingzone' }
+        ]),
+        data: { source: '/landing', destination: '/home' }
+      })
+    ).resolves.toBeUndefined()
+  })
+
+  it.each(['/about#team', '/about/?x=1'])(
+    'treats %s from /about as a self-redirect',
+    async (destination) => {
+      const err = await validateRedirectLinks({
+        documents,
+        data: { source: '/about', destination }
+      })
+      expect(erroredFields(err)).toEqual(['destination'])
+      expect(fieldErrors(err)[0]!.message).toContain('same as the old one')
+    }
+  )
+
+  it('leaves an external destination out of the chain check', async () => {
+    await expect(
+      validateRedirectLinks({
+        documents,
+        data: { source: '/docs', destination: 'https://example.org/second' }
+      })
+    ).resolves.toBeUndefined()
+  })
 })

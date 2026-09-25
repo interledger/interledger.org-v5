@@ -88,6 +88,19 @@ function withoutTrailingSlash(path: string): string {
   return path.length > 1 ? path.replace(/\/+$/, '') : path
 }
 
+/**
+ * The on-site path a destination sends visitors to, in the form sources are
+ * stored in: query, fragment and trailing slash dropped. Netlify matches a
+ * source by path alone, so `/second?x=1` and `/second#top` still hit a
+ * `/second` redirect. Undefined for an external https URL, which leaves the
+ * site and can't chain with our rules.
+ */
+export function redirectTargetPath(destination: string): string | undefined {
+  const trimmed = destination.trim()
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return undefined
+  return withoutTrailingSlash(trimmed.split(/[?#]/, 1)[0]!)
+}
+
 interface FieldError {
   path: string[]
   message: string
@@ -122,7 +135,7 @@ function destinationError(
   if (trimmed.startsWith('//')) return 'The new path must not start with //'
   if (
     typeof source === 'string' &&
-    withoutTrailingSlash(trimmed) === normalizeRedirectSource(source)
+    redirectTargetPath(trimmed) === normalizeRedirectSource(source)
   ) {
     return 'The new path is the same as the old one'
   }
@@ -293,16 +306,25 @@ async function resolveEffectiveRedirect(
  * not in the query: rows stored before the field existed hold null, which a
  * SQL `enabled = true` would miss.
  */
+/**
+ * Another enabled redirect matching `filters` and, when given, `matches`: the
+ * query narrows the candidates and `matches` makes the exact call where a
+ * filter can't express it.
+ */
 async function findOtherEnabledRedirect(
   check: RedirectLinkCheck,
-  filters: Record<string, unknown>
+  filters: Record<string, unknown>,
+  matches: (entry: StoredRedirect) => boolean = () => true
 ): Promise<StoredRedirect | undefined> {
-  const matches = (await check.documents.findMany({
+  const candidates = (await check.documents.findMany({
     filters,
     fields: LINK_FIELDS
   })) as StoredRedirect[]
-  return matches.find(
-    (entry) => entry.documentId !== check.documentId && isRedirectEnabled(entry)
+  return candidates.find(
+    (entry) =>
+      entry.documentId !== check.documentId &&
+      isRedirectEnabled(entry) &&
+      matches(entry)
   )
 }
 
@@ -329,14 +351,15 @@ export async function validateRedirectLinks(
   // Missing or malformed values are validateRedirectInput's job.
   if (!source || !destination) return undefined
 
-  const target = withoutTrailingSlash(destination)
+  const target = redirectTargetPath(destination)
   if (target === source) {
     return linkError('destination', 'The new path is the same as the old one')
   }
   // A disabled redirect never reaches Astro, so it can't be part of a chain.
   if (!enabled) return undefined
 
-  const onward = await findOtherEnabledRedirect(check, { source: target })
+  const onward =
+    target && (await findOtherEnabledRedirect(check, { source: target }))
   if (onward) {
     return linkError(
       'destination',
@@ -344,9 +367,15 @@ export async function validateRedirectLinks(
     )
   }
 
-  const incoming = await findOtherEnabledRedirect(check, {
-    destination: { $in: [source, `${source}/`] }
-  })
+  // Every destination whose path is this source, whatever query, fragment
+  // or trailing slash follows it: the prefix narrows, the path decides.
+  const incoming = await findOtherEnabledRedirect(
+    check,
+    { destination: { $startsWith: source } },
+    (entry) =>
+      typeof entry.destination === 'string' &&
+      redirectTargetPath(entry.destination) === source
+  )
   if (incoming) {
     return linkError(
       'source',

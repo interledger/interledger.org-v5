@@ -11,7 +11,16 @@ const enabledRules = rules.filter((rule) => rule.enabled !== false)
 const enabledSources = new Set(enabledRules.map((rule) => rule.source))
 
 function withoutTrailingSlash(path: string): string {
-  return path.length > 1 ? path.replace(/\/$/, '') : path
+  return path.length > 1 ? path.replace(/\/+$/, '') : path
+}
+
+/**
+ * The on-site path a destination lands on, as Netlify matches sources: query,
+ * fragment and trailing slash dropped. Mirrors redirectTargetPath in
+ * cms/src/utils/redirects.ts.
+ */
+function targetPath(destination: string): string {
+  return withoutTrailingSlash(destination.split(/[?#]/, 1)[0]!)
 }
 
 describe('src/config/redirects.json', () => {
@@ -25,8 +34,7 @@ describe('src/config/redirects.json', () => {
   it('has no redirect that points at itself', () => {
     const selfRedirects = rules.filter(
       (rule) =>
-        withoutTrailingSlash(rule.source) ===
-        withoutTrailingSlash(rule.destination)
+        withoutTrailingSlash(rule.source) === targetPath(rule.destination)
     )
     expect(selfRedirects).toEqual([])
   })
@@ -36,7 +44,7 @@ describe('src/config/redirects.json', () => {
   // enabled rules reach Astro, so only they can chain.
   it('has no chains', () => {
     const chains = enabledRules.filter((rule) =>
-      enabledSources.has(withoutTrailingSlash(rule.destination))
+      enabledSources.has(targetPath(rule.destination))
     )
     expect(chains).toEqual([])
   })
