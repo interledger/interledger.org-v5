@@ -34,7 +34,7 @@ El término Interledger se compone del prefijo _inter_, que significa “entre�
 
 Interledger se concibe como una red de nodos que reenvían mensajes de pago y, al mismo tiempo, gestionan cualquier conversión de “moneda”, entendiendo por “moneda” cualquier forma de valor, incluidas las monedas fiduciarias, las criptomonedas o el dinero móvil.
 
-![Diagrama de la red Interledger](/developers/img/blog/2024-08-13/network.png)
+![Diagrama de la red Interledger](/img/foundation-blog/2024-08-13/network.png)
 
 Mi cuenta bancaria está denominada en euros y la cuenta de dinero móvil de Allan en rands sudafricanos. Al observar el diagrama anterior, se advierte que existen múltiples rutas posibles para enviar (o enrutar) el dinero hacia Allan. Interledger se encarga de que los paquetes sigan la ruta más rápida y económica desde el nodo que me presta servicio hasta el nodo que presta servicio a Allan. Por lo tanto, Interledger se configura como una red que opera por encima de las redes de pago existentes y actúa como una capa de interoperabilidad entre todas ellas.
 
@@ -49,7 +49,7 @@ A partir de este contexto, surge una pregunta: ¿en qué consisten los protocolo
 
 Al igual que la pila de Internet, la pila Interledger se compone de múltiples capas. Esta similitud no es casual, ya que su diseño se inspira directamente en la arquitectura de la pila de Internet. Por lo tanto, cada capa de la pila de Internet cuenta con su equivalente dentro de la pila Interledger. Cada una de estas capas cumple una función específica y se articula con las capas superiores e inferiores. A continuación, analizaremos cada capa de la pila Interledger, comenzando desde la base.
 
-![Comparación entre la pila Interledger y la pila de Internet](/developers/img/blog/2024-08-13/stack.png)
+![Comparación entre la pila Interledger y la pila de Internet](/img/foundation-blog/2024-08-13/stack.png)
 
 Si prefiere una explicación en formato audiovisual, puede consultar la [presentación sobre la pila Interledger](https://youtu.be/sqGjkZKFjgo) disponible en YouTube.
 
@@ -74,7 +74,7 @@ En el núcleo de la pila Interledger se encuentra el [Protocolo Interledger](/de
 
 ¿Por qué se utiliza un modelo de dos fases en lugar de uno de una sola fase? Para comprenderlo, conviene analizar un ejemplo de transferencia de una sola fase.
 
-![Diagrama de transferencia de una sola fase](/developers/img/blog/2024-08-13/transfer.png)
+![Diagrama de transferencia de una sola fase](/img/foundation-blog/2024-08-13/transfer.png)
 
 Alice, ubicada a la izquierda, es cliente de una entidad proveedora de servicios de cuentas (ASE) que opera un nodo o conector de Interledger (A).
 
@@ -84,7 +84,7 @@ Bob, ubicado a la derecha, es cliente de la entidad proveedora de servicios de c
 
 Con el fin de trasladar este riesgo de falla en la transferencia desde los usuarios finales (Alice y Bob) hacia los nodos conectores, el Protocolo Interledger establece un modelo de transferencia en dos fases.
 
-![Diagrama de transferencia en dos fases](/developers/img/blog/2024-08-13/2p-transfer.png)
+![Diagrama de transferencia en dos fases](/img/foundation-blog/2024-08-13/2p-transfer.png)
 
 El proceso de transferencia de paquetes ILP comienza cuando el conector emisor (A) construye un paquete ILP Prepare, que incluye la dirección ILP del destinatario, una condición de ejecución, el monto y el tiempo de expiración. El conector emisor también puede incorporar datos adicionales, cuyo formato depende del protocolo de nivel superior que se utilice. Este paquete se envía al conector (B) a través de un canal autenticado, establecido mediante un protocolo de la capa de enlace. A continuación, el conector (B) verifica el saldo de liquidez del conector (A) y, si resulta suficiente, debita el monto correspondiente de la cuenta de liquidez. Posteriormente, el conector consulta sus tablas de enrutamiento para determinar el siguiente salto, ajusta el monto y el tiempo de expiración del paquete en función de su tasa de cambio y lo reenvía.
 
@@ -115,13 +115,13 @@ Un Payment Pointer siempre comienza con el símbolo de dólar (`$`), seguido de 
 
 Además, los Payment Pointers pueden alojarse en el dominio raíz. En ese caso, un Payment Pointer como `$mymarketplace.com` se resuelve en `https://marketplace.com/.well-known/pay` y apunta a una dirección de ILP como `g.wallet.mymarketplace`.
 
-Más adelante retomaremos el concepto de Payment Pointers en la sección dedicada a la capa de aplicación, en particular al analizar el Protocolo de Configuración de Pagos Simples (SPSP). Si no puede esperar, no dude en [pasar a la sección correspondiente](#application-layer).
+Más adelante retomaremos el concepto de Payment Pointers en la sección dedicada a la capa de aplicación, en particular al analizar el Protocolo de Configuración de Pagos Simples (SPSP). Si no puede esperar, no dude en [pasar a la sección correspondiente](#capa-de-aplicación).
 
 ### Capa de transporte: Protocolo STREAM
 
 Sobre la base del ILP, la capa de transporte incorpora funcionalidades adicionales para la gestión de la transferencia de valor. En la actualidad, el único protocolo compatible es el [Protocolo STREAM](/developers/rfcs/stream-protocol/) (Streaming Transport for Real-time Exchange of Assets and Messages).
 
-![Animación del protocolo STREAM](/developers/img/blog/2024-08-13/stream.gif)
+![Animación del protocolo STREAM](/img/foundation-blog/2024-08-13/stream.gif)
 
 El protocolo STREAM constituye un protocolo de transporte versátil y seguro para ILP, diseñado para facilitar la transmisión eficiente y escalable tanto de dinero como de datos. Para optimizar las transacciones basadas en ILP, incorpora diversas funcionalidades:
 
@@ -165,7 +165,7 @@ Si desea profundizar en Open Payments, puede consultar la [fantástica publicaci
 
 [Web Monetization](https://webmonetization.org/) no forma parte de la pila Interledger, sino que se presenta como una aplicación orientada al usuario que se sitúa por encima de la pila ILP.
 
-![Web Monetization dentro de la pila Interledger](/developers/img/blog/2024-08-13/wm.png)
+![Web Monetization dentro de la pila Interledger](/img/foundation-blog/2024-08-13/wm.png)
 
 Web Monetization es un estándar propuesto por el W3C que permite realizar pagos de manera integrada en la experiencia de navegación web. A través de este enfoque, los visitantes de un sitio web pueden transferir el monto que deseen con una interacción mínima o incluso nula. Como estándar en desarrollo, el objetivo consiste en que Web Monetization se integre de forma nativa en los navegadores; sin embargo, actualmente ninguno incorpora esta funcionalidad. Por este motivo, la Interledger Foundation trabaja en una extensión de navegador que permita habilitar Web Monetization de manera transitoria.
 
@@ -175,7 +175,7 @@ Cuando un navegador (o la extensión correspondiente) detecta un sitio habilitad
 
 La respuesta es sencilla: se trata de una [implementación de referencia](https://github.com/interledger/rafiki) de la pila Interledger. **No** es una billetera, **no** es una plataforma y **no** es un servicio. **Es software.**
 
-![Componentes de la pila Interledger incluidos en Rafiki](/developers/img/blog/2024-08-13/rafiki.png)
+![Componentes de la pila Interledger incluidos en Rafiki](/img/foundation-blog/2024-08-13/rafiki.png)
 
 [Rafiki](https://rafiki.dev/) es software de código abierto, disponible de forma gratuita para cualquier entidad con licencia. Su objetivo consiste en reducir el esfuerzo que deben realizar las entidades para incorporar Interledger en las cuentas de sus usuarios y operar como conectores dentro de la red ILP. En lugar de utilizar BTP, Rafiki emplea ILP sobre HTTP, ya que se supone que el tamaño de los paquetes en este tipo de transacciones será algo mayor, posiblemente del orden de un centavo. Por lo tanto, los pagos se dividen en un menor número de paquetes, lo que hace innecesario establecer una conexión persistente mediante sockets.
 

@@ -251,12 +251,12 @@ const navigationUlClass = twMerge(
                     {group.subGroups.map((sub, subIndex) => {
                       const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
                       return (
-                        <div class="flex flex-col gap-md">
+                        <div class="flex flex-col gap-xl tablet:gap-md">
                           <p
                             id={subHeadingId}
-                            class="mb-2 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
+                            class="mb-0 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
                           >
-                            <span class="border-b border-neutral-100 pb-sm tablet:border-neutral-900">
+                            <span class="inline-block border-b border-neutral-100 pb-sm tablet:border-neutral-900">
                               {sub.label}
                             </span>
                           </p>
