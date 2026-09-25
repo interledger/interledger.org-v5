@@ -136,6 +136,47 @@
     @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
   }
 
+  /* General heading rule: semantic level N gets the text-hN token, at every
+     tier. A component's own explicit text-h* utility class still wins
+     over this (utility layer beats base layer) — these rules only take
+     effect where no such override exists yet. */
+  h1 {
+    @apply text-h1 tablet:text-h1-md desktop:text-h1-lg;
+  }
+  h2 {
+    @apply text-h2 tablet:text-h2-md desktop:text-h2-lg;
+  }
+  h3 {
+    @apply text-h3 tablet:text-h3-md desktop:text-h3-lg;
+  }
+  h4 {
+    @apply text-h4 tablet:text-h4-md desktop:text-h4-lg;
+  }
+  /* No --text-h6 token exists; h5 and h6 share the h5 token. */
+  h5,
+  h6 {
+    @apply text-h5 tablet:text-h5-md desktop:text-h5-lg;
+  }
+
+  /* Narrow-width templates (blog post, profile detail) intentionally use one
+     tier down at every heading level, per Figma. Scoped off the real
+     max-w-narrow utility class rather than a dedicated marker — both
+     templates' headings are genuine descendants of that class today. */
+  .max-w-narrow h1 {
+    @apply text-h2 tablet:text-h2-md desktop:text-h2-lg;
+  }
+  .max-w-narrow h2 {
+    @apply text-h3 tablet:text-h3-md desktop:text-h3-lg;
+  }
+  .max-w-narrow h3 {
+    @apply text-h4 tablet:text-h4-md desktop:text-h4-lg;
+  }
+  .max-w-narrow h4,
+  .max-w-narrow h5,
+  .max-w-narrow h6 {
+    @apply text-h5 tablet:text-h5-md desktop:text-h5-lg;
+  }
+
   a {
     @apply text-current transition-colors duration-slow;
   }
