@@ -3,8 +3,7 @@
     {
       "source": "/about",
       "destination": "/about-us",
-      "status": 301,
-      "enabled": false
+      "status": 301
     },
     {
       "source": "/ambassadors",
