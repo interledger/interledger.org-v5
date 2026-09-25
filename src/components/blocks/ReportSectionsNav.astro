@@ -35,7 +35,7 @@ const sectionNavAttrs = (id: string, heading: string) =>
   aria-label={t('report.sections_nav')}
   class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
 >
-  <ol class="m-0 flex list-none flex-col gap-2xl p-0">
+  <ul class="m-0 flex list-none flex-col gap-2xl p-0 desktop:gap-xl">
     {
       sections.map((section, index) => (
         <li class="m-0">
@@ -45,21 +45,27 @@ const sectionNavAttrs = (id: string, heading: string) =>
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
-            class="group flex flex-col gap-sm rounded-lg no-underline focus-visible:outline-none focus-visible:ring focus-visible:ring-link"
+            class="group relative inline-flex max-w-full flex-col pb-sm rounded-lg text-left no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-link"
             {...sectionNavAttrs(section.id, section.heading)}
           >
-            <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-link">
-              {section.heading}
+            <span class="flex items-start gap-md pl-sm">
+              <span
+                aria-hidden="true"
+                class="size-1 shrink-0 mt-2.5 rounded-full bg-neutral-75 transition-colors duration-200 group-hover:bg-neutral-900 group-data-[active=true]:bg-link dark:bg-neutral-50 dark:group-hover:bg-neutral-0"
+              />
+              <span class="text-body-sm-standard text-neutral-75 transition-colors duration-200 group-hover:text-neutral-900 group-data-[active=true]:text-link dark:text-neutral-50 dark:group-hover:text-neutral-0">
+                {section.heading}
+              </span>
             </span>
             <span
               aria-hidden="true"
-              class="h-px w-0 bg-link transition-all duration-200 group-data-[active=true]:w-full"
+              class="pointer-events-none absolute bottom-0 left-0 h-px w-full origin-left scale-x-0 bg-link transition-transform duration-200 ease-out motion-reduce:transition-none group-data-[active=true]:scale-x-100"
             />
           </a>
         </li>
       ))
     }
-  </ol>
+  </ul>
 </nav>
 
 <script>
@@ -73,32 +79,3 @@ const sectionNavAttrs = (id: string, heading: string) =>
     linkSelector: '[data-report-nav-link]'
   })
 </script>
-
-<style>
-  /* Circle markers (not decimal) — tighter gutter than body copy, orchid
-     when the section is in view. */
-  :global([data-report-nav] ol) {
-    list-style: none;
-    margin: 0;
-    padding-inline-start: 0;
-  }
-  :global([data-report-nav] ol > li) {
-    position: relative;
-    margin: 0;
-    padding-inline-start: var(--spacing-lg);
-  }
-  :global([data-report-nav] ol > li::before) {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: calc(0.5em - (var(--ol-marker-size, 5px) / 2) + 1px);
-    width: var(--ol-marker-size, 5px);
-    height: var(--ol-marker-size, 5px);
-    border-radius: 50%;
-    background-color: var(--color-neutral-900);
-    transform: none;
-  }
-  :global([data-report-nav] ol > li:has([data-active='true'])::before) {
-    background-color: var(--color-link);
-  }
-</style>
