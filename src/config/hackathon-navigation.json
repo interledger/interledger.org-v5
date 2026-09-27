@@ -33,6 +33,23 @@
           "href": "/hackathon/ai-policy"
         }
       ]
+    },
+    {
+      "label": "2026 Open Payment Hackathon",
+      "items": [
+        {
+          "label": "Key Information",
+          "href": "/hackathon/2026-hackathon-medellin"
+        },
+        {
+          "label": "Timetable",
+          "href": "/hackathon/2026-timetable"
+        },
+        {
+          "label": "Submissions & Judging",
+          "href": "/hackathon/submission-judging"
+        }
+      ]
     }
   ],
   "ctaButton": {
