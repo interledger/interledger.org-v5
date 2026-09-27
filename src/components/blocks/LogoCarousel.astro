@@ -242,13 +242,10 @@ const logoClasses = `
   /**
    * Drops <main>'s own end padding when this carousel is genuinely the last
    * thing on the page, so it doesn't stack with the carousel's own trailing
-   * padding (spacing.css handles the sibling case — the carousel ending its
-   * own section with a grant FAQ or CTA strip still below it — but this one
-   * can't be a `:has()` rule: it would need a `:has()` nested inside another
-   * `:has()` to find <main>'s last real child several levels down, and every
-   * browser rejects that as an invalid selector. See the comment above
-   * `main > section:not(:last-of-type) …` in spacing.css for the case CSS
-   * does cover.)
+   * padding. Can't be a CSS rule: it needs a `:has()` nested inside another
+   * `:has()` to find <main>'s last real child, which every browser rejects
+   * (spacing.css handles the case that doesn't need that — the carousel
+   * ending its own section while the page continues below it).
    */
   function isLastRealElement(element: Element): boolean {
     let next = element.nextElementSibling

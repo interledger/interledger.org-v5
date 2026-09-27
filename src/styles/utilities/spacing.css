@@ -98,46 +98,22 @@
 }
 
 /*
- * LogoCarousel pads below its logos (LogoCarousel.astro's `sectionClasses`).
- * On the homepage that's the whole gap before the footer — <main> has no
- * padding of its own there, so the carousel supplies it, and it's the size
- * we want. Everywhere else the carousel sits inside a page-stack-managed
- * <main> (pb-section, pb-5xl, …) or a vertically-padded content <section>
- * (py-4xl, on hackathon/summit). When the carousel is the last block in that
- * flow, its own padding stacks with whichever of those supplies the page's
- * trailing space, and the two compound into an oversized gap.
+ * LogoCarousel pads below its logos. On the homepage that's the whole gap
+ * before the footer and it's the size we want; everywhere else the page
+ * itself also pads its own end, and the two stack into a doubled gap when
+ * the carousel is the last block. This only covers the carousel ending its
+ * own section while the page continues below it (a grant FAQ, say) — the
+ * next section's normal gap already covers that case, so the carousel's own
+ * padding is dropped here. "Carousel is the literal last thing on the page"
+ * needs a `:has()` nested inside another `:has()` to reach <main>, which
+ * every browser rejects as invalid — see `fixTrailingMainPadding` in
+ * LogoCarousel.astro for that case instead.
  *
- * Two cases, needing opposite fixes:
- *
- *   - The carousel ends its own section, but the page continues below it (a
- *     grant FAQ or CTA strip section after the logos). page-stack's normal
- *     `--space-section` margin onto that next section already supplies the
- *     standard gap, so the carousel's own trailing padding is the redundant
- *     one — drop it here.
- *   - The carousel is the very last thing on the page (nothing follows its
- *     section inside <main>). There, <main>'s own end padding is the
- *     redundant one, and the carousel's should stay — but that can't be
- *     written as a `:has()` selector: detecting "nothing real follows,
- *     ignoring an emitted <style>/<script>" needs a `:has()` of its own,
- *     and nesting that inside another `:has()` to reach <main> is invalid —
- *     every current browser rejects a selector where `:has()` contains
- *     `:has()` anywhere inside it, even trivially (confirmed directly
- *     against Chrome; this is also why the previous version of this rule
- *     silently never matched). LogoCarousel's own script handles that case
- *     against the DOM directly instead — see `fixTrailingMainPadding` in
- *     LogoCarousel.astro.
- *
- * `:not(:last-of-type)` (not `:has(~ …)`) answers "does another section
- * follow within <main>": every template using this block gives <main>'s own
- * children the shared tag `<section>`, so `:last-of-type` reliably answers
- * that without needing to skip stray siblings the way the check one line
- * down does — main's own children never carry those.
- *
- * `:not(:has(~ :not(script, style)))` does that skipping for the carousel's
- * own position among its *real* prose siblings, where an earlier block's
- * emitted `<style>`/`<script>` can legitimately follow it (Astro injects a
- * component's script — and, for this component, its scoped style — as a
- * following sibling, in both dev and production).
+ * `:last-of-type` (not `:has(~ …)`) checks for a following section, since
+ * every <main> here uses `<section>` for all its top-level children.
+ * `:not(:has(~ :not(script, style)))` does the equivalent check one level
+ * down, where a `<script>`/`<style>` Astro emits after the carousel can be a
+ * real next sibling.
  *
  * Unlayered so this beats the Tailwind padding utilities.
  */
