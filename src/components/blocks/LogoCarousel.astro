@@ -239,14 +239,60 @@ const logoClasses = `
 </style>
 
 <script>
+  /**
+   * Drops <main>'s own end padding when this carousel is genuinely the last
+   * thing on the page, so it doesn't stack with the carousel's own trailing
+   * padding (spacing.css handles the sibling case — the carousel ending its
+   * own section with a grant FAQ or CTA strip still below it — but this one
+   * can't be a `:has()` rule: it would need a `:has()` nested inside another
+   * `:has()` to find <main>'s last real child several levels down, and every
+   * browser rejects that as an invalid selector. See the comment above
+   * `main > section:not(:last-of-type) …` in spacing.css for the case CSS
+   * does cover.)
+   */
+  function isLastRealElement(element: Element): boolean {
+    let next = element.nextElementSibling
+    while (next && (next.tagName === 'SCRIPT' || next.tagName === 'STYLE')) {
+      next = next.nextElementSibling
+    }
+    return next === null
+  }
+
+  function fixTrailingMainPadding(carouselRoot: HTMLElement): void {
+    // Gates on an MDX/Strapi prose ancestor, not just "is a direct child of
+    // main": that's true only off the homepage, where the carousel supplies
+    // <main>'s entire trailing gap on purpose and must keep its own padding.
+    const prose = carouselRoot.closest('[data-prose], [data-prose-summit]')
+    const main = carouselRoot.closest('main')
+    if (!prose || !main || !isLastRealElement(carouselRoot)) return
+
+    // Walk up to the section that's main's own direct child, bailing the
+    // moment something turns out to follow at any level — the page
+    // continues somewhere, so this fix doesn't apply there.
+    let topLevelSection: Element = carouselRoot
+    while (topLevelSection.parentElement !== main) {
+      if (!isLastRealElement(topLevelSection)) return
+      topLevelSection = topLevelSection.parentElement as Element
+    }
+    if (!isLastRealElement(topLevelSection)) return
+
+    main.style.paddingBlockEnd = '0'
+    ;(topLevelSection as HTMLElement).style.paddingBlockEnd = '0'
+  }
+
   /* Drag + auto-scroll for the logo carousel.
-     We take over from the CSS @keyframes, but keep them defined above as a 
+     We take over from the CSS @keyframes, but keep them defined above as a
      fallback if this script fails to load */
 
   const carousels = document.querySelectorAll<HTMLElement>('.logo-carousel')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   carousels.forEach((carousel) => {
+    const carouselRoot = carousel.closest<HTMLElement>(
+      '[data-component="LogoCarousel"]'
+    )
+    if (carouselRoot) fixTrailingMainPadding(carouselRoot)
+
     const track = carousel.querySelector<HTMLUListElement>('ul')
     if (!track) return
 
