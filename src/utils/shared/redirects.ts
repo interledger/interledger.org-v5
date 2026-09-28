@@ -44,6 +44,9 @@ const NON_LITERAL_SOURCE = /[[\]:*?#\s]/
 // `https://` followed directly by a host. The URL parser alone isn't enough:
 // it skips extra slashes, so `https:///docs` would parse with host `docs`.
 const HTTPS_WITH_HOST = /^https:\/\/[^/?#\s]/i
+// Browsers read `\` as `/` and drop tabs and line breaks, so `/\evil.example`
+// or `/<tab>/evil.example` becomes the off-site `//evil.example`.
+const URL_SLASH_LOOKALIKE = /[\\\t\n\r]/
 
 function sourceProblem(source: string): string | undefined {
   if (!source.startsWith('/')) return 'must start with /'
@@ -61,6 +64,9 @@ function isHttpsUrl(value: string): boolean {
 
 function destinationProblem(destination: string): string | undefined {
   if (destination.startsWith('//')) return 'must not start with //'
+  if (URL_SLASH_LOOKALIKE.test(destination)) {
+    return 'must not contain \\, tabs or line breaks'
+  }
   if (destination.startsWith('/') || isHttpsUrl(destination)) return undefined
   return 'must start with / or be an https:// URL with a host'
 }

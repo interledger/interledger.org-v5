@@ -33,7 +33,10 @@
       "http://example.org/docs",
       "HTTP://example.org/docs",
       "https:///docs",
-      "https://"
+      "https://",
+      "/\\evil.example/path",
+      "/\t/evil.example",
+      "https://example.org\\@evil.example/"
     ]
   }
 }

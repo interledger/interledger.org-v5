@@ -70,6 +70,10 @@ const NON_LITERAL_SOURCE = /[[\]:*?#\s]/
 // it skips extra slashes, so `https:///docs` would parse with host `docs`.
 const HTTPS_WITH_HOST = /^https:\/\/[^/?#\s]/i
 
+// Browsers read `\` as `/` and drop tabs and line breaks, so `/\evil.example`
+// or `/<tab>/evil.example` becomes the off-site `//evil.example`.
+const URL_SLASH_LOOKALIKE = /[\\\t\n\r]/
+
 /**
  * True for an absolute `https:` URL with a host, so `http://…`,
  * `https:///path` and a bare `https://` are all rejected.
@@ -134,6 +138,9 @@ function destinationError(
     return 'The new path must start with / or be a full https:// URL'
   }
   if (trimmed.startsWith('//')) return 'The new path must not start with //'
+  if (URL_SLASH_LOOKALIKE.test(trimmed)) {
+    return 'The new path must not contain backslashes or line breaks'
+  }
   if (
     typeof source === 'string' &&
     redirectTargetPath(trimmed) === normalizeRedirectSource(source)
