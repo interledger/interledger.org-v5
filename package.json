@@ -17,7 +17,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "optimize:images": "tsx ./scripts/optimize-images.ts",
-    "prebuild": "pnpm run optimize:images",
+    "prebuild": "node scripts/evict-content-store.mjs && pnpm run optimize:images",
     "sync:sessionize": "tsx ./scripts/sync-sessionize.ts",
     "sync:airtable": "tsx ./scripts/import-airtable.ts"
   },

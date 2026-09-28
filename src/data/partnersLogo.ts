@@ -106,7 +106,7 @@ export const partners = [
   },
   {
     name: 'Blaze Group',
-    src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V2_0026_Blaze-group.avif'
+    src: '/img/partner-logos/LOGO-STRIP-HOME-PAGE-V3_0026_Blaze-group.avif'
   },
   {
     name: 'Article 19',

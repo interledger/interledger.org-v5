@@ -163,6 +163,36 @@ describe('resolvePageFilepath', () => {
       path.join(outputDir, 'es', 'home.mdx')
     )
   })
+
+  // Without this, a caller that forgets to resolve the English slug first
+  // writes es/sobre-nosotros.mdx beside es/about-us.mdx.
+  it('names a localized page after the entry it localizes', () => {
+    expect(
+      resolvePageFilepath(
+        outputDir,
+        { pathSlug: 'subvenciones/beca' },
+        'es',
+        'grant/fellowship'
+      )
+    ).toBe(path.join(outputDir, 'es', 'grant', 'fellowship.mdx'))
+  })
+
+  it('ignores the English slug for an English page', () => {
+    expect(
+      resolvePageFilepath(
+        outputDir,
+        { pathSlug: 'about-us' },
+        defaultLang,
+        'something-else'
+      )
+    ).toBe(path.join(outputDir, 'about-us.mdx'))
+  })
+
+  it('falls back to the page slug when no English counterpart is known', () => {
+    expect(
+      resolvePageFilepath(outputDir, { pathSlug: 'sobre-nosotros' }, 'es', null)
+    ).toBe(path.join(outputDir, 'es', 'sobre-nosotros.mdx'))
+  })
 })
 
 describe('readLocaleFromUpdateEvent', () => {
