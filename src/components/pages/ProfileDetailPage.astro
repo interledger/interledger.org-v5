@@ -75,7 +75,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
 const Layout = getSectionPageLayout(section)
 const noindex = isDemoPathSlug(entry.data.pathSlug)
 const textColorClass = 'text-neutral-900 dark:text-neutral-0'
-const nameClass = `text-h2-md ${textColorClass} tablet:text-h2-md desktop:text-h1-md`
+const nameClass = textColorClass
 const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal mt-0 mb-xl ${textColorClass} tablet:text-h4-md desktop:text-h4-lg`
 ---
 
@@ -164,7 +164,7 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
             <section
               data-prose
               aria-label={t('profile.biography')}
-              class="mb-2xl [&_h2:not(:first-of-type)]:mt-4xl desktop:[&_h2:not(:first-of-type)]:mt-5xl [&_h2]:mb-2xl [&_h2]:text-h3-lg [&_hr]:my-4xl desktop:[&_hr]:my-5xl [&_p:has(>a):has(+p:has(>a))]:mb-sm"
+              class="mb-2xl [&_h2:not(:first-of-type)]:mt-4xl desktop:[&_h2:not(:first-of-type)]:mt-5xl [&_h2]:mb-2xl [&_hr]:my-4xl desktop:[&_hr]:my-5xl [&_p:has(>a):has(+p:has(>a))]:mb-sm"
             >
               <MdxContent components={{ Paragraph }} />
             </section>

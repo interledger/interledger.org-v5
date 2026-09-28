@@ -59,8 +59,8 @@
 
 /* Static design tokens — single source of truth for values */
 @theme {
-  /* Poppins has no 700. Tailwind's `font-bold` would otherwise emit 700,
-     which the browser maps onto extra-bold 800. Semibold is the bold. */
+  /* `font-bold` emits Semibold (600), not true Bold (700). Poppins Bold now
+     ships and text-h1* uses it directly, but generic bold text stays 600. */
   --font-weight-bold: 600;
 }
 
@@ -216,9 +216,9 @@
   /* ──────────────────────────────────────────────────────────────────────────
      Typography: Poppins, three tiers (Mobile / Tablet / Desktop).
      Tailwind-canonical pattern: per-tier tokens applied via responsive prefixes:
-       <h1 class="font-poppins text-h1 md:text-h1-md lg:text-h1-lg">
-     Token suffix (-md / -lg) intentionally mirrors Tailwind's md: / lg: variants.
-     md: ≥ 768px, lg: ≥ 1024px (see screens in tailwind.config.mjs).
+       <h1 class="text-h1 tablet:text-h1-md desktop:text-h1-lg">
+     Pair -md with tablet: and -lg with desktop:, not Tailwind's md:/lg:
+     (legacy breakpoints, kept for pre-redesign code only).
 
      How `text-{name}` ends up setting font-size + line-height + font-weight:
 
@@ -245,53 +245,56 @@
      Reference: https://tailwindcss.com/docs/font-size#with-other-properties
      ────────────────────────────────────────────────────────────────────────── */
 
-  /* H1: 56/68 → 76/90 → 100/100, all SemiBold */
-  --text-h1: 3.5rem;
-  --text-h1--line-height: 4.25rem;
-  --text-h1--font-weight: 600;
-  --text-h1-md: 4.75rem;
-  --text-h1-md--line-height: 5.625rem;
-  --text-h1-md--font-weight: 600;
-  --text-h1-lg: 6.25rem;
-  --text-h1-lg--line-height: 6.25rem;
-  --text-h1-lg--font-weight: 600;
+  /* H1: 40/48 → 56/64 → 76/84, all Bold (700) */
+  --text-h1: 2.5rem;
+  --text-h1--line-height: 3rem;
+  --text-h1--font-weight: 700;
+  --text-h1-md: 3.5rem;
+  --text-h1-md--line-height: 4rem;
+  --text-h1-md--font-weight: 700;
+  --text-h1-lg: 4.75rem;
+  --text-h1-lg--line-height: 5.25rem;
+  --text-h1-lg--font-weight: 700;
 
-  /* H2: 32/40 → 36/48 → 56/64, all SemiBold */
+  /* H2: 32/40 → 40/48 → 56/64, all SemiBold */
   --text-h2: 2rem;
   --text-h2--line-height: 2.5rem;
   --text-h2--font-weight: 600;
-  --text-h2-md: 2.25rem;
+  --text-h2-md: 2.5rem;
   --text-h2-md--line-height: 3rem;
   --text-h2-md--font-weight: 600;
   --text-h2-lg: 3.5rem;
   --text-h2-lg--line-height: 4rem;
   --text-h2-lg--font-weight: 600;
 
-  /* H3: 28/36 → 28/36 → 40/56, all Medium */
-  --text-h3: 1.75rem;
-  --text-h3--line-height: 2.25rem;
+  /* H3: 24/32 → 28/36 → 40/48, all Medium */
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 2rem;
   --text-h3--font-weight: 500;
   --text-h3-md: 1.75rem;
   --text-h3-md--line-height: 2.25rem;
   --text-h3-md--font-weight: 500;
   --text-h3-lg: 2.5rem;
-  --text-h3-lg--line-height: 3.5rem;
+  --text-h3-lg--line-height: 3rem;
   --text-h3-lg--font-weight: 500;
 
-  /* H4: 18/28 → 20/30 → 24/34, all Regular */
-  --text-h4: 1.125rem;
-  --text-h4--line-height: 1.75rem;
-  --text-h4--font-weight: 400;
-  --text-h4-md: 1.25rem;
-  --text-h4-md--line-height: 1.875rem;
-  --text-h4-md--font-weight: 400;
-  --text-h4-lg: 1.5rem;
-  --text-h4-lg--line-height: 2.125rem;
-  --text-h4-lg--font-weight: 400;
+  /* H4: 20/30 → 22/32 → 28/40, all Medium */
+  --text-h4: 1.25rem;
+  --text-h4--line-height: 1.875rem;
+  --text-h4--font-weight: 500;
+  --text-h4-md: 1.375rem;
+  --text-h4-md--line-height: 2rem;
+  --text-h4-md--font-weight: 500;
+  --text-h4-lg: 1.75rem;
+  --text-h4-lg--line-height: 2.5rem;
+  --text-h4-lg--font-weight: 500;
 
-  /* H5: 16/26 → 18/28 → 20/30, all Regular */
-  --text-h5: 1rem;
-  --text-h5--line-height: 1.625rem;
+  /* H5: 18/28 → 18/28 → 20/30, all Regular.
+     Mobile and tablet are identical, so --text-h5-md duplicates --text-h5.
+     Kept for consistency and because ~22 call sites already consume
+     tablet:text-h5-md. Remove with a codemod, not alone. */
+  --text-h5: 1.125rem;
+  --text-h5--line-height: 1.75rem;
   --text-h5--font-weight: 400;
   --text-h5-md: 1.125rem;
   --text-h5-md--line-height: 1.75rem;
@@ -300,35 +303,29 @@
   --text-h5-lg--line-height: 1.875rem;
   --text-h5-lg--font-weight: 400;
 
-  /* body-lg-emphasis: 15/24 (Medium) → 16/26 (Medium). No -lg tier (same as md). */
-  --text-body-lg-emphasis: 0.9375rem;
-  --text-body-lg-emphasis--line-height: 1.5rem;
-  --text-body-lg-emphasis--font-weight: 500;
-  --text-body-lg-emphasis-md: 1rem;
-  --text-body-lg-emphasis-md--line-height: 1.625rem;
-  --text-body-lg-emphasis-md--font-weight: 500;
+  /* body-lg-emphasis: 16/26 SemiBold, identical across all three tiers */
+  --text-body-lg-emphasis: 1rem;
+  --text-body-lg-emphasis--line-height: 1.625rem;
+  --text-body-lg-emphasis--font-weight: 600;
 
-  /* body-lg-standard: 15/24 (Regular) → 16/26 (Regular). No -lg tier (same as md). */
-  --text-body-lg-standard: 0.9375rem;
-  --text-body-lg-standard--line-height: 1.5rem;
+  /* body-lg-standard: 16/26 Regular, identical across all three tiers */
+  --text-body-lg-standard: 1rem;
+  --text-body-lg-standard--line-height: 1.625rem;
   --text-body-lg-standard--font-weight: 400;
-  --text-body-lg-standard-md: 1rem;
-  --text-body-lg-standard-md--line-height: 1.625rem;
-  --text-body-lg-standard-md--font-weight: 400;
 
-  /* body-sm-emphasis: 14/24 Medium, identical across all three tiers */
+  /* body-sm-emphasis: 14/22 SemiBold, identical across all three tiers */
   --text-body-sm-emphasis: 0.875rem;
-  --text-body-sm-emphasis--line-height: 1.5rem;
-  --text-body-sm-emphasis--font-weight: 500;
+  --text-body-sm-emphasis--line-height: 1.375rem;
+  --text-body-sm-emphasis--font-weight: 600;
 
-  /* body-sm-standard: 14/24 Regular, identical across all three tiers */
+  /* body-sm-standard: 14/22 Regular, identical across all three tiers */
   --text-body-sm-standard: 0.875rem;
-  --text-body-sm-standard--line-height: 1.5rem;
+  --text-body-sm-standard--line-height: 1.375rem;
   --text-body-sm-standard--font-weight: 400;
 
-  /* caption: 13/16 Regular, identical across all three tiers */
+  /* caption: 13/18 Regular, identical across all three tiers */
   --text-caption: 0.8125rem;
-  --text-caption--line-height: 1rem;
+  --text-caption--line-height: 1.125rem;
   --text-caption--font-weight: 400;
 
   /* ──────────────────────────────────────────────────────────────────────────
@@ -341,9 +338,9 @@
      ────────────────────────────────────────────────────────────────────────── */
 
   /* H1 */
-  --leading-h1: 4.25rem; /* 68px */
-  --leading-h1-md: 5.625rem; /* 90px */
-  --leading-h1-lg: 6.25rem; /* 100px */
+  --leading-h1: 3rem; /* 48px */
+  --leading-h1-md: 4rem; /* 64px */
+  --leading-h1-lg: 5.25rem; /* 84px */
 
   /* H2 */
   --leading-h2: 2.5rem; /* 40px */
@@ -351,27 +348,27 @@
   --leading-h2-lg: 4rem; /* 64px */
 
   /* H3 */
-  --leading-h3: 1.75rem; /* 28px */
+  --leading-h3: 2rem; /* 32px */
   --leading-h3-md: 2.25rem; /* 36px */
-  --leading-h3-lg: 3.5rem; /* 56px */
+  --leading-h3-lg: 3rem; /* 48px */
 
   /* H4 */
-  --leading-h4: 1.75rem; /* 28px */
-  --leading-h4-md: 1.875rem; /* 30px */
-  --leading-h4-lg: 2.125rem; /* 34px */
+  --leading-h4: 1.875rem; /* 30px */
+  --leading-h4-md: 2rem; /* 32px */
+  --leading-h4-lg: 2.5rem; /* 40px */
 
-  /* H5 */
-  --leading-h5: 1.625rem; /* 26px */
+  /* H5 (mobile and tablet identical, see --text-h5-md note above) */
+  --leading-h5: 1.75rem; /* 28px */
   --leading-h5-md: 1.75rem; /* 28px */
   --leading-h5-lg: 1.875rem; /* 30px */
 
-  /* body-lg-* (emphasis + standard share line-heights, only weight differs) */
-  --leading-body-lg: 1.5rem; /* 24px (mobile) */
-  --leading-body-lg-md: 1.625rem; /* 26px (tablet+desktop) */
+  /* body-lg-* (emphasis + standard share line-heights, only weight differs;
+     identical across all three tiers) */
+  --leading-body-lg: 1.625rem; /* 26px */
 
   /* body-sm-* (identical across all three tiers) */
-  --leading-body-sm: 1.5rem; /* 24px */
+  --leading-body-sm: 1.375rem; /* 22px */
 
   /* caption (identical across all three tiers) */
-  --leading-caption: 1rem; /* 16px */
+  --leading-caption: 1.125rem; /* 18px */
 }

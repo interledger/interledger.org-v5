@@ -115,6 +115,34 @@ jobs:
           path: cms/coverage/
           retention-days: 14
 
+  # Its own job, like the two test suites: a misnamed content file and a broken
+  # serializer are unrelated failures and each should report on its own. The
+  # check reads frontmatter only, so it needs no Strapi and no native modules.
+  check-content-filenames:
+    name: Check MDX filenames
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: cms
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: cms/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Check every MDX file is named after its frontmatter
+        run: pnpm run check:mdx-filenames
+
   build-and-dryrun:
     runs-on: ubuntu-latest
 

@@ -1,6 +1,5 @@
 ---
 import type { Page } from 'astro'
-import { getCollection } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import BlogIndexFoundation from '@/components/blog/BlogIndexFoundation.astro'
 import {
@@ -8,6 +7,7 @@ import {
   COLLECTION_INDEX_SLUG,
   translatePath,
   translateTerm,
+  getBlogPosts,
   getFeaturedPosts,
   useTranslations,
   localizeRoute,
@@ -71,13 +71,10 @@ const hasLangFilter = Astro.url.pathname.includes('/lang/')
 const hasTermFilter = Astro.url.pathname.includes(`/${CATEGORY_SEGMENT}/`)
 const showFeatured =
   !selectedTerm && !hasTermFilter && !hasLangFilter && page.currentPage === 1
+// A second, independent read of the collection — getBlogPosts keeps it gated,
+// so the strip can never feature a post the listing below has not published.
 const featuredPosts = showFeatured
-  ? getFeaturedPosts(
-      await getCollection(
-        'foundation-blog',
-        ({ data }) => data.locale === routeLocale
-      )
-    )
+  ? getFeaturedPosts(await getBlogPosts({ locale: routeLocale }))
   : []
 ---
 

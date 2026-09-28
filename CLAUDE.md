@@ -292,6 +292,74 @@ the places real breakage lives.
   opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
   not the translation of page 4 of the ES blog anyway.
 
+## The Publish Gate (future-dated blog posts)
+
+Site changes are promoted from `staging` to production on a cadence, so a blog
+post scheduled for a future launch date must not block unrelated promotions. On
+production the `date` frontmatter field is a real publish gate: a post dated
+later than today is excluded from the collection entirely. Staging, playground,
+deploy previews and local dev show everything, so upcoming content stays
+reviewable.
+
+- **One reader, no exceptions.** All blog collection access goes through
+  `getBlogPosts()` / `getGatedCollection()` in `src/utils/main/blogPosts.ts`.
+  Never call `getCollection('foundation-blog')` directly — six readers with six
+  filters is how a route set ends up disagreeing with the category pills or the
+  language-switcher map, which is exactly how a scheduled post leaks. Ungated
+  collections pass straight through `getGatedCollection`, so the two
+  collection-agnostic callers (`getLocalizedPaths`, `buildMap`) use it too.
+- **The gate cascades to translations.** Filtering each entry on its own `date`
+  is not enough: `getLocalizedPaths` builds every ES route from the EN entry
+  list, and nothing forces a translation to carry its original's date. A
+  translation dated in the past therefore outlives a scheduled original and gets
+  listed, filtered and indexed while no route exists for it — a 404 link
+  (INTORG-1239). `getGatedCollection` drops any entry whose `localizes` target
+  did not survive the date filter. Only inside the gated branch: a dangling
+  `localizes` with the gate off is a pre-existing content bug, not this gate's
+  business.
+- **Gated by collection name, not field shape.** `GATED_COLLECTIONS` lists
+  `foundation-blog` only. `reports` also has a `date`, but it is an object
+  (`{ publishDate, lastUpdated }`) — sniffing for the field would gate the wrong
+  thing. An entry with no date, or an unparseable one, always counts as
+  published.
+- **The mode decision is pinned at build time**, the same way the image CDN's is:
+  `shouldHideFuturePosts()` (`src/utils/main/publishGate.ts`) is frozen into the
+  Vite `define` `__HIDE_FUTURE_POSTS__` (`astro.config.mjs`), and
+  `hideFuturePosts()` prefers the define. It reads Netlify's `CONTEXT`
+  (`production` gates; `branch-deploy`, `deploy-preview` and a missing value do
+  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. No per-context
+  env vars in `netlify.toml`.
+- **`BUILD_NOW` is frozen at module load.** A build starting at 23:59:50 UTC
+  would otherwise gate the listing on one day and the static paths on the next,
+  emitting a post's URL with nothing linking to it.
+- **UTC day boundary.** A post dated `2026-09-19` goes live at 00:00 UTC — 20:00
+  on the 18th US Eastern, 02:00 on the 19th SAST. `z.coerce.date()` parses
+  date-only frontmatter as UTC midnight, so any other zone means a deliberate
+  offset constant.
+- **Nothing publishes itself.** `output: 'static'` means the gate is evaluated
+  once per build: a post dated tomorrow appears at the next _production
+  promotion on or after_ its date, not at midnight. This is intentional — but
+  tell comms, or scheduling looks broken. Automating it would need a daily cron
+  hitting a production build hook; `scheduled-content-sync.yml` runs one already,
+  but only for `staging`/`playground`.
+- **`date` is overloaded.** It is both the displayed/sort date and the publish
+  gate. Back-dating to push a post down the listing is safe; forward-dating to
+  show a nicer date now hides it. There is no `draft` flag and no separate
+  `publishDate`, so "publish now, display a future date" is not possible.
+- **`/blog/preview` is unaffected** — it is SSR and fetches Strapi by
+  `documentId`, bypassing the collection. That is the way to view a scheduled
+  post on production.
+- **Validation:** build twice with `BLOG_DATE_FILTER_AS_OF=<ISO date>` pinning
+  the cutoff, rather than editing a post's date and remembering to revert it:
+
+  ```bash
+  CONTEXT=production    BLOG_DATE_FILTER_AS_OF=2026-09-01 IMAGE_CDN=on pnpm run build  # gated
+  CONTEXT=branch-deploy BLOG_DATE_FILTER_AS_OF=2026-09-01 IMAGE_CDN=on pnpm run build  # all posts
+  ```
+
+  Then check `dist/blog/<slug>/index.html`, `dist/blog-search-index.json`,
+  `dist/sitemap-*.xml` and `dist/blog/index.html` for the slug.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)
@@ -333,6 +401,48 @@ Same rules as `src/utils/` above, applied to the Strapi CMS layer. Import from `
   2. Add an explicit named export in `cms/src/utils/index.ts` under the correct group comment.
 - Files inside `cms/src/utils/` keep their internal cross-imports as relative paths — never import from `@/utils` inside the utils folder itself.
 - `cms/src/api/utils.ts` is a thin convenience re-export for API lifecycle files — keep it delegating to `@/utils`, don't add logic to it.
+
+## MDX Filenames
+
+Every MDX file under `src/content/` is named by the Strapi lifecycle that
+exports it, never by hand. The name comes from the entry's own fields, so a
+file whose name does not match its frontmatter is a duplicate waiting to
+happen: the next publish writes the derived name beside it, both files then map
+to one Strapi entry, and `sync:mdx` refuses the whole content type
+(INTORG-1237, INTORG-1132).
+
+- **One derivation.** `cms/src/utils/mdxFilenames.ts` owns it. The page, blog
+  and flat lifecycles call `mdxSubpath`/`mdxRelativePath`. Never rebuild a
+  filename at a call site.
+- **Four rules.** `page` keeps the pathSlug as a real path, so the tree mirrors
+  the URL. `blog` is flat, prefixed with the publication date. `flat` is one
+  file per entry, slashes flattened to hyphens. `flat-section` adds the section
+  prefix for faqs, profiles and reports, whose pathSlug is section-relative.
+- **Localized files take the English name.** A non-`en` file lives under its
+  locale folder and is named after the entry it localizes (`localizes`
+  frontmatter), so paths stay locale-independent.
+- **The check.** `pnpm run check:mdx-filenames` (from `cms/`) compares every
+  file against its derived name, and runs as its own PR job. Add `:fix` to
+  rename the offenders with `git mv`. Renaming is always safe: routes come from
+  `pathSlug`, never from the filename.
+- **New collection?** Add it to `CONTENT_COLLECTION_NAMING_RULES` in
+  `cms/src/utils/contentCollections.ts`. A test fails when that map and
+  `PATHS.CONTENT` drift, so a collection cannot ship unchecked.
+- **A case-only rename staled the content store, so the build evicts it.**
+  Astro keeps the store in `node_modules/.astro/data-store.json` and derives
+  each entry id from the lowercased filename. A rename that only changes case
+  keeps the id, so the incremental sync refreshes the entry but holds the old
+  `filePath` and emits it as an import specifier. macOS resolves it and Linux
+  does not, so the build passed locally and failed on Netlify, which restores
+  `node_modules` from its build cache (INTORG-1237). `prebuild` now runs
+  `scripts/evict-content-store.mjs`, which drops the store. A cold sync and a
+  warm one both measure about 0.4s, because every collection is file-based.
+  `astro dev` does not run `prebuild`, so restart the dev server after such a
+  rename.
+- **Keep the module pure.** The check runs in a CI job that installs with
+  `--ignore-scripts`, so `mdxFilenames.ts` and the script must not reach
+  sharp, prettier or Strapi. That is why the script imports `../src/utils/*`
+  directly instead of the `@/utils` barrel.
 
 ## When Asked to Generate Code
 

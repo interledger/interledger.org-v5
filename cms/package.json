@@ -9,6 +9,8 @@
     "start": "ENV_PATH=../.env strapi start",
     "build": "strapi build",
     "strapi": "strapi",
+    "check:mdx-filenames": "tsx scripts/check-mdx-filenames.ts",
+    "check:mdx-filenames:fix": "tsx scripts/check-mdx-filenames.ts --fix",
     "sync:mdx": "tsx scripts/sync-mdx/index.ts",
     "sync:mdx:dry-run": "tsx scripts/sync-mdx/index.ts --dry-run",
     "sync:navigation": "tsx scripts/sync-navigation.ts",

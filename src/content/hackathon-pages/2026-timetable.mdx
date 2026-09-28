@@ -1,0 +1,41 @@
+---
+pathSlug: '2026-timetable'
+title: 'Timetable'
+description: 'An hour by hour breakdown of the key events during our two-day hackathon in Medellín'
+locale: 'en'
+---
+
+<Agenda
+  heading={'Friday October 16'}
+  items={[
+    { time: '08:30 - 10:00', activity: 'Registration and breakfast' },
+    { time: '10:00 - 10:30', activity: 'Welcome ceremony' },
+    { time: '10:30 - 14:00', activity: 'Session 1: Hacking' },
+    { time: '14:00 - 15:00', activity: 'Lunch' },
+    { time: '15:00 - 17:15', activity: 'Session 2: Hacking' },
+    { time: '17:30 - 18:00', activity: 'Departures' }
+  ]}
+/>
+
+<Agenda
+  heading={'Saturday October 17'}
+  items={[
+    { time: '07:00 - 08:00', activity: 'Registration and breakfast' },
+    { time: '08:00 - 11:00', activity: 'Session 3: Hacking' },
+    {
+      time: '11:00 - 12:00',
+      activity: 'Submission and review',
+      additionalInfo:
+        'Final code submitted to hack room folder/repositories; code review; teams practise presentations'
+    },
+    { time: '12:00 - 13:00', activity: 'Round 1 Judging' },
+    { time: '13:00 - 14:00', activity: 'Lunch' },
+    { time: '14:30 - 15:30', activity: 'Finalists Announced. Round 2 Judging' },
+    { time: '15:30 - 16:30', activity: 'Networking and refreshments' },
+    {
+      time: '16:30 - 17:30',
+      activity: 'Winners announced and closing ceremony'
+    },
+    { time: '17:30 - 18:00', activity: 'Departures' }
+  ]}
+/>
