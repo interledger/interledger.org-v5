@@ -80,14 +80,14 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
 ---
 
 <figure
-  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 dark:border-neutral-75 text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg"
+  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 dark:border-neutral-75"
   data-component="code-block"
 >
   <div class="code-block-header flex items-center rounded-t-xl">
     <div class="flex items-center gap-[6px] shrink-0" aria-hidden="true">
-      <span class="block h-3 w-3 rounded-full bg-[#ff5f57]"></span>
-      <span class="block h-3 w-3 rounded-full bg-[#febc2e]"></span>
-      <span class="block h-3 w-3 rounded-full bg-[#28c840]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#f07178]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#ffcb6b]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#c3e88d]"></span>
     </div>
 
     <span class="code-block-title flex-1 min-w-0 truncate">
@@ -110,7 +110,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
       <svg
         aria-hidden="true"
         viewBox="0 0 16 16"
-        class="h-3.5 w-3.5 shrink-0"
+        class="h-3 w-3 shrink-0"
         fill="none"
       >
         <rect
@@ -140,16 +140,12 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
 <style>
   /* Shiki: block .line + newline nodes between spans; contain:inline-size for mobile scroll. */
   [data-component='code-block'] {
-    --code-block-header-bg: var(--color-ice-indigo-50);
+    --code-block-header-bg: var(--color-neutral-25);
     --code-block-divider: var(--color-neutral-25);
     --code-block-label: var(--color-neutral-900);
-    --code-block-copy: color-mix(
-      in srgb,
-      var(--color-neutral-900) 40%,
-      transparent
-    );
-    --code-block-text: var(--color-neutral-900);
-    --code-block-line-number: var(--color-neutral-50);
+    --code-block-copy: var(--color-neutral-75);
+    --code-block-text: #383a42;
+    --code-block-line-number: #a0a1a6;
     contain: inline-size;
   }
 
@@ -157,13 +153,8 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     --code-block-header-bg: var(--color-neutral-100);
     --code-block-divider: var(--color-neutral-75);
     --code-block-label: var(--color-neutral-0);
-    --code-block-copy: color-mix(
-      in srgb,
-      var(--color-neutral-0) 60%,
-      transparent
-    );
-    --code-block-text: var(--color-neutral-25);
-    --code-block-line-number: var(--color-neutral-75);
+    --code-block-copy: var(--color-neutral-50);
+    --code-block-text: var(--color-neutral-50);
   }
 
   /* Shiki inlines the light colours; the dark ones ride on --shiki-dark*
@@ -173,7 +164,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     [data-component='code-block']
     .code-block-scroll
     :global(.shiki) {
-    background-color: var(--shiki-dark-bg, var(--color-neutral-150)) !important;
+    background-color: var(--shiki-dark-bg, var(--color-neutral-900)) !important;
   }
 
   :global([data-theme='dark'])
@@ -188,16 +179,17 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
   }
 
   [data-component='code-block'] .code-block-header {
-    gap: var(--spacing-lg);
-    padding-block: var(--spacing-s);
-    padding-inline: var(--spacing-xl);
+    gap: var(--spacing-md);
+    padding-block: var(--spacing-md);
+    padding-inline: var(--spacing-md) var(--spacing-xl);
     background-color: var(--code-block-header-bg);
     border-bottom: 1px solid var(--code-block-divider);
   }
 
   [data-component='code-block'] .code-block-title,
   [data-component='code-block'] .code-block-copy-btn {
-    font-size: var(--text-caption);
+    font-size: var(--text-body-sm-standard);
+    line-height: 1.25rem;
   }
 
   [data-component='code-block'] .code-block-title {
@@ -205,7 +197,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
   }
 
   [data-component='code-block'] .code-block-copy-btn {
-    gap: 5px;
+    gap: var(--spacing-md);
     color: var(--code-block-copy);
   }
 
@@ -222,7 +214,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y;
-    line-height: 1.5;
+    line-height: 1.3125rem;
   }
 
   [data-component='code-block'] .code-block-scroll :global(pre) {
@@ -230,7 +222,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     width: max-content;
     min-width: 100%;
     margin: 0;
-    padding: var(--spacing-xl);
+    padding: var(--spacing-lg);
     color: var(--code-block-text);
     white-space: normal;
   }
@@ -257,7 +249,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     content: counter(code-line);
     display: inline-block;
     width: 1.75em;
-    margin-right: var(--spacing-lg);
+    margin-right: var(--spacing-md);
     text-align: right;
     color: var(--code-block-line-number);
     user-select: none;

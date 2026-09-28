@@ -38,7 +38,25 @@ describe('buildCodeTheme', () => {
       expect(colorFor(theme, 'keyword.control')).toBe(palette.reservedWord)
       expect(colorFor(theme, 'variable.language')).toBe(palette.reservedWord)
       expect(colorFor(theme, 'keyword.operator')).toBe(palette.operator)
-      expect(colorFor(theme, 'variable.other.constant')).toBe(palette.variable)
+      expect(colorFor(theme, 'punctuation.separator.key-value')).toBe(
+        palette.operator
+      )
+      expect(colorFor(theme, 'variable.other.constant')).toBe(palette.constant)
+      expect(colorFor(theme, 'support.constant')).toBe(palette.constant)
+      expect(colorFor(theme, 'variable.other.readwrite')).toBe(
+        palette.foreground
+      )
+      expect(colorFor(theme, 'meta.object-literal.key')).toBe(
+        palette.foreground
+      )
+      expect(
+        colorFor(theme, 'meta.definition.variable variable.other.constant')
+      ).toBe(palette.foreground)
+      expect(colorFor(theme, 'storage.type.numeric.bigint')).toBe(
+        palette.foreground
+      )
+      expect(colorFor(theme, 'meta.brace')).toBe(palette.punctuation)
+      expect(colorFor(theme, 'punctuation.accessor')).toBe(palette.punctuation)
       expect(colorFor(theme, 'entity.name.function')).toBe(palette.type)
       expect(colorFor(theme, 'support.class')).toBe(palette.type)
       expect(colorFor(theme, 'constant.numeric')).toBe(palette.number)

@@ -6,34 +6,32 @@ export interface CodeThemePalette {
   foreground: string
   reservedWord: string
   operator: string
-  variable: string
+  constant: string
   type: string
   number: string
+  punctuation: string
   comment: string
 }
 
+// Values are taken from the Figma code block frames. Accents are shared
+// between the themes; only the surface, body text and keywords change.
 export const LIGHT_CODE_PALETTE: CodeThemePalette = {
   background: '#FFFFFF',
-  foreground: '#24292E',
-  reservedWord: '#994DE4',
-  operator: '#24292E',
-  variable: '#F69F42',
-  type: '#3D79E0',
-  number: '#F3762F',
-  comment: '#9B9DA2'
+  foreground: '#383A42',
+  reservedWord: '#80409D',
+  operator: '#08A4E5',
+  constant: '#E08E1D',
+  type: '#1F65F5',
+  number: '#FE640C',
+  punctuation: '#4D4F69',
+  comment: '#8B8FA0'
 }
 
-// Accents are the light palette's hues, lifted where needed to keep WCAG AA
-// contrast against the near-black (neutral-150) background.
 export const DARK_CODE_PALETTE: CodeThemePalette = {
-  background: '#0D0D0D',
-  foreground: '#E4E4E4',
-  reservedWord: '#B98AF0',
-  operator: '#E4E4E4',
-  variable: '#F69F42',
-  type: '#6C9BEB',
-  number: '#F3762F',
-  comment: '#9B9DA2'
+  ...LIGHT_CODE_PALETTE,
+  background: '#000000',
+  foreground: '#C9C9C9',
+  reservedWord: '#959FF9'
 }
 
 /**
@@ -57,6 +55,23 @@ export function buildCodeTheme(
     },
     tokenColors: [
       ...(base.tokenColors ?? []),
+      // Plain identifiers read as body text; the base themes colour `variable`.
+      // The JS grammar tags every `const` declaration as a constant, so only
+      // references keep the constant colour (in practice, ALL_CAPS names).
+      {
+        scope: [
+          'meta.definition.variable variable.other.constant',
+          'variable',
+          'variable.other',
+          'variable.other.readwrite',
+          'variable.other.object',
+          'variable.other.property',
+          'variable.parameter',
+          'meta.object-literal.key',
+          'storage.type.numeric.bigint'
+        ],
+        settings: { foreground: palette.foreground }
+      },
       {
         scope: [
           'storage.type',
@@ -66,15 +81,13 @@ export function buildCodeTheme(
         ],
         settings: { foreground: palette.reservedWord }
       },
-      { scope: 'keyword.operator', settings: { foreground: palette.operator } },
       {
-        scope: [
-          'variable',
-          'variable.other',
-          'variable.other.constant',
-          'variable.other.readwrite'
-        ],
-        settings: { foreground: palette.variable }
+        scope: ['keyword.operator', 'punctuation.separator.key-value'],
+        settings: { foreground: palette.operator }
+      },
+      {
+        scope: ['variable.other.constant', 'support.constant'],
+        settings: { foreground: palette.constant }
       },
       {
         scope: [
@@ -90,6 +103,17 @@ export function buildCodeTheme(
       {
         scope: ['constant', 'constant.numeric'],
         settings: { foreground: palette.number }
+      },
+      {
+        scope: [
+          'meta.brace',
+          'punctuation.definition.block',
+          'punctuation.definition.parameters',
+          'punctuation.accessor',
+          'punctuation.separator.comma',
+          'punctuation.terminator'
+        ],
+        settings: { foreground: palette.punctuation }
       },
       {
         scope: ['comment', 'punctuation.definition.comment'],
