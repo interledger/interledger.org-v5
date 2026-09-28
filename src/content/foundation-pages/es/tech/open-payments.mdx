@@ -1,0 +1,95 @@
+﻿---
+pathSlug: 'tech/open-payments'
+title: 'Open Payments'
+description: 'Un estándar compartido que permite que las aplicaciones soliciten, aprueben y completen pagos a través de cualquier banco, billetera o cuenta de dinero móvil que lo adopte.'
+heroTitle: 'Open Payments'
+heroDescription: 'La interfaz común para los pagos digitales'
+heroImage: '/uploads/img/original/open_payments_hero.jpg'
+heroImageBlur: 'data:image/webp;base64,UklGRnQAAABXRUJQVlA4IGgAAADQAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JQBOgBEQmAZs5sFPOhOAA/mEBYmSQYOWJqa7qePmsMzt0xOa3V/TFCT3QBd11PcRuC1d6tCxbLnoKRr3iORB26S+Y3Tf1cJ8Wid59dJ4oAA=='
+heroImageAlt: 'Desarrolladores revisan código en una computadora portátil durante un taller de Interledger.'
+heroCtas:
+  - text: 'Consulte la documentación'
+    link: 'https://openpayments.dev/es/'
+    external: true
+locale: 'es'
+localizes: 'tech/open-payments'
+---
+
+<Paragraph>
+
+Open Payments es un estándar compartido que permite que las aplicaciones interactúen de forma directa con las cuentas de los usuarios y simplifica la solicitud, aprobación y ejecución de pagos entre sistemas.
+
+Hoy, cuando una aplicación necesita transferir dinero, debe negociar por separado con cada proveedor de pagos, desarrollar conexiones a medida y gestionar por su cuenta todos los casos excepcionales. No existe una forma compartida para que una aplicación consulte si puede iniciar un pago, por lo que cada integración reinventa la interfaz y el panorama se fragmenta aún más cada vez que un nuevo proveedor ingresa al mercado. Open Payments reemplaza ese esquema por una forma común para que las aplicaciones soliciten, aprueben e inicien pagos a través de cualquier billetera, banco o cuenta de dinero móvil que lo haya adoptado.
+
+</Paragraph>
+
+<Paragraph>
+
+## Todo comienza con una dirección de billetera
+
+Enviar un pago con Open Payments no requiere números de tarjeta, datos bancarios ni credenciales de acceso a la cuenta. Solo hace falta una cosa: una dirección de billetera - un identificador público de una cuenta, como una dirección de correo electrónico para el dinero.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Qué le ofrece una dirección de billetera" variant="Info" columns="Three">
+<InfoCard heading="Fácil de compartir y recordar">
+
+Una URL legible, como `https://wallet.com/alice`, en lugar de números de cuenta largos.
+
+</InfoCard>
+<InfoCard heading="Privacidad desde el diseño">
+
+Un alias de su cuenta que no expone datos financieros confidenciales.
+
+</InfoCard>
+<InfoCard heading="Interoperabilidad">
+
+Funciona de la misma manera entre bancos, servicios de dinero móvil y billeteras digitales, sin importar el país, la moneda o la tecnología subyacente.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+## Cómo circula un pago
+
+La aplicación utiliza las direcciones de billetera del remitente y del destinatario para contactar de forma directa a cada proveedor. Se informa al proveedor del destinatario que se espera un pago. El proveedor del remitente prepara una cotización con el monto total, incluidas las comisiones y las conversiones de moneda que correspondan. El remitente revisa y aprueba la cotización, y su proveedor verifica su identidad. Una vez que el remitente da su consentimiento, los dos proveedores completan la transferencia. Los usuarios mantienen el control durante todo el proceso y las aplicaciones nunca manejan los fondos de forma directa.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/open_payments_transaction1_4bb19d5099.png"
+  alt="Diagrama de una operación de Open Payments: el cliente se sitúa entre el proveedor de servicios financieros del remitente (proveedor de identidad, servidor de recursos, servidor de autorización) y el proveedor de servicios financieros del destinatario (URL de la dirección de billetera, servidor de autorización, servidor de recursos)."
+  needsFullView={true}
+/>
+
+<Paragraph>
+
+## Pruébelo
+
+Explore Open Payments en un entorno de prueba seguro. Cree una billetera de prueba, obtenga una dirección de billetera y simule un flujo de pago de principio a fin, sin riesgos.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Formas de probar Open Payments" variant="Title" columns="Two">
+<TitleCard heading="Herramientas de prueba" buttonUrl="/es/tech/test-tools" buttonText="Use las herramientas de prueba" buttonExternal={false}>
+
+Explore nuestro conjunto de herramientas de prueba - desde la billetera de prueba hasta la tienda de prueba.
+
+</TitleCard>
+<TitleCard heading="GitHub" buttonUrl="https://github.com/interledger/open-payments" buttonText="Explore el repositorio" buttonExternal={true}>
+
+Acceda a nuestro repositorio en GitHub, explore el código y pruebe los SDK.
+
+</TitleCard>
+<TitleCard heading="Documentación" buttonUrl="https://openpayments.dev/es/" buttonText="Consulte la documentación" buttonExternal={true}>
+
+Consulte nuestra documentación de Open Payments para comprender la tecnología a fondo.
+
+</TitleCard>
+<TitleCard heading="Aprenda" buttonUrl="/es/hackathon/open-payments" buttonText="Recursos" buttonExternal={false}>
+
+Aprenda a utilizar Open Payments con nuestras guías, cursos y series de videos.
+
+</TitleCard>
+</CardGrid>
