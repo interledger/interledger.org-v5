@@ -42,7 +42,7 @@ export interface ServerStatusPayload {
 export type ServerReachability = 'unknown' | 'healthy' | 'unreachable'
 
 /** What the notice bar should say, highest severity first. */
-export type ServerNotice = 'none' | 'outdated' | 'unreachable' | 'restarted'
+export type ServerNotice = 'none' | 'unreachable' | 'outdated' | 'restarted'
 
 export interface ServerStatusState {
   reachability: ServerReachability
@@ -168,9 +168,15 @@ export function nextServerStatus(
   }
 }
 
+/**
+ * `unreachable` outranks `outdated` even though `outdated` is sticky: while the
+ * server is down, "reload now" would land on an error page, and "do not save"
+ * is the instruction that protects work. The stale-bundle notice comes back on
+ * its own once the server answers again.
+ */
 export function getServerNotice(state: ServerStatusState): ServerNotice {
-  if (state.outdated) return 'outdated'
   if (state.reachability === 'unreachable') return 'unreachable'
+  if (state.outdated) return 'outdated'
   if (state.restarted) return 'restarted'
   return 'none'
 }

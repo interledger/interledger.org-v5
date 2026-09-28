@@ -195,6 +195,19 @@ describe('nextServerStatus restart reporting', () => {
     expect(redeployed.restarted).toBe(true)
     expect(getServerNotice(redeployed)).toBe('outdated')
   })
+
+  it('ranks an outage above an outdated bundle, then shows it again on recovery', () => {
+    const redeployed = succeed(succeed(createInitialServerStatusState()), {
+      buildId: 'build-2'
+    })
+    const down = fail(redeployed, UNREACHABLE_FAILURE_THRESHOLD)
+
+    expect(down.outdated).toBe(true)
+    expect(getServerNotice(down)).toBe('unreachable')
+    expect(getServerNotice(succeed(down, { buildId: 'build-2' }))).toBe(
+      'outdated'
+    )
+  })
 })
 
 // ── clock offset ────────────────────────────────────────────────────────────
