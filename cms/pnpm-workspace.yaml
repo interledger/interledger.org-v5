@@ -9,8 +9,8 @@ onlyBuiltDependencies:
 
 overrides:
   # Pinned to the version @strapi/admin 5.41.1 itself renders with — the admin
-  # notice bar imports it directly, so `@strapi/design-system` is also a direct
-  # dependency in package.json. Bump both together, and only alongside Strapi.
+  # notice bar imports both directly, so they are also direct dependencies in
+  # package.json. Bump them together, and only alongside Strapi.
   '@strapi/design-system': 2.2.0
   '@strapi/icons': 2.2.0
 

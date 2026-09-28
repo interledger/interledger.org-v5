@@ -6,59 +6,54 @@
  * gives no warning, it simply 401s the next save and redirects to the login
  * page with the editor's unsaved work still in the form.
  */
-import { Button, Dialog } from '@strapi/design-system'
-import { useAuth } from '@strapi/admin/strapi-admin'
+import { Button, Dialog, Flex } from '@strapi/design-system'
 
-import { tryCatchAsync } from '../../utils/tryCatch'
 import type { SessionCountdown } from './useSessionCountdown'
+import { useSignInAgain } from './useSignInAgain'
 
 interface SessionExpiryDialogProps {
   open: boolean
   session: SessionCountdown
+  /** Closes the expired dialog so the editor can copy unsaved work. */
+  onDismissExpired: () => void
 }
 
 export function SessionExpiryDialog({
   open,
-  session
+  session,
+  onDismissExpired
 }: SessionExpiryDialogProps) {
-  const logout = useAuth('SessionExpiryDialog', (state) => state.logout)
+  const signInAgain = useSignInAgain()
   const hasExpired = session.phase === 'expired'
 
   return (
-    <Dialog.Root open={open}>
+    <Dialog.Root
+      open={open}
+      onOpenChange={(isOpen) => {
+        // Escape closes only the expired dialog, like its "copy" button; the
+        // critical one has nothing to gain from being closed.
+        if (!isOpen && hasExpired) onDismissExpired()
+      }}
+    >
       <Dialog.Content>
         <Dialog.Header>
           {hasExpired ? 'Your session has expired' : 'Still there?'}
         </Dialog.Header>
         <Dialog.Body>
           {hasExpired
-            ? 'Sign in again to keep working. Copy anything you have not saved before you do — it will not survive the sign-in.'
+            ? 'Sign in again to keep working. Anything you have not saved will not survive the sign-in — close this to copy it out of the form first.'
             : `Your session expires in ${session.label}. Stay signed in to keep your unsaved changes.`}
         </Dialog.Body>
         <Dialog.Footer>
           {hasExpired ? (
-            <Button
-              fullWidth
-              variant="danger-light"
-              onClick={() => {
-                // Sign out on our terms rather than waiting for the next
-                // background 401 to yank this dialog away mid-read.
-                //
-                // This dialog is modal and has no cancel button, so if logout
-                // ever failed to navigate the editor would be trapped with no
-                // way to reach the login page. Strapi's logout awaits an RTK
-                // Query trigger, which resolves rather than throws on a 401, so
-                // it always clears local state today — the fallback is here
-                // because being wrong about that would strand someone.
-                void tryCatchAsync(() => logout()).then((result) => {
-                  if (result instanceof Error) {
-                    window.location.href = '/admin/auth/login'
-                  }
-                })
-              }}
-            >
-              Sign in again
-            </Button>
+            <Flex gap={2} width="100%">
+              <Button fullWidth variant="tertiary" onClick={onDismissExpired}>
+                Copy my changes first
+              </Button>
+              <Button fullWidth variant="danger-light" onClick={signInAgain}>
+                Sign in again
+              </Button>
+            </Flex>
           ) : (
             <Button
               fullWidth

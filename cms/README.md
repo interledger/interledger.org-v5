@@ -414,23 +414,29 @@ The admin panel shows a top-bar notice when an editor is about to lose work:
 
 - **Session about to expire** (amber) — counts down with a **Stay signed in**
   button, then a dialog for the last two minutes.
+- **Your session has expired** (red) — the dialog can be closed so the editor
+  can copy unsaved work; a bar with **Sign in again**, which cannot be
+  dismissed, then takes its place.
 - **Cannot reach the CMS** (red) — shown while the server is down, e.g. during a
-  deploy. Saves will fail.
+  deploy. Saves will fail. Outranks every other notice.
 - **The CMS was updated** (red) — the page is running an older admin bundle and
   needs a reload before saving.
+
+The bar sits at the top of the page and docks to the bottom of the screen once
+scrolled away, clear of Strapi's fixed page header.
 
 Code lives in `src/admin/notices/`, with the logic in `src/utils/adminSession.ts`,
 `serverStatus.ts`, `adminNotice.ts` and `adminRoutes.ts`.
 
 ### Settings
 
-| Setting                             | Where                                        | Notes                                                                                                                   |
-| ----------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `idleSessionLifespan` (72h)         | `config/admin.ts`                            | How long a session survives without activity. Drives the countdown.                                                     |
-| `maxSessionLifespan` (2 years)      | `config/admin.ts`                            | Absolute ceiling.                                                                                                       |
-| Both constants                      | `src/utils/adminSession.ts`                  | Imported by `config/admin.ts` — change them **there**, not in the config, so the server and the countdown cannot drift. |
-| `STRAPI_ADMIN_DISABLE_NOTICES=true` | build-time env                               | Turns the notices off entirely — the layout route is never added, so nothing mounts and nothing polls.                  |
-| `@strapi/design-system` `2.2.0`     | `package.json` **and** `pnpm-workspace.yaml` | Pinned in two places. Bump both together, and only alongside Strapi.                                                    |
+| Setting                                          | Where                                        | Notes                                                                                                                   |
+| ------------------------------------------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `idleSessionLifespan` (72h)                      | `config/admin.ts`                            | How long a session survives without activity. Drives the countdown.                                                     |
+| `maxSessionLifespan` (2 years)                   | `config/admin.ts`                            | Absolute ceiling.                                                                                                       |
+| Both constants                                   | `src/utils/adminSession.ts`                  | Imported by `config/admin.ts` — change them **there**, not in the config, so the server and the countdown cannot drift. |
+| `STRAPI_ADMIN_DISABLE_NOTICES=true`              | build-time env                               | Turns the notices off entirely — the layout route is never added, so nothing mounts and nothing polls.                  |
+| `@strapi/design-system`, `@strapi/icons` `2.2.0` | `package.json` **and** `pnpm-workspace.yaml` | Pinned in two places. Bump both together, and only alongside Strapi.                                                    |
 
 "Remember me" at login extends the idle window to 14 days (Strapi's default,
 not configured here).

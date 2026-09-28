@@ -60,9 +60,22 @@ describe('resolveAdminNotice', () => {
     expect(resolveAdminNotice('restarted', 'ok')).toBe('restarted')
   })
 
-  it('leaves the critical and expired phases to the dialog', () => {
+  it('leaves the critical phase to the dialog', () => {
     expect(resolveAdminNotice('none', 'critical')).toBe('none')
-    expect(resolveAdminNotice('none', 'expired')).toBe('none')
+  })
+
+  it.each(['none', 'outdated', 'restarted'] as const)(
+    'ranks an expired session above the %s server notice',
+    (serverNotice) => {
+      expect(resolveAdminNotice(serverNotice, 'expired')).toBe(
+        'session-expired'
+      )
+    }
+  )
+
+  it('ranks an unreachable server above an expired session', () => {
+    // Signing in cannot work while the server is down.
+    expect(resolveAdminNotice('unreachable', 'expired')).toBe('unreachable')
   })
 })
 
@@ -70,21 +83,31 @@ describe('resolveAdminNotice', () => {
 
 describe('shouldShowSessionDialog', () => {
   it('opens for the last couple of minutes and after the deadline', () => {
-    expect(shouldShowSessionDialog('none', 'critical')).toBe(true)
-    expect(shouldShowSessionDialog('none', 'expired')).toBe(true)
+    expect(shouldShowSessionDialog('none', 'critical', false)).toBe(true)
+    expect(shouldShowSessionDialog('none', 'expired', false)).toBe(true)
   })
 
   it('stays shut while there is time left', () => {
-    expect(shouldShowSessionDialog('none', 'ok')).toBe(false)
-    expect(shouldShowSessionDialog('none', 'warning')).toBe(false)
+    expect(shouldShowSessionDialog('none', 'ok', false)).toBe(false)
+    expect(shouldShowSessionDialog('none', 'warning', false)).toBe(false)
   })
 
   it('stays shut while the server is unreachable, when a refresh cannot work', () => {
-    expect(shouldShowSessionDialog('unreachable', 'critical')).toBe(false)
-    expect(shouldShowSessionDialog('unreachable', 'expired')).toBe(false)
+    expect(shouldShowSessionDialog('unreachable', 'critical', false)).toBe(
+      false
+    )
+    expect(shouldShowSessionDialog('unreachable', 'expired', false)).toBe(false)
   })
 
   it('still opens when the only problem is a stale bundle', () => {
-    expect(shouldShowSessionDialog('outdated', 'critical')).toBe(true)
+    expect(shouldShowSessionDialog('outdated', 'critical', false)).toBe(true)
+  })
+
+  it('stays shut once the editor closed the expired dialog to copy their work', () => {
+    expect(shouldShowSessionDialog('none', 'expired', true)).toBe(false)
+  })
+
+  it('ignores the dismissal outside the expired phase', () => {
+    expect(shouldShowSessionDialog('none', 'critical', true)).toBe(true)
   })
 })

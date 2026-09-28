@@ -47,6 +47,15 @@ class NoticeErrorBoundary extends React.Component<
 function AdminNotices() {
   const { notice: serverNotice, clockOffsetMs } = useServerStatus()
   const session = useSessionCountdown(clockOffsetMs)
+  const [hasDismissedExpiredDialog, setHasDismissedExpiredDialog] =
+    React.useState(false)
+  const hasExpired = session.phase === 'expired'
+
+  // Leaving the expired phase means the session came back (a sign-in from
+  // another tab); a later expiry must open the dialog again.
+  React.useEffect(() => {
+    if (!hasExpired) setHasDismissedExpiredDialog(false)
+  }, [hasExpired])
 
   return (
     <>
@@ -55,8 +64,13 @@ function AdminNotices() {
         session={session}
       />
       <SessionExpiryDialog
-        open={shouldShowSessionDialog(serverNotice, session.phase)}
+        open={shouldShowSessionDialog(
+          serverNotice,
+          session.phase,
+          hasDismissedExpiredDialog
+        )}
         session={session}
+        onDismissExpired={() => setHasDismissedExpiredDialog(true)}
       />
     </>
   )
