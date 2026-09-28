@@ -11,15 +11,9 @@ import Icon from '@/components/shared/Icon.astro'
 interface Props {
   breadcrumbs: BreadcrumbItem[]
   class?: string
-  /** Profile header spacing tweaks (single-line trail; last crumb truncates). */
-  breakBeforeLastItem?: boolean
 }
 
-const {
-  breadcrumbs,
-  class: className,
-  breakBeforeLastItem = false
-} = Astro.props
+const { breadcrumbs, class: className } = Astro.props
 const { routeLocale } = Astro.locals
 const currentPath = stripTrailingSlash(Astro.url.pathname)
 const t = useTranslations(routeLocale)
@@ -27,16 +21,10 @@ const rowClasses = twMerge(
   'mb-2xl flex w-full min-w-0 flex-col items-start gap-2xl tablet:mb-3xl tablet:flex-row tablet:items-center tablet:gap-lg',
   className
 )
-const breadcrumbClasses = twMerge(
-  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 [&_a]:no-underline text-neutral-75 dark:text-neutral-50 [&_svg]:text-current',
-  breakBeforeLastItem ? 'gap-x-xs tablet:gap-xs' : 'gap-xs'
-)
-const crumbPaddingClass = breakBeforeLastItem
-  ? 'px-xs py-0 tablet:p-xs'
-  : 'p-xs'
-const chevronMarginClass = breakBeforeLastItem
-  ? 'shrink-0 tablet:my-xs'
-  : 'my-xs shrink-0'
+const breadcrumbClasses =
+  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 gap-xs [&_a]:no-underline text-neutral-75 dark:text-neutral-50 [&_svg]:text-current'
+const crumbPaddingClass = 'p-xs'
+const chevronMarginClass = 'my-xs shrink-0'
 
 function getItemClasses(isLast: boolean): string {
   if (isLast) {

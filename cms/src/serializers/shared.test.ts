@@ -2,10 +2,27 @@ import { describe, it, expect } from 'vitest'
 import { escDouble, escSingle, escMdxBraces, unescapeMdxBraces } from './shared'
 
 describe('escDouble', () => {
-  it('encodes characters that break double-quoted JSX attributes', () => {
+  it('encodes the double quote that would close the attribute early', () => {
     expect(escDouble('Q&A: "Live" <Session>')).toBe(
-      'Q&amp;A: &quot;Live&quot; &lt;Session&gt;'
+      'Q&A: &quot;Live&quot; <Session>'
     )
+  })
+
+  it('leaves a bare ampersand alone, including in a query string', () => {
+    expect(escDouble('https://youtube.com/watch?v=abc&list=xyz')).toBe(
+      'https://youtube.com/watch?v=abc&list=xyz'
+    )
+    expect(escDouble('Prizes & Judging')).toBe('Prizes & Judging')
+  })
+
+  it('escapes an ampersand that starts a character reference, so it survives the round trip', () => {
+    expect(escDouble('literal &amp; here')).toBe('literal &amp;amp; here')
+    expect(escDouble('literal &#39; here')).toBe('literal &amp;#39; here')
+    expect(escDouble('literal &#x27; here')).toBe('literal &amp;#x27; here')
+  })
+
+  it('leaves an ampersand whose semicolon is a sentence apart alone', () => {
+    expect(escDouble('a & b; c')).toBe('a & b; c')
   })
 
   it('encodes newlines as &#10; so multi-line Strapi text stays single-line in MDX attrs', () => {
@@ -24,10 +41,8 @@ describe('escDouble', () => {
 })
 
 describe('escSingle', () => {
-  it('encodes single quotes and shared attr-breaking characters', () => {
-    expect(escSingle('it\'s <ok> & "fine"')).toBe(
-      'it&#39;s &lt;ok&gt; &amp; "fine"'
-    )
+  it('encodes the single quote that would close the attribute early', () => {
+    expect(escSingle('it\'s <ok> & "fine"')).toBe('it&#39;s <ok> & "fine"')
   })
 
   it('encodes newlines as &#10; (shared with escDouble)', () => {

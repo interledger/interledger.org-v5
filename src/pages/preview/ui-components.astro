@@ -6,6 +6,7 @@ import Icon from '@/components/shared/Icon.astro'
 import PillarsSection from '@/components/shared/PillarsSection.astro'
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import InternalAdvert from '@/components/blocks/InternalAdvert.astro'
 
 const containerClass = `mx-auto max-w-content px-lg`
 ---
@@ -17,7 +18,7 @@ const containerClass = `mx-auto max-w-content px-lg`
 
   <main class="py-2xl">
     <div class={containerClass}>
-      <h1 class="font-poppins mb-lg text-h2">UI Components Preview</h1>
+      <h1 class="mb-lg">UI Components Preview</h1>
       <p class="mb-2xl text-body-lg-standard">
         Internal reference for the new design-system components. SEO-excluded
         and not linked from any nav. Future component PRs extend this page.
@@ -27,6 +28,7 @@ const containerClass = `mx-auto max-w-content px-lg`
         <ul class="flex flex-wrap gap-md list-none [&>a]:underline">
           <li><a href="#buttons">Buttons</a></li>
           <li><a href="#cta-strip">CTA strip</a></li>
+          <li><a href="#internal-advert">Internal advert</a></li>
           <li><a href="#text-media-section">Text + media section</a></li>
           <li><a href="#pillars-section">Pillars Section</a></li>
           <li><a href="/preview/typography">Typography</a></li>
@@ -36,9 +38,9 @@ const containerClass = `mx-auto max-w-content px-lg`
 
     <div class={containerClass}>
       <section id="buttons" class="mb-3xl">
-        <h2 class="font-poppins mb-xl text-h3">Buttons</h2>
+        <h2 class="mb-xl">Buttons</h2>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">Primary (lg)</h3>
+        <h3 class="mt-xl mb-md">Primary (lg)</h3>
         <div class="flex flex-wrap items-center gap-md">
           <Button>Default</Button>
           <Button disabled>Disabled</Button>
@@ -55,7 +57,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">Primary (sm)</h3>
+        <h3 class="mt-xl mb-md">Primary (sm)</h3>
         <div class="flex flex-wrap items-center gap-md">
           <Button size="sm">Default</Button>
           <Button size="sm" disabled>Disabled</Button>
@@ -72,9 +74,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Secondary (lg, light mode)
-        </h3>
+        <h3 class="mt-xl mb-md">Secondary (lg, light mode)</h3>
         <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
           <Button variant="secondary" mode="light">Default</Button>
           <Button variant="secondary" mode="light" disabled>Disabled</Button>
@@ -91,9 +91,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Secondary (sm, light mode)
-        </h3>
+        <h3 class="mt-xl mb-md">Secondary (sm, light mode)</h3>
         <div class="flex flex-wrap items-center gap-md bg-neutral-0 p-lg">
           <Button variant="secondary" mode="light" size="sm">Default</Button>
           <Button variant="secondary" mode="light" size="sm" disabled>
@@ -118,9 +116,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Secondary (lg, dark mode)
-        </h3>
+        <h3 class="mt-xl mb-md">Secondary (lg, dark mode)</h3>
         <div class="flex flex-wrap items-center gap-md bg-neutral-100 p-lg">
           <Button variant="secondary" mode="dark">Default</Button>
           <Button variant="secondary" mode="dark" disabled>Disabled</Button>
@@ -137,9 +133,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Secondary (sm, dark mode)
-        </h3>
+        <h3 class="mt-xl mb-md">Secondary (sm, dark mode)</h3>
         <div class="flex flex-wrap items-center gap-md bg-neutral-100 p-lg">
           <Button variant="secondary" mode="dark" size="sm">Default</Button>
           <Button variant="secondary" mode="dark" size="sm" disabled>
@@ -164,9 +158,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">
-          Secondary (lg, auto mode)
-        </h3>
+        <h3 class="mt-xl mb-md">Secondary (lg, auto mode)</h3>
         <p class="mb-md text-body-sm-standard">
           For components that can't know which surface they sit on, such as
           dynamic-zone blocks rendered on foundation (light) as well as summit
@@ -187,7 +179,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </Button>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">Ghost (footer)</h3>
+        <h3 class="mt-xl mb-md">Ghost (footer)</h3>
         <p class="mb-md text-body-sm-standard">
           Mobile starts at h4/black; tablet+ scales down to body-sm-standard /
           neutral-75. Hover deepens to black. The "Active" state is the
@@ -229,7 +221,7 @@ const containerClass = `mx-auto max-w-content px-lg`
 
         <div class="flex flex-wrap gap-lg mt-xl">
           <div class="p-lg">
-            <h3 class="font-poppins mb-md text-h4">FAB (light mode)</h3>
+            <h3 class="mb-md">FAB (light mode)</h3>
             <div class="flex flex-wrap items-center gap-md">
               <dl
                 class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
@@ -279,7 +271,7 @@ const containerClass = `mx-auto max-w-content px-lg`
             </div>
           </div>
           <div class="bg-neutral-900 text-neutral-25 p-lg">
-            <h3 class="font-poppins mb-md text-h4">FAB (dark mode)</h3>
+            <h3 class="mb-md">FAB (dark mode)</h3>
             <div class="flex flex-wrap items-center gap-md">
               <dl
                 class="grid grid-cols-[max-content_1fr] gap-x-xl gap-y-md items-center"
@@ -334,7 +326,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </div>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">LinkButton</h3>
+        <h3 class="mt-xl mb-md">LinkButton</h3>
         <div class="flex flex-wrap items-center gap-md">
           <LinkButton href="#buttons">Internal link</LinkButton>
           <LinkButton href="https://interledger.org" external>
@@ -348,7 +340,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           </LinkButton>
         </div>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">Form integration</h3>
+        <h3 class="mt-xl mb-md">Form integration</h3>
         <form
           class="flex flex-wrap items-center gap-md"
           onsubmit="event.preventDefault()"
@@ -357,7 +349,7 @@ const containerClass = `mx-auto max-w-content px-lg`
           <Button type="reset" variant="secondary" mode="light">Reset</Button>
         </form>
 
-        <h3 class="font-poppins mt-xl mb-md text-h4">RTL</h3>
+        <h3 class="mt-xl mb-md">RTL</h3>
         <div dir="rtl" class="flex flex-wrap items-center gap-md">
           <Button>RTL primary</Button>
           <Button variant="secondary" mode="light">RTL secondary</Button>
@@ -367,7 +359,7 @@ const containerClass = `mx-auto max-w-content px-lg`
 
     <div class={containerClass}>
       <section id="cta-strip" class="mb-3xl">
-        <h2 class="font-poppins mb-xl text-h3">CTA strip</h2>
+        <h2 class="mb-xl">CTA strip</h2>
         <p class="mb-2xl text-body-lg-standard">
           Optional heading, optional description, and a required primary CTA on
           the purple background. Decorative network motif bleeds off the left
@@ -405,9 +397,63 @@ const containerClass = `mx-auto max-w-content px-lg`
       </section>
     </div>
 
+    <div class={containerClass}>
+      <section id="internal-advert" class="mb-3xl">
+        <h2 class="font-poppins mb-xl text-h3">Internal advert</h2>
+        <p class="mb-2xl text-body-lg-standard">
+          Blog-only card promoting another Interledger property. Every field is
+          optional, so the examples below drop them one at a time. Resize
+          through the 810 / 1200 thresholds to see the headline scale.
+        </p>
+
+        <div class="flex max-w-[416px] flex-col gap-2xl">
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Web Monetization"
+            headline="Revolutionizing the digital content economy."
+            socialLinks={[
+              'https://www.linkedin.com/company/interledger-foundation/',
+              'https://www.instagram.com/interledgerfoundation/'
+            ]}
+            buttonText="Visit Web Monetization"
+            buttonLink="https://webmonetization.org"
+            buttonExternal={true}
+          >
+            Web Monetization connects publishers, creators and their audiences,
+            turning engagement into revenue. No friction, no barriers, no
+            limits.
+          </InternalAdvert>
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            headline="Headline, label and a call to action."
+            buttonText="Read more"
+            buttonLink="#internal-advert"
+          />
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            socialLinks={['https://github.com/interledger']}
+          >
+            A card can carry a body with no headline above it. The block then
+            takes its accessible name from the fallback label.
+          </InternalAdvert>
+
+          <InternalAdvert
+            helperText="Know more"
+            logoLabel="Interledger"
+            headline="An unrecognized host falls back to a generic link icon."
+            socialLinks={['https://interledger.social/@interledger']}
+          />
+        </div>
+      </section>
+    </div>
+
     <section id="text-media-section" aria-label="Text + media section examples">
       <div class="mx-auto mb-xl max-w-content px-lg">
-        <h2 class="font-poppins mb-md text-h3">Text + media section</h2>
+        <h2 class="mb-md">Text + media section</h2>
         <p class="text-body-lg-standard text-neutral-75">
           Each example below is one full instance of <code
             >TextMediaSection</code
@@ -489,7 +535,7 @@ const containerClass = `mx-auto max-w-content px-lg`
 
     <div class={containerClass}>
       <section id="pillars-section" class="mb-3xl">
-        <h2 class="font-poppins mb-xl text-h3">Pillars Section</h2>
+        <h2 class="mb-xl">Pillars Section</h2>
         <p class="mb-2xl text-body-lg-standard">
           Three-card section introducing the foundation's pillars. On desktop,
           cards stagger-pin via sticky offsets and the heading fades behind them

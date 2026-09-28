@@ -175,13 +175,13 @@ describe('report-section serializer', () => {
     expect(result.indexOf('First')).toBeLessThan(result.indexOf('Second'))
   })
 
-  it('emits the heading as a markdown h2, HTML-entity-escaped', () => {
+  it('emits the heading as a markdown h2, escaping only the angle brackets MDX would read as a tag', () => {
     const result = serialize({
       heading: 'Q&A "Overview" <2026>',
       reportText: [validParagraph]
     })
 
-    expect(result).toContain('## Q&amp;A &quot;Overview&quot; &lt;2026&gt;')
+    expect(result).toContain('## Q&A "Overview" \\<2026\\>')
   })
 
   it('escapes MDX braces in the content', () => {

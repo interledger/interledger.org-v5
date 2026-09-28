@@ -1,3 +1,4 @@
+import { foldSearchText } from '../shared/foldSearchText'
 import { generateSlug } from './slug'
 
 export const ALL_GRANTEE_YEAR_SLUG = 'all'
@@ -34,9 +35,8 @@ export interface GranteeFilters {
 /**
  * Structural rather than `Pick<Grantee, …>` so any record carrying these three
  * fields can be filtered — the client-side search index ships a lighter entry
- * shape than `Grantee`. Because that widening drops the guarantee that
- * `searchText` was lower-cased upstream, the query comparison lower-cases both
- * sides here.
+ * shape than `Grantee`. Fold both sides here so a query matches regardless of
+ * case or accents, even if `searchText` was not folded when the index was built.
  */
 export function matchesGranteeFilters(
   grantee: { year: string; tags: string[]; searchText: string },
@@ -49,8 +49,8 @@ export function matchesGranteeFilters(
   ) {
     return false
   }
-  const query = filters.q?.trim().toLowerCase() ?? ''
-  if (query && !grantee.searchText.toLowerCase().includes(query)) return false
+  const query = foldSearchText(filters.q?.trim() ?? '')
+  if (query && !foldSearchText(grantee.searchText).includes(query)) return false
   return true
 }
 

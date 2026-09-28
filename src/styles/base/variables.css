@@ -51,8 +51,8 @@
     --color-prose: var(--color-neutral-100);
 
     /* Layout tokens — no @theme namespace available */
-    --site-header-height: 4.375rem; /* 70px — mobile header bar and drawer offset */
-    --site-header-height-desktop: 4.75rem; /* 76px — foundation desktop nav row */
+    --site-header-height: 4.5rem; /* 72px — tablet/mobile header bar and drawer offset */
+    --site-header-height-desktop: 5rem; /* 80px — foundation desktop nav row */
 
     /* Space below a block title (markdown h2, EventCard, CardGrid gap, etc.).
        `mb-block-heading` / `gap-block-heading` read this. Start at 3xl. */
@@ -76,7 +76,7 @@
     }
 
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
-       54rem lets the 76/90 title wrap to two lines, not three. */
+       54rem lets the 76/84 title wrap to two lines, not three. */
     --layout-homepage-hero-copy-max-lg: 54rem;
     --option1: linear-gradient(
       to bottom,

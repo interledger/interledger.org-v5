@@ -110,8 +110,9 @@ const resolved = buttons
       {/*
         `iconSide` is explicit because LinkButton otherwise infers it from
         `Astro.slots.has('icon-right')`, which reports true even when the slot
-        holds a falsy conditional and renders nothing. An icon-less button then
-        keeps the with-icon padding and its label sits 8px off centre.
+        holds a falsy conditional and renders nothing. It also has to honour
+        `hideIcons`: a button whose icon is suppressed needs the symmetric
+        padding, or its label sits 8px off centre.
       */}
       {resolved.map((button) => (
         <LinkButton
@@ -120,7 +121,7 @@ const resolved = buttons
           mode="auto"
           external={button.external}
           document={button.document}
-          iconSide={button.icon ? 'right' : 'none'}
+          iconSide={!hideIcons && button.icon ? 'right' : 'none'}
           class="w-full tablet:w-auto"
           {...buildUmamiAttrs({
             pathname: Astro.url.pathname,

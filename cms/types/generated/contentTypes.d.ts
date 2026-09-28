@@ -560,7 +560,8 @@ export interface ApiFoundationBlogPostFoundationBlogPost
         'blocks.video-embed',
         'blocks.image-block',
         'blocks.code-block',
-        'blocks.quote'
+        'blocks.quote',
+        'blocks.internal-advert'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

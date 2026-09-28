@@ -61,9 +61,9 @@ const consentCommunicationsLabel = t('subscribe.consent_communications_label')
 const currentPath = Astro.url.pathname
 
 const inputClasses =
-  'w-full rounded-lg border border-neutral-50 bg-white px-lg py-md text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
+  'w-full rounded-lg border border-neutral-50 bg-white px-lg text-base text-neutral-900 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary aria-invalid:border-red-600 aria-invalid:focus:border-red-600 aria-invalid:focus:ring-red-600'
 
-const labelClasses = 'font-thin text-body-sm-standard text-neutral-900'
+const labelClasses = 'font-bold text-body-sm-standard text-neutral-900'
 
 const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
 
@@ -80,6 +80,9 @@ const secondaryTextClasses = 'text-neutral-75'
 
       <div class="flex flex-col gap-3xl desktop:flex-row desktop:gap-5xl">
         <div class="flex flex-col desktop:max-w-[45%]">
+          {
+            /* No Figma spec for this page — matches current prod, left as-is. */
+          }
           <h1
             class="mb-xl text-h4-md tablet:text-h3 desktop:text-h3-lg text-neutral-900"
           >
@@ -93,15 +96,16 @@ const secondaryTextClasses = 'text-neutral-75'
           </p>
 
           <div>
-            <h2
-              class="mb-xl text-body-lg-emphasis tablet:text-body-lg-emphasis-md text-neutral-900"
-            >
+            {
+              /* No Figma spec for this page — matches current prod, left as-is. */
+            }
+            <h2 class="mb-xl text-body-lg-emphasis text-neutral-900">
               {t('subscribe.expect_heading')}
             </h2>
-            <ul class="flex flex-col gap-sm list-disc pl-xl">
+            <ul>
               {
                 expectPoints.map((point) => (
-                  <li class="text-body-lg-standard tablet:text-body-lg-standard-md text-neutral-100">
+                  <li class="text-body-lg-standard text-neutral-100">
                     {point}
                   </li>
                 ))
