@@ -187,10 +187,12 @@ describe('parseGranteeSearchIndex', () => {
   })
 
   it('returns an Error for a pre-descriptionHtml entry that only has a snippet', () => {
-    const { descriptionHtml: _omitted, ...legacy } = sampleSearchEntry()
-    expect(
-      parseGranteeSearchIndex([{ ...legacy, descriptionSnippet: 'Old' }])
-    ).toBeInstanceOf(Error)
+    const legacy: Record<string, unknown> = {
+      ...sampleSearchEntry(),
+      descriptionSnippet: 'Old'
+    }
+    delete legacy.descriptionHtml
+    expect(parseGranteeSearchIndex([legacy])).toBeInstanceOf(Error)
   })
 
   it('returns typed entries when the payload is valid', () => {
