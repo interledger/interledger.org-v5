@@ -373,13 +373,17 @@ describe('paginateGranteesByYearAndTag', () => {
   })
 })
 
+const DIRECTORY = '/grant/grantee-directory'
+
 describe('getGranteeSearchIndex', () => {
   it('returns an Error when the dump is not an array, matching getGranteeListingData', () => {
-    expect(getGranteeSearchIndex({ records: [] }, 'en')).toBeInstanceOf(Error)
+    expect(
+      getGranteeSearchIndex({ records: [] }, 'en', DIRECTORY)
+    ).toBeInstanceOf(Error)
   })
 
   it('maps grantees to slim, searchable entries', () => {
-    const index = getGranteeSearchIndex([sample], 'en')
+    const index = getGranteeSearchIndex([sample], 'en', DIRECTORY)
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(index).toHaveLength(1)
@@ -407,7 +411,8 @@ describe('getGranteeSearchIndex', () => {
             'A **C#** and A_B toolkit. [docs](https://example.com)'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -415,6 +420,28 @@ describe('getGranteeSearchIndex', () => {
     expect(html).toContain('<strong>C#</strong>')
     expect(html).toContain('A_B')
     expect(html).toMatch(/<a [^>]*href="https:\/\/example\.com"/)
+  })
+
+  it('attributes description links to the localized grantee directory', () => {
+    const description = '[docs](https://example.com)'
+    const en = getGranteeSearchIndex(
+      [record({ 'Project Name': 'Link', 'Project Description': description })],
+      'en',
+      DIRECTORY
+    )
+    const es = getGranteeSearchIndex(
+      [record({ 'Project Name': 'Link', 'Project Description': description })],
+      'es',
+      '/es/grant/grantee-directory'
+    )
+    if (en instanceof Error || es instanceof Error) {
+      throw new Error('expected search indexes')
+    }
+    for (const html of [en[0]?.descriptionHtml, es[0]?.descriptionHtml]) {
+      expect(html).toContain('data-umami-event-current-path="grant"')
+      expect(html).not.toContain('foundation_home')
+    }
+    expect(es[0]?.descriptionHtml).toContain('data-umami-event-lang="es"')
   })
 
   it('ships the full description so read-more can expand it', () => {
@@ -426,7 +453,8 @@ describe('getGranteeSearchIndex', () => {
           'Project Description': longDescription
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -441,7 +469,8 @@ describe('getGranteeSearchIndex', () => {
           'Project Description': '[click](javascript:alert(1))'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -451,7 +480,8 @@ describe('getGranteeSearchIndex', () => {
   it('is null for grantees with no description', () => {
     const index = getGranteeSearchIndex(
       [record({ 'Project Name': 'No Description' })],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -466,7 +496,8 @@ describe('getGranteeSearchIndex', () => {
           'Project Description': '# Open payments'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -484,7 +515,8 @@ describe('getGranteeSearchIndex', () => {
             'Open payments\n=============\n\n> wallets first'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -498,7 +530,7 @@ describe('getGranteeSearchIndex', () => {
   })
 
   it('produces entries matchesGranteeFilters can filter directly', () => {
-    const index = getGranteeSearchIndex([sample], 'en')
+    const index = getGranteeSearchIndex([sample], 'en', DIRECTORY)
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(
@@ -571,7 +603,8 @@ describe('searchText markdown handling', () => {
             'Open payments\n=============\n\n> wallets first'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return

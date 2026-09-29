@@ -350,13 +350,20 @@ export interface GranteeSearchEntry {
   searchText: string
 }
 
-function toDescriptionHtml(grantee: Grantee, locale: Locale): string | null {
-  return parseMarkdownInline(grantee.description, { lang: locale }) || null
+function toDescriptionHtml(
+  grantee: Grantee,
+  locale: Locale,
+  pathname: string
+): string | null {
+  return (
+    parseMarkdownInline(grantee.description, { pathname, lang: locale }) || null
+  )
 }
 
 function toGranteeSearchEntry(
   grantee: Grantee,
-  locale: Locale
+  locale: Locale,
+  directoryPath: string
 ): GranteeSearchEntry {
   return {
     id: grantee.id,
@@ -368,7 +375,7 @@ function toGranteeSearchEntry(
     startLabel: grantee.startLabel,
     leaders: grantee.leaders,
     tags: grantee.tags,
-    descriptionHtml: toDescriptionHtml(grantee, locale),
+    descriptionHtml: toDescriptionHtml(grantee, locale, directoryPath),
     projectUrl: grantee.projectUrls[0] ?? null,
     budgetLabel: grantee.budgetLabel,
     searchText: grantee.searchText
@@ -379,15 +386,20 @@ function toGranteeSearchEntry(
  * Build-time catalog for client-side grantee search. Small and locale-scoped
  * so it can be fetched once (lazily, on first search interaction) and reused
  * across every paginated/filtered directory route — see
- * `src/pages/grantee-search-index.json.ts`.
+ * `src/pages/grantee-search-index.json.ts`. `directoryPath` is the localized
+ * directory root: description links report it as their umami page, since one
+ * index serves every year/tag route.
  */
 export function getGranteeSearchIndex(
   data: unknown,
-  locale: Locale
+  locale: Locale,
+  directoryPath: string
 ): GranteeSearchEntry[] | Error {
   const grantees = parseGranteeRecords(data, locale)
   if (grantees instanceof Error) return grantees
-  return grantees.map((grantee) => toGranteeSearchEntry(grantee, locale))
+  return grantees.map((grantee) =>
+    toGranteeSearchEntry(grantee, locale, directoryPath)
+  )
 }
 
 /** Filter options and active selections passed through paginate `props`. */
