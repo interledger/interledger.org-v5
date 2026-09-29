@@ -2,8 +2,8 @@ import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { foldSearchText } from '../shared/foldSearchText'
 import { generateSlug } from './slug'
-import { truncateText } from './text'
 import { createPlainTextVariants } from './create-excerpt'
+import { parseMarkdownInline } from './mdx'
 import {
   GRANTEE_TAG_PREFIX,
   filterGrantees,
@@ -329,8 +329,9 @@ export function getGranteeListingData(
 /**
  * A single grantee's fields as shipped in the client-side search catalog
  * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
- * Trimmed to what a slim search-result row needs — no raw markdown, no
- * derived slugs that the full `GranteeCard` computes for itself.
+ * Trimmed to what a search-result row needs — the description ships
+ * pre-rendered (as `GranteeCard` renders it) so rows can offer the same
+ * read-more toggle, and no derived slugs that the card computes for itself.
  */
 export interface GranteeSearchEntry {
   id: string
@@ -342,20 +343,21 @@ export interface GranteeSearchEntry {
   startLabel: string
   leaders: string[]
   tags: string[]
-  descriptionSnippet: string | null
+  /** Inline HTML from `parseMarkdownInline`, same as `GranteeCard`. */
+  descriptionHtml: string | null
   projectUrl: string | null
   budgetLabel: string | null
   searchText: string
 }
 
-const SEARCH_SNIPPET_MAX_LENGTH = 160
-
-function toSearchSnippet(descriptionPlain: string): string | null {
-  if (!descriptionPlain) return null
-  return truncateText(descriptionPlain, SEARCH_SNIPPET_MAX_LENGTH)
+function toDescriptionHtml(grantee: Grantee, locale: Locale): string | null {
+  return parseMarkdownInline(grantee.description, { lang: locale }) || null
 }
 
-function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
+function toGranteeSearchEntry(
+  grantee: Grantee,
+  locale: Locale
+): GranteeSearchEntry {
   return {
     id: grantee.id,
     name: grantee.name,
@@ -366,7 +368,7 @@ function toGranteeSearchEntry(grantee: Grantee): GranteeSearchEntry {
     startLabel: grantee.startLabel,
     leaders: grantee.leaders,
     tags: grantee.tags,
-    descriptionSnippet: toSearchSnippet(grantee.descriptionPlain),
+    descriptionHtml: toDescriptionHtml(grantee, locale),
     projectUrl: grantee.projectUrls[0] ?? null,
     budgetLabel: grantee.budgetLabel,
     searchText: grantee.searchText
@@ -385,7 +387,7 @@ export function getGranteeSearchIndex(
 ): GranteeSearchEntry[] | Error {
   const grantees = parseGranteeRecords(data, locale)
   if (grantees instanceof Error) return grantees
-  return grantees.map(toGranteeSearchEntry)
+  return grantees.map((grantee) => toGranteeSearchEntry(grantee, locale))
 }
 
 /** Filter options and active selections passed through paginate `props`. */

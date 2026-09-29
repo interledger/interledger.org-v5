@@ -23,7 +23,7 @@ function sampleSearchEntry(
     startLabel: '',
     leaders: [],
     tags: [],
-    descriptionSnippet: null,
+    descriptionHtml: null,
     projectUrl: null,
     budgetLabel: null,
     searchText: 'test',
@@ -186,6 +186,13 @@ describe('parseGranteeSearchIndex', () => {
     expect(parseGranteeSearchIndex([{ id: 'rec1' }])).toBeInstanceOf(Error)
   })
 
+  it('returns an Error for a pre-descriptionHtml entry that only has a snippet', () => {
+    const { descriptionHtml: _omitted, ...legacy } = sampleSearchEntry()
+    expect(
+      parseGranteeSearchIndex([{ ...legacy, descriptionSnippet: 'Old' }])
+    ).toBeInstanceOf(Error)
+  })
+
   it('returns typed entries when the payload is valid', () => {
     const entry = sampleSearchEntry({ name: 'Clearing House' })
     expect(parseGranteeSearchIndex([entry])).toEqual([entry])
@@ -324,7 +331,8 @@ describe('createSearchController stale responses', () => {
         searchQuery,
         pathname: '/grant/grantee-directory',
         lang: 'en',
-        viewDetailsLabel: 'View project details'
+        viewDetailsLabel: 'View project details',
+        readMoreLabel: 'Read more'
       }),
       getInputValue
     })
