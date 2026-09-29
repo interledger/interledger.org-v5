@@ -173,7 +173,8 @@ describe('searchResultRowModel', () => {
         startLabel: 'March 2024',
         leaders: ['Ada Lovelace', 'Grace Hopper'],
         tags: ['Open Payments', 'Education'],
-        descriptionHtml: 'A clearing network for <strong>community</strong> wallets.',
+        descriptionHtml:
+          'A clearing network for <strong>community</strong> wallets.',
         projectUrl: 'https://community.interledger.org/some-report',
         budgetLabel: '50,000'
       })
