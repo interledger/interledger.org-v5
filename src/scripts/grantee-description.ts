@@ -1,5 +1,7 @@
 const LINE_CLAMP_CLASS = 'line-clamp-2'
 const OVERFLOW_TOLERANCE_PX = 1
+/** Marks links this script pulled from the tab order, so only those return. */
+const CLIPPED_LINK_ATTR = 'data-grantee-clipped-link'
 
 function descriptionOverflows(el: HTMLElement): boolean {
   return el.scrollHeight - el.clientHeight > OVERFLOW_TOLERANCE_PX
@@ -30,11 +32,40 @@ export function shouldHideReadMoreToggle(
   return !expanded && !overflows
 }
 
+/**
+ * A link starting at or below the clamp's bottom edge is invisible; one that
+ * starts on a visible line stays focusable even if it wraps past the clamp.
+ */
+export function isClippedLink(
+  expanded: boolean,
+  linkTop: number,
+  textBottom: number
+): boolean {
+  return !expanded && linkTop >= textBottom - OVERFLOW_TOLERANCE_PX
+}
+
+/** Keep keyboard focus off links hidden by the two-line clamp. */
+function syncClippedLinks(text: HTMLElement, expanded: boolean) {
+  const textBottom = text.getBoundingClientRect().bottom
+  text.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+    const linkTop = link.getBoundingClientRect().top
+    if (isClippedLink(expanded, linkTop, textBottom)) {
+      link.tabIndex = -1
+      link.setAttribute(CLIPPED_LINK_ATTR, '')
+      return
+    }
+    if (!link.hasAttribute(CLIPPED_LINK_ATTR)) return
+    link.removeAttribute('tabindex')
+    link.removeAttribute(CLIPPED_LINK_ATTR)
+  })
+}
+
 function setExpanded(root: HTMLElement, expanded: boolean) {
   const parts = queryDescription(root)
   if (!parts) return
 
   parts.text.classList.toggle(LINE_CLAMP_CLASS, !expanded)
+  syncClippedLinks(parts.text, expanded)
   parts.toggle.setAttribute('aria-expanded', String(expanded))
   parts.toggle.hidden = shouldHideReadMoreToggle(
     expanded,
@@ -56,6 +87,7 @@ function syncToggle(root: HTMLElement) {
   if (!parts) return
   if (isExpanded(parts.toggle)) return
   parts.toggle.hidden = !descriptionOverflows(parts.text)
+  syncClippedLinks(parts.text, false)
 }
 
 /** The label the user clicked, not the one shown after the toggle. */

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  isClippedLink,
   shouldHideReadMoreToggle,
   umamiLabelForReadMoreClick
 } from './grantee-description'
@@ -30,5 +31,25 @@ describe('shouldHideReadMoreToggle', () => {
 
   it('keeps the toggle when collapsed text still overflows', () => {
     expect(shouldHideReadMoreToggle(false, true)).toBe(false)
+  })
+})
+
+describe('isClippedLink', () => {
+  const TEXT_BOTTOM = 100
+
+  it('clips a collapsed link that starts below the visible lines', () => {
+    expect(isClippedLink(false, 120, TEXT_BOTTOM)).toBe(true)
+  })
+
+  it('clips a collapsed link that starts exactly at the clamp edge', () => {
+    expect(isClippedLink(false, TEXT_BOTTOM, TEXT_BOTTOM)).toBe(true)
+  })
+
+  it('keeps a collapsed link that starts on a visible line', () => {
+    expect(isClippedLink(false, 80, TEXT_BOTTOM)).toBe(false)
+  })
+
+  it('never clips while the description is expanded', () => {
+    expect(isClippedLink(true, 120, TEXT_BOTTOM)).toBe(false)
   })
 })
