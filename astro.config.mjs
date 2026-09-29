@@ -147,7 +147,10 @@ export default defineConfig({
       },
       disable404Route: true
     }),
-    mdx(),
+    // Astro 6.4 deprecated `markdown.gfm` and leaves it undefined. The MDX
+    // integration reads that value as its default, so without this option
+    // every MDX table and footnote renders as plain text.
+    mdx({ gfm: true }),
     sitemap({
       // Exclude previews and design/QA demo pages (demo / demo-* path segments)
       filter: (url) => {
