@@ -1,0 +1,89 @@
+/*
+ * Starlight parity for main-site pages.
+ *
+ * Until INTORG-1232, Astro bundled Starlight's CSS and the docs design system
+ * into main-site pages (see "Starlight Docs Isolation" in ../README.md). The
+ * site was designed, reviewed and shipped with that CSS in place. Astro 6.4
+ * stopped the leak, so this file restates the rules that still changed
+ * main-site pages, with the values they resolved to. It keeps every page
+ * pixel-identical to production. Removing a rule here is a visible design
+ * change and belongs in its own reviewed PR.
+ *
+ * Cascade position matters as much as the values:
+ * - Starlight's reset sat in `starlight.reset`, the lowest layer (declared in
+ *   tailwind.css), so any main-site rule beats it.
+ * - The docs design system rules were unlayered, so they beat every layered
+ *   main-site rule, utilities included. They stay unlayered here.
+ */
+
+@layer starlight.reset {
+  html {
+    accent-color: hsl(180 100% 23%);
+    /* 1.5rem plus the docs nav height (4.275rem). */
+    scroll-padding-top: 5.775rem;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    color: hsl(224 10% 23%);
+    background-color: hsl(0 0% 100%);
+  }
+
+  html[data-theme='dark'] body {
+    color: hsl(224 6% 77%);
+    background-color: hsl(224 10% 10%);
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  code {
+    overflow-wrap: break-word;
+  }
+
+  code {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+  }
+}
+
+/* Unlayered on purpose: see the header. The leak also rounded `img` and the
+   first-row `thead` corners, but tailwind.css reverts those with `:root`
+   overrides, so production never showed them. */
+code {
+  border-radius: 6px;
+}
+
+table,
+pre:not(.mermaid) {
+  border-radius: 6px;
+  box-shadow:
+    0 1px 1px hsl(0 0% 0% / 0.06),
+    0 2px 1px hsl(0 0% 0% / 0.06);
+}
+
+table code {
+  word-break: break-all;
+}
+
+.footnotes.footnotes.footnotes {
+  margin-block-start: 2.25rem;
+}
+
+.footnotes {
+  border-block-start: 1px dashed hsl(224 20% 94%);
+
+  & ol {
+    padding-inline-start: 1.2rem;
+    font-size: clamp(0.9rem, calc(1.03rem - 0.15vw), 1rem);
+  }
+}
+
+html[data-theme='dark'] .footnotes {
+  border-block-start-color: hsl(224 14% 16%);
+}
