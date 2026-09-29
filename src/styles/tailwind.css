@@ -71,6 +71,9 @@
 @import './utilities/animations.css';
 @import './utilities/spacing.css';
 
+/* Starlight parity - restates the docs-lane CSS that used to leak here */
+@import './base/starlight-parity.css';
+
 /* @interledger/docs-design-system's ilf-docs.css ships three unlayered rules
    with universal-ish selectors (:focus-visible, img, and thead first-row
    corners). Starlight auto-registers an Astro middleware that imports its
