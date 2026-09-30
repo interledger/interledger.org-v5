@@ -1,0 +1,82 @@
+﻿---
+pathSlug: 'tech/interledger-protocol'
+title: 'Interledger Protocol'
+description: 'Un protocolo abierto que enruta paquetes de dinero entre bancos, billeteras y sistemas de pago, y transfiere valor del mismo modo que Internet transmite datos.'
+heroTitle: 'Interledger Protocol'
+heroDescription: 'Transfiera dinero como Internet transmite datos'
+heroImage: '/uploads/img/original/1_interledger_protocol_hero_large_389f764d14.jpg'
+heroImageBlur: 'data:image/webp;base64,UklGRpYAAABXRUJQVlA4IIoAAAAwBACdASoUAA0APu1iqU2ppaOiMAgBMB2JZACdAywBiIju1JOveacsoAAA/rxJRhBwUze3XoYYW9x0oVCSFXc01WJ4sZsptTFzsYRgVY98b7HSk1gTEQajsdwS+MHIovtlo73TxPBitmTLNbBbq+Muy1Amx7EMdv6mYYDZsCcoRiUH6fysVc818AA='
+heroImageAlt: 'Un conferencista realiza una presentación en Interledger Summit junto a un mapa mundial de rutas de pago.'
+locale: 'es'
+localizes: 'tech/interledger-protocol'
+---
+
+<Paragraph>
+
+Interledger Protocol es un protocolo abierto que enruta paquetes de dinero entre sistemas financieros y permite realizar pagos rápidos, seguros e interoperables entre redes financieras.
+
+Los sistemas financieros no se diseñaron para comunicarse entre sí. Transferir dinero entre un banco de un país y una billetera móvil de otro exige pasar por una cadena de intermediarios, cada uno con sus propias reglas, formatos y comisiones. Cuantos más sistemas intervienen, más lenta, costosa y vulnerable se vuelve la operación.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/interledger_protocol_stack.jpg"
+  alt="Comparación entre el conjunto de tecnologías de Interledger y el de Internet. Las capas de Interledger (SPSP y Open Payments, STREAM, ILP, BTP e ILP-over-HTTP, y dinero fiduciario, criptomonedas o dinero móvil) aparecen junto a las capas correspondientes de Internet (protocolos de aplicación, TCP/UDP/QUIC, IP, Wi-Fi/Ethernet/Bluetooth y cables físicos)."
+  needsFullView={true}
+/>
+
+<Paragraph>
+
+ILP es un protocolo abierto y neutral para transferir valor, inspirado en TCP/IP, el protocolo que permite el funcionamiento de Internet. Resuelve la complejidad de los pagos mundiales del mismo modo que Internet resolvió el problema de conectar redes informáticas incompatibles: mediante un protocolo compartido que cualquier sistema puede implementar, sin importar la tecnología subyacente. Cualquier sistema que utilice ILP puede enrutar valor hacia otro que también lo utilice, sin una integración directa, un libro contable compartido ni una autoridad central intermediaria.
+
+</Paragraph>
+
+<Paragraph>
+
+## Cómo circulan los pagos
+
+En lugar de enviar un único pago de principio a fin, ILP lo divide en paquetes más pequeños y utiliza la optimización de rutas y las condiciones actuales del mercado para completarlo con rapidez. Cada paquete recorre la red, los nodos lo reenvían y, o bien se ejecuta, o bien se rechaza y se enruta por otra vía. Cuando todos los paquetes se han ejecutado, el pago está completo. Esto permite que los pagos circulen en tiempo real, se adapten a condiciones cambiantes y se detengan de forma segura si algo falla.
+
+</Paragraph>
+
+<ImageBlock
+  src="/uploads/img/original/interledger_protocol_payment_packet.png"
+  alt="Diagrama de un paquete de pago que pasa del remitente al destinatario a través de conectores. Una línea continua muestra la ruta seleccionada y las líneas discontinuas indican las rutas alternativas si se rechaza un paquete y se enruta por otra vía."
+  needsFullView={true}
+/>
+
+<Paragraph>
+
+## Diseñado para conectar sistemas, no para reemplazarlos
+
+ILP no almacena fondos, no requiere un libro contable compartido ni depende de una sola red. Funciona junto a los sistemas existentes y les permite intercambiar valor, mientras cada uno conserva sus propias reglas, monedas y mecanismos de cumplimiento normativo. Funciona entre bancos, billeteras, sistemas de dinero móvil, sistemas de pagos instantáneos y activos digitales, y no está vinculado con ninguna moneda, proveedor ni red específicos. También es un protocolo maduro y estable: ILP se encuentra en su cuarta versión y mantiene la compatibilidad con versiones anteriores, por lo que las instituciones pueden desarrollar soluciones sin temor a cambios que alteren su funcionamiento.
+
+</Paragraph>
+
+<CardGrid title="El protocolo en cifras" ariaLabel="Cifras clave de Interledger Protocol" variant="Info" columns="Three">
+<InfoCard heading="Hasta 1 millón">
+
+Hasta 1 millón de operaciones por segundo por participante.
+
+</InfoCard>
+<InfoCard heading="USD 0,0001">
+
+Pagos de apenas USD 0,0001.
+
+</InfoCard>
+<InfoCard heading="Cientos de proveedores de servicios financieros">
+
+Una sola relación directa de interconexión entre pares puede permitirle conectarse de forma indirecta con cientos de proveedores de servicios financieros.
+
+</InfoCard>
+</CardGrid>
+
+<CtaStrip
+  heading="Desarrollado de forma abierta"
+  primaryButtonText="Portal para desarrolladores"
+  primaryButtonLink="/es/tech/dev-portal"
+>
+
+Interledger Protocol, el estándar Open Payments y las herramientas basadas en ellos son de código abierto. Cualquier persona puede leer el código, auditar los estándares, proponer cambios y contribuir.
+
+</CtaStrip>

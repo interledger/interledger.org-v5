@@ -1,44 +1,44 @@
 {
   "mainMenu": [
     {
-      "label": "About",
+      "label": "Acerca de",
       "items": [
         {
-          "label": "Our Journey",
+          "label": "Nuestra trayectoria",
           "href": "/es/about-us"
         },
         {
-          "label": "How Interledger Works",
+          "label": "Cómo funciona Interledger",
           "href": "/es/how-interledger-works"
         },
         {
-          "label": "Our Team",
+          "label": "Nuestro equipo",
           "href": "/es/team"
         },
         {
-          "label": "Policy & Advocacy",
+          "label": "Política y defensa",
           "href": "/es/policy-and-advocacy"
         }
       ]
     },
     {
-      "label": "Tech",
+      "label": "Tecnología",
       "subGroups": [
         {
-          "label": "Our Technology",
+          "label": "Nuestra tecnología",
           "items": [
             {
-              "label": "Interledger Tech",
+              "label": "Tecnología de Interledger",
               "href": "/es/tech/overview"
             },
             {
-              "label": "Developer Portal",
+              "label": "Portal para desarrolladores",
               "href": "/es/tech/dev-portal/"
             }
           ]
         },
         {
-          "label": "Standards",
+          "label": "Estándares",
           "items": [
             {
               "label": "Interledger Protocol",
@@ -55,14 +55,14 @@
           ]
         },
         {
-          "label": "Tools & Products",
+          "label": "Herramientas y productos",
           "items": [
             {
               "label": "Rafiki",
               "href": "/es/tech/rafiki"
             },
             {
-              "label": "Test Tools",
+              "label": "Herramientas de prueba",
               "href": "/es/tech/test-tools"
             },
             {
@@ -75,26 +75,26 @@
       ]
     },
     {
-      "label": "Grants",
+      "label": "Subvenciones",
       "subGroups": [
         {
-          "label": "Our Grantmaking",
+          "label": "Nuestras subvenciones",
           "items": [
             {
-              "label": "Overview",
+              "label": "Descripción general",
               "href": "/es/grant/our-grantmaking"
             },
             {
-              "label": "Grantee Directory",
+              "label": "Directorio de beneficiarios de subvenciones",
               "href": "/es/grant/grantee-directory"
             }
           ]
         },
         {
-          "label": "Education Grants",
+          "label": "Subvenciones para la educación",
           "items": [
             {
-              "label": "Overview",
+              "label": "Descripción general",
               "href": "/es/grant/education"
             },
             {
@@ -108,10 +108,10 @@
           ]
         },
         {
-          "label": "Innovation Grants",
+          "label": "Subvenciones para la innovación",
           "items": [
             {
-              "label": "Overview",
+              "label": "Descripción general",
               "href": "/es/grant/innovation"
             },
             {
@@ -123,7 +123,7 @@
               "href": "/es/grant/innovation/accelerator"
             },
             {
-              "label": "Open Payments SDK",
+              "label": "SDK de Open Payments",
               "href": "/es/grant/innovation/sdk"
             },
             {
@@ -133,18 +133,18 @@
           ]
         },
         {
-          "label": "Advocacy Grants",
+          "label": "Subvenciones para la promoción",
           "items": [
             {
-              "label": "Research Grants",
+              "label": "Subvenciones para la investigación",
               "href": "/es/grant/call-for-papers"
             },
             {
-              "label": "Policy Grants",
+              "label": "Subvenciones para políticas públicas",
               "href": "/es/grant/public-policy-activation"
             },
             {
-              "label": "Fellowships",
+              "label": "Becas",
               "href": "/es/grant/fellowship"
             },
             {
@@ -156,30 +156,30 @@
       ]
     },
     {
-      "label": "Learn",
+      "label": "Centro de contenidos",
       "items": [
         {
           "label": "Blog",
           "href": "/es/blog"
         },
         {
-          "label": "Podcasts",
+          "label": "Pódcasts",
           "href": "/es/podcast"
         },
         {
-          "label": "Research & Reports",
+          "label": "Investigaciones e informes",
           "href": "/es/research-and-reports"
         }
       ]
     },
     {
-      "label": "Get Involved",
+      "label": "Involúcrese",
       "subGroups": [
         {
-          "label": "Events",
+          "label": "Eventos",
           "items": [
             {
-              "label": "Calendar",
+              "label": "Calendario",
               "href": "/es/events"
             },
             {
@@ -187,20 +187,20 @@
               "href": "/es/summit"
             },
             {
-              "label": "Interledger Hackathons",
+              "label": "Hackatones de Interledger",
               "href": "/es/hackathon/overview"
             }
           ]
         },
         {
-          "label": "Join the Community",
+          "label": "Únase a la comunidad",
           "items": [
             {
-              "label": "Start Here",
+              "label": "Comience aquí",
               "href": "/es/community"
             },
             {
-              "label": "Community Forum",
+              "label": "Foro de la comunidad",
               "href": "https://community.interledger.org/",
               "openInNewTab": true
             }
@@ -210,7 +210,7 @@
     }
   ],
   "ctaButton": {
-    "label": "Hackathons",
+    "label": "Hackatones",
     "href": "/es/hackathon/overview"
   }
 }
