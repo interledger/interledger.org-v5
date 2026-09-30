@@ -467,6 +467,134 @@ export function redirectConfigToEntries(
   return entries
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function isRedirectCategory(key: string): key is RedirectCategory {
+  return (REDIRECT_CATEGORIES as readonly string[]).includes(key)
+}
+
+function ruleShapeProblem(value: unknown): string | undefined {
+  if (!isRecord(value)) return 'is not an object'
+  const { source, destination, status, enabled, note } = value
+  if (typeof source !== 'string') return 'source is not a string'
+  if (typeof destination !== 'string') return 'destination is not a string'
+  if (typeof status !== 'number') return 'status is not a number'
+  if (enabled !== undefined && typeof enabled !== 'boolean') {
+    return 'enabled is not a boolean'
+  }
+  if (note !== undefined && typeof note !== 'string') {
+    return 'note is not a string'
+  }
+  return undefined
+}
+
+/** Every structural problem in the grouped JSON, as `where: what` lines. */
+function configShapeProblems(json: unknown): string[] {
+  if (!isRecord(json)) return ['redirect config is not an object']
+  const problems: string[] = []
+  for (const [key, rules] of Object.entries(json)) {
+    if (!isRedirectCategory(key)) {
+      problems.push(`unknown redirect category "${key}"`)
+      continue
+    }
+    if (!Array.isArray(rules)) {
+      problems.push(`${key} is not an array`)
+      continue
+    }
+    rules.forEach((rule, index) => {
+      const problem = ruleShapeProblem(rule)
+      if (problem) problems.push(`${key}[${index}] ${problem}`)
+    })
+  }
+  return problems
+}
+
+/**
+ * The per-row checks Strapi applies on save, plus a canonical-source check:
+ * Strapi stores the normalized source, so `/old/` in the file would never
+ * match its stored row and every re-seed would try to create it again.
+ */
+function entryProblems(entry: RedirectEntry): string[] {
+  const problems: string[] = []
+  const badSource = sourceError(entry.source)
+  if (badSource) problems.push(`${entry.source}: ${badSource}`)
+  else if (normalizeRedirectSource(entry.source) !== entry.source) {
+    problems.push(
+      `${entry.source}: write it as ${normalizeRedirectSource(entry.source)}`
+    )
+  }
+  const badDestination = destinationError(entry.destination, entry.source)
+  if (badDestination) problems.push(`${entry.source}: ${badDestination}`)
+  return problems
+}
+
+function duplicateSourceProblems(entries: RedirectEntry[]): string[] {
+  const seen = new Set<string>()
+  const problems: string[] = []
+  for (const { source } of entries) {
+    if (seen.has(source)) problems.push(`${source}: listed more than once`)
+    seen.add(source)
+  }
+  return problems
+}
+
+/**
+ * Every enabled redirect whose destination is another enabled redirect's
+ * source — the chains {@link validateRedirectLinks} refuses one write at a
+ * time, found across a whole set at once.
+ */
+export function findRedirectChains(entries: RedirectEntry[]): string[] {
+  const enabled = entries.filter(isRedirectEnabled)
+  const onwardBySource = new Map(
+    enabled.map((entry) => [entry.source, entry.destination])
+  )
+  const problems: string[] = []
+  for (const { source, destination } of enabled) {
+    const target = redirectTargetPath(destination)
+    // A self-redirect is reported as one, not as a chain to itself.
+    if (target === undefined || target === source) continue
+    const onward = onwardBySource.get(target)
+    if (onward !== undefined) {
+      problems.push(
+        `${source}: ${target} already redirects to ${onward}; point it straight there`
+      )
+    }
+  }
+  return problems
+}
+
+function problemsError(problems: string[]): Error {
+  return new Error(
+    `${problems.length} invalid redirect(s):\n  ${problems.join('\n  ')}`
+  )
+}
+
+/**
+ * Parses `src/config/redirects.json` into Strapi rows, applying every check
+ * Strapi would apply on save — shape, path rules, self-redirects, duplicate
+ * sources and chains — and reporting all problems at once. The seed writes one
+ * row per request, so it must reject a bad file before the first write rather
+ * than leave Strapi half-seeded.
+ */
+export function parseRedirectConfigFile(
+  json: unknown
+): RedirectEntry[] | Error {
+  const shapeProblems = configShapeProblems(json)
+  if (shapeProblems.length > 0) return problemsError(shapeProblems)
+
+  const entries = redirectConfigToEntries(json as Partial<RedirectConfig>)
+  if (entries instanceof Error) return entries
+
+  const problems = [
+    ...entries.flatMap(entryProblems),
+    ...duplicateSourceProblems(entries),
+    ...findRedirectChains(entries)
+  ]
+  return problems.length > 0 ? problemsError(problems) : entries
+}
+
 /**
  * Refuses every delete. Returned rather than thrown so the middleware owns
  * control flow; the admin shows the message as a toast.

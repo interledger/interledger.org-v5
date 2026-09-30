@@ -5,6 +5,8 @@ import {
   REDIRECT_CATEGORIES,
   normalizeRedirectInput,
   normalizeRedirectSource,
+  findRedirectChains,
+  parseRedirectConfigFile,
   redirectConfigToEntries,
   redirectDeleteError,
   redirectTargetPath,
@@ -392,6 +394,143 @@ describe('redirectConfigToEntries', () => {
       )
     )
     expect(rejected.map((entry) => entry.source)).toEqual([])
+  })
+})
+
+describe('parseRedirectConfigFile', () => {
+  const rule = (source: string, destination: string, extra = {}) => ({
+    source,
+    destination,
+    status: 301,
+    ...extra
+  })
+
+  function problems(json: unknown): string {
+    const result = parseRedirectConfigFile(json)
+    expect(result).toBeInstanceOf(Error)
+    return (result as Error).message
+  }
+
+  it('returns the entries for a valid file', () => {
+    const result = parseRedirectConfigFile({
+      site_pages: [rule('/a', '/b')],
+      hackathon: [rule('/c', 'https://example.org/d')]
+    })
+    expect(result).toHaveLength(2)
+  })
+
+  it('accepts the committed redirects.json', () => {
+    const file = path.resolve(__dirname, '../../../src/config/redirects.json')
+    const result = parseRedirectConfigFile(
+      JSON.parse(fs.readFileSync(file, 'utf-8'))
+    )
+    expect(result).not.toBeInstanceOf(Error)
+  })
+
+  it.each([
+    [null, 'not an object'],
+    [[], 'not an object'],
+    [{ nope: [] }, 'unknown redirect category "nope"'],
+    [{ site_pages: {} }, 'site_pages is not an array'],
+    [{ site_pages: ['/a'] }, 'site_pages[0] is not an object'],
+    [{ site_pages: [{ destination: '/b', status: 301 }] }, 'source is not'],
+    [{ site_pages: [{ source: '/a', status: 301 }] }, 'destination is not'],
+    [{ site_pages: [{ source: '/a', destination: '/b' }] }, 'status is not'],
+    [{ site_pages: [rule('/a', '/b', { enabled: 'no' })] }, 'enabled is not'],
+    [{ site_pages: [rule('/a', '/b', { note: 1 })] }, 'note is not']
+  ])('rejects a malformed file %j', (json, message) => {
+    expect(problems(json)).toContain(message)
+  })
+
+  it('rejects an unsupported status', () => {
+    expect(
+      problems({ site_pages: [rule('/a', '/b', { status: 307 })] })
+    ).toContain('/a')
+  })
+
+  it.each(pathCases.sources.invalid)('rejects the source %j', (source) => {
+    expect(problems({ site_pages: [rule(source, '/new')] })).toContain(source)
+  })
+
+  it.each(pathCases.destinations.invalid)(
+    'rejects the destination %j',
+    (destination) => {
+      expect(problems({ site_pages: [rule('/old', destination)] })).toContain(
+        '/old'
+      )
+    }
+  )
+
+  it('rejects a source Strapi would store in another form', () => {
+    expect(problems({ site_pages: [rule('/a/', '/b')] })).toContain(
+      'write it as /a'
+    )
+  })
+
+  it('rejects a self-redirect', () => {
+    expect(problems({ site_pages: [rule('/a', '/a/?x=1')] })).toContain(
+      'same as the old one'
+    )
+  })
+
+  it('rejects a source listed in two categories', () => {
+    expect(
+      problems({
+        site_pages: [rule('/a', '/b')],
+        hackathon: [rule('/a', '/c')]
+      })
+    ).toContain('/a: listed more than once')
+  })
+
+  it('rejects a chain', () => {
+    expect(
+      problems({ site_pages: [rule('/a', '/b#top'), rule('/b', '/c')] })
+    ).toContain('/b already redirects to /c')
+  })
+
+  it('reports every problem, not just the first', () => {
+    const message = problems({
+      site_pages: [rule('/a', '/a'), rule('/b', '//evil'), rule('/b', '/c')]
+    })
+    expect(message).toContain('3 invalid redirect(s)')
+  })
+})
+
+describe('findRedirectChains', () => {
+  const entry = (
+    source: string,
+    destination: string,
+    enabled?: boolean | null
+  ): RedirectEntry => ({ source, destination, category: 'site_pages', enabled })
+
+  it('finds a chain through a trailing slash or query', () => {
+    expect(
+      findRedirectChains([entry('/a', '/b/?x=1'), entry('/b', '/c')])
+    ).toHaveLength(1)
+  })
+
+  it('ignores a disabled hop on either side', () => {
+    expect(
+      findRedirectChains([entry('/a', '/b', false), entry('/b', '/c')])
+    ).toEqual([])
+    expect(
+      findRedirectChains([entry('/a', '/b'), entry('/b', '/c', false)])
+    ).toEqual([])
+  })
+
+  it('counts a null enabled as enabled', () => {
+    expect(
+      findRedirectChains([entry('/a', '/b', null), entry('/b', '/c', null)])
+    ).toHaveLength(1)
+  })
+
+  it('ignores external destinations', () => {
+    expect(
+      findRedirectChains([
+        entry('/a', 'https://example.org/b'),
+        entry('/b', '/c')
+      ])
+    ).toEqual([])
   })
 })
 

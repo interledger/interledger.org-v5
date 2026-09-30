@@ -20,9 +20,9 @@ import { spawnSync } from 'child_process'
 import {
   assertRunFromCms,
   getConfigPath,
+  findRedirectChains,
   getProjectRoot,
-  redirectConfigToEntries,
-  type RedirectConfig,
+  parseRedirectConfigFile,
   type RedirectEntry
 } from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
@@ -48,12 +48,12 @@ interface SyncCounts {
   unchanged: number
 }
 
-function readRedirectConfig(filepath: string): RedirectConfig {
+function readRedirectConfig(filepath: string): unknown {
   if (!fs.existsSync(filepath)) {
     throw new Error(`Config file not found: ${filepath}`)
   }
   try {
-    return JSON.parse(fs.readFileSync(filepath, 'utf-8')) as RedirectConfig
+    return JSON.parse(fs.readFileSync(filepath, 'utf-8')) as unknown
   } catch (error) {
     throw new Error(
       `Failed to read or parse config file: ${filepath}: ${error instanceof Error ? error.message : error}`,
@@ -71,6 +71,26 @@ function isUnchanged(stored: RedirectEntry, wanted: RedirectEntry): boolean {
     // shows as off in the admin, so the seed backfills it to true.
     stored.enabled === wanted.enabled &&
     (stored.note ?? null) === wanted.note
+  )
+}
+
+/**
+ * Chains between the file and rows that exist only in Strapi (added by an
+ * editor), which Strapi would refuse partway through the run. Checked on the
+ * state the sync ends in: the file wins wherever both hold a source.
+ */
+function assertNoChainsWithStored(
+  entries: RedirectEntry[],
+  stored: Map<string, StoredRedirect>
+): void {
+  const fileSources = new Set(entries.map((entry) => entry.source))
+  const storedOnly = [...stored.values()].filter(
+    (entry) => !fileSources.has(entry.source)
+  )
+  const chains = findRedirectChains([...entries, ...storedOnly])
+  if (chains.length === 0) return
+  throw new Error(
+    `The sync would leave ${chains.length} redirect chain(s) with entries already in Strapi:\n  ${chains.join('\n  ')}`
   )
 }
 
@@ -190,11 +210,15 @@ async function main() {
     process.exit(1)
   }
 
-  await assertStrapiRunning(STRAPI_URL)
+  // Validated in full before any request: rows are written one at a time, so
+  // a bad entry found mid-run would leave Strapi half-seeded.
   const configPath = getConfigPath(projectRoot, 'redirects')
-  const entries = redirectConfigToEntries(readRedirectConfig(configPath))
+  const entries = parseRedirectConfigFile(readRedirectConfig(configPath))
   if (entries instanceof Error) throw entries
+
+  await assertStrapiRunning(STRAPI_URL)
   const stored = await fetchStoredRedirects(STRAPI_URL, STRAPI_TOKEN)
+  assertNoChainsWithStored(entries, stored)
   const counts = await syncRedirects(entries, stored, STRAPI_URL, STRAPI_TOKEN)
 
   const verb = DRY_RUN ? 'Would sync' : 'Synced'

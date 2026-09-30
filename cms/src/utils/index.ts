@@ -148,7 +148,9 @@ export {
   validateAndSaveRedirect,
   type RedirectWrite,
   serializeRedirectConfig,
-  redirectConfigToEntries
+  redirectConfigToEntries,
+  parseRedirectConfigFile,
+  findRedirectChains
 } from './redirects'
 
 // Card grid variants (serializers, sync handlers, admin picker)
