@@ -54,6 +54,7 @@ export interface SearchResultContext {
   pathname: string
   lang: string
   viewDetailsLabel: string
+  readMoreLabel: string
 }
 
 export interface SearchResultTagModel {
@@ -80,8 +81,12 @@ export interface SearchResultRowModel {
   startLabel: string | null
   startMonth: string | null
   leaders: string | null
-  leadersHasSnippetSpacer: boolean
-  descriptionSnippet: string | null
+  leadersHasDescriptionSpacer: boolean
+  /** Trusted build-time HTML from the search index. */
+  descriptionHtml: string | null
+  /** `aria-controls` target shared by the description text and its toggle. */
+  descriptionId: string
+  readMoreUmami: UmamiAttrs | null
   details: SearchResultDetailsModel | null
 }
 
@@ -120,7 +125,7 @@ export function searchResultRowModel(
   pageOrigin: string
 ): SearchResultRowModel {
   const leaders = entry.leaders.length > 0 ? entry.leaders.join(', ') : null
-  const descriptionSnippet = entry.descriptionSnippet || null
+  const descriptionHtml = entry.descriptionHtml || null
   const detailsHref = entry.projectUrl || null
 
   return {
@@ -132,8 +137,21 @@ export function searchResultRowModel(
     startLabel: entry.startLabel || null,
     startMonth: entry.startMonth || null,
     leaders,
-    leadersHasSnippetSpacer: Boolean(leaders && descriptionSnippet),
-    descriptionSnippet,
+    leadersHasDescriptionSpacer: Boolean(leaders && descriptionHtml),
+    descriptionHtml,
+    // Distinct from GranteeCard's `grantee-desc-*`: the static list stays in
+    // the DOM (hidden) while search rows render.
+    descriptionId: `grantee-search-desc-${entry.id}`,
+    readMoreUmami: descriptionHtml
+      ? buildUmamiAttrs({
+          pathname: context.pathname,
+          lang: context.lang,
+          label: 'button_ui',
+          baseComponent: 'grantee_cards',
+          linkText: context.readMoreLabel,
+          href: context.pathname
+        })
+      : null,
     details: detailsHref
       ? {
           href: detailsHref,
@@ -267,9 +285,13 @@ function fillDescription(row: HTMLElement, model: SearchResultRowModel): void {
     row,
     '[data-grantee-search-leaders-wrap]'
   )
-  const snippet = requireElement<HTMLElement>(
+  const text = requireElement<HTMLElement>(
     row,
-    '[data-grantee-search-snippet]'
+    '[data-grantee-search-description]'
+  )
+  const toggle = requireElement<HTMLButtonElement>(
+    row,
+    '[data-grantee-description-toggle]'
   )
 
   fillOrHide(leadersWrap, Boolean(model.leaders), () => {
@@ -277,15 +299,17 @@ function fillDescription(row: HTMLElement, model: SearchResultRowModel): void {
       requireElement(row, '[data-grantee-search-leaders]'),
       model.leaders ?? ''
     )
-    leadersWrap.classList.toggle('mb-lg', model.leadersHasSnippetSpacer)
+    leadersWrap.classList.toggle('mb-lg', model.leadersHasDescriptionSpacer)
   })
-  fillOrHide(snippet, Boolean(model.descriptionSnippet), () => {
-    setTextContent(snippet, model.descriptionSnippet ?? '')
+  fillOrHide(text, Boolean(model.descriptionHtml), () => {
+    text.innerHTML = model.descriptionHtml ?? ''
+    text.id = model.descriptionId
+    toggle.setAttribute('aria-controls', model.descriptionId)
+    if (model.readMoreUmami) applyUmamiAttrs(toggle, model.readMoreUmami)
   })
-  fillOrHide(
-    descriptionPanel,
-    Boolean(model.leaders || model.descriptionSnippet)
-  )
+  // Revealed by grantee-description.ts once the clamped text overflows.
+  hide(toggle)
+  fillOrHide(descriptionPanel, Boolean(model.leaders || model.descriptionHtml))
 }
 
 function fillDetails(row: HTMLElement, model: SearchResultRowModel): void {

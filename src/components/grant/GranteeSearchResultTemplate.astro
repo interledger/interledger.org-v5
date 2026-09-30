@@ -2,8 +2,9 @@
 /**
  * Markup source for client-side grantee search rows. grantee-search.ts clones
  * this template and fills [data-grantee-search-*] slots — keep structure and
- * Tailwind classes aligned with GranteeCard.astro (search omits read-more and
- * full markdown descriptions; tag pills and view-details match browse mode).
+ * Tailwind classes aligned with GranteeCard.astro. The description panel carries
+ * the same data-grantee-description hooks, so grantee-description.ts drives its
+ * read-more toggle once rows are rendered.
  */
 import Icon from '@/components/shared/Icon.astro'
 import { buttonVariants } from '@/components/shared/buttonVariants'
@@ -100,6 +101,7 @@ const detailsLinkClass = buttonVariants({
         <div
           class="flex flex-col rounded-2xl bg-ice-indigo-50 p-lg"
           data-grantee-search-description-panel
+          data-grantee-description
           hidden
         >
           <div
@@ -114,11 +116,29 @@ const detailsLinkClass = buttonVariants({
             </span>
           </div>
           <p
-            class="m-0 text-body-lg-standard text-neutral-100"
-            data-grantee-search-snippet
+            class="m-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover"
+            data-grantee-search-description
+            data-grantee-description-text
             hidden
           >
           </p>
+          <button
+            type="button"
+            hidden
+            data-grantee-description-toggle
+            data-label-more={t('grantee.read_more')}
+            data-label-less={t('grantee.read_less')}
+            class="mt-sm self-center inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link aria-expanded:[&_svg]:rotate-180"
+            aria-expanded="false"
+          >
+            <span data-grantee-description-toggle-label>
+              {t('grantee.read_more')}
+            </span>
+            <Icon
+              name="arrow-down"
+              class="size-5 transition-transform duration-200 motion-reduce:transition-none"
+            />
+          </button>
         </div>
 
         <div

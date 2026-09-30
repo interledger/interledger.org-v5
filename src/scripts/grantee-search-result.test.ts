@@ -33,7 +33,8 @@ const REQUIRED_ROW_ATTRS = [
   'data-grantee-search-description-panel',
   'data-grantee-search-leaders-wrap',
   'data-grantee-search-leaders',
-  'data-grantee-search-snippet',
+  'data-grantee-search-description',
+  'data-grantee-description-toggle',
   'data-grantee-search-details-wrap',
   'data-grantee-search-details-link'
 ] as const
@@ -51,7 +52,7 @@ function sampleSearchEntry(
     startLabel: '',
     leaders: [],
     tags: [],
-    descriptionSnippet: null,
+    descriptionHtml: null,
     projectUrl: null,
     budgetLabel: null,
     searchText: 'test',
@@ -69,6 +70,7 @@ function sampleContext(
     pathname: '/grant/grantee-directory',
     lang: 'en',
     viewDetailsLabel: 'View details',
+    readMoreLabel: 'Read more',
     ...overrides
   }
 }
@@ -150,6 +152,10 @@ describe('GranteeSearchResultTemplate', () => {
     const source = readFileSync(SEARCH_RESULT_TEMPLATE_PATH, 'utf8')
     expect(source).toContain('id="grantee-search-result-template"')
     expect(source).toContain('data-grantee-search-tag-template')
+    // grantee-description.ts binds on these hooks, same as GranteeCard.
+    expect(source).toContain('data-grantee-description\n')
+    expect(source).toContain('data-grantee-description-text')
+    expect(source).toContain('data-grantee-description-toggle-label')
     for (const attr of REQUIRED_ROW_ATTRS) {
       expect(source, attr).toContain(attr)
     }
@@ -167,7 +173,8 @@ describe('searchResultRowModel', () => {
         startLabel: 'March 2024',
         leaders: ['Ada Lovelace', 'Grace Hopper'],
         tags: ['Open Payments', 'Education'],
-        descriptionSnippet: 'A clearing network for community wallets.',
+        descriptionHtml:
+          'A clearing network for <strong>community</strong> wallets.',
         projectUrl: 'https://community.interledger.org/some-report',
         budgetLabel: '50,000'
       })
@@ -180,10 +187,17 @@ describe('searchResultRowModel', () => {
     expect(model.startLabel).toBe('March 2024')
     expect(model.startMonth).toBe('2024-03')
     expect(model.leaders).toBe('Ada Lovelace, Grace Hopper')
-    expect(model.leadersHasSnippetSpacer).toBe(true)
-    expect(model.descriptionSnippet).toBe(
-      'A clearing network for community wallets.'
+    expect(model.leadersHasDescriptionSpacer).toBe(true)
+    expect(model.descriptionHtml).toBe(
+      'A clearing network for <strong>community</strong> wallets.'
     )
+    expect(model.descriptionId).toBe('grantee-search-desc-rec1')
+    expect(model.readMoreUmami).toMatchObject({
+      'data-umami-event': 'button_ui',
+      'data-umami-event-base-component': 'grantee_cards',
+      'data-umami-event-link-text': 'Read more',
+      'data-umami-event-lang': 'en'
+    })
 
     expect(model.details).not.toBeNull()
     expect(model.details?.href).toBe(
@@ -235,8 +249,9 @@ describe('searchResultRowModel', () => {
     expect(model.startLabel).toBeNull()
     expect(model.startMonth).toBeNull()
     expect(model.leaders).toBeNull()
-    expect(model.leadersHasSnippetSpacer).toBe(false)
-    expect(model.descriptionSnippet).toBeNull()
+    expect(model.leadersHasDescriptionSpacer).toBe(false)
+    expect(model.descriptionHtml).toBeNull()
+    expect(model.readMoreUmami).toBeNull()
     expect(model.details).toBeNull()
   })
 
@@ -250,14 +265,21 @@ describe('searchResultRowModel', () => {
     expect(model.startMonth).toBeNull()
   })
 
-  it('keeps leaders without a snippet and does not add the snippet spacer', () => {
+  it('keeps leaders without a description and does not add the spacer', () => {
     const model = rowModel(
       sampleSearchEntry({ name: 'Leaders Only', leaders: ['Ada'] })
     )
 
     expect(model.leaders).toBe('Ada')
-    expect(model.leadersHasSnippetSpacer).toBe(false)
-    expect(model.descriptionSnippet).toBeNull()
+    expect(model.leadersHasDescriptionSpacer).toBe(false)
+    expect(model.descriptionHtml).toBeNull()
+  })
+
+  it('treats an empty description string as no description', () => {
+    const model = rowModel(sampleSearchEntry({ descriptionHtml: '' }))
+
+    expect(model.descriptionHtml).toBeNull()
+    expect(model.readMoreUmami).toBeNull()
   })
 
   it('links yearless tag pills under /tag/<slug>', () => {

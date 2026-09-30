@@ -373,13 +373,17 @@ describe('paginateGranteesByYearAndTag', () => {
   })
 })
 
+const DIRECTORY = '/grant/grantee-directory'
+
 describe('getGranteeSearchIndex', () => {
   it('returns an Error when the dump is not an array, matching getGranteeListingData', () => {
-    expect(getGranteeSearchIndex({ records: [] }, 'en')).toBeInstanceOf(Error)
+    expect(
+      getGranteeSearchIndex({ records: [] }, 'en', DIRECTORY)
+    ).toBeInstanceOf(Error)
   })
 
   it('maps grantees to slim, searchable entries', () => {
-    const index = getGranteeSearchIndex([sample], 'en')
+    const index = getGranteeSearchIndex([sample], 'en', DIRECTORY)
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(index).toHaveLength(1)
@@ -398,23 +402,49 @@ describe('getGranteeSearchIndex', () => {
     expect(index[0]?.searchText).toContain('clearing house')
   })
 
-  it('strips markdown from snippets without dropping literal C# or A_B', () => {
+  it('renders the description as inline HTML, matching GranteeCard', () => {
     const index = getGranteeSearchIndex(
       [
         record({
-          'Project Name': 'Snippet Markers',
+          'Project Name': 'Inline Markdown',
           'Project Description':
             'A **C#** and A_B toolkit. [docs](https://example.com)'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
-    expect(index[0]?.descriptionSnippet).toBe('A C# and A_B toolkit. docs')
+    const html = index[0]?.descriptionHtml ?? ''
+    expect(html).toContain('<strong>C#</strong>')
+    expect(html).toContain('A_B')
+    expect(html).toMatch(/<a [^>]*href="https:\/\/example\.com"/)
   })
 
-  it('truncates a long description into a plain-text snippet', () => {
+  it('attributes description links to the localized grantee directory', () => {
+    const description = '[docs](https://example.com)'
+    const en = getGranteeSearchIndex(
+      [record({ 'Project Name': 'Link', 'Project Description': description })],
+      'en',
+      DIRECTORY
+    )
+    const es = getGranteeSearchIndex(
+      [record({ 'Project Name': 'Link', 'Project Description': description })],
+      'es',
+      '/es/grant/grantee-directory'
+    )
+    if (en instanceof Error || es instanceof Error) {
+      throw new Error('expected search indexes')
+    }
+    for (const html of [en[0]?.descriptionHtml, es[0]?.descriptionHtml]) {
+      expect(html).toContain('data-umami-event-current-path="grant"')
+      expect(html).not.toContain('foundation_home')
+    }
+    expect(es[0]?.descriptionHtml).toContain('data-umami-event-lang="es"')
+  })
+
+  it('ships the full description so read-more can expand it', () => {
     const longDescription = 'Building open payments infrastructure. '.repeat(10)
     const index = getGranteeSearchIndex(
       [
@@ -423,26 +453,39 @@ describe('getGranteeSearchIndex', () => {
           'Project Description': longDescription
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
-    expect(index[0]?.descriptionSnippet).not.toBeNull()
-    expect(index[0]?.descriptionSnippet?.length).toBeLessThanOrEqual(160)
-    expect(index[0]?.descriptionSnippet?.length).toBeLessThan(
-      longDescription.length
+    expect(index[0]?.descriptionHtml).toBe(longDescription.trim())
+  })
+
+  it('drops unsafe link schemes from the rendered description', () => {
+    const index = getGranteeSearchIndex(
+      [
+        record({
+          'Project Name': 'Unsafe Link',
+          'Project Description': '[click](javascript:alert(1))'
+        })
+      ],
+      'en',
+      DIRECTORY
     )
-    expect(index[0]?.descriptionSnippet?.endsWith('…')).toBe(true)
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]?.descriptionHtml).not.toContain('javascript:')
   })
 
   it('is null for grantees with no description', () => {
     const index = getGranteeSearchIndex(
       [record({ 'Project Name': 'No Description' })],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
-    expect(index[0]?.descriptionSnippet).toBeNull()
+    expect(index[0]?.descriptionHtml).toBeNull()
   })
 
   it('keeps ATX hashes searchable in precomputed searchText', () => {
@@ -453,32 +496,14 @@ describe('getGranteeSearchIndex', () => {
           'Project Description': '# Open payments'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(
       matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
     ).toBe(true)
-  })
-
-  it('builds snippets from stored descriptionPlain, not a second markdown pass', () => {
-    const data = [
-      record({
-        'Project Name': 'Heading Grantee',
-        'Project Description': '# Open payments infrastructure.'
-      })
-    ]
-    const grantees = parseGranteeRecords(data, 'en')
-    expect(grantees).not.toBeInstanceOf(Error)
-    if (grantees instanceof Error) return
-
-    const index = getGranteeSearchIndex(data, 'en')
-    expect(index).not.toBeInstanceOf(Error)
-    if (index instanceof Error) return
-
-    expect(index[0]?.descriptionSnippet).toBe(grantees[0]!.descriptionPlain)
-    expect(index[0]?.searchText).toContain('# open payments')
   })
 
   it('keeps setext underlines and blockquote markers searchable', () => {
@@ -490,7 +515,8 @@ describe('getGranteeSearchIndex', () => {
             'Open payments\n=============\n\n> wallets first'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
@@ -501,29 +527,10 @@ describe('getGranteeSearchIndex', () => {
     expect(
       matchesGranteeFilters(grantee, { q: '> wallets', year: '', tag: '' })
     ).toBe(true)
-    expect(grantee.descriptionSnippet).not.toMatch(/===|>/)
-  })
-
-  it('shows heading and quote prose in the snippet without markdown markers', () => {
-    const index = getGranteeSearchIndex(
-      [
-        record({
-          'Project Name': 'Display Snippet',
-          'Project Description': '# Open payments\n\n> wallets first'
-        })
-      ],
-      'en'
-    )
-    expect(index).not.toBeInstanceOf(Error)
-    if (index instanceof Error) return
-    expect(index[0]?.descriptionSnippet).toBe('Open payments wallets first')
-    expect(
-      matchesGranteeFilters(index[0]!, { q: '# open', year: '', tag: '' })
-    ).toBe(true)
   })
 
   it('produces entries matchesGranteeFilters can filter directly', () => {
-    const index = getGranteeSearchIndex([sample], 'en')
+    const index = getGranteeSearchIndex([sample], 'en', DIRECTORY)
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
     expect(
@@ -596,7 +603,8 @@ describe('searchText markdown handling', () => {
             'Open payments\n=============\n\n> wallets first'
         })
       ],
-      'en'
+      'en',
+      DIRECTORY
     )
     expect(index).not.toBeInstanceOf(Error)
     if (index instanceof Error) return
