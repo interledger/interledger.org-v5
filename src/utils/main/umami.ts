@@ -131,6 +131,15 @@ function groupContentSegments(
   return normaliseSegment(content[0])
 }
 
+const FQDN_TRAILING_DOT = /\.$/
+
+/** True when `hostname` is one of the site's own domains (FQDN dot ignored). */
+export function isSiteHostname(hostname: string): boolean {
+  return SITE_HOSTNAMES.has(
+    hostname.toLowerCase().replace(FQDN_TRAILING_DOT, '')
+  )
+}
+
 /**
  * Rewrites an absolute link to the site's own domain into a relative path,
  * so it flows through the internal classification pipeline instead of the
@@ -139,7 +148,7 @@ function groupContentSegments(
 function stripKnownOrigin(href: string): string {
   try {
     const url = new URL(href)
-    return SITE_HOSTNAMES.has(url.hostname.toLowerCase())
+    return isSiteHostname(url.hostname)
       ? `${url.pathname}${url.search}${url.hash}`
       : href
   } catch {
