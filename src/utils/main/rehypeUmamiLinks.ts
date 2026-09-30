@@ -8,9 +8,11 @@ import {
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
 import { LOCALE_CODES } from './localeCodes'
+import { getNewTabLinkAttrs, getOpensNewTabLabel } from './newTabLinks'
 
 /**
- * Adds umami event attributes to every `<a>` rendered from Markdown/MDX.
+ * Adds umami event attributes to every `<a>` rendered from Markdown/MDX, and
+ * opens off-site links in a new tab (see `getNewTabLinkAttrs`).
  *
  * `current_path` is derived from the source file's locale-aware path (or
  * `frontmatter.umamiContext` if set). Every link emits the flat `link` label
@@ -49,43 +51,106 @@ const rehypeUmamiLinks: Plugin<[], Root> = () => (tree, file: VFile) => {
       : 'en'
   const pathname = `/${cleanedSlug}`
 
+  const umamiCtx: LinkUmamiContext = {
+    currentPath: overridePage,
+    pathname,
+    lang
+  }
+
+  const headingLinks = collectHeadingLinks(tree)
+
   visit(tree, 'element', (node: Element) => {
     if (node.tagName !== 'a') return
-    const props = (node.properties ??= {})
-    if (
-      typeof props.dataUmamiEvent === 'string' ||
-      typeof props['data-umami-event'] === 'string'
-    ) {
-      return
-    }
-    let text = ''
-    visit(node, 'text', (t: Text) => {
-      text += t.value
+    addUmamiAttrs(node, umamiCtx)
+    // After the umami pass, so the hint stays out of `link-text`.
+    addNewTabAttrs(node, lang, { withHint: !headingLinks.has(node) })
+  })
+}
+
+const HEADING_TAGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+
+/**
+ * Links inside headings. MDX slugs heading ids from their text after this
+ * plugin runs, so a hint there would leak into the id and break `#anchors`.
+ */
+function collectHeadingLinks(tree: Root): Set<Element> {
+  const links = new Set<Element>()
+  visit(tree, 'element', (heading: Element) => {
+    if (!HEADING_TAGS.has(heading.tagName)) return
+    visit(heading, 'element', (node: Element) => {
+      if (node.tagName === 'a') links.add(node)
     })
+  })
+  return links
+}
 
-    const rawTitle = typeof props.title === 'string' ? props.title : undefined
-    const { label: baseComponentOverride, title: cleanedTitle } =
-      extractTitleLabel(rawTitle)
-    if (baseComponentOverride) {
-      delete props.title
-    } else if (cleanedTitle !== undefined) {
-      props.title = cleanedTitle
-    }
+interface LinkUmamiContext {
+  currentPath?: string
+  pathname: string
+  lang: string
+}
 
-    const attrs = buildUmamiAttrs({
-      currentPath: overridePage,
-      pathname,
-      lang,
-      label: 'link',
-      baseComponent:
-        baseComponentOverride || DEFAULT_INLINE_LINK_BASE_COMPONENT,
-      linkText: text.trim(),
-      href: typeof props.href === 'string' ? props.href : undefined
-    })
+function addUmamiAttrs(node: Element, ctx: LinkUmamiContext): void {
+  const props = (node.properties ??= {})
+  if (
+    typeof props.dataUmamiEvent === 'string' ||
+    typeof props['data-umami-event'] === 'string'
+  ) {
+    return
+  }
+  let text = ''
+  visit(node, 'text', (t: Text) => {
+    text += t.value
+  })
 
-    for (const [key, value] of Object.entries(attrs)) {
-      props[key] = value as string
-    }
+  const rawTitle = typeof props.title === 'string' ? props.title : undefined
+  const { label: baseComponentOverride, title: cleanedTitle } =
+    extractTitleLabel(rawTitle)
+  if (baseComponentOverride) {
+    delete props.title
+  } else if (cleanedTitle !== undefined) {
+    props.title = cleanedTitle
+  }
+
+  const attrs = buildUmamiAttrs({
+    ...ctx,
+    label: 'link',
+    baseComponent: baseComponentOverride || DEFAULT_INLINE_LINK_BASE_COMPONENT,
+    linkText: text.trim(),
+    href: typeof props.href === 'string' ? props.href : undefined
+  })
+
+  for (const [key, value] of Object.entries(attrs)) {
+    props[key] = value as string
+  }
+}
+
+/**
+ * Opens off-site links in a new tab, with a screen-reader hint unless
+ * `withHint` is false. A `target` already set by the author wins, so a raw
+ * JSX `<a>` keeps its choice.
+ */
+function addNewTabAttrs(
+  node: Element,
+  lang: string,
+  { withHint }: { withHint: boolean }
+): void {
+  const props = (node.properties ??= {})
+  if (props.target !== undefined) return
+
+  const attrs = getNewTabLinkAttrs(
+    typeof props.href === 'string' ? props.href : undefined
+  )
+  if (!('target' in attrs)) return
+
+  props.target = attrs.target
+  props.rel = attrs.rel
+  if (!withHint) return
+  node.children.push({
+    type: 'element',
+    tagName: 'span',
+    properties: { className: ['sr-only'] },
+    children: [{ type: 'text', value: ` ${getOpensNewTabLabel(lang)}` }]
   })
 }
 
