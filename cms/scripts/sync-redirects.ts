@@ -3,10 +3,11 @@
 /**
  * Redirects JSON to Strapi Sync Script
  *
- * Seeds Strapi from src/config/redirects.json: creates redirects Strapi lacks
- * and updates ones whose destination, category, type, enabled state or note
- * differ. It never
- * deletes, so an entry an editor added in Strapi survives a re-run.
+ * Mirrors src/config/redirects.json into Strapi, as sync:mdx does for MDX
+ * files: deletes redirects the file no longer has, then creates the ones
+ * Strapi lacks and updates ones whose destination, category, type, enabled
+ * state or note differ. Editors can't delete in the admin; removing an entry
+ * from the file and running this is how a redirect goes away.
  *
  * Usage:
  *   pnpm run sync:redirects:dry-run
@@ -20,7 +21,7 @@ import { spawnSync } from 'child_process'
 import {
   assertRunFromCms,
   getConfigPath,
-  findRedirectChains,
+  findOrphanedRedirects,
   getProjectRoot,
   parseRedirectConfigFile,
   type RedirectEntry
@@ -74,26 +75,6 @@ function isUnchanged(stored: RedirectEntry, wanted: RedirectEntry): boolean {
   )
 }
 
-/**
- * Chains between the file and rows that exist only in Strapi (added by an
- * editor), which Strapi would refuse partway through the run. Checked on the
- * state the sync ends in: the file wins wherever both hold a source.
- */
-function assertNoChainsWithStored(
-  entries: RedirectEntry[],
-  stored: Map<string, StoredRedirect>
-): void {
-  const fileSources = new Set(entries.map((entry) => entry.source))
-  const storedOnly = [...stored.values()].filter(
-    (entry) => !fileSources.has(entry.source)
-  )
-  const chains = findRedirectChains([...entries, ...storedOnly])
-  if (chains.length === 0) return
-  throw new Error(
-    `The sync would leave ${chains.length} redirect chain(s) with entries already in Strapi:\n  ${chains.join('\n  ')}`
-  )
-}
-
 function buildHeaders(token: string): Record<string, string> {
   return {
     'Content-Type': 'application/json',
@@ -142,6 +123,47 @@ async function writeRedirect(
       `Failed to sync redirect ${entry.source}: ${res.status} - ${await res.text()}`
     )
   }
+}
+
+/**
+ * Deletes rows the file no longer has. Sent with the sync headers, which is
+ * the only way the server accepts a redirect delete (isCodeSyncRequest), and
+ * which skips the lifecycle export: the file is already in its final state.
+ */
+async function deleteRedirect(
+  baseUrl: string,
+  token: string,
+  redirect: StoredRedirect
+): Promise<void> {
+  const res = await fetch(`${baseUrl}${API_PATH}/${redirect.documentId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(token)
+  })
+  // Already gone counts as deleted, as in sync:mdx.
+  if (res.ok || res.status === 404) return
+  throw new Error(
+    `Failed to delete redirect ${redirect.source}: ${res.status} - ${await res.text()}`
+  )
+}
+
+async function pruneRedirects(
+  entries: RedirectEntry[],
+  stored: Map<string, StoredRedirect>,
+  baseUrl: string,
+  token: string
+): Promise<number> {
+  const orphans = findOrphanedRedirects(entries, stored.values())
+  for (const orphan of orphans) {
+    if (DRY_RUN) {
+      console.log(
+        `🗑️  [DRY-RUN] Would delete ${orphan.source} → ${orphan.destination}`
+      )
+      continue
+    }
+    await deleteRedirect(baseUrl, token, orphan)
+    console.log(`🗑️  Deleted ${orphan.source}`)
+  }
+  return orphans.length
 }
 
 async function syncRedirects(
@@ -218,12 +240,19 @@ async function main() {
 
   await assertStrapiRunning(STRAPI_URL)
   const stored = await fetchStoredRedirects(STRAPI_URL, STRAPI_TOKEN)
-  assertNoChainsWithStored(entries, stored)
+  // Delete first: every write re-runs the server's chain check against the
+  // live table, and a removed row could otherwise block a valid write.
+  const deleted = await pruneRedirects(
+    entries,
+    stored,
+    STRAPI_URL,
+    STRAPI_TOKEN
+  )
   const counts = await syncRedirects(entries, stored, STRAPI_URL, STRAPI_TOKEN)
 
   const verb = DRY_RUN ? 'Would sync' : 'Synced'
   console.log(
-    `✅ ${verb} ${entries.length} redirects: ${counts.created} created, ${counts.updated} updated, ${counts.unchanged} unchanged`
+    `✅ ${verb} ${entries.length} redirects: ${counts.created} created, ${counts.updated} updated, ${deleted} deleted, ${counts.unchanged} unchanged`
   )
   if (DRY_RUN) {
     console.log(

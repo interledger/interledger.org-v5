@@ -6,6 +6,7 @@ import {
   normalizeRedirectInput,
   normalizeRedirectSource,
   findRedirectChains,
+  findOrphanedRedirects,
   parseRedirectConfigFile,
   redirectConfigToEntries,
   redirectDeleteError,
@@ -854,5 +855,47 @@ describe('validateAndSaveRedirect', () => {
 
     expect(failed).toBe(dbError)
     expect(next).toBe('saved')
+  })
+})
+
+describe('findOrphanedRedirects', () => {
+  const stored = [
+    { source: '/old-a', documentId: 'a' },
+    { source: '/old-b', documentId: 'b' },
+    { source: '/Old-C', documentId: 'c' }
+  ]
+
+  it('returns nothing when the file has every stored source', () => {
+    const entries = [
+      { source: '/old-a' },
+      { source: '/old-b' },
+      { source: '/Old-C' }
+    ]
+    expect(findOrphanedRedirects(entries, stored)).toEqual([])
+  })
+
+  it('returns the stored rows the file no longer has', () => {
+    expect(findOrphanedRedirects([{ source: '/old-a' }], stored)).toEqual([
+      stored[1],
+      stored[2]
+    ])
+  })
+
+  it('returns every stored row for an empty file', () => {
+    expect(findOrphanedRedirects([], stored)).toEqual(stored)
+  })
+
+  it('matches the exact source, case included', () => {
+    const entries = [
+      { source: '/old-a' },
+      { source: '/old-b' },
+      { source: '/old-c' }
+    ]
+    expect(findOrphanedRedirects(entries, stored)).toEqual([stored[2]])
+  })
+
+  it('accepts any iterable, such as Map values', () => {
+    const byId = new Map(stored.map((row) => [row.source, row]))
+    expect(findOrphanedRedirects([], byId.values())).toHaveLength(3)
   })
 })

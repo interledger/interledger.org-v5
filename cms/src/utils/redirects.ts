@@ -5,9 +5,10 @@
  * `:param` or `*` stay in `public/_redirects`, where a developer controls
  * their order — so pattern characters are rejected here, not just discouraged.
  *
- * Redirects are switched off, never deleted: a delete is permanent and, once
- * git-synced, only recoverable from history. A disabled redirect stays in the
- * JSON (so a re-seed keeps it) but never reaches Astro.
+ * Editors switch redirects off rather than delete them: a delete is permanent
+ * and, once git-synced, only recoverable from history. A disabled redirect
+ * stays in the JSON (so a re-seed keeps it) but never reaches Astro. Removal
+ * is a code change: drop the entry from the JSON and the sync deletes the row.
  *
  * The JSON shape mirrors `RedirectConfig` in `src/types/redirects.ts`; the
  * src suite checks this schema's category enum against it.
@@ -596,7 +597,20 @@ export function parseRedirectConfigFile(
 }
 
 /**
- * Refuses every delete. Returned rather than thrown so the middleware owns
+ * Stored redirects whose source the file no longer has: the rows the sync
+ * deletes so Strapi mirrors redirects.json, as sync:mdx does for MDX files.
+ * Matched on the exact source, the same key the sync looks rows up by.
+ */
+export function findOrphanedRedirects<T extends Pick<RedirectEntry, 'source'>>(
+  entries: Pick<RedirectEntry, 'source'>[],
+  stored: Iterable<T>
+): T[] {
+  const fileSources = new Set(entries.map((entry) => entry.source))
+  return [...stored].filter((row) => !fileSources.has(row.source))
+}
+
+/**
+ * Refuses an editor's delete. Returned rather than thrown so the middleware owns
  * control flow; the admin shows the message as a toast.
  */
 export function redirectDeleteError(): errors.ValidationError {

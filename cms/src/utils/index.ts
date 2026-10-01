@@ -143,6 +143,7 @@ export {
   normalizeRedirectInput,
   isRedirectEnabled,
   redirectDeleteError,
+  findOrphanedRedirects,
   validateRedirectInput,
   validateRedirectLinks,
   validateAndSaveRedirect,
