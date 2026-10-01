@@ -2,6 +2,7 @@
 import {
   type Locale,
   isDemoPathSlug,
+  productionDeploy,
   useTranslations,
   localizeRoute
 } from '@/utils'
@@ -110,7 +111,9 @@ const heroLcpPreload =
   noindex={noindex}
   heroLcpPreload={heroLcpPreload}
 >
-  <Fragment slot="head">{needsFundraiseUp && <FundraiseUpScript />}</Fragment>
+  <Fragment slot="head">
+    {needsFundraiseUp && <FundraiseUpScript testMode={!productionDeploy()} />}
+  </Fragment>
 
   <main class="page-stack pb-section" data-pillar="mission">
     {
