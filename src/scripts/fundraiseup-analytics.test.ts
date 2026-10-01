@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import {
   FUNDRAISE_UP_UMAMI_EVENTS,
@@ -156,6 +157,27 @@ describe('toUmamiPayload', () => {
 })
 
 describe('initFundraiseUpAnalytics', () => {
+  it('is started by the Fundraise Up install component, after the vendor stub', () => {
+    const source = readFileSync(
+      new URL('../components/support/FundraiseUpScript.astro', import.meta.url),
+      'utf8'
+    )
+    const stubAt = source.indexOf('w[n] = o')
+    const importAt = source.indexOf(
+      "import { initFundraiseUpAnalytics } from '@/scripts/fundraiseup-analytics'"
+    )
+    const callAt = source.indexOf('initFundraiseUpAnalytics()', importAt)
+
+    // The doc comment names the function too. The call has to be a bundled
+    // module placed after the inline stub, or `.on()` runs before the queue exists.
+    expect(stubAt).toBeGreaterThan(-1)
+    expect(importAt).toBeGreaterThan(stubAt)
+    expect(callAt).toBeGreaterThan(importAt)
+    expect(
+      source.slice(source.lastIndexOf('<script', importAt), importAt)
+    ).not.toContain('is:inline')
+  })
+
   const originalWindow = (globalThis as Record<string, unknown>).window
 
   afterEach(() => {
