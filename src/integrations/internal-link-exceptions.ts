@@ -14,5 +14,16 @@ export const INTERNAL_LINK_EXCEPTIONS: readonly string[] = [
   // The language switcher on 404.html points at a Spanish 404 route that does
   // not exist. Netlify serves the English dist/404.html anyway, so the link
   // still renders a 404 page. Fix: add src/pages/es/404.astro.
-  '/es/404'
+  '/es/404',
+  // The ILF Participation Guidelines page is being written. Linked from
+  // docs/developers/get-involved.md; leaving the link as-is until it ships.
+  '/participation-guidelines',
+  // Fundraise Up element hooks on /get-involved/donate, not ids of any element
+  // in the HTML. The widget matches the href itself. The Spanish page is the
+  // English fallback and emits the same anchors. Do not add empty elements
+  // with these ids just to satisfy the check.
+  '/get-involved/donate#XVSHSPQU',
+  '/es/get-involved/donate#XVSHSPQU',
+  '/get-involved/donate#XMWLAVRZ',
+  '/es/get-involved/donate#XMWLAVRZ'
 ]

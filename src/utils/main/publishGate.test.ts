@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   hideFuturePosts,
+  isProductionDeploy,
   isPublishedAt,
+  productionDeploy,
   resolveGateNow,
   shouldHideFuturePosts
 } from './publishGate'
@@ -48,6 +50,49 @@ describe('shouldHideFuturePosts', () => {
       })
     ).toBe(true)
     expect(shouldHideFuturePosts({ BLOG_DATE_FILTER: 'maybe' })).toBe(false)
+  })
+})
+
+describe('isProductionDeploy', () => {
+  it('is off for a plain local build, so checkout stays in test mode', () => {
+    expect(isProductionDeploy({})).toBe(false)
+  })
+
+  it('is on only for a Netlify production build', () => {
+    expect(isProductionDeploy({ CONTEXT: 'production' })).toBe(true)
+    expect(isProductionDeploy({ CONTEXT: ' PRODUCTION ' })).toBe(true)
+  })
+
+  it.each(['branch-deploy', 'deploy-preview', 'dev'])(
+    'is off for CONTEXT=%s',
+    (context) => {
+      expect(isProductionDeploy({ CONTEXT: context })).toBe(false)
+    }
+  )
+
+  it('ignores the blog-gate override, which must not flip a live checkout', () => {
+    expect(isProductionDeploy({ BLOG_DATE_FILTER: 'on' })).toBe(false)
+    expect(
+      isProductionDeploy({ CONTEXT: 'production', BLOG_DATE_FILTER: 'off' })
+    ).toBe(true)
+  })
+})
+
+describe('productionDeploy', () => {
+  const originalContext = process.env.CONTEXT
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    // __IS_PRODUCTION_DEPLOY__ is injected by Vite `define`, so under plain
+    // vitest it is undefined and the accessor must read process.env instead.
+    delete process.env.CONTEXT
+    expect(productionDeploy()).toBe(false)
+
+    process.env.CONTEXT = 'production'
+    expect(productionDeploy()).toBe(true)
   })
 })
 
