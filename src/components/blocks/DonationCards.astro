@@ -52,11 +52,17 @@ interface DonationCard {
 
 interface Props {
   cards?: DonationCard[]
-  /** Labels the grid for screen readers when the section has no visible heading. */
+  /**
+   * Names the group. Rendered as a visually hidden h2: the page title is an
+   * h1 and each card heading is an h3, and an aria-label on the section would
+   * name the region without filling that gap in the heading outline.
+   */
   ariaLabel: string
 }
 
 const { cards = [], ariaLabel } = Astro.props
+const label = ariaLabel.trim()
+const headingId = `donation-cards-heading-${crypto.randomUUID()}`
 
 const resolved = cards
   .filter((card) => card?.heading?.trim() && card?.ctaLink?.trim())
@@ -90,67 +96,74 @@ const leadClass =
   resolved.length > 0 && (
     <section
       data-component="DonationCards"
-      aria-label={ariaLabel}
-      class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 tablet:gap-2xl desktop:grid-cols-3"
+      aria-labelledby={headingId}
+      class="relative"
     >
-      {resolved.map((card, index) => (
-        <article class={cardClass}>
-          <div aria-hidden="true" class={ACCENT_SLOT_CLASS}>
-            <span
-              class:list={[
-                'block shrink-0 origin-top-left rounded-full transition-transform duration-200 group-hover:scale-130 group-focus-within:scale-130 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
-                ACCENT_CLASS[index % ACCENT_CLASS.length]
-              ]}
-            />
-          </div>
+      <h2 id={headingId} class="sr-only">
+        {label}
+      </h2>
+      <div class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 tablet:gap-2xl desktop:grid-cols-3">
+        {resolved.map((card, index) => (
+          <article class={cardClass}>
+            <div aria-hidden="true" class={ACCENT_SLOT_CLASS}>
+              <span
+                class:list={[
+                  'block shrink-0 origin-top-left rounded-full transition-transform duration-200 group-hover:scale-130 group-focus-within:scale-130 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+                  ACCENT_CLASS[index % ACCENT_CLASS.length]
+                ]}
+              />
+            </div>
 
-          <h3 class="m-0 !mt-0 !mb-0 !text-h3 tablet:!text-h3-md desktop:!text-h3-lg">
-            {card.heading}
-          </h3>
+            <h3 class="m-0 !mt-0 !mb-0 !text-h3 tablet:!text-h3-md desktop:!text-h3-lg">
+              {card.heading}
+            </h3>
 
-          <p class={leadClass}>{card.amount}</p>
+            <p class={leadClass}>{card.amount}</p>
 
-          {card.summary && <p class={bodyClass}>{card.summary}</p>}
+            {card.summary && <p class={bodyClass}>{card.summary}</p>}
 
-          {card.seats && (
-            <p class="m-0 text-base font-bold text-orchid-100 dark:text-orchid-50">
-              {card.seats}
-            </p>
-          )}
+            {card.seats && (
+              <p class="m-0 text-base font-bold text-orchid-100 dark:text-orchid-50">
+                {card.seats}
+              </p>
+            )}
 
-          <hr class="m-0 border-0 border-t border-neutral-50 dark:border-neutral-75" />
+            <hr class="m-0 border-0 border-t border-neutral-50 dark:border-neutral-75" />
 
-          <p class={leadClass}>{card.benefitsLabel ?? 'Benefits'}</p>
+            <p class={leadClass}>{card.benefitsLabel ?? 'Benefits'}</p>
 
-          <p class={bodyClass}>{card.benefits}</p>
+            <p class={bodyClass}>{card.benefits}</p>
 
-          {/* mt-auto pins every CTA to the bottom, so a shorter card's button
-              still lines up with the others in the row.
+            {/* mt-auto pins every CTA to the bottom, so a shorter card's button
+                still lines up with the others in the row.
 
-              The button's stretched ::after covers the whole card, so clicking
-              anywhere on the card follows the CTA while the page keeps one tab
-              stop and one accessible name. A Fundraise Up CTA is the exception:
-              their script replaces our anchor with its own iframe button, which
-              takes the pseudo-element with it, so those cards stay
-              button-only until Fundraise Up gives us a donate-link URL. */}
-          <div class="mt-auto pt-lg">
-            <LinkButton
-              href={card.cta.href}
-              class="after:absolute after:inset-0 after:content-['']"
-              variant="primary"
-              external={card.cta.external}
-              document={card.cta.document}
-              iconSide={card.cta.icon ? 'right' : 'none'}
-              linkText={card.ctaText}
-              umamiLabel="button_card"
-              umamiBaseComponent="donation_card"
-            >
-              {card.ctaText}
-              {card.cta.icon && <Icon name={card.cta.icon} slot="icon-right" />}
-            </LinkButton>
-          </div>
-        </article>
-      ))}
+                The button's stretched ::after covers the whole card, so clicking
+                anywhere on the card follows the CTA while the page keeps one tab
+                stop and one accessible name. A Fundraise Up CTA is the exception:
+                their script replaces our anchor with its own iframe button, which
+                takes the pseudo-element with it, so those cards stay
+                button-only until Fundraise Up gives us a donate-link URL. */}
+            <div class="mt-auto pt-lg">
+              <LinkButton
+                href={card.cta.href}
+                class="after:absolute after:inset-0 after:content-['']"
+                variant="primary"
+                external={card.cta.external}
+                document={card.cta.document}
+                iconSide={card.cta.icon ? 'right' : 'none'}
+                linkText={card.ctaText}
+                umamiLabel="button_card"
+                umamiBaseComponent="donation_card"
+              >
+                {card.ctaText}
+                {card.cta.icon && (
+                  <Icon name={card.cta.icon} slot="icon-right" />
+                )}
+              </LinkButton>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   )
 }
