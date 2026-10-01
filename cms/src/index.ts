@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Transform } from 'stream'
@@ -29,7 +30,12 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
-  isFullAccessApiToken
+  isFullAccessApiToken,
+  SERVER_STATUS_PATH,
+  DEV_BUILD_ID,
+  createServerStatusHandler,
+  readAdminBuildId,
+  resolveAdminIndexHtmlPath
 } from './utils'
 import {
   validateContentBlocks,
@@ -48,6 +54,27 @@ import {
 } from './utils/uploadLimits'
 import { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './utils/seedMedia'
 import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
+
+/**
+ * Identity of this Strapi process, for the admin panel's server-status notice.
+ * Both are read once at module load: BOOT_ID changes on every restart, BUILD_ID
+ * only when the admin bundle is rebuilt — which is what tells an open tab its
+ * JavaScript has gone stale.
+ */
+const BOOT_ID = randomUUID()
+
+function resolveAdminBuildId(): string {
+  const buildId = readAdminBuildId(resolveAdminIndexHtmlPath(process.cwd()))
+  if (buildId instanceof Error) {
+    // Never fail boot over a status endpoint; degrade to the dev id, which
+    // simply means the admin is never told to reload.
+    console.warn(`[cms-status] ${buildId.message}`)
+    return DEV_BUILD_ID
+  }
+  return buildId
+}
+
+const BUILD_ID = resolveAdminBuildId()
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
   CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
@@ -324,6 +351,7 @@ interface KoaContext {
   request: { headers: Record<string, string | string[] | undefined> }
   status: number
   body: unknown
+  set: (field: string, value: string) => void
 }
 
 interface StrapiInstance {
@@ -347,6 +375,7 @@ interface StrapiInstance {
   plugin: (name: string) => StrapiPlugin | undefined
   server: {
     router: {
+      get: (path: string, handler: (ctx: KoaContext) => void) => void
       post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void
     }
   }
@@ -2171,6 +2200,16 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Server-status endpoint for the admin panel's notice bar. Deliberately
+    // unauthenticated: an authenticated poll would 401 every 30 minutes, trip
+    // Strapi's reactive token refresh and roll the idle window forward, making
+    // sessions immortal and the session-expiry warning unreachable. It returns
+    // only two opaque identifiers and the server clock.
+    strapi.server.router.get(
+      SERVER_STATUS_PATH,
+      createServerStatusHandler({ bootId: BOOT_ID, buildId: BUILD_ID })
+    )
+
     // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
     // restarting Strapi. This route is registered on the Koa router, so Strapi's
     // api-token middleware never runs for it and the handler authorizes the
