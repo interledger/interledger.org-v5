@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { parseRedirectConfig, toAstroRedirects } from './redirects'
+import {
+  parseRedirectConfig,
+  redirectTargetPath,
+  toAstroRedirects
+} from './redirects'
 import { REDIRECT_CATEGORIES, type RedirectConfig } from '../../types/redirects'
 import pathCases from '../../../cms/src/utils/redirectPathCases.json'
 
@@ -129,6 +133,81 @@ describe('parseRedirectConfig path rules shared with Strapi', () => {
     })
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain('/dup')
+  })
+})
+
+describe('parseRedirectConfig self-redirects and chains', () => {
+  it('rejects a redirect to itself, ignoring trailing slash and query', () => {
+    for (const destination of ['/a', '/a/', '/a?x=1', '/a#top']) {
+      const result = parseRedirectConfig({
+        site_pages: [{ source: '/a', destination, status: 301 }]
+      })
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toContain('redirects to itself')
+    }
+  })
+
+  it('rejects a disabled redirect to itself', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/a', destination: '/a', status: 301, enabled: false }
+      ]
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('rejects a chain between enabled rules, across categories', () => {
+    const result = parseRedirectConfig({
+      site_pages: [{ source: '/a', destination: '/b/', status: 301 }],
+      hackathon: [{ source: '/b', destination: '/c', status: 301 }]
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('"/a"')
+  })
+
+  it('rejects a chain to a source written with a trailing slash', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/a', destination: '/b', status: 301 },
+        { source: '/b/', destination: '/c', status: 301 }
+      ]
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('allows a chain through a disabled rule', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/a', destination: '/b', status: 301 },
+        { source: '/b', destination: '/c', status: 301, enabled: false }
+      ]
+    })
+    expect(result).not.toBeInstanceOf(Error)
+  })
+
+  it('allows an https destination whose path matches a source', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/a', destination: 'https://example.com/b', status: 301 },
+        { source: '/b', destination: '/c', status: 301 }
+      ]
+    })
+    expect(result).not.toBeInstanceOf(Error)
+  })
+})
+
+describe('redirectTargetPath', () => {
+  it('drops query, fragment and trailing slash', () => {
+    expect(redirectTargetPath('/a/b/?x=1#top')).toBe('/a/b')
+  })
+
+  it('keeps the root path', () => {
+    expect(redirectTargetPath('/')).toBe('/')
+  })
+
+  it('returns undefined for off-site destinations', () => {
+    expect(redirectTargetPath('https://example.com/a')).toBeUndefined()
+    expect(redirectTargetPath('//example.com/a')).toBeUndefined()
   })
 })
 

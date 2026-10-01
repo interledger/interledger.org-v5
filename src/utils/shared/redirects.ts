@@ -131,12 +131,58 @@ function findDuplicateSource(config: RedirectConfig): string | undefined {
   return undefined
 }
 
+function withoutTrailingSlash(path: string): string {
+  return path.length > 1 ? path.replace(/\/+$/, '') : path
+}
+
+/**
+ * The on-site path a destination sends visitors to, as Netlify matches
+ * sources: query, fragment and trailing slash dropped. Undefined for an
+ * https URL, which leaves the site and can't chain with our rules. Mirrors
+ * redirectTargetPath in cms/src/utils/redirects.ts.
+ */
+export function redirectTargetPath(destination: string): string | undefined {
+  if (!destination.startsWith('/') || destination.startsWith('//')) {
+    return undefined
+  }
+  return withoutTrailingSlash(destination.split(/[?#]/, 1)[0]!)
+}
+
+function allRules(config: RedirectConfig): RedirectRule[] {
+  return REDIRECT_CATEGORIES.flatMap((category) => config[category])
+}
+
+/** The first rule pointing at itself, enabled or not. */
+function findSelfRedirect(rules: RedirectRule[]): RedirectRule | undefined {
+  return rules.find(
+    (rule) =>
+      withoutTrailingSlash(rule.source) === redirectTargetPath(rule.destination)
+  )
+}
+
+/**
+ * The first enabled rule whose destination is another enabled rule's source.
+ * A chain costs visitors an extra round trip and hides the real target from
+ * the link validator. Only enabled rules reach Astro, so only they can chain.
+ */
+function findChain(rules: RedirectRule[]): RedirectRule | undefined {
+  const enabled = rules.filter((rule) => rule.enabled !== false)
+  const enabledSources = new Set(
+    enabled.map((rule) => withoutTrailingSlash(rule.source))
+  )
+  return enabled.find((rule) => {
+    const target = redirectTargetPath(rule.destination)
+    return target !== undefined && enabledSources.has(target)
+  })
+}
+
 /**
  * Validates `src/config/redirects.json`: its shape, and the path rules Strapi
  * enforces on save. A missing category is treated as empty; an unknown one is
  * an error, since it means the CMS enum and {@link REDIRECT_CATEGORIES} have
  * drifted. A duplicate source is an error because {@link toAstroRedirects}
- * would otherwise keep only the last one, silently.
+ * would otherwise keep only the last one, silently. Self-redirects and chains
+ * between enabled rules are errors too, as they are in Strapi.
  */
 export function parseRedirectConfig(json: unknown): RedirectConfig | Error {
   if (!isRecord(json)) return new Error('redirect config is not an object')
@@ -153,6 +199,18 @@ export function parseRedirectConfig(json: unknown): RedirectConfig | Error {
 
   const duplicate = findDuplicateSource(config)
   if (duplicate) return new Error(`source "${duplicate}" is listed twice`)
+
+  const rules = allRules(config)
+  const selfRedirect = findSelfRedirect(rules)
+  if (selfRedirect) {
+    return new Error(`source "${selfRedirect.source}" redirects to itself`)
+  }
+  const chain = findChain(rules)
+  if (chain) {
+    return new Error(
+      `source "${chain.source}" redirects to "${chain.destination}", which redirects again; point it straight at the final destination`
+    )
+  }
   return config
 }
 
