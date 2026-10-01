@@ -113,19 +113,209 @@ jobs:
 
           cd "$DEPLOY_PATH"
 
+          # ── Sync mutex ────────────────────────────────────────────────────────────────
+          # Shared with Strapi's git sync (cms/src/utils/gitSync.ts, SYNC_LOCK_FILE). Both
+          # writers run git against this checkout and both call `git rebase --abort` on
+          # state they assume is their own, so without this each can abort the other's
+          # in-progress rebase. Keep the path and the staleness window in step with that
+          # file; the owner line is only ever read by a human, so its shape is per-side.
+          #
+          # The protocol, mirroring gitSync.ts:
+          #   claim    write the owner line to a temp file, then `ln` it into place. `ln`
+          #            is atomic and fails when the target exists, and the contents are
+          #            already written, so the lock is never visible half-formed. An
+          #            exclusive-create redirect would not do: a process killed between
+          #            the create and the write leaves an empty lock behind.
+          #   expire   on the file's mtime, never its contents, so even a truncated lock
+          #            ages out instead of wedging the checkout.
+          #   reclaim  `mv` the stale lock aside — mv fails once another contender has
+          #            moved it, so exactly one of them wins.
+          #   release  only after checking the contents are still ours.
+          SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
+          SYNC_LOCK_STALE_MINUTES=10
+          SYNC_LOCK_WAIT_SECONDS=30
+          SYNC_LOCK_OWNER="pid=$$ host=$(hostname) run=${GITHUB_RUN_ID:-manual} at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          acquire_sync_lock() {
+            local waited=0 tmp
+            tmp="$SYNC_LOCK.$$.$RANDOM"
+            while true; do
+              printf '%s\n' "$SYNC_LOCK_OWNER" > "$tmp"
+              if ln "$tmp" "$SYNC_LOCK" 2>/dev/null; then
+                rm -f "$tmp"
+                return 0
+              fi
+              rm -f "$tmp"
+
+              # Reclaim a lock whose holder died, otherwise one killed process would block
+              # every later run and every editor save permanently.
+              #
+              # `find` exits 0 whether or not it matched, so staleness has to be read from
+              # its output — testing the exit status would report every lock as stale.
+              if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin "+$SYNC_LOCK_STALE_MINUTES" 2>/dev/null)" ]; then
+                if mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
+                  echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
+                  rm -f "$SYNC_LOCK.stale.$$"
+                fi
+              fi
+
+              if [ "$waited" -ge "$SYNC_LOCK_WAIT_SECONDS" ]; then
+                echo "Error: timed out after ${waited}s waiting for the sync lock at $SYNC_LOCK."
+                echo "Held by: $(cat "$SYNC_LOCK" 2>/dev/null || echo '<unreadable>')"
+                return 1
+              fi
+              sleep 1
+              waited=$(( waited + 1 ))
+            done
+          }
+
+          # Only while it is still ours: a lock we overran may have been reclaimed and
+          # replaced, and removing it blindly would delete the new holder's.
+          release_sync_lock() {
+            if [ "$(cat "$SYNC_LOCK" 2>/dev/null || true)" = "$SYNC_LOCK_OWNER" ]; then
+              rm -f "$SYNC_LOCK"
+            fi
+          }
+
+          # Acquire first, then arm the trap. Arming it earlier would make a *failed*
+          # acquisition delete the lock belonging to whichever writer already holds it.
+          # The trap is a safety net for the `exit 1`s below; the happy path releases
+          # explicitly as soon as the git work is done.
+          acquire_sync_lock
+          trap release_sync_lock EXIT
+
+          # An operation interrupted by a conflict fails every later git command in this
+          # checkout, including the integrate below, and used to need a hand to clear.
+          # Strapi's git sync now clears its own (cms/src/utils/gitSync.ts), but a
+          # hand-run command on the VM can still leave state behind. `--abort` restores
+          # the pre-operation commit; `--quit` only clears the state, so it is the
+          # fallback for a rebase too corrupt to unwind.
+          if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
+             [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+            echo "::warning::Checkout was left mid-rebase — clearing it."
+            git rebase --abort || git rebase --quit || true
+          fi
+          if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
+            echo "::warning::Checkout was left mid-merge — clearing it."
+            git merge --abort || true
+          fi
+          if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+            echo "::warning::Checkout was left mid-cherry-pick — clearing it."
+            git cherry-pick --abort || true
+          fi
+
+          # Captured before the integrate, so the rebuild trigger below sees everything it
+          # brought in. A rebase can make OLD_SHA a non-ancestor of NEW_SHA; `git diff`
+          # between two such commits still reports cms/ changes, and erring towards an
+          # extra rebuild is the safe direction.
           OLD_SHA="$(git rev-parse HEAD)"
 
           git fetch origin "$DEPLOY_BRANCH"
-          git checkout "$DEPLOY_BRANCH"
-          git pull --ff-only
 
-          # Defensive check: fail if git index contains unresolved conflicts
+          # Assert the branch rather than switching onto it unconditionally. A `git checkout`
+          # against a tree Strapi is mid-write on can fail outright or carry local edits
+          # across, so it is worth knowing when the checkout has drifted.
+          CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+          if [ "$CURRENT_BRANCH" != "$DEPLOY_BRANCH" ]; then
+            echo "::warning::Checkout was on '$CURRENT_BRANCH'; switching to '$DEPLOY_BRANCH'."
+            git checkout "$DEPLOY_BRANCH"
+          fi
+
+          # Fast-forward is the expected path and the cheapest one: it never touches
+          # Strapi's possibly-dirty working tree, so it needs no stash. `git merge --ff-only`
+          # rather than `git pull --ff-only` — no implicit second fetch, no dependence on a
+          # configured upstream, and an exit code to branch on.
+          if ! git merge --ff-only "origin/$DEPLOY_BRANCH"; then
+            # Diverged: a Strapi or Airtable commit never reached origin. Failing here used
+            # to take down the whole run — rebuild, content sync and Airtable sync alike —
+            # and it stayed failed until someone intervened. Policy is that CMS content wins,
+            # so replay the local commits on top of origin instead.
+            #
+            # `-X theirs` is the local side, not the upstream one: a rebase swaps ours/theirs,
+            # so `ours` is origin and `theirs` is the commit being replayed. See git-rebase(1),
+            # "Using merging strategies to rebase". Flipping it to `-X ours` would silently
+            # discard the editor content this is trying to save.
+            echo "::warning::$DEPLOY_PATH diverged from origin/$DEPLOY_BRANCH — replaying local commits on top (CMS wins)."
+            git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
+
+            # autoStash covers tracked modifications only, so a page Strapi has written but
+            # not yet staged is untracked and unprotected. That only matters when an
+            # incoming commit adds the same path, where git refuses to detach HEAD with a
+            # message ("could not detach HEAD") that says nothing about the cause.
+            #
+            # Checked rather than worked around: staging the file first does let the rebase
+            # start, but the autostash pop then collides on the same path and leaves
+            # conflict markers in src/content — a worse state than not starting, and
+            # exactly what the unmerged guard below exists to prevent. Refusing early keeps
+            # the checkout untouched.
+            #
+            # This is a snapshot, and deliberately so. Strapi stays up through the
+            # integrate, and the sync mutex serialises git commands, not the MDX writes
+            # that happen in the lifecycle hook before one. A save landing between this
+            # check and the rebase can still stop it. That costs a failed run with a clear
+            # message and an untouched checkout, which is the same outcome as catching it
+            # here — so closing the window would mean stopping the CMS for the duration,
+            # which is a far worse trade for a collision this rare.
+            COLLIDING="$(comm -12 \
+              <(git ls-files --others --exclude-standard | sort) \
+              <(git diff --name-only --diff-filter=A "HEAD..origin/$DEPLOY_BRANCH" | sort))"
+            if [ -n "$COLLIDING" ]; then
+              echo "Error: $DEPLOY_BRANCH adds files that already exist untracked in $DEPLOY_PATH:"
+              printf '%s\n' "$COLLIDING"
+              echo "Strapi wrote these but has not committed them yet. Re-run once its sync has,"
+              echo "or remove them if they are stale."
+              exit 1
+            fi
+
+            if ! git -c rebase.autoStash=true -c rerere.enabled=false \
+                   rebase -X theirs "origin/$DEPLOY_BRANCH"; then
+              # Leaving it mid-rebase would break every later editor save as well as the next
+              # run. What `-X theirs` cannot resolve is an existence conflict (a page deleted
+              # on one side and edited on the other), which has no mechanically correct answer.
+              git rebase --abort || true
+              echo "Error: could not reconcile $DEPLOY_PATH with origin/$DEPLOY_BRANCH."
+              echo "A modify/delete or rename conflict needs a human. Local commits:"
+              git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
+              exit 1
+            fi
+          fi
+
+          # Outside the divergence branch on purpose. `git merge --ff-only` also exits 0
+          # when origin is already an ancestor of HEAD — the state after a commit was made
+          # locally but its push failed — so a check inside that branch would skip the only
+          # push and strand the commit. Nothing else would pick it up either: the Airtable
+          # step below exits early when its JSON is unchanged.
+          #
+          # Non-fatal: the rebuild and sync below are still valid against this tree, and
+          # the next run retries.
+          if [ "$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")" -gt 0 ]; then
+            echo "Pushing $(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD") local commit(s) to $DEPLOY_BRANCH."
+            git push origin "HEAD:$DEPLOY_BRANCH" || \
+              echo "::warning::Local commits not pushed; the next run will retry."
+          fi
+
+          # Defensive check: after a clean `-X theirs` rebase nothing can be unmerged, so
+          # anything here came from the autostash pop — conflict markers sitting in the
+          # working tree, which the next Strapi save would otherwise commit into src/content.
           if [ -n "$(git ls-files -u)" ]; then
-            echo "Unresolved git conflicts detected after pull"
+            echo "Unresolved git conflicts in $DEPLOY_PATH:"
+            git ls-files -u | awk '{ print $4 }' | sort -u
+            echo "The working tree may contain conflict markers. Resolve by hand before the next run."
             exit 1
           fi
 
           NEW_SHA="$(git rev-parse HEAD)"
+
+          # The git work is done, so the lock goes back now rather than at the end of the
+          # step. Everything below is a rebuild (npm, systemd) and `sync:all`, which writes
+          # into Strapi over HTTP with `x-skip-mdx-export` and touches no git state — none
+          # of it needs serialising.
+          #
+          # Holding on through the rebuild was actively harmful: a full rebuild outlasts the
+          # staleness window, so the lock expired while still held, an editor save reclaimed
+          # it, and git ran concurrently anyway — the exact thing the lock exists to stop.
+          release_sync_lock
+          trap - EXIT
 
           # force_rebuild lets a caller rebuild with no new commits, so a run can recover from a
           # bad prior deploy without waiting for the next cms/ commit.
@@ -167,6 +357,143 @@ jobs:
           else
             pnpm run sync:all
           fi
+
+      # Runs last, on the tree the step above already fetched, integrated and conflict-checked,
+      # so the only pending change should be the regenerated JSON. No `if:` guard on purpose:
+      # the default "skip when an earlier step failed" is what we want, since the likeliest
+      # earlier failure is a checkout that could not be reconciled, and that is the last state
+      # to be pushing from.
+      - name: Sync grantee data from Airtable
+        id: airtable-sync
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          AIRTABLE_JSON='src/data/airtable/grantee-data.json'
+          COMMIT_MESSAGE='chore(data): sync grantee data from Airtable'
+          # The VM checkout's global git identity belongs to whoever last configured it. Set the
+          # identity per-command so an automated commit is attributable as one.
+          COMMIT_AUTHOR_NAME='github-actions[bot]'
+          COMMIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          MAX_PUSH_ATTEMPTS=5
+
+          # Each `run:` is a fresh shell. Node and pnpm are already installed by the step above,
+          # so this only has to put them back on PATH.
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          nvm use 24
+          export PNPM_HOME="/home/strapi/.local/share/pnpm"
+          export PATH="$PNPM_HOME:$PATH"
+
+          # import-airtable.ts resolves './src/data/airtable' against the CWD, so this has to run
+          # from the repo root — not cms/, where the previous step left off.
+          cd "$DEPLOY_PATH"
+
+          # The same mutex the integrate step takes, restated because each `run:` is a fresh
+          # shell and sourcing a committed script would fail on the first run after this lands,
+          # before the VM has pulled it. The canonical version — and the contract shared with
+          # cms/src/utils/gitSync.ts — is in the step above; keep the two in step.
+          #
+          # Needed here because the retry loop below calls `git rebase --abort`, which would
+          # otherwise discard a rebase Strapi's git sync had in flight.
+          SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
+          SYNC_LOCK_OWNER="pid=$$ host=$(hostname) run=${GITHUB_RUN_ID:-manual} step=airtable at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          waited=0
+          while true; do
+            TMP="$SYNC_LOCK.$$.$RANDOM"
+            printf '%s\n' "$SYNC_LOCK_OWNER" > "$TMP"
+            if ln "$TMP" "$SYNC_LOCK" 2>/dev/null; then rm -f "$TMP"; break; fi
+            rm -f "$TMP"
+
+            # Staleness from mtime, read from find's output — find exits 0 either way.
+            # Reclaim by `mv` so only one contender can win it.
+            if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin +10 2>/dev/null)" ] \
+               && mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
+              echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
+              rm -f "$SYNC_LOCK.stale.$$"
+            fi
+
+            if [ "$waited" -ge 30 ]; then
+              echo "Error: timed out waiting for the sync lock at $SYNC_LOCK."
+              echo "Held by: $(cat "$SYNC_LOCK" 2>/dev/null || echo '<unreadable>')"
+              exit 1
+            fi
+            sleep 1
+            waited=$(( waited + 1 ))
+          done
+          # Armed only after acquiring, and owner-checked: a lock we overran may have been
+          # reclaimed and replaced, and removing it blindly would delete the new holder's.
+          trap '[ "$(cat "$SYNC_LOCK" 2>/dev/null || true)" = "$SYNC_LOCK_OWNER" ] && rm -f "$SYNC_LOCK"' EXIT
+
+          echo "Syncing grantee data from Airtable..."
+          pnpm run sync:airtable
+
+          # The script writes Prettier-formatted JSON (see writeAirtableJson), so no format pass
+          # is needed here. Verify rather than trust: nothing lints a direct push to the deploy
+          # branch, so drift would surface much later as a red `pnpm run lint` on someone's PR.
+          pnpm exec prettier --check "$AIRTABLE_JSON"
+
+          # --porcelain rather than `git diff --quiet`: Strapi's git sync may already have staged
+          # this path, which a worktree-vs-index diff would report as clean.
+          if [ -z "$(git status --porcelain -- "$AIRTABLE_JSON")" ]; then
+            echo "Grantee data unchanged — nothing to commit."
+            exit 0
+          fi
+
+          # `git commit -- <pathspec>` commits the working-tree version of exactly this file and
+          # ignores the rest of the index. Strapi's git sync (cms/src/utils/gitSync.ts,
+          # STAGE_CANDIDATES) stages all of src/content/, src/data/ and the uploads dir on a
+          # 300ms debounce, so unrelated paths may be staged right now — `git add` + `git commit`
+          # would sweep those into this commit, the pathspec form cannot.
+          git \
+            -c "user.name=$COMMIT_AUTHOR_NAME" \
+            -c "user.email=$COMMIT_AUTHOR_EMAIL" \
+            commit -m "$COMMIT_MESSAGE" -- "$AIRTABLE_JSON"
+
+          # Push first and only integrate if rejected: the common case is a clean fast-forward,
+          # and that path never touches Strapi's possibly-dirty working tree. autoStash covers
+          # files Strapi is mid-write on, which would otherwise make the rebase refuse to start.
+          pushed=false
+          for attempt in $(seq 1 "$MAX_PUSH_ATTEMPTS"); do
+            if git push origin "HEAD:$DEPLOY_BRANCH"; then
+              pushed=true
+              break
+            fi
+
+            echo "Push rejected (attempt $attempt/$MAX_PUSH_ATTEMPTS) — rebasing onto origin/$DEPLOY_BRANCH."
+            sleep "$((attempt * 5))"
+            git fetch origin "$DEPLOY_BRANCH"
+            if ! git -c rebase.autoStash=true rebase "origin/$DEPLOY_BRANCH"; then
+              # An aborted rebase restores the pre-rebase state with our commit intact, so the
+              # next attempt is a clean retry. Leaving it mid-rebase would break the next run's
+              # `git pull --ff-only` and Strapi's own git sync alike.
+              git rebase --abort || true
+            fi
+          done
+
+          if [ "$pushed" != "true" ]; then
+            # Hand the checkout back exactly as we found it. A local commit that never reaches
+            # origin would diverge the branch, and the data is regenerated from Airtable on the
+            # next run anyway. Undo only our commit and only our file — `git reset --hard` here
+            # would discard Strapi content that has not been committed yet.
+            #
+            # Guarded on the ahead-count: Strapi commits to this same checkout on a 300ms
+            # debounce whenever an editor saves, so a save landing during the retry loop above
+            # puts *its* commit at HEAD and ours underneath. `HEAD~1` would then drop the
+            # editor's work instead of ours. Nothing here can safely rewrite a commit we do
+            # not own, so leave the stack alone and let the divergence be reported.
+            AHEAD="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
+            if [ "$AHEAD" = "1" ]; then
+              git reset --soft HEAD~1
+              git restore --staged --worktree -- "$AIRTABLE_JSON"
+            else
+              echo "::warning::$AHEAD unpushed commits — another writer owns one, so the grantee commit was left in place."
+            fi
+            echo "Error: could not push grantee data to $DEPLOY_BRANCH after $MAX_PUSH_ATTEMPTS attempts."
+            exit 1
+          fi
+
+          echo "Pushed updated grantee data to $DEPLOY_BRANCH."
 
   notify-slack:
     runs-on: ubuntu-latest
