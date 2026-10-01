@@ -246,6 +246,7 @@ export {
   type PageLifecycleConfig,
   type StrapiDocumentServiceUpdateWhere,
   shouldSkipMdxExport,
+  isCodeSyncRequest,
   getAdminAuthor,
   resolvePageFilepath,
   generateMDX,

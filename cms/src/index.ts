@@ -18,6 +18,7 @@ import {
   type SectionScopedSlugFinder,
   validateAndSaveRedirect,
   redirectDeleteError,
+  isCodeSyncRequest,
   type RedirectFinder,
   validateGrantInfoCards,
   validateProfileCta,
@@ -2367,7 +2368,8 @@ export default {
       )
     )
 
-    // Redirects: refuse deletes (editors switch "Enabled" off instead), then
+    // Redirects: refuse deletes (editors switch "Enabled" off instead) except
+    // from the code sync, which removes rows redirects.json no longer has. Then
     // canonicalize the paths and reject anything that isn't one literal path
     // (patterns belong in public/_redirects) and any self-redirect or chain,
     // before it reaches the DB and the exported redirects.json. The check and
@@ -2381,7 +2383,11 @@ export default {
     // server-side code, and the lifecycle's afterDelete/afterDeleteMany keep
     // redirects.json in step with it.
     strapi.documents.use(async (ctx, next) => {
-      if (ctx.uid === REDIRECT_UID && ctx.action === 'delete') {
+      if (
+        ctx.uid === REDIRECT_UID &&
+        ctx.action === 'delete' &&
+        !isCodeSyncRequest()
+      ) {
         throw redirectDeleteError()
       }
       if (
