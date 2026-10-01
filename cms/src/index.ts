@@ -1301,6 +1301,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
+      color: 'Color',
       heading: 'Heading',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
@@ -1590,6 +1591,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Primary button label, URL, and internal/external flag.'
     },
     'blocks.cta-strip': {
+      color:
+        'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
       primaryButtonExternal:
@@ -1976,7 +1979,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.cta-strip': [
-      [{ name: 'heading', size: 12 }],
+      [
+        { name: 'heading', size: 9 },
+        { name: 'color', size: 3 }
+      ],
       [{ name: 'description', size: 12 }],
       [
         { name: 'primaryButtonText', size: 6 },

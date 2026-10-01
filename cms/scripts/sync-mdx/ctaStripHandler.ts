@@ -11,10 +11,12 @@
  *   >description markdown</CtaStrip>
  *
  * Maps to Strapi blocks.cta-strip. The description comes from the JSX
- * children; everything else comes from attributes. Strips are always purple,
- * so there is no colour attribute. The secondary CTA needs both its text and
- * its link to render; either one alone is dropped.
+ * children; everything else comes from attributes. Purple is the default and
+ * is left off the block. Green is the pistachio variant. The secondary CTA
+ * needs both its text and its link to render; either one alone is dropped.
  */
+
+import { isCtaStripColor } from '@/utils'
 
 import {
   hasConflictingCtaFlags,
@@ -52,6 +54,18 @@ async function handleCtaStrip(
     const primaryDocument = getBooleanAttr(node, 'primaryButtonDocument')
     const secondaryExternal = getBooleanAttr(node, 'secondaryButtonExternal')
     const secondaryDocument = getBooleanAttr(node, 'secondaryButtonDocument')
+    const color = getStringAttr(node, 'color')
+
+    if (color !== undefined && !isCtaStripColor(color)) {
+      throw new MdxParserError({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        message: `CtaStrip "color" must be "purple" or "green". Received "${color}".`,
+        component: 'CtaStrip',
+        prop: 'color',
+        line: node.position?.start.line,
+        column: node.position?.start.column
+      })
+    }
 
     for (const [label, flags] of [
       ['primary', { external: primaryExternal, document: primaryDocument }],
@@ -84,6 +98,7 @@ async function handleCtaStrip(
 
     if (heading) block.heading = heading
     if (description) block.description = description
+    if (color === 'green') block.color = 'green'
     if (primaryExternal) block.primaryButtonExternal = true
     if (primaryDocument) block.primaryButtonDocument = true
 

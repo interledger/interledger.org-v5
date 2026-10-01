@@ -195,6 +195,16 @@ describe('grantPageFrontmatterSchema, the ctaStrip secondary pair', () => {
     ctaStrip: { ...grantPageBase.ctaStrip, ...strip }
   })
 
+  it('accepts green and rejects an unknown colour', () => {
+    expect(
+      grantPageFrontmatterSchema.safeParse(withStrip({ color: 'green' }))
+        .success
+    ).toBe(true)
+    expect(
+      grantPageFrontmatterSchema.safeParse(withStrip({ color: 'blue' })).success
+    ).toBe(false)
+  })
+
   it('accepts a strip with no secondary CTA', () => {
     expect(grantPageFrontmatterSchema.safeParse(grantPageBase).success).toBe(
       true
