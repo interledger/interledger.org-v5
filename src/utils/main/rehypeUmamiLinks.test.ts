@@ -173,12 +173,46 @@ describe('rehypeUmamiLinks', () => {
       expect(out).not.toContain('target=')
     })
 
-    it('omits the hint inside a heading so the slugged id stays stable', async () => {
+    it('warns via aria-label inside a heading so the slugged id stays stable', async () => {
       const out = await run(
         '<h3>News - <a href="https://forbes.com/x">Forbes</a></h3>'
       )
       expect(out).toContain('target="_blank"')
+      expect(out).toContain('aria-label="Forbes (opens in a new tab)"')
       expect(out).not.toContain('sr-only')
+    })
+
+    it('localizes the heading aria-label', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x">Forbes</a></h2>',
+        '/repo/src/content/foundation-pages/es/about-us.mdx'
+      )
+      expect(out).toContain(
+        'aria-label="Forbes (se abre en una pestaña nueva)"'
+      )
+    })
+
+    it('appends the warning to an existing aria-label in a heading', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x" aria-label="Forbes article">F</a></h2>'
+      )
+      expect(out).toContain('aria-label="Forbes article (opens in a new tab)"')
+    })
+
+    it('appends the warning to an aria-label outside a heading too', async () => {
+      const out = await run(
+        '<p><a href="https://rafiki.dev/" aria-label="Rafiki docs">here</a></p>'
+      )
+      expect(out).toContain('aria-label="Rafiki docs (opens in a new tab)"')
+      expect(out).not.toContain('sr-only')
+    })
+
+    it('leaves an image-only heading link without an aria-label', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x"><img src="/a.png" alt="Forbes"></a></h2>'
+      )
+      expect(out).toContain('target="_blank"')
+      expect(out).not.toContain('aria-label')
     })
   })
 })
