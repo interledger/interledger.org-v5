@@ -2668,6 +2668,43 @@ describe('buildPodcastPagePayload', () => {
     )
     expect((payload as Record<string, unknown>).textSection).toBeNull()
   })
+
+  it('sends purple when the ctaStrip does not set a colour', async () => {
+    const mdx = createMdxFile({
+      pathSlug: 'podcast',
+      frontmatter: basePodcastPageFrontmatter
+    })
+
+    const payload = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      mdx
+    )
+    const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+      string,
+      unknown
+    >
+    expect(ctaStrip.color).toBe('purple')
+  })
+
+  it('sends green when the ctaStrip asks for it', async () => {
+    const mdx = createMdxFile({
+      pathSlug: 'podcast',
+      frontmatter: {
+        ...basePodcastPageFrontmatter,
+        ctaStrip: { ...basePodcastPageFrontmatter.ctaStrip, color: 'green' }
+      }
+    })
+
+    const payload = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      mdx
+    )
+    const ctaStrip = (payload as Record<string, unknown>).ctaStrip as Record<
+      string,
+      unknown
+    >
+    expect(ctaStrip.color).toBe('green')
+  })
 })
 
 const baseHackathonPageFrontmatter = {
