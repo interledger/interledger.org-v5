@@ -54,6 +54,16 @@ describe('getOpensNewTabLabel', () => {
   it('falls back to English for an unknown locale', () => {
     expect(getOpensNewTabLabel('xx')).toBe('(opens in a new tab)')
   })
+
+  it.each(['toString', '__proto__', 'constructor'])(
+    'falls back to English for the inherited key %s',
+    (lang) => {
+      expect(getOpensNewTabLabel(lang)).toBe('(opens in a new tab)')
+      expect(() =>
+        buildNewTabLinkHtml('https://example.com', lang)
+      ).not.toThrow()
+    }
+  )
 })
 
 describe('buildNewTabLinkHtml', () => {

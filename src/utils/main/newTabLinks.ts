@@ -33,7 +33,9 @@ export function getNewTabLinkAttrs(
 
 /** Localized screen-reader hint appended to links that open a new tab. */
 export function getOpensNewTabLabel(lang?: string): string {
-  const locale = lang && lang in ui ? (lang as keyof typeof ui) : DEFAULT_LOCALE
+  // Own keys only: `in` also matches inherited ones like `toString`.
+  const locale =
+    lang && Object.hasOwn(ui, lang) ? (lang as keyof typeof ui) : DEFAULT_LOCALE
   return ui[locale][OPENS_NEW_TAB_LABEL_KEY]
 }
 
