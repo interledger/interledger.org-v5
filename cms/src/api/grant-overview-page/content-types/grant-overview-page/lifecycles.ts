@@ -9,7 +9,8 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
   ckeditorFieldToParsedMarkdown,
-  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE
+  GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
+  ctaStripColorMdxFields
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -22,6 +23,7 @@ interface CtaStrip {
   primaryButtonLink?: string
   secondaryButtonText?: string
   secondaryButtonLink?: string
+  color?: string
 }
 
 interface GrantOverviewPageData extends PageData {
@@ -90,7 +92,8 @@ export async function generateGrantOverviewPageMDX(
                   secondaryButtonText: ctaStrip.secondaryButtonText.trim(),
                   secondaryButtonLink: ctaStrip.secondaryButtonLink.trim()
                 }
-              : {})
+              : {}),
+            ...ctaStripColorMdxFields(ctaStrip.color)
           }
         }
       : {}),

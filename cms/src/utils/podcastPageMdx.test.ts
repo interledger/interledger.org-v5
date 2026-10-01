@@ -76,10 +76,9 @@ describe('generatePodcastPageMdx', () => {
     expect(podcasts[0]?.series).toBe('Future Money')
   })
 
-  // Strips are purple only, so there is no colour field to write. #481 took
-  // `color` back off this export. Assert it stays gone, so nothing puts it
-  // back and breaks the podcast sync again.
-  it('flattens ctaStrip and writes no colour field', async () => {
+  // Purple is the default and stays off the file. Green is the only value
+  // worth writing; the importer sends purple back when the key is absent.
+  it('flattens ctaStrip and omits the default colour', async () => {
     const { data } = matter(await generatePodcastPageMdx(makePage()))
     const ctaStrip = data.ctaStrip as {
       heading: string
@@ -91,6 +90,22 @@ describe('generatePodcastPageMdx', () => {
     expect(ctaStrip.buttonText).toBe('Listen')
     expect(ctaStrip.buttonLink).toBe('/podcast')
     expect(ctaStrip).not.toHaveProperty('color')
+  })
+
+  it('writes color when the strip is green', async () => {
+    const { data } = matter(
+      await generatePodcastPageMdx(
+        makePage({
+          ctaStrip: {
+            heading: 'Listen now',
+            primaryButtonText: 'Listen',
+            primaryButtonLink: '/podcast',
+            color: 'green'
+          }
+        })
+      )
+    )
+    expect((data.ctaStrip as { color?: string }).color).toBe('green')
   })
 
   it('writes the secondary CTA only when both halves are set', async () => {

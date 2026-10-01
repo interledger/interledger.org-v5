@@ -840,7 +840,7 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip.primaryButtonLink).toBe('https://example.com/apply')
     })
 
-    it('does not include color in ctaStrip payload', async () => {
+    it('sends purple when the strip does not set a colour', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter
@@ -854,7 +854,7 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('color')
+      expect(ctaStrip.color).toBe('purple')
     })
 
     it('includes heading and description from ctaStrip frontmatter', async () => {
@@ -875,7 +875,7 @@ describe('buildGrantPagePayload', () => {
       expect(ctaStrip.description).toBe('Deadline approaching.')
     })
 
-    it('drops legacy color when set to green', async () => {
+    it('sends green when the strip asks for it', async () => {
       const mdx = createMdxFile({
         pathSlug: 'education/on-campus',
         frontmatter: {
@@ -892,7 +892,7 @@ describe('buildGrantPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('color')
+      expect(ctaStrip.color).toBe('green')
     })
 
     it('sends null secondary button fields when absent, so a PUT clears them', async () => {
@@ -1633,7 +1633,7 @@ describe('buildGrantOverviewPagePayload', () => {
       expect(ctaStrip.primaryButtonLink).toBe('https://example.com/grants')
     })
 
-    it('does not include color in ctaStrip payload', async () => {
+    it('sends purple when the strip does not set a colour', async () => {
       const mdx = createMdxFile({
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter
@@ -1647,7 +1647,7 @@ describe('buildGrantOverviewPagePayload', () => {
         string,
         unknown
       >
-      expect(ctaStrip).not.toHaveProperty('color')
+      expect(ctaStrip.color).toBe('purple')
     })
 
     it('sends null secondaryButtonText/Link when absent, so a PUT clears them', async () => {

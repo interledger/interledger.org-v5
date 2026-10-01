@@ -1,17 +1,18 @@
-import { ckeditorFieldToCompiledMarkdown } from '../../utils'
+import { ckeditorFieldToCompiledMarkdown, isCtaStripColor } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 /**
  * Serialize blocks.cta-strip → MDX.
  *
- * Strips are always purple, so there is no colour attribute. The secondary CTA
- * is optional and its two fields travel together: a half-filled one would
- * render as a dead or unlabelled button, so it is only emitted when both are
- * set.
+ * Purple is the default and is left off the tag. Green is the pistachio
+ * variant. The secondary CTA is optional and its two fields travel together:
+ * a half-filled one would render as a dead or unlabelled button, so it is
+ * only emitted when both are set.
  */
 export function serialize(block: {
   heading?: string
   description?: string
+  color?: string
   primaryButtonText: string
   primaryButtonLink: string
   primaryButtonExternal?: boolean
@@ -37,11 +38,21 @@ export function serialize(block: {
         'one: external opens a new tab, document downloads a file.'
     )
 
+  if (
+    block.color != null &&
+    block.color !== '' &&
+    !isCtaStripColor(block.color)
+  )
+    throw new Error(
+      `CTA Strip color must be "purple" or "green". Received "${block.color}".`
+    )
+
   const hasSecondary = Boolean(
     block.secondaryButtonText?.trim() && block.secondaryButtonLink?.trim()
   )
 
   const attrs = [
+    block.color === 'green' ? 'color="green"' : null,
     block.heading ? `heading="${esc(block.heading)}"` : null,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,
     `primaryButtonLink="${esc(block.primaryButtonLink)}"`,

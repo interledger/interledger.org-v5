@@ -140,6 +140,9 @@ export type HackathonPageFrontmatterType = z.infer<
   typeof hackathonPageFrontmatterSchema
 >
 
+// Keep in sync with cms/src/utils/ctaStrip.ts (CTA_STRIP_COLORS).
+const ctaStripColorSchema = z.enum(['purple', 'green']).optional()
+
 const grantCtaStripSchema = z
   .object({
     heading: z.string().optional(),
@@ -151,7 +154,8 @@ const grantCtaStripSchema = z
     secondaryButtonText: z.string().optional(),
     secondaryButtonLink: z.string().optional(),
     secondaryButtonExternal: z.boolean().optional(),
-    secondaryButtonDocument: z.boolean().optional()
+    secondaryButtonDocument: z.boolean().optional(),
+    color: ctaStripColorSchema
   })
   // The secondary CTA is an all-or-nothing pair everywhere else: the MDX
   // handler, the serializer, the renderer and the Strapi validator all need
@@ -374,7 +378,8 @@ const podcastCtaStripSchema = z.object({
   secondaryButtonText: z.string().optional(),
   secondaryButtonLink: z.string().optional(),
   secondaryButtonExternal: z.boolean().optional(),
-  secondaryButtonDocument: z.boolean().optional()
+  secondaryButtonDocument: z.boolean().optional(),
+  color: ctaStripColorSchema
 })
 
 const podcastTitleCardSchema = z.object({
