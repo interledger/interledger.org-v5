@@ -126,9 +126,10 @@ async function writeRedirect(
 }
 
 /**
- * Deletes rows the file no longer has. Sent with the sync headers, which is
- * the only way the server accepts a redirect delete (isCodeSyncRequest), and
- * which skips the lifecycle export: the file is already in its final state.
+ * Deletes rows the file no longer has. The server accepts a redirect delete
+ * only from an API-token request with the sync header (isCodeSyncRequest).
+ * The header also skips the lifecycle export: the file is already in its
+ * final state.
  */
 async function deleteRedirect(
   baseUrl: string,

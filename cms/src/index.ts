@@ -2368,8 +2368,10 @@ export default {
       )
     )
 
-    // Redirects: refuse deletes (editors switch "Enabled" off instead) except
-    // from the code sync, which removes rows redirects.json no longer has. Then
+    // Redirects: refuse deletes from editors (they switch "Enabled" off
+    // instead). An API-token request with the sync header may delete
+    // (isCodeSyncRequest); that is how the code sync removes rows
+    // redirects.json no longer has. Then
     // canonicalize the paths and reject anything that isn't one literal path
     // (patterns belong in public/_redirects) and any self-redirect or chain,
     // before it reaches the DB and the exported redirects.json. The check and

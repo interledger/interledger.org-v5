@@ -71,9 +71,12 @@ export function shouldSkipMdxExport(): boolean {
 const API_TOKEN_STRATEGY = 'api-token'
 
 /**
- * True for a request from the repo's sync scripts: authenticated with an API
- * token and sending `x-skip-mdx-export`. Admin sessions use the `admin`
- * strategy, so an editor can't pass for the sync by adding the header.
+ * True for an automation request, such as the repo's sync scripts:
+ * authenticated with an API token and sending `x-skip-mdx-export`. Admin
+ * sessions use the `admin` strategy, so an editor can't pass for one by adding
+ * the header. The header is caller-controlled, so this doesn't single out the
+ * sync: any API token with the permission qualifies. Tokens are issued by
+ * admins only.
  */
 export function isCodeSyncRequest(): boolean {
   if (!shouldSkipMdxExport()) return false
