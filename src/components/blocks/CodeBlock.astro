@@ -1,6 +1,5 @@
 ---
-import { bundledThemes, codeToHtml } from 'shiki'
-import type { ThemeRegistration } from 'shiki'
+import { codeToHtml } from 'shiki'
 import { tryCatchAsync, useTranslations, buildUmamiAttrs } from '@/utils'
 
 const FALLBACK_LANGUAGE = 'text'
@@ -25,58 +24,13 @@ function renderPlainCode(source: string): string {
   return `<pre class="shiki"><code>${lines}</code></pre>`
 }
 
-const RESERVED_WORD_COLOR = '#994DE4'
-const VARIABLE_NAME_COLOR = '#F69F42'
-const TYPE_COLOR = '#3D79E0'
-const INTEGER_COLOR = '#F3762F'
-const COMMENT_COLOR = '#9B9DA2'
-
-const baseTheme = (await bundledThemes['github-light']()).default
-const codeTheme: ThemeRegistration = {
-  ...baseTheme,
-  name: 'interledger-code-light',
-  tokenColors: [
-    ...(baseTheme.tokenColors ?? []),
-    {
-      scope: [
-        'storage.type',
-        'storage.modifier',
-        'keyword.control',
-        'variable.language'
-      ],
-      settings: { foreground: RESERVED_WORD_COLOR }
-    },
-    { scope: 'keyword.operator', settings: { foreground: '#24292e' } },
-    {
-      scope: [
-        'variable',
-        'variable.other',
-        'variable.other.constant',
-        'variable.other.readwrite'
-      ],
-      settings: { foreground: VARIABLE_NAME_COLOR }
-    },
-    {
-      scope: [
-        'entity.name.function',
-        'entity.name.type',
-        'entity.name.class',
-        'support.class',
-        'support.type',
-        'support.function'
-      ],
-      settings: { foreground: TYPE_COLOR }
-    },
-    {
-      scope: ['constant', 'constant.numeric'],
-      settings: { foreground: INTEGER_COLOR }
-    },
-    {
-      scope: ['comment', 'punctuation.definition.comment'],
-      settings: { foreground: COMMENT_COLOR }
-    }
-  ]
-}
+// Stock GitHub themes: every token meets WCAG AA in both modes. Light is
+// inlined; dark ships as --shiki-dark* custom properties that the styles below
+// switch on under [data-theme='dark'] (summit, hackathon).
+const highlightOptions = {
+  themes: { light: 'github-light-default', dark: 'github-dark-default' },
+  defaultColor: 'light'
+} as const
 
 const { code, language, title } = Astro.props
 const { routeLocale } = Astro.locals
@@ -95,26 +49,26 @@ const copyButtonUmamiAttrs = buildUmamiAttrs({
 // plain text, and if even that fails, render the escaped source, so an unknown
 // (or broken) language degrades gracefully instead of failing the build.
 const primary = await tryCatchAsync(() =>
-  codeToHtml(code, { lang: language, theme: codeTheme })
+  codeToHtml(code, { lang: language, ...highlightOptions })
 )
 const fallback =
   primary instanceof Error
     ? await tryCatchAsync(() =>
-        codeToHtml(code, { lang: FALLBACK_LANGUAGE, theme: codeTheme })
+        codeToHtml(code, { lang: FALLBACK_LANGUAGE, ...highlightOptions })
       )
     : primary
 const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
 ---
 
 <figure
-  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg"
+  class="my-2xl w-full min-w-0 rounded-xl border border-neutral-25 dark:border-neutral-75"
   data-component="code-block"
 >
   <div class="code-block-header flex items-center rounded-t-xl">
     <div class="flex items-center gap-[6px] shrink-0" aria-hidden="true">
-      <span class="block h-3 w-3 rounded-full bg-[#ff5f57]"></span>
-      <span class="block h-3 w-3 rounded-full bg-[#febc2e]"></span>
-      <span class="block h-3 w-3 rounded-full bg-[#28c840]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#f07178]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#ffcb6b]"></span>
+      <span class="block h-2.5 w-2.5 rounded-full bg-[#c3e88d]"></span>
     </div>
 
     <span class="code-block-title flex-1 min-w-0 truncate">
@@ -125,7 +79,8 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
       type="button"
       class="copy-btn code-block-copy-btn shrink-0 inline-flex items-center cursor-pointer
              transition-colors focus-visible:outline focus-visible:outline-2
-             focus-visible:outline-offset-2 focus-visible:outline-neutral-900/40"
+             focus-visible:outline-offset-2 focus-visible:outline-neutral-900/40
+             dark:focus-visible:outline-neutral-0/60"
       data-code={code}
       data-copy-label={copyLabel}
       data-copied-label={t('codeBlock.copied')}
@@ -136,7 +91,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
       <svg
         aria-hidden="true"
         viewBox="0 0 16 16"
-        class="h-3.5 w-3.5 shrink-0"
+        class="h-3 w-3 shrink-0"
         fill="none"
       >
         <rect
@@ -166,33 +121,71 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
 <style>
   /* Shiki: block .line + newline nodes between spans; contain:inline-size for mobile scroll. */
   [data-component='code-block'] {
+    --code-block-header-bg: var(--color-neutral-25);
+    --code-block-divider: var(--color-neutral-25);
+    --code-block-label: var(--color-neutral-900);
+    --code-block-copy: var(--color-neutral-75);
+    --code-block-text: #1f2328;
+    --code-block-line-number: #6e7781;
     contain: inline-size;
   }
 
+  :global([data-theme='dark']) [data-component='code-block'] {
+    --code-block-header-bg: var(--color-neutral-100);
+    --code-block-divider: var(--color-neutral-75);
+    --code-block-label: var(--color-neutral-0);
+    --code-block-copy: var(--color-neutral-50);
+    --code-block-text: #e6edf3;
+    --code-block-line-number: #8b949e;
+  }
+
+  /* Shiki inlines the light colours; the dark ones ride on --shiki-dark*
+     custom properties, and !important is the documented way past the
+     inline style. Plain-text fallback output carries neither. The dark
+     theme's own #0d1117 surface is replaced by the design's black. */
+  :global([data-theme='dark'])
+    [data-component='code-block']
+    .code-block-scroll
+    :global(.shiki) {
+    background-color: var(--color-neutral-900) !important;
+  }
+
+  :global([data-theme='dark'])
+    [data-component='code-block']
+    .code-block-scroll
+    :global(.shiki),
+  :global([data-theme='dark'])
+    [data-component='code-block']
+    .code-block-scroll
+    :global(.shiki span) {
+    color: var(--shiki-dark, var(--code-block-text)) !important;
+  }
+
   [data-component='code-block'] .code-block-header {
-    gap: var(--spacing-lg);
-    padding-block: var(--spacing-s);
-    padding-inline: var(--spacing-xl);
-    background-color: var(--color-ice-indigo-50);
-    border-bottom: 1px solid var(--color-neutral-25);
+    gap: var(--spacing-md);
+    padding-block: var(--spacing-md);
+    padding-inline: var(--spacing-md) var(--spacing-xl);
+    background-color: var(--code-block-header-bg);
+    border-bottom: 1px solid var(--code-block-divider);
   }
 
   [data-component='code-block'] .code-block-title,
   [data-component='code-block'] .code-block-copy-btn {
-    font-size: var(--text-caption);
+    font-size: var(--text-body-sm-standard);
+    line-height: 1.25rem;
   }
 
   [data-component='code-block'] .code-block-title {
-    color: var(--color-neutral-900);
+    color: var(--code-block-label);
   }
 
   [data-component='code-block'] .code-block-copy-btn {
-    gap: 5px;
-    color: color-mix(in srgb, var(--color-neutral-900) 40%, transparent);
+    gap: var(--spacing-md);
+    color: var(--code-block-copy);
   }
 
   [data-component='code-block'] .code-block-copy-btn:hover {
-    color: var(--color-neutral-900);
+    color: var(--code-block-label);
   }
 
   [data-component='code-block'] .code-block-scroll {
@@ -204,7 +197,7 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x pan-y;
-    line-height: 1.5;
+    line-height: 1.3125rem;
   }
 
   [data-component='code-block'] .code-block-scroll :global(pre) {
@@ -212,7 +205,8 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     width: max-content;
     min-width: 100%;
     margin: 0;
-    padding: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    color: var(--code-block-text);
     white-space: normal;
   }
 
@@ -238,9 +232,9 @@ const highlighted = fallback instanceof Error ? renderPlainCode(code) : fallback
     content: counter(code-line);
     display: inline-block;
     width: 1.75em;
-    margin-right: var(--spacing-lg);
+    margin-right: var(--spacing-md);
     text-align: right;
-    color: var(--color-neutral-50);
+    color: var(--code-block-line-number);
     user-select: none;
   }
 

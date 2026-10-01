@@ -755,7 +755,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.faq',
         'blocks.cta-buttons',
         'blocks.event-card',
-        'blocks.quote'
+        'blocks.quote',
+        'blocks.code-block'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1098,7 +1099,8 @@ export interface ApiHackathonPageHackathonPage
         'blocks.event-card',
         'blocks.quote',
         'blocks.hackathon-animation',
-        'blocks.image-block'
+        'blocks.image-block',
+        'blocks.code-block'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -1535,7 +1537,8 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
         'blocks.faq',
         'blocks.cta-buttons',
         'blocks.event-card',
-        'blocks.quote'
+        'blocks.quote',
+        'blocks.code-block'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

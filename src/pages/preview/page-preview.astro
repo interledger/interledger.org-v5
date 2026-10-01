@@ -76,7 +76,8 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.image-block][populate][media][populate]':
     'image',
   'populate[content][on][blocks.image-block][populate][tabletImage]': 'true',
-  'populate[content][on][blocks.image-block][populate][mobileImage]': 'true'
+  'populate[content][on][blocks.image-block][populate][mobileImage]': 'true',
+  'populate[content][on][blocks.code-block][populate]': '*'
 })
 
 const response = await fetchStrapi<FoundationPagePreview>(
