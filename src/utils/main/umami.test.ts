@@ -219,6 +219,27 @@ describe('buildUmamiAttrs — destination_path / destination_section', () => {
     })
   })
 
+  it('treats a protocol-relative same-origin link as internal', () => {
+    const build = (href: string) =>
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        href
+      })
+    expect(build('//interledger.org/blog/some-post')).toMatchObject({
+      'data-umami-event-destination-path': 'blog',
+      'data-umami-event-destination-section': 'foundation'
+    })
+    expect(build('//www.interledger.org/')).toMatchObject({
+      'data-umami-event-destination-path': 'foundation_home',
+      'data-umami-event-destination-section': 'foundation'
+    })
+    expect(build('//example.com/x')).toMatchObject({
+      'data-umami-event-destination-section': 'external'
+    })
+  })
+
   it('treats an absolute same-origin link as internal, not external', () => {
     expect(
       buildUmamiAttrs({

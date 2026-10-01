@@ -146,8 +146,10 @@ export function isSiteHostname(hostname: string): boolean {
  * external one. Non-matching or unparseable hrefs are returned unchanged.
  */
 function stripKnownOrigin(href: string): string {
+  // `new URL` can't parse a protocol-relative `//host` without a scheme.
+  const parsable = href.startsWith('//') ? `https:${href}` : href
   try {
-    const url = new URL(href)
+    const url = new URL(parsable)
     return isSiteHostname(url.hostname)
       ? `${url.pathname}${url.search}${url.hash}`
       : href
