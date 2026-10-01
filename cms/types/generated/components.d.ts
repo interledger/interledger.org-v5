@@ -366,6 +366,108 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksDonationCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards_items'
+  info: {
+    description: 'One giving tier: gift size, seats, benefits, and a single call to action.'
+    displayName: 'Donation Card'
+    icon: 'heart'
+  }
+  attributes: {
+    amount: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefits: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefitsLabel: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaDocument: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaExternal: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    seats: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksDonationCards extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards'
+  info: {
+    description: "Row of giving tiers. A page carrying this block loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID."
+    displayName: 'Donation Cards'
+    icon: 'heart'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    cards: Schema.Attribute.Component<'blocks.donation-card', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksEventCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_cards'
   info: {
@@ -1791,6 +1893,8 @@ declare module '@strapi/strapi' {
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-buttons': BlocksCtaButtons
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.donation-card': BlocksDonationCard
+      'blocks.donation-cards': BlocksDonationCards
       'blocks.event-card': BlocksEventCard
       'blocks.event-card-apply': BlocksEventCardApply
       'blocks.event-card-when': BlocksEventCardWhen

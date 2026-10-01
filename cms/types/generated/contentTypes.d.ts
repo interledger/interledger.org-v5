@@ -756,7 +756,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote',
-        'blocks.code-block'
+        'blocks.code-block',
+        'blocks.donation-cards'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
