@@ -833,8 +833,8 @@ describe('validateInternalLinks', () => {
     const hooks =
       '<a href="#XVSHSPQU">sustaining</a><a href="#XMWLAVRZ">champions</a>'
     const { error, warn } = await runCheck({
-      'get-involved/donate/index.html': hooks + '<a href="#missing">no</a>',
-      'es/get-involved/donate/index.html': hooks
+      'support-us/index.html': hooks + '<a href="#missing">no</a>',
+      'es/support-us/index.html': hooks
     })
     expect(error?.message).toContain('#missing')
     expect(error?.message).not.toContain('XVSHSPQU')
