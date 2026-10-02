@@ -205,15 +205,6 @@
               "openInNewTab": true
             }
           ]
-        },
-        {
-          "label": "Donate",
-          "items": [
-            {
-              "label": "Donate",
-              "href": "/get-involved/donate"
-            }
-          ]
         }
       ]
     }
