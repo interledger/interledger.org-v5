@@ -42,6 +42,31 @@ export function stripUploadOrigin(value: string): string {
   return `${parsed.pathname}${parsed.search}${parsed.hash}`
 }
 
+/**
+ * An absolute URL inside free text. Stops at whitespace, quotes, brackets and
+ * commas, so a Markdown target `](url)`, a Markdown title `(url "t")`, an HTML
+ * attribute and each entry of a srcset all end where the URL does.
+ */
+const URL_IN_TEXT = /https?:\/\/[^\s"'()<>,]+/gi
+
+/**
+ * Reduce every absolute URL to our own upload path inside free text, leaving
+ * the rest of the text byte for byte.
+ *
+ * The CKEditor plugin prefixes `window.strapi.backendURL` onto every image and
+ * file it inserts, whether dragged, pasted or picked from the media library,
+ * and has no option to stop it. Left in place, the link records whichever CMS
+ * the editor happened to use (localhost included), loads from the firewalled
+ * origin instead of the deployed copy, and reads as external to the image
+ * optimizer, the image audit and the link validator.
+ *
+ * Matched by path, like `stripUploadOrigin`: if `STRAPI_UPLOADS_BASE_URL` ever
+ * points uploads at a CDN, that origin is stripped too.
+ */
+export function stripUploadOriginsInText(text: string): string {
+  return text.replace(URL_IN_TEXT, stripUploadOrigin)
+}
+
 export function ensureLeadingSlash(value: string): string {
   if (!value || ABSOLUTE_OR_SPECIAL_HREF.test(value)) return value
   return value.trim().startsWith('/') ? value : `/${value}`
@@ -66,6 +91,11 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
         )
       } else if (PATH_SEGMENT_FIELDS.has(key)) {
         ;(data as Record<string, unknown>)[key] = normalizePathSegment(value)
+      } else {
+        // Every other string, so each CKEditor field is covered wherever it
+        // sits (components, dynamic zones) without a field list to drift.
+        ;(data as Record<string, unknown>)[key] =
+          stripUploadOriginsInText(value)
       }
     } else {
       normalizeRelativeLinksInDocumentData(value)
