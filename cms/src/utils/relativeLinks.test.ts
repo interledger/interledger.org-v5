@@ -251,6 +251,14 @@ describe('stripUploadOriginsInText', () => {
     )
   })
 
+  it('keeps a Markdown-escaped filename byte for byte', () => {
+    expect(
+      stripUploadOriginsInText(
+        '[Guide](https://strapi-admin.interledger.org/uploads/img/original/Survival\\_Guide\\_EN.pdf)'
+      )
+    ).toBe('[Guide](/uploads/img/original/Survival\\_Guide\\_EN.pdf)')
+  })
+
   it('leaves external links, including external uploads paths, alone', () => {
     const text =
       '[GSMA](https://www.gsma.com/wp-content/uploads/report.pdf) and https://example.com/grants'

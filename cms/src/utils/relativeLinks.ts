@@ -43,11 +43,16 @@ export function stripUploadOrigin(value: string): string {
 }
 
 /**
- * An absolute URL inside free text. Stops at whitespace, quotes, brackets and
- * commas, so a Markdown target `](url)`, a Markdown title `(url "t")`, an HTML
- * attribute and each entry of a srcset all end where the URL does.
+ * The origin of an absolute URL to our upload path, inside free text. Only the
+ * origin is matched: the host stops at the first `/`, and the lookahead
+ * requires the upload path to follow it. A quote, bracket or whitespace can't
+ * be part of the host, so a Markdown target, an HTML attribute and every
+ * srcset entry each match on their own.
  */
-const URL_IN_TEXT = /https?:\/\/[^\s"'()<>,]+/gi
+const UPLOAD_ORIGIN_IN_TEXT = new RegExp(
+  `https?://[^\\s"'()<>,/\\\\]+(?=${UPLOAD_PATH_PREFIX})`,
+  'gi'
+)
 
 /**
  * Reduce every absolute URL to our own upload path inside free text, leaving
@@ -60,11 +65,14 @@ const URL_IN_TEXT = /https?:\/\/[^\s"'()<>,]+/gi
  * origin instead of the deployed copy, and reads as external to the image
  * optimizer, the image audit and the link validator.
  *
+ * Only the origin is cut, never a reparsed URL: `new URL` would turn the
+ * backslash of a Markdown-escaped `\_` in the filename into a `/`.
+ *
  * Matched by path, like `stripUploadOrigin`: if `STRAPI_UPLOADS_BASE_URL` ever
  * points uploads at a CDN, that origin is stripped too.
  */
 export function stripUploadOriginsInText(text: string): string {
-  return text.replace(URL_IN_TEXT, stripUploadOrigin)
+  return text.replace(UPLOAD_ORIGIN_IN_TEXT, '')
 }
 
 export function ensureLeadingSlash(value: string): string {
