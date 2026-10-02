@@ -61,11 +61,27 @@ interface Props {
 }
 
 const { cards = [], ariaLabel } = Astro.props
-const label = ariaLabel.trim()
+
+// Strapi preview spreads the draft as saved. Required strings are still
+// missing while an editor is filling the block, and `trim()` on one of them
+// throws and blanks the whole preview. Skip a card until it has a heading,
+// amount, benefits, and a named CTA: the stretched link covers the card.
+function filled(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+const label = filled(ariaLabel) ? ariaLabel.trim() : ''
 const headingId = `donation-cards-heading-${crypto.randomUUID()}`
 
-const resolved = cards
-  .filter((card) => card?.heading?.trim() && card?.ctaLink?.trim())
+const resolved = (Array.isArray(cards) ? cards : [])
+  .filter(
+    (card): card is DonationCard =>
+      filled(card?.heading) &&
+      filled(card?.amount) &&
+      filled(card?.benefits) &&
+      filled(card?.ctaText) &&
+      filled(card?.ctaLink)
+  )
   .map((card) => ({
     ...card,
     cta: resolveCtaLink({
@@ -93,7 +109,7 @@ const leadClass =
 ---
 
 {
-  resolved.length > 0 && (
+  label && resolved.length > 0 && (
     <section
       data-component="DonationCards"
       aria-labelledby={headingId}
