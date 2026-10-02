@@ -302,6 +302,8 @@ export {
   isSiteHostname,
   umamiAttrsToHtml
 } from './main/umami'
+
+// Main site: Links
 export {
   type NewTabLinkAttrs,
   type NewTabLinkHtml,
