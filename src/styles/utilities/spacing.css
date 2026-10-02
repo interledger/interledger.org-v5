@@ -96,3 +96,29 @@
 @utility gap-section {
   gap: var(--space-section);
 }
+
+/*
+ * LogoCarousel pads below its logos. On the homepage that's the whole gap
+ * before the footer and it's the size we want; everywhere else the page
+ * itself also pads its own end, and the two stack into a doubled gap when
+ * the carousel is the last block. This only covers the carousel ending its
+ * own section while the page continues below it (a grant FAQ, say) — the
+ * next section's normal gap already covers that case, so the carousel's own
+ * padding is dropped here. "Carousel is the literal last thing on the page"
+ * needs a `:has()` nested inside another `:has()` to reach <main>, which
+ * every browser rejects as invalid — see `fixTrailingMainPadding` in
+ * LogoCarousel.astro for that case instead.
+ *
+ * `:last-of-type` (not `:has(~ …)`) checks for a following section, since
+ * every <main> here uses `<section>` for all its top-level children.
+ * `:not(:has(~ :not(script, style)))` does the equivalent check one level
+ * down, where a `<script>`/`<style>` Astro emits after the carousel can be a
+ * real next sibling.
+ *
+ * Unlayered so this beats the Tailwind padding utilities.
+ */
+main > section:not(:last-of-type)
+  :is([data-prose], [data-prose-summit])
+  > [data-component='LogoCarousel']:not(:has(~ :not(script, style))) {
+  padding-block-end: 0;
+}
