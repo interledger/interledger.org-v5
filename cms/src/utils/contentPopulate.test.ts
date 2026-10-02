@@ -97,6 +97,25 @@ describe('dynamic zone populate configs', () => {
         `so they would be dropped from the MDX export: ${missing.join(', ')}`
     ).toEqual([])
   })
+
+  it.each(contentTypes)('nests %s relations under populate', (contentType) => {
+    // A dynamic-zone `on` fragment only accepts query options. A component
+    // field written at that level (`{ cards: true }`) is not a populate of
+    // the field — Strapi reads it as an unknown query key and rejects the
+    // whole fetch, so no page of that content type exports MDX.
+    const on = ZONE_POPULATE_BY_CONTENT_TYPE[contentType].on as Record<
+      string,
+      object
+    >
+    for (const [component, fragment] of Object.entries(on)) {
+      const keys = Object.keys(fragment).filter((key) => key !== 'populate')
+      expect(
+        keys,
+        `${contentType} ${component} must be {} or { populate: { … } }, ` +
+          `not { ${keys.join(', ')}: … }`
+      ).toEqual([])
+    }
+  })
 })
 
 describe('REPORT_CONTENT_POPULATE', () => {
