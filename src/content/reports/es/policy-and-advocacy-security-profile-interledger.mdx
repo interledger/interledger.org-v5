@@ -1,0 +1,161 @@
+﻿---
+title: 'El perfil de seguridad de las tecnologías de código abierto de Interledger'
+pathSlug: 'policy-and-advocacy/security-profile-interledger'
+section: 'foundation'
+heading: 'El perfil de seguridad de las tecnologías de código abierto de Interledger'
+description: "La Interledger Foundation tiende puentes entre la tecnología, las políticas públicas y las necesidades de la comunidad para construir sistemas financieros digitales inclusivos y accesibles.\n"
+locale: 'es'
+localizes: 'policy-and-advocacy/security-profile-interledger'
+---
+
+<ReportIntro>
+
+La Fundación Interledger desarrolla infraestructura digital que permite pagos interoperables. En calidad de custodios del Protocolo Interledger y de su conjunto de tecnologías complementarias, comprendemos que la seguridad constituye tanto una obligación fiduciaria hacia las comunidades e instituciones que dependen de estos componentes y bienes públicos, como un requisito fundamental para generar confianza en los servicios financieros digitales, en especial entre las poblaciones que actualmente se encuentran excluidas de los sistemas financieros.
+
+Este documento de política detalla el enfoque en capas que adopta la Fundación Interledger en materia de seguridad. Describe la manera en que diseñamos, desarrollamos, probamos, supervisamos y mejoramos nuestras tecnologías, así como las acciones previstas para continuar fortaleciéndolas. Buscamos demostrar de forma continua liderazgo en materia de seguridad, adoptar las mejores prácticas y mantener los más altos estándares de transparencia, diligencia e integridad, ya que la seguridad constituye un principio fundamental integrado en cada línea de código y en cada decisión de implementación que adoptamos.
+
+Es importante señalar que, si bien el presente documento aborda la seguridad técnica de las tecnologías de Interledger, no contempla ámbitos relacionados como la privacidad y la protección de datos, la prevención del lavado de dinero, la lucha contra el financiamiento del terrorismo y las obligaciones de conocimiento del cliente. Estos temas, si bien en ocasiones se agrupan dentro del concepto general de seguridad, se desarrollan en documentos de política específicos.
+
+**La seguridad operativa de las tecnologías de Interledger constituye una responsabilidad compartida. La Interledger Foundation es responsable del mantenimiento de su base de códigos de código abierto y de sus implementaciones de referencia. Las instituciones financieras reguladas y las entidades proveedoras de servicios de cuentas son responsables de integrar las tecnologías de Interledger de manera que cumplan con los requisitos de seguridad y cumplimiento normativo de sus respectivas jurisdicciones o los superen.**
+
+</ReportIntro>
+
+<ReportSection>
+
+## 1. Arquitectura de seguridad
+
+<ReportText type="Paragraph">
+
+### 1.1 Seguridad a nivel de protocolo
+
+En el núcleo de la arquitectura tecnológica de Interledger se encuentra el Protocolo Interledger versión 4 (ILP), que permite transferencias de valor condicionadas a nivel de paquetes a través de redes de pago independientes. Cada paquete ILP se procesa de forma atómica: se completa en su totalidad o falla sin ejecución parcial, lo que permite una transferencia segura e incremental de valor a través de una red descentralizada. Desde el punto de vista funcional, y de manera análoga a HTTPS, ILP opera como protocolo de superposición sin estado, basado en paquetes, sobre la infraestructura tradicional de Internet.
+
+ILP incorpora mecanismos arquitectónicos clave que refuerzan la integridad criptográfica y la resiliencia a nivel del sistema. Entre ellos se incluyen la aplicación de tiempos de expiración, la ejecución condicional de paquetes y la retención de liquidez entre pares aplicada por intermediarios. En conjunto, estos mecanismos reducen al mínimo el riesgo de pérdida de valor durante la transmisión.
+
+Cada transacción ILP es condicional:
+
+- Cada transacción debe cumplir condiciones criptográficas en todos los saltos antes de su finalización.
+- Los fondos se bloquean y solo se liberan una vez que se completa correctamente la operación, lo que garantiza la posibilidad de reversión en caso de fallas y elimina el riesgo de pagos parciales.
+- Las transferencias se rigen por condiciones de expiración que reducen la exposición a riesgos durante el tránsito y evitan que la liquidez quede inmovilizada durante períodos prolongados.
+
+#### Puntos clave para responsables de políticas:
+
+- ILP aplica la ejecución atómica de transacciones basadas en paquetes, lo que reduce el riesgo de ejecuciones parciales y de pérdidas de valor no intencionadas.
+- Si bien el Interledger Protocol es abierto y adaptable, la implementación de referencia de la Interledger Foundation, Rafiki, está diseñada exclusivamente para su uso por entidades proveedoras de servicios de cuentas autorizadas, en entornos regulados.
+- La liquidez entre pares (y no los fondos de los clientes) se reserva de manera condicional durante el procesamiento de las transacciones para garantizar el funcionamiento de la red.
+- Las transacciones completadas son definitivas, mientras que las transacciones fallidas se revierten de forma segura sin pérdida de valor.
+- Desde 2020, se han procesado de manera segura más de 78 mil millones de transacciones habilitadas por ILP[^1]. No se han identificado vectores de ataque exitosos contra ILP en la práctica y esta afirmación se valida de forma continua mediante revisiones formales de seguridad.
+
+### 1.2 Estándar Open Payments
+
+El Estándar Open Payments define interfaces de programación de aplicaciones (API) seguras e interoperables para iniciar, autorizar y ejecutar pagos sobre ILP. Se basa en el sucesor moderno del protocolo OAuth 2.0, ampliamente consolidado: el Protocolo de Negociación y Autorización de Concesiones, lo que garantiza un consentimiento granular del usuario y una delegación segura de autoridad.
+
+Para proteger las transacciones:
+
+- Todos los mensajes se firman mediante algoritmos criptográficos modernos, en particular la clave de curva Edwards Ed25519, seleccionada por su solidez y eficiencia.
+- Las comunicaciones se cifran y validan a través de HTTPS, con compatibilidad para TLS mutuo cuando corresponde.
+
+Reconocemos que nuestras decisiones en materia criptográfica pueden plantear desafíos de implementación debido a la heterogeneidad del ecosistema. No obstante, nuestra postura es clara: al gestionar datos financieros y ejecutar autorizaciones de pago, corresponde priorizar la seguridad por encima de la facilidad de implementación para los participantes de la red. Mantenemos una disposición abierta a respaldar formatos alternativos de claves seguras que favorezcan la adopción, siempre que no comprometan la integridad ni la capacidad de auditoría de los flujos de pago.
+
+#### Puntos clave para responsables de políticas:
+
+- El Estándar Open Payments aplica mecanismos sólidos de autenticación y verificación criptográfica en cada transacción, lo que reduce el riesgo de fraude y permite contar con registros de auditoría verificables.
+- La interoperabilidad se logra sin comprometer la seguridad, mediante el uso de GNAP y mensajes HTTPS firmados que garantizan el consentimiento del usuario y la integridad de los mensajes.
+- Cuando Open Payments se utiliza para autorizar una transacción, no se expone información financiera sensible a terceros, lo que preserva la privacidad del usuario durante todo el proceso.
+- Los usuarios otorgan un consentimiento explícito e informado para cada pago, incluido el monto de la transacción, antes de que se movilicen fondos a través de la interfaz segura de su entidad proveedora de servicios de cuentas. Dado que el consentimiento se gestiona íntegramente dentro de la interfaz segura de la entidad proveedora de servicios de cuentas, la API de Open Payments nunca accede a las credenciales bancarias del usuario, su información personal ni sus factores de autenticación.
+- La Interledger Foundation mantiene una postura firme respecto de la solidez criptográfica, con lo cual se asegura de que la seguridad no se vea comprometida en favor de la conveniencia en la implementación.
+
+### 1.3 Seguridad de la implementación de referencia
+
+Rafiki es un paquete de software que integra todas las funcionalidades de Interledger para su uso por parte de proveedores de cuentas regulados que desean integrarse en la red Interledger.
+
+La Fundación Interledger mantiene un calendario anual de auditorías para revisar la seguridad de Rafiki y, en particular, su implementación de ILP y de las API de Open Payments.
+
+La primera auditoría de Rafiki se llevó a cabo en 2024 por parte de una firma independiente de seguridad de terceros, Paragon Cyber Solutions[^2]. No incentivamos a los auditores a emitir informes “sin observaciones”; por el contrario, incentivamos económicamente la identificación de cualquier posible vector de seguridad y otorgamos recompensas en función de la gravedad de los hallazgos. Las auditorías finalizadas van acompañadas de publicaciones técnicas en nuestro blog de ingeniería en las que se documentan las estrategias de remediación y las lecciones aprendidas.
+
+#### Puntos clave para responsables de políticas:
+
+- Cada año, Interledger Foundation encarga auditorías de seguridad integrales de Rafiki a firmas independientes de reconocido prestigio.
+- Como parte de su compromiso con la transparencia, la Interledger Foundation publica resúmenes de estos informes de seguridad independientes una vez que se han corregido los problemas identificados.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 2. Seguridad operativa
+
+<ReportText type="Paragraph">
+
+### 2.1 Desarrollo seguro y supervisión
+
+A lo largo de todo el proceso de desarrollo de la Fundación Interledger, la seguridad se integra como principio transversal:
+
+- En el caso de Rafiki, las prácticas de desarrollo seguro incluyen análisis continuos mediante herramientas como Trivy y Grype, que permiten detectar vulnerabilidades conocidas en las dependencias de software.
+- Para acceder a los repositorios de GitHub y a las plataformas de desarrollo compartidas, todos los colaboradores de la base de códigos de Rafiki deben utilizar autenticación de dos factores. Con el fin de reducir la exposición, los derechos de acceso se asignan de manera segmentada según el rol y la función de cada participante.
+
+### 2.2 Programa de recompensas por vulnerabilidades
+
+En octubre de 2025, la Fundación Interledger pondrá en marcha un programa de recompensas por detección de vulnerabilidades. A través de este programa, se busca involucrar a investigadores en seguridad en la identificación y divulgación responsable de vulnerabilidades. En función de la gravedad y el impacto de los hallazgos, los participantes reciben recompensas proporcionales. De conformidad con las prácticas del sector, una vez que el programa se encuentre en funcionamiento, sus detalles se publicarán en el archivo `.well-known/security.txt`, disponible en todas las propiedades web de Interledger.
+
+#### Puntos clave para responsables de políticas:
+
+A partir de octubre de 2025, invitamos a hackers éticos a colaborar con nosotros de manera constructiva. Mediante nuestro programa de recompensas por vulnerabilidades, ofreceremos incentivos económicos a los investigadores que identifiquen problemas de seguridad.
+
+### 2.3. Comunidad y transparencia
+
+La Fundación Interledger promueve activamente una cultura de transparencia y rendición de cuentas:
+
+- Los repositorios de código abierto incluyen seguimiento de incidencias, espacios de discusión y registros de cambios.
+- De forma periódica, se plantean desafíos de seguridad para incentivar el análisis externo. Cabe destacar que, durante un desafío abierto de seis meses en 2024, no se identificaron vulnerabilidades.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 3. Responsabilidades de implementación para entidades reguladas
+
+<ReportText type="Paragraph">
+
+La Interledger Foundation pone a disposición de los proveedores de servicios financieros regulados software seguro, gratuito y de código abierto. Cuando las instituciones financieras integran, implementan y operan tecnologías de Interledger, asumen la responsabilidad de mantener sus propias prácticas y controles de seguridad.
+
+Un aspecto clave para la implementación segura de Interledger radica
+en la naturaleza bidireccional de Rafiki. En su función como capa intermediaria que
+facilita la interoperabilidad de pagos entre redes, Rafiki puede exponer
+tanto API públicas como internas. Si bien este diseño de doble interfaz aporta
+una gran flexibilidad y simplifica la integración, también puede introducir posibles vectores
+de explotación cuando se implementa dentro de un sistema más amplio
+que presenta vulnerabilidades preexistentes. En tales casos, Rafiki puede quedar expuesto de manera inadvertida
+a riesgos que no se originan en su propio código, sino en implementaciones inseguras,
+configuraciones incorrectas o integraciones con terceros dentro del entorno
+de la institución que lo aloja. Por ejemplo, si la capa de autenticación de un proveedor de servicios
+de cuentas no separa adecuadamente los servicios expuestos al público de los servicios internos,
+o si las políticas de control de acceso se definen de forma laxa,
+pueden generarse condiciones que permitan ejecutar externamente operaciones sensibles
+sobre las API internas de Rafiki. Estos riesgos se encuentran fuera del ámbito de control
+de la Interledger Foundation, pero deben ser abordados
+por las instituciones financieras encargadas de la implementación.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 4. Orientación estratégica para responsables de políticas
+
+<ReportText type="Paragraph">
+
+- La arquitectura tecnológica de Interledger ha sido diseñada específicamente para ofrecer un sistema de finanzas digitales seguro, escalable e inclusivo. Gracias a elementos fundamentales como las transferencias condicionales, la inmovilización de liquidez y la aplicación de tiempos de expiración, el sistema constituye un modelo de referencia dentro de la infraestructura de pagos moderna.
+- De cara al futuro, la Interledger Foundation busca fortalecer sus vínculos institucionales con organismos reguladores y entidades de normalización, al tiempo que apunta a reforzar su resiliencia operativa mediante la continuidad en la contratación de auditorías de seguridad independientes.
+
+[^1]: En 2022, Coil Technologies, Inc. informó haber procesado 78 mil millones de transacciones del Interledger Protocol. Dado que el Interledger Protocol es una tecnología descentralizada que preserva la privacidad, Interledger Foundation no tiene acceso a datos globales completos sobre el volumen total de transacciones. El uso se estima mediante la telemetría opcional de Rafiki (basada en la adhesión voluntaria) y técnicas de inferencia estándar, similares a las que se emplean para el análisis del tráfico en Internet.
+
+[^2]: Consulte nuestro blog de ingeniería: [https://interledger.org/es/blog/rafikis-first-security-audit/](/es/blog/rafikis-first-security-audit/).
+
+</ReportText>
+
+</ReportSection>

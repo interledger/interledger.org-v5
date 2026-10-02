@@ -1,0 +1,142 @@
+﻿---
+title: 'Micropagos transfronterizos más económicos con Interledger'
+pathSlug: 'grant/call-for-papers/cross-border-micropayments-interledger'
+section: 'foundation'
+heading: 'Cómo hacer que los pequeños pagos globales realmente funcionen: rutas más inteligentes y económicas con Interledger (frente a Lightning y el dinero móvil)'
+description: 'Descubra cómo Interledger permite realizar micropagos transfronterizos más rápidos y económicos, y compare su rendimiento con Lightning Network y el dinero móvil.'
+authorBios:
+  - author: 'Yash Sancheti'
+    text: 'Yash Sancheti es un profesional de la ciberseguridad con experiencia en pruebas de penetración, desarrollo seguro y DevSecOps. Obtuvo su licenciatura en ciencias de la computación e ingeneiría en el Jaypee Institute of Information Technology, donde adquirió sólidos conocimientos en C/C++, JavaScript, estructuras de datos, algoritmos y prácticas de codificación segura. Su experiencia en seguridad incluye su participación en Google Summer of Code como colaborador de seguridad para la Iniciativa Mifos, donde realizó pruebas de seguridad manuales y automatizadas, implementó múltiples correcciones y desarrolló scripts de CodeQL para reforzar la seguridad de las plataformas web Apache Fineract y Mifos. Posteriormente, trabajó en Crosslake Technologies como especialista en pruebas de penetración, donde realizó evaluaciones exhaustivas de las redes y aplicaciones de los clientes y elaboró informes detallados de remediación. Además de su experiencia profesional, ha informado sobre vulnerabilidades a organizaciones como Rocket.Chat, Domino’s, Netgear, ESET, InfluxData y Aditya Birla, por lo que ha recibido reconocimientos, menciones en sus respectivos Hall of Fame y cartas de agradecimiento. Actualmente, trabaja como especialista en DevSecOps en Nucleus Systems, donde se centra en integrar la seguridad en las canalizaciones de CI/CD, mejorar la seguridad de las aplicaciones y desarrollar herramientas automatizadas para la detección proactiva de amenazas.'
+locale: 'es'
+localizes: 'grant/call-for-papers/cross-border-micropayments-interledger'
+---
+
+<ReportIntro>
+
+**Introducción: el costo de un pago de USD 5**
+
+Imagine realizar una tarea en línea como trabajador independiente por 5 dólares y perder casi 1,50 dólares en comisiones solo para recibir el pago. Lamentablemente, esta es la realidad para muchos trabajadores independientes digitales y creadores de contenido en el hemisferio sur. Los pagos transfronterizos, especialmente los pequeños “micropagos” de menos de USD 10, suelen conllevar costos desmesurados y demoras. De hecho, enviar dinero internacionalmente sigue costando alrededor de un 6,5 % en promedio, más del doble del objetivo del 3 % establecido por el G20 y las Naciones Unidas. En el caso de los pagos pequeños de unos pocos dólares, las comisiones fijas y los tipos de cambio desfavorables pueden absorber entre el 10 % y el 30 % del valor. Como resultado, un trabajador de micro tareas de Kenia podría tener que esperar semanas y acumular sus ganancias, simplemente para evitar perder una parte considerable en comisiones de transferencia. Este problema de la actual economía de trabajos por encargo (gig) y de creadores no se reduce a las cifras, sino que afecta directamente a los medios de subsistencia. Las comisiones elevadas significan menos dinero para comprar alimentos, retrasos en el pago del alquiler y oportunidades perdidas para las personas que, a menudo, más necesitan cada dólar.
+
+La buena noticia es que las tecnologías de pago emergentes están en condiciones de cambiar esta situación. Las innovaciones basadas en blockchain, como la Bitcoin Lightning Network, ya permiten realizar micropagos casi instantáneos con comisiones mínimas. Del mismo modo, el Interledger Protocol (ILP), un protocolo abierto para enrutar dinero entre distintas redes, se ha utilizado en pruebas de Web Monetization (por ejemplo, mediante Coil) para enviar pequeños pagos a los creadores en tiempo real. Estas nuevas “infraestructuras digitales de pago” sugieren que enviar USD 0,10 o USD 1 debería ser tan fácil y económico como enviar un correo electrónico. Sin embargo, pese a este potencial, faltan datos rigurosos y comparables en igualdad de condiciones sobre su desempeño real en los micropagos transfronterizos. ¿Cómo se compara Lightning con ILP en la práctica? ¿Puede alguno de los dos superar realmente a los servicios tradicionales de dinero móvil o a las transferencias bancarias para un pago de 1 dólar, por ejemplo, de Estados Unidos a Kenia?
+
+</ReportIntro>
+
+<ReportSection>
+
+## Lo que mi investigación busca resolver
+
+<ReportText type="Paragraph">
+
+La investigación aborda directamente esta pregunta: ¿cómo podemos hacer que los pequeños pagos internacionales sean más rápidos, económicos y confiables, de una manera que realmente funcione para los trabajadores independientes y los creadores de contenido de todo el mundo? Para averiguarlo, estoy realizando una comparación directa de tres vías de pago para micropagos:
+
+- **Conectores de Interledger Protocol (ILP):** nodos operados por la comunidad que enrutan pagos entre distintas monedas y registros contables.
+- **Bitcoin Lightning Network:** red de capa 2 de Bitcoin, compuesta por canales de pago, conocida por sus transacciones instantáneas y de bajo costo.
+- **Dinero móvil o bancos tradicionales (a través de SWIFT)**, por ejemplo, mediante el envío de dinero a billeteras móviles como M-Pesa o a cuentas bancarias, que es el mecanismo habitual para muchas remesas.
+
+Se enviarán más de 300 pagos de prueba (por montos que van de USD 0,10 a USD 10) desde regiones desarrolladas (EE. UU., la UE y la India) hacia mercados emergentes (Kenia y México) a través de cada uno de estos canales. Mediante un seguimiento detallado de las comisiones totales, los tipos de cambio, la velocidad de las transferencias y las tasas de transacciones exitosas o fallidas de cada transacción de USD 0,10, USD 1 y USD 10, obtendremos un parámetro de referencia claro sobre lo que ofrece cada método en el mundo real. Este será uno de los primeros conjuntos de datos empíricos en los que se comparen estas nuevas infraestructuras de pago (ILP y Lightning) con las opciones tradicionales para transferencias de muy bajo valor, lo que permitirá cubrir una importante brecha de conocimiento.
+
+Más allá de comparar las tecnologías existentes, una innovación central de esta investigación es diseñar una forma más inteligente de enrutar los pagos en ILP. Actualmente, el enrutamiento de ILP es similar al de los primeros enrutamientos de Internet, y no siempre tiene en cuenta factores como la liquidez disponible de un conector o las fluctuaciones de los diferenciales cambiarios.
+
+Esta investigación propone un nuevo “algoritmo de enrutamiento basado en costos” para ILP que determinará de forma dinámica la ruta más económica y confiable para un pago. En términos técnicos, se trata de una variante de un algoritmo de K rutas más cortas con una nueva ponderación de las penalizaciones. En pocas palabras, analizará varias rutas y seleccionará aquella que tenga el menor costo y mayores probabilidades de éxito. Como resultado clave, este algoritmo se implementará en un conector de ILP prototipo (en Rust) y se publicará como código abierto para la comunidad.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## ¿Por qué es importante esto ahora?
+
+<ReportText type="Paragraph">
+
+A pesar de los avances de la tecnología financiera, enviar pequeños pagos transfronterizos sigue siendo prohibitivamente costoso, y las comisiones suelen superar con creces el objetivo del 3 % establecido por las Naciones Unidas. Para los trabajadores independientes que reciben pagos de montos muy pequeños, este es un problema crítico. Un estudio piloto reciente realizado en Kenia mostró que las comisiones convencionales por un pago de 5 dólares podían alcanzar casi el 29%, mientras que una ruta digital optimizada redujo ese porcentaje a solo el 2 %, lo que representa una reducción del 93 %. Esto pone de relieve una enorme oportunidad de aumentar los ingresos de los creadores de contenido.
+
+El momento para realizar esta investigación es crucial. Organismos reguladores como el Grupo de Acción Financiera Internacional (GAFI) y los bancos centrales están definiendo activamente el futuro de los pagos digitales y las CBDC. Esta investigación busca ofrecer un plan de referencia oportuno que demuestre cómo lograr transferencias seguras y de muy bajo costo que cumplan con los estándares modernos de cumplimiento normativo y, de este modo, contribuir a orientar el desarrollo de un sistema de pagos global más equitativo.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Cómo lo haremos: resumen de la metodología
+
+<ReportText type="Paragraph">
+
+1. **Pruebas de pagos en condiciones reales:**La fase empírica de esta investigación implicará automatizar cientos de microtransacciones a través de los tres canales (ILP, Lightning y tradicional). Mediante el envío de pequeños pagos a través de corredores como EE. UU.→Kenia e India→México, el estudio ofrecerá una visión amplia del desempeño de cada método. En cada prueba se registrarán meticulosamente el monto enviado y el monto recibido, las comisiones totales, el tiempo de transferencia y cualquier error. Posteriormente, se utilizará un análisis estadístico para determinar si existen diferencias significativas en términos de costo y velocidad entre los métodos.
+
+2. **Prototipo de enrutamiento de ILP más inteligente:** El componente técnico central consiste en crear y simular el nuevo algoritmo de enrutamiento de ILP. Esto implica modelar la red de pagos como un grafo, en el que las rutas se ponderan según las comisiones, la liquidez y los diferenciales cambiarios. El algoritmo calculará entonces las rutas óptimas que minimicen el “costo” total. Este prototipo se probará en una simulación controlada de 400 micropagos para medir su rendimiento en comparación con el sistema actual, centrándose en la reducción de las comisiones y en las tasas de éxito.
+
+3. **Perspectivas de los usuarios y sobre las políticas:** Para fundamentar las conclusiones cuantitativas, la investigación incorporará datos cualitativos mediante entrevistas a aproximadamente 30 trabajadores independientes de Kenia y México sobre sus experiencias con los pagos. Además, se realizará una revisión de las políticas para contrastar cada método de pago con las normativas vigentes (como las directrices del GAFI) con el fin de identificar cualquier brecha en el cumplimiento y garantizar que las soluciones propuestas sean responsables y seguras.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Impacto esperado: pagos más rápidos y mayores ingresos
+
+<ReportText type="Paragraph">
+
+Una hipótesis central de esta investigación es que un algoritmo de enrutamiento de ILP optimizado podría reducir significativamente las transacciones fallidas y los costos. Según los supuestos de trabajo relativos a las comisiones de red y los diferenciales de liquidez, se plantea la hipótesis de que el algoritmo propuesto podría reducir las comisiones entre un 35 % y un 50 % adicionales, además de los bajos costos que ILP ya ofrece. Estos supuestos se basan en las estructuras de comisiones de los conectores de ILP disponibles al público, los diferenciales de liquidez habituales en los corredores EE. UU.→Kenia e India→México y los parámetros de referencia de costos de las remesas obtenidos de estudios recientes.
+
+Si la investigación valida esta hipótesis mediante el prototipo, el impacto potencial es claro. Al combinarse con la eficacia inherente de ILP y Lightning, podríamos observar reducciones totales de las comisiones de entre el 50 % y el 80 % en comparación con los métodos tradicionales. Para un trabajador independiente de Nairobi que actualmente pierde, por ejemplo, el 10 % de cada pago de USD 2, reducir ese porcentaje al 2 % equivaldría, en la práctica, a un aumento del 8 % en sus ingresos netos. Si se acumula a lo largo de un año, no es una cantidad insignificante: podría representar más de USD 100 adicionales de ingresos para una persona, lo que podría cubrir un mes de alquiler o permitirle invertir en mejores herramientas para su trabajo.
+
+Más allá de los costos, también deberían mejorar la velocidad y la confiabilidad. Los pagos mediante Lightning son casi instantáneos, e ILP puede lograr una liquidación instantánea al conectar distintas redes. Ya no habrá que esperar entre 3 y 5 días para que se complete una transferencia bancaria internacional. Imagine que los creadores de una plataforma reciban micropagos cada segundo a medida que los usuarios consumen su contenido; esa es una posibilidad real con ILP (como se ha demostrado en las pruebas de Web Monetization). La recepción más rápida de los fondos puede reducir la volatilidad de los ingresos de los trabajadores y ayudarlos a gestionar mejor su flujo de caja en su vida cotidiana.
+
+También hay un beneficio más amplio en materia de inclusión: las comisiones más bajas hacen viable que los servicios paguen montos más pequeños con mayor frecuencia. Un problema habitual en la actualidad es que las plataformas establecen umbrales mínimos de pago (por ejemplo, “debe ganar 50 dólares antes de que le paguemos”), porque hacer una transferencia internacional de 5 dólares no resulta conveniente con los costos actuales. Si demostramos que las transferencias de USD 0,50 pueden realizarse de forma rentable, esto podría fomentar el cambio hacia modelos de pago más flexibles, lo que beneficiaría a quienes necesitan un acceso rápidamente a sus ingresos.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Cumplimiento normativo e interoperabilidad
+
+<ReportText type="Paragraph">
+
+Un aspecto clave es garantizar que los pagos más económicos no sean más riesgosos. Para su adopción, las nuevas tecnologías deben cumplir con las normativas. Esta investigación examinará con detalle el cumplimiento de las normas de prevención del lavado de dinero y lucha contra el financiamiento del terrorismo mediante la evaluación de estos métodos de pago en función de los marcos normativos vigentes.
+
+En lugar de abordar el cumplimiento de forma genérica, esta investigación analizará varias cuestiones específicas y prácticas:
+
+1. **Controles basados en el riesgo:** ¿Cómo pueden los conectores de ILP y los nodos de Lightning implementar de forma eficaz controles proporcionados y basados en el riesgo (por ejemplo, monitoreo de transacciones y límites de velocidad) para micropagos de bajo monto y alta frecuencia, sin añadir costos operativos prohibitivos que anulen los ahorros obtenidos? Estas preguntas garantizarán que las tecnologías de pago emergentes estén alineadas con el panorama normativo en evolución y no introduzcan riesgos de manera inadvertida, especialmente en áreas como el monitoreo de transacciones y la mitigación de riesgos relacionados con los micropagos transfronterizos.
+
+2. **La “Regla de viaje” del GAFI:** ¿Cuáles son las soluciones técnicas y normativas más viables para aplicar la “Regla de viaje” del GAFI (que exige transmitir información sobre el ordenante y el beneficiario) a redes descentralizadas o de varios saltos, como ILP y Lightning? Exploraremos modelos que van desde los metadatos a nivel de protocolo hasta los canales de comunicación fuera de banda.
+
+3. **Custodia vs. sin custodia:** ¿En qué se diferencian las obligaciones de cumplimiento para los actores que operan en estos corredores (por ejemplo, una plataforma con sede en Estados Unidos que paga a un trabajador independiente en Kenia) según si utilizan billeteras con custodia o sin custodia?
+
+El objetivo es proporcionar evidencia y análisis que respalden una supervisión moderna y basada en el riesgo para las transacciones pequeñas.
+
+En lugar de elegir una red como la ganadora, estamos estudiando cómo lograr que sistemas como ILP y Lightning funcionen en conjunto. Un resultado clave será un prototipo que permita a Interledger enrutar un pago de forma inteligente a través de otra red si esta ofrece una ruta más económica o rápida. Esta interoperabilidad es crucial para crear un ecosistema de pagos unificado que ofrezca los costos más bajos y el mayor alcance posible.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Conclusión: hacia pagos verdaderamente inclusivos
+
+<ReportText type="Paragraph">
+
+Esta investigación aborda un tema apremiante para la inclusión financiera digital: hacer que las microremesas sean viables para quienes dependen de ellas. Mediante la combinación de pruebas empíricas, optimización de redes y análisis de políticas, mi objetivo es demostrar un plan de referencia para los micropagos transfronterizos que sean rápidos, de costo ultrabajo y que cumplan con las normativas. Este trabajo contribuye directamente a la misión de Interledger Foundation al mejorar la tecnología y abordar las dimensiones normativas, de modo que las innovaciones puedan desarrollarse de manera responsable.
+
+Si un trabajador independiente en México o un creador de contenido en Kenia puede recibir pagos pagando solo un centavo por cada dólar en comisiones, en lugar de perder decenas de centavos, como ocurre actualmente, el impacto es tangible: ingresos más estables y avances hacia los objetivos de reducción de costos del G20. Se trata de empoderar a las personas para que participen en la economía digital mundial en condiciones justas. Estamos mejorando la “Internet financiera” para que el valor pueda circular con la misma libertad que la información, independientemente del monto.
+
+A menudo se habla de inclusión financiera en términos generales, pero a veces son los pagos más pequeños los que marcan la mayor diferencia. Al hacer que esos pequeños pagos internacionales funcionen, damos un paso más hacia un futuro financiero equitativo para todos.
+
+</ReportText>
+
+<ReportText type="References">
+
+- GPFI. (2024). _Update to Leaders on Progress Towards the G20 Remittance Target_. [https://www.gpfi.org/sites/default/files/NEW%202024%20Update%20to%20Leaders%20on%20Progress%20Towards%20the%20G20%20Remittance%20Target.pdf](https://www.gpfi.org/sites/default/files/NEW%202024%20Update%20to%20Leaders%20on%20Progress%20Towards%20the%20G20%20Remittance%20Target.pdf)
+- Mercy Corps Ventures. (2022). _Stablecoin Digital Microwork in Kenya: Pilot Insights Report_ (resumen ejecutivo). [https://europe.mercycorps.org/sites/default/files/2022-02/Policy_Exec-Summary_MCV-Pilot-Insights-Report_Stablecoin-Digital-Microwork-in-Kenya-Web.pdf](https://europe.mercycorps.org/sites/default/files/2022-02/Policy_Exec-Summary_MCV-Pilot-Insights-Report_Stablecoin-Digital-Microwork-in-Kenya-Web.pdf)
+- Kenyan Wall Street. Crypto micropayments could save Kenyans USD 80 million by drastically reducing cost of cross-border remittances. [https://kenyanwallstreet.com/crypto-could-save-kenyans-usd-80-million-by-in-cross-border-remittances/](https://kenyanwallstreet.com/crypto-could-save-kenyans-usd-80-million-by-in-cross-border-remittances/)
+- Simplex. What is the Bitcoin Lightning Network? Instant, low-cost BTC payments explained. [https://www.simplex.com/what-is-the-bitcoin-lightning-network](https://www.simplex.com/what-is-the-bitcoin-lightning-network)
+- W3C. (2019). Interview: Coil on Interledger Protocol and Web Monetization. [https://www.w3.org/blog/2019/w3c-interview-coil-on-interledger-protocol-and-web-monetization/](https://www.w3.org/blog/2019/w3c-interview-coil-on-interledger-protocol-and-web-monetization/)
+
+</ReportText>
+
+</ReportSection>
