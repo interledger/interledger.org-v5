@@ -15,6 +15,30 @@ describe('cta-strip serializer', () => {
     )
   })
 
+  it('writes color only when the strip is green', () => {
+    const green = serialize({
+      primaryButtonText: 'P',
+      primaryButtonLink: '/p',
+      color: 'green'
+    })
+    expect(green).toContain('color="green"')
+
+    const purple = serialize({
+      primaryButtonText: 'P',
+      primaryButtonLink: '/p',
+      color: 'purple'
+    })
+    expect(purple).not.toContain('color=')
+
+    expect(() =>
+      serialize({
+        primaryButtonText: 'P',
+        primaryButtonLink: '/p',
+        color: 'blue'
+      })
+    ).toThrow('CTA Strip color must be "purple" or "green"')
+  })
+
   it('serializes both CTAs', () => {
     const result = serialize({
       heading: 'Apply now',

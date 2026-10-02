@@ -17,6 +17,7 @@ import {
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter
 } from './mdx'
+import { ctaStripColorMdxFields } from './ctaStrip'
 
 export interface PodcastPageCtaStrip {
   heading?: string
@@ -25,6 +26,7 @@ export interface PodcastPageCtaStrip {
   primaryButtonLink?: string
   secondaryButtonText?: string
   secondaryButtonLink?: string
+  color?: string
 }
 
 export interface PodcastPageTitleCard {
@@ -94,7 +96,8 @@ function ctaStripFrontmatter(ctaStrip: PodcastPageCtaStrip) {
           secondaryButtonText: secondaryText,
           secondaryButtonLink: secondaryLink
         }
-      : {})
+      : {}),
+    ...ctaStripColorMdxFields(ctaStrip.color)
   }
 }
 

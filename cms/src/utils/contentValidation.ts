@@ -15,6 +15,7 @@ import {
   isCardGridVariantAllowed
 } from './cardGrid'
 import { hasConflictingCtaFlags } from './ctaButtons'
+import { isCtaStripColor } from './ctaStrip'
 
 export interface FieldError {
   path: Array<string | number>
@@ -374,7 +375,8 @@ export function validateCtaStrip(
     secondaryButtonText,
     secondaryButtonLink,
     secondaryButtonExternal,
-    secondaryButtonDocument
+    secondaryButtonDocument,
+    color
   } = ctaStrip as Record<string, unknown>
   const fieldErrors: FieldError[] = []
 
@@ -396,6 +398,15 @@ export function validateCtaStrip(
     fieldErrors.push({
       message: 'CTA Strip: Primary Button Link is required',
       path: ['ctaStrip', 'primaryButtonLink']
+    })
+  }
+
+  // Absent means purple, the schema default. A value outside the enum is a
+  // bad write, not a silent fallback.
+  if (color != null && color !== '' && !isCtaStripColor(color)) {
+    fieldErrors.push({
+      message: 'CTA Strip: Color must be purple or green',
+      path: ['ctaStrip', 'color']
     })
   }
 
