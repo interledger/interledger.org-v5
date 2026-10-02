@@ -1,0 +1,118 @@
+﻿---
+title: 'Comisiones de red en el ecosistema Interledger'
+pathSlug: 'policy-and-advocacy/network-fees-interledger-ecosystem'
+section: 'foundation'
+heading: 'Comisiones de red en el ecosistema Interledger'
+description: 'La Interledger Foundation tiende puentes entre la tecnología, las políticas públicas y las necesidades de la comunidad para construir sistemas financieros digitales inclusivos y accesibles.'
+date:
+  publishDate: '2025-10-20'
+locale: 'es'
+localizes: 'policy-and-advocacy/network-fees-interledger-ecosystem'
+---
+
+<ReportIntro>
+
+La Interledger Foundation supervisa el desarrollo del conjunto de tecnologías Interledger, de código abierto y uso gratuito, que permiten realizar pagos sin fricciones, inclusivos e interoperables entre distintos sistemas financieros. Promovemos una infraestructura pública digital que impulsa la innovación en los servicios financieros digitales, al tiempo que mejora la asequibilidad y la accesibilidad para los usuarios finales.
+
+Las tecnologías de Interledger no imponen comisiones obligatorias, ni la Interledger Foundation establece, aplica ni recauda comisiones. Las redes de pago habilitadas por Interledger y los operadores de nodos independientes, incluidas las instituciones financieras que implementan tecnologías Interledger, cuentan con la capacidad de definir sus propias estrategias de liquidación y sus necesidades de recuperación de costos; en consecuencia, pueden establecer sus propios modelos de precios internos en función de acuerdos bilaterales entre pares, costos de infraestructura o responsabilidades regulatorias.
+
+Resulta fundamental distinguir entre las tecnologías de código abierto de Interledger y cualquier implementación de red específica. Las tecnologías de Interledger pueden ser utilizadas por cualquier grupo de participantes para crear su propia red de pagos. En este sentido, no existe una única red Interledger centralizada bajo el control de la Interledger Foundation ni de ninguna otra entidad. Pueden surgir múltiples redes independientes o superpuestas, algunas integradas por instituciones financieras reguladas y otras que operan en contextos locales o específicos de un determinado sector. La asignación de subvenciones por parte de Interledger Foundation, así como la participación en implementaciones de referencia desarrolladas por la propia Fundación, se limita a entidades proveedoras de servicios de cuentas reguladas.
+
+Reconocemos que las comisiones de red constituyen un modelo de negocio habitual para sostener las infraestructuras de pago que sustentan las redes de pagos digitales. No obstante, la Interledger Foundation promueve enfoques operativos que prioricen modelos de bajo costo, en especial para las instituciones emisoras y receptoras, ya que sistemas de pago abiertos como Pix en Brasil y UPI[^1] en India han demostrado que la reducción de las comisiones de red favorece la inclusión financiera digital.
+
+</ReportIntro>
+
+<ReportSection>
+
+## 1. La arquitectura de la red Interledger
+
+<ReportText type="Paragraph">
+
+El modelo operativo actual de Interledger comprende los siguientes tipos de nodos:
+
+- Nodos de circuito cerrado: estas implementaciones de Interledger operan dentro del libro contable interno de una única institución.
+- Nodos entre proveedores de servicios financieros: el Protocolo Interledger facilita la interconexión bilateral entre dos o más proveedores de servicios financieros que han acordado establecer relaciones comerciales entre sí.
+
+Estos nodos operan bajo acuerdos o contratos bilaterales personalizados que determinan las condiciones de liquidez, los mecanismos de liquidación y, cuando corresponda, las comisiones. La Interledger Foundation no impone comisiones de red.
+
+En el futuro, las redes de pago habilitadas por Interledger también podrán admitir nodos conectores: intermediarios que permiten enrutar pagos entre redes que no mantienen interconexión directa entre sí. Si bien esta forma de enrutamiento con múltiples saltos aún no se encuentra ampliamente implementada en herramientas actuales de Interledger, como Rafiki, el protocolo la admite a nivel técnico y su configuración depende en última instancia de cada participante de la red. Por lo tanto, la aparición de conectores no se encuentra limitada por una implementación específica ni por decisiones centralizadas.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 2. Nuestra prioridad: Mantener las transacciones de Interledger sin costo o al costo
+
+<ReportText type="Paragraph">
+
+Una innovación clave del Interledger Protocol consiste en la separación entre la negociación del pago y los métodos de liquidación. Al posibilitar una mayor competencia en la capa de liquidación, Interledger mejora, en términos teóricos, la eficiencia en la toma de decisiones de enrutamiento y permite a los usuarios identificar rutas de pago de menor costo. Si bien esto no siempre reduce la carga de procesamiento interno para los nodos de Interledger, sí genera oportunidades de ahorro a nivel del ecosistema. Los responsables de formular políticas pueden potenciar estos ahorros mediante la exigencia de divulgación previa de todas las comisiones de red y los diferenciales cambiarios, de modo que los consumidores y las pequeñas empresas no se enfrenten a costos ocultos. Este tipo de requisitos de transparencia en materia de comisiones ha demostrado ser eficaz para reducir precios en sistemas de pago de acceso abierto, como Pix en Brasil y UPI en India. Como organización sin fines de lucro cuya misión consiste en ampliar el acceso equitativo a las redes financieras, promovemos modelos de precios sin costo y sin margen que trasladen estas eficiencias de forma directa a los consumidores y a las pequeñas empresas, en particular cuando las instituciones financieras pueden sostener su operación mediante fuentes de ingresos complementarias que no dependan de comisiones por transacción.
+
+| Red                           | Modelo de comisiones                                                                                                                     | Costos de transacción                                                                                             | Viabilidad para micropagos                                                                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Tarjetas de crédito           | Comisión de intercambio + tasa de descuento del comercio                                                                                 | Altos (p. ej., USD 0,30 + 2,9 %)                                                                                  | Baja: las comisiones resultan prohibitivas                                                                                                       |
+| SEPA <br /> (Europa)          | Comisión fija por transacción                                                                                                            | Bajos, pero no estandarizados; los pagos instantáneos son más costosos que las opciones de liquidación más lentas | Baja: las comisiones resultan prohibitivas para pagos en tiempo real                                                                             |
+| Pix (Brasil)                  | Respaldado por el gobierno, con comisiones nulas o bajas                                                                                 | Bajos (hasta 0,22 % para los comercios)                                                                           | No: existe un monto mínimo de transacción                                                                                                        |
+| Billetera digital como PayPal | Comisión variable por transacción                                                                                                        | Altos (p. ej., aproximadamente 3 % + comisión fija + comisión por conversión de moneda)                           | No compatible                                                                                                                                    |
+| Interledger                   | Sin comisiones a nivel de protocolo; precios definidos de forma bilateral y potencialmente dinámica para la liquidación de transacciones | Siempre visibles antes de la ejecución de la transacción                                                          | Alta: diseñado para transacciones de bajo valor desde USD 0,0001 (actualmente, los nodos de red existentes admiten transacciones desde USD 0,01) |
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 3. Modelos de precios en el ecosistema de Interledger
+
+<ReportText type="Paragraph">
+
+El costo de liquidar transacciones en la red Interledger se determina en función de acuerdos bilaterales y de las condiciones del mercado. Dado que Interledger descentraliza la liquidación y la fijación de precios, en principio genera un entorno más dinámico y competitivo. Los conectores habilitan múltiples rutas de enrutamiento dentro de la red, lo que introduce competencia de precios y capacidad de elección. Para activar y escalar este potencial competitivo, la Fundación Interledger orienta la asignación de subvenciones hacia el fomento de nuevos nodos de red y una mayor interoperabilidad entre redes, tanto entre actores emergentes como entre instituciones financieras consolidadas. Por el contrario, cuando Interledger se utiliza únicamente entre sistemas internos o entre un número limitado de pares directos, esta ventaja competitiva no se materializa. Desde 2020, hemos otorgado más de USD 21 millones a beneficiarios en más de 40 países, con el objetivo general de evitar la concentración del poder de mercado basada en comisiones y promover modelos de precios transparentes, en los que las estructuras de comisiones resulten visibles y previsibles para todos los actores.
+
+Promovemos la innovación en los modelos de negocio y consideramos que existen alternativas que permiten a los proveedores de servicios financieros ofrecer transacciones habilitadas por Interledger sin costo para los usuarios finales. Estas alternativas pueden incluir la prestación de servicios de valor agregado, suscripciones con precios escalonados en función del uso o tarifas planas previsibles para transferencias de alto valor.
+
+Desde una perspectiva de política pública, la transparencia en las comisiones, la inclusión y el acceso abierto constituyen objetivos que se refuerzan mutuamente. Las medidas regulatorias que (i) obliguen a los intermediarios a publicar cotizaciones de precios en tiempo real y comprobantes posteriores a la transacción, (ii) prohíban recargos injustificados en transferencias de bajo valor y (iii) garanticen la interconexión no discriminatoria entre nodos competidores pueden garantizar que las capacidades de enrutamiento dinámico de Interledger se traduzcan en beneficios concretos para los consumidores, en lugar de generar nuevas oportunidades de captación de rentas.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 4. Nuestro plan de acción
+
+<ReportText type="Paragraph">
+
+Como parte de nuestro compromiso con el fortalecimiento de una infraestructura financiera digital abierta e inclusiva, la Fundación Interledger llevará a cabo las siguientes acciones:
+
+- Respaldar a los proveedores de servicios financieros en la implementación de Interledger y en el desarrollo de las capacidades necesarias mediante nuestro programa de subvenciones para servicios financieros.
+- Fomentar que los beneficiarios de subvenciones del sector financiero que participan en la transmisión de dinero publiquen datos de precios en la base de datos de precios de remesas del Banco Mundial.
+- Respaldar la labor de la Coalición Dinámica sobre Inclusión Financiera Digital del Foro de Gobernanza de Internet de las Naciones Unidas, en su esfuerzo por promover modelos de precios equitativos para los sistemas de pagos transfronterizos.
+- Invitar a la realización de investigaciones independientes y proyectos piloto sobre nuevos modelos de negocio, incluidas simulaciones y entornos de prueba regionales, mediante nuestra Call for Papers y la asignación de subvenciones a instituciones académicas.
+- Seguir promoviendo el principio de mantener las comisiones de transacción al costo, sin margen, para los nodos entre proveedores de servicios financieros en el envío y la recepción, al tiempo que se incentiva una competencia saludable mediante nodos conectores cuando resulten beneficiosos.
+  - Los nodos conectores pueden ampliar el alcance, habilitar servicios como la conversión de moneda y, potencialmente, reducir los costos del ecosistema; sin embargo, también introducen consideraciones regulatorias. Dado que Interledger no impone un mecanismo de enrutamiento centralizado, cada nodo selecciona sus propias rutas y asume la responsabilidad del cumplimiento normativo. El Protocolo Interledger ofrece transparencia respecto de los costos y las rutas antes de la ejecución de la transacción; no obstante, las obligaciones de debida diligencia siguen siendo responsabilidad de cada nodo participante.
+- Interactuar de manera proactiva con bancos centrales, organismos reguladores del sector financiero y autoridades de competencia para codiseñar marcos de supervisión proporcionales y neutrales desde el punto de vista tecnológico, que preserven el espacio para la innovación y, al mismo tiempo, garanticen la protección del consumidor y la integridad del sistema.
+- Convocar diálogos de política pública con múltiples partes interesadas en el marco de la Cumbre anual de Interledger, que reúnan a la industria, la sociedad civil y los organismos reguladores para generar consenso en torno a requisitos de precios justos para los pagos transfronterizos.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## 5. Conclusiones clave para responsables de políticas
+
+<ReportText type="Paragraph">
+
+- La Interledger Foundation no impone comisiones de red a nivel de protocolo ni cuando se implementan otras tecnologías de Interledger; cualquier comisión se define de forma independiente mediante acuerdos bilaterales entre las instituciones financieras participantes.
+- La Interledger Foundation promueve comisiones al costo, sin margen, en los nodos de envío y recepción, con el objetivo de impulsar la inclusión financiera digital. Consideramos que este enfoque es viable y sólido cuando se financia de manera cruzada mediante la innovación en los modelos de negocio.
+- Al desvincular la negociación del pago de una ruta de liquidación fija, las tecnologías de Interledger permiten múltiples rutas posibles entre el emisor y el receptor. Esta descentralización fomenta la competencia de precios entre intermediarios y desalienta conductas orientadas a la captación de rentas, ya que ninguna entidad puede monopolizar una ruta. Esta estructura flexible impulsa la innovación y evita la rigidez propia de esquemas centralizados o de estructuras de comisiones impuestas.
+- Cuando los proveedores de servicios financieros optan por publicar datos sobre los costos de las transacciones, como sucede con la funcionalidad de telemetría de Rafiki, esta transparencia puede contribuir a iniciativas globales como la base de datos de precios de remesas del Banco Mundial. La Interledger Foundation fomenta esta práctica entre sus beneficiarios con el objetivo de promover la rendición de cuentas y la asequibilidad en los pagos transfronterizos.
+- Las políticas deben promover la transparencia en las comisiones, la inclusión y la competencia.
+- Se valora la interacción con los organismos reguladores.
+
+[^1]: Alexander Copestake, Divya Kirti y Maria Soledad Martinez Peria. “Growing Retail Digital Payments: The Value of Interoperability” (Crecimiento de los pagos digitales minoristas: el valor de la interoperabilidad), Notas Fintech del Fondo Monetario Internacional 2025, 004 (2025), consultado el 27 de julio de 2025, [https://doi.org/10.5089/9798229014250.063](https://doi.org/10.5089/9798229014250.063)
+
+</ReportText>
+
+</ReportSection>

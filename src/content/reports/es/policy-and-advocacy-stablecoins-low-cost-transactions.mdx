@@ -1,0 +1,142 @@
+﻿---
+title: 'El papel de las criptomonedas estables para facilitar operaciones de bajo valor y bajo costo'
+pathSlug: 'policy-and-advocacy/stablecoins-low-cost-transactions'
+section: 'foundation'
+heading: 'El papel de las criptomonedas estables para facilitar operaciones de bajo valor y bajo costo'
+description: 'La Interledger Foundation tiende puentes entre la tecnología, las políticas públicas y las necesidades de la comunidad para construir sistemas financieros digitales inclusivos y accesibles.'
+date:
+  publishDate: '2026-07-12'
+locale: 'es'
+localizes: 'policy-and-advocacy/stablecoins-low-cost-transactions'
+---
+
+<ReportIntro>
+
+Una stablecoin es un tipo de moneda digital cuyo objetivo consiste en mantener un valor estable mediante su vinculación con una moneda fiduciaria específica. Por ejemplo, si una stablecoin está vinculada con el dólar estadounidense, esto significa que una unidad de la moneda está diseñada para mantenerse equivalente en valor a un dólar estadounidense. Las stablecoins han evolucionado más allá de sus orígenes especulativos y, en la actualidad, ofrecen un potencial considerable como herramientas de infraestructura para la liquidación transfronteriza. Para Interledger Foundation, en su calidad de administradora de una red de pagos abierta y sin fines de lucro que conecta ecosistemas financieros diversos, las stablecoins reguladas constituyen una solución cada vez más viable frente a la brecha histórica de liquidación presente en nuestra infraestructura tecnológica.
+
+Sin embargo, la utilidad de las stablecoins no es uniforme. La rentabilidad, la accesibilidad y los riesgos regulatorios asociados a las stablecoins varían de forma considerable según la geografía, la red y el tipo de transacción. El presente documento de política describe en qué circunstancias y de qué manera las stablecoins se alinean con nuestra misión de fomentar sistemas financieros digitales inclusivos y establece límites claros respecto de los tipos de criptomonedas que consideramos adecuados para contribuir al logro de esa visión.
+
+</ReportIntro>
+
+<ReportSection>
+
+## Por qué Interledger necesita una capa de liquidación
+
+<ReportText type="Paragraph">
+
+El Protocolo Interledger (ILP) es un protocolo de mensajería y compensación diseñado para enrutar pagos a través de distintos libros contables. No obstante, no gestiona de forma nativa el movimiento final de valor (la “liquidación”). En consecuencia, los nodos de la red Interledger deben conciliar saldos con sus pares directos, a menudo mediante procesos manuales o a través del mantenimiento de cuentas previamente financiadas. Si bien los acuerdos bilaterales constituyen un componente fundamental de las redes entre pares, este enfoque limita la escalabilidad y la liquidez, y traslada a cada participante la carga de desarrollar infraestructura personalizada y coordinar su funcionamiento.
+
+Una capa de liquidación estandarizada permitiría:
+
+- Habilitar la compensación automatizada y en tiempo real de obligaciones entre redes.
+- Reducir la dependencia de relaciones de corresponsalía bancaria costosas.
+- Incrementar la confianza y la transparencia entre las contrapartes sin exigir custodia plena.
+- Respaldar liquidaciones programables para casos de uso novedosos, como micropagos en flujo continuo habilitados por monetización web o agentes de inteligencia artificial.
+
+Consideramos que las stablecoins reguladas, respaldadas por moneda fiduciaria y emitidas de manera transparente pueden funcionar como activos digitales neutrales que sirvan de base para esta capa, en particular en escenarios transfronterizos de bajo valor.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Las ventajas de las stablecoins para la liquidación
+
+<ReportText type="Paragraph">
+
+### Costos de transacción más bajos
+
+Las stablecoins ofrecen solo mejoras marginales en términos de eficiencia para pagos nacionales en la misma moneda dentro de mercados de altos ingresos que ya cuentan con sistemas de pago instantáneo o transferencias entre cuentas. Una transacción a través de FedNow para un pago nacional en los Estados Unidos tiene un costo de $0,045 (lo cual, aunque bajo, sigue siendo demasiado elevado para micropagos). La situación cambia de forma considerable en el caso de los pagos transfronterizos, en particular entre corredores de pagos con infraestructuras fragmentadas.
+
+Una transferencia nativa mediante stablecoin puede liquidar una transacción de USD 1 por:
+
+- USD 0,0001 en Aptos.
+- USD 0,0002 en Polygon.
+- USD 0,0006 en Avalanche.[^1]
+
+Por el contrario:
+
+- Las transferencias bancarias internacionales pueden absorber hasta el 13,32 % del capital en comisiones y diferenciales cambiarios.[^2]
+- Las empresas fintech transfronterizas, como Wise, registran un promedio del 1,89 % para la misma transacción.[^3]
+
+[^1]: Costo promedio de envío de 1 USDT (Tether, la stablecoin de mayor tamaño vinculada con el dólar estadounidense) al 5 de agosto de 2025, según GasFeesNow. [https://gasfeesnow.com](https://gasfeesnow.com/)
+
+[^2]: Precio promedio de una transferencia transfronteriza de USD 200 iniciada por un banco, según el Banco Mundial (tercer trimestre de 2024). [https://remittanceprices.worldbank.org/sites/default/files/rpw_main_report_and_annex_q324.pdf](https://remittanceprices.worldbank.org/sites/default/files/rpw_main_report_and_annex_q324.pdf)
+
+[^3]: Precio promedio de envío de USD 200 desde Estados Unidos a México mediante Wise, en una transacción de cuenta personal a cuenta personal, según el Diálogo Interamericano (2024). [https://thedialogue.org/wp-content/uploads/2024/03/Transaction-Costs-and-Money-Transfer-Operators-A-Review-of-Costs-by-MTO-Receiving-Countries.pdf](https://thedialogue.org/wp-content/uploads/2024/03/Transaction-Costs-and-Money-Transfer-Operators-A-Review-of-Costs-by-MTO-Receiving-Countries.pdf)
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Mejoras incrementales en la velocidad de las transacciones
+
+<ReportText type="Paragraph">
+
+El crecimiento global de los sistemas de pago instantáneo, como Pix en Brasil y UPI en India, que en conjunto movilizaron USD 6,8 billones en 2024, refleja la creciente expectativa de inmediatez en los pagos dentro del ámbito financiero minorista. Las empresas fintech transfronterizas, como Wise, ahora liquidan más de la mitad de sus transacciones en menos de 20 segundos mediante modelos de compensación y conectividad local. Incluso en el sistema de corresponsalía bancaria, la liquidación en los 20 principales corredores de pago se produce cada vez más en el mismo día; SWIFT informa que el 90 % de las transacciones se liquida en menos de una hora.
+
+Sin embargo, la brecha de velocidad sigue siendo considerable en corredores marginados o de bajo volumen, en particular en el Sur Global, como ocurre entre Estados Unidos y determinadas regiones de África. La prioridad de la Interledger Foundation consiste en reducir esta brecha persistente de velocidad en dichos corredores marginados mediante el desarrollo de infraestructura abierta que conecte sistemas de pago locales a través de activos digitales regulados y respaldados por moneda fiduciaria. Al fomentar el uso voluntario de stablecoins reguladas para la liquidación en estos corredores, consideramos que la red Interledger puede mejorar la asequibilidad, la confiabilidad y la confianza, sin obligar a los participantes a depender de intermediarios integrados verticalmente.
+
+### Trazabilidad para evitar la pérdida de transacciones
+
+Gracias a la transparencia inherente de las redes basadas en cadenas de bloques (blockchain), las transacciones con stablecoins, en general, son inmutables y pueden visualizarse por todos los participantes en tiempo casi real, lo que ofrece un nivel de trazabilidad pública superior al de los sistemas de pago actuales, incluidos los sistemas de tarjetas y los sistemas de pago instantáneo. Este nivel de detalle, a escala de cada transacción, puede observarse a nivel de red, lo que reduce la necesidad de rastreo manual de pagos y permite resolver la incertidumbre en la liquidación.
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Postura de la Interledger Foundation respecto de las criptomonedas
+
+<ReportText type="Paragraph">
+
+Las tecnologías de Interledger son abiertas, de uso gratuito y agnósticas en cuanto a la moneda; en consecuencia, pueden utilizarse con todos los activos virtuales y valores, siempre que cumplan con la ley vigente. No obstante, en aras de la claridad, consideramos necesario establecer una distinción explícita entre los distintos tipos de criptomonedas y su relevancia para la misión de la Fundación Interledger en lo que respecta a la asignación de subvenciones y la priorización del desarrollo de productos:
+
+| **Activos no recomendados para la liquidación**                                                                                                                                                                                                                                                                                                                                                                            | **Activos recomendados para la liquidación**                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Las criptomonedas con prueba de trabajo no se alinean con nuestros valores:** <br /><br /> Si bien estas criptomonedas han demostrado que las monedas digitales descentralizadas son posibles, sus mecanismos de consenso con alto consumo energético generan impactos ambientales considerables. No consideramos que exista un rol para promover criptomonedas con prueba de trabajo dentro del ecosistema Interledger. | **Las stablecoins pueden permitir una liquidación eficiente:** <br /><br /> Las stablecoins respaldadas por moneda fiduciaria ofrecen opciones de liquidación rápidas y de bajo costo, con capacidad de programación y niveles crecientes de interoperabilidad. Ofrecen estabilidad de valor, en especial en jurisdicciones con monedas locales inestables, y pueden facilitar el acceso de los usuarios a monedas de reserva ampliamente aceptadas, como el USD y el EUR. |
+| **Las criptomonedas altamente volátiles no son adecuadas para pagos:** <br /><br /> Las criptomonedas con valores que fluctúan rápidamente resultan poco prácticas para el comercio cotidiano. Su inestabilidad dificulta que los usuarios puedan planificar sus gastos o realizar transacciones con previsibilidad. Estos activos no son adecuados para su uso en pagos habilitados por Interledger.                      | **Las stablecoins deben estar reguladas:** <br /><br /> La Interledger Foundation únicamente favorece el uso de stablecoins que cuenten con respaldo total en reservas líquidas en moneda fiduciaria y que se emitan bajo una supervisión regulatoria clara. Esto garantiza que su oferta en circulación sea confiable y pueda canjearse sin inconvenientes.                                                                                                               |
+
+</ReportText>
+
+</ReportSection>
+
+<ReportSection>
+
+## Posturas políticas de la Interledger Foundation
+
+<ReportText type="Paragraph">
+
+### 1. Respaldamos el uso de stablecoins reguladas como opción de liquidación
+
+Respaldamos la adopción de stablecoins respaldadas por moneda fiduciaria que:
+
+- Cuenten con respaldo total y puedan canjearse a demanda.
+- Operen bajo una supervisión regulatoria clara, alineada con estándares globales como la Recomendación 15 del GAFI (Grupo de Acción Financiera Internacional) y los marcos del IOSCO/FSB (Organización Internacional de Comisiones de Valores/Consejo de Estabilidad Financiera).
+- Sean emitidas por entidades sujetas a reglamentaciones en materia de prevención del lavado de dinero y financiamiento del terrorismo, protección del consumidor y regulación prudencial.
+
+Estas stablecoins pueden integrarse en la red Interledger como mecanismos de liquidación voluntarios cuando las contrapartes acuerden su uso y los marcos legales locales lo permitan.
+
+### 2. Tecnología e interoperabilidad:
+
+Retomamos el principio promovido por el Consejo de Estabilidad Financiera de “misma actividad, mismo riesgo, misma regulación”. Las stablecoins no deben recibir un tratamiento distinto de aquel de instrumentos de pago equivalentes únicamente por su formato tecnológico. El tratamiento regulatorio debe reflejar los riesgos reales, incluidos los descalces de liquidez, la transparencia de las reservas y la resiliencia operativa.
+
+### 3. Promoción de la interoperabilidad y prevención de la fragmentación
+
+La proliferación de stablecoins no interoperables o propietarias puede generar nuevos compartimentos aislados. Promovemos el desarrollo y la adopción de estándares abiertos que permitan conectar las stablecoins con la red Interledger en su conjunto.
+
+### 4. Fomento de la coordinación global y regional
+
+La diversidad de enfoques regulatorios en torno a las stablecoins pone de manifiesto la necesidad de una coordinación transfronteriza. La Fundación Interledger respalda la alineación global con la denominada “regla de viaje” del GAFI.
+
+### 5. Divulgación de información dirigida a los consumidores
+
+Respaldamos la provisión de información clara y transparente a los consumidores respecto del uso de stablecoins, su canje y los riesgos asociados.
+
+</ReportText>
+
+</ReportSection>
