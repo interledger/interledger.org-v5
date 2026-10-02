@@ -113,4 +113,106 @@ describe('rehypeUmamiLinks', () => {
     const out = await run('<p><a href="/x"><strong>bold</strong> link</a></p>')
     expect(out).toContain('data-umami-event-link-text="bold link"')
   })
+
+  describe('new-tab links', () => {
+    it('opens an external link in a new tab with an sr-only hint', async () => {
+      const out = await run('<a href="https://rafiki.dev/">Rafiki</a>')
+      expect(out).toContain('target="_blank"')
+      expect(out).toContain('rel="noopener noreferrer"')
+      expect(out).toContain(
+        'Rafiki<span class="sr-only"> (opens in a new tab)</span></a>'
+      )
+    })
+
+    it('keeps the hint out of the umami link text', async () => {
+      const out = await run('<a href="https://rafiki.dev/">Rafiki</a>')
+      expect(out).toContain('data-umami-event-link-text="Rafiki"')
+    })
+
+    it('localizes the hint from the content path', async () => {
+      const out = await run(
+        '<a href="https://rafiki.dev/">Rafiki</a>',
+        '/repo/src/content/foundation-pages/es/about-us.mdx'
+      )
+      expect(out).toContain('(se abre en una pestaña nueva)')
+    })
+
+    it.each([
+      '/about-us',
+      'https://www.interledger.org/about-us',
+      '#faq',
+      'mailto:info@interledger.org'
+    ])('keeps %s in the same tab', async (href) => {
+      const out = await run(`<a href="${href}">link</a>`)
+      expect(out).not.toContain('target=')
+      expect(out).not.toContain('sr-only')
+    })
+
+    it('keeps a target the author already set', async () => {
+      const out = await run(
+        '<a href="https://rafiki.dev/" target="_self">Rafiki</a>'
+      )
+      expect(out).toContain('target="_self"')
+      expect(out).not.toContain('noopener')
+      expect(out).not.toContain('sr-only')
+    })
+
+    it('still adds new-tab attributes when umami attributes already exist', async () => {
+      const out = await run(
+        '<a href="https://rafiki.dev/" data-umami-event="Existing">Rafiki</a>'
+      )
+      expect(out).toContain('data-umami-event="Existing"')
+      expect(out).toContain('target="_blank"')
+    })
+
+    it('skips Starlight docs content', async () => {
+      const out = await run(
+        '<a href="https://rafiki.dev/">Rafiki</a>',
+        '/repo/src/content/docs/developers/overview.mdx'
+      )
+      expect(out).not.toContain('target=')
+    })
+
+    it('warns via aria-label inside a heading so the slugged id stays stable', async () => {
+      const out = await run(
+        '<h3>News - <a href="https://forbes.com/x">Forbes</a></h3>'
+      )
+      expect(out).toContain('target="_blank"')
+      expect(out).toContain('aria-label="Forbes (opens in a new tab)"')
+      expect(out).not.toContain('sr-only')
+    })
+
+    it('localizes the heading aria-label', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x">Forbes</a></h2>',
+        '/repo/src/content/foundation-pages/es/about-us.mdx'
+      )
+      expect(out).toContain(
+        'aria-label="Forbes (se abre en una pestaña nueva)"'
+      )
+    })
+
+    it('appends the warning to an existing aria-label in a heading', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x" aria-label="Forbes article">F</a></h2>'
+      )
+      expect(out).toContain('aria-label="Forbes article (opens in a new tab)"')
+    })
+
+    it('appends the warning to an aria-label outside a heading too', async () => {
+      const out = await run(
+        '<p><a href="https://rafiki.dev/" aria-label="Rafiki docs">here</a></p>'
+      )
+      expect(out).toContain('aria-label="Rafiki docs (opens in a new tab)"')
+      expect(out).not.toContain('sr-only')
+    })
+
+    it('leaves an image-only heading link without an aria-label', async () => {
+      const out = await run(
+        '<h2><a href="https://forbes.com/x"><img src="/a.png" alt="Forbes"></a></h2>'
+      )
+      expect(out).toContain('target="_blank"')
+      expect(out).not.toContain('aria-label')
+    })
+  })
 })

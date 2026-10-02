@@ -299,8 +299,19 @@ export {
   buildNavCtaUmamiAttrs,
   buildSectionNavLinkUmamiAttrs,
   escapeHtml,
+  isSiteHostname,
   umamiAttrsToHtml
 } from './main/umami'
+
+// Main site: Links
+export {
+  type NewTabLinkAttrs,
+  type NewTabLinkHtml,
+  NEW_TAB_LINK_ATTRS,
+  buildNewTabLinkHtml,
+  getNewTabLinkAttrs,
+  getOpensNewTabLabel
+} from './main/newTabLinks'
 
 // Main site: SEO
 export {
