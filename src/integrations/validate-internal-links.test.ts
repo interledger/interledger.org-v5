@@ -826,6 +826,23 @@ describe('validateInternalLinks', () => {
     expect(error?.message).toContain('no element with that id')
   })
 
+  it('allows Fundraise Up hooks that are not ids on the donate page', async () => {
+    // `#XVSHSPQU` and `#XMWLAVRZ` open a Fundraise Up widget. Neither page has
+    // an element with that id, and the Spanish fallback emits the same anchors.
+    // A real missing id on the same page still fails.
+    const hooks =
+      '<a href="#XVSHSPQU">sustaining</a><a href="#XMWLAVRZ">champions</a>'
+    const { error, warn } = await runCheck({
+      'support-us/index.html': hooks + '<a href="#missing">no</a>',
+      'es/support-us/index.html': hooks
+    })
+    expect(error?.message).toContain('#missing')
+    expect(error?.message).not.toContain('XVSHSPQU')
+    expect(error?.message).not.toContain('XMWLAVRZ')
+    expect(warn.join('\n')).not.toContain('XVSHSPQU')
+    expect(warn.join('\n')).not.toContain('XMWLAVRZ')
+  })
+
   it('accepts a fragment that exists, including #top and bare #', async () => {
     const { error } = await runCheck({
       'index.html':
