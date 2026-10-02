@@ -18,12 +18,12 @@ export const INTERNAL_LINK_EXCEPTIONS: readonly string[] = [
   // The ILF Participation Guidelines page is being written. Linked from
   // docs/developers/get-involved.md; leaving the link as-is until it ships.
   '/participation-guidelines',
-  // Fundraise Up element hooks on /get-involved/donate, not ids of any element
-  // in the HTML. The widget matches the href itself. The Spanish page is the
-  // English fallback and emits the same anchors. Do not add empty elements
-  // with these ids just to satisfy the check.
-  '/get-involved/donate#XVSHSPQU',
-  '/es/get-involved/donate#XVSHSPQU',
-  '/get-involved/donate#XMWLAVRZ',
-  '/es/get-involved/donate#XMWLAVRZ'
+  // Fundraise Up element hooks on /support-us, not ids of any element in the
+  // HTML. The widget matches the href itself. The Spanish page is the English
+  // fallback and emits the same anchors. Do not add empty elements with these
+  // ids just to satisfy the check.
+  '/support-us#XVSHSPQU',
+  '/es/support-us#XVSHSPQU',
+  '/support-us#XMWLAVRZ',
+  '/es/support-us#XMWLAVRZ'
 ]
