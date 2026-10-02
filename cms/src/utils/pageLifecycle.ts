@@ -68,6 +68,27 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
+const API_TOKEN_STRATEGY = 'api-token'
+
+/**
+ * True for an automation request, such as the repo's sync scripts:
+ * authenticated with an API token and sending `x-skip-mdx-export`. Admin
+ * sessions use the `admin` strategy, so an editor can't pass for one by adding
+ * the header. The header is caller-controlled, so this doesn't single out the
+ * sync: any API token with the permission qualifies. Tokens are issued by
+ * admins only.
+ */
+export function isCodeSyncRequest(): boolean {
+  if (!shouldSkipMdxExport()) return false
+  // Why: same as shouldSkipMdxExport — no active request means not a sync.
+  try {
+    const ctx = strapi.requestContext.get()
+    return ctx?.state?.auth?.strategy?.name === API_TOKEN_STRATEGY
+  } catch {
+    return false
+  }
+}
+
 export function getAdminAuthor(): { name: string; email: string } | undefined {
   // Why: same as shouldSkipMdxExport — requestContext.get() throws when there's
   // no active request. Returning undefined means "no author info available,"

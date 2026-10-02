@@ -1,5 +1,9 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import { describe, expect, it, vi } from 'vitest'
 import {
+  createNavigationLifecycle,
   sanitizeMenuItem,
   sanitizeMenuGroup,
   sanitizeMenuSubGroup,
@@ -8,9 +12,16 @@ import {
   type MenuItem
 } from './navigationLifecycle'
 
-vi.mock('./gitSync', () => ({
-  getTargetRepoRoot: () => '/repo',
-  gitCommitAndPush: vi.fn()
+const repo = vi.hoisted(() => ({ root: '/repo' }))
+const gitCommitAndPush = vi.hoisted(() => vi.fn())
+
+// The real lock, so the overlap test exercises the serialization the export
+// relies on; only the git side effects are faked.
+vi.mock('./gitSync', async (importOriginal) => ({
+  withGitSyncLock: (await importOriginal<typeof import('./gitSync')>())
+    .withGitSyncLock,
+  getTargetRepoRoot: () => repo.root,
+  gitCommitAndPush: (...args: unknown[]) => gitCommitAndPush(...args)
 }))
 
 vi.mock('./pageLifecycle', () => ({
@@ -309,5 +320,61 @@ describe('getLocaleOutputPath', () => {
     expect(getLocaleOutputPath(hackathonConfig, 'es')).toBe(
       '/repo/src/config/hackathon-navigation.es.json'
     )
+  })
+})
+
+describe('createNavigationLifecycle exports', () => {
+  // Two saves close together: the first save's read is slow and the second
+  // save's edit lands meanwhile. Without the checkout lock, the first export
+  // wrote its older snapshot and committed it last, dropping the newer edit.
+  it('commits the latest state when saves overlap', async () => {
+    repo.root = fs.mkdtempSync(path.join(os.tmpdir(), 'nav-lifecycle-'))
+    const enPath = path.join(repo.root, testConfig.outputPath)
+    const navWith = (label: string) => ({ mainMenu: [{ label }] })
+
+    let stored = navWith('Old')
+    const firstReadStarted = Promise.withResolvers<void>()
+    const releaseFirstRead = Promise.withResolvers<void>()
+    let reads = 0
+    vi.stubGlobal('strapi', {
+      documents: () => ({
+        findFirst: async ({ locale }: { locale: string }) => {
+          if (locale !== 'en') return null
+          const snapshot = stored
+          if (reads++ === 0) {
+            // The second save's edit reaches the database mid-read.
+            stored = navWith('New')
+            firstReadStarted.resolve()
+            await releaseFirstRead.promise
+          }
+          return snapshot
+        }
+      })
+    })
+    const committedLabels: string[] = []
+    gitCommitAndPush.mockImplementation(async () => {
+      committedLabels.push(
+        JSON.parse(fs.readFileSync(enPath, 'utf-8')).mainMenu[0].label
+      )
+    })
+    const lifecycle = createNavigationLifecycle(testConfig)
+
+    try {
+      const firstSave = lifecycle.afterUpdate({})
+      await firstReadStarted.promise
+      const secondSave = lifecycle.afterUpdate({})
+      releaseFirstRead.resolve()
+      await Promise.all([firstSave, secondSave])
+
+      expect(committedLabels).toEqual(['Old', 'New'])
+      expect(
+        JSON.parse(fs.readFileSync(enPath, 'utf-8')).mainMenu[0].label
+      ).toBe('New')
+    } finally {
+      fs.rmSync(repo.root, { recursive: true, force: true })
+      repo.root = '/repo'
+      vi.unstubAllGlobals()
+      gitCommitAndPush.mockReset()
+    }
   })
 })
