@@ -1,6 +1,10 @@
 ---
-import { marked } from 'marked'
-import { safeAbsoluteHref, getSocialIconName, useTranslations } from '@/utils'
+import {
+  parseMarkdown,
+  safeAbsoluteHref,
+  getSocialIconName,
+  useTranslations
+} from '@/utils'
 import type { AuthorBioType } from '@/schemas/content.ts'
 import FallbackAuthorIcon from './FallbackAuthorIcon.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -17,7 +21,10 @@ const t = useTranslations(routeLocale)
 const htmlBios = await Promise.all(
   bios.map(async (bio) => ({
     ...bio,
-    text: bio.text ? await marked.parse(bio.text) : '',
+    text: await parseMarkdown(bio.text, {
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    }),
     href: safeAbsoluteHref(bio.link)
   }))
 )

@@ -265,6 +265,10 @@ export {
   PAGE_HERO_DESKTOP_MEDIA
 } from './main/homepageHeroImage'
 export {
+  renderOptimizedImageHtml,
+  type RichTextImage
+} from './main/richTextImage'
+export {
   getHomepageHeroPreloadLinks,
   getPageHeroPreloadLinks,
   resolveHeroLcpPreloadLinks,

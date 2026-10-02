@@ -131,6 +131,8 @@ const alternatePictureSources = alternateSources.flatMap(
   }
 )
 
+// Rich text rendered as an HTML string gets the same markup from
+// `renderOptimizedImageHtml`; keep the branches below in step with it.
 const hasResponsive = variants.length > 0 || alternatePictureSources.length > 0
 const webpSrcset = variants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
