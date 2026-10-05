@@ -191,6 +191,11 @@
       "status": 301
     },
     {
+      "source": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober/",
+      "status": 301
+    },
+    {
       "source": "/terms-service",
       "destination": "/terms-of-service",
       "status": 301
