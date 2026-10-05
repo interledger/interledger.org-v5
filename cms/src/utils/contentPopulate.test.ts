@@ -23,6 +23,7 @@ const API_DIR = fileURLToPath(new URL('../api', import.meta.url))
  */
 const ZONE_POPULATE_BY_CONTENT_TYPE: Record<string, { on: object }> = {
   'foundation-page': FOUNDATION_PAGE_CONTENT_POPULATE,
+  'fundraising-page': FOUNDATION_PAGE_CONTENT_POPULATE,
   'summit-page': FOUNDATION_PAGE_CONTENT_POPULATE,
   'hackathon-page': HACKATHON_PAGE_CONTENT_POPULATE,
   'foundation-blog-post': BLOG_CONTENT_POPULATE,

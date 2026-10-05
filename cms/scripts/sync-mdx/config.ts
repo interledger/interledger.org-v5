@@ -96,6 +96,7 @@ export interface ContentTypeConfig {
 
 export interface ContentTypes {
   'foundation-pages': ContentTypeConfig
+  'fundraising-pages': ContentTypeConfig
   'grant-pages': ContentTypeConfig
   'grant-overview-pages': ContentTypeConfig
   'summit-pages': ContentTypeConfig
@@ -299,6 +300,29 @@ export function buildContentTypes(
     'foundation-pages': {
       dir: getContentPath(projectRoot, 'foundationPages'),
       apiId: 'foundation-pages',
+      schema: foundationPageFrontmatterSchema,
+      buildPayload: (mdx, strapi, existing, dryRun) =>
+        buildParsedPagePayload(
+          foundationPageFrontmatterSchema,
+          mdx,
+          strapi,
+          existing,
+          {
+            strapi,
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
+          pageAltIds,
+          dryRun
+        )
+    },
+    // Same frontmatter and blocks as a foundation page. The site, not the
+    // payload, is what loads Fundraise Up for this collection.
+    'fundraising-pages': {
+      dir: getContentPath(projectRoot, 'fundraisingPages'),
+      apiId: 'fundraising-pages',
       schema: foundationPageFrontmatterSchema,
       buildPayload: (mdx, strapi, existing, dryRun) =>
         buildParsedPagePayload(

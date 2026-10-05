@@ -8,19 +8,29 @@ import {
 } from '@/utils'
 
 export async function getStaticPaths() {
-  const [foundationPages, grantPages, grantOverviews, crossSectionPaths] =
-    await Promise.all([
-      getLocalizedPaths('foundation-pages', 'en', 'page'),
-      getLocalizedPaths('grant-pages', 'en', 'page'),
-      getLocalizedPaths('grant-overview-pages', 'en', 'page'),
-      getCrossSectionPaths('foundation', 'en', 'page')
-    ])
+  const [
+    foundationPages,
+    fundraisingPages,
+    grantPages,
+    grantOverviews,
+    crossSectionPaths
+  ] = await Promise.all([
+    getLocalizedPaths('foundation-pages', 'en', 'page'),
+    getLocalizedPaths('fundraising-pages', 'en', 'page'),
+    getLocalizedPaths('grant-pages', 'en', 'page'),
+    getLocalizedPaths('grant-overview-pages', 'en', 'page'),
+    getCrossSectionPaths('foundation', 'en', 'page')
+  ])
 
   return [
     ...crossSectionPaths,
     ...foundationPages.map((p) => ({
       ...p,
       props: { ...p.props, kind: 'page' as const }
+    })),
+    ...fundraisingPages.map((p) => ({
+      ...p,
+      props: { ...p.props, kind: 'fundraising-page' as const }
     })),
     ...grantPages.map((p) => ({
       params: { page: `grant/${p.params.page}` },
@@ -43,5 +53,11 @@ const commonProps = {
 ---
 
 <SectionEntryPage kind={kind} {...commonProps}>
-  <FoundationContentPage slug={slug} contentLocale={contentLocale} />
+  <FoundationContentPage
+    slug={slug}
+    contentLocale={contentLocale}
+    collection={kind === 'fundraising-page'
+      ? 'fundraising-pages'
+      : 'foundation-pages'}
+  />
 </SectionEntryPage>

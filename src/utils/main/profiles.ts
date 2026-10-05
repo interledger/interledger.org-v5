@@ -38,7 +38,11 @@ export const toProfileData = (
   }
 }
 
-const PAGE_COLLECTIONS = ['foundation-pages', 'summit-pages'] as const
+const PAGE_COLLECTIONS = [
+  'foundation-pages',
+  'fundraising-pages',
+  'summit-pages'
+] as const
 
 async function indexPathSlugGridsFromPages(
   locale: string,

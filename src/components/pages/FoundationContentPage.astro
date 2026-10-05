@@ -46,10 +46,21 @@ interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  /**
+   * Fundraising pages share this renderer with foundation pages. The
+   * collection is what loads Fundraise Up, not the presence of Donation Cards.
+   */
+  collection?: 'foundation-pages' | 'fundraising-pages'
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('foundation-pages')
+const {
+  slug,
+  contentLocale,
+  isFallback = false,
+  collection = 'foundation-pages'
+} = Astro.props
+const fundraiseUp = collection === 'fundraising-pages'
+const pages = await getCollection(collection)
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -87,18 +98,6 @@ const breadcrumbs = [
   { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
 
-/**
- * A page carrying Donation Cards is a fundraising page, and that is the whole
- * signal: the block's CTAs point at Fundraise Up Element IDs, and Fundraise Up
- * swaps its own donate button into any anchor with that href — but only once
- * its install script is on the page.
- *
- * The script loads per page rather than from BaseLayout so the other ~200
- * routes don't pay for a third-party bundle; see FundraiseUpScript.astro for
- * what moving it site-wide would buy.
- */
-const needsFundraiseUp = mdxPage.body?.includes('<DonationCards') ?? false
-
 const heroLcpPreload =
   heroTitle && (heroImage || heroImageMobile)
     ? { image: heroImage, imageMobile: heroImageMobile }
@@ -112,83 +111,81 @@ const heroLcpPreload =
   heroLcpPreload={heroLcpPreload}
 >
   <Fragment slot="head">
-    {needsFundraiseUp && <FundraiseUpScript testMode={!productionDeploy()} />}
+    {fundraiseUp && <FundraiseUpScript testMode={!productionDeploy()} />}
   </Fragment>
-
   <main class="page-stack pb-section" data-pillar="mission">
-    {
-      heroTitle ? (
-        <PageHero
-          title={heroTitle ?? title}
-          description={heroDescription ?? description}
-          image={heroImage}
-          imageMobile={heroImageMobile}
-          imageAlt={heroImageAlt}
-          imageMobileAlt={heroImageMobileAlt}
-          imageBlur={heroImageBlur}
-          imageMobileBlur={heroImageMobileBlur}
-          cta={heroCtas?.[0]}
-          breadcrumbs={breadcrumbs}
-          imageBand="default"
-        >
-          <TranslationDisclaimer
-            slot="after-breadcrumbs"
-            isVisible={isFallback}
-          />
-        </PageHero>
-      ) : (
-        <div class="px-content pt-page-offset">
-          <div class="content-column">
-            <Breadcrumbs breadcrumbs={breadcrumbs}>
-              <TranslationDisclaimer isVisible={isFallback} />
-            </Breadcrumbs>
-            {/* Same treatment PageHero gives its own h1, so a hero-less page
+  {
+    heroTitle ? (
+      <PageHero
+        title={heroTitle ?? title}
+        description={heroDescription ?? description}
+        image={heroImage}
+        imageMobile={heroImageMobile}
+        imageAlt={heroImageAlt}
+        imageMobileAlt={heroImageMobileAlt}
+        imageBlur={heroImageBlur}
+        imageMobileBlur={heroImageMobileBlur}
+        cta={heroCtas?.[0]}
+        breadcrumbs={breadcrumbs}
+        imageBand="default"
+      >
+        <TranslationDisclaimer
+          slot="after-breadcrumbs"
+          isVisible={isFallback}
+        />
+      </PageHero>
+    ) : (
+      <div class="px-content pt-page-offset">
+        <div class="content-column">
+          <Breadcrumbs breadcrumbs={breadcrumbs}>
+            <TranslationDisclaimer isVisible={isFallback} />
+          </Breadcrumbs>
+          {/* Same treatment PageHero gives its own h1, so a hero-less page
             still gets a real page title instead of relying on MdxContent's
             first heading (which may not exist, or may be an h2 section
             heading rather than the page's own title). */}
-            <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
-          </div>
-        </div>
-      )
-    }
-    <section class="px-content">
-      <div class="content-column">
-        <div data-prose class="mx-auto max-w-content">
-          <MdxContent
-            components={{
-              ...RICH_TEXT_MDX_COMPONENTS,
-              ProfileCard,
-              ProfileGrid,
-              Blockquote,
-              Quote,
-              CalloutText,
-              Paragraph,
-              SplitLayout,
-              CtaStrip,
-              PdfEmbed,
-              VideoEmbed,
-              InfoCard,
-              TitleCard,
-              CardGrid,
-              ResourceCard,
-              NavigationCard,
-              NumberTiles,
-              Agenda,
-              Faq,
-              CtaButtons,
-              FaqItem,
-              EventCard,
-              EventWhen,
-              EventWhere,
-              EventApply,
-              LogoCarousel,
-              ImageBlock,
-              CodeBlock,
-              DonationCards
-            }}
-          />
+          <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
         </div>
       </div>
-    </section>
-  </main>
-</FoundationPageLayout>
+    )
+  }
+  <section class="px-content">
+    <div class="content-column">
+      <div data-prose class="mx-auto max-w-content">
+        <MdxContent
+          components={{
+            ...RICH_TEXT_MDX_COMPONENTS,
+            ProfileCard,
+            ProfileGrid,
+            Blockquote,
+            Quote,
+            CalloutText,
+            Paragraph,
+            SplitLayout,
+            CtaStrip,
+            PdfEmbed,
+            VideoEmbed,
+            InfoCard,
+            TitleCard,
+            CardGrid,
+            ResourceCard,
+            NavigationCard,
+            NumberTiles,
+            Agenda,
+            Faq,
+            CtaButtons,
+            FaqItem,
+            EventCard,
+            EventWhen,
+            EventWhere,
+            EventApply,
+            LogoCarousel,
+            ImageBlock,
+            CodeBlock,
+            DonationCards
+          }}
+        />
+      </div>
+    </div>
+  </section>
+</main>

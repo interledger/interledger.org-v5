@@ -7,10 +7,9 @@
  * as child elements — the same shape as `NumberTiles` and `CtaButtons`, which
  * keeps the MDX ↔ Strapi round trip to plain text fields.
  *
- * Presence of this block is what marks a foundation page as a fundraising
- * page: `FoundationContentPage` loads the Fundraise Up install script when it
- * finds one, so a donate CTA pointing at an Element ID works without any
- * per-page wiring.
+ * The block can be placed on a Foundation Page or a Fundraising Page. Only a
+ * Fundraising Page loads the Fundraise Up install script, which is what makes
+ * a card CTA pointing at an Element ID open the donate widget.
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
