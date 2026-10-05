@@ -209,6 +209,16 @@ describe('normalizeRelativeLinksInDocumentData rich text', () => {
       'Intro\n\n![Chart](/uploads/img/original/chart_a1.png)'
     )
   })
+  it('leaves a code field alone', () => {
+    const data = {
+      __component: 'blocks.code-block',
+      code: 'fetch("https://cms.example/uploads/img/original/a.json")'
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.code).toBe(
+      'fetch("https://cms.example/uploads/img/original/a.json")'
+    )
+  })
 })
 
 describe('stripUploadOriginsInText', () => {
@@ -243,12 +253,88 @@ describe('stripUploadOriginsInText', () => {
   it('reduces every URL in one string, whatever the origin', () => {
     expect(
       stripUploadOriginsInText(
-        'See http://localhost:1337/uploads/img/original/a.png and ' +
-          'https://strapi-admin.interledger.org/uploads/img/original/b.pdf?v=2#page=3'
+        '![A](http://localhost:1337/uploads/img/original/a.png) and ' +
+          '[B](https://strapi-admin.interledger.org/uploads/img/original/b.pdf?v=2#page=3)'
       )
     ).toBe(
-      'See /uploads/img/original/a.png and /uploads/img/original/b.pdf?v=2#page=3'
+      '![A](/uploads/img/original/a.png) and [B](/uploads/img/original/b.pdf?v=2#page=3)'
     )
+  })
+
+  it('turns a bare URL in prose into an explicit relative link', () => {
+    expect(
+      stripUploadOriginsInText(
+        'Download https://strapi-admin.interledger.org/uploads/img/original/guide.pdf.'
+      )
+    ).toBe(
+      'Download [/uploads/img/original/guide.pdf](/uploads/img/original/guide.pdf).'
+    )
+  })
+
+  it('turns an autolink into an explicit relative link', () => {
+    expect(
+      stripUploadOriginsInText(
+        'Get <https://cms.example/uploads/img/original/guide.pdf> now'
+      )
+    ).toBe(
+      'Get [/uploads/img/original/guide.pdf](/uploads/img/original/guide.pdf) now'
+    )
+  })
+
+  it('only cuts the origin in link text, so links never nest', () => {
+    expect(
+      stripUploadOriginsInText(
+        '[https://cms.example/uploads/img/original/a.pdf](https://cms.example/uploads/img/original/a.pdf)'
+      )
+    ).toBe('[/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)')
+  })
+
+  it('only cuts the origin in a reference definition', () => {
+    expect(
+      stripUploadOriginsInText(
+        '[guide]: https://cms.example/uploads/img/original/a.pdf'
+      )
+    ).toBe('[guide]: /uploads/img/original/a.pdf')
+  })
+
+  it('only cuts the origin when the value is the URL alone', () => {
+    expect(
+      stripUploadOriginsInText(
+        'https://cms.example/uploads/img/original/clip.mp4'
+      )
+    ).toBe('/uploads/img/original/clip.mp4')
+  })
+
+  it('leaves external URLs whose query or fragment mentions the upload path', () => {
+    for (const text of [
+      '[Guide](https://example.org?file=/uploads/img/original/guide.pdf)',
+      '[Guide](https://example.org#/uploads/img/original/guide.pdf)',
+      '[Old](https://example.org/foo/uploads/img/original/a.pdf)'
+    ]) {
+      expect(stripUploadOriginsInText(text)).toBe(text)
+    }
+  })
+
+  it('leaves an upload URL nested inside another URL', () => {
+    for (const text of [
+      'https://web.archive.org/web/2020/https://interledger.org/uploads/img/original/a.pdf',
+      '[P](https://proxy.example/?url=https://cms.example/uploads/img/original/a.pdf)',
+      'xhttps://cms.example/uploads/img/original/a.pdf'
+    ]) {
+      expect(stripUploadOriginsInText(text)).toBe(text)
+    }
+  })
+
+  it('leaves code spans and fenced blocks alone', () => {
+    const text =
+      'Run `curl https://cms.example/uploads/img/original/a.pdf` or\n\n' +
+      '```sh\ncurl https://cms.example/uploads/img/original/b.pdf\n```'
+    expect(stripUploadOriginsInText(text)).toBe(text)
+  })
+
+  it('leaves a path in another case alone, like stripUploadOrigin', () => {
+    const text = '![A](https://cms.example/UPLOADS/IMG/ORIGINAL/a.png)'
+    expect(stripUploadOriginsInText(text)).toBe(text)
   })
 
   it('keeps a Markdown-escaped filename byte for byte', () => {
