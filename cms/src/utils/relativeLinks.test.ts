@@ -209,6 +209,20 @@ describe('normalizeRelativeLinksInDocumentData rich text', () => {
       'Intro\n\n![Chart](/uploads/img/original/chart_a1.png)'
     )
   })
+  it('only cuts the origin in a single-URL field', () => {
+    const data = {
+      url: 'https://cms.example/uploads/img/original/clip.mp4',
+      videoUrl: 'https://cms.example/uploads/img/original/clip.mp4',
+      externalUrl: 'https://cms.example/uploads/img/original/a.pdf'
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data).toEqual({
+      url: '/uploads/img/original/clip.mp4',
+      videoUrl: '/uploads/img/original/clip.mp4',
+      externalUrl: '/uploads/img/original/a.pdf'
+    })
+  })
+
   it('leaves a code field alone', () => {
     const data = {
       __component: 'blocks.code-block',
@@ -297,12 +311,47 @@ describe('stripUploadOriginsInText', () => {
     ).toBe('[guide]: /uploads/img/original/a.pdf')
   })
 
-  it('only cuts the origin when the value is the URL alone', () => {
+  it('links a field that is a bare URL alone, since it may be rich text', () => {
     expect(
       stripUploadOriginsInText(
-        'https://cms.example/uploads/img/original/clip.mp4'
+        ' https://cms.example/uploads/img/original/a.pdf '
       )
-    ).toBe('/uploads/img/original/clip.mp4')
+    ).toBe(' [/uploads/img/original/a.pdf](/uploads/img/original/a.pdf) ')
+  })
+
+  it('links an italic bare URL, keeping the emphasis', () => {
+    expect(
+      stripUploadOriginsInText(
+        'See _https://cms.example/uploads/img/original/a_b1.pdf_ now'
+      )
+    ).toBe(
+      'See _[/uploads/img/original/a_b1.pdf](/uploads/img/original/a_b1.pdf)_ now'
+    )
+  })
+
+  it('treats an escaped bracket or angle as prose', () => {
+    expect(
+      stripUploadOriginsInText(
+        'a \\<b then https://cms.example/uploads/img/original/a.pdf'
+      )
+    ).toBe(
+      'a \\<b then [/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)'
+    )
+    expect(
+      stripUploadOriginsInText(
+        'Array \\[0 see https://cms.example/uploads/img/original/a.pdf'
+      )
+    ).toBe(
+      'Array \\[0 see [/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)'
+    )
+  })
+
+  it('ends a bare URL at a closing bracket', () => {
+    expect(
+      stripUploadOriginsInText(
+        '(see https://cms.example/uploads/img/original/a.pdf])'
+      )
+    ).toBe('(see [/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)])')
   })
 
   it('leaves external URLs whose query or fragment mentions the upload path', () => {

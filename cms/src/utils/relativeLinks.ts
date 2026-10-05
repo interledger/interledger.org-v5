@@ -9,6 +9,12 @@ const HREF_LIKE_FIELDS = new Set([
 
 const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
 
+/**
+ * Fields whose value is a single URL, not Markdown: only the origin is cut, so
+ * the value never turns into a Markdown link.
+ */
+const SINGLE_URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
+
 const ABSOLUTE_OR_SPECIAL_HREF = /^(https?:)?\/\/|^(mailto|tel):|^#/i
 
 /**
@@ -55,12 +61,15 @@ const MARKDOWN_CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)/
  * case-insensitive and the path is not, as in `stripUploadOrigin`.
  */
 const UPLOAD_URL_IN_TEXT = new RegExp(
-  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}[^\\s"'()<>]*)`,
+  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}[^\\s"'()<>[\\]]*)`,
   'g'
 )
 
-/** Inside an HTML tag, where the URL is an attribute value or srcset entry. */
-const INSIDE_HTML_TAG = /<[a-zA-Z][^<>]*$/
+/**
+ * Inside an HTML tag, where the URL is an attribute value or srcset entry. An
+ * escaped `\<` is prose: CKEditor escapes every literal `<` it writes.
+ */
+const INSIDE_HTML_TAG = /(?<!\\)<[a-zA-Z][^<>]*$/
 
 /** A Markdown link or image destination: `](url` or `](<url`. */
 const MARKDOWN_DESTINATION = /\]\(<?$/
@@ -68,26 +77,22 @@ const MARKDOWN_DESTINATION = /\]\(<?$/
 /** A reference definition: `[id]: url`. */
 const REFERENCE_DEFINITION = /^\s*\[[^\]\n]+\]:\s*<?$/m
 
-/** Unclosed link text on this line: `[Download url`. */
-const INSIDE_LINK_TEXT = /\[[^\]\n]*$/
+/** Unclosed link text on this line: `[Download url`. An escaped `\[` is prose. */
+const INSIDE_LINK_TEXT = /(?<!\\)\[[^\]\n]*$/
 
 /**
  * The URL continues a token before it, so it is part of another URL
  * (`?url=https://…`, `web/2020/https://…`) or not a URL at all (`xhttps://…`).
+ * Not `_`: CKEditor writes italics with it, and `_https://…_` is prose.
  */
-const CONTINUES_PRECEDING_TOKEN = /[\w/:?&=.%\\-]$/
+const CONTINUES_PRECEDING_TOKEN = /[A-Za-z0-9/:?&=.%\\-]$/
 
 /** Sentence punctuation a bare URL does not own, as GFM autolinking reads it. */
 const TRAILING_PUNCTUATION = /[.,;:!?*_~]+$/
 
 type UploadUrlContext = 'origin' | 'autolink' | 'bare' | 'leave'
 
-function classifyUploadUrl(
-  before: string,
-  after: string,
-  isWholeValue: boolean
-): UploadUrlContext {
-  if (isWholeValue) return 'origin'
+function classifyUploadUrl(before: string, after: string): UploadUrlContext {
   if (INSIDE_HTML_TAG.test(before)) return 'origin'
   if (MARKDOWN_DESTINATION.test(before)) return 'origin'
   if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
@@ -102,7 +107,7 @@ function toMarkdownLink(path: string): string {
   return `[${path}](${path})`
 }
 
-function stripUploadOriginsInProse(segment: string, wholeText: string): string {
+function stripUploadOriginsInProse(segment: string): string {
   let result = ''
   let cursor = 0
   for (const match of segment.matchAll(UPLOAD_URL_IN_TEXT)) {
@@ -111,12 +116,9 @@ function stripUploadOriginsInProse(segment: string, wholeText: string): string {
     const end = start + url.length
     const before = segment.slice(0, start)
     const after = segment.slice(end)
-    const isWholeValue =
-      segment === wholeText && !before.trim() && !after.trim()
-
     result += segment.slice(cursor, start)
     cursor = end
-    switch (classifyUploadUrl(before, after, isWholeValue)) {
+    switch (classifyUploadUrl(before, after)) {
       case 'leave':
         result += url
         break
@@ -152,8 +154,8 @@ function stripUploadOriginsInProse(segment: string, wholeText: string): string {
  * optimizer, the image audit and the link validator.
  *
  * Where the URL sits decides what happens to it:
- * - a link or image destination, an HTML attribute, link text, or a field that
- *   is the URL alone: only the origin is cut, and the rest is kept byte for
+ * - a link or image destination, an HTML attribute or link text: only the
+ *   origin is cut, and the rest is kept byte for
  *   byte (`new URL` would turn a Markdown-escaped `\_` into `/`);
  * - a bare URL or `<url>` autolink in prose: it becomes an explicit Markdown
  *   link, because GFM does not autolink a relative path;
@@ -167,7 +169,7 @@ export function stripUploadOriginsInText(text: string): string {
     .split(MARKDOWN_CODE)
     .map((segment, index) =>
       // `split` with a capture group puts the code at odd indices.
-      index % 2 === 1 ? segment : stripUploadOriginsInProse(segment, text)
+      index % 2 === 1 ? segment : stripUploadOriginsInProse(segment)
     )
     .join('')
 }
@@ -194,6 +196,8 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
         ;(data as Record<string, unknown>)[key] = ensureLeadingSlash(
           stripUploadOrigin(value)
         )
+      } else if (SINGLE_URL_FIELDS.has(key)) {
+        ;(data as Record<string, unknown>)[key] = stripUploadOrigin(value)
       } else if (PATH_SEGMENT_FIELDS.has(key)) {
         ;(data as Record<string, unknown>)[key] = normalizePathSegment(value)
       } else if (!CODE_FIELDS.has(key)) {
