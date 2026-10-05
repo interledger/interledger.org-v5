@@ -34,6 +34,7 @@ export const PATHS = {
   CONTENT: {
     blog: 'foundation-blog-posts',
     foundationPages: 'foundation-pages',
+    fundraisingPages: 'fundraising-pages',
     grantPages: 'grant-pages',
     grantOverviewPages: 'grant-overview-pages',
     summitPages: 'summit-pages',

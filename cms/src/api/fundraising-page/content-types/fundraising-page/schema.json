@@ -1,0 +1,86 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fundraising-pages",
+  "info": {
+    "singularName": "fundraising-page",
+    "pluralName": "fundraising-pages",
+    "displayName": "Fundraising Page",
+    "description": "A Foundation Page that also loads the Fundraise Up script. Same blocks, including Donation Cards. Full path slug sets the URL and file location."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "pathSlug": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true,
+      "unique": true
+    },
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": true
+    },
+    "hero": {
+      "type": "component",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "component": "shared.hero",
+      "repeatable": false
+    },
+    "content": {
+      "type": "dynamiczone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "components": [
+        "blocks.paragraph",
+        "blocks.agenda",
+        "blocks.split-layout",
+        "blocks.profile-grid",
+        "blocks.blockquote",
+        "blocks.cta-strip",
+        "blocks.pdf-embed",
+        "blocks.video-embed",
+        "blocks.image-block",
+        "blocks.number-tiles",
+        "blocks.card-grid",
+        "blocks.carousel",
+        "blocks.faq",
+        "blocks.cta-buttons",
+        "blocks.event-card",
+        "blocks.quote",
+        "blocks.code-block",
+        "blocks.donation-cards"
+      ]
+    }
+  }
+}

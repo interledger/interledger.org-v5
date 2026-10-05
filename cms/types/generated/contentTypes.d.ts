@@ -808,6 +808,94 @@ export interface ApiFoundationPageFoundationPage
   }
 }
 
+export interface ApiFundraisingPageFundraisingPage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'fundraising-pages'
+  info: {
+    description: 'A Foundation Page that also loads the Fundraise Up script. Same blocks, including Donation Cards. Full path slug sets the URL and file location.'
+    displayName: 'Fundraising Page'
+    pluralName: 'fundraising-pages'
+    singularName: 'fundraising-page'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.agenda',
+        'blocks.split-layout',
+        'blocks.profile-grid',
+        'blocks.blockquote',
+        'blocks.cta-strip',
+        'blocks.pdf-embed',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.number-tiles',
+        'blocks.card-grid',
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.cta-buttons',
+        'blocks.event-card',
+        'blocks.quote',
+        'blocks.code-block',
+        'blocks.donation-cards'
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::fundraising-page.fundraising-page'
+    >
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
 export interface ApiGrantOverviewPageGrantOverviewPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'grant-overview-pages'
@@ -2055,6 +2143,7 @@ declare module '@strapi/strapi' {
       'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
+      'api::fundraising-page.fundraising-page': ApiFundraisingPageFundraisingPage
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
       'api::hackathon-navigation.hackathon-navigation': ApiHackathonNavigationHackathonNavigation

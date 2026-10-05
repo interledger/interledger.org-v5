@@ -220,7 +220,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for foundation-page and summit-page content fields. */
+/** Populate config for foundation-page, fundraising-page, and summit-page content fields. */
 export const FOUNDATION_PAGE_CONTENT_POPULATE = {
   on: { ...FOUNDATION_PAGE_BLOCKS }
 } as const
