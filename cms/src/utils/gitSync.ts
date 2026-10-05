@@ -1339,11 +1339,10 @@ const gitSyncLock = createAsyncLock()
 
 /**
  * Run `fn` while no other git sync in this Strapi process touches the
- * checkout. It does not coordinate with other processes: the
- * rebuild-and-sync workflow's `git pull` on the VM runs while Strapi is up,
- * and can still collide with a save. A collision fails loudly (an
- * `index.lock` error reaches Slack, or the `--ff-only` pull fails the run) and
- * the next save or run retries. Every sync entry
+ * checkout. Other processes — the rebuild-and-sync workflow on the VM — are
+ * kept out by the filesystem mutex at {@link SYNC_LOCK_FILE}, which each sync
+ * takes inside this one; that mutex alone cannot order two saves from the same
+ * process before they reach git, which is what this lock adds. Every sync entry
  * point ({@link runGitSync}, {@link gitCommitAndPush}, and so the debounced
  * scheduler) goes through here: two overlapping saves otherwise run `git add`,
  * `commit` and `pull --rebase` concurrently in one checkout, which fails on
