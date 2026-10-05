@@ -106,21 +106,31 @@ Implementation notes that are easy to get wrong:
   saves share a checkout, so `index.lock` collisions are expected. The retry
   covers the status read, `git add`, `git commit` and `git push` — every command
   that takes the repository lock.
-- **Both writers take one advisory mutex.** `.git/strapi-sync.lock`, created
-  with `O_EXCL` (`fs.writeFileSync(…, { flag: 'wx' })` here, `set -o noclobber`
-  in the workflow) so the create and the owner details are one atomic write.
-  Without it each side's `git rebase --abort` could discard a rebase the other
-  had in flight, since the workflow integrates **before** it stops the Strapi
-  service. A holder that dies is reclaimed after 10 minutes, so a killed process
-  cannot block saves permanently; a sync that cannot acquire within 30s fails
-  and is retried by the next save rather than proceeding unserialised. The
-  file's line format is parsed by both sides — keep them in step.
+- **Both writers take one advisory mutex.** `.git/strapi-sync.lock`, claimed
+  by writing the owner details to a temp file and hard-linking it into place
+  (`fs.linkSync` here, `ln` in the workflow). A link fails when the target
+  exists, and the contents are written before it, so the lock is never visible
+  half-formed — an exclusive create would leave an empty lock behind if the
+  process died between the create and the write. Without the mutex each side's
+  `git rebase --abort` could discard a rebase the other had in flight, since
+  the workflow integrates **before** it stops the Strapi service. Staleness is
+  read from the file's mtime, never its contents: a holder that dies is
+  reclaimed after 10 minutes by moving the lock aside, which only one contender
+  can win. Release checks the contents are still the releaser's own, so an
+  overrun holder never deletes its successor's lock. A sync that cannot acquire
+  within 30s fails and is retried by the next save rather than proceeding
+  unserialised. The workflow holds the lock only around its git integrate, not
+  the rebuild. Keep the path and the 10-minute window in step on both sides;
+  the owner line is only read by a human.
 - **`autoStash` covers tracked modifications only.** A page Strapi has written
   but not yet staged is untracked, and a rebase refuses to start if an incoming
   commit adds that same path. The lifecycle sync stages and commits before it
-  ever rebases, so it is unaffected; the workflow stages the CMS-owned paths
-  before rebasing for the same reason. This fails safely either way — the
-  checkout is not left mid-rebase.
+  ever rebases, so it is unaffected. The workflow does not stage anything:
+  staging lets the rebase start, but the autostash pop then collides on the
+  same path and leaves conflict markers in `src/content`. Instead it checks for
+  untracked files the incoming commits add and refuses to integrate, with the
+  checkout untouched. The check is a snapshot — a save landing between it and
+  the rebase can still stop the rebase — which fails the same safe way.
 
 ### Git Sync Repository Target
 
