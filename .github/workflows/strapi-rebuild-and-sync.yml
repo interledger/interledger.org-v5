@@ -226,9 +226,9 @@ jobs:
           # rather than `git pull --ff-only` — no implicit second fetch, no dependence on a
           # configured upstream, and an exit code to branch on.
           if ! git merge --ff-only "origin/$DEPLOY_BRANCH"; then
-            # Diverged: a Strapi or Airtable commit never reached origin. Failing here used
-            # to take down the whole run — rebuild, content sync and Airtable sync alike —
-            # and it stayed failed until someone intervened. Policy is that CMS content wins,
+            # Diverged: a Strapi commit never reached origin. Failing here used to take
+            # down the whole run — rebuild and content sync alike — and it stayed failed
+            # until someone intervened. Policy is that CMS content wins,
             # so replay the local commits on top of origin instead.
             #
             # `-X theirs` is the local side, not the upstream one: a rebase swaps ours/theirs,
@@ -283,8 +283,7 @@ jobs:
           # Outside the divergence branch on purpose. `git merge --ff-only` also exits 0
           # when origin is already an ancestor of HEAD — the state after a commit was made
           # locally but its push failed — so a check inside that branch would skip the only
-          # push and strand the commit. Nothing else would pick it up either: the Airtable
-          # step below exits early when its JSON is unchanged.
+          # push and strand the commit.
           #
           # Non-fatal: the rebuild and sync below are still valid against this tree, and
           # the next run retries.
@@ -357,143 +356,6 @@ jobs:
           else
             pnpm run sync:all
           fi
-
-      # Runs last, on the tree the step above already fetched, integrated and conflict-checked,
-      # so the only pending change should be the regenerated JSON. No `if:` guard on purpose:
-      # the default "skip when an earlier step failed" is what we want, since the likeliest
-      # earlier failure is a checkout that could not be reconciled, and that is the last state
-      # to be pushing from.
-      - name: Sync grantee data from Airtable
-        id: airtable-sync
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          AIRTABLE_JSON='src/data/airtable/grantee-data.json'
-          COMMIT_MESSAGE='chore(data): sync grantee data from Airtable'
-          # The VM checkout's global git identity belongs to whoever last configured it. Set the
-          # identity per-command so an automated commit is attributable as one.
-          COMMIT_AUTHOR_NAME='github-actions[bot]'
-          COMMIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
-          MAX_PUSH_ATTEMPTS=5
-
-          # Each `run:` is a fresh shell. Node and pnpm are already installed by the step above,
-          # so this only has to put them back on PATH.
-          export NVM_DIR="$HOME/.nvm"
-          . "$NVM_DIR/nvm.sh"
-          nvm use 24
-          export PNPM_HOME="/home/strapi/.local/share/pnpm"
-          export PATH="$PNPM_HOME:$PATH"
-
-          # import-airtable.ts resolves './src/data/airtable' against the CWD, so this has to run
-          # from the repo root — not cms/, where the previous step left off.
-          cd "$DEPLOY_PATH"
-
-          # The same mutex the integrate step takes, restated because each `run:` is a fresh
-          # shell and sourcing a committed script would fail on the first run after this lands,
-          # before the VM has pulled it. The canonical version — and the contract shared with
-          # cms/src/utils/gitSync.ts — is in the step above; keep the two in step.
-          #
-          # Needed here because the retry loop below calls `git rebase --abort`, which would
-          # otherwise discard a rebase Strapi's git sync had in flight.
-          SYNC_LOCK="$DEPLOY_PATH/.git/strapi-sync.lock"
-          SYNC_LOCK_OWNER="pid=$$ host=$(hostname) run=${GITHUB_RUN_ID:-manual} step=airtable at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          waited=0
-          while true; do
-            TMP="$SYNC_LOCK.$$.$RANDOM"
-            printf '%s\n' "$SYNC_LOCK_OWNER" > "$TMP"
-            if ln "$TMP" "$SYNC_LOCK" 2>/dev/null; then rm -f "$TMP"; break; fi
-            rm -f "$TMP"
-
-            # Staleness from mtime, read from find's output — find exits 0 either way.
-            # Reclaim by `mv` so only one contender can win it.
-            if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin +10 2>/dev/null)" ] \
-               && mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
-              echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
-              rm -f "$SYNC_LOCK.stale.$$"
-            fi
-
-            if [ "$waited" -ge 30 ]; then
-              echo "Error: timed out waiting for the sync lock at $SYNC_LOCK."
-              echo "Held by: $(cat "$SYNC_LOCK" 2>/dev/null || echo '<unreadable>')"
-              exit 1
-            fi
-            sleep 1
-            waited=$(( waited + 1 ))
-          done
-          # Armed only after acquiring, and owner-checked: a lock we overran may have been
-          # reclaimed and replaced, and removing it blindly would delete the new holder's.
-          trap '[ "$(cat "$SYNC_LOCK" 2>/dev/null || true)" = "$SYNC_LOCK_OWNER" ] && rm -f "$SYNC_LOCK"' EXIT
-
-          echo "Syncing grantee data from Airtable..."
-          pnpm run sync:airtable
-
-          # The script writes Prettier-formatted JSON (see writeAirtableJson), so no format pass
-          # is needed here. Verify rather than trust: nothing lints a direct push to the deploy
-          # branch, so drift would surface much later as a red `pnpm run lint` on someone's PR.
-          pnpm exec prettier --check "$AIRTABLE_JSON"
-
-          # --porcelain rather than `git diff --quiet`: Strapi's git sync may already have staged
-          # this path, which a worktree-vs-index diff would report as clean.
-          if [ -z "$(git status --porcelain -- "$AIRTABLE_JSON")" ]; then
-            echo "Grantee data unchanged — nothing to commit."
-            exit 0
-          fi
-
-          # `git commit -- <pathspec>` commits the working-tree version of exactly this file and
-          # ignores the rest of the index. Strapi's git sync (cms/src/utils/gitSync.ts,
-          # STAGE_CANDIDATES) stages all of src/content/, src/data/ and the uploads dir on a
-          # 300ms debounce, so unrelated paths may be staged right now — `git add` + `git commit`
-          # would sweep those into this commit, the pathspec form cannot.
-          git \
-            -c "user.name=$COMMIT_AUTHOR_NAME" \
-            -c "user.email=$COMMIT_AUTHOR_EMAIL" \
-            commit -m "$COMMIT_MESSAGE" -- "$AIRTABLE_JSON"
-
-          # Push first and only integrate if rejected: the common case is a clean fast-forward,
-          # and that path never touches Strapi's possibly-dirty working tree. autoStash covers
-          # files Strapi is mid-write on, which would otherwise make the rebase refuse to start.
-          pushed=false
-          for attempt in $(seq 1 "$MAX_PUSH_ATTEMPTS"); do
-            if git push origin "HEAD:$DEPLOY_BRANCH"; then
-              pushed=true
-              break
-            fi
-
-            echo "Push rejected (attempt $attempt/$MAX_PUSH_ATTEMPTS) — rebasing onto origin/$DEPLOY_BRANCH."
-            sleep "$((attempt * 5))"
-            git fetch origin "$DEPLOY_BRANCH"
-            if ! git -c rebase.autoStash=true rebase "origin/$DEPLOY_BRANCH"; then
-              # An aborted rebase restores the pre-rebase state with our commit intact, so the
-              # next attempt is a clean retry. Leaving it mid-rebase would break the next run's
-              # `git pull --ff-only` and Strapi's own git sync alike.
-              git rebase --abort || true
-            fi
-          done
-
-          if [ "$pushed" != "true" ]; then
-            # Hand the checkout back exactly as we found it. A local commit that never reaches
-            # origin would diverge the branch, and the data is regenerated from Airtable on the
-            # next run anyway. Undo only our commit and only our file — `git reset --hard` here
-            # would discard Strapi content that has not been committed yet.
-            #
-            # Guarded on the ahead-count: Strapi commits to this same checkout on a 300ms
-            # debounce whenever an editor saves, so a save landing during the retry loop above
-            # puts *its* commit at HEAD and ours underneath. `HEAD~1` would then drop the
-            # editor's work instead of ours. Nothing here can safely rewrite a commit we do
-            # not own, so leave the stack alone and let the divergence be reported.
-            AHEAD="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
-            if [ "$AHEAD" = "1" ]; then
-              git reset --soft HEAD~1
-              git restore --staged --worktree -- "$AIRTABLE_JSON"
-            else
-              echo "::warning::$AHEAD unpushed commits — another writer owns one, so the grantee commit was left in place."
-            fi
-            echo "Error: could not push grantee data to $DEPLOY_BRANCH after $MAX_PUSH_ATTEMPTS attempts."
-            exit 1
-          fi
-
-          echo "Pushed updated grantee data to $DEPLOY_BRANCH."
 
   notify-slack:
     runs-on: ubuntu-latest
