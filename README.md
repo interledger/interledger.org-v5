@@ -314,10 +314,17 @@ saves that page, the resulting commit conflicts with the merged PR.
 **Policy: CMS content wins where the two conflict.** Editors are the authority
 on page copy, so a developer sweep that collides with a live edit yields.
 
-- **Conflicting hunks only.** The rebase runs with `-X theirs`, which resolves
-  the contested lines in the editor's favour. A developer change **elsewhere in
-  the same file** still merges in normally — a frontmatter backfill is not
-  reverted just because someone was editing the body.
+- **Conflicting hunks only — for that save.** The rebase runs with `-X theirs`,
+  which resolves the contested lines in the editor's favour. A developer change
+  **elsewhere in the same file** still merges in, so a frontmatter backfill
+  survives the save that collided with it.
+- **But the next save of that page reverts it, silently.** Strapi writes the
+  whole file from its own database, which only learns about the developer's
+  change at the next daily Astro → Strapi sync. Until then any further save of
+  the page drops the developer's lines again, as an ordinary fast-forward with
+  no conflict and no alert. If you edit content in a PR, merge it on a day
+  editors are not working on the same pages, or re-check it after the daily
+  sync.
 - **Existence conflicts** (a PR deletes a page an editor is editing, or the
   reverse) are also resolved toward the CMS, but **only for an editor save**.
   That resolver lives in the Strapi lifecycle hooks, and is confined to
@@ -328,11 +335,14 @@ on page copy, so a developer sweep that collides with a live edit yields.
   watching a specific page and the right answer is not mechanical.
 - **Nothing is lost from history.** The rebase replays the editor's commit on
   top of the PR, so the superseded commit and its content stay reachable.
-- **Every overwrite is announced.** A `⚠️ Strapi git sync overwrote branch
-changes` message goes to `#frontend-team` naming the files and the superseded
-  commits, because nothing lints a direct push to `staging`. If your PR shows up
-  there, recover the dropped change with
-  `git log -p <sha> -- <path>` and re-apply it on top of `staging`.
+- **Overwrites by an editor save are announced.** A `⚠️ Strapi git sync
+overwrote branch changes` message goes to `#frontend-team` naming the files
+  and the superseded commits, because nothing lints a direct push to `staging`.
+  If your PR shows up there, recover the dropped change with
+  `git log -p <sha> -- <path>` and re-apply it on top of `staging`. Two cases
+  are **not** announced: the silent revert on a later save described above,
+  and the daily workflow replaying a stranded CMS commit with the same
+  `-X theirs` policy — that shows only as a warning in the workflow log.
 
 > **A note for anyone reading the code:** during a rebase git swaps the meaning
 > of `ours` and `theirs` — `ours` is the branch being replayed _onto_ (the
