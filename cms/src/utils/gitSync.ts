@@ -185,6 +185,45 @@ export interface ConflictResolution {
   detailsUnavailable?: boolean
 }
 
+const NO_CONFLICT: ConflictResolution = {
+  overwrittenPaths: [],
+  resolvedPaths: [],
+  supersededCommits: []
+}
+
+/**
+ * Folds one push attempt's conflict into what earlier attempts recorded. A
+ * push rejected twice rebases twice, and each rebase can overwrite different
+ * paths — replacing the record would drop the first attempt's overwrites from
+ * the alert. A path a later attempt settled as an existence conflict leaves
+ * the hunk list, so the two lists stay disjoint.
+ */
+export function mergeConflictResolutions(
+  earlier: ConflictResolution | undefined,
+  later: ConflictResolution
+): ConflictResolution {
+  const base = earlier ?? NO_CONFLICT
+  const resolvedPaths = [
+    ...base.resolvedPaths.filter(
+      (r) => !later.resolvedPaths.some((l) => l.path === r.path)
+    ),
+    ...later.resolvedPaths
+  ]
+  const settled = new Set(resolvedPaths.map((r) => r.path))
+  const detailsUnavailable = base.detailsUnavailable || later.detailsUnavailable
+
+  return {
+    overwrittenPaths: [
+      ...new Set([...base.overwrittenPaths, ...later.overwrittenPaths])
+    ].filter((p) => !settled.has(p)),
+    resolvedPaths,
+    supersededCommits: [
+      ...new Set([...base.supersededCommits, ...later.supersededCommits])
+    ],
+    ...(detailsUnavailable ? { detailsUnavailable } : {})
+  }
+}
+
 /**
  * The read-only probe's verdict. `unavailable` is deliberately distinct from
  * `clean`: on a git too old for `merge-tree --write-tree` we cannot list what
@@ -1132,17 +1171,15 @@ async function pushWithRebase(
 
     const probe = await describeConflict(repoRoot, upstreamRef, deps)
     if (probe.kind === 'conflict') {
-      conflict = probe.resolution
+      conflict = mergeConflictResolutions(conflict, probe.resolution)
     } else if (probe.kind === 'unavailable') {
       // The rebase below resolves conflicting hunks silently, so without the
       // probe we cannot tell whether it overwrote anything. Announce the
       // possibility rather than stay quiet about a potential overwrite.
-      conflict ??= {
-        overwrittenPaths: [],
-        resolvedPaths: [],
-        supersededCommits: [],
+      conflict = mergeConflictResolutions(conflict, {
+        ...NO_CONFLICT,
         detailsUnavailable: true
-      }
+      })
     }
 
     const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
@@ -1158,16 +1195,11 @@ async function pushWithRebase(
       // The probe reports every conflicted path, including the existence
       // conflicts the resolver then settles, so the two lists would otherwise
       // name the same file twice — once as a hunk overwrite it never was, and
-      // once correctly. Keep them disjoint at the source.
-      const settled = new Set(resolved.map((r) => r.path))
-      conflict = {
-        overwrittenPaths: (conflict?.overwrittenPaths ?? []).filter(
-          (p) => !settled.has(p)
-        ),
-        supersededCommits: conflict?.supersededCommits ?? [],
-        resolvedPaths: resolved,
-        detailsUnavailable: conflict?.detailsUnavailable
-      }
+      // once correctly. The merge keeps them disjoint.
+      conflict = mergeConflictResolutions(conflict, {
+        ...NO_CONFLICT,
+        resolvedPaths: resolved
+      })
     }
   }
 

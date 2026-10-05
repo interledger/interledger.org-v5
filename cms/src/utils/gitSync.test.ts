@@ -3,6 +3,7 @@ import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProjectRoot } from './paths'
 import {
+  mergeConflictResolutions,
   GitCommandError,
   buildAddCommand,
   buildCommitCommand,
@@ -1641,6 +1642,61 @@ describe('sync entry points share the checkout lock', () => {
 
 // ── Conflict resolution ──────────────────────────────────────────────────────
 
+describe('mergeConflictResolutions', () => {
+  const empty = {
+    overwrittenPaths: [],
+    resolvedPaths: [],
+    supersededCommits: []
+  }
+
+  it('starts from the later attempt when nothing was recorded yet', () => {
+    const later = { ...empty, overwrittenPaths: ['a'] }
+    expect(mergeConflictResolutions(undefined, later)).toEqual(later)
+  })
+
+  it('unions paths and commits without repeating either', () => {
+    expect(
+      mergeConflictResolutions(
+        { ...empty, overwrittenPaths: ['a'], supersededCommits: ['s1'] },
+        {
+          ...empty,
+          overwrittenPaths: ['a', 'b'],
+          supersededCommits: ['s1', 's2']
+        }
+      )
+    ).toEqual({
+      ...empty,
+      overwrittenPaths: ['a', 'b'],
+      supersededCommits: ['s1', 's2']
+    })
+  })
+
+  it('drops a hunk overwrite once a later attempt settles that path', () => {
+    const merged = mergeConflictResolutions(
+      { ...empty, overwrittenPaths: ['a', 'b'] },
+      { ...empty, resolvedPaths: [{ path: 'a', action: 'deleted' }] }
+    )
+    expect(merged.overwrittenPaths).toEqual(['b'])
+    expect(merged.resolvedPaths).toEqual([{ path: 'a', action: 'deleted' }])
+  })
+
+  it('lets a later action on the same path replace the earlier one', () => {
+    const merged = mergeConflictResolutions(
+      { ...empty, resolvedPaths: [{ path: 'a', action: 'kept-cms' }] },
+      { ...empty, resolvedPaths: [{ path: 'a', action: 'deleted' }] }
+    )
+    expect(merged.resolvedPaths).toEqual([{ path: 'a', action: 'deleted' }])
+  })
+
+  it('keeps detailsUnavailable once any attempt could not probe', () => {
+    const merged = mergeConflictResolutions(
+      { ...empty, detailsUnavailable: true },
+      { ...empty, overwrittenPaths: ['a'] }
+    )
+    expect(merged.detailsUnavailable).toBe(true)
+  })
+})
+
 describe('isUnmerged', () => {
   it('recognises every porcelain conflict code', () => {
     for (const code of ['DD', 'AU', 'UD', 'UA', 'DU', 'AA', 'UU']) {
@@ -1735,6 +1791,35 @@ describe('runGitSync conflict handling', () => {
         // A path containing a space proves the NUL parsing, not whitespace splitting.
         overwrittenPaths: [CONFLICT_PATH, 'src/content/faqs/b c.mdx'],
         supersededCommits: ['09b7eba fix(content): unwrap prose']
+      }
+    })
+  })
+
+  it("keeps every attempt's overwrites when the push is rejected twice", async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        'git merge-tree': sequenceOf(
+          probeConflictOutput(CONFLICT_PATH),
+          probeConflictOutput('src/content/faqs/b.mdx')
+        ),
+        'git log --oneline': sequenceOf('aaa1111 first', 'bbb2222 second')
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'synced',
+      conflict: {
+        overwrittenPaths: [CONFLICT_PATH, 'src/content/faqs/b.mdx'],
+        supersededCommits: ['aaa1111 first', 'bbb2222 second']
       }
     })
   })
