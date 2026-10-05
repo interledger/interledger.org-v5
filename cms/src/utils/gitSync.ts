@@ -588,11 +588,19 @@ export function buildPushCommand(branch: string): string {
  * which would otherwise make the rebase refuse to start. `rerere` is pinned off
  * so a resolution recorded in the machine's global git config cannot override
  * the policy.
+ *
+ * `--fork-point` keeps the `git pull --rebase` semantics this replaced. An
+ * explicit upstream otherwise replays everything since the merge-base, so after
+ * `reset.yml` force-pushes the branch, commits it deliberately discarded would
+ * be replayed with the CMS commit and pushed straight back. The fork point
+ * comes from the remote-tracking reflog, so only commits made locally on top
+ * of a tip the checkout once fetched are replayed; with no usable reflog it
+ * falls back to the merge-base.
  */
 export function buildRebaseCommand(upstreamRef: string): string {
   return (
     'git -c rebase.autoStash=true -c rerere.enabled=false ' +
-    `rebase -X theirs ${shellQuote(upstreamRef)}`
+    `rebase --fork-point -X theirs ${shellQuote(upstreamRef)}`
   )
 }
 

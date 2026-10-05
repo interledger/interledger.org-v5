@@ -267,8 +267,11 @@ jobs:
               exit 1
             fi
 
+            # --fork-point, as in gitSync.ts: after reset.yml force-pushes the branch,
+            # plain merge-base semantics would replay the commits it discarded and the
+            # push below would restore them.
             if ! git -c rebase.autoStash=true -c rerere.enabled=false \
-                   rebase -X theirs "origin/$DEPLOY_BRANCH"; then
+                   rebase --fork-point -X theirs "origin/$DEPLOY_BRANCH"; then
               # Leaving it mid-rebase would break every later editor save as well as the next
               # run. What `-X theirs` cannot resolve is an existence conflict (a page deleted
               # on one side and edited on the other), which has no mechanically correct answer.

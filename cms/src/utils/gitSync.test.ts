@@ -581,7 +581,15 @@ describe('buildRebaseCommand', () => {
     const command = buildRebaseCommand('origin/staging')
     expect(command).toContain('-X theirs')
     expect(command).not.toContain('-X ours')
-    expect(command).toContain("rebase -X theirs 'origin/staging'")
+    expect(command).toContain("-X theirs 'origin/staging'")
+  })
+
+  // An explicit upstream defaults to plain merge-base semantics, which would
+  // replay commits a force-push removed and push them back.
+  it('rebases from the fork point so force-pushed-away commits stay gone', () => {
+    expect(buildRebaseCommand('origin/staging')).toContain(
+      'rebase --fork-point'
+    )
   })
 
   it('autostashes in-flight writes and pins rerere off', () => {
