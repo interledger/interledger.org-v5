@@ -687,6 +687,21 @@ describe('conflictFingerprint', () => {
     expect(a).toBe(b)
   })
 
+  it('keeps a new superseded commit on the same files apart', () => {
+    const a = conflictFingerprint({
+      ...base,
+      overwrittenPaths: ['a'],
+      supersededCommits: ['aaa1111 first']
+    })
+    const b = conflictFingerprint({
+      ...base,
+      overwrittenPaths: ['a'],
+      supersededCommits: ['bbb2222 second']
+    })
+
+    expect(a).not.toBe(b)
+  })
+
   /**
    * With no paths to key on, a shared fingerprint would let unrelated saves
    * suppress one another for the whole 15-minute window, and the first save's

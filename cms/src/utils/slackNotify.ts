@@ -71,7 +71,10 @@ export type NotifyGitSync = (alert: GitSyncAlert) => Promise<void>
 /**
  * Groups repeated conflicts over the same files into one notice.
  *
- * Normally the path set is the identity. When the probe could not enumerate
+ * Normally the path set and the superseded commits are the identity. The
+ * commits matter: a second overwrite of the same file that supersedes a
+ * different developer commit is new lost work, and an audit record that only
+ * counted it would never name that commit anywhere. When the probe could not enumerate
  * paths there is no set, and keying on it alone would give every such alert the
  * same fingerprint — so unrelated saves would suppress one another for fifteen
  * minutes, and the first save's commit and editor would stand in for all of
@@ -82,7 +85,10 @@ export function conflictFingerprint(alert: GitSyncAlert): string {
     ...(alert.overwrittenPaths ?? []),
     ...(alert.resolvedPaths ?? []).map((r) => r.path)
   ]
-  if (paths.length > 0) return `conflict:${[...paths].sort().join(',')}`
+  if (paths.length > 0) {
+    const commits = [...(alert.supersededCommits ?? [])].sort().join(',')
+    return `conflict:${[...new Set(paths)].sort().join(',')}:${commits}`
+  }
   return `conflict:unlisted:${alert.label}:${alert.commitMessage ?? ''}`
 }
 
@@ -452,8 +458,8 @@ export function createSlackGitSyncNotifier(
     // An audit record, not a health signal. It has to fire on a repo that was
     // never unhealthy (the normal case for a conflict), must not set
     // `unhealthy`, and must not be cleared by the next ordinary success.
-    // Fingerprinted on the path set, so repeated saves to the same pages during
-    // one conflict window collapse into a single notice.
+    // Fingerprinted on the paths and superseded commits, so a repeat of the
+    // same overwrite collapses into one notice but a new one never does.
     if (alert.outcome === 'conflict-resolved') {
       await postThrottled(
         url,
