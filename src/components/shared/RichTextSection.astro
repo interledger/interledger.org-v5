@@ -1,5 +1,6 @@
 ---
 import {
+  buildNewTabLinkHtml,
   buildUmamiAttrs,
   escapeHtml,
   type BuildUmamiAttrsInput,
@@ -88,7 +89,8 @@ const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
     href,
     linkText: node.children.map((c) => c.text ?? '').join('')
   })
-  return `<a href="${escapeHtml(href)}"${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
+  const newTab = buildNewTabLinkHtml(href, umamiCtx.lang)
+  return `<a href="${escapeHtml(href)}"${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
 }
 ---
 

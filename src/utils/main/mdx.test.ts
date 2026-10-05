@@ -150,4 +150,47 @@ describe('createMarked', () => {
     expect(html).not.toContain('<a href')
     expect(html).toContain('&lt;a href')
   })
+
+  describe('new-tab links', () => {
+    const render = (markdown: string, lang = 'en') =>
+      createMarked({ pathname: '/resources', lang }).parseInline(
+        markdown
+      ) as string
+
+    it('opens an external link in a new tab with an sr-only hint', () => {
+      const html = render('[Rafiki](https://rafiki.dev/)')
+      expect(html).toContain('target="_blank"')
+      expect(html).toContain('rel="noopener noreferrer"')
+      expect(html).toContain(
+        'Rafiki<span class="sr-only"> (opens in a new tab)</span></a>'
+      )
+    })
+
+    it('keeps the hint out of the umami link text', () => {
+      const html = render('[Rafiki](https://rafiki.dev/)')
+      expect(html).toContain('data-umami-event-link-text="Rafiki"')
+    })
+
+    it('localizes the hint', () => {
+      const html = render('[Rafiki](https://rafiki.dev/)', 'es')
+      expect(html).toContain(
+        '<span class="sr-only"> (se abre en una pestaña nueva)</span>'
+      )
+    })
+
+    it.each([
+      '[About](/about-us)',
+      '[About](https://interledger.org/about-us)',
+      '[FAQ](#faq)',
+      '[Email](mailto:info@interledger.org)'
+    ])('keeps %s in the same tab', (markdown) => {
+      const html = render(markdown)
+      expect(html).not.toContain('target=')
+      expect(html).not.toContain('sr-only')
+    })
+
+    it('does not add new-tab attributes to a dropped unsafe link', () => {
+      expect(render('[x](javascript:alert(1))')).toBe('x')
+    })
+  })
 })

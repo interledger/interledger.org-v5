@@ -1,0 +1,204 @@
+﻿---
+pathSlug: 'tech/overview'
+title: 'Conjunto de tecnologías de Interledger'
+description: 'El conjunto de tecnologías abiertas de Interledger permite conectar bancos, billeteras e instituciones financieras mediante protocolos compartidos y herramientas de código abierto.'
+heroTitle: 'Tecnología de Interledger'
+heroDescription: 'Un conjunto de tecnologías abiertas para conectar los pagos.'
+heroImage: '/uploads/img/original/54921015653_1cb899a606_k_0008d915d8.jpg'
+heroImageBlur: 'data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAAAQBACdASoUAA0APu1iqU2ppaQiMAgBMB2JYgCdIIjCA2yjjGhJdcf84AD+6YaE0/gPOaEqFbcnkVPinRxHsnnpACqfiwY4UakNS46BRpj1YOeUsYa6mHOTwDD3TH1a9r3aYf4oZdSlBA/hY1fQsITDnDz8yAR2zEJNu1XacllQN9bI+AA='
+heroImageAlt: 'Un conferencista explica cómo permitir que los bancos de Pakistán ofrezcan servicios de remesas de bajo costo mediante ILP'
+heroCtas:
+  - text: 'Programe una llamada sobre integración'
+    link: '/es/contact'
+locale: 'es'
+localizes: 'tech/overview'
+---
+
+<Paragraph>
+
+La tecnología de Interledger permite conectar bancos, billeteras e instituciones financieras mediante estándares compartidos, protocolos abiertos y herramientas de código abierto diseñadas para la integración en el mundo real.
+
+Los sistemas de pago actuales funcionan con redes separadas, reglas distintas e infraestructuras desconectadas. Cada nueva conexión exige integraciones a medida, acuerdos por separado y una coordinación continua, que deben establecerse desde cero en cada ocasión. Interledger reemplaza ese esquema por un protocolo abierto y un conjunto de estándares compartidos, a fin de que los sistemas puedan funcionar juntos sin rehacer las integraciones cada vez.
+
+</Paragraph>
+
+<Paragraph>
+
+## El conjunto de tecnologías de Interledger
+
+Interledger es un conjunto de protocolos abiertos que funcionan en capas, conforme al modelo de la arquitectura de Internet. Cada capa tiene una responsabilidad asignada y sabe cómo comunicarse con las capas situadas justo encima y debajo de ella. Esta estructura permite adaptar la tecnología, porque una capa puede mejorarse o reemplazarse sin alterar las demás.
+
+</Paragraph>
+
+<SplitLayout imagePosition="left" displayRatio="1:1" imageSrc="/uploads/img/original/Diagram_2_26bebf3ebf.jpg" imageAlt="Diagrama del conjunto de protocolos de Interledger. De arriba hacia abajo: SPSP y Open Payments en la capa de aplicación; STREAM en la capa de transporte; ILP en la capa de protocolo; ILP over HTTP en la capa de enlace; y dinero fiduciario, criptomonedas o dinero móvil en la capa de liquidación o física.">
+### **Protocolos de aplicación (Open Payments y Simple Payments Setup Protocol)**
+
+Definen cómo una aplicación prepara un pago con una cuenta: solicita el pago, cotiza el monto y las comisiones, y obtiene la aprobación del pagador.
+
+[Explore Open Payments](/es/tech/open-payments)
+
+### **Protocolos de transporte (STREAM)**
+
+Dividen un pago en paquetes, los cifran y los envían a través de ILP, y los reensamblan de forma confiable en el otro extremo.
+
+[Más información sobre STREAM](/es/developers/rfcs/stream-protocol)
+
+### **Interledger Protocol (ILP)**
+
+Enruta valor entre esos sistemas. Determina a dónde debe dirigirse un pago y lo reenvía, sin necesidad de conocer la tecnología subyacente.
+
+[Más información sobre ILP](/es/tech/interledger-protocol)
+
+### **Protocolos de la capa de enlace**
+
+Proporcionan comunicación autenticada en ambos sentidos entre los titulares de las cuentas o sus proveedores de servicios financieros.
+
+[Explore los protocolos de la capa de enlace](/es/developers/rfcs/interledger-architecture/#link-protocols)
+
+### **Libros contables y sistemas de pago**
+
+La base del conjunto de tecnologías: los bancos, las billeteras y los servicios de dinero móvil que mantienen las cuentas y transfieren los fondos. La liquidación se realiza fuera de Interledger, lo que favorece una mayor competencia y evita la dependencia de un proveedor.
+
+[Explore los protocolos de libros contables](/es/developers/rfcs/interledger-architecture/#ledger-protocols)
+
+</SplitLayout>
+
+<Paragraph>
+
+Rafiki es la implementación de código abierto que reúne estas capas, para que una institución financiera regulada pueda adoptar el conjunto completo de tecnologías sin tener que desarrollar cada parte por su cuenta.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    { text: 'Explore Rafiki', link: '/es/tech/rafiki', style: 'primary' }
+  ]}
+/>
+
+<Paragraph>
+
+Web Monetization es el estándar web abierto para pagos y micropagos nativos del navegador que ILP hace posible. Utiliza los protocolos de la Capa de aplicación para realizar estos pagos.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Descubra Web Monetization',
+      link: '/es/tech/web-monetization',
+      style: 'primary'
+    }
+  ]}
+/>
+
+<CardGrid title="Por qué se diseñó así" ariaLabel="Decisiones de diseño del conjunto de tecnologías de Interledger" variant="Info" columns="Two">
+<InfoCard heading="Responsabilidades delegadas">
+
+Cada capa cumple una función y depende de que las demás cumplan las suyas, lo que mantiene la sencillez de cada parte.
+
+</InfoCard>
+<InfoCard heading="Interfaces claras">
+
+Una capa solo necesita comprender los conceptos de las capas situadas justo encima y debajo de ella, no los de todo el sistema.
+
+</InfoCard>
+<InfoCard heading="Intercambiabilidad">
+
+Las capas pueden intercambiarse sin alterar las demás. Una nueva tecnología de libro contable en la base o una nueva aplicación en la parte superior funcionan sin cambiar el protocolo intermedio.
+
+</InfoCard>
+<InfoCard heading="Modularidad y capacidad de ampliación">
+
+Como las partes son independientes, el conjunto de tecnologías puede crecer y adaptarse con el tiempo, mientras su núcleo permanece estable.
+
+</InfoCard>
+</CardGrid>
+
+<Paragraph>
+
+## Pruébela y desarrolle
+
+Toda nuestra tecnología es de código abierto y dispone de documentación completa, por lo que nada le impide probarla. Si le interesa, estos son algunos enlaces clave.
+
+</Paragraph>
+
+<CardGrid
+  ariaLabel="Recursos para desarrolladores y enlaces a la documentación"
+  variant="Navigation"
+  columns="Three"
+>
+  <NavigationCard
+    heading="Experimente con dinero de prueba y flujos de pago simulados"
+    buttonUrl="/es/tech/test-tools"
+    buttonText="Ir a las herramientas de prueba"
+    buttonExternal={false}
+  />
+  <NavigationCard
+    heading="Enlaces a todos nuestros repositorios en GitHub y sitios de documentación"
+    buttonUrl="/es/tech/dev-portal"
+    buttonText="Visite el Portal para desarrolladores"
+    buttonExternal={false}
+  />
+  <NavigationCard
+    heading="Consulte nuestros recursos gratuitos para aprender sobre Open Payments"
+    buttonUrl="/es/hackathon/open-payments"
+    buttonText="Aprenda a utilizar Open Payments"
+    buttonExternal={false}
+  />
+</CardGrid>
+
+<Paragraph>
+
+## Nuestra tecnología en la práctica
+
+Como organización que otorga subvenciones, apoyamos y financiamos a quienes desean experimentar con todo el conjunto de tecnologías de infraestructura o con parte de él, e implementar esas tecnologías. También apoyamos al conjunto del ecosistema que explora los pagos abiertos como medio para ampliar el acceso a los servicios financieros, fomentar su adopción y fortalecer la autonomía financiera.
+
+</Paragraph>
+
+<SplitLayout
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/3_our_tech_in_practice_1_064a7694e9.jpg"
+  imageAlt="Personas acercan sus teléfonos junto a la mesa de un proveedor para realizar una compra."
+>
+  En México, People’s Clearinghouse desarrolla infraestructura para facilitar la
+  interoperabilidad entre más de 140 cooperativas de ahorro y crédito, junto con
+  un corredor directo de remesas desde Estados Unidos, lo que permite que las
+  cooperativas participen en redes financieras más amplias con los sistemas que
+  ya utilizan.
+</SplitLayout>
+
+<SplitLayout
+  imagePosition="left"
+  displayRatio="1:1"
+  imageSrc="/uploads/img/original/3_our_tech_in_practice_UCT_Next_Gen2025_2_dfbc559b32.jpg"
+  imageAlt="Fotografía grupal de estudiantes que sonríen a la cámara en un hackatón."
+>
+  En la Universidad de la Ciudad del Cabo, una de las instituciones
+  beneficiarias de [NextGen Higher Education](/es/grant/education/nextgen),
+  equipos de estudiantes desarrollaron DigiStokvel y SecureLifeCover en un
+  hackatón, dos prototipos que incorporan la interoperabilidad digital al
+  mercado tradicional de ahorro comunitario de Sudáfrica.
+</SplitLayout>
+
+<Paragraph>
+
+## Dos formas de desarrollar soluciones con nosotros
+
+Puede desarrollar soluciones con Interledger por su cuenta, con la documentación abierta, los repositorios, las herramientas de prueba y el apoyo de la comunidad. También puede hacerlo con apoyo: Interledger Foundation financia, mediante sus programas de subvenciones, a equipos e instituciones que integran el conjunto de tecnologías de Interledger o implementan Open Payments.
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Comience a desarrollar',
+      link: '/es/tech/dev-portal',
+      style: 'primary'
+    },
+    {
+      text: 'Explore las subvenciones',
+      link: '/es/grant/innovation',
+      style: 'secondary'
+    }
+  ]}
+/>

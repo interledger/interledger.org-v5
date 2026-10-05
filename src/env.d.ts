@@ -4,6 +4,7 @@
 
 // Injected by Vite `define` in astro.config.mjs; absent under plain vitest.
 declare const __IMAGE_CDN_ENABLED__: boolean | undefined
+declare const __HIDE_FUTURE_POSTS__: boolean | undefined
 
 declare namespace App {
   interface Locals {
@@ -25,5 +26,11 @@ declare namespace App {
     site?: import('@/types/navigation').MicrositeSite
     /** Preloaded in MDX page shells so ProfileGrid avoids stale collection reads on HMR. */
     profileEntries?: import('astro:content').CollectionEntry<'profiles'>[]
+    /**
+     * Exclusive `<details name>` for the FAQ currently rendering. Set by
+     * `Faq.astro` so slotted MDX `<FaqItem>` children share one group
+     * instead of the document-wide default `faq`.
+     */
+    faqAccordionGroupName?: string
   }
 }

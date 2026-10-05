@@ -4,6 +4,7 @@ import {
   getFeaturedPosts,
   getBlogThumbnail,
   resolveRelatedPosts,
+  sortByPublishDateDesc,
   TECH_BLOG_FALLBACK_THUMBNAIL
 } from './blog'
 
@@ -221,5 +222,36 @@ describe('resolveRelatedPosts', () => {
     const result = resolveRelatedPosts(posts, ['c', 'a', 'b'], 'en', 'en')
 
     expect(result.map((p) => p.data.pathSlug)).toEqual(['c', 'a', 'b'])
+  })
+})
+
+describe('sortByPublishDateDesc', () => {
+  it('orders newest first', () => {
+    const posts = [
+      makePost({ slug: 'old', date: '2023-01-01' }),
+      makePost({ slug: 'new', date: '2026-01-01' }),
+      makePost({ slug: 'mid', date: '2024-06-01' })
+    ]
+
+    expect(sortByPublishDateDesc(posts).map((p) => p.data.pathSlug)).toEqual([
+      'new',
+      'mid',
+      'old'
+    ])
+  })
+
+  it('leaves the input array untouched', () => {
+    const posts = [
+      makePost({ slug: 'old', date: '2023-01-01' }),
+      makePost({ slug: 'new', date: '2026-01-01' })
+    ]
+
+    sortByPublishDateDesc(posts)
+
+    expect(posts.map((p) => p.data.pathSlug)).toEqual(['old', 'new'])
+  })
+
+  it('handles an empty list', () => {
+    expect(sortByPublishDateDesc([])).toEqual([])
   })
 })

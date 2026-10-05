@@ -17,7 +17,7 @@ const containerClass = 'mx-auto max-w-content px-lg'
 
   <main class="py-2xl">
     <div class={containerClass}>
-      <h1 class="font-poppins mb-lg text-h2">Typography</h1>
+      <h1 class="mb-lg">Typography</h1>
       <p class="mb-2xl text-body-lg-standard">
         Internal reference for Poppins text presets from
         <code>src/styles/theme.css</code>. SEO-excluded and not linked from any
@@ -44,9 +44,7 @@ const containerClass = 'mx-auto max-w-content px-lg'
       TYPOGRAPHY_TIER_ORDER.map((tier) => (
         <section id={tier} class="mb-3xl">
           <div class={`${containerClass} mb-lg`}>
-            <h2 class="font-poppins text-h3">
-              {TYPOGRAPHY_TIER_HEADINGS[tier].title}
-            </h2>
+            <h2>{TYPOGRAPHY_TIER_HEADINGS[tier].title}</h2>
             <p class="mt-xs text-body-sm-standard text-neutral-75">
               {TYPOGRAPHY_TIER_HEADINGS[tier].breakpoint}
             </p>

@@ -17,6 +17,7 @@ export {
   isExternalHref,
   getHostname,
   getSocialIconName,
+  getSocialPlatformName,
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
 } from './shared/url'
@@ -25,6 +26,11 @@ export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
+export {
+  parseRedirectConfig,
+  redirectTargetPath,
+  toAstroRedirects
+} from './shared/redirects'
 export {
   parseStatNumber,
   formatStatNumber,
@@ -124,11 +130,17 @@ export {
 export {
   FEATURED_POST_LIMIT,
   TECH_BLOG_FALLBACK_THUMBNAIL,
+  byPublishDateDesc,
   getFeaturedPosts,
   getBlogThumbnail,
   getReadingTime,
-  resolveRelatedPosts
+  resolveRelatedPosts,
+  sortByPublishDateDesc
 } from './main/blog'
+// The single gated reader every blog collection access goes through — see
+// blogPosts.ts. Like blogSearch below, it imports astro:content at module
+// scope, so it must not be pulled into a client bundle.
+export { getBlogPosts, getGatedCollection } from './main/blogPosts'
 export {
   PODCAST_PAGE_SIZE,
   type PodcastPageData,
@@ -136,6 +148,15 @@ export {
   paginatePodcastEpisodesByTerm
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
+
+// Main site: Publish gate (future-dated content is hidden on production only)
+export {
+  hideFuturePosts,
+  isPublishedAt,
+  resolveGateNow,
+  shouldHideFuturePosts
+} from './main/publishGate'
+
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
 // (via getCollection) at module scope, so re-exporting these two through it
 // would pull that server-only dependency into any client bundle that imports
@@ -157,6 +178,7 @@ export {
 export {
   GRANTEE_PAGE_SIZE,
   getGranteeListingData,
+  getGranteeSearchIndex,
   paginateGranteesByYear,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
@@ -167,7 +189,8 @@ export {
   formatStartMonth,
   type Grantee,
   type GranteeFilterOption,
-  type GranteeListingData
+  type GranteeListingData,
+  type GranteeSearchEntry
 } from './main/grantee'
 
 // Main site: Text
@@ -179,7 +202,11 @@ export {
   TABLE_SCROLL_CLASS,
   wrapScrollableTables
 } from './main/wrapScrollableTables'
-export { createExcerpt, createSearchPlainText } from './main/create-excerpt'
+export {
+  createDisplayPlainText,
+  createExcerpt,
+  createSearchPlainText
+} from './main/create-excerpt'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
@@ -277,8 +304,19 @@ export {
   buildNavCtaUmamiAttrs,
   buildSectionNavLinkUmamiAttrs,
   escapeHtml,
+  isSiteHostname,
   umamiAttrsToHtml
 } from './main/umami'
+
+// Main site: Links
+export {
+  type NewTabLinkAttrs,
+  type NewTabLinkHtml,
+  NEW_TAB_LINK_ATTRS,
+  buildNewTabLinkHtml,
+  getNewTabLinkAttrs,
+  getOpensNewTabLabel
+} from './main/newTabLinks'
 
 // Main site: SEO
 export {

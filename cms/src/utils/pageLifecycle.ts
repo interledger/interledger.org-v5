@@ -20,9 +20,9 @@ import {
   getPreservedFields,
   uidToLogLabel,
   formatMdx,
-  MATTER_STRINGIFY_OPTIONS,
-  resolveFilenameSlug
+  MATTER_STRINGIFY_OPTIONS
 } from './mdx'
+import { mdxRelativePath } from './mdxFilenames'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -68,6 +68,27 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
+const API_TOKEN_STRATEGY = 'api-token'
+
+/**
+ * True for an automation request, such as the repo's sync scripts:
+ * authenticated with an API token and sending `x-skip-mdx-export`. Admin
+ * sessions use the `admin` strategy, so an editor can't pass for one by adding
+ * the header. The header is caller-controlled, so this doesn't single out the
+ * sync: any API token with the permission qualifies. Tokens are issued by
+ * admins only.
+ */
+export function isCodeSyncRequest(): boolean {
+  if (!shouldSkipMdxExport()) return false
+  // Why: same as shouldSkipMdxExport — no active request means not a sync.
+  try {
+    const ctx = strapi.requestContext.get()
+    return ctx?.state?.auth?.strategy?.name === API_TOKEN_STRATEGY
+  } catch {
+    return false
+  }
+}
+
 export function getAdminAuthor(): { name: string; email: string } | undefined {
   // Why: same as shouldSkipMdxExport — requestContext.get() throws when there's
   // no active request. Returning undefined means "no author info available,"
@@ -108,17 +129,23 @@ export interface PageLifecycleConfig<
   ) => Promise<string>
 }
 
+/** Strips the surrounding slashes and whitespace a CMS-authored pathSlug may carry. */
 function normalizePathSlug(pathSlug: unknown): string {
   return pathSlug == null
     ? ''
     : String(pathSlug)
-        .replace(/^\/+|\/+$/g, '')
         .trim()
+        .replace(/^\/+|\/+$/g, '')
 }
 
 /**
  * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
  * Segments before the last `/` are directories; the last segment is the filename stem.
+ *
+ * Pass `englishSlug` for a non-default locale, the same way the blog and flat
+ * lifecycles do. A localized file is named after the entry it localizes, and
+ * resolving that here keeps every caller on one rule. Omitting it falls back
+ * to the page's own slug, which is what an English page wants anyway.
  *
  * English: grant/fellowship → {outputDir}/grant/fellowship.mdx
  * Spanish: grant/fellowship → {outputDir}/es/grant/fellowship.mdx
@@ -127,20 +154,15 @@ function normalizePathSlug(pathSlug: unknown): string {
 export function resolvePageFilepath(
   outputDir: string,
   page: Pick<PageData, 'pathSlug'>,
-  locale: string = defaultLang
+  locale: string = defaultLang,
+  englishSlug?: string | null
 ): string {
-  const normalized = normalizePathSlug(page.pathSlug)
-
-  if (!normalized) {
-    throw new Error('pathSlug is required')
-  }
-  const segments = normalized.split('/').filter(Boolean)
-  const fileBase = segments[segments.length - 1]!
-  const parentDirs = segments.slice(0, -1)
-  if (locale !== defaultLang) {
-    return path.join(outputDir, locale, ...parentDirs, `${fileBase}.mdx`)
-  }
-  return path.join(outputDir, ...parentDirs, `${fileBase}.mdx`)
+  const relativePath = mdxRelativePath('page', {
+    pathSlug: normalizePathSlug(page.pathSlug),
+    locale,
+    englishSlug: normalizePathSlug(englishSlug)
+  })
+  return path.join(outputDir, ...relativePath.split('/'))
 }
 
 function getOutputDir<T extends UID.ContentType>(
@@ -217,11 +239,7 @@ async function writeMDXFile<T extends UID.ContentType>(
 ): Promise<string | Error> {
   const locale = page.locale || defaultLang
   const outputDir = getOutputDir(config)
-  const filepath = resolvePageFilepath(
-    outputDir,
-    { pathSlug: resolveFilenameSlug(locale, page.pathSlug ?? '', englishSlug) },
-    locale
-  )
+  const filepath = resolvePageFilepath(outputDir, page, locale, englishSlug)
 
   try {
     const fileDir = path.dirname(filepath)
@@ -558,13 +576,14 @@ export function createPageLifecycle<T extends UID.ContentType>(
             ? undefined
             : (englishResult?.pathSlug ?? undefined)
 
-        const filenameSlug = resolveFilenameSlug(locale, slug, englishSlug)
-        console.log(`🗑️  Deleting ${label} MDX (${locale}): ${filenameSlug}`)
-        deleteMdxIfExists(
-          resolvePageFilepath(outputDir, { pathSlug: filenameSlug }, locale),
+        const filepath = resolvePageFilepath(
+          outputDir,
+          { pathSlug: slug },
           locale,
-          label
+          englishSlug
         )
+        console.log(`🗑️  Deleting ${label} MDX (${locale}): ${filepath}`)
+        deleteMdxIfExists(filepath, locale, label)
       }
 
       scheduleGitSync(label, { slug, action: 'delete', author })

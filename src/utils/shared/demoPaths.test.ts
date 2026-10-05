@@ -50,6 +50,15 @@ describe('isPreviewPathname', () => {
   it('matches a segment ending in -preview', () => {
     expect(isPreviewPathname('/page-preview')).toBe(true)
     expect(isPreviewPathname('/profile-preview')).toBe(true)
+    expect(isPreviewPathname('/preview/page-preview')).toBe(true)
+    expect(isPreviewPathname('/preview/hackathon-preview')).toBe(true)
+  })
+
+  // Prerendered pages pass `Astro.url.pathname` with a trailing slash, and
+  // BaseLayout relies on this to suppress hreflang without a per-page prop.
+  it('matches a prerendered pathname with a trailing slash', () => {
+    expect(isPreviewPathname('/preview/typography/')).toBe(true)
+    expect(isPreviewPathname('/page-preview/')).toBe(true)
   })
 
   it('does not match ordinary paths', () => {

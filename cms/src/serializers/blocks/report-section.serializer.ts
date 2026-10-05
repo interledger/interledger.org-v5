@@ -1,4 +1,4 @@
-import { escDouble as esc, escMdxBraces } from '../shared'
+import { escDouble as esc, escMdxAngleBrackets, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
   ckeditorFieldToCompiledMarkdown,
@@ -175,7 +175,7 @@ export function serialize(block: {
     return `<ReportText type="${textType}">\n\n${text}\n\n</ReportText>`
   })
 
-  const heading = esc(block.heading!.trim())
+  const heading = escMdxAngleBrackets(block.heading!.trim())
 
   return `<ReportSection>\n\n## ${heading}\n\n${items.join('\n\n')}\n\n</ReportSection>`
 }

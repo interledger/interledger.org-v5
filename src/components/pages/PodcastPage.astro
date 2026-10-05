@@ -101,6 +101,7 @@ const heroLcpPreload =
   title={pageTitle}
   description={pageDescription}
   heroLcpPreload={heroLcpPreload}
+  localeAlternates={page.currentPage === 1}
 >
   <main class="page-stack pb-section">
     <!-- Hero images only show on the landing page not paginated or filtered pages-->
@@ -182,6 +183,7 @@ const heroLcpPreload =
           secondaryButtonLink={ctaStrip.secondaryButtonLink}
           secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
           secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
+          color={ctaStrip.color}
         />
       </div>
     </section>

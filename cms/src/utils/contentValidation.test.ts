@@ -524,6 +524,16 @@ describe('validateCtaStrip', () => {
     expect(validateCtaStrip({ ctaStrip: validCtaStrip })).toBeUndefined()
   })
 
+  it('rejects a colour outside purple and green', () => {
+    const err = validateCtaStrip({
+      ctaStrip: { ...validCtaStrip, color: 'blue' }
+    })
+    expect(err?.details.errors[0].path).toEqual(['ctaStrip', 'color'])
+    expect(
+      validateCtaStrip({ ctaStrip: { ...validCtaStrip, color: 'green' } })
+    ).toBeUndefined()
+  })
+
   it('allows heading and description to be absent', () => {
     expect(validateCtaStrip({ ctaStrip: { ...validCtaStrip } })).toBeUndefined()
   })

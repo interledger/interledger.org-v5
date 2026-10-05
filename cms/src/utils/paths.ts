@@ -50,7 +50,8 @@ export const PATHS = {
   CONFIG: {
     foundationNavigation: 'foundation-navigation.json',
     summitNavigation: 'summit-navigation.json',
-    hackathonNavigation: 'hackathon-navigation.json'
+    hackathonNavigation: 'hackathon-navigation.json',
+    redirects: 'redirects.json'
   },
   /** CMS-internal paths (relative to cms/ when cwd is cms). */
   TMP: '.tmp',

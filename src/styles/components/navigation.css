@@ -13,6 +13,7 @@
     .header-nav-wrapper {
       grid-column-start: 2;
       grid-column-end: 3;
+      grid-row: 1;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -167,6 +168,34 @@
 /* HamburgerButton's outline defaults to --color-link. Foundation's dark header still wants orchid, so override it back here. */
 .foundation-header[data-theme='dark'] [data-component='HamburgerButton']:focus-visible {
   outline-color: var(--color-orchid-100);
+}
+
+/* ================================================================
+   Dropdown panel anchoring: narrow desktop widths only
+
+   Panels are absolutely positioned and hang from the left edge of their
+   button (or, for the wide multi-column panel, the left edge of the menu
+   list). Between 1200px and 1500px the bar is narrow enough that the
+   right-hand ones ran past the viewport: the four-column Grants panel by
+   85px at 1200px, Get Involved by 94px. In that band only, the wide panel
+   centres on the menu list and the last menu hangs its panel from its own
+   right edge. From 1500px up there is room again and every panel goes back
+   to the left-aligned treatment.
+
+   Unlayered so it beats the Tailwind positioning utilities in the markup.
+   ================================================================ */
+
+@media (min-width: 1200px) and (max-width: 1499px) {
+  [data-nav-list] > li[data-wide-panel] .submenu-panel {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  [data-nav-list] > li:last-child .submenu-panel {
+    left: auto;
+    right: 0;
+  }
 }
 
 /* Nav button hover/focus backgrounds (desktop only) */

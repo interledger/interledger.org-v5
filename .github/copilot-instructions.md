@@ -120,7 +120,6 @@ The GitHub Actions workflow (`.github/workflows/lint.yml`) runs on every PR and 
 
 - **@interledger/docs-design-system** (v0.11.0): Custom design system CSS for Teal theme
 - **@astrojs/starlight** (v0.36.3): Documentation framework with Astro
-- **starlight-links-validator**: Validates internal links during build (excludes `/participation-guidelines`)
 - **starlight-fullview-mode**: Plugin to disable left sidebar on some views
 - **sharp**: Image processing for optimization
 - **marked, showdown, html-to-text**: Markdown/HTML utilities

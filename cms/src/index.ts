@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Transform } from 'stream'
@@ -16,6 +17,10 @@ import {
   validateFaqSections,
   validateSectionScopedSlug,
   type SectionScopedSlugFinder,
+  validateAndSaveRedirect,
+  redirectDeleteError,
+  isCodeSyncRequest,
+  type RedirectFinder,
   validateGrantInfoCards,
   validateProfileCta,
   validateCtaStrip,
@@ -29,7 +34,12 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
-  isFullAccessApiToken
+  isFullAccessApiToken,
+  SERVER_STATUS_PATH,
+  DEV_BUILD_ID,
+  createServerStatusHandler,
+  readAdminBuildId,
+  resolveAdminIndexHtmlPath
 } from './utils'
 import {
   validateContentBlocks,
@@ -48,6 +58,27 @@ import {
 } from './utils/uploadLimits'
 import { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './utils/seedMedia'
 import { CARD_GRID_VARIANT_DEFINITIONS } from './utils/cardGrid'
+
+/**
+ * Identity of this Strapi process, for the admin panel's server-status notice.
+ * Both are read once at module load: BOOT_ID changes on every restart, BUILD_ID
+ * only when the admin bundle is rebuilt — which is what tells an open tab its
+ * JavaScript has gone stale.
+ */
+const BOOT_ID = randomUUID()
+
+function resolveAdminBuildId(): string {
+  const buildId = readAdminBuildId(resolveAdminIndexHtmlPath(process.cwd()))
+  if (buildId instanceof Error) {
+    // Never fail boot over a status endpoint; degrade to the dev id, which
+    // simply means the admin is never told to reload.
+    console.warn(`[cms-status] ${buildId.message}`)
+    return DEV_BUILD_ID
+  }
+  return buildId
+}
+
+const BUILD_ID = resolveAdminBuildId()
 
 const CARD_GRID_ADMIN_FIELD_LABELS = Object.fromEntries(
   CARD_GRID_VARIANT_DEFINITIONS.map((variant) => [
@@ -175,6 +206,8 @@ export function registerAsyncDocumentValidation(
     return next()
   })
 }
+
+const REDIRECT_UID = 'api::redirect.redirect'
 
 /**
  * Content types whose `pathSlug` is relative to their `section`, so the slug
@@ -324,6 +357,7 @@ interface KoaContext {
   request: { headers: Record<string, string | string[] | undefined> }
   status: number
   body: unknown
+  set: (field: string, value: string) => void
 }
 
 interface StrapiInstance {
@@ -347,6 +381,7 @@ interface StrapiInstance {
   plugin: (name: string) => StrapiPlugin | undefined
   server: {
     router: {
+      get: (path: string, handler: (ctx: KoaContext) => void) => void
       post: (path: string, handler: (ctx: KoaContext) => Promise<void>) => void
     }
   }
@@ -1272,6 +1307,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
+      color: 'Color',
       heading: 'Heading',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
@@ -1282,6 +1318,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryButtonLink: 'Secondary Button URL',
       secondaryButtonExternal: 'Secondary External Link',
       secondaryButtonDocument: 'Secondary Document Download'
+    },
+    'blocks.internal-advert': {
+      helperText: 'Helper Text',
+      logo: 'Logo',
+      logoLabel: 'Logo Label',
+      headline: 'Headline',
+      body: 'Body',
+      socialLinks: 'Social Buttons',
+      cta: 'Button'
+    },
+    'shared.social-link': {
+      url: 'Profile URL'
     },
     'blocks.image-block': {
       media: 'Image',
@@ -1549,6 +1597,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Primary button label, URL, and internal/external flag.'
     },
     'blocks.cta-strip': {
+      color:
+        'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
       primaryButtonExternal:
@@ -1565,6 +1615,21 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.quote': {
       authorLink:
         'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+    },
+    // Strapi renders a description for a scalar field only. `logo`,
+    // `socialLinks` and `cta` are components, so a description on them never
+    // reaches the form. Their guidance belongs on the child component's own
+    // fields instead (Anca, #706).
+    'blocks.internal-advert': {
+      helperText:
+        'Small label at the top of the card. It always renders in capitals, whichever way you type it. For example: Know more.',
+      logoLabel: 'Name shown beside the logo. For example: Web Monetization.',
+      headline:
+        'Fill in a Headline or a Body, or both. The card does not render without one of them.',
+      body: 'Fill in a Headline or a Body, or both. The card does not render without one of them.'
+    },
+    'shared.social-link': {
+      url: 'Full profile URL, starting with https://. The icon follows from the address: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other address gets a plain link icon.'
     }
   }
 
@@ -1920,7 +1985,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.cta-strip': [
-      [{ name: 'heading', size: 12 }],
+      [
+        { name: 'heading', size: 9 },
+        { name: 'color', size: 3 }
+      ],
       [{ name: 'description', size: 12 }],
       [
         { name: 'primaryButtonText', size: 6 },
@@ -1938,6 +2006,17 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'secondaryButtonExternal', size: 6 },
         { name: 'secondaryButtonDocument', size: 6 }
       ]
+    ],
+    'blocks.internal-advert': [
+      [{ name: 'helperText', size: 12 }],
+      [
+        { name: 'logo', size: 6 },
+        { name: 'logoLabel', size: 6 }
+      ],
+      [{ name: 'headline', size: 12 }],
+      [{ name: 'body', size: 12 }],
+      [{ name: 'socialLinks', size: 12 }],
+      [{ name: 'cta', size: 12 }]
     ],
     'shared.hero': [
       [{ name: 'title', size: 12 }],
@@ -2133,6 +2212,16 @@ export default {
    * run jobs, or perform some special logic.
    */
   async bootstrap({ strapi }: { strapi: StrapiInstance }) {
+    // Server-status endpoint for the admin panel's notice bar. Deliberately
+    // unauthenticated: an authenticated poll would 401 every 30 minutes, trip
+    // Strapi's reactive token refresh and roll the idle window forward, making
+    // sessions immortal and the session-expiry warning unreachable. It returns
+    // only two opaque identifiers and the server clock.
+    strapi.server.router.get(
+      SERVER_STATUS_PATH,
+      createServerStatusHandler({ bootId: BOOT_ID, buildId: BUILD_ID })
+    )
+
     // Seed-media endpoint: lets sync:images trigger seedUploadsFromDisk without
     // restarting Strapi. This route is registered on the Koa router, so Strapi's
     // api-token middleware never runs for it and the handler authorizes the
@@ -2323,6 +2412,51 @@ export default {
         )
       )
     )
+
+    // Redirects: refuse deletes from editors (they switch "Enabled" off
+    // instead). An API-token request with the sync header may delete
+    // (isCodeSyncRequest); that is how the code sync removes rows
+    // redirects.json no longer has. Then
+    // canonicalize the paths and reject anything that isn't one literal path
+    // (patterns belong in public/_redirects) and any self-redirect or chain,
+    // before it reaches the DB and the exported redirects.json. The check and
+    // the write run under one lock (validateAndSaveRedirect), so two saves
+    // can't each pass the chain check and commit a chain between them.
+    //
+    // Matching `delete` covers every document-service delete: Strapi 5's
+    // document service has no deleteMany action, and the admin's bulk delete
+    // calls documents().delete once per entry, so it lands here too. Only
+    // strapi.db.query(uid).delete/deleteMany skip document middleware; that is
+    // server-side code, and the lifecycle's afterDelete/afterDeleteMany keep
+    // redirects.json in step with it.
+    strapi.documents.use(async (ctx, next) => {
+      if (
+        ctx.uid === REDIRECT_UID &&
+        ctx.action === 'delete' &&
+        !isCodeSyncRequest()
+      ) {
+        throw redirectDeleteError()
+      }
+      if (
+        ctx.uid === REDIRECT_UID &&
+        (ctx.action === 'create' || ctx.action === 'update')
+      ) {
+        const saved = await validateAndSaveRedirect(
+          {
+            documents: strapi.documents(
+              REDIRECT_UID
+            ) as unknown as RedirectFinder,
+            data: ctx.params.data ?? {},
+            documentId: ctx.params.documentId,
+            isCreate: ctx.action === 'create'
+          },
+          () => next()
+        )
+        if (saved instanceof Error) throw saved
+        return saved
+      }
+      return next()
+    })
 
     // Normalize nav href fields (force leading slash), then validate required
     // menu/CTA labels, before saving to DB

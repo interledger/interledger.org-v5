@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_shared_social_links",
+  "info": {
+    "displayName": "Social Link",
+    "icon": "link",
+    "description": "One social profile button. The icon comes from the link host, so LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other host gets a generic link icon."
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  },
+  "config": {}
+}

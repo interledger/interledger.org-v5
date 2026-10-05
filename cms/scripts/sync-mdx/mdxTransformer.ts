@@ -34,7 +34,12 @@ import { createRelationResolver } from './profileHandler'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 import { normalizeInlineImages } from './normalizeImages'
 import type { HeroCta } from '@/utils'
-import { tryCatchAsync, getProjectRoot, validateLocalImageUrl } from '@/utils'
+import {
+  tryCatchAsync,
+  getProjectRoot,
+  validateLocalImageUrl,
+  ctaStripColorPayload
+} from '@/utils'
 import {
   formatCardGridVariantList,
   getAllowedCardGridVariants,
@@ -646,7 +651,8 @@ export async function buildGrantPagePayload(
       // null rather than omitted so a PUT clears a secondary button that was
       // removed from MDX, instead of leaving the previously synced one.
       secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
-      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink),
+      color: ctaStripColorPayload(ctaStripFm.color)
     }
 
     const infoCards = parsed.infoCards
@@ -759,7 +765,8 @@ export async function buildGrantOverviewPagePayload(
       // null rather than omitted so a PUT clears a secondary button that was
       // removed from MDX, instead of leaving the previously synced one.
       secondaryButtonText: nullOrValue(ctaStripFm.secondaryButtonText),
-      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink)
+      secondaryButtonLink: nullOrValue(ctaStripFm.secondaryButtonLink),
+      color: ctaStripColorPayload(ctaStripFm.color)
     }
 
     const hero = await buildHeroWithImage(
@@ -883,13 +890,8 @@ export async function buildPodcastPagePayload(
     }))
 
     const ctaStripFm = parsed.ctaStrip
-    // Strips are purple only, so there is no `color` here. #481 took it out
-    // after it made Strapi reject every podcast sync.
-    //
-    // #481 dropped the secondary CTA at the same time, which was right then:
-    // the component had no secondary. INTORG-908 puts one back, so this reads
-    // it again. All or nothing, whitespace counts as empty, matching the
-    // handler, the serializer, the renderer and the validator.
+    // Secondary CTA: all or nothing; whitespace counts as empty (handler,
+    // serializer, renderer, validator).
     const podcastSecondaryText = ctaStripFm.secondaryButtonText?.trim()
     const podcastSecondaryLink = ctaStripFm.secondaryButtonLink?.trim()
     const ctaStrip = {
@@ -902,7 +904,8 @@ export async function buildPodcastPagePayload(
             secondaryButtonText: podcastSecondaryText,
             secondaryButtonLink: podcastSecondaryLink
           }
-        : {})
+        : {}),
+      color: ctaStripColorPayload(ctaStripFm.color)
     }
 
     return {
@@ -1056,7 +1059,8 @@ export const HACKATHON_PAGE_ALLOWED_COMPONENTS = [
   'blocks.event-card',
   'blocks.quote',
   'blocks.hackathon-animation',
-  'blocks.image-block'
+  'blocks.image-block',
+  'blocks.code-block'
 ] as const
 
 /**

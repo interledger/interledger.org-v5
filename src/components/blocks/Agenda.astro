@@ -54,6 +54,7 @@ const renderedItems = await Promise.all(
 >
   {
     renderedHeading && headingId && (
+      // Deliberate Figma-verified exception: h2 uses the h4 token here.
       <h2
         id={headingId}
         class="m-0 text-h4 text-neutral-900 tablet:text-h4-md dark:text-neutral-50 desktop:text-h4-lg"
@@ -113,7 +114,7 @@ const renderedItems = await Promise.all(
             >
               {timeLabel && <span class="sr-only">{timeLabel}, </span>}
               <span
-                class="text-body-lg-emphasis tablet:text-body-lg-emphasis-md [&_p]:m-0"
+                class="text-body-lg-emphasis [&_p]:m-0"
                 set:html={item.time}
               />
             </li>
@@ -138,7 +139,7 @@ const renderedItems = await Promise.all(
                 )}
                 <div
                   data-agenda-info
-                  class="m-0 text-body-sm-standard tablet:text-body-lg-standard-md [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
+                  class="m-0 text-body-sm-standard tablet:text-body-lg-standard [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"
                   set:html={item.additionalInfo}
                 />
               </li>
@@ -173,24 +174,9 @@ const renderedItems = await Promise.all(
   [data-agenda-info] :global(ul),
   [data-agenda-info] :global(ol) {
     margin: 0;
-    padding-inline-start: var(--spacing-xs);
+    padding-inline-start: 0;
     font-size: inherit;
-    list-style-position: outside;
-  }
-
-  @media (min-width: 810px) {
-    [data-agenda-info] :global(ul),
-    [data-agenda-info] :global(ol) {
-      padding-inline-start: var(--spacing-sm);
-    }
-  }
-
-  [data-agenda-info] :global(ul) {
-    list-style-type: disc;
-  }
-
-  [data-agenda-info] :global(ol) {
-    list-style-type: decimal;
+    list-style: none;
   }
 
   [data-agenda-info] :global(li) {
@@ -202,14 +188,7 @@ const renderedItems = await Promise.all(
   :global([data-prose] [data-component='Agenda'] [data-agenda-info] ol) {
     margin-block-end: 0;
     padding-block-end: 0;
-    padding-inline-start: var(--spacing-xs);
-  }
-
-  @media (min-width: 810px) {
-    :global([data-prose] [data-component='Agenda'] [data-agenda-info] ul),
-    :global([data-prose] [data-component='Agenda'] [data-agenda-info] ol) {
-      padding-inline-start: var(--spacing-sm);
-    }
+    padding-inline-start: 0;
   }
 
   :global(

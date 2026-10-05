@@ -17,6 +17,14 @@ const t = useTranslations(routeLocale)
 /** Wide mega menus need a static parent so multi-column panels align to the header. */
 const MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD = 3
 
+/**
+ * A panel with more columns than this is wider than the menu bar can hang off
+ * one button, so it anchors to the list. `data-wide-panel` lets navigation.css
+ * re-centre it on the narrowest desktop widths — see "Dropdown panel anchoring".
+ */
+const hasWidePanel = (group: MenuGroup) =>
+  (group.subGroups?.length ?? 0) > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD
+
 const toSlug = (value: string) =>
   value
     .toLowerCase()
@@ -87,8 +95,9 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
 
       return (
         <li
-          class={`group ${group.subGroups && group.subGroups.length > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD ? 'desktop:static' : 'desktop:relative'}`}
+          class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
           data-menu-level="1"
+          data-wide-panel={hasWidePanel(group) ? '' : undefined}
         >
           <button
             type="button"

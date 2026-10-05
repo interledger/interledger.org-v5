@@ -114,7 +114,8 @@ const FOUNDATION_PAGE_BLOCKS = {
       where: true,
       apply: { populate: { primaryCta: true } }
     }
-  }
+  },
+  'blocks.code-block': {}
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {
@@ -132,6 +133,13 @@ const FOUNDATION_BLOG_BLOCKS = {
   'blocks.code-block': {},
   'blocks.quote': {
     populate: { authorImage: true }
+  },
+  'blocks.internal-advert': {
+    populate: {
+      logo: { populate: { image: true } },
+      socialLinks: true,
+      cta: true
+    }
   }
 } as const
 
@@ -204,7 +212,8 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
         tabletImage: true,
         mobileImage: true
       }
-    }
+    },
+    'blocks.code-block': {}
   }
 } as const
 

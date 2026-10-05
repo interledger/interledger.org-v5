@@ -59,14 +59,32 @@ export {
   PODCAST_PAGE_CONTENT_POPULATE
 } from './contentPopulate'
 
+// Locales
+export { defaultLang, LOCALES } from './locales'
+
+// MDX filename derivation (lifecycles + scripts/check-mdx-filenames.ts).
+// The slug helpers behind these stay internal to mdxFilenames.ts, so a caller
+// cannot rebuild a filename by hand and drift from the rule.
+export {
+  mdxSubpath,
+  mdxRelativePath,
+  type MdxNamingRule,
+  type MdxNameFields
+} from './mdxFilenames'
+
+// Naming rule per exported content collection
+export {
+  CONTENT_COLLECTIONS,
+  CONTENT_COLLECTION_NAMING_RULES,
+  type ContentCollection
+} from './contentCollections'
+
 // MDX generation
 export {
   type Hero,
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
-  defaultLang,
-  LOCALES,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
@@ -78,10 +96,7 @@ export {
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
-  uidToLogLabel,
-  resolveFilenameSlug,
-  pathSlugToMdxFilename,
-  sectionScopedMdxFilename
+  uidToLogLabel
 } from './mdx'
 export {
   validateNoNestedJsx,
@@ -111,6 +126,33 @@ export {
   type SectionScopedSlugFinder,
   type SectionScopedSlugCheck
 } from './sectionScopedSlug'
+
+// Redirects (editor-owned literal redirects → src/config/redirects.json)
+export {
+  REDIRECT_CATEGORIES,
+  REDIRECT_TYPE_STATUS,
+  type RedirectCategory,
+  type RedirectType,
+  type RedirectStatus,
+  type RedirectEntry,
+  type RedirectRule,
+  type RedirectConfig,
+  type RedirectFinder,
+  type RedirectLinkCheck,
+  normalizeRedirectSource,
+  normalizeRedirectInput,
+  isRedirectEnabled,
+  redirectDeleteError,
+  findOrphanedRedirects,
+  validateRedirectInput,
+  validateRedirectLinks,
+  validateAndSaveRedirect,
+  type RedirectWrite,
+  serializeRedirectConfig,
+  redirectConfigToEntries,
+  parseRedirectConfigFile,
+  findRedirectChains
+} from './redirects'
 
 // Card grid variants (serializers, sync handlers, admin picker)
 export {
@@ -146,6 +188,13 @@ export {
   type CtaButtonEntry,
   type CtaButtonsRuleError
 } from './ctaButtons'
+export {
+  CTA_STRIP_COLORS,
+  isCtaStripColor,
+  ctaStripColorPayload,
+  ctaStripColorMdxFields,
+  type CtaStripColor
+} from './ctaStrip'
 export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -194,8 +243,10 @@ export {
   createDebouncedGitSync,
   scheduleGitSync,
   settledGitSync,
-  gitCommitAndPush
+  gitCommitAndPush,
+  withGitSyncLock
 } from './gitSync'
+export { type AsyncLock, createAsyncLock } from './asyncLock'
 
 // Lifecycle factories
 export {
@@ -203,6 +254,7 @@ export {
   type PageLifecycleConfig,
   type StrapiDocumentServiceUpdateWhere,
   shouldSkipMdxExport,
+  isCodeSyncRequest,
   getAdminAuthor,
   resolvePageFilepath,
   generateMDX,
@@ -248,6 +300,67 @@ export {
   createNavigationLifecycle,
   normalizeNavigationInput
 } from './navigationLifecycle'
+export { createRedirectsLifecycle } from './redirectsLifecycle'
+
+// Admin session lifespans + expiry countdown (shared with config/admin.ts;
+// admin-panel code imports this module directly, never through this barrel)
+export {
+  IDLE_SESSION_LIFESPAN_SECONDS,
+  IDLE_REFRESH_TOKEN_LIFESPAN_SECONDS,
+  MAX_SESSION_LIFESPAN_SECONDS,
+  SESSION_WARNING_THRESHOLD_MS,
+  SESSION_CRITICAL_THRESHOLD_MS,
+  type SessionPhase,
+  type AccessTokenPayload,
+  type TokenStorageState,
+  decodeAccessTokenPayload,
+  resolveLatestIatSeconds,
+  resolveIdleLifespanSeconds,
+  getSessionDeadlineMs,
+  getSessionPhase,
+  getTickIntervalMs,
+  formatCountdown
+} from './adminSession'
+
+// Admin notice precedence + route-wrap guard (admin panel imports these
+// modules directly)
+export {
+  type AdminNotice,
+  DISABLE_NOTICES_ENV_VAR,
+  areAdminNoticesDisabled,
+  resolveAdminNotice,
+  shouldShowSessionDialog
+} from './adminNotice'
+export {
+  NOTICES_ROUTE_ID,
+  type AdminRouteShape,
+  type AdminRouteWrapDecision,
+  decideAdminRouteWrap
+} from './adminRoutes'
+
+// Server-status notice: browser-safe state machine (admin panel imports this
+// module directly) and the node-only endpoint half
+export {
+  SERVER_STATUS_PATH,
+  UNREACHABLE_FAILURE_THRESHOLD,
+  type ServerStatusPayload,
+  type ServerReachability,
+  type ServerNotice,
+  type ServerStatusState,
+  type ServerStatusEvent,
+  createInitialServerStatusState,
+  parseServerStatusPayload,
+  nextServerStatus,
+  getServerNotice,
+  getPollDelayMs
+} from './serverStatus'
+export {
+  DEV_BUILD_ID,
+  type ServerStatusContext,
+  resolveAdminIndexHtmlPath,
+  readAdminBuildId,
+  createServerStatusHandler
+} from './serverStatusEndpoint'
 
 // Relative link / path-segment slash normalization
 export {

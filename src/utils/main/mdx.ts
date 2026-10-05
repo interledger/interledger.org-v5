@@ -8,6 +8,7 @@ import {
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
+import { buildNewTabLinkHtml } from './newTabLinks'
 import { wrapScrollableTables } from './wrapScrollableTables'
 
 export interface UmamiContext {
@@ -25,9 +26,10 @@ function stripTags(html: string): string {
 const markedCache = new Map<string, Marked>()
 
 /**
- * Returns a Marked instance whose link renderer injects umami attributes
- * and drops any link whose href isn't a safe scheme (see
- * `isSafeMarkdownHref`) rather than rendering it.
+ * Returns a Marked instance whose link renderer injects umami attributes,
+ * opens off-site links in a new tab (see `getNewTabLinkAttrs`), and drops
+ * any link whose href isn't a safe scheme (see `isSafeMarkdownHref`) rather
+ * than rendering it.
  */
 export function createMarked(context: UmamiContext = {}): Marked {
   const pathname = context.pathname ?? '/'
@@ -66,7 +68,8 @@ export function createMarked(context: UmamiContext = {}): Marked {
       const titleAttr = cleanedTitle
         ? ` title="${escapeHtml(cleanedTitle)}"`
         : ''
-      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${umamiAttrsToHtml(attrs)}>${innerHtml}</a>`
+      const newTab = buildNewTabLinkHtml(href, lang)
+      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
     }
   }
   const instance = new Marked()

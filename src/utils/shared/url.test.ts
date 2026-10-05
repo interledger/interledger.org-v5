@@ -7,7 +7,8 @@ import {
   safeAbsoluteHref,
   isExternalHref,
   getHostname,
-  getSocialIconName
+  getSocialIconName,
+  getSocialPlatformName
 } from './url'
 
 describe('ensureLeadingSlash', () => {
@@ -21,6 +22,11 @@ describe('ensureLeadingSlash', () => {
 
   it('treats a bare "/" as already having a leading slash', () => {
     expect(ensureLeadingSlash('/')).toBe('/')
+  })
+
+  it('leaves a same-page hash untouched', () => {
+    expect(ensureLeadingSlash('#section')).toBe('#section')
+    expect(ensureLeadingSlash('#XVSHSPQU')).toBe('#XVSHSPQU')
   })
 })
 
@@ -268,5 +274,38 @@ describe('getSocialIconName', () => {
     expect(getSocialIconName('https://github.com.evil.test')).toBe(
       'link-rounded'
     )
+  })
+})
+
+describe('getSocialPlatformName', () => {
+  it('names each known platform for an accessible link name', () => {
+    expect(getSocialPlatformName('https://youtube.com/@ilf')).toBe('YouTube')
+    expect(getSocialPlatformName('https://github.com/jane')).toBe('GitHub')
+    expect(getSocialPlatformName('https://linkedin.com/in/jane')).toBe(
+      'LinkedIn'
+    )
+    expect(getSocialPlatformName('https://instagram.com/jane')).toBe(
+      'Instagram'
+    )
+    expect(getSocialPlatformName('https://x.com/jane')).toBe('X')
+    expect(getSocialPlatformName('https://mastodon.social/@jane')).toBe(
+      'Mastodon'
+    )
+    expect(getSocialPlatformName('https://interledger.slack.com')).toBe('Slack')
+  })
+
+  it('names twitter.com as X, following the icon map', () => {
+    expect(getSocialPlatformName('https://twitter.com/jane')).toBe('X')
+  })
+
+  it('falls back to the host for an unknown platform', () => {
+    expect(getSocialPlatformName('https://janedoe.dev/profile')).toBe(
+      'janedoe.dev'
+    )
+  })
+
+  it('returns null when the URL cannot be parsed', () => {
+    expect(getSocialPlatformName('')).toBeNull()
+    expect(getSocialPlatformName('   ')).toBeNull()
   })
 })

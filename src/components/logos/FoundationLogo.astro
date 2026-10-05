@@ -8,7 +8,7 @@ interface Props {
 const { class: className } = Astro.props
 
 const logoClass = twMerge(
-  'foundation-logo inline-block shrink-0 [&>svg]:block [&>svg]:h-10 [&>svg]:w-auto',
+  'foundation-logo block h-10 shrink-0 leading-none [&>svg]:block [&>svg]:h-full [&>svg]:w-auto',
   className
 )
 ---

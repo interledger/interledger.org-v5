@@ -1,7 +1,7 @@
 import type { PaginateFunction } from 'astro'
-import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
+import { getBlogPosts } from './blogPosts'
 import type { Locale, UiKey } from './i18'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
@@ -138,9 +138,11 @@ async function fetchPostsAndTerms(
   lang: Locale
 ) {
   const { field } = getTaxonomy(collection)
-  const allEntries = (await getCollection(collection)).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
+  // Gated and newest-first (see blogPosts.ts). Deriving the terms from the same
+  // gated list is what keeps a category pill from advertising a filter whose
+  // only posts have not launched yet — and, since paginatePostsByTerm builds
+  // its static paths from these same terms, keeps pills and routes in lockstep.
+  const allEntries = await getBlogPosts({ collection })
   const blogEntries = allEntries.filter((entry) => entry.data.locale === lang)
   // Collect all unique terms across posts
   const allTerms = [

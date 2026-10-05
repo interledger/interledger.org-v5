@@ -1,5 +1,12 @@
 import Lenis from 'lenis'
 
+declare global {
+  interface Window {
+    /** Live Lenis instance for programmatic scrolls (FAQ, etc.). */
+    __siteLenis?: Lenis | null
+  }
+}
+
 // Seconds for the easing animation to catch up after a scroll impulse.
 // Mirrors the Framer prototype's Smooth Scroll component (intensity: 9 →
 // duration: 9/10). Doesn't affect scroll resistance — that's wheelMultiplier.
@@ -26,12 +33,14 @@ function start(): void {
     // (zoom, late-loading media). Without it the limit goes stale and
     // wheel/key scrolling can't reach the bottom of a taller page.
   })
+  window.__siteLenis = lenis
 }
 
 function stop(): void {
   if (!lenis) return
   lenis.destroy()
   lenis = null
+  window.__siteLenis = null
 }
 
 function init(): void {

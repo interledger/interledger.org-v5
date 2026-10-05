@@ -3,10 +3,21 @@
   "info": {
     "displayName": "CTA Strip",
     "icon": "cursor",
-    "description": "Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA"
+    "description": "Call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA. Purple by default; green uses the pistachio background."
   },
   "options": {},
   "attributes": {
+    "color": {
+      "type": "enumeration",
+      "enum": ["purple", "green"],
+      "default": "purple",
+      "description": "Purple is the default. Green uses the pistachio background and its own network motif.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "heading": {
       "type": "string",
       "pluginOptions": {

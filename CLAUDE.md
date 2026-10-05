@@ -12,6 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
+- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` from the database on every save. The sync runs both ways, like the MDX content sync: `pnpm sync:redirects` (from `cms/`, also part of `sync:all`) mirrors the file into Strapi, creating, updating and **deleting** rows the file no longer has. A code edit to the file, a removal included, therefore reaches Strapi on the next sync — but until then the next editor save rewrites the file from the database and undoes it, so run the build-and-sync workflow right after merging one. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file but out of Astro. The server refuses every delete from an admin session; it accepts one only from an API-token request sending `x-skip-mdx-export` (`isCodeSyncRequest`). That header is caller-controlled, so any API token with Redirect delete permission can delete — not just the sync. Tokens are admin-issued. Root `redirects.ts` only loads and validates the file for `astro.config.mjs`. Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
 
 ## Code Style
 
@@ -209,6 +210,156 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
   Validate image/SSR changes with `IMAGE_CDN=on pnpm run build`, which exercises
   the CDN path and runs the audit.
 
+## Internal Link Validation
+
+`src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
+`astro:build:done` and reports internal links and fragments that this deploy
+does not serve — warning by default, failing the build under
+`LINK_CHECK=strict` (see below). It replaced `starlight-links-validator`, which
+only ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of
+the places real breakage lives.
+
+- **Never resolve a target against a route's `patternRegex`.** `[...page].astro`
+  compiles to `^(?:\/(.*?))?\/?$`, and in a JS regex `.` matches `/`, so it
+  matches every path on the site. 26 of the dynamic routes are catch-alls like
+  this — use one and the check passes every broken link forever, silently.
+  `astro:routes:resolved` is read for exactly two things: literal SSR route
+  patterns and literal redirect sources. Prerendered routes are covered by the
+  files they emitted, which is an exact set.
+- **Valid targets** = dist files ∪ dist index directories ∪ `redirects.ts`
+  sources ∪ SSR routes ∪ the rules in `dist/_redirects`, then `netlify.toml`
+  (Netlify's order; the toml rules never reach `dist/_redirects`), plus two
+  small allowlists: `/robots.txt` and `/_redirects` exactly, and anything under
+  `/.netlify/` or `/.well-known/`. Files are checked before rules, as on
+  Netlify, and a 404 rule never counts as a resolution — `/404.html` is a real
+  file, so following it would pass the link.
+- **Register it last** in `astro.config.mjs`. Hooks run in array order and it
+  reads files other integrations write in their own `astro:build:done` — the
+  sitemap XML in particular.
+- **HTML-entity-decode before splitting on `#` or `?`.** `&#38;` contains a
+  literal `#`, and every `/.netlify/images` URL separates params with it.
+- **Never scan `data-*`.** Over two million values, and
+  `data-umami-event-link-text` holds free prose that parses as phantom schemes
+  and fragments. Carriers are `href`, `src`, `srcset`, `action`, `poster`.
+- **Protocol-relative `//host/path` is external**, not the internal path
+  `/host/path`. Test it before the leading-slash check.
+- **Self-origin absolute URLs are internal** and must be validated: `hreflang`,
+  canonical are both emitted that way, and that is where a whole class of
+  breakage hid.
+- **Relative links resolve against the served URL.** `about-us/index.html` is
+  served at `/about-us/`, and against the slashless form `new URL` drops a
+  segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
+  dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
+- **Findings warn; only Force Reset fails.** Editors commit MDX straight to
+  `staging` with no PR and fix most of their own broken links quickly, so
+  failing every build would stop staging far more often than it would prevent
+  anything reaching production — and a PR to `staging` is built merged with
+  `staging`, so it would block developers on someone else's pending typo.
+  `LINK_CHECK=strict` turns findings into a build failure, and only a production
+  publish via `reset.yml` sets it. That gate runs **before** the force-push, so a finding
+  leaves the branch untouched: Netlify is never triggered and the live site is
+  unchanged rather than rolled back. Broken links therefore accumulate on
+  staging as warnings and must be cleared before the next publish.
+- **A rollback can outrun the check.** `verify` builds the target SHA's own
+  tree, so `LINK_CHECK=strict` is inert on any commit predating the integration.
+  That stays a warning, not a failure — a rollback target already ran, and
+  blocking an incident rollback over its pre-existing link rot inverts the
+  priority. `reset.yml` guarantees only that the skip is loud: it reports up
+  front whether the SHA carries the check. Running the current validator against
+  an old tree is not an option — `redirects.ts` reaches the check only through
+  `astro:routes:resolved`, and the `prerender = false` routes appear nowhere in
+  `dist`, so any out-of-build runner reports all ~460 redirect sources and every
+  SSR route as broken. The workflow file itself always comes from the dispatch
+  ref, never from the SHA being published, so a rollback never degrades the next
+  run.
+- **Redirect destinations are checked, and fail like any other broken link.**
+  Read `route.redirect`, never `route.redirectRoute` — Astro matches the latter
+  against lowercased, slashless keys, so it is `undefined` for a destination
+  written with a slash. Exempt by **source**: the destination is a link target,
+  so listing it would also hide direct links to that path.
+- **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
+  globs; each entry carries a comment saying why). An entry that stops being
+  needed — its target resolves now, or nothing links to it any more — is
+  reported as a warning, never a failure.
+- **Blind spots**, neither checked nor reported — a clean run is not a
+  whole-site guarantee: `url()` in emitted CSS, `og:image` and `og:url`
+  (`<meta content>` isn't scanned; `og:url` shares canonical's value, so it is
+  covered indirectly), JS-generated anchors, external URLs, and anything only
+  an SSR route renders.
+- **`hreflang` is opt-out.** `buildCanonicalMeta` maps a slug across locales
+  without knowing which pages were built, so pages whose twin may not exist pass
+  `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
+  opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
+  not the translation of page 4 of the ES blog anyway.
+
+## The Publish Gate (future-dated blog posts)
+
+Site changes are promoted from `staging` to production on a cadence, so a blog
+post scheduled for a future launch date must not block unrelated promotions. On
+production the `date` frontmatter field is a real publish gate: a post dated
+later than today is excluded from the collection entirely. Staging, playground,
+deploy previews and local dev show everything, so upcoming content stays
+reviewable.
+
+- **One reader, no exceptions.** All blog collection access goes through
+  `getBlogPosts()` / `getGatedCollection()` in `src/utils/main/blogPosts.ts`.
+  Never call `getCollection('foundation-blog')` directly — six readers with six
+  filters is how a route set ends up disagreeing with the category pills or the
+  language-switcher map, which is exactly how a scheduled post leaks. Ungated
+  collections pass straight through `getGatedCollection`, so the two
+  collection-agnostic callers (`getLocalizedPaths`, `buildMap`) use it too.
+- **The gate cascades to translations.** Filtering each entry on its own `date`
+  is not enough: `getLocalizedPaths` builds every ES route from the EN entry
+  list, and nothing forces a translation to carry its original's date. A
+  translation dated in the past therefore outlives a scheduled original and gets
+  listed, filtered and indexed while no route exists for it — a 404 link
+  (INTORG-1239). `getGatedCollection` drops any entry whose `localizes` target
+  did not survive the date filter. Only inside the gated branch: a dangling
+  `localizes` with the gate off is a pre-existing content bug, not this gate's
+  business.
+- **Gated by collection name, not field shape.** `GATED_COLLECTIONS` lists
+  `foundation-blog` only. `reports` also has a `date`, but it is an object
+  (`{ publishDate, lastUpdated }`) — sniffing for the field would gate the wrong
+  thing. An entry with no date, or an unparseable one, always counts as
+  published.
+- **The mode decision is pinned at build time**, the same way the image CDN's is:
+  `shouldHideFuturePosts()` (`src/utils/main/publishGate.ts`) is frozen into the
+  Vite `define` `__HIDE_FUTURE_POSTS__` (`astro.config.mjs`), and
+  `hideFuturePosts()` prefers the define. It reads Netlify's `CONTEXT`
+  (`production` gates; `branch-deploy`, `deploy-preview` and a missing value do
+  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. No per-context
+  env vars in `netlify.toml`.
+- **`BUILD_NOW` is frozen at module load.** A build starting at 23:59:50 UTC
+  would otherwise gate the listing on one day and the static paths on the next,
+  emitting a post's URL with nothing linking to it.
+- **UTC day boundary.** A post dated `2026-09-19` goes live at 00:00 UTC — 20:00
+  on the 18th US Eastern, 02:00 on the 19th SAST. `z.coerce.date()` parses
+  date-only frontmatter as UTC midnight, so any other zone means a deliberate
+  offset constant.
+- **Nothing publishes itself.** `output: 'static'` means the gate is evaluated
+  once per build: a post dated tomorrow appears at the next _production
+  promotion on or after_ its date, not at midnight. This is intentional — but
+  tell comms, or scheduling looks broken. Automating it would need a daily cron
+  hitting a production build hook; `scheduled-content-sync.yml` runs one already,
+  but only for `staging`/`playground`.
+- **`date` is overloaded.** It is both the displayed/sort date and the publish
+  gate. Back-dating to push a post down the listing is safe; forward-dating to
+  show a nicer date now hides it. There is no `draft` flag and no separate
+  `publishDate`, so "publish now, display a future date" is not possible.
+- **`/blog/preview` is unaffected** — it is SSR and fetches Strapi by
+  `documentId`, bypassing the collection. That is the way to view a scheduled
+  post on production.
+- **Validation:** build twice with `BLOG_DATE_FILTER_AS_OF=<ISO date>` pinning
+  the cutoff, rather than editing a post's date and remembering to revert it:
+
+  ```bash
+  CONTEXT=production    BLOG_DATE_FILTER_AS_OF=2026-09-01 IMAGE_CDN=on pnpm run build  # gated
+  CONTEXT=branch-deploy BLOG_DATE_FILTER_AS_OF=2026-09-01 IMAGE_CDN=on pnpm run build  # all posts
+  ```
+
+  Then check `dist/blog/<slug>/index.html`, `dist/blog-search-index.json`,
+  `dist/sitemap-*.xml` and `dist/blog/index.html` for the slug.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)
@@ -250,6 +401,48 @@ Same rules as `src/utils/` above, applied to the Strapi CMS layer. Import from `
   2. Add an explicit named export in `cms/src/utils/index.ts` under the correct group comment.
 - Files inside `cms/src/utils/` keep their internal cross-imports as relative paths — never import from `@/utils` inside the utils folder itself.
 - `cms/src/api/utils.ts` is a thin convenience re-export for API lifecycle files — keep it delegating to `@/utils`, don't add logic to it.
+
+## MDX Filenames
+
+Every MDX file under `src/content/` is named by the Strapi lifecycle that
+exports it, never by hand. The name comes from the entry's own fields, so a
+file whose name does not match its frontmatter is a duplicate waiting to
+happen: the next publish writes the derived name beside it, both files then map
+to one Strapi entry, and `sync:mdx` refuses the whole content type
+(INTORG-1237, INTORG-1132).
+
+- **One derivation.** `cms/src/utils/mdxFilenames.ts` owns it. The page, blog
+  and flat lifecycles call `mdxSubpath`/`mdxRelativePath`. Never rebuild a
+  filename at a call site.
+- **Four rules.** `page` keeps the pathSlug as a real path, so the tree mirrors
+  the URL. `blog` is flat, prefixed with the publication date. `flat` is one
+  file per entry, slashes flattened to hyphens. `flat-section` adds the section
+  prefix for faqs, profiles and reports, whose pathSlug is section-relative.
+- **Localized files take the English name.** A non-`en` file lives under its
+  locale folder and is named after the entry it localizes (`localizes`
+  frontmatter), so paths stay locale-independent.
+- **The check.** `pnpm run check:mdx-filenames` (from `cms/`) compares every
+  file against its derived name, and runs as its own PR job. Add `:fix` to
+  rename the offenders with `git mv`. Renaming is always safe: routes come from
+  `pathSlug`, never from the filename.
+- **New collection?** Add it to `CONTENT_COLLECTION_NAMING_RULES` in
+  `cms/src/utils/contentCollections.ts`. A test fails when that map and
+  `PATHS.CONTENT` drift, so a collection cannot ship unchecked.
+- **A case-only rename staled the content store, so the build evicts it.**
+  Astro keeps the store in `node_modules/.astro/data-store.json` and derives
+  each entry id from the lowercased filename. A rename that only changes case
+  keeps the id, so the incremental sync refreshes the entry but holds the old
+  `filePath` and emits it as an import specifier. macOS resolves it and Linux
+  does not, so the build passed locally and failed on Netlify, which restores
+  `node_modules` from its build cache (INTORG-1237). `prebuild` now runs
+  `scripts/evict-content-store.mjs`, which drops the store. A cold sync and a
+  warm one both measure about 0.4s, because every collection is file-based.
+  `astro dev` does not run `prebuild`, so restart the dev server after such a
+  rename.
+- **Keep the module pure.** The check runs in a CI job that installs with
+  `--ignore-scripts`, so `mdxFilenames.ts` and the script must not reach
+  sharp, prettier or Strapi. That is why the script imports `../src/utils/*`
+  directly instead of the `@/utils` barrel.
 
 ## When Asked to Generate Code
 

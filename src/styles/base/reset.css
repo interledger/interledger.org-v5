@@ -87,24 +87,94 @@
     overflow-x: clip;
   }
 
-  /* Poppins ships 400 / 500 / 600 / 800. Preflight's `bolder` on a 400
-     parent computes to 700, which the browser then synthesises or maps
-     onto 800. Pin emphasis at 600 site-wide (prose, CMS paste, etc.). */
+  /* This project uses 600 (Semibold) as its bold weight for inline emphasis
+     (b, strong) — prose, CMS paste, etc. — regardless of Preflight's
+     `bolder` keyword or any heavier face available in Poppins. */
   b,
   strong {
     font-weight: 600;
   }
 
-  /* Headings that are already 600 (h1/h2 tokens): don't stack bold again
-     when Google Docs wraps the whole line in <strong> (`bolder` → 800).
-     h3–h6 use 400 tokens and keep the global 600 above so ### **Title**
+  /* h1/h2 tokens already carry their own bold weight (700/600): don't stack
+     another one when Google Docs wraps the whole line in <strong> — inherit
+     matches whatever the heading's own weight is instead of forcing 600.
+     h3–h6 use lighter tokens and keep the global 600 above so ### **Title**
      still reads as bold. */
   :is(h1, h2) :is(b, strong) {
     font-weight: inherit;
   }
 
+  /* Placeholders stay 14px even when the field itself is 16px (text-base). */
+  ::placeholder {
+    font-size: var(--text-body-sm-standard);
+    line-height: var(--text-body-sm-standard--line-height);
+  }
+
+  /* Single-line fields are 40px (--spacing-3xl-tight). Textareas stay auto.
+     Do not put py-* on these inputs: utilities beat this layer, so vertical
+     padding inside 40px clips the value. Override height with h-* if a
+     field must be taller; :where() keeps specificity at 0 for that. */
+  :where(
+    input:not(
+      [type='hidden'],
+      [type='checkbox'],
+      [type='radio'],
+      [type='file'],
+      [type='button'],
+      [type='submit'],
+      [type='reset'],
+      [type='image'],
+      [type='range'],
+      [type='color']
+    )
+  ) {
+    height: var(--spacing-3xl-tight);
+    padding-block: 0;
+  }
+
   main {
     @apply flex-1 text-h4 tablet:text-h4-md desktop:text-h4-lg;
+  }
+
+  /* General heading rule: semantic level N gets the text-hN token, at every
+     tier. A component's own explicit text-h* utility class still wins
+     over this (utility layer beats base layer) — these rules only take
+     effect where no such override exists yet. */
+  h1 {
+    @apply text-h1 tablet:text-h1-md desktop:text-h1-lg;
+  }
+  h2 {
+    @apply text-h2 tablet:text-h2-md desktop:text-h2-lg;
+  }
+  h3 {
+    @apply text-h3 tablet:text-h3-md desktop:text-h3-lg;
+  }
+  h4 {
+    @apply text-h4 tablet:text-h4-md desktop:text-h4-lg;
+  }
+  /* No --text-h6 token exists; h5 and h6 share the h5 token. */
+  h5,
+  h6 {
+    @apply text-h5 tablet:text-h5-md desktop:text-h5-lg;
+  }
+
+  /* Narrow-width templates (blog post, profile detail) intentionally use one
+     tier down at every heading level, per Figma. Scoped off the real
+     max-w-narrow utility class rather than a dedicated marker — both
+     templates' headings are genuine descendants of that class today. */
+  .max-w-narrow h1 {
+    @apply text-h2 tablet:text-h2-md desktop:text-h2-lg;
+  }
+  .max-w-narrow h2 {
+    @apply text-h3 tablet:text-h3-md desktop:text-h3-lg;
+  }
+  .max-w-narrow h3 {
+    @apply text-h4 tablet:text-h4-md desktop:text-h4-lg;
+  }
+  .max-w-narrow h4,
+  .max-w-narrow h5,
+  .max-w-narrow h6 {
+    @apply text-h5 tablet:text-h5-md desktop:text-h5-lg;
   }
 
   a {

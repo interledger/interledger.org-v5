@@ -33,6 +33,7 @@ export function prepareHtmlForMarkdown(html: string): string {
   const doc = new DOMParser().parseFromString(html, 'text/html')
   mergeMultiParagraphTableCells(doc)
   replaceSoftBreaksWithPlaceholder(doc)
+  moveWhitespaceOutOfInlineMarkup(doc)
   return doc.body.innerHTML
 }
 
@@ -62,6 +63,88 @@ function replaceSoftBreaksWithPlaceholder(doc: Document) {
     if (lineBreak.closest('pre, code')) continue
     lineBreak.replaceWith(doc.createTextNode(SOFT_BREAK_PLACEHOLDER))
   }
+}
+
+// Elements the converter turns into a markdown span with a marker on each end.
+// `code` is absent on purpose: a backtick span holds its own whitespace, and
+// trimming it would change what the code reads.
+const INLINE_MARKUP = 'strong, b, em, i, s, del, ins, mark'
+
+// Space, tab, newline and the non-breaking space CKEditor writes for a pasted
+// or a deliberately typed gap. `\s` already covers the first three.
+const LEADING_WHITESPACE = /^[\s\u00a0]+/
+const TRAILING_WHITESPACE = /[\s\u00a0]+$/
+
+/**
+ * Moves whitespace at the edge of a bold or italic run to just outside it.
+ *
+ * Markdown has no way to write `**Location: **`: a marker cannot sit against a
+ * space and still open or close the span. The converter's writer resolves that
+ * by encoding the offending character as a numeric character reference, so the
+ * saved markdown reads `**Location:&#x20;**&#x52;uta N` — one reference for the
+ * space inside the run, another for the letter that follows it. The page still
+ * renders, so nobody notices until the file goes out for translation
+ * (INTORG-1242).
+ *
+ * `<strong>Location: </strong>Ruta N` and `<strong>Location:</strong> Ruta N`
+ * render the same, and only the second has a markdown spelling, so rewrite the
+ * first into the second before the writer ever sees it. A run left holding
+ * nothing but whitespace is unwrapped: an empty `****` is not markdown either.
+ *
+ * The moved whitespace becomes a single ordinary space. A non-breaking space at
+ * the edge of a bold run is a paste artifact, and keeping it would leave an
+ * invisible character in the MDX for a translator to trip over.
+ */
+function moveWhitespaceOutOfInlineMarkup(doc: Document) {
+  // Innermost first, so an inner run's whitespace has already moved out to the
+  // outer run's edge by the time the outer run is trimmed.
+  const runs = Array.from(doc.querySelectorAll(INLINE_MARKUP)).reverse()
+
+  for (const run of runs) {
+    if (run.closest('pre, code')) continue
+
+    trimEdge(doc, run, 'start')
+    trimEdge(doc, run, 'end')
+
+    // No text and nothing that renders on its own: the markers would wrap
+    // nothing. Keep any children (an `<img>`, a placeholder) and drop the run.
+    if (!run.textContent?.trim() && !run.querySelector('img')) {
+      run.replaceWith(...Array.from(run.childNodes))
+    }
+  }
+}
+
+/** Strips whitespace off one edge of a run and re-inserts it as a space. */
+function trimEdge(doc: Document, run: Element, edge: 'start' | 'end') {
+  const atStart = edge === 'start'
+  const pattern = atStart ? LEADING_WHITESPACE : TRAILING_WHITESPACE
+  let moved = false
+
+  // Walk past text nodes that are entirely whitespace: the run may open with
+  // several of them, and only the first carrying real text ends the walk.
+  for (;;) {
+    const node = atStart ? run.firstChild : run.lastChild
+    if (!node || node.nodeType !== Node.TEXT_NODE) break
+
+    const text = node.nodeValue ?? ''
+    const match = text.match(pattern)
+    if (!match) break
+
+    moved = true
+    const rest = atStart
+      ? text.slice(match[0].length)
+      : text.slice(0, -match[0].length)
+    if (rest) {
+      node.nodeValue = rest
+      break
+    }
+    node.remove()
+  }
+
+  if (!moved) return
+
+  const space = doc.createTextNode(' ')
+  run.parentNode?.insertBefore(space, atStart ? run : run.nextSibling)
 }
 
 // The stranded shape content saved before the placeholder swap still carries:

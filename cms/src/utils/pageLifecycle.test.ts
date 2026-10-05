@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   defaultLang,
   generateMDX,
+  isCodeSyncRequest,
   readLocaleFromUpdateEvent,
   resolvePageFilepath
 } from '@/utils'
@@ -163,6 +164,36 @@ describe('resolvePageFilepath', () => {
       path.join(outputDir, 'es', 'home.mdx')
     )
   })
+
+  // Without this, a caller that forgets to resolve the English slug first
+  // writes es/sobre-nosotros.mdx beside es/about-us.mdx.
+  it('names a localized page after the entry it localizes', () => {
+    expect(
+      resolvePageFilepath(
+        outputDir,
+        { pathSlug: 'subvenciones/beca' },
+        'es',
+        'grant/fellowship'
+      )
+    ).toBe(path.join(outputDir, 'es', 'grant', 'fellowship.mdx'))
+  })
+
+  it('ignores the English slug for an English page', () => {
+    expect(
+      resolvePageFilepath(
+        outputDir,
+        { pathSlug: 'about-us' },
+        defaultLang,
+        'something-else'
+      )
+    ).toBe(path.join(outputDir, 'about-us.mdx'))
+  })
+
+  it('falls back to the page slug when no English counterpart is known', () => {
+    expect(
+      resolvePageFilepath(outputDir, { pathSlug: 'sobre-nosotros' }, 'es', null)
+    ).toBe(path.join(outputDir, 'es', 'sobre-nosotros.mdx'))
+  })
 })
 
 describe('readLocaleFromUpdateEvent', () => {
@@ -202,5 +233,55 @@ describe('readLocaleFromUpdateEvent', () => {
         params: { where: { locale: 'de' }, documentId: 'x' }
       })
     ).toBe('de')
+  })
+})
+
+describe('isCodeSyncRequest', () => {
+  const SKIP_HEADER = { 'x-skip-mdx-export': 'true' }
+
+  function stubRequest(strategy: string | undefined, headers = {}) {
+    vi.stubGlobal('strapi', {
+      requestContext: {
+        get: () => ({
+          request: { headers },
+          state: strategy ? { auth: { strategy: { name: strategy } } } : {}
+        })
+      }
+    })
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('accepts an API-token request with the sync header', () => {
+    stubRequest('api-token', SKIP_HEADER)
+    expect(isCodeSyncRequest()).toBe(true)
+  })
+
+  it('refuses an admin session even with the sync header', () => {
+    stubRequest('admin', SKIP_HEADER)
+    expect(isCodeSyncRequest()).toBe(false)
+  })
+
+  it('refuses an API-token request without the sync header', () => {
+    stubRequest('api-token')
+    expect(isCodeSyncRequest()).toBe(false)
+  })
+
+  it('refuses an unauthenticated request with the sync header', () => {
+    stubRequest(undefined, SKIP_HEADER)
+    expect(isCodeSyncRequest()).toBe(false)
+  })
+
+  it('refuses when there is no active request', () => {
+    vi.stubGlobal('strapi', {
+      requestContext: {
+        get: () => {
+          throw new Error('no context')
+        }
+      }
+    })
+    expect(isCodeSyncRequest()).toBe(false)
   })
 })

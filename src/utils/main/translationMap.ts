@@ -1,4 +1,5 @@
-import { getCollection } from 'astro:content'
+import type { getCollection } from 'astro:content'
+import { getGatedCollection } from './blogPosts'
 import { defaultLocale, switcherLocales, type Locale } from './locales'
 import { ROUTE_BASES, type RouteCollection } from './routes'
 import { YEARS } from './sessionize'
@@ -18,6 +19,9 @@ function createFallbackEntry(defaultSlug: string): TranslationEntry {
 // Every EN entry is indexed for all locales using the EN slug as the fallback URL.
 // Localized entries overwrite that fallback for their own locale and are indexed
 // from both the localized slug and the EN slug they translate.
+//
+// Reads through the same publish gate as getLocalizedPaths, so the language
+// switcher can never point at a future-dated post whose route was never built.
 export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   const collectionNames = Object.keys(ROUTE_BASES) as RouteCollection[]
 
@@ -31,7 +35,7 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   >()
 
   for (const name of collectionNames) {
-    const entries = await getCollection(name)
+    const entries = await getGatedCollection(name)
     entriesByCollection.set(name, entries)
     const defaultEntries = entries.filter(
       (entry) => entry.data.locale === defaultLocale
@@ -71,7 +75,7 @@ export async function buildMap(): Promise<Record<string, TranslationEntry>> {
   for (const collectionName of crossSectionCollections) {
     const crossSectionEntries =
       entriesByCollection.get(collectionName) ??
-      (await getCollection(collectionName))
+      (await getGatedCollection(collectionName))
     for (const entry of crossSectionEntries) {
       const { pathSlug } = entry.data
       const matchingBase = nonEmptyBases.find((base) =>

@@ -1,9 +1,9 @@
-import { getCollection } from 'astro:content'
 import type { BlogSearchThumbnail, BlogThumbnail } from '@/types/blog'
 import { foldSearchText } from '../shared/foldSearchText'
 import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
+import { getBlogPosts } from './blogPosts'
 import { getBlogPostPath, defaultLocale } from './i18'
 import { buildImageSrcset, getOptimizedImage } from './images'
 import {
@@ -95,12 +95,9 @@ function toSearchThumbnail(
  * single fetch covers both without a reload.
  */
 export async function getBlogSearchIndex(): Promise<BlogSearchEntry[]> {
-  // Newest-first, to match the order the listing renders in (see
-  // fetchPostsAndTerms in tagFilter.ts). getCollection yields glob order, which
-  // for date-prefixed filenames is oldest-first — the opposite of the listing.
-  const posts = (await getCollection('foundation-blog')).sort(
-    (a, b) => b.data.date.getTime() - a.data.date.getTime()
-  )
+  // Gated and newest-first — blogPosts.ts is the authority on both, so the
+  // index can never offer a post the listing has not published yet.
+  const posts = await getBlogPosts()
 
   return posts.map((post) => {
     const { title, description, categories, date } = post.data

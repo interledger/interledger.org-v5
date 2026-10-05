@@ -18,11 +18,23 @@
       ]
     },
     {
-      "label": "Resources",
+      "label": "2026 Open Payment Hackathon",
       "items": [
         {
-          "label": "Learn Open Payments",
+          "label": "Key Information",
+          "href": "/hackathon/2026-hackathon-medellin"
+        },
+        {
+          "label": " Hackathon Tools and Resources",
           "href": "/hackathon/open-payments"
+        },
+        {
+          "label": "Submissions & Judging",
+          "href": "/hackathon/submission-judging"
+        },
+        {
+          "label": "Timetable",
+          "href": "/hackathon/2026-timetable"
         },
         {
           "label": "Code of Conduct",

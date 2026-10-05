@@ -69,7 +69,7 @@ const secondResolved = hasSecondButton
   : null
 
 const buttonClass =
-  'tablet:self-start z-1 border-neutral-900 text-neutral-900 dark:border-neutral-0 dark:text-neutral-0 tablet:border-neutral-50 tablet:text-neutral-100 tablet:dark:border-neutral-50 tablet:dark:text-neutral-25 tablet:group-hover/card:border-neutral-900 tablet:group-hover/card:text-neutral-900 tablet:dark:group-hover/card:border-neutral-0 tablet:dark:group-hover/card:text-neutral-0'
+  'tablet:self-start z-1 border-neutral-900 text-neutral-900 text-center dark:border-neutral-0 dark:text-neutral-0 tablet:border-neutral-50 tablet:text-neutral-100 tablet:dark:border-neutral-50 tablet:dark:text-neutral-25 tablet:group-hover/card:border-neutral-900 tablet:group-hover/card:text-neutral-900 tablet:dark:group-hover/card:border-neutral-0 tablet:dark:group-hover/card:text-neutral-0'
 
 const bgClasses = `
 nth-[6n+1]:[--card-bg:var(--color-deep-teal-50)] 
@@ -90,9 +90,7 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
   class={`group/card relative flex h-full flex-col justify-between gap-xl p-xl rounded-3xl border border-neutral-50 dark:border-neutral-75 bg-[var(--card-bg)] tablet:bg-white tablet:dark:bg-neutral-900 tablet:hover:bg-[var(--card-bg)] transition-colors duration-200 ${bgClasses}`}
 >
   <div class="flex flex-col gap-lg">
-    <h3
-      class="m-0 text-neutral-900 dark:text-neutral-0 text-h3 tablet:text-h3-md desktop:text-h3-lg"
-    >
+    <h3 class="m-0 text-neutral-900 dark:text-neutral-0">
       {heading}
     </h3>
     {
@@ -103,7 +101,7 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
       )
     }
     <div
-      class="text-body-lg-standard text-neutral-100 dark:text-neutral-50 [&_a]:relative [&_a]:z-1 [&_p]:m-0 [&_:is(p,li,a)]:text-body-lg-standard [&_:is(p,li,a)]:tablet:text-body-lg-standard-md [&_:is(p,li)]:text-inherit"
+      class="text-body-lg-standard text-neutral-100 dark:text-neutral-50 [&_a]:relative [&_a]:z-1 [&_p]:m-0 [&_:is(ul,ol)]:m-0 [&_p+:is(ul,ol)]:mt-md [&_:is(p,li,a)]:text-body-lg-standard [&_:is(p,li)]:text-inherit"
     >
       <slot />
     </div>
@@ -125,7 +123,7 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
       {buttonText}
       {
         trailingIcon && (
-          <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+          <Icon name={trailingIcon} slot="icon-right" class="size-5 shrink-0" />
         )
       }
     </LinkButton>
@@ -146,7 +144,11 @@ nth-[5n+5]:dark:[--card-bg:var(--color-orchid-100)]
         >
           {secondButtonText}
           {secondResolved.icon && (
-            <Icon name={secondResolved.icon} slot="icon-right" class="size-5" />
+            <Icon
+              name={secondResolved.icon}
+              slot="icon-right"
+              class="size-5 shrink-0"
+            />
           )}
         </LinkButton>
       )
