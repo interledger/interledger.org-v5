@@ -221,11 +221,26 @@ jobs:
             git checkout "$DEPLOY_BRANCH"
           fi
 
-          # Fast-forward is the expected path and the cheapest one: it never touches
-          # Strapi's possibly-dirty working tree, so it needs no stash. `git merge --ff-only`
-          # rather than `git pull --ff-only` — no implicit second fetch, no dependence on a
-          # configured upstream, and an exit code to branch on.
-          if ! git merge --ff-only "origin/$DEPLOY_BRANCH"; then
+          # Classified from the commit graph, never from `git merge --ff-only` failing: a
+          # fast-forward also refuses when a dirty tracked file would be overwritten, and
+          # sending that to the autostash rebase below leaves conflict markers in the
+          # file and the editor's write stranded in the stash.
+          if git merge-base --is-ancestor HEAD "origin/$DEPLOY_BRANCH"; then
+            # Behind or level — the expected path and the cheapest one. Under `set -e` a
+            # refusal fails the run with the working tree untouched.
+            # `git merge --ff-only` rather than `git pull --ff-only` — no implicit second
+            # fetch and no dependence on a configured upstream.
+            if ! git merge --ff-only "origin/$DEPLOY_BRANCH"; then
+              echo "Error: could not fast-forward $DEPLOY_PATH to origin/$DEPLOY_BRANCH."
+              echo "Uncommitted changes Strapi wrote collide with incoming commits:"
+              git status --short || true
+              echo "Re-run once Strapi's git sync has committed them."
+              exit 1
+            fi
+          elif git merge-base --is-ancestor "origin/$DEPLOY_BRANCH" HEAD; then
+            # Ahead only: nothing to integrate. The push below sends the local commits.
+            :
+          else
             # Diverged: a Strapi commit never reached origin. Failing here used to take
             # down the whole run — rebuild and content sync alike — and it stayed failed
             # until someone intervened. Policy is that CMS content wins,
@@ -267,6 +282,19 @@ jobs:
               exit 1
             fi
 
+            # The tracked half of the same problem. autoStash lets the rebase run, but its
+            # pop then conflicts on any dirty file the incoming commits also change: the
+            # rebase still exits 0, and the file is left with conflict markers.
+            DIRTY_OVERLAP="$(comm -12 \
+              <(git diff --name-only HEAD | sort) \
+              <(git diff --name-only "HEAD...origin/$DEPLOY_BRANCH" | sort))"
+            if [ -n "$DIRTY_OVERLAP" ]; then
+              echo "Error: $DEPLOY_BRANCH changes files with uncommitted edits in $DEPLOY_PATH:"
+              printf '%s\n' "$DIRTY_OVERLAP"
+              echo "Strapi wrote these but has not committed them yet. Re-run once its sync has."
+              exit 1
+            fi
+
             # --fork-point, as in gitSync.ts: after reset.yml force-pushes the branch,
             # plain merge-base semantics would replay the commits it discarded and the
             # push below would restore them.
@@ -283,10 +311,8 @@ jobs:
             fi
           fi
 
-          # Outside the divergence branch on purpose. `git merge --ff-only` also exits 0
-          # when origin is already an ancestor of HEAD — the state after a commit was made
-          # locally but its push failed — so a check inside that branch would skip the only
-          # push and strand the commit.
+          # Outside the divergence branch on purpose: the ahead-only case — a commit made
+          # locally whose push failed — integrates nothing, and still has to be pushed.
           #
           # Non-fatal: the rebuild and sync below are still valid against this tree, and
           # the next run retries.
