@@ -152,7 +152,9 @@ export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 // Main site: Publish gate (future-dated content is hidden on production only)
 export {
   hideFuturePosts,
+  isProductionDeploy,
   isPublishedAt,
+  productionDeploy,
   resolveGateNow,
   shouldHideFuturePosts
 } from './main/publishGate'

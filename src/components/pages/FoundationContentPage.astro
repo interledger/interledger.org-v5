@@ -2,6 +2,7 @@
 import {
   type Locale,
   isDemoPathSlug,
+  productionDeploy,
   useTranslations,
   localizeRoute
 } from '@/utils'
@@ -39,15 +40,27 @@ import EventApply from '@/components/shared/EventApply.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CodeBlock from '@/components/blocks/CodeBlock.astro'
 import DonationCards from '@/components/blocks/DonationCards.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
 
 interface Props {
   slug: string
   contentLocale: Locale
   isFallback?: boolean
+  /**
+   * Fundraising pages share this renderer with foundation pages. The
+   * collection is what loads Fundraise Up, not the presence of Donation Cards.
+   */
+  collection?: 'foundation-pages' | 'fundraising-pages'
 }
 
-const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('foundation-pages')
+const {
+  slug,
+  contentLocale,
+  isFallback = false,
+  collection = 'foundation-pages'
+} = Astro.props
+const fundraiseUp = collection === 'fundraising-pages'
+const pages = await getCollection(collection)
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -97,6 +110,9 @@ const heroLcpPreload =
   noindex={noindex}
   heroLcpPreload={heroLcpPreload}
 >
+  <Fragment slot="head">
+    {fundraiseUp && <FundraiseUpScript testMode={!productionDeploy()} />}
+  </Fragment>
   <main class="page-stack pb-section" data-pillar="mission">
     {
       heroTitle ? (

@@ -8,6 +8,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
 interface HeroCta {
@@ -71,11 +72,14 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.event-card][populate][when]': '*',
   'populate[content][on][blocks.event-card][populate][where]': '*',
   'populate[content][on][blocks.event-card][populate][apply][populate]': '*',
-  'populate[content][on][blocks.code-block][populate]': '*'
+  'populate[content][on][blocks.code-block][populate]': '*',
+  'populate[content][on][blocks.donation-cards][populate][cards]': '*'
 })
 
+const fundraiseUp = Astro.url.searchParams.get('type') === 'fundraising'
+const apiId = fundraiseUp ? 'fundraising-pages' : 'foundation-pages'
 const response = await fetchStrapi<FoundationPagePreview>(
-  `api/foundation-pages/${documentId}?${populateParams.toString()}`
+  `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
   return Astro.redirect('/404')
@@ -99,6 +103,9 @@ const content = page.content || []
 ---
 
 <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+  <Fragment slot="head">
+    {fundraiseUp && <FundraiseUpScript />}
+  </Fragment>
   <TableScrollSupport />
   <main class="pb-3xl">
     <!-- Preview Banner -->

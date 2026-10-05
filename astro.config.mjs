@@ -15,7 +15,10 @@ import { auditImageOptimization } from './src/integrations/audit-image-optimizat
 import { validateInternalLinks } from './src/integrations/validate-internal-links.ts'
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
-import { shouldHideFuturePosts } from './src/utils/main/publishGate.ts'
+import {
+  isProductionDeploy,
+  shouldHideFuturePosts
+} from './src/utils/main/publishGate.ts'
 import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
 
 // https://astro.build/config
@@ -169,9 +172,13 @@ export default defineConfig({
     // The publish gate is pinned the same way, for the same reason: CONTEXT is
     // a build-time signal and isn't guaranteed in the Functions runtime.
     // See src/utils/main/publishGate.ts (hideFuturePosts).
+    //
+    // Checkout livemode is pinned beside it. A missing CONTEXT must keep
+    // Fundraise Up in test mode, not fall through to a live charge.
     define: {
       __IMAGE_CDN_ENABLED__: JSON.stringify(isImageCdnEnabled()),
-      __HIDE_FUTURE_POSTS__: JSON.stringify(shouldHideFuturePosts())
+      __HIDE_FUTURE_POSTS__: JSON.stringify(shouldHideFuturePosts()),
+      __IS_PRODUCTION_DEPLOY__: JSON.stringify(isProductionDeploy())
     },
     server: {
       allowedHosts: ['.netlify.app', '.interledger.org']
