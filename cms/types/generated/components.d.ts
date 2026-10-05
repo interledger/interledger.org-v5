@@ -286,11 +286,18 @@ export interface BlocksCtaButtons extends Struct.ComponentSchema {
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
-    description: 'Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA'
+    description: 'Call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA. Purple by default; green uses the pistachio background.'
     displayName: 'CTA Strip'
     icon: 'cursor'
   }
   attributes: {
+    color: Schema.Attribute.Enumeration<['purple', 'green']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'purple'>
     description: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
