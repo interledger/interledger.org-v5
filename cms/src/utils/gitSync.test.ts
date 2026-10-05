@@ -1548,9 +1548,18 @@ describe('withGitSyncLock', () => {
 describe('sync entry points share the checkout lock', () => {
   const NAV = `${REPO}/src/config/foundation-navigation.json`
 
+  /** The only commands whose interleaving the lock is meant to prevent. */
+  function trackedName(command: string): 'status' | 'commit' | null {
+    if (command === STATUS_COMMAND) return 'status'
+    if (command.startsWith('git commit')) return 'commit'
+    return null
+  }
+
   /**
    * Deps whose commit command blocks until the test opens `commitGate`, so a
-   * second sync can be started while the first is mid-`git commit`.
+   * second sync can be started while the first is mid-`git commit`. Only
+   * `status` and `commit` are recorded: the probe, `add` and `push` around
+   * them are incidental to the ordering under test.
    */
   function blockingCommitDeps(commitGate: Promise<void>) {
     const events: string[] = []
@@ -1563,7 +1572,8 @@ describe('sync entry points share the checkout lock', () => {
     })
     const exec = deps.exec
     deps.exec = async (command, cwd) => {
-      const name = command === STATUS_COMMAND ? 'status' : 'commit'
+      const name = trackedName(command)
+      if (name === null) return exec(command, cwd)
       events.push(`${name}:start`)
       if (name === 'commit' && !events.includes('commit:end')) {
         await commitGate
@@ -1609,7 +1619,7 @@ describe('sync entry points share the checkout lock', () => {
 
     held.open()
     await Promise.all([holder, commit])
-    expect(deps.commands).toHaveLength(1)
+    expect(commandStartingWith(deps, 'git commit')).toContain('nav: update')
   })
 })
 
