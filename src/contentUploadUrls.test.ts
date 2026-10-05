@@ -10,9 +10,11 @@ const CONTENT_DIR = path.resolve(__dirname, 'content')
  * save (`stripUploadOriginsInText`), so a hit here means content reached the
  * repo by some other route. Such a link loads from the firewalled CMS, records
  * whichever CMS the editor used (localhost included), skips the image
- * optimizer and reads as external to the link validator.
+ * optimizer and reads as external to the link validator. Protocol-relative
+ * `//host/…` and any letter case count too.
  */
-const ABSOLUTE_UPLOAD_URL = /https?:\/\/[^/\s"'()<>]+\/uploads\/img\/original\//
+const ABSOLUTE_UPLOAD_URL =
+  /(?:https?:)?\/\/[^/\s"'()<>]+\/uploads\/img\/original\//i
 
 function listMdxFiles(dir: string): string[] {
   return readdirSync(dir, { recursive: true, encoding: 'utf8' })
