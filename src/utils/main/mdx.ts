@@ -9,6 +9,7 @@ import {
 } from './umami'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { buildNewTabLinkHtml } from './newTabLinks'
+import { renderOptimizedImageHtml } from './richTextImage'
 import { wrapScrollableTables } from './wrapScrollableTables'
 
 export interface UmamiContext {
@@ -29,7 +30,8 @@ const markedCache = new Map<string, Marked>()
  * Returns a Marked instance whose link renderer injects umami attributes,
  * opens off-site links in a new tab (see `getNewTabLinkAttrs`), and drops
  * any link whose href isn't a safe scheme (see `isSafeMarkdownHref`) rather
- * than rendering it.
+ * than rendering it. Images go through the image optimizer
+ * (`renderOptimizedImageHtml`).
  */
 export function createMarked(context: UmamiContext = {}): Marked {
   const pathname = context.pathname ?? '/'
@@ -70,6 +72,13 @@ export function createMarked(context: UmamiContext = {}): Marked {
         : ''
       const newTab = buildNewTabLinkHtml(href, lang)
       return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
+    },
+    image({ href, title, text, tokens }: Tokens.Image) {
+      // Alt text as plain text, the way Marked's default renderer derives it.
+      const alt = tokens
+        ? this.parser.parseInline(tokens, this.parser.textRenderer)
+        : text
+      return renderOptimizedImageHtml({ src: href ?? '', alt, title })
     }
   }
   const instance = new Marked()

@@ -2296,7 +2296,8 @@ export default {
       if (ctx.action === 'create' || ctx.action === 'update') {
         // Auto-correct relative-link slashes (add a leading slash to
         // href-like fields that are missing one, strip one from path-segment
-        // fields that shouldn't have one) before any validation below runs.
+        // fields that shouldn't have one) and strip the CMS origin CKEditor
+        // prefixes onto upload URLs, before any validation below runs.
         if (!NAV_UIDS.has(ctx.uid)) {
           normalizeRelativeLinksInDocumentData(ctx.params.data)
         }

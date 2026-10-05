@@ -1,4 +1,5 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import { type Locale, getHeroSectionStyle, isDemoPathSlug } from '@/utils'
 import { getCollection, render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
@@ -17,7 +18,6 @@ import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import HeroSection from '@/components/shared/HeroSection.astro'
-import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
@@ -108,7 +108,7 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
         >
           <MdxContent
             components={{
-              img: OptimizedImage,
+              ...RICH_TEXT_MDX_COMPONENTS,
               ProfileCard,
               ProfileGrid,
               Blockquote,

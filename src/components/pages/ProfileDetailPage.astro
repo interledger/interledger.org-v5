@@ -1,4 +1,5 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import { getCollection, render } from 'astro:content'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -166,7 +167,9 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
               aria-label={t('profile.biography')}
               class="mb-2xl [&_h2:not(:first-of-type)]:mt-4xl desktop:[&_h2:not(:first-of-type)]:mt-5xl [&_h2]:mb-2xl [&_hr]:my-4xl desktop:[&_hr]:my-5xl [&_p:has(>a):has(+p:has(>a))]:mb-sm"
             >
-              <MdxContent components={{ Paragraph }} />
+              <MdxContent
+                components={{ ...RICH_TEXT_MDX_COMPONENTS, Paragraph }}
+              />
             </section>
           )
         }

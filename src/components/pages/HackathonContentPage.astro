@@ -1,4 +1,5 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import { getCollection, render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
@@ -125,6 +126,7 @@ const breadcrumbs = showBreadcrumbs
         <div data-prose>
           <MdxContent
             components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
               Paragraph,
               InfoCard,
               NumberTiles,
