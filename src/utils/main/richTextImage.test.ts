@@ -104,6 +104,9 @@ describe('renderOptimizedImageHtml', () => {
       renderOptimizedImageHtml({ src: 'javascript:alert(1)', alt: 'x <y>' })
     ).toBe('x &lt;y&gt;')
     expect(renderOptimizedImageHtml({ src: '', alt: 'Chart' })).toBe('Chart')
+    expect(
+      renderOptimizedImageHtml({ src: 'javascript:x', alt: 'a &amp; b' })
+    ).toBe('a &amp; b')
   })
 })
 
