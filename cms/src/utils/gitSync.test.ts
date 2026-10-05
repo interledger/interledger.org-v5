@@ -1873,14 +1873,37 @@ describe('runGitSync conflict handling', () => {
   /**
    * A `-X theirs` rebase that exits zero leaves nothing unmerged, so anything
    * unmerged afterwards came from the autostash pop — conflict markers in the
-   * working tree, which the next save would otherwise commit into the MDX.
+   * working tree, after the rebase has finished, so `--abort` cannot undo it.
+   * In a stash pop `--theirs` is the stashed side: Strapi's newest write.
    */
-  it('treats autostash-pop residue as a failure rather than committing markers', async () => {
+  it('settles a content conflict from the autostash pop toward the CMS', async () => {
     const deps = createDeps({
       responses: {
         [STATUS_COMMAND]: sequenceOf(CONTENT, status(['UU', CONFLICT_PATH])),
         [BRANCH_COMMAND]: 'staging',
-        'git push': gitFailure('git push', { stderr: '! [rejected]' })
+        'git push': rejectedThenAccepted()
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('synced')
+    expect(deps.commands).toContain(
+      `git checkout --theirs -- '${CONFLICT_PATH}' && ` +
+        `git reset -q -- '${CONFLICT_PATH}'`
+    )
+    expect(deps.commands).toContain('git stash drop -q')
+  })
+
+  it('leaves autostash residue outside the CMS paths for a human', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UU', 'astro.config.mjs'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': rejectedThenAccepted()
       }
     })
 
@@ -1888,7 +1911,50 @@ describe('runGitSync conflict handling', () => {
 
     expect(result.outcome).toBe('failed')
     if (result.outcome !== 'failed') return
-    expect(result.error.message).toMatch(/autostash|conflict markers/i)
+    expect(result.error.message).toMatch(/autostash/i)
+    expect(result.error.message).toContain('stash@{0}')
+    expect(deps.commands).not.toContain('git stash drop -q')
+  })
+
+  it('leaves an existence conflict from the autostash pop for a human', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(CONTENT, status(['UD', CONFLICT_PATH])),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': rejectedThenAccepted()
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(deps.commands).not.toContain('git stash drop -q')
+  })
+
+  // The unwind cannot run mid-merge, and its error used to replace the real
+  // cause in the alert.
+  it('reports the failure itself, not a failed unwind that followed it', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UU', 'astro.config.mjs'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': rejectedThenAccepted(),
+        'git rev-list --count': sequenceOf('0', '1'),
+        'git reset --soft': gitFailure('git reset --soft HEAD~1', {
+          stderr: 'fatal: Cannot do a soft reset in the middle of a merge.'
+        })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(deps.commands).toContain('git reset --soft HEAD~1')
+    expect(result.outcome).toBe('failed')
+    if (result.outcome !== 'failed') return
+    expect(result.error.message).toMatch(/autostash/i)
   })
 
   it('retries a locked index instead of reporting it as a real failure', async () => {

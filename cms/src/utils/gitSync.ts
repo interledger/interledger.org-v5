@@ -37,6 +37,12 @@ const PUSH_BACKOFF_MS = 750
  * looping forever.
  */
 const MAX_RESOLVE_ROUNDS = 10
+/**
+ * Porcelain codes for an autostash pop that conflicted on content, which has a
+ * mechanical CMS-wins answer. A pop conflict on existence (a deleted side) does
+ * not, and is left for a human.
+ */
+const AUTOSTASH_SETTLEABLE_STATUSES = new Set(['UU', 'AA'])
 
 /** Retries for a command that failed only because another process held the repo lock. */
 const MAX_LOCK_ATTEMPTS = 4
@@ -985,11 +991,66 @@ async function resolveUnmergedTowardCms(
 }
 
 /**
+ * Settles a conflicted autostash pop in the CMS's favour.
+ *
+ * The pop happens after the rebase has finished, so there is no rebase left to
+ * abort: unresolved, the conflict markers stay in the working tree, the
+ * editor's newest write sits in `stash@{0}`, and `reset --soft` refuses to run
+ * mid-merge, so nothing recovers by itself. In a stash pop `--theirs` is the
+ * stashed side — the write Strapi made after this sync staged its files — so
+ * taking it, unstaging it and dropping the stash leaves the checkout exactly
+ * as it was before the rebase: the editor's write as an uncommitted change,
+ * now on top of the rebased commit, for the next save to commit.
+ *
+ * Only a both-sides content conflict on a CMS-owned path is settled. Anything
+ * else returns an error and leaves the stash in place for a human.
+ */
+async function resolveAutostashResidue(
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<number | GitCommandError> {
+  const residue = await getUnmergedChanges(repoRoot, deps)
+  if (residue instanceof GitCommandError) return residue
+  if (residue.length === 0) return 0
+
+  const unsettleable = residue.filter(
+    (change) =>
+      !isResolvablePath(change.filepath) ||
+      !AUTOSTASH_SETTLEABLE_STATUSES.has(change.status)
+  )
+  if (unsettleable.length > 0) {
+    return new GitCommandError(
+      'autostash pop',
+      unsettleable.map((c) => `${c.status} ${c.filepath}`).join('\n'),
+      '',
+      `Autostash left ${unsettleable.length} unmerged path(s) after the rebase ` +
+        `that need a human; the working tree may contain conflict markers and ` +
+        `stash@{0} holds the uncommitted write: ` +
+        unsettleable.map((c) => c.filepath).join(', ')
+    )
+  }
+
+  for (const { filepath } of residue) {
+    const settled = await deps.exec(
+      `git checkout --theirs -- ${shellQuote(filepath)} && ` +
+        `git reset -q -- ${shellQuote(filepath)}`,
+      repoRoot
+    )
+    if (settled instanceof GitCommandError) return settled
+  }
+
+  const dropped = await deps.exec('git stash drop -q', repoRoot)
+  return dropped instanceof GitCommandError ? dropped : residue.length
+}
+
+/**
  * Runs the rebase, resolving anything `-X theirs` left behind.
  *
  * Returns an error rather than leaving the checkout mid-rebase: the caller
  * aborts on any error, and `git rebase --abort` restores the pre-rebase HEAD
- * and re-applies the autostash, so nothing is lost.
+ * and re-applies the autostash, so nothing is lost. That holds only while the
+ * rebase is still in progress — a conflicted autostash pop comes after it, so
+ * {@link resolveAutostashResidue} settles that case itself.
  */
 async function rebaseOntoUpstream(
   repoRoot: string,
@@ -1022,19 +1083,8 @@ async function rebaseOntoUpstream(
   // A `-X theirs` rebase that exits zero leaves nothing unmerged, so anything
   // here came from the autostash pop. Those are conflict markers sitting in the
   // working tree, where the next debounced save would commit them into MDX.
-  const residue = await getUnmergedChanges(repoRoot, deps)
-  if (residue instanceof GitCommandError) return residue
-  if (residue.length > 0) {
-    return new GitCommandError(
-      'autostash pop',
-      residue.map((c) => c.filepath).join('\n'),
-      '',
-      `Autostash left ${residue.length} unmerged path(s) after the rebase; ` +
-        `the working tree may contain conflict markers`
-    )
-  }
-
-  return resolved
+  const residue = await resolveAutostashResidue(repoRoot, deps)
+  return residue instanceof GitCommandError ? residue : resolved
 }
 
 // ── Push ─────────────────────────────────────────────────────────────────────
@@ -1276,10 +1326,14 @@ async function commitAndPush(
     unpushedBefore,
     deps
   )
-  return {
-    outcome: 'failed',
-    error: unwound instanceof Error ? unwound : error
+  // The push failure stays the reported error: it is why the sync failed, and
+  // an unwind that fails is a consequence of the state it left behind.
+  if (unwound instanceof Error) {
+    console.error(
+      `⚠️  Git sync could not unwind its commit: ${unwound.message}`
+    )
   }
+  return { outcome: 'failed', error }
 }
 
 // ── Reporting ────────────────────────────────────────────────────────────────
