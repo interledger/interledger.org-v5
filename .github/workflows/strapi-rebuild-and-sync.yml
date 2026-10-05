@@ -152,10 +152,23 @@ jobs:
               #
               # `find` exits 0 whether or not it matched, so staleness has to be read from
               # its output — testing the exit status would report every lock as stale.
+              #
+              # `mv` moves whatever is at the path by then, not the file `find` judged
+              # stale: a contender that reclaimed and claimed a fresh lock in between
+              # leaves a live one there. Put that back rather than both of us holding it.
               if [ -n "$(find "$SYNC_LOCK" -maxdepth 0 -mmin "+$SYNC_LOCK_STALE_MINUTES" 2>/dev/null)" ]; then
-                if mv "$SYNC_LOCK" "$SYNC_LOCK.stale.$$" 2>/dev/null; then
-                  echo "::warning::Reclaimed a stale sync lock: $(cat "$SYNC_LOCK.stale.$$" 2>/dev/null || echo '<unreadable>')"
-                  rm -f "$SYNC_LOCK.stale.$$"
+                aside="$SYNC_LOCK.stale.$$"
+                if mv "$SYNC_LOCK" "$aside" 2>/dev/null; then
+                  if [ -z "$(find "$aside" -maxdepth 0 -mmin "+$SYNC_LOCK_STALE_MINUTES" 2>/dev/null)" ]; then
+                    if ln "$aside" "$SYNC_LOCK" 2>/dev/null; then
+                      rm -f "$aside"
+                    else
+                      echo "::warning::Moved a live sync lock aside and could not restore it; left at $aside"
+                    fi
+                  else
+                    echo "::warning::Reclaimed a stale sync lock: $(cat "$aside" 2>/dev/null || echo '<unreadable>')"
+                    rm -f "$aside"
+                  fi
                 fi
               fi
 

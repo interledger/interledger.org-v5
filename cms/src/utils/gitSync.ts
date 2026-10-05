@@ -279,6 +279,11 @@ export interface LockFs {
    * which is how exactly one contender wins a race to reclaim a stale lock.
    */
   rename: (from: string, to: string) => boolean
+  /**
+   * Links `from` back into `to` and removes `from`, keeping its contents and
+   * mtime. Returns false, leaving `from` in place, when `to` exists already.
+   */
+  restore: (from: string, to: string) => boolean
   remove: (filepath: string) => void
 }
 
@@ -350,6 +355,15 @@ const defaultLockFs: LockFs = {
     if (!(renamed instanceof Error)) return true
     if (errorCode(renamed) === 'ENOENT') return false
     throw renamed
+  },
+  restore: (from, to) => {
+    const linked = tryCatch(() => fs.linkSync(from, to))
+    if (linked instanceof Error) {
+      if (errorCode(linked) === 'EEXIST') return false
+      throw linked
+    }
+    fs.rmSync(from, { force: true })
+    return true
   },
   remove: (filepath) => fs.rmSync(filepath, { force: true })
 }
@@ -820,6 +834,21 @@ function reclaimStaleLock(
 
   const asidePath = `${lockPath}.stale.${nonce}`
   if (!deps.lockFs.rename(lockPath, asidePath)) return
+
+  // The rename moves whatever is at the path now, not the file just judged
+  // stale. If another contender reclaimed it and claimed a fresh lock between
+  // the two calls, that live lock is what moved — put it back, or both of us
+  // would go on to hold the mutex.
+  const movedSince = deps.lockFs.mtimeMs(asidePath)
+  if (movedSince !== null && deps.now() - movedSince < SYNC_LOCK_STALE_MS) {
+    if (!deps.lockFs.restore(asidePath, lockPath)) {
+      console.warn(
+        `⚠️  Moved a live sync lock aside and could not restore it; ` +
+          `left at ${asidePath}`
+      )
+    }
+    return
+  }
 
   console.warn(
     `⚠️  Reclaimed a stale sync lock at ${lockPath} ` +

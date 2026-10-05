@@ -159,6 +159,13 @@ function createDeps(
         files.set(to, entry)
         return true
       },
+      restore: (from, to) => {
+        const entry = files.get(from)
+        if (entry === undefined || files.has(to)) return false
+        files.delete(from)
+        files.set(to, entry)
+        return true
+      },
       remove: (filepath) => {
         files.delete(filepath)
       }
@@ -2541,6 +2548,35 @@ describe('sync lock primitives', () => {
 
     expect(a).not.toBeInstanceOf(Error)
     expect(b).toBeInstanceOf(Error)
+    expect([...files.keys()]).toEqual([LOCK_PATH])
+  })
+
+  /**
+   * The reclaim's mtime read and its rename are two calls. A contender that
+   * reclaims and claims a fresh lock between them leaves a live lock at the
+   * path, and the rename moves that one instead of the stale one.
+   */
+  it('puts back a live lock that replaced the stale one mid-reclaim', async () => {
+    const clock = { ms: NOW }
+    const files = heldLock(NOW - STALE_MS - 1)
+    const deps = createDeps({ files, clock })
+    const rename = deps.lockFs.rename
+    let raced = false
+    deps.lockFs.rename = (from, to) => {
+      if (!raced) {
+        raced = true
+        files.set(LOCK_PATH, {
+          contents: 'pid=999 host=other\n',
+          mtimeMs: clock.ms
+        })
+      }
+      return rename(from, to)
+    }
+
+    const lock = await acquireSyncLock(REPO, deps)
+
+    expect(lock).toBeInstanceOf(Error)
+    expect(files.get(LOCK_PATH)?.contents).toBe('pid=999 host=other\n')
     expect([...files.keys()]).toEqual([LOCK_PATH])
   })
 
