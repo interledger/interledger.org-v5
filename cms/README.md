@@ -96,10 +96,12 @@ Implementation notes that are easy to get wrong:
   until someone cleared it by hand: every later save failed, and so did the
   daily workflow's integrate step.
 - **Giving up unwinds the commit** with `git reset --soft HEAD~1`, but only when
-  exactly one commit is unpushed. The workflow's Airtable step holds an unpushed
-  commit of its own for up to ~75s during its retry loop, and dropping `HEAD~1`
-  blindly inside that window would discard another writer's work. `--soft` keeps
-  the content staged, so the next save retries it.
+  the sync provably made it: the checkout was level with origin before it
+  committed and is exactly one ahead now. An ahead-count of one alone is not
+  proof — a commit an earlier sync stranded counts too, and if this sync's own
+  commit was dropped as empty during the rebase, `HEAD~1` would rewrite the
+  older one. Anything else is left for the next sync to push. `--soft` keeps the
+  content staged, so the next save retries it.
 - **Lock contention is retried, not reported.** The daily workflow and editor
   saves share a checkout, so `index.lock` collisions are expected. The retry
   covers the status read, `git add`, `git commit` and `git push` — every command

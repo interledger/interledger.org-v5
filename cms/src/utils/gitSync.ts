@@ -1116,25 +1116,12 @@ async function pushWithRebase(
   return { pushed: false, conflict, error: lastError }
 }
 
-/**
- * Hands the checkout back with no unpushed commits.
- *
- * The daily workflow integrates with `git pull --ff-only` under `set -e`, so a
- * single stranded local commit fails the whole run — rebuild, content sync and
- * Airtable sync alike — not just this sync. `--soft` keeps the content staged,
- * so the next `git status` still reports it and the next debounced save retries
- * it automatically.
- *
- * Guarded on the ahead-count rather than resetting blindly: the workflow's
- * Airtable step holds an unpushed commit of its own for up to ~75s during its
- * retry loop, and dropping `HEAD~1` inside that window would discard another
- * writer's work.
- */
-async function unwindLocalCommit(
+/** Local commits not yet on the remote branch, as of the last fetch. */
+async function countUnpushedCommits(
   repoRoot: string,
   branch: string,
   deps: GitSyncDeps
-): Promise<'unwound' | 'left-in-place' | GitCommandError> {
+): Promise<number | GitCommandError> {
   const ahead = await deps.exec(
     `git rev-list --count ${shellQuote(`${REMOTE}/${branch}`)}..HEAD`,
     repoRoot
@@ -1142,14 +1129,47 @@ async function unwindLocalCommit(
   if (ahead instanceof GitCommandError) return ahead
 
   const count = Number.parseInt(ahead.trim(), 10)
+  if (Number.isFinite(count)) return count
+  return new GitCommandError(
+    'git rev-list --count',
+    ahead,
+    '',
+    `git rev-list --count returned "${ahead.trim()}", not a number`
+  )
+}
+
+/**
+ * Hands the checkout back with no unpushed commits.
+ *
+ * A stranded local commit diverges the checkout from origin, which the daily
+ * workflow then has to replay on top. `--soft` keeps the content staged, so
+ * the next `git status` still reports it and the next debounced save retries
+ * it automatically.
+ *
+ * Only ever resets a commit this sync provably made: the checkout must have
+ * been level with origin before it committed (`unpushedBefore === 0`) and be
+ * exactly one ahead now. The count alone is not proof. A commit stranded by an
+ * earlier sync whose unwind failed counts as one too, and if this sync's own
+ * commit became empty during the rebase and was dropped, `HEAD~1` would rewrite
+ * that older commit instead.
+ */
+async function unwindLocalCommit(
+  repoRoot: string,
+  branch: string,
+  unpushedBefore: number | GitCommandError,
+  deps: GitSyncDeps
+): Promise<'unwound' | 'left-in-place' | GitCommandError> {
+  const unpushed = await countUnpushedCommits(repoRoot, branch, deps)
+  if (unpushed instanceof GitCommandError) return unpushed
+
   // Zero is normal: `-X theirs` can make the commit identical to upstream, and
   // rebase drops an empty commit by default.
-  if (!Number.isFinite(count) || count === 0) return 'left-in-place'
+  if (unpushed === 0) return 'left-in-place'
 
-  if (count > 1) {
+  if (unpushedBefore !== 0 || unpushed > 1) {
     console.error(
-      `⚠️  ${count} unpushed local commits — leaving them in place. ` +
-        `Another writer may own one of them.`
+      `⚠️  ${unpushed} unpushed local commit(s), not all from this sync — ` +
+        `leaving them in place for the next sync to push.`
     )
     return 'left-in-place'
   }
@@ -1202,6 +1222,11 @@ async function commitAndPush(
     return { outcome: 'failed', error: branch }
   }
 
+  // Read before committing, so a give-up can tell this sync's commit apart
+  // from one an earlier sync left behind. A failure here only costs the
+  // unwind, which then refuses, so it is no reason to drop the save.
+  const unpushedBefore = await countUnpushedCommits(repoRoot, branch, deps)
+
   const added = await execWithLockRetry(
     buildAddCommand(addPaths),
     repoRoot,
@@ -1237,7 +1262,12 @@ async function commitAndPush(
     push.error ?? new Error('Git sync could not push, with no error reported')
   console.error(`⚠️  Git sync failed: ${error.message}`)
 
-  const unwound = await unwindLocalCommit(repoRoot, branch, deps)
+  const unwound = await unwindLocalCommit(
+    repoRoot,
+    branch,
+    unpushedBefore,
+    deps
+  )
   return {
     outcome: 'failed',
     error: unwound instanceof Error ? unwound : error

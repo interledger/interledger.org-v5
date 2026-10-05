@@ -96,7 +96,7 @@ function createDeps(
 ): FakeDeps {
   const {
     respond,
-    responses = {},
+    responses: overrides = {},
     existing = [REPO, ...STAGE_DIRS],
     files = new Map<string, LockEntry>(),
     clock = { ms: Date.UTC(2026, 0, 1) }
@@ -105,6 +105,12 @@ function createDeps(
   const alerts: GitSyncAlert[] = []
   const sleeps: number[] = []
 
+  // Real git always answers the ahead-count with a number; a checkout level
+  // with origin is the ordinary state, so tests only override it to vary it.
+  const responses: Record<string, FakeResponse> = {
+    'git rev-list --count': '0',
+    ...overrides
+  }
   const prefixes = Object.keys(responses).sort((a, b) => b.length - a.length)
 
   return {
@@ -867,6 +873,7 @@ describe('runGitSync', () => {
       PROBE_COMMAND,
       STATUS_COMMAND,
       BRANCH_COMMAND,
+      "git rev-list --count 'origin/staging'..HEAD",
       "git add -- 'src/content/' 'src/data/' 'public/uploads/img/original'",
       "git commit -m 'faq: update a'",
       "git push origin HEAD:'staging'"
@@ -1051,6 +1058,7 @@ describe('createDebouncedGitSync', () => {
       PROBE_COMMAND,
       STATUS_COMMAND,
       BRANCH_COMMAND,
+      expect.stringContaining('git rev-list --count'),
       expect.stringContaining('git add'),
       expect.stringContaining('git commit'),
       expect.stringContaining('git push')
@@ -1146,8 +1154,8 @@ describe('createDebouncedGitSync', () => {
     await vi.advanceTimersByTimeAsync(DELAY)
     await Promise.all([schedulerA.settled(), schedulerB.settled()])
 
-    expect(first.commands).toHaveLength(6)
-    expect(second.commands).toHaveLength(6)
+    expect(first.commands).toHaveLength(7)
+    expect(second.commands).toHaveLength(7)
   })
 })
 
@@ -1902,7 +1910,7 @@ describe('runGitSync conflict handling', () => {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
         'git push': gitFailure('git push', { stderr: '! [rejected]' }),
-        'git rev-list --count': '1'
+        'git rev-list --count': sequenceOf('0', '1')
       }
     })
 
@@ -1920,32 +1928,62 @@ describe('runGitSync conflict handling', () => {
 describe('unwinding a commit that could not be pushed', () => {
   const CONTENT = status(['M', 'src/content/faqs/a.mdx'])
 
-  function deniedPush(aheadCount: string) {
+  /** `before` is read ahead of the commit, `after` once the push gives up. */
+  function deniedPush(unpushed: { before: string; after: string }) {
     return createDeps({
       responses: {
         [STATUS_COMMAND]: CONTENT,
         [BRANCH_COMMAND]: 'staging',
         'git push': gitFailure('git push', { stderr: '! [rejected]' }),
-        'git rev-list --count': aheadCount
+        'git rev-list --count': sequenceOf(unpushed.before, unpushed.after)
       }
     })
   }
 
   it('unwinds its own commit so the checkout still fast-forwards', async () => {
-    const deps = deniedPush('1')
+    const deps = deniedPush({ before: '0', after: '1' })
 
     await runGitSync('faq', undefined, deps)
 
     expect(deps.commands).toContain('git reset --soft HEAD~1')
   })
 
+  it('counts unpushed commits before committing, not only after', async () => {
+    const deps = deniedPush({ before: '0', after: '1' })
+
+    await runGitSync('faq', undefined, deps)
+
+    const countAt = deps.commands.findIndex((c) =>
+      c.startsWith('git rev-list --count')
+    )
+    const commitAt = deps.commands.findIndex((c) => c.startsWith('git commit'))
+    expect(countAt).toBeGreaterThanOrEqual(0)
+    expect(countAt).toBeLessThan(commitAt)
+  })
+
+  it('leaves the commits alone when this one is not the only one unpushed', async () => {
+    const deps = deniedPush({ before: '1', after: '2' })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.commands).not.toContain('git reset --soft HEAD~1')
+  })
+
   /**
-   * More than one unpushed commit means another writer — the workflow's
-   * Airtable step holds one for up to ~75s during its own retry loop — owns
-   * one of them. Dropping HEAD~1 there would discard their work.
+   * An earlier sync stranded a commit, and this sync's became empty in the
+   * rebase and was dropped. One unpushed commit remains, but it is not ours:
+   * resetting it would rewrite the earlier save.
    */
-  it('leaves the commit alone when another writer also has one unpushed', async () => {
-    const deps = deniedPush('2')
+  it('leaves an earlier stranded commit alone when its own was dropped', async () => {
+    const deps = deniedPush({ before: '1', after: '1' })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.commands).not.toContain('git reset --soft HEAD~1')
+  })
+
+  it('refuses to unwind when the count before committing was unreadable', async () => {
+    const deps = deniedPush({ before: '', after: '1' })
 
     await runGitSync('faq', undefined, deps)
 
@@ -1953,7 +1991,7 @@ describe('unwinding a commit that could not be pushed', () => {
   })
 
   it('does nothing when the rebase already dropped the commit as empty', async () => {
-    const deps = deniedPush('0')
+    const deps = deniedPush({ before: '0', after: '0' })
 
     await runGitSync('faq', undefined, deps)
 
