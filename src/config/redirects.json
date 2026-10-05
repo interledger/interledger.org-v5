@@ -339,7 +339,7 @@
     },
     {
       "source": "/es/hacktoberfest",
-      "destination": "/es/tech/hacktoberfest",
+      "destination": "/es/tech/hacktober",
       "status": 301
     },
     {
