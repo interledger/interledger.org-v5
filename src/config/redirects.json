@@ -36,6 +36,11 @@
       "status": 301
     },
     {
+      "source": "/es/tech/hacktoberfest",
+      "destination": "/es/tech/hacktober",
+      "status": 301
+    },
+    {
       "source": "/financial-services",
       "destination": "/grant/innovation/financial-services",
       "status": 301
