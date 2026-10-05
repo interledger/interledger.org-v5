@@ -16,10 +16,25 @@ export interface RichTextImage {
 /** Rich text spans the content column, so the image is never wider. */
 const RICH_TEXT_IMAGE_SIZES = '100vw'
 
+/** An `&` that starts a character reference (`&amp;`, `&#38;`, `&nbsp;`). */
+const CHARACTER_REFERENCE = /&(?=#?\w+;)/g
+const CHARACTER_REFERENCE_PLACEHOLDER = '\u0000'
+
+/**
+ * `escapeHtml` that leaves existing character references alone, the way
+ * Marked's own renderer does. Markdown source can carry `&amp;` or `&nbsp;`,
+ * and escaping their `&` again would show the entity as literal text.
+ */
+function escapeAttrValue(value: string): string {
+  return escapeHtml(
+    value.replace(CHARACTER_REFERENCE, CHARACTER_REFERENCE_PLACEHOLDER)
+  ).replaceAll(CHARACTER_REFERENCE_PLACEHOLDER, '&')
+}
+
 function renderAttrs(attrs: Record<string, string | undefined>): string {
   return Object.entries(attrs)
     .filter((entry): entry is [string, string] => entry[1] !== undefined)
-    .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
+    .map(([key, value]) => ` ${key}="${escapeAttrValue(value)}"`)
     .join('')
 }
 
@@ -73,7 +88,7 @@ export function renderOptimizedImageHtml({
   alt,
   title
 }: RichTextImage): string {
-  if (!src || !isSafeMarkdownHref(src)) return escapeHtml(alt)
+  if (!src || !isSafeMarkdownHref(src)) return escapeAttrValue(alt)
 
   const sources = renderPictureSources(getOptimizedImage(src))
   const img = `<img${renderAttrs({

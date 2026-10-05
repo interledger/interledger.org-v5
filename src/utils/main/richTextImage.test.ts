@@ -88,6 +88,17 @@ describe('renderOptimizedImageHtml', () => {
     expect(html).toContain('title="T &amp; &quot;t&quot;"')
   })
 
+  it('keeps existing character references instead of escaping them again', () => {
+    const html = renderOptimizedImageHtml({
+      src: '/img/a.gif',
+      alt: 'A & B &amp; C&nbsp;D &#38; E',
+      title: 'T &amp; t'
+    })
+
+    expect(html).toContain('alt="A &amp; B &amp; C&nbsp;D &#38; E"')
+    expect(html).toContain('title="T &amp; t"')
+  })
+
   it('renders only the alt text for an unsafe or empty source', () => {
     expect(
       renderOptimizedImageHtml({ src: 'javascript:alert(1)', alt: 'x <y>' })
