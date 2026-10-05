@@ -32,6 +32,14 @@ const foundationPagesCollection = defineCollection({
   schema: foundationPageFrontmatterSchema
 })
 
+const fundraisingPagesCollection = defineCollection({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: `./${CONTENT_ROOT}/${CONTENT.fundraisingPages}`
+  }),
+  schema: foundationPageFrontmatterSchema
+})
+
 const grantPagesCollection = defineCollection({
   loader: glob({
     pattern: '**/[^_]*.{md,mdx}',
@@ -101,6 +109,7 @@ export const collections = {
   i18n: defineCollection({ loader: i18nLoader(), schema: i18nSchema() }),
   'foundation-blog': foundationBlogCollection,
   'foundation-pages': foundationPagesCollection,
+  'fundraising-pages': fundraisingPagesCollection,
   'grant-pages': grantPagesCollection,
   'grant-overview-pages': grantOverviewPagesCollection,
   'summit-pages': summitPagesCollection,

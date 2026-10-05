@@ -76,8 +76,10 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.donation-cards][populate][cards]': '*'
 })
 
+const fundraiseUp = Astro.url.searchParams.get('type') === 'fundraising'
+const apiId = fundraiseUp ? 'fundraising-pages' : 'foundation-pages'
 const response = await fetchStrapi<FoundationPagePreview>(
-  `api/foundation-pages/${documentId}?${populateParams.toString()}`
+  `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
   return Astro.redirect('/404')
@@ -98,13 +100,12 @@ const heroImageMobile = page.hero?.backgroundImageMobile?.url
 const heroImageMobileAlt = page.hero?.backgroundImageMobile?.alternativeText
 const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
-const needsFundraiseUp = content.some(
-  (block) => block.__component === 'blocks.donation-cards'
-)
 ---
 
 <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
-  <Fragment slot="head">{needsFundraiseUp && <FundraiseUpScript />}</Fragment>
+  <Fragment slot="head">
+    {fundraiseUp && <FundraiseUpScript />}
+  </Fragment>
   <TableScrollSupport />
   <main class="pb-3xl">
     <!-- Preview Banner -->
