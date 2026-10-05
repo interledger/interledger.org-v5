@@ -117,7 +117,7 @@ const leadClass =
       <h2 id={headingId} class="sr-only">
         {label}
       </h2>
-      <div class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 tablet:gap-2xl desktop:grid-cols-3">
+      <div class="grid w-full grid-cols-1 gap-xl [&>*]:min-w-0 tablet:gap-2xl desktop:grid-cols-3">
         {resolved.map((card, index) => (
           <article class={cardClass}>
             <div aria-hidden="true" class={ACCENT_SLOT_CLASS}>
@@ -161,7 +161,7 @@ const leadClass =
             <div class="mt-auto pt-lg">
               <LinkButton
                 href={card.cta.href}
-                class="after:absolute after:inset-0 after:content-['']"
+                class="w-full after:absolute after:inset-0 after:content-['']"
                 variant="primary"
                 external={card.cta.external}
                 document={card.cta.document}
