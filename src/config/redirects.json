@@ -22,7 +22,7 @@
     },
     {
       "source": "/developers/hacktoberfest",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
