@@ -42,14 +42,14 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
-| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                         |
+| Variable                    | Description                                                                                                                                                                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                             |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                          |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: the repo Strapi runs from). On the VM it must be the workflow's `ENV_DEPLOY_PATH` checkout, since the two writers share a lock inside its `.git` |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).      |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                 |
+| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                              |
 
 ### Git Sync Failure Reporting
 
