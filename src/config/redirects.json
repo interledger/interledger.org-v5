@@ -132,7 +132,7 @@
     },
     {
       "source": "/hacktoberfest-2023",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
