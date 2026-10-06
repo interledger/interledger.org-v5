@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  migrateBodyLinks,
   migrateFrontmatterPaths,
   migrateNavigationHrefs,
   migrateRedirectConfig
@@ -152,5 +153,51 @@ describe('migrateRedirectConfig', () => {
         note: 'kept'
       }
     ])
+  })
+})
+
+describe('migrateBodyLinks', () => {
+  const frontmatter = "---\nlink: '/team'\n---\n"
+
+  it('slashes Markdown links and serializer link props in the body only', () => {
+    const body = [
+      'Read [our grants](/grant/our-grantmaking).',
+      '<CtaLink link="/contact" text="Go" />',
+      "<CtaButtons buttons={[{ text: 'Tech', link: '/es/tech/overview', style: 'primary' }]} />",
+      '<CardGrid buttonUrl="/grant/apply" imageSrc="/img/a.png" />'
+    ].join('\n')
+
+    expect(migrateBodyLinks(frontmatter + body)).toBe(
+      frontmatter +
+        [
+          'Read [our grants](/grant/our-grantmaking/).',
+          '<CtaLink link="/contact/" text="Go" />',
+          "<CtaButtons buttons={[{ text: 'Tech', link: '/es/tech/overview/', style: 'primary' }]} />",
+          '<CardGrid buttonUrl="/grant/apply/" imageSrc="/img/a.png" />'
+        ].join('\n')
+    )
+  })
+
+  // Rich text kept in frontmatter, e.g. a grant page FAQ answer.
+  it('slashes a Markdown link inside a frontmatter string', () => {
+    const raw = "---\nanswer: 'Join [our newsletter](/subscribe).'\n---\nBody\n"
+    expect(migrateBodyLinks(raw)).toBe(
+      "---\nanswer: 'Join [our newsletter](/subscribe/).'\n---\nBody\n"
+    )
+  })
+
+  // An API example in a blog post, not a link.
+  it('leaves code alone', () => {
+    const raw =
+      frontmatter +
+      "```ts\nconst route = { path: '/incoming', link: '/x' }\n```\n"
+    expect(migrateBodyLinks(raw)).toBeNull()
+  })
+
+  it('leaves external links, files and anchors alone', () => {
+    const raw =
+      frontmatter +
+      '[a](https://x.org/y) [b](/uploads/r.pdf) [c](#top) <A href="//x.org/y" />'
+    expect(migrateBodyLinks(raw)).toBeNull()
   })
 })

@@ -13,6 +13,7 @@
 import fs from 'fs'
 import path from 'path'
 import {
+  migrateBodyLinks,
   migrateFrontmatterPaths,
   migrateNavigationHrefs,
   migrateRedirectConfig
@@ -47,8 +48,10 @@ function contentFiles(): string[] {
 function migrateContent(): number {
   let changed = 0
   for (const file of contentFiles()) {
-    const next = migrateFrontmatterPaths(fs.readFileSync(file, 'utf-8'))
-    if (next === null) continue
+    const raw = fs.readFileSync(file, 'utf-8')
+    const withFrontmatter = migrateFrontmatterPaths(raw) ?? raw
+    const next = migrateBodyLinks(withFrontmatter) ?? withFrontmatter
+    if (next === raw) continue
     changed++
     console.log(`✏️  ${path.relative(REPO_ROOT, file)}`)
     if (!DRY_RUN) fs.writeFileSync(file, next, 'utf-8')
