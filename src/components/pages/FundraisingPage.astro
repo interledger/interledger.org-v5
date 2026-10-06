@@ -1,0 +1,146 @@
+---
+/**
+ * Renders a page from the `fundraising-pages` collection (INTORG-1247).
+ *
+ * Standalone on purpose. It mirrors `FoundationContentPage` rather than
+ * extending it: a fundraising page loads the Fundraise Up install script and a
+ * foundation page must not, and threading that through the shared renderer
+ * would put a third-party script behind a prop on all ~200 foundation routes.
+ *
+ * **No route renders this yet.** The collection is defined and the Strapi
+ * content type exists, but neither `[...page].astro` nor its Spanish twin
+ * includes `fundraising-pages` in `getStaticPaths`, so nothing is built or
+ * reachable on the live site. That is deliberate: it lands the implementation
+ * without exposing an unfinished page. Registering the route is the launch
+ * change, and that is also when this and `FoundationContentPage` should be
+ * reconciled — see the component map below.
+ */
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
+import {
+  type Locale,
+  isDemoPathSlug,
+  productionDeploy,
+  useTranslations,
+  localizeRoute
+} from '@/utils'
+import { getCollection, render } from 'astro:content'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import PageHero from '@/components/shared/PageHero.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
+import CardGrid from '@/components/blocks/CardGrid.astro'
+import CtaButtons from '@/components/blocks/CtaButtons.astro'
+import CtaStrip from '@/components/blocks/CtaStrip.astro'
+import DonationCards from '@/components/blocks/DonationCards.astro'
+import Faq from '@/components/blocks/Faq.astro'
+import FaqItem from '@/components/shared/FaqItem.astro'
+import InfoCard from '@/components/shared/InfoCard.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import SplitLayout from '@/components/blocks/SplitLayout.astro'
+
+interface Props {
+  slug: string
+  contentLocale: Locale
+  isFallback?: boolean
+}
+
+const { slug, contentLocale, isFallback = false } = Astro.props
+
+const pages = await getCollection('fundraising-pages')
+const mdxPage = pages.find(
+  (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
+)
+
+if (!mdxPage) return Astro.redirect('/404')
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const { Content: MdxContent } = await render(mdxPage)
+if (!MdxContent) return Astro.redirect('/404')
+
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageBlur,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroImageMobileBlur,
+  heroCtas
+} = mdxPage.data
+
+const noindex = isDemoPathSlug(mdxPage.data.pathSlug)
+
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
+]
+
+const heroLcpPreload =
+  heroImage || heroImageMobile
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
+---
+
+<FoundationPageLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  heroLcpPreload={heroLcpPreload}
+>
+  {/*
+    Test mode on every build but the Netlify production deploy, so a staging
+    or preview build cannot charge a real card.
+  */}
+  <Fragment slot="head">
+    <FundraiseUpScript testMode={!productionDeploy()} />
+  </Fragment>
+  <main class="page-stack pb-section" data-pillar="mission">
+    <PageHero
+      title={heroTitle ?? title}
+      description={heroDescription ?? description}
+      image={heroImage}
+      imageMobile={heroImageMobile}
+      imageAlt={heroImageAlt}
+      imageMobileAlt={heroImageMobileAlt}
+      imageBlur={heroImageBlur}
+      imageMobileBlur={heroImageMobileBlur}
+      cta={heroCtas?.[0]}
+      breadcrumbs={breadcrumbs}
+      imageBand="default"
+    >
+      <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
+    </PageHero>
+    <section class="px-content">
+      <div class="content-column">
+        <div data-prose class="mx-auto max-w-content">
+          {/*
+            Scoped to the blocks a fundraising page uses, not a copy of
+            `FoundationContentPage`'s 28-entry map. An MDX file reaching for a
+            block that is not here fails the build with an undefined-component
+            error rather than rendering nothing, so the gap is loud. Converge
+            the two maps when the route lands.
+          */}
+          <MdxContent
+            components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
+              CardGrid,
+              CtaButtons,
+              CtaStrip,
+              DonationCards,
+              Faq,
+              FaqItem,
+              InfoCard,
+              Paragraph,
+              SplitLayout
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  </main>
+</FoundationPageLayout>
