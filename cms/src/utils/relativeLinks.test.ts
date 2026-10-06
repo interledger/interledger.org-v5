@@ -1,80 +1,70 @@
 import { describe, it, expect } from 'vitest'
 import {
   bareSlug,
-  ensureLeadingSlash,
   isSameSlug,
-  normalizePathSegment,
   slugVariants,
+  toSlashedPath,
+  toSlashedSlug,
   normalizeRelativeLinksInDocumentData,
   stripUploadOrigin,
   stripUploadOriginsInText
 } from '@/utils'
 
-describe('ensureLeadingSlash', () => {
-  it('prefixes a relative path with a leading slash', () => {
-    expect(ensureLeadingSlash('grant/our-grantmaking')).toBe(
-      '/grant/our-grantmaking'
+describe('toSlashedPath', () => {
+  it.each([
+    ['grant/our-grantmaking', '/grant/our-grantmaking/'],
+    ['/grant/our-grantmaking', '/grant/our-grantmaking/'],
+    ['/grant/our-grantmaking/', '/grant/our-grantmaking/'],
+    ['  /about  ', '/about/'],
+    ['/about//team', '/about/team/'],
+    ['/', '/']
+  ])('stores the internal path %j as %j', (input, expected) => {
+    expect(toSlashedPath(input)).toBe(expected)
+  })
+
+  it('puts the trailing slash before a query or a fragment', () => {
+    expect(toSlashedPath('/blog?tag=news')).toBe('/blog/?tag=news')
+    expect(toSlashedPath('/about#team')).toBe('/about/#team')
+    expect(toSlashedPath('/about/#team')).toBe('/about/#team')
+  })
+
+  it('leaves a link to a file without a trailing slash', () => {
+    expect(toSlashedPath('/uploads/img/original/report.pdf')).toBe(
+      '/uploads/img/original/report.pdf'
     )
+    expect(toSlashedPath('uploads/a.png?v=2')).toBe('/uploads/a.png?v=2')
   })
 
-  it('leaves an already-leading-slash path unchanged', () => {
-    expect(ensureLeadingSlash('/grant/our-grantmaking')).toBe(
-      '/grant/our-grantmaking'
-    )
-  })
-
-  it('leaves http/https URLs unchanged', () => {
-    expect(ensureLeadingSlash('http://example.com')).toBe('http://example.com')
-    expect(ensureLeadingSlash('https://example.com')).toBe(
-      'https://example.com'
-    )
-  })
-
-  it('leaves a protocol-relative URL unchanged', () => {
-    expect(ensureLeadingSlash('//example.com')).toBe('//example.com')
-  })
-
-  it('leaves a mailto: link unchanged', () => {
-    expect(ensureLeadingSlash('mailto:info@interledger.org')).toBe(
-      'mailto:info@interledger.org'
-    )
-  })
-
-  it('leaves a tel: link unchanged', () => {
-    expect(ensureLeadingSlash('tel:+123456')).toBe('tel:+123456')
-  })
-
-  it('leaves an #anchor link unchanged', () => {
-    expect(ensureLeadingSlash('#section')).toBe('#section')
-  })
-
-  it('leaves an empty string unchanged', () => {
-    expect(ensureLeadingSlash('')).toBe('')
+  it.each([
+    'http://example.com',
+    'https://example.com/path',
+    '//example.com',
+    'mailto:info@interledger.org',
+    'tel:+123456',
+    '#section',
+    // The donation card's Fundraise Up element id.
+    '#XVSHSPQU',
+    ''
+  ])('leaves %j unchanged', (value) => {
+    expect(toSlashedPath(value)).toBe(value)
   })
 })
 
-describe('normalizePathSegment', () => {
-  it('strips a leading slash', () => {
-    expect(normalizePathSegment('/our-grantmaking')).toBe('our-grantmaking')
+describe('toSlashedSlug', () => {
+  it.each([
+    ['our-grantmaking', '/our-grantmaking/'],
+    ['/our-grantmaking', '/our-grantmaking/'],
+    ['our-grantmaking/', '/our-grantmaking/'],
+    ['/our-grantmaking/', '/our-grantmaking/'],
+    ['education/on-campus', '/education/on-campus/'],
+    [' /our-grantmaking ', '/our-grantmaking/']
+  ])('stores %j as %j', (input, expected) => {
+    expect(toSlashedSlug(input)).toBe(expected)
   })
 
-  it('strips a trailing slash', () => {
-    expect(normalizePathSegment('our-grantmaking/')).toBe('our-grantmaking')
-  })
-
-  it('strips both leading and trailing slashes', () => {
-    expect(normalizePathSegment('/our-grantmaking/')).toBe('our-grantmaking')
-  })
-
-  it('leaves a value with no surrounding slashes unchanged', () => {
-    expect(normalizePathSegment('education/on-campus')).toBe(
-      'education/on-campus'
-    )
-  })
-
-  it('trims surrounding whitespace along with slashes', () => {
-    expect(normalizePathSegment(' /our-grantmaking ')).toBe('our-grantmaking')
-    expect(normalizePathSegment('our-grantmaking/ ')).toBe('our-grantmaking')
+  // An empty slug is the `required` validator's to report, not `//`.
+  it.each(['', '/', '  '])('leaves %j empty', (value) => {
+    expect(toSlashedSlug(value)).toBe('')
   })
 })
 
@@ -123,8 +113,8 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     const data = { pathSlug: '/our-grantmaking', link: 'grant/apply' }
     normalizeRelativeLinksInDocumentData(data)
     expect(data).toEqual({
-      pathSlug: 'our-grantmaking',
-      link: '/grant/apply'
+      pathSlug: '/our-grantmaking/',
+      link: '/grant/apply/'
     })
   })
 
@@ -160,7 +150,7 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     }
     normalizeRelativeLinksInDocumentData(data)
     expect(data.ctaStrip).toEqual({
-      primaryButtonLink: '/grant/apply',
+      primaryButtonLink: '/grant/apply/',
       secondaryButtonLink: 'https://example.com'
     })
   })
@@ -177,7 +167,7 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     }
     normalizeRelativeLinksInDocumentData(data)
     expect(data.content).toEqual([
-      { __component: 'blocks.quote', quote: 'Hi', authorLink: '/team' }
+      { __component: 'blocks.quote', quote: 'Hi', authorLink: '/team/' }
     ])
   })
 
@@ -191,7 +181,7 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     }
     normalizeRelativeLinksInDocumentData(data)
     expect(data.content).toEqual([
-      { __component: 'shared.cta-link', link: '/contact', text: 'Go' },
+      { __component: 'shared.cta-link', link: '/contact/', text: 'Go' },
       { __component: 'blocks.quote', quote: 'Hi', authorLink: '#section' },
       { __component: 'blocks.paragraph', content: 'Unrelated text' }
     ])
@@ -206,8 +196,18 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     }
     normalizeRelativeLinksInDocumentData(data)
     expect(data.mainMenu).toEqual([
-      { label: 'A', href: '/about-us' },
+      { label: 'A', href: '/about-us/' },
       { label: 'B', href: 'mailto:info@interledger.org' }
+    ])
+  })
+
+  // A related-article `slug` is a path segment like `pathSlug`.
+  it('stores a related-article slug with both slashes', () => {
+    const data = { relatedArticles: [{ slug: 'my-post' }, { slug: '/x/' }] }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.relatedArticles).toEqual([
+      { slug: '/my-post/' },
+      { slug: '/x/' }
     ])
   })
 
