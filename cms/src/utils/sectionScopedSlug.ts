@@ -105,3 +105,37 @@ export async function validateSectionScopedSlug(
     errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
   })
 }
+
+/**
+ * Reject a write whose pathSlug another entry of the same type already holds
+ * in this locale, whichever form either side is stored in.
+ *
+ * For content types with a plain `unique: true` pathSlug. Strapi's own check
+ * compares exact strings, so while some rows still hold `about` and the save
+ * hook stores `/about/` (INTORG-1254), it lets a second page claim the same
+ * route and the same MDX file. Returns undefined when the write is fine.
+ */
+export async function validateUniqueSlug(
+  check: SectionScopedSlugCheck
+): Promise<errors.ValidationError | undefined> {
+  const pathSlug = asString(check.data.pathSlug)
+  // Absent on a partial update that leaves the slug alone, so nothing moved.
+  if (!pathSlug) return undefined
+
+  const conflicts = (await check.documents.findMany({
+    filters: { pathSlug: { $in: slugVariants(pathSlug) } },
+    locale: check.locale,
+    fields: ['pathSlug'],
+    limit: 2
+  })) as SlugAndSection[]
+
+  const other = conflicts.find(
+    (entry) => asString(entry.documentId) !== check.documentId
+  )
+  if (!other) return undefined
+
+  const message = `Path Slug "${pathSlug}" is already used by another entry.`
+  return new errors.ValidationError(message, {
+    errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
+  })
+}

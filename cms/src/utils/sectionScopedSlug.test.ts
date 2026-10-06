@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { validateSectionScopedSlug } from './sectionScopedSlug'
+import {
+  validateSectionScopedSlug,
+  validateUniqueSlug
+} from './sectionScopedSlug'
 
 function createDocuments(
   stored: Array<{ documentId: string; pathSlug: string; section: string }> = []
@@ -154,5 +157,68 @@ describe('validateSectionScopedSlug', () => {
     expect(documents.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ locale: 'es' })
     )
+  })
+})
+
+describe('validateUniqueSlug', () => {
+  function createUniqueDocuments(
+    stored: Array<{ documentId: string; pathSlug: string }>
+  ) {
+    return {
+      findMany: vi.fn(async (options: Record<string, unknown>) => {
+        const filters = options.filters as { pathSlug: { $in: string[] } }
+        return stored.filter((e) => filters.pathSlug.$in.includes(e.pathSlug))
+      }),
+      findOne: vi.fn()
+    }
+  }
+
+  // Strapi's own unique check misses this: the row holds `about`, the save
+  // hook stores `/about/` (INTORG-1254).
+  it('rejects a slug another entry holds in the other form', async () => {
+    const documents = createUniqueDocuments([
+      { documentId: 'a', pathSlug: 'about' }
+    ])
+
+    const error = await validateUniqueSlug({
+      documents,
+      data: { pathSlug: '/about/' },
+      locale: 'en'
+    })
+
+    expect(error?.message).toContain('/about/')
+    expect(documents.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: { pathSlug: { $in: ['about', '/about/'] } },
+        locale: 'en'
+      })
+    )
+  })
+
+  it('lets an entry keep its own slug', async () => {
+    const documents = createUniqueDocuments([
+      { documentId: 'a', pathSlug: 'about' }
+    ])
+
+    const error = await validateUniqueSlug({
+      documents,
+      data: { pathSlug: '/about/' },
+      documentId: 'a'
+    })
+
+    expect(error).toBeUndefined()
+  })
+
+  it('skips a partial update that leaves the slug alone', async () => {
+    const documents = createUniqueDocuments([])
+
+    const error = await validateUniqueSlug({
+      documents,
+      data: { title: 'New title' },
+      documentId: 'a'
+    })
+
+    expect(error).toBeUndefined()
+    expect(documents.findMany).not.toHaveBeenCalled()
   })
 })

@@ -16,7 +16,11 @@ import {
   validateGrantPageFaqSection,
   validateFaqSections,
   validateSectionScopedSlug,
+  validateUniqueSlug,
   type SectionScopedSlugFinder,
+  patchUidServiceForSlashedSlugs,
+  type UidDocuments,
+  type UidService,
   validateAndSaveRedirect,
   redirectDeleteError,
   isCodeSyncRequest,
@@ -221,6 +225,17 @@ const SECTION_SCOPED_SLUG_UIDS = [
   'api::report.report'
 ] as const
 
+/** Content types whose `pathSlug` is `unique: true` across the collection. */
+const UNIQUE_SLUG_UIDS = [
+  'api::foundation-page.foundation-page',
+  'api::summit-page.summit-page',
+  'api::hackathon-page.hackathon-page',
+  'api::grant-page.grant-page',
+  'api::grant-overview-page.grant-overview-page',
+  'api::podcast-page.podcast-page',
+  'api::foundation-blog-post.foundation-blog-post'
+] as const
+
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
   findMany: (options: Record<string, unknown>) => Promise<unknown[]>
@@ -324,6 +339,7 @@ interface StrapiPlugin {
     | CmComponentsService
     | UploadService
     | ImageManipulationService
+    | UidService
     | undefined
   provider?: UploadProvider
 }
@@ -2378,6 +2394,29 @@ export default {
           ) as unknown as SectionScopedSlugFinder,
           ...args
         })
+      )
+    }
+    // Strapi's own `unique` check compares exact strings, so `about` and
+    // `/about/` would pass as two slugs (INTORG-1254).
+    for (const uid of UNIQUE_SLUG_UIDS) {
+      registerAsyncDocumentValidation(strapi, uid, (args) =>
+        validateUniqueSlug({
+          documents: strapi.documents(
+            uid
+          ) as unknown as SectionScopedSlugFinder,
+          ...args
+        })
+      )
+    }
+    // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
+    // Available badge compare it by bare slug.
+    const uidService = strapi.plugin('content-manager')?.service('uid') as
+      | UidService
+      | undefined
+    if (uidService) {
+      patchUidServiceForSlashedSlugs(
+        uidService,
+        (uid) => strapi.documents(uid) as unknown as UidDocuments
       )
     }
     registerDocumentValidation(
