@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { trimSlashes } from '../utils/shared/url'
 
 const heroCtaSchema = z.object({
   text: z.string(),
@@ -8,15 +9,18 @@ const heroCtaSchema = z.object({
   document: z.boolean().optional()
 })
 
-// Normalizes pathSlug by stripping any leading or trailing slashes so that
+// Normalizes a slug by stripping any leading or trailing slashes so that
 // "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
 // "/grants/web-grant/" all resolve to the same route.
-const pathSlugSchema = (required = true) => {
-  const base = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
-  return required
-    ? base.refine((s) => s.length > 0, 'pathSlug is required')
-    : base
-}
+const bareSlugSchema = z.string().transform(trimSlashes)
+
+const pathSlugSchema = (required = true) =>
+  required
+    ? bareSlugSchema.refine((s) => s.length > 0, 'pathSlug is required')
+    : bareSlugSchema
+
+// `localizes` names the English pathSlug, so it is compared bare like one.
+const localizesSchema = bareSlugSchema.optional()
 
 // Allowed blog categories. Keep in sync with the `shared.category` Strapi component
 // (cms/src/components/shared/category.json) and the `blog.categories.*` keys in
@@ -70,11 +74,11 @@ export const foundationBlogFrontmatterSchema = z.object({
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
   // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
-  relatedArticles: z.array(z.string()).length(3),
+  relatedArticles: z.array(bareSlugSchema).length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -97,7 +101,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -110,7 +114,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -133,7 +137,7 @@ export const hackathonPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 export type HackathonPageFrontmatterType = z.infer<
@@ -254,7 +258,7 @@ export const grantPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -281,7 +285,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  localizes: z.string().optional(),
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -310,7 +314,7 @@ export const profileFrontmatterSchema = z.object({
   role: z.string().nullable().optional(),
   cta: heroCtaSchema.optional(),
   locale: z.string(),
-  localizes: z.string().optional()
+  localizes: localizesSchema
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
@@ -336,7 +340,7 @@ export const faqFrontmatterSchema = z.object({
   introParagraph: z.string().nullable().optional(),
   faqSections: z.array(faqSectionSchema).min(1),
   locale: z.string(),
-  localizes: z.string().optional()
+  localizes: localizesSchema
 })
 export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
 export type FaqSectionType = z.infer<typeof faqSectionSchema>
@@ -361,7 +365,7 @@ export const reportFrontmatterSchema = z.object({
   date: reportDateSchema.optional(),
   authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),
-  localizes: z.string().optional()
+  localizes: localizesSchema
 })
 export type ReportFrontmatterType = z.infer<typeof reportFrontmatterSchema>
 
@@ -432,7 +436,7 @@ export const podcastPageFrontmatterSchema = z.object({
   podcasts: z.array(podcastItemSchema).min(1),
   ctaStrip: podcastCtaStripSchema,
   locale: z.string().optional(),
-  localizes: z.string().optional()
+  localizes: localizesSchema
 })
 export type PodcastPageFrontmatterType = z.infer<
   typeof podcastPageFrontmatterSchema

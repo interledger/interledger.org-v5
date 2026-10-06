@@ -1,4 +1,4 @@
-import { tryCatchAsync } from '@/utils'
+import { slugVariants, tryCatchAsync } from '@/utils'
 
 export interface StrapiEntry {
   documentId: string
@@ -190,6 +190,9 @@ export function createStrapiClient({
    * beyond trimming slashes, so a raw `&` or `#` would split the query string
    * or truncate it. Slashes survive as %2F, which Strapi decodes back, so a
    * nested slug still resolves.
+   *
+   * Matches every stored form of the slug (`about` and `/about/`), so the
+   * lookup finds the entry whichever form Strapi and the MDX file hold.
    */
   function pathSlugQuery(
     apiId: string,
@@ -197,7 +200,13 @@ export function createStrapiClient({
     locale?: string,
     section?: string | null
   ): string {
-    let endpoint = `${apiId}?filters[pathSlug][$eq]=${encodeURIComponent(pathSlug)}`
+    const slugFilters = slugVariants(pathSlug)
+      .map(
+        (variant, index) =>
+          `filters[pathSlug][$in][${index}]=${encodeURIComponent(variant)}`
+      )
+      .join('&')
+    let endpoint = `${apiId}?${slugFilters}`
     if (section) {
       endpoint += `&filters[section][$eq]=${encodeURIComponent(section)}`
     }

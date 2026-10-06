@@ -11,6 +11,7 @@ import path from 'path'
 import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
 import { LOCALES, defaultLang, formatMdx } from './mdx'
 import { mdxSubpath, type MdxNamingRule } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -254,7 +255,8 @@ export function createFlatLocaleMdxLifecycle<
       const filenameChanged =
         Boolean(oldPathSlug) &&
         Boolean(currentEnSlug) &&
-        (oldPathSlug !== currentEnSlug || oldSection !== currentSection)
+        (!isSameSlug(oldPathSlug ?? '', currentEnSlug ?? '') ||
+          oldSection !== currentSection)
 
       if (filenameChanged && oldPathSlug) {
         console.log(

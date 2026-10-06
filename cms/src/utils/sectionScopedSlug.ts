@@ -12,6 +12,7 @@
  */
 
 import { errors } from '@strapi/utils'
+import { slugVariants } from './relativeLinks'
 
 /** The slice of the Strapi document service this check needs. */
 export interface SectionScopedSlugFinder {
@@ -88,7 +89,7 @@ export async function validateSectionScopedSlug(
   // `fields`, which is what lets an entry recognize itself below.
   // Two rows are enough: at most one of them can be this entry.
   const conflicts = (await check.documents.findMany({
-    filters: { pathSlug, section },
+    filters: { pathSlug: { $in: slugVariants(pathSlug) }, section },
     locale: check.locale,
     fields: ['pathSlug', 'section'],
     limit: 2

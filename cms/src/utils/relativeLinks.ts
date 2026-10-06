@@ -183,6 +183,29 @@ export function normalizePathSegment(value: string): string {
   return value.trim().replace(/^\/+|\/+$/g, '')
 }
 
+/**
+ * The key two slugs are compared by: `about`, `/about` and `/about/` are one
+ * page. Stored slugs move from the bare form to `/about/` (INTORG-1254), and
+ * until every row and file has moved, both forms exist side by side.
+ */
+export function bareSlug(value: string): string {
+  return normalizePathSegment(value)
+}
+
+export function isSameSlug(a: string, b: string): boolean {
+  return bareSlug(a) === bareSlug(b)
+}
+
+/**
+ * Every stored form of a slug, for an exact-match database filter
+ * (`{ pathSlug: { $in: slugVariants(slug) } }`). The save hook only ever wrote
+ * the bare form or `/slug/`, so those two are all a row can hold.
+ */
+export function slugVariants(value: string): string[] {
+  const bare = bareSlug(value)
+  return [bare, `/${bare}/`]
+}
+
 export function normalizeRelativeLinksInDocumentData(data: unknown): void {
   if (Array.isArray(data)) {
     data.forEach(normalizeRelativeLinksInDocumentData)

@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import {
+  bareSlug,
   ensureLeadingSlash,
+  isSameSlug,
   normalizePathSegment,
+  slugVariants,
   normalizeRelativeLinksInDocumentData,
   stripUploadOrigin,
   stripUploadOriginsInText
@@ -72,6 +75,46 @@ describe('normalizePathSegment', () => {
   it('trims surrounding whitespace along with slashes', () => {
     expect(normalizePathSegment(' /our-grantmaking ')).toBe('our-grantmaking')
     expect(normalizePathSegment('our-grantmaking/ ')).toBe('our-grantmaking')
+  })
+})
+
+// Stored slugs move from `about` to `/about/` (INTORG-1254). These are how
+// two slugs are compared while both forms exist.
+describe('bareSlug', () => {
+  it.each([
+    ['about', 'about'],
+    ['/about', 'about'],
+    ['about/', 'about'],
+    ['/about/', 'about'],
+    ['//about//', 'about'],
+    [' /grant/education/ ', 'grant/education'],
+    ['/', ''],
+    ['', '']
+  ])('reduces %j to %j', (input, expected) => {
+    expect(bareSlug(input)).toBe(expected)
+  })
+})
+
+describe('isSameSlug', () => {
+  it('treats the bare and the slashed form as one slug', () => {
+    expect(isSameSlug('about', '/about/')).toBe(true)
+    expect(isSameSlug('/grant/education', 'grant/education/')).toBe(true)
+  })
+
+  it('tells different slugs apart', () => {
+    expect(isSameSlug('about', '/about-us/')).toBe(false)
+    expect(isSameSlug('grant/education', 'education')).toBe(false)
+  })
+})
+
+describe('slugVariants', () => {
+  it('lists the bare and the slashed form, whichever form it gets', () => {
+    expect(slugVariants('about')).toEqual(['about', '/about/'])
+    expect(slugVariants('/about/')).toEqual(['about', '/about/'])
+    expect(slugVariants('grant/education')).toEqual([
+      'grant/education',
+      '/grant/education/'
+    ])
   })
 })
 

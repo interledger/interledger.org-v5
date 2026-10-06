@@ -6,9 +6,14 @@ function createDocuments(
 ) {
   return {
     findMany: vi.fn(async (options: Record<string, unknown>) => {
-      const filters = options.filters as { pathSlug: string; section: string }
+      const filters = options.filters as {
+        pathSlug: { $in: string[] }
+        section: string
+      }
       return stored.filter(
-        (e) => e.pathSlug === filters.pathSlug && e.section === filters.section
+        (e) =>
+          filters.pathSlug.$in.includes(e.pathSlug) &&
+          e.section === filters.section
       )
     }),
     findOne: vi.fn(async (options: Record<string, unknown>) =>
@@ -30,6 +35,21 @@ describe('validateSectionScopedSlug', () => {
     })
 
     expect(error).toBeUndefined()
+  })
+
+  // Stored slugs move from `faq` to `/faq/` (INTORG-1254), so a row may hold
+  // either form while the incoming value holds the other.
+  it('rejects a duplicate stored in the other slug form', async () => {
+    const documents = createDocuments([
+      { documentId: 'a', pathSlug: 'faq', section: 'foundation' }
+    ])
+
+    const error = await validateSectionScopedSlug({
+      documents,
+      data: { pathSlug: '/faq/', section: 'foundation' }
+    })
+
+    expect(error).toBeDefined()
   })
 
   it('rejects a second entry with the same pathSlug in the same section', async () => {

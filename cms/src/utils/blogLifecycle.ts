@@ -12,6 +12,7 @@ import {
   ckeditorFieldToParsedMarkdown
 } from './mdx'
 import { mdxSubpath } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
@@ -506,7 +507,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         oldDate &&
         currentEnSlug &&
         currentDate &&
-        (oldPathSlug !== currentEnSlug || oldDate !== currentDate)
+        (!isSameSlug(oldPathSlug, currentEnSlug) || oldDate !== currentDate)
       ) {
         console.log(
           `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`

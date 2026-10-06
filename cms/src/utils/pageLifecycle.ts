@@ -23,6 +23,7 @@ import {
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import { mdxRelativePath } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -507,7 +508,7 @@ export function createPageLifecycle<T extends UID.ContentType>(
       const { oldPathSlug } = event.state
 
       // If this locale's pathSlug changed, remove only that locale's old file
-      if (oldPathSlug && oldPathSlug !== result.pathSlug) {
+      if (oldPathSlug && !isSameSlug(oldPathSlug, result.pathSlug)) {
         console.log(
           `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
         )

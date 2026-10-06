@@ -364,8 +364,11 @@ export {
 
 // Relative link / path-segment slash normalization
 export {
+  bareSlug,
   ensureLeadingSlash,
+  isSameSlug,
   normalizePathSegment,
+  slugVariants,
   normalizeRelativeLinksInDocumentData,
   stripUploadOrigin,
   stripUploadOriginsInText
