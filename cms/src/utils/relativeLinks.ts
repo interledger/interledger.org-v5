@@ -172,13 +172,41 @@ function stripUploadOriginsInProse(segment: string): string {
  * points uploads at a CDN, that origin is stripped too.
  */
 export function stripUploadOriginsInText(text: string): string {
+  return mapOutsideMarkdownCode(text, stripUploadOriginsInProse)
+}
+
+/**
+ * Applies `rewrite` to the prose of a Markdown text and leaves fenced blocks
+ * and inline code spans untouched: a URL in code is an example, not a link.
+ */
+export function mapOutsideMarkdownCode(
+  text: string,
+  rewrite: (prose: string) => string
+): string {
   return text
     .split(MARKDOWN_CODE)
     .map((segment, index) =>
       // `split` with a capture group puts the code at odd indices.
-      index % 2 === 1 ? segment : stripUploadOriginsInProse(segment)
+      index % 2 === 1 ? segment : rewrite(segment)
     )
     .join('')
+}
+
+/** An inline Markdown link to a site path: `](/path)`, not `](//host)`. */
+const INTERNAL_MARKDOWN_LINK = /\]\((\/(?!\/)[^)\s]*)\)/g
+
+/**
+ * Gives every internal Markdown link in a text the stored `/path/` form
+ * (INTORG-1254), outside code. File links (`/uploads/…/report.pdf`, images)
+ * keep their form, as in {@link toSlashedPath}.
+ */
+export function slashInternalMarkdownLinks(text: string): string {
+  return mapOutsideMarkdownCode(text, (prose) =>
+    prose.replace(
+      INTERNAL_MARKDOWN_LINK,
+      (_link, path: string) => `](${toSlashedPath(path)})`
+    )
+  )
 }
 
 /**
@@ -268,8 +296,9 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
       } else if (!CODE_FIELDS.has(key)) {
         // Every other string, so each CKEditor field is covered wherever it
         // sits (components, dynamic zones) without a field list to drift.
-        ;(data as Record<string, unknown>)[key] =
+        ;(data as Record<string, unknown>)[key] = slashInternalMarkdownLinks(
           stripUploadOriginsInText(value)
+        )
       }
     } else {
       normalizeRelativeLinksInDocumentData(value)

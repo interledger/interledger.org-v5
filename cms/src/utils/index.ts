@@ -379,7 +379,9 @@ export {
   slugVariants,
   toSlashedPath,
   toSlashedSlug,
+  mapOutsideMarkdownCode,
   normalizeRelativeLinksInDocumentData,
+  slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripUploadOriginsInText
 } from './relativeLinks'
