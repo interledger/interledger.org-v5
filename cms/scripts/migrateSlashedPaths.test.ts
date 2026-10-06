@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import {
   migrateFrontmatterPaths,
-  migrateNavigationHrefs
+  migrateNavigationHrefs,
+  migrateRedirectConfig
 } from './migrateSlashedPaths'
 
 function mdx(frontmatter: string, body = '\nBody with [a link](/about).\n') {
@@ -120,5 +121,36 @@ describe('migrateNavigationHrefs', () => {
       ],
       ctaButton: { label: 'Donate', href: '/donate/' }
     })
+  })
+})
+
+describe('migrateRedirectConfig', () => {
+  it('slashes sources and on-site destinations, in Strapi sort order', () => {
+    const result = migrateRedirectConfig({
+      site_pages: [
+        { source: '/about', destination: '/about-us', status: 301 },
+        { source: '/about-old', destination: '/team?x=1', status: 302 },
+        {
+          source: '/docs',
+          destination: 'https://example.org/docs',
+          status: 301,
+          enabled: false,
+          note: 'kept'
+        }
+      ]
+    })
+
+    expect(result).not.toBeInstanceOf(Error)
+    expect((result as { site_pages: unknown[] }).site_pages).toEqual([
+      { source: '/about-old/', destination: '/team/?x=1', status: 302 },
+      { source: '/about/', destination: '/about-us/', status: 301 },
+      {
+        source: '/docs/',
+        destination: 'https://example.org/docs',
+        status: 301,
+        enabled: false,
+        note: 'kept'
+      }
+    ])
   })
 })
