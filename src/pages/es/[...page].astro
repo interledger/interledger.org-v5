@@ -8,29 +8,19 @@ import {
 } from '@/utils'
 
 export async function getStaticPaths() {
-  const [
-    foundationPages,
-    fundraisingPages,
-    grantPages,
-    grantOverviews,
-    crossSectionPaths
-  ] = await Promise.all([
-    getLocalizedPaths('foundation-pages', 'es', 'page'),
-    getLocalizedPaths('fundraising-pages', 'es', 'page'),
-    getLocalizedPaths('grant-pages', 'es', 'page'),
-    getLocalizedPaths('grant-overview-pages', 'es', 'page'),
-    getCrossSectionPaths('foundation', 'es', 'page')
-  ])
+  const [foundationPages, grantPages, grantOverviews, crossSectionPaths] =
+    await Promise.all([
+      getLocalizedPaths('foundation-pages', 'es', 'page'),
+      getLocalizedPaths('grant-pages', 'es', 'page'),
+      getLocalizedPaths('grant-overview-pages', 'es', 'page'),
+      getCrossSectionPaths('foundation', 'es', 'page')
+    ])
 
   return [
     ...crossSectionPaths,
     ...foundationPages.map((p) => ({
       ...p,
       props: { ...p.props, kind: 'page' as const }
-    })),
-    ...fundraisingPages.map((p) => ({
-      ...p,
-      props: { ...p.props, kind: 'fundraising-page' as const }
     })),
     ...grantPages.map((p) => ({
       params: { page: `grant/${p.params.page}` },
@@ -57,8 +47,5 @@ const commonProps = {
     slug={slug}
     contentLocale={contentLocale}
     isFallback={isFallback}
-    collection={kind === 'fundraising-page'
-      ? 'fundraising-pages'
-      : 'foundation-pages'}
   />
 </SectionEntryPage>
