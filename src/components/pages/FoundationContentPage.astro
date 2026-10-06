@@ -98,78 +98,79 @@ const heroLcpPreload =
   heroLcpPreload={heroLcpPreload}
 >
   <main class="page-stack pb-section" data-pillar="mission">
-  {
-    heroTitle ? (
-      <PageHero
-        title={heroTitle ?? title}
-        description={heroDescription ?? description}
-        image={heroImage}
-        imageMobile={heroImageMobile}
-        imageAlt={heroImageAlt}
-        imageMobileAlt={heroImageMobileAlt}
-        imageBlur={heroImageBlur}
-        imageMobileBlur={heroImageMobileBlur}
-        cta={heroCtas?.[0]}
-        breadcrumbs={breadcrumbs}
-        imageBand="default"
-      >
-        <TranslationDisclaimer
-          slot="after-breadcrumbs"
-          isVisible={isFallback}
-        />
-      </PageHero>
-    ) : (
-      <div class="px-content pt-page-offset">
-        <div class="content-column">
-          <Breadcrumbs breadcrumbs={breadcrumbs}>
-            <TranslationDisclaimer isVisible={isFallback} />
-          </Breadcrumbs>
-          {/* Same treatment PageHero gives its own h1, so a hero-less page
+    {
+      heroTitle ? (
+        <PageHero
+          title={heroTitle ?? title}
+          description={heroDescription ?? description}
+          image={heroImage}
+          imageMobile={heroImageMobile}
+          imageAlt={heroImageAlt}
+          imageMobileAlt={heroImageMobileAlt}
+          imageBlur={heroImageBlur}
+          imageMobileBlur={heroImageMobileBlur}
+          cta={heroCtas?.[0]}
+          breadcrumbs={breadcrumbs}
+          imageBand="default"
+        >
+          <TranslationDisclaimer
+            slot="after-breadcrumbs"
+            isVisible={isFallback}
+          />
+        </PageHero>
+      ) : (
+        <div class="px-content pt-page-offset">
+          <div class="content-column">
+            <Breadcrumbs breadcrumbs={breadcrumbs}>
+              <TranslationDisclaimer isVisible={isFallback} />
+            </Breadcrumbs>
+            {/* Same treatment PageHero gives its own h1, so a hero-less page
             still gets a real page title instead of relying on MdxContent's
             first heading (which may not exist, or may be an h2 section
             heading rather than the page's own title). */}
-          <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
+            <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
+          </div>
+        </div>
+      )
+    }
+    <section class="px-content">
+      <div class="content-column">
+        <div data-prose class="mx-auto max-w-content">
+          <MdxContent
+            components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
+              ProfileCard,
+              ProfileGrid,
+              Blockquote,
+              Quote,
+              CalloutText,
+              Paragraph,
+              SplitLayout,
+              CtaStrip,
+              PdfEmbed,
+              VideoEmbed,
+              InfoCard,
+              TitleCard,
+              CardGrid,
+              ResourceCard,
+              NavigationCard,
+              NumberTiles,
+              Agenda,
+              Faq,
+              CtaButtons,
+              FaqItem,
+              EventCard,
+              EventWhen,
+              EventWhere,
+              EventApply,
+              LogoCarousel,
+              ImageBlock,
+              CodeBlock,
+              DonationCards
+            }}
+          />
         </div>
       </div>
-    )
-  }
-  <section class="px-content">
-    <div class="content-column">
-      <div data-prose class="mx-auto max-w-content">
-        <MdxContent
-          components={{
-            ...RICH_TEXT_MDX_COMPONENTS,
-            ProfileCard,
-            ProfileGrid,
-            Blockquote,
-            Quote,
-            CalloutText,
-            Paragraph,
-            SplitLayout,
-            CtaStrip,
-            PdfEmbed,
-            VideoEmbed,
-            InfoCard,
-            TitleCard,
-            CardGrid,
-            ResourceCard,
-            NavigationCard,
-            NumberTiles,
-            Agenda,
-            Faq,
-            CtaButtons,
-            FaqItem,
-            EventCard,
-            EventWhen,
-            EventWhere,
-            EventApply,
-            LogoCarousel,
-            ImageBlock,
-            CodeBlock,
-            DonationCards
-          }}
-        />
-      </div>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
+</FoundationPageLayout>
