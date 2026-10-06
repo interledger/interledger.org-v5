@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { trimSlashes } from '../utils/shared/url'
 
 const heroCtaSchema = z.object({
   text: z.string(),
@@ -12,7 +11,10 @@ const heroCtaSchema = z.object({
 // Normalizes a slug by stripping any leading or trailing slashes so that
 // "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
 // "/grants/web-grant/" all resolve to the same route.
-const bareSlugSchema = z.string().transform(trimSlashes)
+// Same as `trimSlashes` in src/utils/shared/url.ts, kept local on purpose:
+// CMS vitest transforms this file with only cms/ installed (see tsconfig.json
+// here), and an import from outside src/schemas pulls in the Astro tsconfig.
+const bareSlugSchema = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
 
 const pathSlugSchema = (required = true) =>
   required
