@@ -3,11 +3,13 @@
  * Page Preview Route (SSR)
  * Fetches draft content from Strapi for preview before publishing
  * URL: /page-preview?documentId={documentId}
+ * Fundraising pages add `&type=fundraising`.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
 import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
 interface HeroCta {
@@ -71,11 +73,27 @@ const populateParams = new URLSearchParams({
   'populate[content][on][blocks.event-card][populate][when]': '*',
   'populate[content][on][blocks.event-card][populate][where]': '*',
   'populate[content][on][blocks.event-card][populate][apply][populate]': '*',
-  'populate[content][on][blocks.code-block][populate]': '*'
+  'populate[content][on][blocks.code-block][populate]': '*',
+  'populate[content][on][blocks.donation-cards][populate][cards]': '*',
+  'populate[content][on][blocks.split-layout][populate][media][populate]':
+    'image',
+  'populate[content][on][blocks.split-layout][populate][cta]': 'true',
+  'populate[content][on][blocks.card-grid][populate][infoCards][populate]': '*',
+  'populate[content][on][blocks.card-grid][populate][titleCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][resourceCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][navigationCards][populate]':
+    '*'
 })
 
+// The admin preview link for a Fundraising Page sets type=fundraising.
+// That document is not in foundation-pages, so the default lookup 404s.
+const isFundraising = Astro.url.searchParams.get('type') === 'fundraising'
+const apiId = isFundraising ? 'fundraising-pages' : 'foundation-pages'
+
 const response = await fetchStrapi<FoundationPagePreview>(
-  `api/foundation-pages/${documentId}?${populateParams.toString()}`
+  `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
   return Astro.redirect('/404')
@@ -99,6 +117,10 @@ const content = page.content || []
 ---
 
 <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+  <Fragment slot="head">
+    {/* A CMS preview is not a publish. Never let it charge a card. */}
+    {isFundraising && <FundraiseUpScript testMode={true} />}
+  </Fragment>
   <TableScrollSupport />
   <main class="pb-3xl">
     <!-- Preview Banner -->
