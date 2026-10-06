@@ -168,8 +168,8 @@ describe('initFundraiseUpAnalytics', () => {
     )
     const callAt = source.indexOf('initFundraiseUpAnalytics()', importAt)
 
-    // The doc comment names the function too. The call has to be a bundled
-    // module placed after the inline stub, or `.on()` runs before the queue exists.
+    // The call has to be a bundled module placed after the inline stub, or
+    // `.on()` runs before the queue exists.
     expect(stubAt).toBeGreaterThan(-1)
     expect(importAt).toBeGreaterThan(stubAt)
     expect(callAt).toBeGreaterThan(importAt)
