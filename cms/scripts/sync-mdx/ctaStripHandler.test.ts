@@ -183,6 +183,32 @@ describe('CtaStrip handler', () => {
     ])
   })
 
+  it('keeps green and drops the default purple', async () => {
+    const green = await parseMdxToBlocks(
+      '<CtaStrip color="green" primaryButtonText="P" primaryButtonLink="/p" />',
+      ctx
+    )
+    expect(green[0]).toMatchObject({ color: 'green' })
+
+    const purple = await parseMdxToBlocks(
+      '<CtaStrip color="purple" primaryButtonText="P" primaryButtonLink="/p" />',
+      ctx
+    )
+    expect(purple[0]).not.toHaveProperty('color')
+  })
+
+  it('rejects a colour outside purple and green', async () => {
+    const result = await parseMdxToBlocks(
+      '<CtaStrip color="blue" primaryButtonText="P" primaryButtonLink="/p" />',
+      ctx
+    )
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      prop: 'color'
+    })
+  })
+
   it('drops an incomplete secondary CTA (only one field present)', async () => {
     const mdx = [
       open(

@@ -201,6 +201,15 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
   Catching content that references a nonexistent image is a separate job and
   wants its own check — the marker is blind to SVGs/GIFs and to anything that
   doesn't reach prerendered HTML.
+- **Rich-text images.** CKEditor stores images as Markdown, and they reach the
+  page by two routes that must emit the same markup: MDX bodies via the `img`
+  override in `RICH_TEXT_MDX_COMPONENTS` (`src/components/mdx/`), which every
+  `<Content components>` map spreads, and HTML-string rich text via Marked's
+  `image` renderer (`renderOptimizedImageHtml`), behind every `parseMarkdown`.
+  A new template that renders MDX must spread the map, or its images ship raw.
+  The CKEditor plugin prefixes the CMS origin onto every upload it inserts;
+  the CMS document middleware strips it on save (`stripUploadOriginsInText`),
+  and `src/contentUploadUrls.test.ts` fails on any that still reach the repo.
 - **Single-URL contexts.** A CSS background and a `poster` cannot carry a
   srcset, so they take `getOptimizedImage(src).fullSrc` and fall back to the raw
   path — see `getHeroSectionStyle` and `VideoEmbed`. Netlify clamps to the source

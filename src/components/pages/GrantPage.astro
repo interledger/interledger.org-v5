@@ -1,4 +1,5 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
   parseMarkdown,
@@ -183,6 +184,7 @@ const heroLcpPreload =
         <div data-prose class={grantSectionHeadingClass}>
           <MdxContent
             components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
               Paragraph,
               SplitLayout,
               Blockquote: BlockquoteBlock,
@@ -225,6 +227,7 @@ const heroLcpPreload =
           secondaryButtonLink={ctaStrip.secondaryButtonLink}
           secondaryButtonExternal={ctaStrip.secondaryButtonExternal}
           secondaryButtonDocument={ctaStrip.secondaryButtonDocument}
+          color={ctaStrip.color}
         />
       </div>
     </section>

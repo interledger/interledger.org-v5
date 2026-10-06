@@ -124,16 +124,19 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 }
 
 /**
- * blocks.cta-strip – purple call-to-action strip with one primary CTA.
+ * blocks.cta-strip – call-to-action strip with a primary CTA and an optional
+ * secondary CTA.
  *
  * `description` comes from the JSX children (markdown). Heading, description
  * and the secondary CTA are optional; primary CTA text and link are required.
  * The secondary CTA's two fields travel together — both or neither.
+ * `color` is omitted when purple, the default. Green is the pistachio variant.
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
   heading?: string
   description?: string
+  color?: 'purple' | 'green'
   primaryButtonText: string
   primaryButtonLink: string
   primaryButtonExternal?: boolean
@@ -441,6 +444,30 @@ export interface InternalAdvertBlock extends StrapiBlockBase {
   }
 }
 
+export interface DonationCard {
+  heading: string
+  amount: string
+  summary?: string
+  seats?: string
+  benefitsLabel?: string
+  benefits: string
+  ctaText: string
+  ctaLink: string
+  ctaExternal?: boolean
+  ctaDocument?: boolean
+}
+
+/**
+ * blocks.donation-cards — the giving tiers on a fundraising page. A card's CTA
+ * may point at a Fundraise Up Element ID (`#XVSHSPQU`); the presence of this
+ * block is what tells the page to load the Fundraise Up script.
+ */
+export interface DonationCardsBlock extends StrapiBlockBase {
+  __component: 'blocks.donation-cards'
+  ariaLabel: string
+  cards: DonationCard[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -470,3 +497,4 @@ export type ParsedBlock =
   | CtaButtonsBlock
   | HackathonAnimationBlock
   | InternalAdvertBlock
+  | DonationCardsBlock

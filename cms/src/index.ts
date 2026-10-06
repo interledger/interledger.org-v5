@@ -1307,6 +1307,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
+      color: 'Color',
       heading: 'Heading',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
@@ -1380,6 +1381,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.related-article': {
       slug: 'Related Post Slug'
+    },
+    'blocks.donation-cards': {
+      ariaLabel: 'Accessible label for the row'
+    },
+    'blocks.donation-card': {
+      amount: 'Gift size',
+      seats: 'Seats line',
+      benefitsLabel: 'Benefits label',
+      ctaText: 'Button text',
+      ctaLink: 'Button link',
+      ctaExternal: 'Opens in a new tab',
+      ctaDocument: 'Link is a document'
     }
   }
 
@@ -1596,6 +1609,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Primary button label, URL, and internal/external flag.'
     },
     'blocks.cta-strip': {
+      color:
+        'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
         'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
       primaryButtonExternal:
@@ -1627,6 +1642,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.social-link': {
       url: 'Full profile URL, starting with https://. The icon follows from the address: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other address gets a plain link icon.'
+    },
+    'blocks.donation-cards': {
+      ariaLabel:
+        'Required. Describes the row for screen readers, e.g. "Founding Circle membership tiers". Not shown on the page.'
+    },
+    'blocks.donation-card': {
+      amount: 'Required. The gift size, e.g. "$10/month or $100 annually".',
+      seats:
+        'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
+      benefitsLabel: 'Optional. Defaults to "Benefits".',
+      ctaLink:
+        'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, start with a forward slash. For another site, use a full URL.'
     }
   }
 
@@ -1982,7 +2009,10 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.cta-strip': [
-      [{ name: 'heading', size: 12 }],
+      [
+        { name: 'heading', size: 9 },
+        { name: 'color', size: 3 }
+      ],
       [{ name: 'description', size: 12 }],
       [
         { name: 'primaryButtonText', size: 6 },
@@ -2266,7 +2296,8 @@ export default {
       if (ctx.action === 'create' || ctx.action === 'update') {
         // Auto-correct relative-link slashes (add a leading slash to
         // href-like fields that are missing one, strip one from path-segment
-        // fields that shouldn't have one) before any validation below runs.
+        // fields that shouldn't have one) and strip the CMS origin CKEditor
+        // prefixes onto upload URLs, before any validation below runs.
         if (!NAV_UIDS.has(ctx.uid)) {
           normalizeRelativeLinksInDocumentData(ctx.params.data)
         }

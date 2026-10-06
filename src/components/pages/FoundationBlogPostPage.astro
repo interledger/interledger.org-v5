@@ -1,4 +1,5 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   useTranslations,
   getBlogPosts,
@@ -16,7 +17,6 @@ import Quote from '@/components/blocks/Quote.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CodeBlock from '@/components/blocks/CodeBlock.astro'
 import InternalAdvert from '@/components/blocks/InternalAdvert.astro'
@@ -60,7 +60,7 @@ const relatedPosts = resolveRelatedPosts(
   </Fragment>
   <MdxContent
     components={{
-      img: OptimizedImage,
+      ...RICH_TEXT_MDX_COMPONENTS,
       Blockquote,
       Quote,
       Paragraph,

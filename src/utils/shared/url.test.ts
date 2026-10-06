@@ -23,6 +23,11 @@ describe('ensureLeadingSlash', () => {
   it('treats a bare "/" as already having a leading slash', () => {
     expect(ensureLeadingSlash('/')).toBe('/')
   })
+
+  it('leaves a same-page hash untouched', () => {
+    expect(ensureLeadingSlash('#section')).toBe('#section')
+    expect(ensureLeadingSlash('#XVSHSPQU')).toBe('#XVSHSPQU')
+  })
 })
 
 describe('hasUrlScheme', () => {

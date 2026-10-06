@@ -189,6 +189,13 @@ export {
   type CtaButtonsRuleError
 } from './ctaButtons'
 export {
+  CTA_STRIP_COLORS,
+  isCtaStripColor,
+  ctaStripColorPayload,
+  ctaStripColorMdxFields,
+  type CtaStripColor
+} from './ctaStrip'
+export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
@@ -360,5 +367,6 @@ export {
   ensureLeadingSlash,
   normalizePathSegment,
   normalizeRelativeLinksInDocumentData,
-  stripUploadOrigin
+  stripUploadOrigin,
+  stripUploadOriginsInText
 } from './relativeLinks'

@@ -286,11 +286,18 @@ export interface BlocksCtaButtons extends Struct.ComponentSchema {
 export interface BlocksCtaStrip extends Struct.ComponentSchema {
   collectionName: 'components_blocks_cta_strips'
   info: {
-    description: 'Purple call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA'
+    description: 'Call-to-action strip with an optional heading, optional description, a required primary CTA, and an optional secondary CTA. Purple by default; green uses the pistachio background.'
     displayName: 'CTA Strip'
     icon: 'cursor'
   }
   attributes: {
+    color: Schema.Attribute.Enumeration<['purple', 'green']> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<'purple'>
     description: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -358,6 +365,108 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
         }
       }>
     secondaryButtonText: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksDonationCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards_items'
+  info: {
+    description: 'One giving tier: gift size, seats, benefits, and a single call to action.'
+    displayName: 'Donation Card'
+    icon: 'heart'
+  }
+  attributes: {
+    amount: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefits: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefitsLabel: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaDocument: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaExternal: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    seats: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksDonationCards extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards'
+  info: {
+    description: "Row of giving tiers. A page carrying this block loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID."
+    displayName: 'Donation Cards'
+    icon: 'heart'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    cards: Schema.Attribute.Component<'blocks.donation-card', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1791,6 +1900,8 @@ declare module '@strapi/strapi' {
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-buttons': BlocksCtaButtons
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.donation-card': BlocksDonationCard
+      'blocks.donation-cards': BlocksDonationCards
       'blocks.event-card': BlocksEventCard
       'blocks.event-card-apply': BlocksEventCardApply
       'blocks.event-card-when': BlocksEventCardWhen

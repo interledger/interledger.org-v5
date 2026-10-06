@@ -115,7 +115,10 @@ const FOUNDATION_PAGE_BLOCKS = {
       apply: { populate: { primaryCta: true } }
     }
   },
-  'blocks.code-block': {}
+  'blocks.code-block': {},
+  'blocks.donation-cards': {
+    populate: { cards: true }
+  }
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {

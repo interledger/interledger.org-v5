@@ -22,6 +22,11 @@ interface Props {
   secondaryButtonExternal?: boolean
   /** Marks the secondary link a download and shows the download icon. */
   secondaryButtonDocument?: boolean
+  /**
+   * Purple is the default. Green uses the pistachio background and its own
+   * network motif. Anything else is treated as purple.
+   */
+  color?: 'purple' | 'green'
   /** Optional Umami page-segment override (e.g. set per page). */
   umamiContext?: string
 }
@@ -37,8 +42,11 @@ const {
   secondaryButtonLink,
   secondaryButtonExternal,
   secondaryButtonDocument,
+  color,
   umamiContext
 } = Astro.props
+
+const isGreen = color === 'green'
 
 const { routeLocale, site } = Astro.locals
 
@@ -153,8 +161,17 @@ const hasSecondary = Boolean(
         // following the `ghost` button in buttonVariants. One that existed only
         // on dark would shrink the content box by 2px between themes, and Figma
         // draws both at the same width.
-        'bg-soft-indigo-50 dark:bg-neutral-150',
-        'border border-transparent dark:border-ice-indigo-100',
+        //
+        // Green is pistachio-100 in the light theme. Its dark pair is
+        // forest-green-100, the same pairing profile heroes use, so a green
+        // strip stays green on the summit and hackathon rather than falling
+        // back to the near-black card. The primary button stays orchid.
+        isGreen
+          ? 'bg-pistachio-100 dark:bg-forest-green-100'
+          : 'bg-soft-indigo-50 dark:bg-neutral-150',
+        isGreen
+          ? 'border border-transparent dark:border-forest-green-50'
+          : 'border border-transparent dark:border-ice-indigo-100',
         // The summit content wrapper styles every descendant anchor with
         // `[&_a]:text-current`, so the page's white body colour reaches inside
         // this card. That selector has a higher specificity than the button's
@@ -180,19 +197,31 @@ const hasSecondary = Boolean(
       ]}
     >
       {/*
-        Decorative Interledger network motif on the left edge. The SVG is
-        already cropped and muted (30% opacity) as drawn, so it is not rotated
-        or shifted. Absolutely positioned so it never affects layout; hidden
-        from the a11y tree.
+        Network motif on the left edge, muted in the file (30% opacity).
+        Absolutely positioned so it never affects layout.
+
+        Purple is the full graphic, shifted so its centre sits on the card's
+        left edge and the card clips the rest. Green is the right-hand window
+        of that same file. Its height is the card's, so the crop meets the
+        top and bottom edges instead of floating in the middle.
       */}
       <img
-        src="/img/blocks/cta-strip-network.svg"
+        src={
+          isGreen
+            ? '/img/blocks/cta-strip-network-green.svg'
+            : '/img/blocks/cta-strip-network.svg'
+        }
         alt=""
         aria-hidden="true"
-        width="436"
-        height="439"
+        width={isGreen ? 218 : 436}
+        height={isGreen ? 174 : 439}
         loading="lazy"
-        class="pointer-events-none absolute left-0 top-1/2 -z-10 h-[175%] desktop:h-[155%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2"
+        class:list={[
+          'pointer-events-none absolute left-0 -z-10 w-auto max-w-none',
+          isGreen
+            ? 'top-0 h-full'
+            : 'top-1/2 h-[175%] desktop:h-[155%] -translate-x-1/2 -translate-y-1/2'
+        ]}
       />
 
       <div class="flex flex-col items-center gap-lg text-center">

@@ -22,7 +22,7 @@
     },
     {
       "source": "/developers/hacktoberfest",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
@@ -33,6 +33,11 @@
     {
       "source": "/education",
       "destination": "/grant/education",
+      "status": 301
+    },
+    {
+      "source": "/es/tech/hacktoberfest",
+      "destination": "/es/tech/hacktober",
       "status": 301
     },
     {
@@ -122,17 +127,17 @@
     },
     {
       "source": "/hacktoberfest",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
       "source": "/hacktoberfest-0",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
       "source": "/hacktoberfest-2023",
-      "destination": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober",
       "status": 301
     },
     {
@@ -188,6 +193,11 @@
     {
       "source": "/team/team-member-hackathon-2025-judge-sabine-schaller",
       "destination": "/team",
+      "status": 301
+    },
+    {
+      "source": "/tech/hacktoberfest",
+      "destination": "/tech/hacktober/",
       "status": 301
     },
     {
@@ -339,7 +349,7 @@
     },
     {
       "source": "/es/hacktoberfest",
-      "destination": "/es/tech/hacktoberfest",
+      "destination": "/es/tech/hacktober",
       "status": 301
     },
     {

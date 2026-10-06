@@ -9,6 +9,12 @@ const HREF_LIKE_FIELDS = new Set([
 
 const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
 
+/**
+ * Fields whose value is a single URL, not Markdown: only the origin is cut, so
+ * the value never turns into a Markdown link.
+ */
+const SINGLE_URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
+
 const ABSOLUTE_OR_SPECIAL_HREF = /^(https?:)?\/\/|^(mailto|tel):|^#/i
 
 /**
@@ -42,6 +48,132 @@ export function stripUploadOrigin(value: string): string {
   return `${parsed.pathname}${parsed.search}${parsed.hash}`
 }
 
+/** Fields holding source code, where a URL is an example, not a link. */
+const CODE_FIELDS = new Set(['code'])
+
+/** Fenced blocks and inline code spans: example text, never rewritten. */
+const MARKDOWN_CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)/
+
+/**
+ * An absolute URL to our upload path: group 1 the origin, group 2 the path.
+ * The host stops at `/`, `?` and `#`, so an external URL whose query or
+ * fragment merely mentions the upload path does not match. The scheme is
+ * case-insensitive and the path is not, as in `stripUploadOrigin`.
+ */
+const UPLOAD_URL_IN_TEXT = new RegExp(
+  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}[^\\s"'()<>[\\]]*)`,
+  'g'
+)
+
+/**
+ * Inside an HTML tag, where the URL is an attribute value or srcset entry. An
+ * escaped `\<` is prose: CKEditor escapes every literal `<` it writes.
+ */
+const INSIDE_HTML_TAG = /(?<!\\)<[a-zA-Z][^<>]*$/
+
+/** A Markdown link or image destination: `](url` or `](<url`. */
+const MARKDOWN_DESTINATION = /\]\(<?$/
+
+/** A reference definition: `[id]: url`. */
+const REFERENCE_DEFINITION = /^\s*\[[^\]\n]+\]:\s*<?$/m
+
+/** Unclosed link text on this line: `[Download url`. An escaped `\[` is prose. */
+const INSIDE_LINK_TEXT = /(?<!\\)\[[^\]\n]*$/
+
+/**
+ * The URL continues a token before it, so it is part of another URL
+ * (`?url=https://…`, `web/2020/https://…`) or not a URL at all (`xhttps://…`).
+ * Not `_`: CKEditor writes italics with it, and `_https://…_` is prose.
+ */
+const CONTINUES_PRECEDING_TOKEN = /[A-Za-z0-9/:?&=.%\\-]$/
+
+/** Sentence punctuation a bare URL does not own, as GFM autolinking reads it. */
+const TRAILING_PUNCTUATION = /[.,;:!?*_~]+$/
+
+type UploadUrlContext = 'origin' | 'autolink' | 'bare' | 'leave'
+
+function classifyUploadUrl(before: string, after: string): UploadUrlContext {
+  if (INSIDE_HTML_TAG.test(before)) return 'origin'
+  if (MARKDOWN_DESTINATION.test(before)) return 'origin'
+  if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
+    return 'origin'
+  if (CONTINUES_PRECEDING_TOKEN.test(before)) return 'leave'
+  if (INSIDE_LINK_TEXT.test(before)) return 'origin'
+  if (before.endsWith('<') && after.startsWith('>')) return 'autolink'
+  return 'bare'
+}
+
+function toMarkdownLink(path: string): string {
+  return `[${path}](${path})`
+}
+
+function stripUploadOriginsInProse(segment: string): string {
+  let result = ''
+  let cursor = 0
+  for (const match of segment.matchAll(UPLOAD_URL_IN_TEXT)) {
+    const [url, , matchedPath] = match
+    const start = match.index
+    const end = start + url.length
+    const before = segment.slice(0, start)
+    const after = segment.slice(end)
+    result += segment.slice(cursor, start)
+    cursor = end
+    switch (classifyUploadUrl(before, after)) {
+      case 'leave':
+        result += url
+        break
+      case 'origin':
+        result += matchedPath
+        break
+      case 'autolink':
+        // Replace the surrounding `<…>` too: `</uploads/…>` is not an autolink.
+        result = result.slice(0, -1) + toMarkdownLink(matchedPath)
+        cursor += 1
+        break
+      case 'bare': {
+        // GFM autolinks a bare `https://` URL but not a bare path, so the
+        // download would stop being clickable. Make the link explicit.
+        const trailing = matchedPath.match(TRAILING_PUNCTUATION)?.[0] ?? ''
+        const path = matchedPath.slice(0, matchedPath.length - trailing.length)
+        result += toMarkdownLink(path) + trailing
+      }
+    }
+  }
+  return result + segment.slice(cursor)
+}
+
+/**
+ * Reduce every absolute URL to our own upload path inside free text to the
+ * site-relative path.
+ *
+ * The CKEditor plugin prefixes `window.strapi.backendURL` onto every image and
+ * file it inserts, whether dragged, pasted or picked from the media library,
+ * and has no option to stop it. Left in place, the link records whichever CMS
+ * the editor happened to use (localhost included), loads from the firewalled
+ * origin instead of the deployed copy, and reads as external to the image
+ * optimizer, the image audit and the link validator.
+ *
+ * Where the URL sits decides what happens to it:
+ * - a link or image destination, an HTML attribute or link text: only the
+ *   origin is cut, and the rest is kept byte for
+ *   byte (`new URL` would turn a Markdown-escaped `\_` into `/`);
+ * - a bare URL or `<url>` autolink in prose: it becomes an explicit Markdown
+ *   link, because GFM does not autolink a relative path;
+ * - nested in another URL, or in a code span or fenced block: left alone.
+ *
+ * Matched by path, like `stripUploadOrigin`: if `STRAPI_UPLOADS_BASE_URL` ever
+ * points uploads at a CDN, that origin is stripped too.
+ */
+export function stripUploadOriginsInText(text: string): string {
+  return text
+    .split(MARKDOWN_CODE)
+    .map((segment, index) =>
+      // `split` with a capture group puts the code at odd indices.
+      index % 2 === 1 ? segment : stripUploadOriginsInProse(segment)
+    )
+    .join('')
+}
+
 export function ensureLeadingSlash(value: string): string {
   if (!value || ABSOLUTE_OR_SPECIAL_HREF.test(value)) return value
   return value.trim().startsWith('/') ? value : `/${value}`
@@ -64,8 +196,15 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
         ;(data as Record<string, unknown>)[key] = ensureLeadingSlash(
           stripUploadOrigin(value)
         )
+      } else if (SINGLE_URL_FIELDS.has(key)) {
+        ;(data as Record<string, unknown>)[key] = stripUploadOrigin(value)
       } else if (PATH_SEGMENT_FIELDS.has(key)) {
         ;(data as Record<string, unknown>)[key] = normalizePathSegment(value)
+      } else if (!CODE_FIELDS.has(key)) {
+        // Every other string, so each CKEditor field is covered wherever it
+        // sits (components, dynamic zones) without a field list to drift.
+        ;(data as Record<string, unknown>)[key] =
+          stripUploadOriginsInText(value)
       }
     } else {
       normalizeRelativeLinksInDocumentData(value)

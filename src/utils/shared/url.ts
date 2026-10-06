@@ -8,6 +8,10 @@ export function addTrailingSlash(path: string): string {
 
 /** Prepends `/` to an internal path if it doesn't already have one. */
 export function ensureLeadingSlash(path: string): string {
+  // A same-page hash is not a path. Prefixing it yields `/#id`, which
+  // reloads the home page instead of scrolling. Fundraise Up element ids
+  // (`#XVSHSPQU`) are hashes too.
+  if (path.startsWith('#')) return path
   return path.startsWith('/') ? path : `/${path}`
 }
 
