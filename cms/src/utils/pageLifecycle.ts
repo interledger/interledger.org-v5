@@ -140,7 +140,7 @@ function normalizePathSlug(pathSlug: unknown): string {
 }
 
 /**
- * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
+ * Resolves the MDX filepath for a page from `pathSlug` (full URL path; surrounding slashes are trimmed).
  * Segments before the last `/` are directories; the last segment is the filename stem.
  *
  * Pass `englishSlug` for a non-default locale, the same way the blog and flat

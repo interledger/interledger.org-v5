@@ -8,7 +8,7 @@
     "slug": {
       "type": "string",
       "required": true,
-      "description": "pathSlug of a related blog post (relative to /blog/, no leading slash)."
+      "description": "Path of a related blog post after /blog, starting and ending with a slash (e.g. /my-post/)."
     }
   },
   "config": {}
