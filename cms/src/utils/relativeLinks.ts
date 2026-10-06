@@ -15,7 +15,14 @@ const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
  */
 const SINGLE_URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
 
-const ABSOLUTE_OR_SPECIAL_HREF = /^(https?:)?\/\/|^(mailto|tel):|^#/i
+/**
+ * A value that is not a site path: any URL scheme (`https:`, `mailto:`,
+ * `ftp:`, `sms:`…), protocol-relative `//host`, or a same-page `#id`.
+ * Script-bearing schemes are not exempt: prefixing them with `/` keeps them
+ * from ever running as a link.
+ */
+const ABSOLUTE_OR_SPECIAL_HREF =
+  /^(?!(?:javascript|vbscript|data):)[a-z][a-z\d+.-]*:|^\/\/|^#/i
 
 /**
  * Where the upload provider writes every file. Keep in step with

@@ -28,6 +28,12 @@ describe('toSlashedPath', () => {
     expect(toSlashedPath('/about/#team')).toBe('/about/#team')
   })
 
+  it('never leaves a script-bearing scheme runnable', () => {
+    expect(toSlashedPath('javascript:alert(1)')).toMatch(/^\//)
+    expect(toSlashedPath('JavaScript:alert(1)')).toMatch(/^\//)
+    expect(toSlashedPath('data:text/html,hi')).toMatch(/^\//)
+  })
+
   it('leaves a link to a file without a trailing slash', () => {
     expect(toSlashedPath('/uploads/img/original/report.pdf')).toBe(
       '/uploads/img/original/report.pdf'
@@ -41,6 +47,9 @@ describe('toSlashedPath', () => {
     '//example.com',
     'mailto:info@interledger.org',
     'tel:+123456',
+    'ftp://example.com/file',
+    'sms:+123456',
+    'HTTPS://EXAMPLE.COM/x',
     '#section',
     // The donation card's Fundraise Up element id.
     '#XVSHSPQU',
