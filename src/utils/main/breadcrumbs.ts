@@ -3,7 +3,7 @@ import {
   HACKATHON_HOME_SLUG,
   grantOverviewHubPath
 } from './routes'
-import type { Locale } from './i18'
+import type { Locale, Translate, UiKey } from './i18'
 import type { SiteSection } from './static-paths'
 
 export type BreadcrumbItem = {
@@ -22,7 +22,21 @@ const ROOT_LANDING_PATHS: Record<string, string> = {
   grant: grantOverviewHubPath()
 }
 
-function toLabel(segment: string): string {
+/**
+ * Paths whose crumb label comes from the UI strings instead of the slug, so
+ * it is localized. Keyed by path like ROOT_LANDING_PATHS, so a nested
+ * `summit/grant` keeps its slug label. `grant` reuses the label GrantPage
+ * gives the same hub link, `grant/fellowship` the navigation's label.
+ */
+const SEGMENT_LABEL_KEYS: Record<string, UiKey> = {
+  grant: 'nav.grants',
+  'grant/fellowship': 'breadcrumb.grant.fellowship'
+}
+
+function toLabel(segmentPath: string, segment: string, t: Translate): string {
+  const labelKey = SEGMENT_LABEL_KEYS[segmentPath]
+  if (labelKey) return t(labelKey)
+
   return segment
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -46,19 +60,19 @@ export function buildSectionEntryBreadcrumbs(
   section: SiteSection | null | undefined,
   label: string,
   routeLocale: Locale,
-  homeLabel: string
+  t: Translate
 ): BreadcrumbItem[] {
   const sectionPrefix = section && section !== 'foundation' ? section : ''
   const fullPath = [sectionPrefix, pathSlug].filter(Boolean).join('/')
   const parentParts = fullPath.split('/').slice(0, -1)
 
   return [
-    { name: homeLabel, href: localizeRoute('', routeLocale) },
+    { name: t('nav.home'), href: localizeRoute('', routeLocale) },
     ...parentParts.map((_, i) => {
       const segmentPath = parentParts.slice(0, i + 1).join('/')
 
       return {
-        name: toLabel(parentParts[i]),
+        name: toLabel(segmentPath, parentParts[i], t),
         href: localizeRoute(
           ROOT_LANDING_PATHS[segmentPath] ?? segmentPath,
           routeLocale

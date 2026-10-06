@@ -81,12 +81,14 @@ export {
   locales,
   defaultLocale,
   switcherLocales,
-  useTranslations,
+  useTranslations
+} from './main/i18'
+export {
   translatePath,
   COLLECTION_INDEX_SLUG,
   buildRoutePath,
   getBlogPostPath
-} from './main/i18'
+} from './main/translatePath'
 export {
   getAlternateLocale,
   getAlternateLocaleHref,
