@@ -1,0 +1,26 @@
+---
+/**
+ * A label followed by an icon, kept after its last word when the label wraps:
+ * a no-break space can't start a line, and nowrap stops a break before the
+ * icon. Keep the markup tight to `{label}` — whitespace in between would add a
+ * break point.
+ */
+import type { ComponentProps } from 'astro/types'
+import Icon from '@/components/shared/Icon.astro'
+
+interface Props {
+  label: string
+  icon: ComponentProps<typeof Icon>['name']
+}
+
+const { label, icon } = Astro.props
+
+const NO_BREAK_SPACE = '\u00A0'
+---
+
+{label}<span class="whitespace-nowrap"
+  >{NO_BREAK_SPACE}<Icon
+    name={icon}
+    class="ms-xs inline-block size-4 align-middle -translate-y-px"
+  /></span
+>
