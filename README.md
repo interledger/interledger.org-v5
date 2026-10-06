@@ -468,8 +468,8 @@ Examples:
 
 **On disk (English):** trim the surrounding slashes and split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
 
-- `about-us` → `foundation-pages/about-us.mdx`
-- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+- `/about-us/` → `foundation-pages/about-us.mdx`
+- `/grant/grant-for-web/` → `foundation-pages/grant/grant-for-web.mdx`
 
 **Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
 
@@ -477,16 +477,16 @@ Examples:
 
 ```yaml
 ---
-pathSlug: 'grant/grant-for-web'
+pathSlug: '/grant/grant-for-web/'
 ---
 ```
 
-→ public URL: `/grant/grant-for-web`
+→ public URL: `/grant/grant-for-web/`
 
 **Key rules:**
 
 - `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
-- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- Write `pathSlug` with a leading and a trailing slash. Parsing strips them for routing, so a legacy bare value still resolves to the same page.
 - There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
 - If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 
