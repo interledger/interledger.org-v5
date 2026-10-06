@@ -56,8 +56,10 @@
   }
 
   @media (min-width: 1200px) {
+    /* Static, so the wide dropdown panel anchors to the header — see
+       "Dropdown panel anchoring". */
     .header-nav-wrapper {
-      position: relative;
+      position: static;
       top: 0;
       right: 0;
       transform: none;
@@ -171,22 +173,19 @@
 }
 
 /* ================================================================
-   Dropdown panel anchoring: narrow desktop widths only
+   Dropdown panel anchoring
 
-   Panels are absolutely positioned and hang from the left edge of their
-   button (or, for the wide multi-column panel, the left edge of the menu
-   list). Between 1200px and 1500px the bar is narrow enough that the
-   right-hand ones ran past the viewport: the four-column Grants panel by
-   85px at 1200px, Get Involved by 94px. In that band only, the wide panel
-   centres on the menu list and the last menu hangs its panel from its own
-   right edge. From 1500px up there is room again and every panel goes back
-   to the left-aligned treatment.
+   Panels hang from their button's left edge. Two would run off-screen, so:
+   - the wide panel centres on the header (its list and wrapper are static);
+   - the last menu's panel hangs from its right edge.
+   Their width is capped to the viewport in FoundationNavMenu.astro.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */
 
-@media (min-width: 1200px) and (max-width: 1499px) {
+@media (min-width: 1200px) {
   [data-nav-list] > li[data-wide-panel] .submenu-panel {
+    top: calc(100% + var(--spacing-xs));
     left: 50%;
     right: auto;
     transform: translateX(-50%);

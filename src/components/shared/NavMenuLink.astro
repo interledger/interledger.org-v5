@@ -1,22 +1,15 @@
 ---
-import Icon from '@/components/shared/Icon.astro'
+import LabelWithTrailingIcon from '@/components/shared/LabelWithTrailingIcon.astro'
 import { buildNavLinkUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   href: string
   label: string
   theme?: 'light' | 'dark'
-  variant?: 'flat' | 'mega'
   openInNewTab?: boolean
 }
 
-const {
-  href,
-  label,
-  theme = 'light',
-  variant = 'flat',
-  openInNewTab = false
-} = Astro.props
+const { href, label, theme = 'light', openInNewTab = false } = Astro.props
 
 const isDark = theme === 'dark'
 const { routeLocale } = Astro.locals
@@ -30,8 +23,6 @@ const umamiAttrs = buildNavLinkUmamiAttrs(
 )
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
-
-const externalLinkIconClass = 'ms-sm size-4 shrink-0 translate-y-[-1px]'
 
 const navLinkClass =
   'nav-link relative no-underline focus-visible:outline-none group/navlink'
@@ -49,14 +40,11 @@ const className = [
   navLinkClass,
   'text-base',
   itemTextClass,
-  openInNewTab ? 'inline-flex items-center' : 'block',
+  'block',
   'max-desktop:-mx-lg max-desktop:px-lg max-desktop:py-md',
   'px-0 desktop:py-md desktop:pe-md',
-  activeClass,
-  variant === 'mega' && 'whitespace-nowrap'
-]
-  .filter(Boolean)
-  .join(' ')
+  activeClass
+].join(' ')
 ---
 
 <a
@@ -66,17 +54,14 @@ const className = [
   {...umamiAttrs}
   {...openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
 >
-  <span class={labelSpanClass}>{label}</span>
-  {
-    openInNewTab && (
-      <>
-        <Icon
-          name="external-link"
-          class={externalLinkIconClass}
-          aria-hidden="true"
-        />
-        <span class="sr-only">{t('aria.opens_new_tab')}</span>
-      </>
-    )
-  }
+  <span class={labelSpanClass}>
+    {
+      openInNewTab ? (
+        <LabelWithTrailingIcon label={label} icon="external-link" />
+      ) : (
+        label
+      )
+    }
+  </span>
+  {openInNewTab && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
 </a>
