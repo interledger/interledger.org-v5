@@ -3,7 +3,7 @@ import {
   HACKATHON_HOME_SLUG,
   grantOverviewHubPath
 } from './routes'
-import type { Locale, UiKey, useTranslations } from './i18'
+import { type Locale, type UiKey, useTranslations } from './i18'
 import type { SiteSection } from './static-paths'
 
 export type BreadcrumbItem = {
