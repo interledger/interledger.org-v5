@@ -27,7 +27,7 @@ interface BlogPostPreview {
 // Get the documentId from the query string
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
-const documentId = Astro.url.searchParams.get('slug')
+const documentId = Astro.url.searchParams.get('pathSlug')
 if (!documentId) {
   throw new Error('Missing documentId in preview URL')
 }
