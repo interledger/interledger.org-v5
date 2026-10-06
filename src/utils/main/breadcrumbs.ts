@@ -3,7 +3,7 @@ import {
   HACKATHON_HOME_SLUG,
   grantOverviewHubPath
 } from './routes'
-import { type Locale, type UiKey, useTranslations } from './i18'
+import type { Locale, Translate, UiKey } from './i18'
 import type { SiteSection } from './static-paths'
 
 export type BreadcrumbItem = {
@@ -21,8 +21,6 @@ const ROOT_LANDING_PATHS: Record<string, string> = {
   hackathon: `hackathon/${HACKATHON_HOME_SLUG}`,
   grant: grantOverviewHubPath()
 }
-
-type Translate = ReturnType<typeof useTranslations>
 
 /**
  * Paths whose crumb label comes from the UI strings instead of the slug, so

@@ -4,7 +4,8 @@ import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
 import { getBlogThumbnail } from './blog'
 import { getBlogPosts } from './blogPosts'
-import { getBlogPostPath, defaultLocale } from './i18'
+import { defaultLocale } from './i18'
+import { getBlogPostPath } from './translatePath'
 import { buildImageSrcset, getOptimizedImage } from './images'
 import {
   SEARCH_THUMBNAIL_CDN_WIDTHS,
