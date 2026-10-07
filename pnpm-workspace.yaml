@@ -10,4 +10,4 @@ onlyBuiltDependencies:
 overrides:
   '@strapi/design-system': 2.2.0
   '@strapi/icons': 2.2.0
-  prettier: 3.8.1
+  prettier: 3.9.9
