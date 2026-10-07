@@ -65,11 +65,11 @@
   "devDependencies": {
     "@types/node": "^24.19.1",
     "@types/turndown": "^5.0.6",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.3",
     "jsdom": "^30.1.2",
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=24.0.0 <=24.x.x",
