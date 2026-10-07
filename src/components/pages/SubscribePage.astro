@@ -80,9 +80,7 @@ const secondaryTextClasses = 'text-neutral-75'
 
       <div class="flex flex-col gap-3xl desktop:flex-row desktop:gap-5xl">
         <div class="flex flex-col desktop:max-w-[45%]">
-          {
-            /* No Figma spec for this page — matches current prod, left as-is. */
-          }
+          {/* No Figma spec for this page — matches current prod, left as-is. */}
           <h1
             class="mb-xl text-h4-md tablet:text-h3 desktop:text-h3-lg text-neutral-900"
           >
@@ -96,20 +94,16 @@ const secondaryTextClasses = 'text-neutral-75'
           </p>
 
           <div>
-            {
-              /* No Figma spec for this page — matches current prod, left as-is. */
-            }
+            {/* No Figma spec for this page — matches current prod, left as-is. */}
             <h2 class="mb-xl text-body-lg-emphasis text-neutral-900">
               {t('subscribe.expect_heading')}
             </h2>
             <ul>
-              {
-                expectPoints.map((point) => (
-                  <li class="text-body-lg-standard text-neutral-100">
-                    {point}
-                  </li>
-                ))
-              }
+              {expectPoints.map((point) => <li
+                class="text-body-lg-standard text-neutral-100"
+              >
+                {point}
+              </li>)}
             </ul>
           </div>
         </div>
@@ -154,7 +148,9 @@ const secondaryTextClasses = 'text-neutral-75'
                 data-netlify-recaptcha="true"
                 aria-labelledby="subscribe-title"
                 class="flex flex-col gap-xl"
-                data-hubspot-subscription-type-id={hubspotCommunicationSubscriptionTypeId}
+                data-hubspot-subscription-type-id={
+                  hubspotCommunicationSubscriptionTypeId
+                }
                 data-consent-processing-label={consentProcessingLabel}
                 data-consent-communications-label={consentCommunicationsLabel}
               >
@@ -242,19 +238,17 @@ const secondaryTextClasses = 'text-neutral-75'
                         >*</span
                       >
                     </legend>
-                    {
-                      interestOptions.map((option) => (
-                        <label class="flex items-start gap-sm text-body-sm-standard text-neutral-75">
-                          <input
-                            type="checkbox"
-                            name="im_interested_in"
-                            value={option.value}
-                            class="mt-1 size-4 shrink-0 accent-primary"
-                          />
-                          <span>{option.label}</span>
-                        </label>
-                      ))
-                    }
+                    {interestOptions.map((option) => <label
+                      class="flex items-start gap-sm text-body-sm-standard text-neutral-75"
+                    >
+                      <input
+                        type="checkbox"
+                        name="im_interested_in"
+                        value={option.value}
+                        class="mt-1 size-4 shrink-0 accent-primary"
+                      />
+                      <span>{option.label}</span>
+                    </label>)}
                     <p
                       id="interest-error"
                       class={errorClasses}

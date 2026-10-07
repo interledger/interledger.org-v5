@@ -52,9 +52,11 @@ const btnAttrs = (href: string) =>
     <FilterDropdown
       id="language-filter-details"
       label={t('blog.lang_filter.label')}
-      value={isEsActive
-        ? t('blog.lang_filter.spanish')
-        : t('blog.lang_filter.english')}
+      value={
+        isEsActive
+          ? t('blog.lang_filter.spanish')
+          : t('blog.lang_filter.english')
+      }
     >
       <FilterDropdownOption
         href={enHref}
@@ -72,18 +74,10 @@ const btnAttrs = (href: string) =>
       </FilterDropdownOption>
     </FilterDropdown>
   </div>
-  {
-    isEsActive && (
-      <span class="text-body-sm-standard italic">
-        ({t('blog.lang_filter.more_en_available')})
-      </span>
-    )
-  }
-  {
-    isEnActiveOnEs && (
-      <span class="text-body-sm-standard italic">
-        ({t('blog.lang_filter.es_available')})
-      </span>
-    )
-  }
+  {isEsActive && <span class="text-body-sm-standard italic">
+    ({t('blog.lang_filter.more_en_available')})
+  </span>}
+  {isEnActiveOnEs && <span class="text-body-sm-standard italic">
+    ({t('blog.lang_filter.es_available')})
+  </span>}
 </div>

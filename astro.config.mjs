@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import { unified } from '@astrojs/markdown-remark'
 import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
@@ -21,6 +22,10 @@ import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
+  // Astro 7 changed the default to 'jsx', which removes the whitespace
+  // between inline elements across line breaks. `true` keeps the HTML rules.
+  // .prettierrc sets astroCompressHTML to the same mode.
+  compressHTML: true,
   build: {
     // Inline project CSS so Lighthouse does not wait on extra /_astro/*.css round trips.
     inlineStylesheets: 'always'
@@ -54,7 +59,11 @@ export default defineConfig({
     ]
   }),
   markdown: {
-    rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    // The rehype plugins need the unified pipeline. Astro 7's default
+    // processor, Satteri, does not run them. MDX inherits this processor.
+    processor: unified({
+      rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    })
   },
   integrations: [
     stripDocsCssFromMainSite(),
@@ -147,10 +156,7 @@ export default defineConfig({
       },
       disable404Route: true
     }),
-    // Astro 6.4 deprecated `markdown.gfm` and leaves it undefined. The MDX
-    // integration reads that value as its default, so without this option
-    // every MDX table and footnote renders as plain text.
-    mdx({ gfm: true }),
+    mdx(),
     sitemap({
       // Exclude previews and design/QA demo pages (demo / demo-* path segments)
       filter: (url) => {

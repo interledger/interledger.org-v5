@@ -40,18 +40,16 @@ const provider = detectVideoProvider(url)
 
   <div class="rounded-3xl border border-neutral-50 p-lg desktop:w-1/2">
     <div class="flex min-w-0 flex-col gap-md">
-      {
-        provider ? (
-          <VideoEmbed url={url} title={title} />
-        ) : (
-          <iframe
-            title={`${title} — podcast player`}
-            class="h-28 w-full"
-            loading="lazy"
-            src={url}
-          />
-        )
-      }
+      {provider ? (
+        <VideoEmbed url={url} title={title} />
+      ) : (
+        <iframe
+          title={`${title} — podcast player`}
+          class="h-28 w-full"
+          loading="lazy"
+          src={url}
+        />
+      )}
     </div>
   </div>
 </article>

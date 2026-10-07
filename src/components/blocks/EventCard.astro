@@ -70,13 +70,12 @@ if (!fromStrapi && !Astro.slots.has('default')) {
   aria-labelledby={headingId}
   class:list={['w-full', heading && 'flex flex-col gap-block-heading']}
 >
-  {
-    heading && headingId && (
-      <h2 id={headingId} class="m-0 text-neutral-100 dark:text-neutral-0">
-        {heading}
-      </h2>
-    )
-  }
+  {heading && headingId && <h2
+    id={headingId}
+    class="m-0 text-neutral-100 dark:text-neutral-0"
+  >
+    {heading}
+  </h2>}
   <div
     class:list={[
       'rounded-3xl border border-neutral-50 bg-white',
@@ -116,35 +115,33 @@ if (!fromStrapi && !Astro.slots.has('default')) {
         'tablet:[&>[data-event-column]:last-child]:pe-0'
       ]}
     >
-      {
-        fromStrapi ? (
-          <>
-            <EventWhen
-              title={when!.title}
-              text={when!.text}
-              date={when!.date}
-              time={when!.time}
+      {fromStrapi ? (
+        <>
+          <EventWhen
+            title={when!.title}
+            text={when!.text}
+            date={when!.date}
+            time={when!.time}
+          />
+          <EventWhere
+            title={where!.title}
+            text={where!.text}
+            location={where!.location}
+          />
+          {hasApply && apply && (
+            <EventApply
+              title={apply.title}
+              text={apply.text}
+              buttonText={apply.primaryCta.text}
+              buttonUrl={apply.primaryCta.link}
+              buttonExternal={apply.primaryCta.external}
+              buttonDocument={apply.primaryCta.document}
             />
-            <EventWhere
-              title={where!.title}
-              text={where!.text}
-              location={where!.location}
-            />
-            {hasApply && apply && (
-              <EventApply
-                title={apply.title}
-                text={apply.text}
-                buttonText={apply.primaryCta.text}
-                buttonUrl={apply.primaryCta.link}
-                buttonExternal={apply.primaryCta.external}
-                buttonDocument={apply.primaryCta.document}
-              />
-            )}
-          </>
-        ) : (
-          <slot />
-        )
-      }
+          )}
+        </>
+      ) : (
+        <slot />
+      )}
     </div>
   </div>
 </section>

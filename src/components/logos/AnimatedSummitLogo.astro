@@ -5,7 +5,11 @@ const { class: className } = Astro.props
 <svg
   role="img"
   class:list={[className, 'max-w-[10em]']}
-  style="animation: 2s forwards zoom, 22s linear 2s infinite anticlockwise;"
+  style="
+    animation:
+      2s forwards zoom,
+      22s linear 2s infinite anticlockwise;
+  "
   fill="none"
   viewBox="0 0 283 283"
 >
@@ -208,7 +212,8 @@ const { class: className } = Astro.props
     <path
       fill="url(#S)"
       d="M141.499 186.626c25.002 0 45.27-20.203 45.27-45.124 0-24.922-20.268-45.125-45.27-45.125-25.002 0-45.27 20.203-45.27 45.125 0 24.921 20.268 45.124 45.27 45.124Z"
-      opacity=".8"></path>
+      opacity=".8"
+    ></path>
     <path
       fill="url(#T)"
       d="M157.779 134.795c-4.31 4.089-10.231 6.475-16.28 6.487-.625 0 .79-5.816.9-6.298 1.408-6.103 5.369-11.266 11.094-13.963 2.933-1.38 6.208-2.106 9.429-2.374.453-.037.906-.074 1.359-.074.992 0-.398 5.401-.533 5.945a21.075 21.075 0 0 1-5.969 10.271v.006Z"

@@ -24,14 +24,16 @@ const linkAttrs = (href: string, linkText: string) =>
     {...linkAttrs(
       translatePath('foundation-pages', routeLocale, 'subscribe'),
       t('blog.community.newsletter')
-    )}>{t('blog.community.newsletter')}</a
+    )}
+    >{t('blog.community.newsletter')}</a
   >. {t('blog.community.foundation.middle')}
   <a
     href="https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA"
     {...linkAttrs(
       'https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA',
       t('blog.community.slack')
-    )}>{t('blog.community.slack')}</a
+    )}
+    >{t('blog.community.slack')}</a
   >
   {t('blog.community.foundation.or')}
   <a
@@ -39,6 +41,7 @@ const linkAttrs = (href: string, linkText: string) =>
     {...linkAttrs(
       'https://docs.google.com/document/d/1T_Q_eRZtL8GluJR9rVADd7fvkB8mPluMk-d96LM4vlg/edit?usp=sharing',
       t('blog.community.call')
-    )}>{t('blog.community.call')}</a
+    )}
+    >{t('blog.community.call')}</a
   >, {t('blog.community.foundation.end')}
 </p>

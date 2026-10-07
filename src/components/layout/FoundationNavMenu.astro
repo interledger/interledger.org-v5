@@ -87,83 +87,73 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
   data-component="FoundationNavMenu"
   data-nav-list
 >
-  {
-    menuGroups.map((group) => {
-      const groupSlug = toSlug(group.label)
-      const buttonId = `nav-menu-${groupSlug}-button`
-      const panelId = `nav-menu-${groupSlug}-panel`
+  {menuGroups.map((group) => {
+    const groupSlug = toSlug(group.label)
+    const buttonId = `nav-menu-${groupSlug}-button`
+    const panelId = `nav-menu-${groupSlug}-panel`
 
-      return (
-        <li
-          class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
-          data-menu-level="1"
-          data-wide-panel={hasWidePanel(group) ? '' : undefined}
+    return <li
+      class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
+      data-menu-level="1"
+      data-wide-panel={hasWidePanel(group) ? '' : undefined}
+    >
+      <button
+        type="button"
+        id={buttonId}
+        aria-expanded="false"
+        aria-controls={panelId}
+        aria-label={t('nav.submenu_toggle', { label: group.label })}
+        {...submenuToggleAttrs(group.label)}
+        class={navButtonClass}
+        data-submenu-button
+        data-open="false"
+      >
+        <span aria-hidden="true">{group.label}</span>
+        <span class={navButtonChevronClass} aria-hidden="true">
+          <Icon name="arrow-down" class="size-8 desktop:size-5" />
+        </span>
+      </button>
+
+      {group.subGroups && group.subGroups.length > 0 ? (
+        <section
+          id={panelId}
+          class={megaMenuClass}
+          aria-labelledby={buttonId}
+          style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
         >
-          <button
-            type="button"
-            id={buttonId}
-            aria-expanded="false"
-            aria-controls={panelId}
-            aria-label={t('nav.submenu_toggle', { label: group.label })}
-            {...submenuToggleAttrs(group.label)}
-            class={navButtonClass}
-            data-submenu-button
-            data-open="false"
-          >
-            <span aria-hidden="true">{group.label}</span>
-            <span class={navButtonChevronClass} aria-hidden="true">
-              <Icon name="arrow-down" class="size-8 desktop:size-5" />
-            </span>
-          </button>
-
-          {group.subGroups && group.subGroups.length > 0 ? (
-            <section
-              id={panelId}
-              class={megaMenuClass}
-              aria-labelledby={buttonId}
-              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
-            >
-              {group.subGroups.map((subGroup) => (
-                <div class={megaSubGroupClass}>
-                  <h3 class={subGroupHeadingClass}>{subGroup.label}</h3>
-                  <ul class={submenuListClass}>
-                    {subGroup.items.map((item) => (
-                      <li data-menu-level="2">
-                        <NavMenuLink
-                          href={item.href || '#'}
-                          label={item.label}
-                          theme={theme}
-                          variant="mega"
-                          openInNewTab={item.openInNewTab}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </section>
-          ) : group.items && group.items.length > 0 ? (
-            <section
-              id={panelId}
-              class={flatSubmenuPanelClass}
-              aria-labelledby={buttonId}
-            >
-              <ul class={submenuListClass}>
-                {group.items.map((item) => (
-                  <li data-menu-level="2">
-                    <NavMenuLink
-                      href={item.href || '#'}
-                      label={item.label}
-                      theme={theme}
-                      openInNewTab={item.openInNewTab}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-        </li>
-      )
-    })
-  }
+          {group.subGroups.map((subGroup) => <div class={megaSubGroupClass}>
+            <h3 class={subGroupHeadingClass}>{subGroup.label}</h3>
+            <ul class={submenuListClass}>
+              {subGroup.items.map((item) => <li data-menu-level="2">
+                <NavMenuLink
+                  href={item.href || '#'}
+                  label={item.label}
+                  theme={theme}
+                  variant="mega"
+                  openInNewTab={item.openInNewTab}
+                />
+              </li>)}
+            </ul>
+          </div>)}
+        </section>
+      ) : group.items && group.items.length > 0 ? (
+        <section
+          id={panelId}
+          class={flatSubmenuPanelClass}
+          aria-labelledby={buttonId}
+        >
+          <ul class={submenuListClass}>
+            {group.items.map((item) => <li data-menu-level="2">
+              <NavMenuLink
+                href={item.href || '#'}
+                label={item.label}
+                theme={theme}
+                openInNewTab={item.openInNewTab}
+              />
+            </li>)}
+          </ul>
+        </section>
+      ) : null}
+    </li>
+  })}
 </ul>

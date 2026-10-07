@@ -133,13 +133,9 @@ const logoClasses = `
   aria-labelledby={headingId}
 >
   <div class={containerClasses}>
-    {
-      headingText && headingId && (
-        <h2 id={headingId} class={headerClasses}>
-          {headingText}
-        </h2>
-      )
-    }
+    {headingText && headingId && <h2 id={headingId} class={headerClasses}>
+      {headingText}
+    </h2>}
 
     <div
       class={viewportClasses}
@@ -147,27 +143,21 @@ const logoClasses = `
       role="group"
       aria-label={accessibilityLabel}
     >
-      {
-        /* loading="eager": this track loops forever, so lazy-loading only
-        risks a late pop-in when a logo scrolls back into view. */
-      }
+      {/* loading="eager": this track loops forever, so lazy-loading only
+        risks a late pop-in when a logo scrolls back into view. */}
       <ul class={trackClasses} role="list">
-        {
-          logos.map((logo) => (
-            <li class="m-0">
-              <OptimizedImage
-                src={logo.src}
-                alt={logo.name}
-                class={logoClasses}
-                width={120}
-                height={40}
-                sizes="120px"
-                loading="eager"
-                draggable={false}
-              />
-            </li>
-          ))
-        }
+        {logos.map((logo) => <li class="m-0">
+          <OptimizedImage
+            src={logo.src}
+            alt={logo.name}
+            class={logoClasses}
+            width={120}
+            height={40}
+            sizes="120px"
+            loading="eager"
+            draggable={false}
+          />
+        </li>)}
         {
           /* Duplicate batches for a seamless loop — hidden from AT and
           keyboard via aria-hidden/inert, but kept in layout even under
@@ -175,20 +165,18 @@ const logoClasses = `
           ensures there are always enough copies that the track never runs out
           of content mid-wrap, even with very few logos. */
           duplicateBatches.map(() =>
-            logos.map((logo) => (
-              <li class="m-0" aria-hidden="true" inert>
-                <OptimizedImage
-                  src={logo.src}
-                  alt=""
-                  class={logoClasses}
-                  width={120}
-                  height={40}
-                  sizes="120px"
-                  loading="eager"
-                  draggable={false}
-                />
-              </li>
-            ))
+            logos.map((logo) => <li class="m-0" aria-hidden="true" inert>
+              <OptimizedImage
+                src={logo.src}
+                alt=""
+                class={logoClasses}
+                width={120}
+                height={40}
+                sizes="120px"
+                loading="eager"
+                draggable={false}
+              />
+            </li>)
           )
         }
       </ul>

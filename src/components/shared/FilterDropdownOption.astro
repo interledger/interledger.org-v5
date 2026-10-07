@@ -33,27 +33,25 @@ const itemRole = listItemRole ?? (href ? undefined : 'presentation')
 ---
 
 <li role={itemRole}>
-  {
-    href ? (
-      <a
-        href={href}
-        class={optionClass}
-        aria-current={selected ? 'page' : undefined}
-        {...rest}
-      >
-        <slot />
-        <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
-      </a>
-    ) : (
-      <button
-        type="button"
-        class={optionClass}
-        aria-selected={selected ? 'true' : 'false'}
-        {...rest}
-      >
-        <slot />
-        <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
-      </button>
-    )
-  }
+  {href ? (
+    <a
+      href={href}
+      class={optionClass}
+      aria-current={selected ? 'page' : undefined}
+      {...rest}
+    >
+      <slot />
+      <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
+    </a>
+  ) : (
+    <button
+      type="button"
+      class={optionClass}
+      aria-selected={selected ? 'true' : 'false'}
+      {...rest}
+    >
+      <slot />
+      <Icon name="check" class={FILTER_DROPDOWN_CHECK_CLASS} />
+    </button>
+  )}
 </li>
