@@ -39,52 +39,47 @@ const submenuItemClass = `${submenuItemBase} ${navItemActive}`
   id="micrositeNavMenu"
   data-nav-list
 >
-  {
-    menuGroups.map((group) => (
-      <li class="group desktop:relative" data-menu-level="1">
-        {group.href ? (
-          <a
-            href={group.href}
-            {...navLinkAttrs(group.href, group.label)}
-            class={topNavLinkClass}
-          >
-            {group.label}
-          </a>
-        ) : (
-          <>
-            <button
-              aria-expanded="false"
-              {...submenuToggleAttrs(group.label)}
-              class={topNavButtonClass}
-              data-submenu-button
-              data-open="false"
+  {menuGroups.map((group) => <li
+    class="group desktop:relative"
+    data-menu-level="1"
+  >
+    {group.href ? (
+      <a
+        href={group.href}
+        {...navLinkAttrs(group.href, group.label)}
+        class={topNavLinkClass}
+      >
+        {group.label}
+      </a>
+    ) : (
+      <>
+        <button
+          aria-expanded="false"
+          {...submenuToggleAttrs(group.label)}
+          class={topNavButtonClass}
+          data-submenu-button
+          data-open="false"
+        >
+          {group.label}
+          <span class={topNavButtonChevronClass} aria-hidden="true">
+            <Icon name="arrow-down" class="size-5" />
+          </span>
+        </button>
+        {group.items && group.items.length > 0 && <ul class={submenuClass}>
+          {group.items.map((item) => <li data-menu-level="2">
+            <a
+              href={item.href || '#'}
+              {...navLinkAttrs(item.href || '#', item.label)}
+              class={submenuItemClass}
+              {...(item.openInNewTab
+                ? { target: '_blank', rel: 'noopener noreferrer' }
+                : {})}
             >
-              {group.label}
-              <span class={topNavButtonChevronClass} aria-hidden="true">
-                <Icon name="arrow-down" class="size-5" />
-              </span>
-            </button>
-            {group.items && group.items.length > 0 && (
-              <ul class={submenuClass}>
-                {group.items.map((item) => (
-                  <li data-menu-level="2">
-                    <a
-                      href={item.href || '#'}
-                      {...navLinkAttrs(item.href || '#', item.label)}
-                      class={submenuItemClass}
-                      {...(item.openInNewTab
-                        ? { target: '_blank', rel: 'noopener noreferrer' }
-                        : {})}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
-        )}
-      </li>
-    ))
-  }
+              {item.label}
+            </a>
+          </li>)}
+        </ul>}
+      </>
+    )}
+  </li>)}
 </ul>

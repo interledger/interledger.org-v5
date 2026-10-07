@@ -6,13 +6,10 @@
 import TextMediaSection from '@/components/shared/TextMediaSection.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import { twMerge, useTranslations } from '@/utils'
+import { ANIMATED_NETWORK_PROBLEM_HEADING_ID } from '@/components/homepage/animatedNetwork'
 
 /** YouTube embed for the homepage “problem we're solving” block. */
 const PROBLEM_VIDEO_URL = 'https://www.youtube.com/watch?v=oJNFsO3k7LM'
-
-/** Stable id for section `aria-labelledby` in AnimatedNetwork.astro. */
-export const ANIMATED_NETWORK_PROBLEM_HEADING_ID =
-  'animated-network-problem-heading'
 
 interface Props {
   class?: string

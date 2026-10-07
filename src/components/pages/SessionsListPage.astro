@@ -23,44 +23,36 @@ const label = t('summit.talks_pagination', { year })
 
 <SummitPageLayout title={title}>
   <main class="p-4 max-w-275 m-auto">
-    {
-      isFallback && (
-        <div class="flex justify-end">
-          <TranslationDisclaimer isVisible={isFallback} style="summit" />
-        </div>
-      )
-    }
+    {isFallback && <div class="flex justify-end">
+      <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    </div>}
     <h1>{title}</h1>
     <section>
-      {
-        talkPreviews.length > 0 ? (
-          <ul class="flex flex-col gap-4 list-none">
-            {talkPreviews.map((talk) => (
-              <SessionCard
-                talkPreview={talk}
-                basePath={basePath}
-                lang={lang}
-                year={year}
-              />
-            ))}
-          </ul>
-        ) : (
-          <p>{t('summit.no_data', { title })}</p>
-        )
-      }
+      {talkPreviews.length > 0 ? (
+        <ul class="flex flex-col gap-4 list-none">
+          {talkPreviews.map((talk) => (
+            <SessionCard
+              talkPreview={talk}
+              basePath={basePath}
+              lang={lang}
+              year={year}
+            />
+          ))}
+        </ul>
+      ) : (
+        <p>{t('summit.no_data', { title })}</p>
+      )}
     </section>
 
-    {
-      page.lastPage && page.lastPage > 1 && (
-        <Pagination
-          baseUrl={basePath}
-          length={page.lastPage}
-          currentPage={page.currentPage}
-          prevUrl={page.url.prev}
-          nextUrl={page.url.next}
-          label={label}
-        />
-      )
-    }
+    {page.lastPage && page.lastPage > 1 && (
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        label={label}
+      />
+    )}
   </main>
 </SummitPageLayout>

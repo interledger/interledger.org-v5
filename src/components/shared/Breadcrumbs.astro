@@ -64,67 +64,63 @@ function getNameClasses(isLast: boolean): string {
       itemscope
       itemtype="https://schema.org/BreadcrumbList"
     >
-      {
-        breadcrumbs.map((crumb, index) => {
-          const isCurrent = crumb.href === currentPath
-          const isLast = index === breadcrumbs.length - 1
-          // Active page is plain text — not a link, so no hover/focus chrome (INTORG-949).
-          const isActivePage = isLast || isCurrent
-          return (
-            <li
-              itemprop="itemListElement"
-              itemscope
-              itemtype="https://schema.org/ListItem"
-              class:list={[getItemClasses(isLast)]}
-            >
-              {index !== 0 && (
-                <Icon
-                  name="arrow-right-keyboard"
-                  class:list={['size-6', chevronMarginClass]}
-                />
-              )}
-              {isActivePage ? (
-                <>
-                  <span class={getCurrentClasses(isLast)} aria-current="page">
-                    <span
-                      itemprop="name"
-                      class={getNameClasses(isLast)}
-                      title={crumb.name}
-                    >
-                      {crumb.name}
-                    </span>
-                  </span>
-                  <link itemprop="item" href={crumb.href} />
-                </>
-              ) : (
-                <a
-                  data-component="Breadcrumb"
-                  itemprop="item"
-                  href={crumb.href}
-                  class={getLinkClasses()}
-                  {...buildDeferredUmamiAttrs({
-                    pathname: Astro.url.pathname,
-                    lang: routeLocale,
-                    label: 'nav',
-                    baseComponent: 'breadcrumbs',
-                    href: crumb.href,
-                    linkText: crumb.name
-                  })}
+      {breadcrumbs.map((crumb, index) => {
+        const isCurrent = crumb.href === currentPath
+        const isLast = index === breadcrumbs.length - 1
+        // Active page is plain text — not a link, so no hover/focus chrome (INTORG-949).
+        const isActivePage = isLast || isCurrent
+        return <li
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+          class:list={[getItemClasses(isLast)]}
+        >
+          {index !== 0 && (
+            <Icon
+              name="arrow-right-keyboard"
+              class:list={['size-6', chevronMarginClass]}
+            />
+          )}
+          {isActivePage ? (
+            <>
+              <span class={getCurrentClasses(isLast)} aria-current="page">
+                <span
+                  itemprop="name"
+                  class={getNameClasses(isLast)}
+                  title={crumb.name}
                 >
-                  <span
-                    itemprop="name"
-                    class={getNameClasses(isLast)}
-                    title={crumb.name}
-                  >
-                    {crumb.name}
-                  </span>
-                </a>
-              )}
-              <meta itemprop="position" content={String(index + 1)} />
-            </li>
-          )
-        })
-      }
+                  {crumb.name}
+                </span>
+              </span>
+              <link itemprop="item" href={crumb.href} />
+            </>
+          ) : (
+            <a
+              data-component="Breadcrumb"
+              itemprop="item"
+              href={crumb.href}
+              class={getLinkClasses()}
+              {...buildDeferredUmamiAttrs({
+                pathname: Astro.url.pathname,
+                lang: routeLocale,
+                label: 'nav',
+                baseComponent: 'breadcrumbs',
+                href: crumb.href,
+                linkText: crumb.name
+              })}
+            >
+              <span
+                itemprop="name"
+                class={getNameClasses(isLast)}
+                title={crumb.name}
+              >
+                {crumb.name}
+              </span>
+            </a>
+          )}
+          <meta itemprop="position" content={String(index + 1)} />
+        </li>
+      })}
     </ol>
   </nav>
   <slot />

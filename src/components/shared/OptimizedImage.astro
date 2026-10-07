@@ -141,89 +141,87 @@ const avifSrcset = avifVariants.map((v) => `${v.src} ${v.width}w`).join(', ')
 const imgSrc = media ? undefined : src
 ---
 
-{
-  hasResponsive ? (
-    <picture class={pictureClassName}>
-      {alternatePictureSources.map((source) => (
-        <source
-          type={source.type}
-          media={source.media}
-          srcset={source.srcset}
-          sizes={source.sizes}
-        />
-      ))}
-      {avifVariants.length > 0 && (
-        <source
-          type="image/avif"
-          srcset={avifSrcset}
-          sizes={sizes}
-          media={media}
-        />
-      )}
-      {variants.length > 0 && (
-        <source
-          type="image/webp"
-          srcset={webpSrcset}
-          sizes={sizes}
-          media={media}
-        />
-      )}
-      <img
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        class={className}
-        loading={loading}
-        decoding={decoding}
-        style={placeholderStyle}
-        data-blur-placeholder={safePlaceholder ? '' : undefined}
-        fetchpriority={fetchpriority}
-        draggable={draggable}
+{hasResponsive ? (
+  <picture class={pictureClassName}>
+    {alternatePictureSources.map((source) => (
+      <source
+        type={source.type}
+        media={source.media}
+        srcset={source.srcset}
+        sizes={source.sizes}
       />
-    </picture>
-  ) : fullSrc ? (
-    <picture class={pictureClassName}>
-      {avifFullSrc && (
-        <source type="image/avif" srcset={avifFullSrc} media={media} />
-      )}
-      <source type="image/webp" srcset={fullSrc} media={media} />
-      <img
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        class={className}
-        loading={loading}
-        decoding={decoding}
-        style={placeholderStyle}
-        data-blur-placeholder={safePlaceholder ? '' : undefined}
-        fetchpriority={fetchpriority}
-        draggable={draggable}
+    ))}
+    {avifVariants.length > 0 && (
+      <source
+        type="image/avif"
+        srcset={avifSrcset}
+        sizes={sizes}
+        media={media}
       />
-    </picture>
-  ) : (
-    // Wrapped even with no <source>, so `pictureClass` applies in every branch.
-    // Callers put semantics there (breakpoint toggles), and which branch runs
-    // depends on deploy state, not on the call site.
-    <picture class={pictureClassName}>
-      <img
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        class={className}
-        loading={loading}
-        decoding={decoding}
-        style={placeholderStyle}
-        data-blur-placeholder={safePlaceholder ? '' : undefined}
-        fetchpriority={fetchpriority}
-        draggable={draggable}
-        data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
+    )}
+    {variants.length > 0 && (
+      <source
+        type="image/webp"
+        srcset={webpSrcset}
+        sizes={sizes}
+        media={media}
       />
-    </picture>
-  )
-}
+    )}
+    <img
+      src={imgSrc}
+      alt={alt}
+      width={width}
+      height={height}
+      class={className}
+      loading={loading}
+      decoding={decoding}
+      style={placeholderStyle}
+      data-blur-placeholder={safePlaceholder ? '' : undefined}
+      fetchpriority={fetchpriority}
+      draggable={draggable}
+    />
+  </picture>
+) : fullSrc ? (
+  <picture class={pictureClassName}>
+    {avifFullSrc && (
+      <source type="image/avif" srcset={avifFullSrc} media={media} />
+    )}
+    <source type="image/webp" srcset={fullSrc} media={media} />
+    <img
+      src={imgSrc}
+      alt={alt}
+      width={width}
+      height={height}
+      class={className}
+      loading={loading}
+      decoding={decoding}
+      style={placeholderStyle}
+      data-blur-placeholder={safePlaceholder ? '' : undefined}
+      fetchpriority={fetchpriority}
+      draggable={draggable}
+    />
+  </picture>
+) : (
+  // Wrapped even with no <source>, so `pictureClass` applies in every branch.
+  // Callers put semantics there (breakpoint toggles), and which branch runs
+  // depends on deploy state, not on the call site.
+  <picture class={pictureClassName}>
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      class={className}
+      loading={loading}
+      decoding={decoding}
+      style={placeholderStyle}
+      data-blur-placeholder={safePlaceholder ? '' : undefined}
+      fetchpriority={fetchpriority}
+      draggable={draggable}
+      data-unoptimized-src={src && isOptimizableSource(src) ? src : undefined}
+    />
+  </picture>
+)}
 
 <script>
   // Drops the blur placeholder once the real image has painted. A source with

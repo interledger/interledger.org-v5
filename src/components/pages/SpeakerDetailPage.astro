@@ -32,13 +32,9 @@ const bio = translation?.bio ?? entry.bio
 
 <SummitPageLayout title={entry.name}>
   <main>
-    {
-      isFallback && (
-        <div class="flex justify-end">
-          <TranslationDisclaimer isVisible={isFallback} style="summit" />
-        </div>
-      )
-    }
+    {isFallback && <div class="flex justify-end">
+      <TranslationDisclaimer isVisible={isFallback} style="summit" />
+    </div>}
     <header class="bg-black/20">
       <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
         <div>
@@ -61,21 +57,17 @@ const bio = translation?.bio ?? entry.bio
       <section aria-label={t('profile.biography')} class="my-8">
         <TextParagraphs text={bio} />
       </section>
-      {
-        sessions.length > 0 && (
-          <section
-            aria-label={t('summit.sessions')}
-            class="border border-teal-300 p-8"
-          >
-            <SessionsList
-              sessions={sessions}
-              sessionBaseHref={sessionBaseHref}
-              lang={lang}
-              year={year}
-            />
-          </section>
-        )
-      }
+      {sessions.length > 0 && <section
+        aria-label={t('summit.sessions')}
+        class="border border-teal-300 p-8"
+      >
+        <SessionsList
+          sessions={sessions}
+          sessionBaseHref={sessionBaseHref}
+          lang={lang}
+          year={year}
+        />
+      </section>}
     </div>
   </main>
 </SummitPageLayout>

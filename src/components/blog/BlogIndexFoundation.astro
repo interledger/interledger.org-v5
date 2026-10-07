@@ -125,34 +125,29 @@ const searchIndexUrl = '/blog-search-index.json'
     data-blog-search-count
     data-results-template={t('blog.search.results', { count: '{count}' })}
     hidden
-  >
-  </p>
+  ></p>
 
-  {
-    /* Announcement channel for search results — see blog-search.ts. Never
-  hidden, so live-region updates actually reach the a11y tree. */
-  }
-  <p class="sr-only" role="status" aria-live="polite" data-blog-search-status>
-  </p>
+  {/* Announcement channel for search results — see blog-search.ts. Never
+  hidden, so live-region updates actually reach the a11y tree. */}
+  <p
+    class="sr-only"
+    role="status"
+    aria-live="polite"
+    data-blog-search-status
+  ></p>
 </section>
 
-{
-  /* Everything the search swaps out lives in one region so it can be marked
+{/* Everything the search swaps out lives in one region so it can be marked
 aria-busy while a search is in flight. The status node that announces the
 outcome deliberately sits outside it, in the filters section: announcements
-from inside an aria-busy container are deferred. */
-}
+from inside an aria-busy container are deferred. */}
 <div data-blog-results-region>
-  {
-    isTermFallback && (
-      <p
-        class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
-        data-blog-term-fallback
-      >
-        {t('blog.empty_tag_lang.message')}
-      </p>
-    )
-  }
+  {isTermFallback && <p
+    class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
+    data-blog-term-fallback
+  >
+    {t('blog.empty_tag_lang.message')}
+  </p>}
 
   <p
     class="my-5xl text-h3 text-neutral-75 text-center tablet:my-6xl tablet:text-h3-md desktop:my-7xl desktop:text-h3-lg"
@@ -175,23 +170,21 @@ from inside an aria-busy container are deferred. */
     aria-label={t('aria.blog.posts_list')}
     data-blog-list
   >
-    {
-      posts.map((blogPostEntry) => {
-        const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
-        const postPath = getBlogPostPath(blogPostEntry)
-        const thumbnail = getBlogThumbnail(blogPostEntry)
-        return (
-          <BlogCard
-            blogData={blogPostEntry.data}
-            umamiAttrs={postAttrs}
-            excerpt={excerpt}
-            postPath={postPath}
-            thumbnail={thumbnail}
-            readingTime={getReadingTime(blogPostEntry.body)}
-          />
-        )
-      })
-    }
+    {posts.map((blogPostEntry) => {
+      const excerpt = `${createExcerpt(blogPostEntry.body).substring(0, 300)}...`
+      const postPath = getBlogPostPath(blogPostEntry)
+      const thumbnail = getBlogThumbnail(blogPostEntry)
+      return (
+        <BlogCard
+          blogData={blogPostEntry.data}
+          umamiAttrs={postAttrs}
+          excerpt={excerpt}
+          postPath={postPath}
+          thumbnail={thumbnail}
+          readingTime={getReadingTime(blogPostEntry.body)}
+        />
+      )
+    })}
   </ol>
 
   <ol
@@ -199,8 +192,7 @@ from inside an aria-busy container are deferred. */
     aria-label={t('aria.blog.search_results')}
     data-blog-search-results
     hidden
-  >
-  </ol>
+  ></ol>
 </div>
 
 <BlogSearchResultTemplate />

@@ -112,33 +112,29 @@ const heroLcpPreload =
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </PageHero>
 
-    {
-      hasBody && (
-        <section class="px-content">
-          <div class="content-column">
-            <div data-prose>
-              <MdxContent
-                components={{
-                  ...RICH_TEXT_MDX_COMPONENTS,
-                  Paragraph,
-                  SplitLayout,
-                  Blockquote: BlockquoteBlock,
-                  CalloutText: CalloutTextBlock,
-                  VideoEmbed: VideoEmbedBlock,
-                  ImageBlock,
-                  CtaStrip,
-                  LogoCarousel,
-                  NumberTiles,
-                  // Grant overview only allows CardGrid variant="Title" (enforced in CMS).
-                  CardGrid,
-                  TitleCard
-                }}
-              />
-            </div>
-          </div>
-        </section>
-      )
-    }
+    {hasBody && <section class="px-content">
+      <div class="content-column">
+        <div data-prose>
+          <MdxContent
+            components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
+              Paragraph,
+              SplitLayout,
+              Blockquote: BlockquoteBlock,
+              CalloutText: CalloutTextBlock,
+              VideoEmbed: VideoEmbedBlock,
+              ImageBlock,
+              CtaStrip,
+              LogoCarousel,
+              NumberTiles,
+              // Grant overview only allows CardGrid variant="Title" (enforced in CMS).
+              CardGrid,
+              TitleCard
+            }}
+          />
+        </div>
+      </div>
+    </section>}
 
     <section class="px-content">
       <div class="content-column">
@@ -158,14 +154,10 @@ const heroLcpPreload =
       </div>
     </section>
 
-    {
-      followUpHtml && (
-        <section class="px-content">
-          <div class="content-column">
-            <div data-prose set:html={followUpHtml} />
-          </div>
-        </section>
-      )
-    }
+    {followUpHtml && <section class="px-content">
+      <div class="content-column">
+        <div data-prose set:html={followUpHtml} />
+      </div>
+    </section>}
   </main>
 </FoundationPageLayout>

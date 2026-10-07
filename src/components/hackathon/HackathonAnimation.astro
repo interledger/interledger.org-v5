@@ -125,8 +125,7 @@ const CHEVRONS: ChevronSpec[] = [
 ]
 ---
 
-{
-  /*
+{/*
     Full-bleed breakout: the MDX content column is capped at max-w-content,
     but this block's chevrons are meant to run to the screen edges per the
     Figma design.
@@ -156,8 +155,7 @@ const CHEVRONS: ChevronSpec[] = [
 
     Relies on HackathonPageLayout's overflow-x-hidden body to absorb any
     sub-pixel scrollbar-width overhang from 100vw.
-  */
-}
+  */}
 <section
   data-component="HackathonAnimation"
   aria-hidden="true"
@@ -167,30 +165,26 @@ const CHEVRONS: ChevronSpec[] = [
     <div
       class="hackathon-animation-stage relative h-50 w-full overflow-hidden tablet:h-100"
     >
-      {
-        CHEVRONS.map((chevron) => (
-          <div
-            class:list={[
-              'chevron absolute',
-              CHEVRON_ASPECT[chevron.size],
-              chevron.position
-            ]}
-            data-chevron-side={chevron.side}
-            data-chevron-size={chevron.size}
-            data-chevron-ratio={chevron.travelRatio}
-            style={chevron.mirrored ? 'scale: -1 1' : undefined}
-          >
-            <svg
-              viewBox={CHEVRON_VIEWBOX[chevron.size]}
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              class="block h-full w-full"
-            >
-              <path d={CHEVRON_PATH[chevron.size]} class={chevron.color} />
-            </svg>
-          </div>
-        ))
-      }
+      {CHEVRONS.map((chevron) => <div
+        class:list={[
+          'chevron absolute',
+          CHEVRON_ASPECT[chevron.size],
+          chevron.position
+        ]}
+        data-chevron-side={chevron.side}
+        data-chevron-size={chevron.size}
+        data-chevron-ratio={chevron.travelRatio}
+        style={chevron.mirrored ? 'scale: -1 1' : undefined}
+      >
+        <svg
+          viewBox={CHEVRON_VIEWBOX[chevron.size]}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          class="block h-full w-full"
+        >
+          <path d={CHEVRON_PATH[chevron.size]} class={chevron.color} />
+        </svg>
+      </div>)}
     </div>
   </div>
 </section>

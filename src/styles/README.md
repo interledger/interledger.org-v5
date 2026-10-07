@@ -314,7 +314,9 @@ Prose styles are layered for flexibility:
 <!-- Blog article -->
 <article data-prose-blog>
   <h2>Article Title</h2>
-  <table>...</table>
+  <table>
+    ...
+  </table>
   <code>inline code</code>
 </article>
 

@@ -51,23 +51,20 @@ const renderedItems = items
   aria-label={heading || t('faq.block_label')}
   class:list={[heading && 'flex flex-col gap-block-heading']}
 >
-  {
-    heading && (
-      <h2 class="m-0 text-neutral-900 dark:text-neutral-0">{heading}</h2>
-    )
-  }
+  {heading && <h2 class="m-0 text-neutral-900 dark:text-neutral-0">
+    {heading}
+  </h2>}
   <div class="flex w-full flex-col gap-xl" data-faq-accordion>
-    {
-      renderedItems ? (
-        renderedItems.map((item) => (
-          <FaqItem question={item.question} group={faqGroup}>
-            <Fragment set:html={item.answerHtml} />
-          </FaqItem>
-        ))
-      ) : (
-        <slot />
-      )
-    }
+    {renderedItems ? (
+      renderedItems.map((item) => <FaqItem
+        question={item.question}
+        group={faqGroup}
+      >
+        <Fragment set:html={item.answerHtml} />
+      </FaqItem>)
+    ) : (
+      <slot />
+    )}
   </div>
 </section>
 

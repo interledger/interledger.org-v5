@@ -60,13 +60,11 @@ const breadcrumbs = [
         <h1>{title}</h1>
         <SessionSubheader talk={entry} lang={lang} />
       </header>
-      {
-        entry.recordingUrl && (
-          <section aria-label={t('summit.session_recording')}>
-            <VideoEmbed url={entry.recordingUrl} title={entry.title} />
-          </section>
-        )
-      }
+      {entry.recordingUrl && <section
+        aria-label={t('summit.session_recording')}
+      >
+        <VideoEmbed url={entry.recordingUrl} title={entry.title} />
+      </section>}
       <div class="flex flex-row gap-8">
         <section aria-label={t('summit.session_description')}>
           <TextParagraphs text={description} />

@@ -16,14 +16,12 @@ const t = useTranslations(routeLocale)
 const listClass = `flex flex-wrap gap-xl list-none ${extraClass ?? ''}`.trim()
 ---
 
-{
-  speakers.length > 0 ? (
-    <ul class={listClass}>
-      {speakers.map((speaker) => (
-        <SpeakerCard speaker={speaker} basePath={basePath} year={year} />
-      ))}
-    </ul>
-  ) : (
-    <p>{t('summit.no_speakers')}</p>
-  )
-}
+{speakers.length > 0 ? (
+  <ul class={listClass}>
+    {speakers.map((speaker) => (
+      <SpeakerCard speaker={speaker} basePath={basePath} year={year} />
+    ))}
+  </ul>
+) : (
+  <p>{t('summit.no_speakers')}</p>
+)}

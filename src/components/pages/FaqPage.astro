@@ -61,19 +61,15 @@ const Layout = getSectionPageLayout(section)
       <h1 class="text-neutral-900 mt-xl tablet:mt-3xl dark:text-neutral-0">
         {heading}
       </h1>
-      {
-        introParagraphHtml && (
-          <section
-            aria-label={t('faq.introduction')}
-            class="mt-xl tablet:mt-3xl"
-          >
-            <div
-              class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
-              set:html={introParagraphHtml}
-            />
-          </section>
-        )
-      }
+      {introParagraphHtml && <section
+        aria-label={t('faq.introduction')}
+        class="mt-xl tablet:mt-3xl"
+      >
+        <div
+          class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+          set:html={introParagraphHtml}
+        />
+      </section>}
       <section class="mt-section">
         <FaqSections sections={faqSections} uiLocale={routeLocale} />
       </section>
