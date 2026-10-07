@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
+import matter from 'gray-matter'
 import {
+  MATTER_STRINGIFY_OPTIONS,
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
@@ -211,5 +213,33 @@ describe('formatMdx', () => {
 
       expect(result, `${name} wrapped its prose`).toContain(prose)
     }
+  })
+})
+
+describe('MATTER_STRINGIFY_OPTIONS', () => {
+  it('single-quotes every string value', () => {
+    const out = matter.stringify(
+      '',
+      { title: "It's here", tag: 'x' },
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(out).toContain("title: 'It''s here'\ntag: 'x'\n")
+  })
+
+  it('single-quotes whitespace-only values', () => {
+    const out = matter.stringify(
+      '',
+      { one: ' ', three: '   ' },
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(out).toContain("one: ' '\nthree: '   '\n")
+  })
+
+  it('parses dates as Date objects', () => {
+    const { data } = matter(
+      '---\ndate: 2023-09-12\n---\n',
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(data.date).toBeInstanceOf(Date)
   })
 })

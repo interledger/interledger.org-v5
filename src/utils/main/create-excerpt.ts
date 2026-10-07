@@ -1,5 +1,5 @@
 import { convert } from 'html-to-text'
-import MarkdownIt from 'markdown-it'
+import markdownit, { type MarkdownIt } from 'markdown-it'
 
 const CONVERT_OPTIONS = {
   wordwrap: null as null,
@@ -48,8 +48,8 @@ function excerptFromMarkdown(
   return plainTextFromHtml(parser.render(safeBody), convertOptions)
 }
 
-const excerptParser = new MarkdownIt()
-const searchPlainParser = new MarkdownIt().disable([
+const excerptParser = new markdownit()
+const searchPlainParser = new markdownit().disable([
   'heading',
   'lheading',
   'blockquote'
