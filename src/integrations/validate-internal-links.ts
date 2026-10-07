@@ -634,9 +634,19 @@ function isStrict(): boolean {
   return process.env.LINK_CHECK === 'strict'
 }
 
-/** A fragment that always resolves, per the HTML spec. */
+/**
+ * A fragment that resolves without an element in the HTML.
+ *
+ * `#top` and a bare `#` are defined by HTML. Eight uppercase letters or digits
+ * is a Fundraise Up element id: their script turns `href="#XVSHSPQU"` into the
+ * donate modal after load, so the id is not in the built page.
+ */
 function isAlwaysValidFragment(fragment: string): boolean {
-  return fragment === '' || fragment.toLowerCase() === 'top'
+  return (
+    fragment === '' ||
+    fragment.toLowerCase() === 'top' ||
+    /^[A-Z0-9]{8}$/.test(fragment)
+  )
 }
 
 export function validateInternalLinks(): AstroIntegration {

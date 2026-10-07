@@ -1036,7 +1036,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       content:
-        'Same blocks as a Foundation Page, including Donation Cards. This page type loads the Fundraise Up script. A Foundation Page can use Donation Cards too, and does not load the script.'
+        'Same blocks as a Foundation Page, including Donation Cards. Either page type loads the Fundraise Up script when a CTA points at an Element ID.'
     },
     'api::summit-page.summit-page': {
       title:
