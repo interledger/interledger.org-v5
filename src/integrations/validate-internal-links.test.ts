@@ -826,6 +826,14 @@ describe('validateInternalLinks', () => {
     expect(error?.message).toContain('no element with that id')
   })
 
+  it('accepts a Fundraise Up element id, which is not an element in the page', async () => {
+    const { error } = await runCheck({
+      'index.html': '<a href="#XVSHSPQU">Donate</a><a href="/a#XMWLAVRZ">x</a>',
+      'a/index.html': '<h1>ok</h1>'
+    })
+    expect(error).toBeNull()
+  })
+
   it('accepts a fragment that exists, including #top and bare #', async () => {
     const { error } = await runCheck({
       'index.html':
