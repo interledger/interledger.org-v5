@@ -38,6 +38,7 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
+  CONTENT_API_TOKEN_SERVICE,
   isFullAccessApiToken,
   SERVER_STATUS_PATH,
   DEV_BUILD_ID,
@@ -308,6 +309,8 @@ interface UploadProvider {
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
   checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
+  replace?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
+  replaceStream?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
 }
 
 export interface UploadFile {
@@ -628,7 +631,7 @@ function createImageSizeLimitTransform(label: string): Transform {
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
  */
-function overrideUploadProvider(strapi: StrapiInstance): void {
+export function overrideUploadProvider(strapi: StrapiInstance): void {
   const uploadPlugin = strapi.plugin('upload')
   if (!uploadPlugin?.provider) {
     strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
@@ -679,6 +682,12 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     assertWrittenImageWithinLimit(file, dest, label)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
+
+  // The local provider has its own replace methods since Strapi 5.57. They
+  // write to `public/uploads/` and skip the path and size limit above. Without
+  // them, Strapi replaces a file with `delete` and then `upload`.
+  delete provider.replace
+  delete provider.replaceStream
 
   provider.delete = async (file: UploadFile) => {
     const candidates = [
@@ -828,7 +837,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   if (!outputPath) return
 
   const tokenService = strapi.service(
-    'admin::api-token'
+    CONTENT_API_TOKEN_SERVICE
   ) as AdminApiTokenService
 
   const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
