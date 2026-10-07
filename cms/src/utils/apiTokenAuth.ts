@@ -10,10 +10,16 @@
  * processes do not carry it. The comparison therefore ran against `undefined`
  * and rejected every caller (INTORG-1098).
  *
- * These helpers check the bearer against Strapi's own `admin::api-token`
- * records instead, so any token an admin issued works and the server needs no
- * extra environment variable.
+ * These helpers check the bearer against Strapi's own API token records
+ * instead, so any token an admin issued works and the server needs no extra
+ * environment variable.
  */
+
+/**
+ * Strapi 5.57 splits API tokens by kind. This service holds the content API
+ * tokens. The older `admin::api-token` name is a deprecated alias of it.
+ */
+export const CONTENT_API_TOKEN_SERVICE = 'admin::api-token-content-api'
 
 /**
  * Matches an `Authorization` header that carries bearer credentials.
@@ -25,12 +31,12 @@
  */
 const BEARER_CREDENTIALS = /^bearer\s+(\S.*)$/i
 
-/** The subset of `admin::api-token` this module uses. */
+/** The subset of the content API token service this module uses. */
 interface ApiTokenService {
   hash: (accessKey: string) => string
-  getBy: (
-    whereParams: Record<string, unknown>
-  ) => Promise<{ type?: string } | null>
+  getByAccessKey: (
+    accessKeyHash: string
+  ) => Promise<{ type?: string; kind?: string | null } | null>
 }
 
 interface StrapiWithService {
@@ -57,29 +63,32 @@ export function extractBearerToken(header: unknown): string | null {
  * Reports whether the token belongs to a full-access API token.
  *
  * Read-only and custom tokens are rejected: every caller of this check writes
- * to the database. Returns an `Error` when the token service is unavailable or
+ * to the database. Admin tokens are rejected too: `getByAccessKey` searches
+ * every token kind, and this route accepts content API tokens only. Returns an `Error` when the token service is unavailable or
  * the lookup throws, so the caller can answer 500 rather than a misleading 401.
  */
 export async function isFullAccessApiToken(
   strapi: StrapiWithService,
   token: string
 ): Promise<boolean | Error> {
-  const service = strapi.service('admin::api-token') as
+  const service = strapi.service(CONTENT_API_TOKEN_SERVICE) as
     ApiTokenService | undefined
 
   if (
     !service ||
     typeof service.hash !== 'function' ||
-    typeof service.getBy !== 'function'
+    typeof service.getByAccessKey !== 'function'
   ) {
     return new Error(
-      'The admin::api-token service is unavailable, so the bearer token cannot be checked.'
+      `The ${CONTENT_API_TOKEN_SERVICE} service is unavailable, so the bearer token cannot be checked.`
     )
   }
 
   try {
-    const record = await service.getBy({ accessKey: service.hash(token) })
-    return record?.type === 'full-access'
+    const record = await service.getByAccessKey(service.hash(token))
+    // Tokens created before Strapi added kinds have no kind.
+    const isContentApi = record?.kind == null || record.kind === 'content-api'
+    return isContentApi && record?.type === 'full-access'
   } catch (error) {
     return error instanceof Error ? error : new Error(String(error))
   }

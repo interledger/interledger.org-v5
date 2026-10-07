@@ -8,11 +8,11 @@ onlyBuiltDependencies:
   - sharp
 
 overrides:
-  # Pinned to the version @strapi/admin 5.41.1 itself renders with — the admin
+  # Pinned to the version @strapi/admin 5.57.0 itself renders with — the admin
   # notice bar imports both directly, so they are also direct dependencies in
   # package.json. Bump them together, and only alongside Strapi.
-  '@strapi/design-system': 2.2.0
-  '@strapi/icons': 2.2.0
+  '@strapi/design-system': 2.2.4
+  '@strapi/icons': 2.2.4
 
 patchedDependencies:
-  '@strapi/content-manager@5.41.1': ../patches/@strapi__content-manager@5.41.1.patch
+  '@strapi/content-manager@5.57.0': ../patches/@strapi__content-manager@5.57.0.patch
