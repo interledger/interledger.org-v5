@@ -3,17 +3,18 @@
  * Renders a page from the `fundraising-pages` collection (INTORG-1247).
  *
  * Standalone on purpose. It mirrors `FoundationContentPage` rather than
- * extending it: a fundraising page loads the Fundraise Up install script and a
- * foundation page must not, and threading that through the shared renderer
- * would put a third-party script behind a prop on all ~200 foundation routes.
+ * extending it. A fundraising page always loads Fundraise Up. A foundation
+ * page loads it only when a CTA points at an element id, so the other ~200
+ * routes do not pay for the third-party script.
  *
- * **No route renders this yet.** The collection is defined and the Strapi
- * content type exists, but neither `[...page].astro` nor its Spanish twin
- * includes `fundraising-pages` in `getStaticPaths`, so nothing is built or
- * reachable on the live site. That is deliberate: it lands the implementation
- * without exposing an unfinished page. Registering the route is the launch
- * change, and that is also when this and `FoundationContentPage` should be
- * reconciled — see the component map below.
+ * **No public route renders this yet.** The collection is defined and the
+ * Strapi content type exists, but neither `[...page].astro` nor its Spanish
+ * twin includes `fundraising-pages` in `getStaticPaths`, so nothing is built
+ * or reachable on the live site. Strapi preview is separate: it renders the
+ * draft as a full page (header, footer, hero, blocks) through
+ * `FundraisingPagePreview`. Registering the route is the launch change, and
+ * that is also when this and `FoundationContentPage` should be reconciled —
+ * see the component map below.
  */
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {

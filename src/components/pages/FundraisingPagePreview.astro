@@ -1,0 +1,112 @@
+---
+/**
+ * Full-page preview of a Fundraising Page draft.
+ *
+ * Same chrome as a published foundation page: header, footer, hero, and
+ * every content block. The yellow bar is the only preview-only piece.
+ * Checkout stays in test mode. This is not a publish.
+ */
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import PageHero from '@/components/shared/PageHero.astro'
+import DynamicZone from '@/components/blocks/DynamicZone.astro'
+import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
+import { localizeRoute, useTranslations } from '@/utils'
+
+interface HeroCta {
+  text?: string
+  link?: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+  document?: boolean
+}
+
+interface Props {
+  title: string
+  description?: string
+  heroTitle?: string
+  heroDescription?: string
+  heroImage?: string
+  heroImageAlt?: string | null
+  heroImageMobile?: string
+  heroImageMobileAlt?: string | null
+  heroCta?: HeroCta | null
+  content: Array<{ __component: string; [key: string]: unknown }>
+}
+
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageAlt,
+  heroImageMobile,
+  heroImageMobileAlt,
+  heroCta,
+  content
+} = Astro.props
+
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+const pageTitle = heroTitle || title
+const cta =
+  heroCta?.text && heroCta.link
+    ? {
+        text: heroCta.text,
+        link: heroCta.link,
+        style: heroCta.style,
+        external: heroCta.external,
+        document: heroCta.document
+      }
+    : undefined
+const breadcrumbs = [
+  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  { name: pageTitle, href: `${Astro.url.pathname}${Astro.url.search}` }
+]
+const heroLcpPreload =
+  pageTitle && (heroImage || heroImageMobile)
+    ? { image: heroImage, imageMobile: heroImageMobile }
+    : undefined
+---
+
+<FoundationPageLayout
+  title={`[PREVIEW] ${title}`}
+  description={description}
+  noindex
+  heroLcpPreload={heroLcpPreload}
+>
+  <Fragment slot="head">
+    <FundraiseUpScript testMode={true} />
+  </Fragment>
+  <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
+    PREVIEW MODE - This content is not published
+  </div>
+  <main class="page-stack pb-section" data-pillar="mission">
+    {
+      pageTitle && (
+        <PageHero
+          title={pageTitle}
+          description={heroDescription}
+          image={heroImage}
+          imageMobile={heroImageMobile}
+          imageAlt={heroImageAlt}
+          imageMobileAlt={heroImageMobileAlt}
+          cta={cta}
+          breadcrumbs={breadcrumbs}
+          imageBand="default"
+        />
+      )
+    }
+    {
+      content.length > 0 && (
+        <section class="px-content">
+          <div class="content-column">
+            <div class="mx-auto max-w-content" data-prose>
+              <DynamicZone blocks={content} />
+            </div>
+          </div>
+        </section>
+      )
+    }
+  </main>
+</FoundationPageLayout>
