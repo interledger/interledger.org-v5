@@ -393,10 +393,7 @@ export function readLocaleFromUpdateEvent(event: {
     typeof combined === 'string' && combined.length > 0 ? combined : defaultLang
 
   let source:
-    | 'params.locale'
-    | 'params.data.locale'
-    | 'params.where.locale'
-    | 'default'
+    'params.locale' | 'params.data.locale' | 'params.where.locale' | 'default'
   if (!(typeof combined === 'string' && combined.length > 0)) {
     source = 'default'
   } else if (fromLocale != null && fromLocale === combined) {

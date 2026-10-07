@@ -707,8 +707,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   if (!uploadPlugin) return
 
   const uploadService = uploadPlugin.service('upload') as
-    | UploadService
-    | undefined
+    UploadService | undefined
   if (uploadService) {
     await uploadService.setSettings({
       responsiveDimensions: false,
@@ -720,8 +719,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 
   const imgService = uploadPlugin.service('image-manipulation') as
-    | ImageManipulationService
-    | undefined
+    ImageManipulationService | undefined
   if (imgService) {
     imgService.generateThumbnail = async () => null
     imgService.generateResponsiveFormats = async () => []
@@ -1723,11 +1721,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   if (!plugin) return
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   if (!contentTypeService || !componentService) return
 
@@ -2186,11 +2182,9 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   for (const [uid, editLayout] of Object.entries(contentTypeLayouts)) {
     try {
@@ -2411,8 +2405,7 @@ export default {
     // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
     // Available badge compare it by bare slug.
     const uidService = strapi.plugin('content-manager')?.service('uid') as
-      | UidService
-      | undefined
+      UidService | undefined
     if (uidService) {
       patchUidServiceForSlashedSlugs(
         uidService,

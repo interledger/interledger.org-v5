@@ -125,9 +125,7 @@ describe('sanitizeMenuGroup', () => {
     const group = {
       label: 'Nav',
       items: [null, { label: 'A', href: '/a/' }, undefined] as (
-        | MenuItem
-        | null
-        | undefined
+        MenuItem | null | undefined
       )[]
     }
     expect(sanitizeMenuGroup(group)).toEqual({

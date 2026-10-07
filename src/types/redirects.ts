@@ -39,5 +39,4 @@ export type RedirectConfig = Record<RedirectCategory, RedirectRule[]>
 
 /** The value Astro's `redirects` config accepts for one source. */
 export type AstroRedirectTarget =
-  | string
-  | { status: RedirectStatus; destination: string }
+  string | { status: RedirectStatus; destination: string }
