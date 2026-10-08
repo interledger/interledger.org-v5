@@ -84,6 +84,13 @@ export function buildContactNameMap(
     }
     contactsMap.set(record.id, name)
   }
+  // One unnamed contact is a data gap; none named at all means the name field
+  // changed type (e.g. to a lookup) and every leader would silently vanish.
+  if (contactRecords.length > 0 && contactsMap.size === 0) {
+    throw new Error(
+      `No contact in ${contactRecords.length} records has a name in "${nameFieldName}" — Airtable schema may have changed`
+    )
+  }
   return contactsMap
 }
 

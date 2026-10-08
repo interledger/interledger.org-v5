@@ -43,10 +43,28 @@ describe('buildContactNameMap', () => {
   it('skips a contact whose name is blank or not a string', () => {
     const contacts = [
       record({ Name: '   ' }, 'recBlank'),
-      record({ Name: 42 }, 'recNumber')
+      record({ Name: 42 }, 'recNumber'),
+      record({ Name: 'Ada Lovelace' }, 'recAda')
     ]
-    expect(buildContactNameMap(contacts, 'Name').size).toBe(0)
+    expect([...buildContactNameMap(contacts, 'Name').keys()]).toEqual([
+      'recAda'
+    ])
     expect(warn).toHaveBeenCalledTimes(2)
+  })
+
+  it('throws when no contact has a name, as after a field type change', () => {
+    // A lookup field returns string[], which is a valid field value but not a name.
+    const contacts = [
+      record({ Name: ['Ada Lovelace'] }, 'recAda'),
+      record({ Name: ['Grace Hopper'] }, 'recGrace')
+    ]
+    expect(() => buildContactNameMap(contacts, 'Name')).toThrow(
+      /No contact in 2 records has a name in "Name"/
+    )
+  })
+
+  it('returns an empty map for an empty contacts table', () => {
+    expect(buildContactNameMap([], 'Name').size).toBe(0)
   })
 })
 
