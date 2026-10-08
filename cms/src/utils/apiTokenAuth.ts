@@ -34,9 +34,11 @@ const BEARER_CREDENTIALS = /^bearer\s+(\S.*)$/i
 /** The subset of the content API token service this module uses. */
 interface ApiTokenService {
   hash: (accessKey: string) => string
-  getByAccessKey: (
-    accessKeyHash: string
-  ) => Promise<{ type?: string; kind?: string | null } | null>
+  getByAccessKey: (accessKeyHash: string) => Promise<{
+    type?: string
+    kind?: string | null
+    expiresAt?: string | null
+  } | null>
 }
 
 interface StrapiWithService {
@@ -64,8 +66,11 @@ export function extractBearerToken(header: unknown): string | null {
  *
  * Read-only and custom tokens are rejected: every caller of this check writes
  * to the database. Admin tokens are rejected too: `getByAccessKey` searches
- * every token kind, and this route accepts content API tokens only. Returns an `Error` when the token service is unavailable or
- * the lookup throws, so the caller can answer 500 rather than a misleading 401.
+ * every token kind, and this route accepts content API tokens only. Expired
+ * tokens are rejected, as Strapi's own token strategy does.
+ *
+ * Returns an `Error` when the token service is unavailable or the lookup
+ * throws, so the caller can answer 500 rather than a misleading 401.
  */
 export async function isFullAccessApiToken(
   strapi: StrapiWithService,
@@ -86,9 +91,11 @@ export async function isFullAccessApiToken(
 
   try {
     const record = await service.getByAccessKey(service.hash(token))
-    // Tokens created before Strapi added kinds have no kind.
-    const isContentApi = record?.kind == null || record.kind === 'content-api'
-    return isContentApi && record?.type === 'full-access'
+    if (!record) return false
+    if (record.expiresAt && new Date(record.expiresAt) < new Date()) {
+      return false
+    }
+    return record.kind === 'content-api' && record.type === 'full-access'
   } catch (error) {
     return error instanceof Error ? error : new Error(String(error))
   }
