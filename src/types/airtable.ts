@@ -24,10 +24,13 @@ export interface View {
   visibleFieldIds?: string[]
 }
 
+export type AirtableFieldValue = string | number | string[]
+
+// Airtable omits empty cells from `fields`, so any field can be missing.
 export interface TableRecord {
   id: string
   createdTime: string
   fields: {
-    [key: string]: string | number | string[]
+    [key: string]: AirtableFieldValue | undefined
   }
 }

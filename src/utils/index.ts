@@ -195,6 +195,14 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+export {
+  buildContactNameMap,
+  filterPublishedRecords,
+  isTableRecord,
+  resolveProjectLeaders,
+  sanitizeRecordFields,
+  warnOnMissingProjectNames
+} from './main/airtableRecords'
 
 // Main site: Text
 export { generateSlug } from './main/slug'
