@@ -1,0 +1,69 @@
+---
+import { productionDeploy } from '@/utils'
+
+interface Props {
+  /**
+   * Routes checkout through Fundraise Up's test mode: the full donor flow
+   * runs, including success and decline states, but no card is charged and no
+   * donation reaches the live ledger.
+   *
+   * Defaults to test mode on every build except the Netlify production
+   * deploy. Omitting it must not charge a real card on staging, a preview,
+   * or a local build.
+   *
+   * Must be set *before* the install snippet, so it is a separate script tag
+   * above it rather than a line inside it.
+   */
+  testMode?: boolean
+}
+
+const { testMode = !productionDeploy() } = Astro.props
+---
+
+{
+  /*
+    Shaves a round trip off the first checkout open. No `crossorigin`: the
+    install snippet injects a plain <script src> with no crossorigin attribute,
+    so the widget is fetched in no-cors mode. A crossorigin preconnect would
+    warm a CORS connection the browser then cannot reuse for it.
+  */
+}
+<link rel="preconnect" href="https://cdn.fundraiseup.com" />
+
+{testMode && <script is:inline>window.fundraiseup_livemode = false</script>}
+
+<!-- Fundraise Up: the new standard for online giving -->
+<script is:inline>
+  /* eslint-disable no-var, prefer-rest-params -- vendor snippet, kept as issued */
+  ;(function (w, d, s, n, a) {
+    if (!w[n]) {
+      var l = 'call,catch,on,once,set,then,track,openCheckout'.split(','),
+        i,
+        o = function (n) {
+          return 'function' == typeof n
+            ? o.l.push([arguments]) && o
+            : function () {
+                return o.l.push([n, arguments]) && o
+              }
+        },
+        t = d.getElementsByTagName(s)[0],
+        j = d.createElement(s)
+      j.async = !0
+      j.src = 'https://cdn.fundraiseup.com/widget/' + a + ''
+      t.parentNode.insertBefore(j, t)
+      o.s = Date.now()
+      o.v = 5
+      o.h = w.location.href
+      o.l = []
+      for (i = 0; i < 8; i++) o[l[i]] = o(l[i])
+      w[n] = o
+    }
+  })(window, document, 'script', 'FundraiseUp', 'APUEUABQ')
+</script>
+<!-- End Fundraise Up -->
+
+<script>
+  import { initFundraiseUpAnalytics } from '@/scripts/fundraiseup-analytics'
+
+  initFundraiseUpAnalytics()
+</script>

@@ -2,9 +2,11 @@
 /**
  * Page Preview Route (SSR)
  * Fetches draft content from Strapi for preview before publishing
- * URL: /page-preview?documentId={documentId}
+ * URL: /preview/page-preview?documentId={documentId}
+ * Fundraising pages add `&type=fundraising`.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro'
+import FundraisingPagePreview from '@/components/pages/FundraisingPagePreview.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
@@ -77,11 +79,29 @@ const populateParams = new URLSearchParams({
     'image',
   'populate[content][on][blocks.image-block][populate][tabletImage]': 'true',
   'populate[content][on][blocks.image-block][populate][mobileImage]': 'true',
-  'populate[content][on][blocks.code-block][populate]': '*'
+  'populate[content][on][blocks.code-block][populate]': '*',
+  'populate[content][on][blocks.video-embed][populate]': '*',
+  'populate[content][on][blocks.number-tiles][populate][tiles]': '*',
+  'populate[content][on][blocks.donation-cards][populate][cards]': '*',
+  'populate[content][on][blocks.split-layout][populate][media][populate]':
+    'image',
+  'populate[content][on][blocks.split-layout][populate][cta]': 'true',
+  'populate[content][on][blocks.card-grid][populate][infoCards][populate]': '*',
+  'populate[content][on][blocks.card-grid][populate][titleCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][resourceCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][navigationCards][populate]':
+    '*'
 })
 
+// The admin preview link for a Fundraising Page sets type=fundraising.
+// That document is not in foundation-pages, so the default lookup 404s.
+const isFundraising = Astro.url.searchParams.get('type') === 'fundraising'
+const apiId = isFundraising ? 'fundraising-pages' : 'foundation-pages'
+
 const response = await fetchStrapi<FoundationPagePreview>(
-  `api/foundation-pages/${documentId}?${populateParams.toString()}`
+  `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
   return Astro.redirect('/404')
@@ -104,36 +124,48 @@ const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
 ---
 
-<BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
-  <TableScrollSupport />
-  <main class="pb-3xl">
-    <!-- Preview Banner -->
-    <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
-      PREVIEW MODE - This content is not published
-    </div>
+{
+  isFundraising ? (
+    <FundraisingPagePreview
+      title={title}
+      description={metaDescription}
+      heroTitle={heroTitle}
+      heroDescription={heroDescription}
+      heroImage={heroImage}
+      heroImageAlt={heroImageAlt}
+      heroImageMobile={heroImageMobile}
+      heroImageMobileAlt={heroImageMobileAlt}
+      heroCta={heroCta}
+      content={content}
+    />
+  ) : (
+    <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+      <TableScrollSupport />
+      <main class="pb-3xl">
+        <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
+          PREVIEW MODE - This content is not published
+        </div>
 
-    {
-      heroTitle && (
-        <PageHero
-          title={heroTitle}
-          description={heroDescription}
-          image={heroImage}
-          imageMobile={heroImageMobile}
-          imageAlt={heroImageAlt}
-          imageMobileAlt={heroImageMobileAlt}
-          cta={heroCta}
-        />
-      )
-    }
+        {heroTitle && (
+          <PageHero
+            title={heroTitle}
+            description={heroDescription}
+            image={heroImage}
+            imageMobile={heroImageMobile}
+            imageAlt={heroImageAlt}
+            imageMobileAlt={heroImageMobileAlt}
+            cta={heroCta}
+          />
+        )}
 
-    {
-      content.length > 0 && (
-        <section class="px-content py-4xl">
-          <div class="content-column min-w-0" data-prose-blog>
-            <DynamicZone blocks={content} />
-          </div>
-        </section>
-      )
-    }
-  </main>
-</BaseLayout>
+        {content.length > 0 && (
+          <section class="px-content py-4xl">
+            <div class="content-column min-w-0" data-prose-blog>
+              <DynamicZone blocks={content} />
+            </div>
+          </section>
+        )}
+      </main>
+    </BaseLayout>
+  )
+}

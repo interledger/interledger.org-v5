@@ -31,7 +31,11 @@ import {
   stripTrailingSlash
 } from '../utils/shared/url'
 import { tryCatchAsync } from '../utils/shared/tryCatch'
+import { isFundraiseUpElementHref } from '../utils/main/fundraiseUp'
 import { INTERNAL_LINK_EXCEPTIONS } from './internal-link-exceptions'
+
+/** Present only when `FundraiseUpScript` rendered the install snippet. */
+const FUNDRAISE_UP_WIDGET = 'cdn.fundraiseup.com/widget/'
 
 const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
 
@@ -634,7 +638,10 @@ function isStrict(): boolean {
   return process.env.LINK_CHECK === 'strict'
 }
 
-/** A fragment that always resolves, per the HTML spec. */
+/**
+ * A fragment that resolves without an element in the HTML.
+ * `#top` and a bare `#` are defined by HTML.
+ */
 function isAlwaysValidFragment(fragment: string): boolean {
   return fragment === '' || fragment.toLowerCase() === 'top'
 }
@@ -705,6 +712,10 @@ export function validateInternalLinks(): AstroIntegration {
         for (const relPath of htmlFiles) {
           const html = await readFile(path.join(distDir, relPath), 'utf8')
           const { targets, ids } = scanDocument(html)
+          // A bare `#XXXXXXXX` is a Fundraise Up element id, not an element in
+          // the page. Only a page that loaded the widget gets that exemption.
+          // `/path#XXXXXXXX` is still a normal fragment.
+          const loadsFundraiseUp = html.includes(FUNDRAISE_UP_WIDGET)
 
           const [ownPath] = distFileToTargets(relPath).sort(
             (a, b) => a.length - b.length
@@ -713,6 +724,13 @@ export function validateInternalLinks(): AstroIntegration {
           pageIds.set(relPath, ids)
 
           for (const raw of targets) {
+            if (
+              loadsFundraiseUp &&
+              isFundraiseUpElementHref(decodeHtmlEntities(raw).trim())
+            ) {
+              continue
+            }
+
             const link = classifyHref(raw, {
               fromPathname: ownPath,
               siteHost,

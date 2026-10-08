@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Donation Cards",
     "icon": "heart",
-    "description": "Row of giving tiers. A page carrying this block loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID."
+    "description": "Row of giving tiers. Only on a Fundraising Page. That template loads the Fundraise Up script, so a card CTA can point at an Element ID."
   },
   "options": {},
   "attributes": {

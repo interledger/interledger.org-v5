@@ -30,6 +30,7 @@ import {
 const DEFAULT_COLLECTIONS = [
   'profile-pages',
   'foundation-pages',
+  'fundraising-pages',
   'summit-pages',
   'foundation-blog-posts'
 ] as const

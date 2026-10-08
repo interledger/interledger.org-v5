@@ -19,6 +19,7 @@ describe('CodeBlock availability', () => {
   it.each([
     'foundation-blog-post',
     'foundation-page',
+    'fundraising-page',
     'summit-page',
     'hackathon-page'
   ])('is allowed in the %s content zone', (contentType) => {
