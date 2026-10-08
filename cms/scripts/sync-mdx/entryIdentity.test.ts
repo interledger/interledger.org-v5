@@ -38,6 +38,26 @@ describe('identityForMdx', () => {
   })
 })
 
+// Strapi and the MDX file may hold `faq` and `/faq/` while stored slugs move
+// to the slashed form (INTORG-1254). Different keys would make the orphan pass
+// delete the entry, so both sides key on the bare slug.
+describe('identity across slug forms', () => {
+  it('keys an MDX file and a Strapi entry alike whatever their slashes', () => {
+    const mdx = createMdxFile({ pathSlug: 'grant/faq', section: 'foundation' })
+    const entry = {
+      documentId: 'abc',
+      pathSlug: '/grant/faq/',
+      section: 'foundation'
+    }
+
+    for (const config of [BY_SLUG, BY_SECTION_AND_SLUG]) {
+      expect(identityKey(identityForEntry(config, entry))).toBe(
+        identityKey(identityForMdx(config, mdx))
+      )
+    }
+  })
+})
+
 describe('identityForEntry', () => {
   it('reads section off a Strapi entry when section-scoped', () => {
     const entry = {

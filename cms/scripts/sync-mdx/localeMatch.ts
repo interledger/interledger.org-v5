@@ -9,6 +9,7 @@
  * Entries are keyed by their identity, not by pathSlug alone: cross-section
  * content types reuse a pathSlug across sections (see entryIdentity.ts).
  */
+import { isSameSlug } from '@/utils'
 import type { ContentTypeConfig } from './config'
 import {
   identityForMdx,
@@ -92,7 +93,10 @@ export function findMatchingLocales(
 
   for (const localeMdx of localeFiles) {
     // Skip if this file doesn't reference the English entry's pathSlug
-    if (localeMdx.localizes !== englishMdx.pathSlug) {
+    if (
+      !localeMdx.localizes ||
+      !isSameSlug(localeMdx.localizes, englishMdx.pathSlug)
+    ) {
       continue
     }
 

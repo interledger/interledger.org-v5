@@ -457,19 +457,19 @@ Used for: Summit landing pages, schedules, speaker lists, event resources.
 
 #### Foundation & Summit routes: **Full Path Slug** (`pathSlug`)
 
-In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **without a leading slash**. The same value is stored in MDX frontmatter as `pathSlug`. The **live site URL** is `/{pathSlug}` (normalized, no duplicate slashes).
+In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **starting and ending with a slash**, like every other link field. Strapi adds missing slashes on save. The same value is stored in MDX frontmatter as `pathSlug`. Routing compares slugs without their surrounding slashes, so `about-us` and `/about-us/` are the same page.
 
 Examples:
 
-| `pathSlug` (frontmatter / Strapi) | Public URL             |
-| --------------------------------- | ---------------------- |
-| `about-us`                        | `/about-us`            |
-| `grant/grant-for-web`             | `/grant/grant-for-web` |
+| `pathSlug` (frontmatter / Strapi) | Public URL              |
+| --------------------------------- | ----------------------- |
+| `/about-us/`                      | `/about-us/`            |
+| `/grant/grant-for-web/`           | `/grant/grant-for-web/` |
 
-**On disk (English):** split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
+**On disk (English):** trim the surrounding slashes and split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
 
-- `about-us` → `foundation-pages/about-us.mdx`
-- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+- `/about-us/` → `foundation-pages/about-us.mdx`
+- `/grant/grant-for-web/` → `foundation-pages/grant/grant-for-web.mdx`
 
 **Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
 
@@ -477,16 +477,16 @@ Examples:
 
 ```yaml
 ---
-pathSlug: 'grant/grant-for-web'
+pathSlug: '/grant/grant-for-web/'
 ---
 ```
 
-→ public URL: `/grant/grant-for-web`
+→ public URL: `/grant/grant-for-web/`
 
 **Key rules:**
 
 - `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
-- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- Write `pathSlug` with a leading and a trailing slash. Parsing strips them for routing, so a legacy bare value still resolves to the same page.
 - There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
 - If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 

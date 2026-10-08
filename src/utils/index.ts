@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
   ensureAbsoluteUrl,

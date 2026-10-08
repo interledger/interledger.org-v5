@@ -15,7 +15,14 @@ const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
  */
 const SINGLE_URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
 
-const ABSOLUTE_OR_SPECIAL_HREF = /^(https?:)?\/\/|^(mailto|tel):|^#/i
+/**
+ * A value that is not a site path: any URL scheme (`https:`, `mailto:`,
+ * `ftp:`, `sms:`…), protocol-relative `//host`, or a same-page `#id`.
+ * Script-bearing schemes are not exempt: prefixing them with `/` keeps them
+ * from ever running as a link.
+ */
+const ABSOLUTE_OR_SPECIAL_HREF =
+  /^(?!(?:javascript|vbscript|data):)[a-z][a-z\d+.-]*:|^\/\/|^#/i
 
 /**
  * Where the upload provider writes every file. Keep in step with
@@ -174,13 +181,71 @@ export function stripUploadOriginsInText(text: string): string {
     .join('')
 }
 
-export function ensureLeadingSlash(value: string): string {
-  if (!value || ABSOLUTE_OR_SPECIAL_HREF.test(value)) return value
-  return value.trim().startsWith('/') ? value : `/${value}`
+/**
+ * The key two slugs are compared by: `about`, `/about` and `/about/` are one
+ * page. Stored slugs move from the bare form to `/about/` (INTORG-1254), and
+ * until every row and file has moved, both forms exist side by side.
+ */
+export function bareSlug(value: string): string {
+  return value.trim().replace(/^\/+|\/+$/g, '')
 }
 
-export function normalizePathSegment(value: string): string {
-  return value.trim().replace(/^\/+|\/+$/g, '')
+export function isSameSlug(a: string, b: string): boolean {
+  return bareSlug(a) === bareSlug(b)
+}
+
+/**
+ * Every stored form of a slug, for an exact-match database filter
+ * (`{ pathSlug: { $in: slugVariants(slug) } }`). The save hook only ever wrote
+ * the bare form or `/slug/`, so those two are all a row can hold.
+ */
+export function slugVariants(value: string): string[] {
+  const bare = bareSlug(value)
+  return [bare, `/${bare}/`]
+}
+
+/**
+ * The stored form of a slug: `about`, `/about` and `about/` all become
+ * `/about/`, so editors meet one convention on every field (INTORG-1254).
+ * An empty value stays empty for the `required` validator to report.
+ */
+export function toSlashedSlug(value: string): string {
+  const bare = bareSlug(value)
+  return bare ? `/${bare}/` : ''
+}
+
+/** The query or fragment that follows a path: `?tab=1`, `#team`. */
+const PATH_SUFFIX = /[?#]/
+
+/** A last path segment that names a file, e.g. `report.pdf`. */
+const FILE_EXTENSION = /\.[A-Za-z0-9]+$/
+
+/**
+ * The stored form of an internal link: a leading and a trailing slash, as the
+ * site serves it (`/grant/our-grantmaking/`). The trailing slash goes before
+ * any query or fragment (`/blog/?tag=x`, `/about/#team`).
+ *
+ * Left alone: external URLs, `mailto:`/`tel:`, a bare `#id` (a same-page
+ * anchor, or a Fundraise Up element id on the donation card), and a link to a
+ * file (`/uploads/…/report.pdf`), which a trailing slash would break.
+ */
+export function toSlashedPath(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed || ABSOLUTE_OR_SPECIAL_HREF.test(trimmed)) return value
+
+  const suffixStart = trimmed.search(PATH_SUFFIX)
+  const path = suffixStart === -1 ? trimmed : trimmed.slice(0, suffixStart)
+  const suffix = suffixStart === -1 ? '' : trimmed.slice(suffixStart)
+
+  const segments = path.split('/').filter(Boolean)
+  const joined = `/${segments.join('/')}`
+  const lastSegment = segments.at(-1) ?? ''
+  if (FILE_EXTENSION.test(lastSegment)) return `${joined}${suffix}`
+  return `${addTrailingSlash(joined)}${suffix}`
+}
+
+function addTrailingSlash(path: string): string {
+  return path.endsWith('/') ? path : `${path}/`
 }
 
 export function normalizeRelativeLinksInDocumentData(data: unknown): void {
@@ -193,13 +258,13 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {
       if (HREF_LIKE_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = ensureLeadingSlash(
+        ;(data as Record<string, unknown>)[key] = toSlashedPath(
           stripUploadOrigin(value)
         )
       } else if (SINGLE_URL_FIELDS.has(key)) {
         ;(data as Record<string, unknown>)[key] = stripUploadOrigin(value)
       } else if (PATH_SEGMENT_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = normalizePathSegment(value)
+        ;(data as Record<string, unknown>)[key] = toSlashedSlug(value)
       } else if (!CODE_FIELDS.has(key)) {
         // Every other string, so each CKEditor field is covered wherever it
         // sits (components, dynamic zones) without a field list to drift.

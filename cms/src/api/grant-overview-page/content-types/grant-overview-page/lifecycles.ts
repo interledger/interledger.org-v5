@@ -10,7 +10,8 @@ import {
   heroFrontmatter,
   ckeditorFieldToParsedMarkdown,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  ctaStripColorMdxFields
+  ctaStripColorMdxFields,
+  slugVariants
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
 
@@ -135,7 +136,7 @@ async function assertUniqueGrantPathSlug(
 ): Promise<void> {
   const overviewMatches = await strapi
     .documents('api::grant-overview-page.grant-overview-page')
-    .findMany({ filters: { pathSlug: { $eq: pathSlug } } })
+    .findMany({ filters: { pathSlug: { $in: slugVariants(pathSlug) } } })
   const overviewConflict = (
     overviewMatches as Array<{ documentId: string }>
   ).filter((e) => e.documentId !== currentDocumentId)
@@ -147,7 +148,7 @@ async function assertUniqueGrantPathSlug(
 
   const grantMatches = await strapi
     .documents('api::grant-page.grant-page')
-    .findMany({ filters: { pathSlug: { $eq: pathSlug } } })
+    .findMany({ filters: { pathSlug: { $in: slugVariants(pathSlug) } } })
   if ((grantMatches as unknown[]).length > 0) {
     throw new errors.ValidationError(
       `Path slug "${pathSlug}" is already used by a Grant Page. Slugs must be unique across both collections.`
