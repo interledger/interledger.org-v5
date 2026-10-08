@@ -235,6 +235,14 @@ describe('MATTER_STRINGIFY_OPTIONS', () => {
     expect(out).toContain("one: ' '\nthree: '   '\n")
   })
 
+  it('parses yes, no, on and off as strings', () => {
+    const { data } = matter(
+      '---\na: yes\nb: No\nc: on\nd: off\n---\n',
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(data).toEqual({ a: 'yes', b: 'No', c: 'on', d: 'off' })
+  })
+
   it('parses dates as Date objects', () => {
     const { data } = matter(
       '---\ndate: 2023-09-12\n---\n',
