@@ -19,7 +19,8 @@ src/styles/
 ├── base/                     # Base layer - CSS reset, fonts, runtime overrides
 │   ├── typography.css        # Font-face declarations
 │   ├── reset.css            # Tailwind Preflight + keyframes + element styles
-│   └── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
+│   ├── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
+│   └── starlight-parity.css # Main-site rules that used to leak from the docs CSS (see "Starlight Docs Isolation")
 ├── components/              # Component layer - overridable by utilities
 │   ├── navigation.css       # Header nav, mobile drawer, language switcher chrome
 │   └── prose/              # Prose variants by content type
@@ -604,6 +605,10 @@ The site has **two separate CSS systems** that never coexist in the same browser
 - **CSS:** registered in `astro.config.mjs` under Starlight's `customCss`: `@interledger/docs-design-system` themes, `interledger.css`, `atom-one-light.min.css`. Starlight bundles these into its own CSS assets and ships them only on docs routes.
 - **Variables:** `--step-*`, `--space-*`, `--color-primary`, `--sl-*` from `ilf-docs.css`, `teal-theme.css`, and `interledger.css`. All at `:root` — docs pages are the only ones that load these files, so there is no caller to conflict with.
 - **Prose:** Starlight's own markdown rendering (`.sl-markdown-content`).
+
+### `base/starlight-parity.css`
+
+Until Astro 6.4, the docs CSS also loaded on every main-site page, and some of its rules won over ours. Production looks the way it does partly because of that. Astro 6.4 and later load the docs CSS on docs routes only, so `starlight-parity.css` restates, on the main site only, the rules that won: font smoothing, the anchor scroll offset, the corner radius and shadow on tables and code blocks (with the darker shadow on dark pages), word breaks in table code, and the footnote styles. It uses the same cascade position the leaked rules had, so it changes nothing visible. These are raw values. Moving them to design tokens is a follow-up.
 
 ### Rules to keep them isolated
 
