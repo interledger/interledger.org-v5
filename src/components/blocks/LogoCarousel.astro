@@ -259,7 +259,10 @@ const logoClasses = `
     // Gates on an MDX/Strapi prose ancestor, not just "is a direct child of
     // main": that's true only off the homepage, where the carousel supplies
     // <main>'s entire trailing gap on purpose and must keep its own padding.
-    const prose = carouselRoot.closest('[data-prose], [data-prose-summit]')
+    // Page preview renders the zone under [data-prose-blog], same as a post.
+    const prose = carouselRoot.closest(
+      '[data-prose], [data-prose-blog], [data-prose-summit]'
+    )
     const main = carouselRoot.closest('main')
     if (!prose || !main || !isLastRealElement(carouselRoot)) return
 

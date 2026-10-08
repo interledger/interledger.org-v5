@@ -116,9 +116,11 @@
  * real next sibling.
  *
  * Unlayered so this beats the Tailwind padding utilities.
+ * `[data-prose-blog]` is included because page preview renders the zone
+ * under that attribute, the same as a post.
  */
 main > section:not(:last-of-type)
-  :is([data-prose], [data-prose-summit])
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
   > [data-component='LogoCarousel']:not(:has(~ :not(script, style))) {
   padding-block-end: 0;
 }
