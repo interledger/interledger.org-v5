@@ -826,12 +826,24 @@ describe('validateInternalLinks', () => {
     expect(error?.message).toContain('no element with that id')
   })
 
-  it('accepts a Fundraise Up element id, which is not an element in the page', async () => {
+  it('accepts a Fundraise Up element href only on a page that loads the widget', async () => {
+    const widget =
+      '<script src="https://cdn.fundraiseup.com/widget/APUEUABQ"></script>'
     const { error } = await runCheck({
-      'index.html': '<a href="#XVSHSPQU">Donate</a><a href="/a#XMWLAVRZ">x</a>',
+      'index.html': `${widget}<a href="#XVSHSPQU">Donate</a><a href="/a#XMWLAVRZ">x</a>`,
       'a/index.html': '<h1>ok</h1>'
     })
-    expect(error).toBeNull()
+    expect(error?.message).toContain('#XMWLAVRZ')
+    expect(error?.message).toContain('no element with that id')
+    expect(error?.message).not.toContain('#XVSHSPQU')
+  })
+
+  it('checks an element-shaped fragment when the page does not load the widget', async () => {
+    const { error } = await runCheck({
+      'index.html': '<a href="#XVSHSPQU">Donate</a>'
+    })
+    expect(error?.message).toContain('#XVSHSPQU')
+    expect(error?.message).toContain('no element with that id')
   })
 
   it('accepts a fragment that exists, including #top and bare #', async () => {
