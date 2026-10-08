@@ -269,6 +269,28 @@ describe('slashInternalMarkdownLinks', () => {
     expect(slashInternalMarkdownLinks(text)).toBe(text)
   })
 
+  // A code span closes on a backtick run of its own length, and a fence on
+  // its own run of three or more backticks or tildes.
+  it.each([
+    'Use ``[x](/api)`` here',
+    'Use ``a `tick` [x](/api)`` here',
+    '````md\n```\n[y](/api)\n```\n````',
+    '~~~~\n[y](/api)\n~~~~'
+  ])('leaves code in %j alone', (text) => {
+    expect(slashInternalMarkdownLinks(text)).toBe(text)
+  })
+
+  it('rewrites prose between and after code spans of different lengths', () => {
+    expect(
+      slashInternalMarkdownLinks('``[a](/x)`` [b](/y) `[c](/z)` [d](/w)')
+    ).toBe('``[a](/x)`` [b](/y/) `[c](/z)` [d](/w/)')
+  })
+
+  // An unmatched backtick is a literal character, not the start of code.
+  it('treats a lone backtick as prose', () => {
+    expect(slashInternalMarkdownLinks('a ` b [c](/x)')).toBe('a ` b [c](/x/)')
+  })
+
   it('leaves links in code spans and fenced blocks alone', () => {
     const text =
       'Use `[x](/api)` like this:\n\n```md\n[y](/api)\n```\n\nthen [z](/api).'
