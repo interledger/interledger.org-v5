@@ -684,8 +684,10 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   // The local provider has its own replace methods since Strapi 5.57. They
-  // write to `public/uploads/` and skip the path and size limit above. Without
-  // them, Strapi replaces a file with `delete` and then `upload`.
+  // write to `public/uploads/`, not to `uploadPath`, and skip the streaming
+  // byte check and the check after write above (Strapi still calls
+  // checkFileSize first). Without them, Strapi replaces a file with `delete`
+  // and then `upload`.
   delete provider.replace
   delete provider.replaceStream
 
