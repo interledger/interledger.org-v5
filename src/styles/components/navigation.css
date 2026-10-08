@@ -171,30 +171,91 @@
 }
 
 /* ================================================================
-   Dropdown panel anchoring: narrow desktop widths only
+   Dropdown panel anchoring
 
    Panels are absolutely positioned and hang from the left edge of their
-   button (or, for the wide multi-column panel, the left edge of the menu
-   list). Between 1200px and 1500px the bar is narrow enough that the
-   right-hand ones ran past the viewport: the four-column Grants panel by
-   85px at 1200px, Get Involved by 94px. In that band only, the wide panel
-   centres on the menu list and the last menu hangs its panel from its own
-   right edge. From 1500px up there is room again and every panel goes back
-   to the left-aligned treatment.
+   button. The last menu hangs its panel from its own right edge instead.
+   Left-aligned, it ran past the viewport: Get Involved by 94px at 1200px,
+   and ES Involúcrese by 111px at 1500px, where the ES list is wider.
+
+   The wide multi-column panel (Grants) does not fit under any one button.
+   Its labels do not wrap, so in ES it is 1400px wide and ran off the
+   screen at every desktop width. It anchors to the whole nav bar instead:
+   centred on it, never wider than it, and its labels wrap only when that
+   cap applies. Its edges then line up with the logo and the CTA at most.
+   The list and its wrapper drop their positioning so the nav bar becomes
+   the containing block. `top: auto` keeps the panel at its static place
+   under its button, and the margin gives the same gap as the other panels.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */
 
-@media (min-width: 1200px) and (max-width: 1499px) {
-  [data-nav-list] > li[data-wide-panel] .submenu-panel {
+@media (min-width: 1200px) {
+  .foundation-header [data-nav] {
+    position: relative;
+  }
+
+  .foundation-header :is([data-nav-wrapper], [data-nav-list]) {
+    position: static;
+  }
+
+  .foundation-header [data-nav-list] > li[data-wide-panel] .submenu-panel {
+    top: auto;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
+    margin-top: 1.5rem;
+    width: max-content;
+    max-width: 100%;
+  }
+
+  .foundation-header [data-nav-list] > li[data-wide-panel] :is(.nav-subgroup-heading, a) {
+    white-space: normal;
   }
 
   [data-nav-list] > li:last-child .submenu-panel {
     left: auto;
     right: 0;
+  }
+}
+
+/* ================================================================
+   Foundation menu bar: narrow desktop widths only
+
+   At 1200px the ES labels need 1269px of bar and get 1136px, so the
+   language switcher went off the right edge. EN fit with 1px to spare.
+   In this band the bar uses tighter spacing and 15px labels, which
+   gives ES about 25px of headroom. Menu labels come from Strapi, so a
+   much longer label can still overflow. Measure it at 1200px.
+
+   Unlayered so it beats the Tailwind utilities in the markup.
+   ================================================================ */
+
+@media (min-width: 1200px) and (max-width: 1499px) {
+  .foundation-header {
+    padding-inline: var(--spacing-xl);
+  }
+
+  .foundation-header [data-nav] {
+    column-gap: var(--spacing-lg);
+  }
+
+  /* The buttons carry their own padding, so the visible gap stays. */
+  .foundation-header [data-nav-list] {
+    column-gap: 0;
+  }
+
+  .foundation-header [data-nav-list] [data-submenu-button] {
+    padding-left: var(--spacing-md);
+    font-size: 0.9375rem;
+  }
+
+  .foundation-header [data-nav-list] [data-submenu-button] > span:last-child {
+    margin-left: var(--spacing-xs);
+  }
+
+  .foundation-header [data-component='FoundationNavActions'] {
+    column-gap: var(--spacing-sm);
   }
 }
 

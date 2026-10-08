@@ -19,8 +19,8 @@ const MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD = 3
 
 /**
  * A panel with more columns than this is wider than the menu bar can hang off
- * one button, so it anchors to the list. `data-wide-panel` lets navigation.css
- * re-centre it on the narrowest desktop widths — see "Dropdown panel anchoring".
+ * one button. `data-wide-panel` lets navigation.css centre it on the nav bar
+ * and cap its width there. See "Dropdown panel anchoring".
  */
 const hasWidePanel = (group: MenuGroup) =>
   (group.subGroups?.length ?? 0) > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD
@@ -121,7 +121,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
               id={panelId}
               class={megaMenuClass}
               aria-labelledby={buttonId}
-              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
+              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), minmax(min-content, max-content));`}
             >
               {group.subGroups.map((subGroup) => (
                 <div class={megaSubGroupClass}>
