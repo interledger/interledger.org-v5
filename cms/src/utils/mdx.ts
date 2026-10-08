@@ -60,12 +60,25 @@ const YAML_QUOTE_OPTS: yaml.DumpOptions = {
     .map(([, rule]) => rule)
 }
 
+/**
+ * js-yaml 4's default schema: the core schema plus timestamps, merge keys and
+ * the binary, omap, pairs and set tags. Dates load as Date objects, and `yes`,
+ * `no`, `on` and `off` stay strings (YAML11_SCHEMA would make them booleans).
+ */
+const YAML_PARSE_SCHEMA = yaml.CORE_SCHEMA.withTags(
+  yaml.timestampTag,
+  yaml.mergeTag,
+  yaml.binaryTag,
+  yaml.omapTag,
+  yaml.pairsTag,
+  yaml.setTag
+)
+
 export const MATTER_STRINGIFY_OPTIONS = {
   engines: {
     yaml: {
-      // YAML11_SCHEMA keeps js-yaml 4's parsing: dates load as Date objects.
       parse: (input: string) =>
-        yaml.load(input, { schema: yaml.YAML11_SCHEMA }) as Record<
+        yaml.load(input, { schema: YAML_PARSE_SCHEMA }) as Record<
           string,
           unknown
         >,
