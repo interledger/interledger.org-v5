@@ -58,8 +58,14 @@ export function stripUploadOrigin(value: string): string {
 /** Fields holding source code, where a URL is an example, not a link. */
 const CODE_FIELDS = new Set(['code'])
 
-/** Fenced blocks and inline code spans: example text, never rewritten. */
-const MARKDOWN_CODE = /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)/
+/**
+ * Fenced blocks and inline code spans: example text, never rewritten. As in
+ * Markdown, a fence is a run of three or more backticks or tildes closed by
+ * the same run, and a code span is a backtick run of any length closed by a
+ * run of exactly that length, so ``a `tick` b`` is one span.
+ */
+const MARKDOWN_CODE =
+  /(`{3,}|~{3,})[\s\S]*?\1|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)/g
 
 /**
  * An absolute URL to our upload path: group 1 the origin, group 2 the path.
@@ -172,13 +178,41 @@ function stripUploadOriginsInProse(segment: string): string {
  * points uploads at a CDN, that origin is stripped too.
  */
 export function stripUploadOriginsInText(text: string): string {
-  return text
-    .split(MARKDOWN_CODE)
-    .map((segment, index) =>
-      // `split` with a capture group puts the code at odd indices.
-      index % 2 === 1 ? segment : stripUploadOriginsInProse(segment)
+  return mapOutsideMarkdownCode(text, stripUploadOriginsInProse)
+}
+
+/**
+ * Applies `rewrite` to the prose of a Markdown text and leaves fenced blocks
+ * and inline code spans untouched: a URL in code is an example, not a link.
+ */
+export function mapOutsideMarkdownCode(
+  text: string,
+  rewrite: (prose: string) => string
+): string {
+  let result = ''
+  let cursor = 0
+  for (const match of text.matchAll(MARKDOWN_CODE)) {
+    result += rewrite(text.slice(cursor, match.index)) + match[0]
+    cursor = match.index + match[0].length
+  }
+  return result + rewrite(text.slice(cursor))
+}
+
+/** An inline Markdown link to a site path: `](/path)`, not `](//host)`. */
+const INTERNAL_MARKDOWN_LINK = /\]\((\/(?!\/)[^)\s]*)\)/g
+
+/**
+ * Gives every internal Markdown link in a text the stored `/path/` form
+ * (INTORG-1254), outside code. File links (`/uploads/…/report.pdf`, images)
+ * keep their form, as in {@link toSlashedPath}.
+ */
+export function slashInternalMarkdownLinks(text: string): string {
+  return mapOutsideMarkdownCode(text, (prose) =>
+    prose.replace(
+      INTERNAL_MARKDOWN_LINK,
+      (_link, path: string) => `](${toSlashedPath(path)})`
     )
-    .join('')
+  )
 }
 
 /**
@@ -268,8 +302,9 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
       } else if (!CODE_FIELDS.has(key)) {
         // Every other string, so each CKEditor field is covered wherever it
         // sits (components, dynamic zones) without a field list to drift.
-        ;(data as Record<string, unknown>)[key] =
+        ;(data as Record<string, unknown>)[key] = slashInternalMarkdownLinks(
           stripUploadOriginsInText(value)
+        )
       }
     } else {
       normalizeRelativeLinksInDocumentData(value)

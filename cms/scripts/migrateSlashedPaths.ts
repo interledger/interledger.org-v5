@@ -13,7 +13,12 @@ import {
   serializeRedirectConfig,
   type RedirectConfig
 } from '../src/utils/redirects'
-import { toSlashedPath, toSlashedSlug } from '../src/utils/relativeLinks'
+import {
+  mapOutsideMarkdownCode,
+  slashInternalMarkdownLinks,
+  toSlashedPath,
+  toSlashedSlug
+} from '../src/utils/relativeLinks'
 
 /** A byte-order mark may precede it: some translated files carry one. */
 const FRONTMATTER = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/
@@ -113,4 +118,37 @@ export function migrateRedirectConfig(
     normalizeRedirectInput(entry as unknown as Record<string, unknown>)
   }
   return serializeRedirectConfig(entries)
+}
+
+/**
+ * Link props the block serializers write into MDX bodies, as JSX attributes
+ * (`link="/x"`) or object keys (`{ link: '/x' }`). Each comes from a Strapi
+ * link field the save hook now stores as `/path/`; `buttonUrl` and
+ * `secondButtonUrl` carry a card CTA's `link`.
+ */
+const JSX_LINK_PROP =
+  /\b(link|href|ctaLink|buttonLink|primaryButtonLink|secondaryButtonLink|authorLink|buttonUrl|secondButtonUrl)(=|:\s*)(["'])(\/(?!\/)[^"'\n]*)\3/g
+
+function slashJsxLinkProps(prose: string): string {
+  return prose.replace(
+    JSX_LINK_PROP,
+    (_prop, key: string, joiner: string, quote: string, path: string) =>
+      `${key}${joiner}${quote}${toSlashedPath(path)}${quote}`
+  )
+}
+
+/**
+ * Rewrites the internal links written as Markdown or JSX in one MDX file,
+ * outside code: Markdown links anywhere, including rich-text fields kept in
+ * frontmatter (FAQ answers), and the link props above in the body. Plain
+ * frontmatter link fields are {@link migrateFrontmatterPaths}' job. Returns
+ * null when nothing changed.
+ */
+export function migrateBodyLinks(raw: string): string | null {
+  const frontmatter = raw.match(FRONTMATTER)?.[0] ?? ''
+  const body = raw.slice(frontmatter.length)
+  const next =
+    slashInternalMarkdownLinks(frontmatter) +
+    slashInternalMarkdownLinks(mapOutsideMarkdownCode(body, slashJsxLinkProps))
+  return next === raw ? null : next
 }

@@ -6,6 +6,7 @@ import {
   toSlashedPath,
   toSlashedSlug,
   normalizeRelativeLinksInDocumentData,
+  slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripUploadOriginsInText
 } from '@/utils'
@@ -245,6 +246,60 @@ describe('normalizeRelativeLinksInDocumentData', () => {
   })
 })
 
+describe('slashInternalMarkdownLinks', () => {
+  it('slashes an internal link, keeping a fragment or query after it', () => {
+    expect(
+      slashInternalMarkdownLinks(
+        'See [about](/about), [team](/about#team) and [blog](/blog?tag=x).'
+      )
+    ).toBe(
+      'See [about](/about/), [team](/about/#team) and [blog](/blog/?tag=x).'
+    )
+  })
+
+  it.each([
+    '[ext](https://example.org/x)',
+    '[proto](//example.org/x)',
+    '[anchor](#top)',
+    '[mail](mailto:a@b.org)',
+    '![chart](/img/blog/chart.png)',
+    '[report](/uploads/img/original/report.pdf)',
+    '[done](/about/)'
+  ])('leaves %s alone', (text) => {
+    expect(slashInternalMarkdownLinks(text)).toBe(text)
+  })
+
+  // A code span closes on a backtick run of its own length, and a fence on
+  // its own run of three or more backticks or tildes.
+  it.each([
+    'Use ``[x](/api)`` here',
+    'Use ``a `tick` [x](/api)`` here',
+    '````md\n```\n[y](/api)\n```\n````',
+    '~~~~\n[y](/api)\n~~~~'
+  ])('leaves code in %j alone', (text) => {
+    expect(slashInternalMarkdownLinks(text)).toBe(text)
+  })
+
+  it('rewrites prose between and after code spans of different lengths', () => {
+    expect(
+      slashInternalMarkdownLinks('``[a](/x)`` [b](/y) `[c](/z)` [d](/w)')
+    ).toBe('``[a](/x)`` [b](/y/) `[c](/z)` [d](/w/)')
+  })
+
+  // An unmatched backtick is a literal character, not the start of code.
+  it('treats a lone backtick as prose', () => {
+    expect(slashInternalMarkdownLinks('a ` b [c](/x)')).toBe('a ` b [c](/x/)')
+  })
+
+  it('leaves links in code spans and fenced blocks alone', () => {
+    const text =
+      'Use `[x](/api)` like this:\n\n```md\n[y](/api)\n```\n\nthen [z](/api).'
+    expect(slashInternalMarkdownLinks(text)).toBe(
+      'Use `[x](/api)` like this:\n\n```md\n[y](/api)\n```\n\nthen [z](/api/).'
+    )
+  })
+})
+
 describe('normalizeRelativeLinksInDocumentData rich text', () => {
   it('strips the CMS origin from an image nested in a dynamic zone', () => {
     const data = {
@@ -273,6 +328,29 @@ describe('normalizeRelativeLinksInDocumentData rich text', () => {
       videoUrl: '/uploads/img/original/clip.mp4',
       externalUrl: '/uploads/img/original/a.pdf'
     })
+  })
+
+  it('slashes an internal link in a paragraph block', () => {
+    const data = {
+      content: [
+        {
+          __component: 'blocks.paragraph',
+          content: 'Read [our grants](/grant/our-grantmaking).'
+        }
+      ]
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.content[0].content).toBe(
+      'Read [our grants](/grant/our-grantmaking/).'
+    )
+  })
+
+  it('cuts the CMS origin from a pasted page link, then slashes it', () => {
+    const data = {
+      content: '[file](https://cms.example/uploads/img/original/a.pdf)'
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data.content).toBe('[file](/uploads/img/original/a.pdf)')
   })
 
   it('leaves a code field alone', () => {
