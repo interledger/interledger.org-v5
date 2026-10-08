@@ -5,7 +5,7 @@
     "singularName": "fundraising-page",
     "pluralName": "fundraising-pages",
     "displayName": "Fundraising Page",
-    "description": "A Foundation Page that also loads the Fundraise Up script. Same blocks, including Donation Cards. Full path slug sets the URL and file location."
+    "description": "Loads the Fundraise Up script. Donation Cards are only on this page type. Full path slug sets the URL and file location."
   },
   "options": {
     "draftAndPublish": false

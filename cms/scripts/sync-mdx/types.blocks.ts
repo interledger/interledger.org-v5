@@ -458,9 +458,10 @@ export interface DonationCard {
 }
 
 /**
- * blocks.donation-cards — the giving tiers on a page. A card's CTA may point
- * at a Fundraise Up Element ID (`#XVSHSPQU`). A Foundation Page or a
- * Fundraising Page loads the script when it contains one, which opens the modal.
+ * blocks.donation-cards — the giving tiers on a Fundraising Page. A card's
+ * CTA may point at a Fundraise Up Element ID (`#XVSHSPQU`). The script is
+ * part of the Fundraising Page template, not this block, and the block is
+ * not available on a Foundation Page.
  */
 export interface DonationCardsBlock extends StrapiBlockBase {
   __component: 'blocks.donation-cards'

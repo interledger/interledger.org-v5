@@ -454,7 +454,7 @@ export interface BlocksDonationCard extends Struct.ComponentSchema {
 export interface BlocksDonationCards extends Struct.ComponentSchema {
   collectionName: 'components_blocks_donation_cards'
   info: {
-    description: "Row of giving tiers. Available on Foundation Pages and Fundraising Pages. Only a Fundraising Page loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID there."
+    description: 'Row of giving tiers. Only on a Fundraising Page. That template loads the Fundraise Up script, so a card CTA can point at an Element ID.'
     displayName: 'Donation Cards'
     icon: 'heart'
   }
