@@ -119,20 +119,25 @@ function parseRedirectRules(
   return rules
 }
 
-/** The first source listed more than once, across every category. */
+function withoutTrailingSlash(path: string): string {
+  return path.length > 1 ? path.replace(/\/+$/, '') : path
+}
+
+/**
+ * The first source listed more than once, across every category. `/old` and
+ * `/old/` count as one: Netlify matches a rule with or without its trailing
+ * slash. Mirrors duplicateSourceProblems in cms/src/utils/redirects.ts.
+ */
 function findDuplicateSource(config: RedirectConfig): string | undefined {
   const seen = new Set<string>()
   for (const category of REDIRECT_CATEGORIES) {
     for (const { source } of config[category]) {
-      if (seen.has(source)) return source
-      seen.add(source)
+      const key = withoutTrailingSlash(source)
+      if (seen.has(key)) return source
+      seen.add(key)
     }
   }
   return undefined
-}
-
-function withoutTrailingSlash(path: string): string {
-  return path.length > 1 ? path.replace(/\/+$/, '') : path
 }
 
 /**

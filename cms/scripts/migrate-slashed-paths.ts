@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * One-time migration of stored slugs and internal links to `/path/`
- * (INTORG-1254). See `migrateSlashedPaths.ts` for what is rewritten.
+ * One-time migration of stored slugs, internal links and redirects to
+ * `/path/` (INTORG-1254). See `migrateSlashedPaths.ts` for what is rewritten.
  *
  * Usage, from the cms directory:
  *   pnpm exec tsx scripts/migrate-slashed-paths.ts --dry-run
@@ -14,7 +14,8 @@ import fs from 'fs'
 import path from 'path'
 import {
   migrateFrontmatterPaths,
-  migrateNavigationHrefs
+  migrateNavigationHrefs,
+  migrateRedirectConfig
 } from './migrateSlashedPaths'
 
 const DRY_RUN = process.argv.includes('--dry-run')
@@ -74,11 +75,25 @@ function migrateNavigation(): number {
   return changed
 }
 
+/** Returns 1 when the redirect file changed, 0 when it was already migrated. */
+function migrateRedirects(): number {
+  const file = path.join(CONFIG_ROOT, 'redirects.json')
+  const raw = fs.readFileSync(file, 'utf-8')
+  const config = migrateRedirectConfig(JSON.parse(raw))
+  if (config instanceof Error) throw config
+  const next = `${JSON.stringify(config, null, 2)}\n`
+  if (next === raw) return 0
+  console.log(`✏️  ${path.relative(REPO_ROOT, file)}`)
+  if (!DRY_RUN) fs.writeFileSync(file, next, 'utf-8')
+  return 1
+}
+
 function main(): void {
   const content = migrateContent()
   const navigation = migrateNavigation()
+  const redirects = migrateRedirects()
   console.log(
-    `\n${DRY_RUN ? 'Would change' : 'Changed'} ${content} MDX files and ${navigation} navigation files.`
+    `\n${DRY_RUN ? 'Would change' : 'Changed'} ${content} MDX files, ${navigation} navigation files and ${redirects} redirect file.`
   )
 }
 

@@ -149,6 +149,7 @@ export {
   type RedirectFinder,
   type RedirectLinkCheck,
   normalizeRedirectSource,
+  redirectSourceKey,
   normalizeRedirectInput,
   isRedirectEnabled,
   redirectDeleteError,

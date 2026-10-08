@@ -7,6 +7,12 @@
  * Imports `relativeLinks` directly: the barrel pulls in Strapi.
  */
 
+import {
+  normalizeRedirectInput,
+  redirectConfigToEntries,
+  serializeRedirectConfig,
+  type RedirectConfig
+} from '../src/utils/redirects'
 import { toSlashedPath, toSlashedSlug } from '../src/utils/relativeLinks'
 
 /** A byte-order mark may precede it: some translated files carry one. */
@@ -90,4 +96,21 @@ export function migrateNavigationHrefs(node: Json): void {
       migrateNavigationHrefs(value)
     }
   }
+}
+
+/**
+ * Rewrites `src/config/redirects.json` the way Strapi saves each row: sources
+ * and on-site destinations as `/path/`. Serialized as the redirect lifecycle
+ * writes the file, sort order included, so the next editor save changes
+ * nothing.
+ */
+export function migrateRedirectConfig(
+  config: Partial<RedirectConfig>
+): RedirectConfig | Error {
+  const entries = redirectConfigToEntries(config)
+  if (entries instanceof Error) return entries
+  for (const entry of entries) {
+    normalizeRedirectInput(entry as unknown as Record<string, unknown>)
+  }
+  return serializeRedirectConfig(entries)
 }
