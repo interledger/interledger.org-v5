@@ -1,6 +1,6 @@
 ---
 /**
- * Label + caret + value trigger with a right-aligned panel.
+ * Label + caret + value trigger with a left-aligned panel.
  * Options go in the default slot. Escape / focus-out / outside click close
  * every instance via the bundled script below.
  */
@@ -75,34 +75,7 @@ const {
 </details>
 
 <script>
-  function bindFilterDropdown(details: HTMLDetailsElement) {
-    if (details.dataset.filterDropdownBound === 'true') return
-    details.dataset.filterDropdownBound = 'true'
+  import { initFilterDropdowns } from '@/scripts/filter-dropdown'
 
-    const summary = details.querySelector<HTMLElement>('summary')
-
-    details.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && details.open) {
-        details.open = false
-        summary?.focus()
-      }
-    })
-
-    details.addEventListener('focusout', (event: FocusEvent) => {
-      if (!details.contains(event.relatedTarget as Node)) {
-        details.open = false
-      }
-    })
-
-    document.addEventListener('pointerdown', (event: PointerEvent) => {
-      if (!details.open) return
-      if (event.target instanceof Node && !details.contains(event.target)) {
-        details.open = false
-      }
-    })
-  }
-
-  document
-    .querySelectorAll<HTMLDetailsElement>('[data-filter-dropdown]')
-    .forEach(bindFilterDropdown)
+  initFilterDropdowns()
 </script>
