@@ -6,12 +6,6 @@
  * so multiple headers on the same page won't interfere with each other.
  */
 
-declare global {
-  interface Window {
-    umami?: { track: (event: string, data?: Record<string, string>) => void }
-  }
-}
-
 const TRACK_EVENT_ATTR = 'data-track-event'
 const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
 
