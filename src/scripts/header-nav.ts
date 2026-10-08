@@ -6,12 +6,6 @@
  * so multiple headers on the same page won't interfere with each other.
  */
 
-declare global {
-  interface Window {
-    umami?: { track: (event: string, data?: Record<string, string>) => void }
-  }
-}
-
 /**
  * Media queries for the width where a header shows its full menu bar instead
  * of the hamburger drawer. They mirror the `nav-bar:` variant in

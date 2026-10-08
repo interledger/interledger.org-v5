@@ -24,9 +24,6 @@
 
 declare global {
   interface Window {
-    umami?: {
-      track: (event: string, data?: Record<string, string | number>) => void
-    }
     FundraiseUp?: {
       on: (event: string, callback: (details: unknown) => void) => void
     }
