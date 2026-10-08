@@ -86,10 +86,26 @@ describe('isFullAccessApiToken', () => {
     expect(getByAccessKey).toHaveBeenCalledWith('hashed')
   })
 
-  it('accepts a full-access token created before token kinds existed', async () => {
+  it('rejects an expired full-access token', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getByAccessKey: async () => ({ type: 'full-access', kind: null })
+      getByAccessKey: async () => ({
+        type: 'full-access',
+        kind: 'content-api',
+        expiresAt: '2020-01-01T00:00:00.000Z'
+      })
+    })
+    await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
+  })
+
+  it('accepts a full-access token that has not expired', async () => {
+    const strapi = strapiWith({
+      hash: () => 'hashed',
+      getByAccessKey: async () => ({
+        type: 'full-access',
+        kind: 'content-api',
+        expiresAt: '2999-01-01T00:00:00.000Z'
+      })
     })
     await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(true)
   })
