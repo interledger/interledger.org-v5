@@ -1,7 +1,7 @@
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
 import {
   assertUploadWithinLimit,
@@ -311,8 +311,17 @@ describe('createCheckFileSize', () => {
 })
 
 describe('overrideUploadProvider', () => {
+  const tempDirs: string[] = []
+
+  afterEach(() => {
+    for (const dir of tempDirs.splice(0)) {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
   function overrideWithTempPublicDir() {
     const publicDir = fs.mkdtempSync(path.join(os.tmpdir(), 'upload-provider-'))
+    tempDirs.push(publicDir)
     const provider: Record<string, unknown> = {
       upload: vi.fn(),
       uploadStream: vi.fn(),

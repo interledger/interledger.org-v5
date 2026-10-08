@@ -48,8 +48,8 @@ function excerptFromMarkdown(
   return plainTextFromHtml(parser.render(safeBody), convertOptions)
 }
 
-const excerptParser = new markdownit()
-const searchPlainParser = new markdownit().disable([
+const excerptParser = markdownit()
+const searchPlainParser = markdownit().disable([
   'heading',
   'lheading',
   'blockquote'
