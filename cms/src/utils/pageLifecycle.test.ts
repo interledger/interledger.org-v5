@@ -254,8 +254,8 @@ describe('isCodeSyncRequest', () => {
     vi.unstubAllGlobals()
   })
 
-  it('accepts an API-token request with the sync header', () => {
-    stubRequest('api-token', SKIP_HEADER)
+  it('accepts a content API token request with the sync header', () => {
+    stubRequest('content-api-token', SKIP_HEADER)
     expect(isCodeSyncRequest()).toBe(true)
   })
 
@@ -264,8 +264,19 @@ describe('isCodeSyncRequest', () => {
     expect(isCodeSyncRequest()).toBe(false)
   })
 
-  it('refuses an API-token request without the sync header', () => {
-    stubRequest('api-token')
+  it('refuses an admin token even with the sync header', () => {
+    stubRequest('admin-token', SKIP_HEADER)
+    expect(isCodeSyncRequest()).toBe(false)
+  })
+
+  // Strapi 5.41 called the content API token strategy `api-token`.
+  it('refuses the strategy name from before Strapi 5.57', () => {
+    stubRequest('api-token', SKIP_HEADER)
+    expect(isCodeSyncRequest()).toBe(false)
+  })
+
+  it('refuses a content API token request without the sync header', () => {
+    stubRequest('content-api-token')
     expect(isCodeSyncRequest()).toBe(false)
   })
 
