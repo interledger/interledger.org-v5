@@ -2,13 +2,10 @@
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
-  hasFundraiseUpElementId,
   isDemoPathSlug,
-  productionDeploy,
   useTranslations,
   localizeRoute
 } from '@/utils'
-import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
 import { getCollection, render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
@@ -41,7 +38,6 @@ import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CodeBlock from '@/components/blocks/CodeBlock.astro'
-import DonationCards from '@/components/blocks/DonationCards.astro'
 
 interface Props {
   slug: string
@@ -92,12 +88,6 @@ const heroLcpPreload =
   heroTitle && (heroImage || heroImageMobile)
     ? { image: heroImage, imageMobile: heroImageMobile }
     : undefined
-
-// A donate CTA lives in the MDX body (Donation Cards, CTA buttons, the strip)
-// or on the hero button, which is frontmatter and not part of `body`. Only a
-// page that points at a Fundraise Up element id pays for the script.
-const needsFundraiseUp =
-  hasFundraiseUpElementId(mdxPage.body) || hasFundraiseUpElementId(heroCtas)
 ---
 
 <FoundationPageLayout
@@ -106,13 +96,6 @@ const needsFundraiseUp =
   noindex={noindex}
   heroLcpPreload={heroLcpPreload}
 >
-  {
-    needsFundraiseUp && (
-      <Fragment slot="head">
-        <FundraiseUpScript testMode={!productionDeploy()} />
-      </Fragment>
-    )
-  }
   <main class="page-stack pb-section" data-pillar="mission">
     {
       heroTitle ? (
@@ -181,8 +164,7 @@ const needsFundraiseUp =
               EventApply,
               LogoCarousel,
               ImageBlock,
-              CodeBlock,
-              DonationCards
+              CodeBlock
             }}
           />
         </div>

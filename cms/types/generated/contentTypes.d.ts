@@ -756,8 +756,7 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote',
-        'blocks.code-block',
-        'blocks.donation-cards'
+        'blocks.code-block'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{
@@ -812,7 +811,7 @@ export interface ApiFundraisingPageFundraisingPage
   extends Struct.CollectionTypeSchema {
   collectionName: 'fundraising-pages'
   info: {
-    description: 'A Foundation Page that also loads the Fundraise Up script. Same blocks, including Donation Cards. Full path slug sets the URL and file location.'
+    description: 'Loads the Fundraise Up script. Donation Cards are only on this page type. Full path slug sets the URL and file location.'
     displayName: 'Fundraising Page'
     pluralName: 'fundraising-pages'
     singularName: 'fundraising-page'

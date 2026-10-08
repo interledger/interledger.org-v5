@@ -3,9 +3,8 @@
  * Renders a page from the `fundraising-pages` collection (INTORG-1247).
  *
  * Standalone on purpose. It mirrors `FoundationContentPage` rather than
- * extending it. A fundraising page always loads Fundraise Up. A foundation
- * page loads it only when a CTA points at an element id, so the other ~200
- * routes do not pay for the third-party script.
+ * extending it. This template always loads Fundraise Up. A foundation page
+ * does not, so the other ~200 routes do not pay for the third-party script.
  *
  * **No public route renders this yet.** The collection is defined and the
  * Strapi content type exists, but neither `[...page].astro` nor its Spanish

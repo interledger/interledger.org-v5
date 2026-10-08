@@ -226,10 +226,7 @@ export {
   type CtaLinkInput,
   type ResolvedCtaLink
 } from './main/cta'
-export {
-  hasFundraiseUpElementId,
-  isFundraiseUpElementHref
-} from './main/fundraiseUp'
+export { isFundraiseUpElementHref } from './main/fundraiseUp'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'

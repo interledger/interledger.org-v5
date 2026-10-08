@@ -10,12 +10,7 @@ import FundraisingPagePreview from '@/components/pages/FundraisingPagePreview.as
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
-import FundraiseUpScript from '@/components/support/FundraiseUpScript.astro'
-import {
-  applyPreviewNoStore,
-  fetchStrapi,
-  hasFundraiseUpElementId
-} from '@/utils'
+import { applyPreviewNoStore, fetchStrapi } from '@/utils'
 
 interface HeroCta {
   text?: string
@@ -125,8 +120,6 @@ const heroImageMobile = page.hero?.backgroundImageMobile?.url
 const heroImageMobileAlt = page.hero?.backgroundImageMobile?.alternativeText
 const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
-const needsFundraiseUp =
-  hasFundraiseUpElementId(content) || hasFundraiseUpElementId(heroCta)
 ---
 
 {
@@ -145,10 +138,6 @@ const needsFundraiseUp =
     />
   ) : (
     <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
-      <Fragment slot="head">
-        {/* A CMS preview is not a publish. Never let it charge a card. */}
-        {needsFundraiseUp && <FundraiseUpScript testMode={true} />}
-      </Fragment>
       <TableScrollSupport />
       <main class="pb-3xl">
         <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
