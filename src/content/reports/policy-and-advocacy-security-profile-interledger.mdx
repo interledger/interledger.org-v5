@@ -119,24 +119,9 @@ The Interledger Foundation actively fosters a culture of transparency and accoun
 
 <ReportText type="Paragraph">
 
-The Interledger Foundation provides regulated financial service providers with secure, free, open-source software. When financial institutions integrate, deploy, and operate Interledger technologies, they are responsible for upholding their own security practices and controls.
+The Interledger Foundation provides regulated financial service providers with secure, free, open source software. When financial institutions integrate, deploy, and operate Interledger technologies, they are responsible for upholding their own security practices and controls.
 
-An important consideration in the secure deployment of Interledger is the
-two-sided nature of Rafiki. Rafiki, in serving as the intermediary layer that
-facilitates cross-network payment interoperability, potentially exposes both
-public and internal APIs. While this dual-interface design enables significant
-flexibility and ease of integration, it also introduces potential vectors for
-exploitation if implemented within a broader system that has pre-existing
-vulnerabilities. In such cases, Rafiki may be unintentionally exposed to risks
-that originate not from flaws within its own codebase, but from insecure
-implementations, misconfigurations, or third-party integrations within the
-hosting institution’s environment. For example, if an Account Servicing
-Provider’s authentication layer fails to properly segregate public-facing and
-internal services, or if access control policies are loosely defined, this can
-create conditions under which sensitive operations on Rafiki’s internal APIs
-could be triggered externally. These risks are outside the Interledger
-Foundation’s control but must be addressed by implementing financial
-institutions.
+An important consideration in the secure deployment of Interledger is the two-sided nature of Rafiki. Rafiki, in serving as the intermediary layer that facilitates cross-network payment interoperability, potentially exposes both public and internal APIs. While this dual-interface design enables significant flexibility and ease of integration, it also introduces potential vectors for exploitation if implemented within a broader system that has pre-existing vulnerabilities. In such cases, Rafiki may be unintentionally exposed to risks that originate not from flaws within its own codebase, but from insecure implementations, misconfigurations, or third-party integrations within the hosting institution’s environment. For example, if an Account Servicing Provider’s authentication layer fails to properly segregate public-facing and internal services, or if access control policies are loosely defined, this can create conditions under which sensitive operations on Rafiki’s internal APIs could be triggered externally. These risks are outside the Interledger Foundation’s control but must be addressed by implementing financial institutions.
 
 </ReportText>
 
