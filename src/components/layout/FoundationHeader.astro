@@ -15,6 +15,7 @@ import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
+import { FOUNDATION_NAV_BAR_QUERY } from '@/scripts/header-nav'
 
 import {
   translatePath,
@@ -66,7 +67,7 @@ const ctaLink = (href: string, linkText?: string) =>
   buildNavCtaUmamiAttrs(Astro.url.pathname, routeLocale, href, linkText)
 
 const headerClass =
-  'foundation-header sticky top-0 z-[2] px-lg desktop:px-2xl max-desktop:h-(--site-header-height) desktop:h-(--site-header-height-desktop)'
+  'foundation-header sticky top-0 z-[2] px-lg nav-bar:px-2xl max-desktop:h-(--site-header-height) desktop:h-(--site-header-height-desktop)'
 ---
 
 <header
@@ -75,20 +76,20 @@ const headerClass =
   data-component="FoundationHeader"
 >
   <nav
-    class="mx-auto flex h-full w-full max-w-wide items-center justify-between desktop:grid desktop:grid-cols-[1fr_auto_1fr] desktop:grid-rows-1 desktop:items-center desktop:gap-xl"
+    class="mx-auto flex h-full w-full max-w-wide items-center justify-between nav-bar:grid nav-bar:grid-cols-[1fr_auto_1fr] nav-bar:grid-rows-1 nav-bar:items-center nav-bar:gap-xl"
     aria-labelledby="block-interledger-mainnavigation-menu"
     id="block-interledger-mainnavigation"
     data-nav
   >
     <h2
-      class="sr-only desktop:col-start-1 desktop:row-start-1"
+      class="sr-only nav-bar:col-start-1 nav-bar:row-start-1"
       id="block-interledger-mainnavigation-menu"
     >
       {navLabel}
     </h2>
     <a
       href={homeHref}
-      class="flex flex-none items-center leading-none py-lg desktop:py-[1.25rem] desktop:col-start-1 desktop:col-end-2 desktop:row-start-1 desktop:justify-self-start desktop:z-[1]"
+      class="flex flex-none items-center leading-none py-lg desktop:py-[1.25rem] nav-bar:col-start-1 nav-bar:col-end-2 nav-bar:row-start-1 nav-bar:justify-self-start nav-bar:z-[1]"
       aria-label={logoLabel}
       {...navLink(homeHref, undefined, logoLabel)}
     >
@@ -101,7 +102,7 @@ const headerClass =
       data-offscreen="true"
       id="siteNavLinks"
     >
-      <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-md">
+      <div class="nav-drawer:block nav-bar:hidden px-lg pt-lg pb-md">
         <div class="flex items-center justify-between gap-xl">
           {
             alternateLocaleHref && alternateLocaleLabel ? (
@@ -130,12 +131,12 @@ const headerClass =
         </div>
       </div>
       <hr
-        class="desktop:hidden mx-lg mt-0 mb-lg border-t border-neutral-25 dark:border-neutral-75"
+        class="nav-bar:hidden mx-lg mt-0 mb-lg border-t border-neutral-25 dark:border-neutral-75"
       />
       <FoundationNavMenu menuGroups={mainMenu} theme={theme} />
       {
         ctaButton && (
-          <div class="desktop:hidden mx-lg mt-xl mb-4xl">
+          <div class="nav-bar:hidden mx-lg mt-xl mb-4xl">
             <LinkButton
               href={ctaButton.href || '#'}
               variant="primary"
@@ -156,14 +157,14 @@ const headerClass =
   </nav>
 </header>
 
-<!-- Synchronous init: set data-offscreen before first paint on desktop so the
-     browser never renders the drawer in mobile-closed state then flips it.
-     The module script below handles all interactions; this only sets the
-     initial attribute to match the viewport. -->
-<script is:inline>
+<!-- Synchronous init: set data-offscreen before first paint when the menu bar
+     shows, so the browser never renders the drawer in mobile-closed state then
+     flips it. The module script below handles all interactions; this only sets
+     the initial attribute to match the viewport. -->
+<script is:inline define:vars={{ navBarQuery: FOUNDATION_NAV_BAR_QUERY }}>
   ;(function () {
     const w = document.getElementById('siteNavLinks')
-    if (w && window.matchMedia('(min-width: 1200px)').matches) {
+    if (w && window.matchMedia(navBarQuery).matches) {
       w.dataset.offscreen = 'false'
       w.removeAttribute('inert')
     }

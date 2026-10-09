@@ -49,6 +49,37 @@
   }
 }
 
+/* Header nav layout: full menu bar (`nav-bar:`) or hamburger drawer
+   (`nav-drawer:`). The Foundation header switches at 1360px, the width
+   where the longest locale (ES) fits the bar. Every other header switches
+   at the 1200px `desktop:` tier. Keep 1360 in sync with
+   FOUNDATION_NAV_BAR_QUERY in src/scripts/header-nav.ts. */
+@custom-variant nav-bar {
+  @media (width >= 1360px) {
+    &:where(.foundation-header, .foundation-header *) {
+      @slot;
+    }
+  }
+  @media (width >= 1200px) {
+    &:where(:not(.foundation-header, .foundation-header *)) {
+      @slot;
+    }
+  }
+}
+
+@custom-variant nav-drawer {
+  @media (width < 1360px) {
+    &:where(.foundation-header, .foundation-header *) {
+      @slot;
+    }
+  }
+  @media (width < 1200px) {
+    &:where(:not(.foundation-header, .foundation-header *)) {
+      @slot;
+    }
+  }
+}
+
 /* Theme layer - @theme tokens must be processed before @apply in base files */
 @import './theme.css';
 

@@ -9,8 +9,10 @@
     will-change: clip-path;
   }
 
-  @media (min-width: 1200px) {
-    .header-nav-wrapper {
+  /* Layout switches use the `nav-bar:` and `nav-drawer:` variants from
+     tailwind.css, so each header changes at its own width. */
+  .header-nav-wrapper {
+    @variant nav-bar {
       grid-column-start: 2;
       grid-column-end: 3;
       grid-row: 1;
@@ -20,14 +22,16 @@
     }
   }
 
-  @media (max-width: 1199px) {
-    /* Keep logo and hamburger above the drawer in the header stacking context. */
-    [data-nav] > *:not([data-nav-wrapper]) {
+  /* Keep logo and hamburger above the drawer in the header stacking context. */
+  [data-nav] > *:not([data-nav-wrapper]) {
+    @variant nav-drawer {
       position: relative;
       z-index: 1;
     }
+  }
 
-    .header-nav-wrapper {
+  .header-nav-wrapper {
+    @variant nav-drawer {
       position: absolute;
       left: 0;
       right: 0;
@@ -47,16 +51,29 @@
       transition-delay: 0ms, 0ms;
       transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     }
+  }
 
-    .header-nav-wrapper[data-offscreen='true'] {
+  .header-nav-wrapper[data-offscreen='true'] {
+    @variant nav-drawer {
       clip-path: inset(0 0 100% 0);
       visibility: hidden;
       transition-delay: 0ms, 450ms;
     }
   }
 
-  @media (min-width: 1200px) {
-    .header-nav-wrapper {
+  /* From 1200px the Foundation header keeps its 80px desktop height while it
+     still shows the drawer, so the drawer opens below that height. */
+  .foundation-header .header-nav-wrapper {
+    @variant nav-drawer {
+      @media (width >= 1200px) {
+        top: var(--site-header-height-desktop);
+        max-height: calc(100dvh - var(--site-header-height-desktop));
+      }
+    }
+  }
+
+  .header-nav-wrapper {
+    @variant nav-bar {
       position: relative;
       top: 0;
       right: 0;
@@ -68,16 +85,20 @@
 
   /* Drawer backgrounds: scoped to foundation header theme only — not <html data-theme>,
      which stays dark on the homepage while JS toggles the header to light on scroll. */
-  @media (max-width: 1199px) {
-    .foundation-header[data-theme='light'] .header-nav-wrapper--foundation {
+  .foundation-header[data-theme='light'] .header-nav-wrapper--foundation {
+    @variant nav-drawer {
       background-color: #ffffff;
     }
+  }
 
-    :is(.foundation-header[data-theme='dark'], .hackathon-header) .header-nav-wrapper--foundation {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header) .header-nav-wrapper--foundation {
+    @variant nav-drawer {
       background-color: #0d0d0d;
     }
+  }
 
-    .header-nav-wrapper--microsite {
+  .header-nav-wrapper--microsite {
+    @variant nav-drawer {
       background: black;
     }
   }
@@ -111,25 +132,31 @@
   fill: #4f1072;
 }
 
-/* Mobile/tablet: solid bar + drawer (hamburger layout). */
-@media (max-width: 1199px) {
-  .foundation-header[data-theme='dark'] {
+/* Drawer layout: solid bar + drawer (hamburger layout). */
+.foundation-header[data-theme='dark'] {
+  @variant nav-drawer {
     background-color: #0d0d0d;
     color: var(--color-neutral-50);
     box-shadow: none;
   }
+}
 
-  .foundation-header[data-theme='light'] {
+.foundation-header[data-theme='light'] {
+  @variant nav-drawer {
     background-color: #ffffff;
     color: black;
     box-shadow: none;
   }
+}
 
-  .foundation-header[data-theme='dark']:has([data-offscreen='false']) {
+.foundation-header[data-theme='dark']:has([data-offscreen='false']) {
+  @variant nav-drawer {
     background-color: #0d0d0d;
   }
+}
 
-  .foundation-header[data-theme='light']:has([data-offscreen='false']) {
+.foundation-header[data-theme='light']:has([data-offscreen='false']) {
+  @variant nav-drawer {
     background-color: #ffffff;
   }
 }
@@ -144,16 +171,18 @@
   box-shadow: none;
 }
 
-/* Desktop: translucent bar; dropdown panels keep their own solid backgrounds. */
-@media (min-width: 1200px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) {
+/* Menu bar layout: translucent bar; dropdown panels keep their own solid backgrounds. */
+:is(.foundation-header[data-theme='dark'], .hackathon-header) {
+  @variant nav-bar {
     background-color: rgb(13 13 13 / 0.7);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     color: var(--color-neutral-50);
   }
+}
 
-  .foundation-header[data-theme='light'] {
+.foundation-header[data-theme='light'] {
+  @variant nav-bar {
     background-color: rgb(255 255 255 / 0.7);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
@@ -171,52 +200,85 @@
 }
 
 /* ================================================================
-   Dropdown panel anchoring: narrow desktop widths only
+   Dropdown panel anchoring
 
-   Panels are absolutely positioned and hang from the left edge of their
-   button (or, for the wide multi-column panel, the left edge of the menu
-   list). Between 1200px and 1500px the bar is narrow enough that the
-   right-hand ones ran past the viewport: the four-column Grants panel by
-   85px at 1200px, Get Involved by 94px. In that band only, the wide panel
-   centres on the menu list and the last menu hangs its panel from its own
-   right edge. From 1500px up there is room again and every panel goes back
-   to the left-aligned treatment.
+   In the menu bar layout, panels are absolutely positioned and hang from
+   the left edge of their button. The last menu hangs its panel from its own right edge instead.
+   Left-aligned, it ran past the viewport: Get Involved by 94px at 1200px,
+   and ES Involúcrese by 111px at 1500px, where the ES list is wider.
+
+   The wide multi-column panel (Grants) does not fit under any one button.
+   Its labels do not wrap, so in ES it is 1400px wide and ran off the
+   screen at every desktop width. It anchors to the whole nav bar instead:
+   centred on it, never wider than it, and its labels wrap only when that
+   cap applies. Its edges then line up with the logo and the CTA at most.
+   The list and its wrapper drop their positioning so the nav bar becomes
+   the containing block. `top: auto` keeps the panel at its static place
+   under its button, and the margin gives the same gap as the other panels.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */
 
-@media (min-width: 1200px) and (max-width: 1499px) {
-  [data-nav-list] > li[data-wide-panel] .submenu-panel {
+.foundation-header [data-nav] {
+  @variant nav-bar {
+    position: relative;
+  }
+}
+
+.foundation-header :is([data-nav-wrapper], [data-nav-list]) {
+  @variant nav-bar {
+    position: static;
+  }
+}
+
+.foundation-header [data-nav-list] > li[data-wide-panel] .submenu-panel {
+  @variant nav-bar {
+    top: auto;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
+    margin-top: 1.5rem;
+    width: max-content;
+    max-width: 100%;
   }
+}
 
-  [data-nav-list] > li:last-child .submenu-panel {
+.foundation-header [data-nav-list] > li[data-wide-panel] :is(.nav-subgroup-heading, a) {
+  @variant nav-bar {
+    white-space: normal;
+  }
+}
+
+[data-nav-list] > li:last-child .submenu-panel {
+  @variant nav-bar {
     left: auto;
     right: 0;
   }
 }
 
-/* Nav button hover/focus backgrounds (desktop only) */
-@media (min-width: 1200px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
+/* Nav button hover/focus backgrounds (menu bar only) */
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
+  @variant nav-bar {
     background-color: var(--color-neutral-100);
   }
+}
 
-  .foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
+.foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
+  @variant nav-bar {
     background-color: var(--color-neutral-25);
   }
 }
 
-/* Dropdown panel backgrounds (desktop only) */
-@media (min-width: 1200px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) .submenu-panel {
+/* Dropdown panel backgrounds (menu bar only) */
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .submenu-panel {
+  @variant nav-bar {
     background-color: var(--color-neutral-150);
     border-color: var(--color-neutral-100);
   }
+}
 
-  .foundation-header[data-theme='light'] .submenu-panel {
+.foundation-header[data-theme='light'] .submenu-panel {
+  @variant nav-bar {
     background-color: white;
     border-color: var(--color-neutral-25);
   }
@@ -274,12 +336,14 @@
   color: var(--color-neutral-50);
 }
 
-@media (min-width: 1200px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
+  @variant nav-bar {
     border-color: var(--color-neutral-75);
   }
+}
 
-  .foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
+.foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
+  @variant nav-bar {
     border-color: var(--color-neutral-100);
   }
 }
@@ -307,15 +371,17 @@
 }
 
 /* Mobile drawer: nav link and parent toggle focus/active — filled background */
-@media (max-width: 1199px) {
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:focus-visible, [data-active=true]),
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:focus-visible, [data-active=true]),
+:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+  @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-100);
   }
+}
 
-  .foundation-header[data-theme='light'] .nav-link:is(:focus-visible, [data-active=true]),
-  .foundation-header[data-theme='light'] [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+.foundation-header[data-theme='light'] .nav-link:is(:focus-visible, [data-active=true]),
+.foundation-header[data-theme='light'] [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+  @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-25);
   }

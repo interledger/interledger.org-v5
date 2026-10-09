@@ -24,7 +24,7 @@ const ctaAttrs =
 ---
 
 <div
-  class="flex items-center gap-md desktop:col-start-3 desktop:col-end-4 desktop:row-start-1 desktop:self-center desktop:justify-self-end max-desktop:flex-col max-desktop:items-start max-desktop:px-lg"
+  class="flex items-center gap-md nav-bar:col-start-3 nav-bar:col-end-4 nav-bar:row-start-1 nav-bar:self-center nav-bar:justify-self-end nav-drawer:flex-col nav-drawer:items-start nav-drawer:px-lg"
   data-component="FoundationNavActions"
 >
   {
@@ -35,7 +35,7 @@ const ctaAttrs =
         size="sm"
         external={ctaButton.openInNewTab}
         iconSide={hideCtaIcon ? 'none' : undefined}
-        class="max-desktop:hidden"
+        class="nav-drawer:hidden"
         {...ctaAttrs}
       >
         {ctaButton.label}
@@ -43,5 +43,5 @@ const ctaAttrs =
       </LinkButton>
     )
   }
-  <LanguageSwitcher class="max-desktop:hidden" />
+  <LanguageSwitcher class="nav-drawer:hidden" />
 </div>

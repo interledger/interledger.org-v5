@@ -12,6 +12,15 @@ declare global {
   }
 }
 
+/**
+ * Media queries for the width where a header shows its full menu bar instead
+ * of the hamburger drawer. They mirror the `nav-bar:` variant in
+ * src/styles/tailwind.css. The Foundation header switches later because
+ * its ES labels need about 1335px of viewport.
+ */
+export const DEFAULT_NAV_BAR_QUERY = '(min-width: 1200px)'
+export const FOUNDATION_NAV_BAR_QUERY = '(min-width: 1360px)'
+
 const TRACK_EVENT_ATTR = 'data-track-event'
 const TRACK_PROP_ATTR_RE = /^data-track-event-(.+)$/
 
@@ -52,7 +61,11 @@ function initNavClickTracking() {
 }
 
 /** Sets up mobile nav toggle, responsive breakpoint handling, and submenu behavior. */
-export function initHeaderNav(navId: string, iconId: string) {
+export function initHeaderNav(
+  navId: string,
+  iconId: string,
+  navBarQuery: string = DEFAULT_NAV_BAR_QUERY
+) {
   const root = document.getElementById(navId)
   if (!root) return
 
@@ -114,7 +127,7 @@ export function initHeaderNav(navId: string, iconId: string) {
     }
   }
 
-  const wideNavMinWidth = window.matchMedia('(min-width: 1200px)')
+  const wideNavMinWidth = window.matchMedia(navBarQuery)
   wideNavMinWidth.addEventListener('change', handleNavDisplayStyles)
 
   // Sync drawer + inert to viewport on load (markup defaults to mobile-closed).
@@ -154,7 +167,7 @@ export function initHeaderNav(navId: string, iconId: string) {
     }
   })
 
-  initSubmenuToggle(root)
+  initSubmenuToggle(root, navBarQuery)
 }
 
 /**
@@ -271,7 +284,7 @@ function isClickOutside(
 }
 
 /** Sets up submenu button toggling, Escape key, and click-outside closing. */
-function initSubmenuToggle(root: HTMLElement) {
+function initSubmenuToggle(root: HTMLElement, navBarQuery: string) {
   const navList = root.querySelector<HTMLElement>('[data-nav-list]')
 
   if (!navList) return
@@ -280,7 +293,7 @@ function initSubmenuToggle(root: HTMLElement) {
     '[data-submenu-button]'
   )
   const menuItems = root.querySelectorAll<HTMLElement>('[data-menu-level="1"]')
-  const wideNav = window.matchMedia('(min-width: 1200px)')
+  const wideNav = window.matchMedia(navBarQuery)
 
   function getPanel(btn: HTMLElement): HTMLElement | null {
     const id = btn.getAttribute('aria-controls')

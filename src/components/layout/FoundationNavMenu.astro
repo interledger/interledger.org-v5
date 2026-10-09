@@ -19,8 +19,8 @@ const MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD = 3
 
 /**
  * A panel with more columns than this is wider than the menu bar can hang off
- * one button, so it anchors to the list. `data-wide-panel` lets navigation.css
- * re-centre it on the narrowest desktop widths — see "Dropdown panel anchoring".
+ * one button. `data-wide-panel` lets navigation.css centre it on the nav bar
+ * and cap its width there. See "Dropdown panel anchoring".
  */
 const hasWidePanel = (group: MenuGroup) =>
   (group.subGroups?.length ?? 0) > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD
@@ -34,55 +34,55 @@ const toSlug = (value: string) =>
 const submenuToggleAttrs = (groupLabel: string) =>
   buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)
 
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap desktop:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-lg px-lg text-h4-md desktop:w-auto desktop:justify-start desktop:py-sm desktop:pl-lg desktop:pr-xs desktop:text-base`
+const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap nav-bar:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu nav-bar:data-[active=true]:underline nav-bar:data-[active=true]:decoration-current nav-bar:data-[active=true]:decoration-2 nav-bar:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-lg px-lg text-h4-md nav-bar:w-auto nav-bar:justify-start nav-bar:py-sm nav-bar:pl-lg nav-bar:pr-xs nav-bar:text-base`
 
 const navButtonChevronClass =
-  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none desktop:group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 desktop:size-5 desktop:text-current'
+  'ml-sm inline-flex size-2xl shrink-0 items-center justify-center origin-center text-neutral-75 transition-transform duration-150 motion-reduce:transition-none nav-bar:group-hover:rotate-180 group-data-[open=true]/submenu:rotate-180 nav-bar:size-5 nav-bar:text-current'
 
 const panelBgClass = isDark
-  ? 'desktop:bg-neutral-150 desktop:border desktop:border-neutral-100'
-  : 'desktop:bg-white desktop:border desktop:border-neutral-25'
+  ? 'nav-bar:bg-neutral-150 nav-bar:border nav-bar:border-neutral-100'
+  : 'nav-bar:bg-white nav-bar:border nav-bar:border-neutral-25'
 
 // In the drawer, header-nav.ts owns the open height: it sets the panel's
 // measured height inline and then drops the cap, because a fixed viewport cap
 // clipped any taller panel with no way to reach the rest of the list.
 // `max-h-screen` only covers the gap before that script runs, and stays scoped
-// to the drawer so it can't outrank `desktop:max-h-none` on the dropdown.
+// to the drawer so it can't outrank `nav-bar:max-h-none` on the dropdown.
 const panelMobileClass =
   'block max-h-0 overflow-hidden border-0 bg-transparent shadow-none ' +
   'transition-[max-height] duration-500 ease-out motion-reduce:transition-none ' +
-  'max-desktop:peer-data-[open=true]:max-h-screen'
+  'nav-drawer:peer-data-[open=true]:max-h-screen'
 
 const panelDesktopClass =
-  'desktop:absolute desktop:invisible desktop:opacity-0 desktop:top-[calc(100%+1.5rem)] ' +
-  'desktop:max-h-none desktop:overflow-visible ' +
-  'desktop:transition-opacity desktop:duration-fast ' +
-  'desktop:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
-  'desktop:before:absolute desktop:before:bottom-full desktop:before:inset-x-0 desktop:before:h-xl desktop:before:content-[""] ' +
-  'desktop:group-hover:visible desktop:group-hover:opacity-100 desktop:group-hover:left-0 ' +
-  'desktop:peer-data-[open=true]:visible desktop:peer-data-[open=true]:opacity-100 desktop:peer-data-[open=true]:left-0'
+  'nav-bar:absolute nav-bar:invisible nav-bar:opacity-0 nav-bar:top-[calc(100%+1.5rem)] ' +
+  'nav-bar:max-h-none nav-bar:overflow-visible ' +
+  'nav-bar:transition-opacity nav-bar:duration-fast ' +
+  'nav-bar:shadow-[2px_3px_6px_-3px_hsla(0,0%,0%,0.06),-2px_3px_6px_-3px_hsla(0,0%,0%,0.06)] ' +
+  'nav-bar:before:absolute nav-bar:before:bottom-full nav-bar:before:inset-x-0 nav-bar:before:h-xl nav-bar:before:content-[""] ' +
+  'nav-bar:group-hover:visible nav-bar:group-hover:opacity-100 nav-bar:group-hover:left-0 ' +
+  'nav-bar:peer-data-[open=true]:visible nav-bar:peer-data-[open=true]:opacity-100 nav-bar:peer-data-[open=true]:left-0'
 
 const panelToggleClass = `submenu-panel ${panelMobileClass} ${panelDesktopClass} ${panelBgClass}`
 
 const submenuListClass =
-  'list-none flex flex-col gap-y-0 desktop:block desktop:gap-0 desktop:ps-0'
+  'list-none flex flex-col gap-y-0 nav-bar:block nav-bar:gap-0 nav-bar:ps-0'
 
-const flatSubmenuPanelClass = `w-full px-lg ${panelToggleClass} desktop:min-w-full desktop:px-2xl desktop:py-xl desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
+const flatSubmenuPanelClass = `w-full px-lg ${panelToggleClass} nav-bar:min-w-full nav-bar:px-2xl nav-bar:py-xl nav-bar:group-hover:w-max nav-bar:peer-data-[open=true]:w-max`
 
-const megaMenuClass = `flex flex-col gap-y-0 px-lg ${panelToggleClass} desktop:grid desktop:gap-3xl desktop:p-3xl`
+const megaMenuClass = `flex flex-col gap-y-0 px-lg ${panelToggleClass} nav-bar:grid nav-bar:gap-3xl nav-bar:p-3xl`
 
 const subGroupHeadingTextClass = isDark
   ? 'text-neutral-50 border-neutral-75'
   : 'text-neutral-75 border-neutral-100'
 
 const megaSubGroupClass =
-  'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
+  'mt-lg flex flex-col gap-y-md nav-bar:mt-0 nav-bar:gap-0'
 
-const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap pb-sm desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap pb-sm nav-bar:mb-xs nav-bar:pb-md ${subGroupHeadingTextClass}`
 ---
 
 <ul
-  class="list-none flex flex-col max-desktop:gap-sm gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
+  class="list-none flex flex-col nav-drawer:gap-sm gap-xl ps-0 nav-bar:flex nav-bar:flex-row nav-bar:items-center nav-bar:justify-center nav-bar:gap-md nav-bar:relative"
   id="siteNavMenu"
   data-component="FoundationNavMenu"
   data-nav-list
@@ -95,7 +95,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
 
       return (
         <li
-          class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
+          class={`group ${hasWidePanel(group) ? 'nav-bar:static' : 'nav-bar:relative'}`}
           data-menu-level="1"
           data-wide-panel={hasWidePanel(group) ? '' : undefined}
         >
@@ -112,7 +112,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
           >
             <span aria-hidden="true">{group.label}</span>
             <span class={navButtonChevronClass} aria-hidden="true">
-              <Icon name="arrow-down" class="size-8 desktop:size-5" />
+              <Icon name="arrow-down" class="size-8 nav-bar:size-5" />
             </span>
           </button>
 
@@ -121,7 +121,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
               id={panelId}
               class={megaMenuClass}
               aria-labelledby={buttonId}
-              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
+              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), minmax(min-content, max-content));`}
             >
               {group.subGroups.map((subGroup) => (
                 <div class={megaSubGroupClass}>
