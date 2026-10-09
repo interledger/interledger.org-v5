@@ -199,6 +199,90 @@ describe('parseGranteeRecords', () => {
   })
 })
 
+// The sync omits any missing or malformed field, so a record can arrive with
+// only a name. Rendering relies on every Grantee field being an empty default.
+describe('sparse grantee records', () => {
+  const emptyDefaults = {
+    program: '',
+    programKey: '',
+    year: '',
+    startMonth: '',
+    startLabel: '',
+    country: '',
+    countryKey: '',
+    leaders: [],
+    tags: [],
+    description: null,
+    descriptionPlain: '',
+    projectUrls: [],
+    budget: null,
+    budgetLabel: null
+  }
+
+  it('fills every missing field with an empty default', () => {
+    const result = parseGranteeRecords(
+      [record({ 'Project Name': 'Name Only' })],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]).toMatchObject({ name: 'Name Only', ...emptyDefaults })
+  })
+
+  it('treats wrong-typed values as missing instead of throwing', () => {
+    const malformed = {
+      id: 'rec1',
+      createdTime: '2020-01-01T00:00:00.000Z',
+      fields: {
+        'Project Name': 'Odd Types',
+        'Secondary Grant Program Name': { error: '#ERROR!' },
+        Year: true,
+        Country: { name: 'Kenya' },
+        'Start Month': null,
+        'Project Leader': [{ id: 'recAda' }],
+        'Thematic Tag': [null, { name: 'Payments' }],
+        'Project Description': ['not', 'a', 'string'],
+        'Project Links': false,
+        'Total budget approved': '750000'
+      }
+    }
+    const result = parseGranteeRecords([malformed], 'en')
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]).toMatchObject({ name: 'Odd Types', ...emptyDefaults })
+  })
+
+  it('skips records without a fields object and keeps the rest', () => {
+    const result = parseGranteeRecords(
+      [{ id: 'recNoFields' }, { id: 'recNull', fields: null }, sample],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.map((g) => g.id)).toEqual(['rec1'])
+  })
+
+  it('adds no filter options and no search-entry links', () => {
+    const data = [record({ 'Project Name': 'Name Only' })]
+    const listing = getGranteeListingData(data, 'en')
+    expect(listing).not.toBeInstanceOf(Error)
+    if (listing instanceof Error) return
+    expect(listing.years).toEqual([])
+    expect(listing.tags).toEqual([])
+
+    const index = getGranteeSearchIndex(data, 'en', '/grant/grantee-directory')
+    expect(index).not.toBeInstanceOf(Error)
+    if (index instanceof Error) return
+    expect(index[0]).toMatchObject({
+      descriptionHtml: null,
+      projectUrl: null,
+      budgetLabel: null,
+      leaders: [],
+      tags: []
+    })
+  })
+})
+
 describe('uniqueFilterOptions', () => {
   it('dedupes thematic tags and sorts labels', () => {
     const parsed = parseGranteeRecords(

@@ -34,6 +34,7 @@
         }
       },
       "targetField": "title",
+      "regex": "^/?[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*/?$",
       "required": true
     },
     "date": {

@@ -10,6 +10,7 @@ import {
   deleteOrphanedEntries
 } from './syncOperations'
 import { validateMdxFiles } from './validateFrontmatter'
+import { bareSlug } from '@/utils'
 import { formatIdentity, identityForMdx, identityKey } from './entryIdentity'
 
 /**
@@ -96,7 +97,7 @@ export async function syncContentType(
     const slugSet = mdxSlugsByLocale.get(locale) ?? new Set()
     slugSet.add(
       identityKey({
-        pathSlug: err.pathSlug,
+        pathSlug: bareSlug(err.pathSlug),
         section: config.sectionScopedIdentity ? (err.section ?? null) : null
       })
     )

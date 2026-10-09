@@ -8,8 +8,21 @@ import {
   isExternalHref,
   getHostname,
   getSocialIconName,
-  getSocialPlatformName
+  getSocialPlatformName,
+  trimSlashes
 } from './url'
+
+describe('trimSlashes', () => {
+  it.each([
+    ['about', 'about'],
+    ['/about/', 'about'],
+    ['//grant/education//', 'grant/education'],
+    ['/', ''],
+    ['', '']
+  ])('reduces %j to %j', (input, expected) => {
+    expect(trimSlashes(input)).toBe(expected)
+  })
+})
 
 describe('ensureLeadingSlash', () => {
   it('prepends a slash when missing', () => {

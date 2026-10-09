@@ -134,6 +134,28 @@ describe('parseRedirectConfig path rules shared with Strapi', () => {
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain('/dup')
   })
+
+  // Netlify matches a rule with or without its trailing slash (INTORG-1254).
+  it('rejects a source listed twice with and without a trailing slash', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/dup', destination: '/a/', status: 301 },
+        { source: '/dup/', destination: '/b/', status: 301 }
+      ]
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('/dup/')
+  })
+
+  it('chains through a slashed source', () => {
+    const result = parseRedirectConfig({
+      site_pages: [
+        { source: '/a/', destination: '/b', status: 301 },
+        { source: '/b/', destination: '/c/', status: 301 }
+      ]
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
 })
 
 describe('parseRedirectConfig self-redirects and chains', () => {

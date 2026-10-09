@@ -24,6 +24,7 @@ import {
   findOrphanedRedirects,
   getProjectRoot,
   parseRedirectConfigFile,
+  redirectSourceKey,
   type RedirectEntry
 } from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
@@ -65,6 +66,8 @@ function readRedirectConfig(filepath: string): unknown {
 
 function isUnchanged(stored: RedirectEntry, wanted: RedirectEntry): boolean {
   return (
+    // Rows are matched by source key, so `/old` against `/old/` is an update.
+    stored.source === wanted.source &&
     stored.destination === wanted.destination &&
     stored.category === wanted.category &&
     (stored.redirectType ?? 'permanent') === wanted.redirectType &&
@@ -99,7 +102,9 @@ async function fetchStoredRedirects(
       )
     }
     const body = (await res.json()) as ListResponse
-    for (const entry of body.data) stored.set(entry.source, entry)
+    for (const entry of body.data) {
+      stored.set(redirectSourceKey(entry.source), entry)
+    }
     if (page >= body.meta.pagination.pageCount) return stored
   }
 }
@@ -175,7 +180,7 @@ async function syncRedirects(
 ): Promise<SyncCounts> {
   const counts: SyncCounts = { created: 0, updated: 0, unchanged: 0 }
   for (const entry of entries) {
-    const existing = stored.get(entry.source)
+    const existing = stored.get(redirectSourceKey(entry.source))
     if (existing && isUnchanged(existing, entry)) {
       counts.unchanged++
       continue

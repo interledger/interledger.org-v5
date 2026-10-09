@@ -6,6 +6,15 @@ export function addTrailingSlash(path: string): string {
   return path.endsWith('/') ? path : `${path}/`
 }
 
+/**
+ * Strips every leading and trailing slash, so `/about/`, `/about` and `about`
+ * give one key. Content stores slugs as `/about/` (INTORG-1254) while route
+ * params and translation-map keys stay bare.
+ */
+export function trimSlashes(path: string): string {
+  return path.replace(/^\/+|\/+$/g, '')
+}
+
 /** Prepends `/` to an internal path if it doesn't already have one. */
 export function ensureLeadingSlash(path: string): string {
   // A same-page hash is not a path. Prefixing it yields `/#id`, which

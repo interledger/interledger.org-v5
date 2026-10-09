@@ -3,7 +3,7 @@ import path from 'path'
 import { gitCommitAndPush, getTargetRepoRoot, withGitSyncLock } from './gitSync'
 import { LOCALES, defaultLang, uidToLogLabel } from './mdx'
 import { shouldSkipMdxExport } from './pageLifecycle'
-import { ensureLeadingSlash } from './relativeLinks'
+import { toSlashedPath } from './relativeLinks'
 
 import type { Core, UID, Modules } from '@strapi/strapi'
 
@@ -50,7 +50,7 @@ export interface NavigationLifecycleConfig<
 
 function normalizeHref(href: string | null | undefined): string | undefined {
   if (!href) return undefined
-  return ensureLeadingSlash(href)
+  return toSlashedPath(href)
 }
 
 export function sanitizeMenuItem(

@@ -123,9 +123,18 @@ export {
 // Section-relative pathSlug uniqueness (cross-section content types)
 export {
   validateSectionScopedSlug,
+  validateUniqueSlug,
   type SectionScopedSlugFinder,
   type SectionScopedSlugCheck
 } from './sectionScopedSlug'
+
+// Admin UID helpers for slugs stored as /slug/
+export {
+  nextFreeSlashedSlug,
+  patchUidServiceForSlashedSlugs,
+  type UidDocuments,
+  type UidService
+} from './slashedSlugUid'
 
 // Redirects (editor-owned literal redirects → src/config/redirects.json)
 export {
@@ -140,6 +149,7 @@ export {
   type RedirectFinder,
   type RedirectLinkCheck,
   normalizeRedirectSource,
+  redirectSourceKey,
   normalizeRedirectInput,
   isRedirectEnabled,
   redirectDeleteError,
@@ -364,9 +374,14 @@ export {
 
 // Relative link / path-segment slash normalization
 export {
-  ensureLeadingSlash,
-  normalizePathSegment,
+  bareSlug,
+  isSameSlug,
+  slugVariants,
+  toSlashedPath,
+  toSlashedSlug,
+  mapOutsideMarkdownCode,
   normalizeRelativeLinksInDocumentData,
+  slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripUploadOriginsInText
 } from './relativeLinks'

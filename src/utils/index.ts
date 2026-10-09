@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
   ensureAbsoluteUrl,
@@ -194,6 +195,22 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+// Listed for the catalog only. scripts/import-airtable.ts imports the module
+// directly, because tsx can't load this barrel's astro:content chains.
+export {
+  GRANTEE_FIELDS,
+  checkGranteeFieldsPresent,
+  buildContactNameMap,
+  filterPublishedRecords,
+  findRenamedFields,
+  isRawTableRecord,
+  listUnrenderedViewFields,
+  resolveProjectLeaders,
+  selectPublishedGranteeFields,
+  toGranteeRecord,
+  warnOnMissingProjectNames,
+  type GranteeFieldName
+} from './main/airtableRecords'
 
 // Main site: Text
 export { generateSlug } from './main/slug'
