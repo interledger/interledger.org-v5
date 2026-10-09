@@ -17,7 +17,7 @@
  *
  * Maps to Strapi blocks.report-section. The heading is authored as a real
  * markdown `##` line (not a JSX prop) so Astro's own heading collector can
- * pick it up for ReportSectionsNav — see report-section.serializer.ts and
+ * pick it up for SectionsNav — see report-section.serializer.ts and
  * ReportPage.astro. Each <ReportText> becomes one `reportText` entry; its
  * `type` attribute selects whether the children populate `textContent`
  * (Paragraph) or `textDisclaimer` (Disclaimer).

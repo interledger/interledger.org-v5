@@ -7,7 +7,7 @@
 @layer components {
   main {
     color: var(--color-neutral-100);
-    /* Shared with ReportSectionsNav circle markers. Content <ol> uses
+    /* Shared with SectionsNav circle markers. Content <ol> uses
        decimal, not this. Layout lists opt out with `list-none`. */
     --ol-marker-size: 5px;
     p {
