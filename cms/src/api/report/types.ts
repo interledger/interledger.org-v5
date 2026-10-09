@@ -14,6 +14,7 @@ export interface ReportBase {
   id?: number
   documentId?: string
   pathSlug: string
+  draft?: boolean | null
   title: string
   heading: string
   section?: 'summit' | 'hackathon' | 'foundation' | null

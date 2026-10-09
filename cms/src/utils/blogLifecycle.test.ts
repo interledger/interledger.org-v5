@@ -326,3 +326,20 @@ describe('generateBlogMDX — article bios', () => {
     expect(parsed.data.articleBios[0].text).toBe('line one\n\nline two\n')
   })
 })
+
+describe('generateBlogMDX — draft', () => {
+  it('writes draft: true when the box is checked', async () => {
+    const mdx = await generateBlogMDX(makePost({ draft: true }))
+
+    expect(matter(mdx).data.draft).toBe(true)
+  })
+
+  it.each([false, null, undefined])(
+    'omits draft when the value is %s',
+    async (draft) => {
+      const mdx = await generateBlogMDX(makePost({ draft }))
+
+      expect(mdx).not.toMatch(/^draft:/m)
+    }
+  )
+})

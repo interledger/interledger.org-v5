@@ -8,6 +8,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
+  draftFrontmatter,
   ckeditorFieldToParsedMarkdown,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
   ctaStripColorMdxFields,
@@ -44,8 +45,10 @@ export async function generateGrantOverviewPageMDX(
   const locale = page.locale ?? 'en'
   const isLocalized = locale !== 'en'
   const { localizes: preservedLocalizes, ...restPreserved } = preservedFields
-  // Clear hero fields — removing the hero in Strapi must also clear them from MDX.
+  // Clear Strapi-managed fields — removing the hero or unchecking draft in
+  // Strapi must also clear them from MDX.
   for (const key of [
+    'draft',
     'heroTitle',
     'heroDescription',
     'heroImage',
@@ -67,6 +70,7 @@ export async function generateGrantOverviewPageMDX(
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
+    ...draftFrontmatter(page.draft),
     description: overviewPage.description ?? '',
     ...heroData,
     ...(ctaStrip

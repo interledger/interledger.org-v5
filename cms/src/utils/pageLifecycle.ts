@@ -18,6 +18,7 @@ import {
   defaultLang,
   heroFrontmatter,
   getPreservedFields,
+  draftFrontmatter,
   uidToLogLabel,
   formatMdx,
   MATTER_STRINGIFY_OPTIONS
@@ -37,6 +38,7 @@ export interface PageData {
   title: string
   /** May be null on afterDelete in some Strapi versions / payloads */
   pathSlug: string | null
+  draft?: boolean | null
   locale?: string
   hero?: Hero | null
   description?: string
@@ -182,6 +184,8 @@ export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const locale = page.locale || defaultLang
   const isLocalized = locale !== defaultLang
   const { localizes, ...restPreserved } = preservedFields
+  // `draft` is Strapi-managed, so an unchecked box must clear a stale key.
+  delete restPreserved.draft
   // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
@@ -201,6 +205,7 @@ export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
     pathSlug: page.pathSlug,
+    ...draftFrontmatter(page.draft),
     title: page.title,
     description: page.description,
     ...heroData,

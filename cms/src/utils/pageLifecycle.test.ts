@@ -285,3 +285,36 @@ describe('isCodeSyncRequest', () => {
     expect(isCodeSyncRequest()).toBe(false)
   })
 })
+
+describe('generateMDX — draft', () => {
+  const page = {
+    id: 1,
+    documentId: 'doc1',
+    title: 'Test Page',
+    pathSlug: 'test',
+    locale: 'en',
+    description: 'Test description'
+  }
+
+  it('writes draft: true when the box is checked', async () => {
+    const result = await generateMDX(testConfig, { ...page, draft: true })
+
+    expect(result).toMatch(/^draft: true$/m)
+  })
+
+  it('omits draft when the box is unchecked', async () => {
+    const result = await generateMDX(testConfig, { ...page, draft: false })
+
+    expect(result).not.toContain('draft')
+  })
+
+  it('clears a stale draft key once the box is unchecked', async () => {
+    const result = await generateMDX(
+      testConfig,
+      { ...page, draft: false },
+      { draft: true }
+    )
+
+    expect(result).not.toContain('draft')
+  })
+})

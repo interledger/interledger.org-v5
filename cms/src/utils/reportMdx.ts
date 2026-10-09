@@ -10,6 +10,7 @@ import {
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   defaultLang,
+  draftFrontmatter,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import { escMdxBraces } from '../serializers/shared'
@@ -24,6 +25,7 @@ export interface ReportMdxDate {
 export interface ReportMdxInput {
   title: string
   pathSlug: string
+  draft?: boolean | null
   section?: 'summit' | 'hackathon' | 'foundation' | null
   heading: string
   description: string
@@ -88,6 +90,7 @@ export function generateReportMdx(
   const frontmatter: Record<string, unknown> = {
     title: report.title,
     pathSlug: report.pathSlug,
+    ...draftFrontmatter(report.draft),
     ...(report.section ? { section: report.section } : {}),
     heading: report.heading,
     description: report.description,

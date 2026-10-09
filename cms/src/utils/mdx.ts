@@ -198,6 +198,17 @@ export function formatBlockquote(quote: string): string {
 // ── Frontmatter helpers ──────────────────────────────────────────────────────
 
 /**
+ * Frontmatter for the `draft` checkbox: `{ draft: true }` when checked,
+ * nothing otherwise. Leaving the key out when false keeps existing MDX files
+ * unchanged; the site schema defaults a missing key to false.
+ */
+export function draftFrontmatter(draft: boolean | null | undefined): {
+  draft?: true
+} {
+  return draft === true ? { draft: true } : {}
+}
+
+/**
  * Read all existing frontmatter fields from an MDX file.
  * Strapi-managed fields will overwrite these when generating MDX.
  */
