@@ -178,7 +178,8 @@
    Panels hang from their button's left edge. Two would run off-screen, so:
    - the wide panel centres on the header (its list and wrapper are static);
    - the last menu's panel hangs from its right edge.
-   Their width is capped to the viewport in FoundationNavMenu.astro.
+   Any other panel that would still overflow is slid back on screen by
+   keepPanelOnScreen in src/scripts/header-nav.ts.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */

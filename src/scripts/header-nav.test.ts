@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { panelMaxHeightSteps } from './header-nav'
+import { panelMaxHeightSteps, panelOverflowShift } from './header-nav'
 
 const state = (overrides: Partial<Parameters<typeof panelMaxHeightSteps>[0]>) =>
   panelMaxHeightSteps({
@@ -34,5 +34,30 @@ describe('panelMaxHeightSteps', () => {
 
   it('handles a panel measured at zero height', () => {
     expect(state({ isOpen: true, contentHeight: 0 })).toEqual(['0px'])
+  })
+})
+
+describe('panelOverflowShift', () => {
+  const VIEWPORT = 1200
+  const GUTTER = 32
+
+  it('leaves a panel that fits inside the gutter', () => {
+    expect(panelOverflowShift(400, 900, VIEWPORT)).toBe(0)
+  })
+
+  it('leaves a panel touching the gutter exactly', () => {
+    expect(panelOverflowShift(GUTTER, VIEWPORT - GUTTER, VIEWPORT)).toBe(0)
+  })
+
+  it('moves a panel past the right edge back onto the gutter', () => {
+    expect(panelOverflowShift(450, 1350, VIEWPORT)).toBe(-182)
+  })
+
+  it('moves a panel past the left edge back onto the gutter', () => {
+    expect(panelOverflowShift(-50, 600, VIEWPORT)).toBe(82)
+  })
+
+  it('pins the left edge when the panel is wider than the space', () => {
+    expect(panelOverflowShift(450, 1800, VIEWPORT)).toBe(GUTTER - 450)
   })
 })
