@@ -56,13 +56,10 @@
   }
 
   @media (min-width: 1200px) {
-    /* Static, so the wide dropdown panel anchors to the header — see
+    /* Keep the wrapper unpositioned and untransformed: either would make it
+       the wide dropdown panel's anchor instead of the header — see
        "Dropdown panel anchoring". */
     .header-nav-wrapper {
-      position: static;
-      top: 0;
-      right: 0;
-      transform: none;
       background: transparent;
       border-width: 0;
     }
@@ -175,9 +172,13 @@
 /* ================================================================
    Dropdown panel anchoring
 
-   Panels hang from their button's left edge. Two would run off-screen, so:
-   - the wide panel centres on the header (its list and wrapper are static);
+   Panels hang from their button's left edge, except two:
+   - the wide panel centres on the header (its item, list and wrapper are
+     all static);
    - the last menu's panel hangs from its right edge.
+   Both apply at every desktop width, not just where they would otherwise
+   overflow. That is deliberate: the dropdowns keep one layout instead of
+   jumping between alignments as the window crosses a breakpoint.
    Any other panel that would still overflow is slid back on screen by
    keepPanelOnScreen in src/scripts/header-nav.ts.
 
@@ -186,6 +187,9 @@
 
 @media (min-width: 1200px) {
   [data-nav-list] > li[data-wide-panel] .submenu-panel {
+    /* Same height as the other panels, measured from the header instead of
+       the button: the 40px button sits centred in the 80px header, so its
+       panel's top at 100% + 1.5rem lands 4px below the header's bottom edge. */
     top: calc(100% + var(--spacing-xs));
     left: 50%;
     right: auto;
