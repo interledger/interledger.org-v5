@@ -6,9 +6,10 @@ import {
   resolveCtaLink,
   useTranslations,
   localizeRoute,
-  grantOverviewHubPath
+  grantOverviewHubPath,
+  getGatedCollection
 } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -37,7 +38,7 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
-const pages = await getCollection('grant-pages')
+const pages = await getGatedCollection('grant-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale

@@ -17,10 +17,10 @@
  * stable. The detail page uses the same rules via `getProfileColorIndex`.
  */
 
-import { getCollection, type CollectionEntry } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
 import ProfileCard from './ProfileCard.astro'
 import type { ProfileData } from './profile.types'
-import { useTranslations, toProfileData } from '@/utils'
+import { useTranslations, toProfileData, getGatedCollection } from '@/utils'
 import { resolveKnownProfilePathSlug } from '@/utils/main/profileGridColors'
 
 function resolveProfileByPathSlug(
@@ -43,7 +43,7 @@ const { routeLocale, profileEntries: preloadedProfileEntries } = Astro.locals
 const t = useTranslations(routeLocale)
 
 async function loadProfileEntries(): Promise<CollectionEntry<'profiles'>[]> {
-  return preloadedProfileEntries ?? (await getCollection('profiles'))
+  return preloadedProfileEntries ?? (await getGatedCollection('profiles'))
 }
 
 let profiles: ProfileData[] = []

@@ -1,4 +1,4 @@
-import { getCollection } from 'astro:content'
+import { getGatedCollection } from './gatedCollection'
 import { type ProfileFrontmatterType } from '@/schemas/content'
 import {
   type ProfileData,
@@ -47,7 +47,7 @@ async function indexPathSlugGridsFromPages(
   const colorIndexByPathSlug = new Map<string, number>()
 
   for (const collection of PAGE_COLLECTIONS) {
-    const pages = await getCollection(collection)
+    const pages = await getGatedCollection(collection)
 
     for (const page of pages) {
       if (page.data.locale !== locale) continue
@@ -78,7 +78,7 @@ async function indexPathSlugGridsFromPages(
 export const getProfileColorIndexMap = async (
   locale: string
 ): Promise<Map<string, number>> => {
-  const all = await getCollection('profiles')
+  const all = await getGatedCollection('profiles')
   const knownPathSlugs = new Set(
     all
       .filter((entry) => entry.data.locale === locale)

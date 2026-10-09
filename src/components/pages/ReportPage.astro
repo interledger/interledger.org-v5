@@ -1,6 +1,6 @@
 ---
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import ReportIntro from '@/components/blocks/ReportIntro.astro'
@@ -15,7 +15,8 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   formatDate,
-  getSectionPageLayout
+  getSectionPageLayout,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -37,7 +38,7 @@ const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const allReports = await getCollection('reports')
+const allReports = await getGatedCollection('reports')
 const entry = allReports.find(
   (r) =>
     r.data.pathSlug === slug &&
