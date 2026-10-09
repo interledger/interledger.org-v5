@@ -12,7 +12,7 @@ import type {
 import {
   GRANTEE_FIELDS,
   type GranteeFieldName,
-  assertGranteeFieldsPresent,
+  checkGranteeFieldsPresent,
   buildContactNameMap,
   filterPublishedRecords,
   findRenamedFields,
@@ -182,7 +182,9 @@ async function importAirtableData() {
     )
   }
   const visibleFieldIds = granteeView.visibleFieldIds ?? []
-  const { published, hidden } = selectPublishedGranteeFields(visibleFieldIds)
+  const selection = selectPublishedGranteeFields(visibleFieldIds)
+  if (selection instanceof Error) throw selection
+  const { published, hidden } = selection
   if (hidden.length > 0) {
     console.log(
       `ℹ️  Read by the site but hidden in the view, so not written: ${hidden.join(', ')}`
@@ -199,15 +201,18 @@ async function importAirtableData() {
   }
 
   const allGranteeData = await fetchGranteeRecords(published, apiToken)
-  const granteeData = filterPublishedRecords(
+  const publishedRecords = filterPublishedRecords(
     allGranteeData,
     PUBLISHED_ON_WEBSITE_FIELD_ID
-  ).map(toGranteeRecord)
+  )
+  if (publishedRecords instanceof Error) throw publishedRecords
+  const granteeData = publishedRecords.map(toGranteeRecord)
   warnOnMissingProjectNames(granteeData)
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
   const finalGranteeData = resolveProjectLeaders(granteeData, contactsMap)
   // Last, so a column emptied at any step above fails the sync.
-  assertGranteeFieldsPresent(finalGranteeData, published)
+  const missingFields = checkGranteeFieldsPresent(finalGranteeData, published)
+  if (missingFields instanceof Error) throw missingFields
   await writeAirtableJson(finalGranteeData)
 }
 

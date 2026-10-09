@@ -199,7 +199,7 @@ export {
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
   GRANTEE_FIELDS,
-  assertGranteeFieldsPresent,
+  checkGranteeFieldsPresent,
   buildContactNameMap,
   filterPublishedRecords,
   findRenamedFields,

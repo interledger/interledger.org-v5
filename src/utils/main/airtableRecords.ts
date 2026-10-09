@@ -110,13 +110,13 @@ export function isRawTableRecord(value: unknown): value is RawTableRecord {
 export function filterPublishedRecords(
   records: RawTableRecord[],
   publishedOnWebsiteFieldId: string
-): RawTableRecord[] {
+): RawTableRecord[] | Error {
   const published = records.filter(
     (record) =>
       record.fields[publishedOnWebsiteFieldId] === PUBLISHED_ON_WEBSITE_VALUE
   )
   if (records.length > 0 && published.length === 0) {
-    throw new Error(
+    return new Error(
       `${PUBLISHED_ON_WEBSITE_VALUE} filter matched 0 of ${records.length} records — refusing to write an empty grantee directory`
     )
   }
@@ -157,9 +157,8 @@ export function buildContactNameMap(
 ): Map<string, string> {
   const contactsMap = new Map<string, string>()
   for (const record of contactRecords) {
-    const name = record.fields[nameFieldId]
-    // The name is stored untrimmed, as Airtable has it; typeof narrows it for that.
-    if (typeof name !== 'string' || asName(name) === undefined) continue
+    const name = asName(record.fields[nameFieldId])
+    if (name === undefined) continue
     contactsMap.set(record.id, name)
   }
   return contactsMap
@@ -203,15 +202,17 @@ export function resolveProjectLeaders(
 // A rendered column is published only while it is visible in the view, so
 // editors can take one off the site by hiding it. Project Name can't be
 // hidden: the site drops every grantee without one.
-export function selectPublishedGranteeFields(visibleFieldIds: string[]): {
-  published: GranteeFieldName[]
-  hidden: GranteeFieldName[]
-} {
+export function selectPublishedGranteeFields(visibleFieldIds: string[]):
+  | {
+      published: GranteeFieldName[]
+      hidden: GranteeFieldName[]
+    }
+  | Error {
   const names = Object.keys(GRANTEE_FIELDS) as GranteeFieldName[]
   const isVisible = (name: GranteeFieldName) =>
     visibleFieldIds.includes(GRANTEE_FIELDS[name].id)
   if (!isVisible(PROJECT_NAME)) {
-    throw new Error(
+    return new Error(
       `"${PROJECT_NAME}" is hidden in the view — refusing to write a grantee directory with no names`
     )
   }
@@ -224,20 +225,20 @@ export function selectPublishedGranteeFields(visibleFieldIds: string[]): {
 // One record missing a column is a data gap; every record missing it means
 // the schema broke, and writing the file would empty that column on the site.
 // No records at all (e.g. the view's filter changed) would empty the directory.
-export function assertGranteeFieldsPresent(
+export function checkGranteeFieldsPresent(
   records: TableRecord[],
   publishedFields: GranteeFieldName[]
-): void {
+): undefined | Error {
   if (records.length === 0) {
-    throw new Error(
+    return new Error(
       'No published records — refusing to write an empty grantee directory'
     )
   }
   const missing = publishedFields.filter((name) =>
     records.every((record) => isBlank(record.fields[name]))
   )
-  if (missing.length === 0) return
-  throw new Error(
+  if (missing.length === 0) return undefined
+  return new Error(
     `No published record has a value for ${missing.map((name) => `"${name}"`).join(', ')} — ` +
       `the field's type may have changed, its formula may fail in every row, or no linked record resolved`
   )

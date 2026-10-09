@@ -11,7 +11,7 @@ import type { RawTableRecord, TableRecord } from '@/types/airtable'
 import {
   GRANTEE_FIELDS,
   type GranteeFieldName,
-  assertGranteeFieldsPresent,
+  checkGranteeFieldsPresent,
   buildContactNameMap,
   filterPublishedRecords,
   findRenamedFields,
@@ -76,6 +76,11 @@ function toRaw(source: TableRecord): RawTableRecord {
   return raw(fields, source.id)
 }
 
+function errorMessage(result: unknown): string {
+  expect(result).toBeInstanceOf(Error)
+  return result instanceof Error ? result.message : ''
+}
+
 let warn: MockInstance<typeof console.warn>
 
 beforeEach(() => {
@@ -116,9 +121,11 @@ describe('filterPublishedRecords', () => {
   })
 
   it('refuses to write an empty directory when nothing matches', () => {
-    expect(() =>
-      filterPublishedRecords([raw({ [NAME_ID]: 'A' })], PUBLISHED_FIELD_ID)
-    ).toThrow(/matched 0 of 1/)
+    expect(
+      errorMessage(
+        filterPublishedRecords([raw({ [NAME_ID]: 'A' })], PUBLISHED_FIELD_ID)
+      )
+    ).toMatch(/matched 0 of 1/)
   })
 
   it('returns an empty list for empty input', () => {
@@ -224,28 +231,28 @@ describe('toGranteeRecord', () => {
   })
 })
 
-describe('assertGranteeFieldsPresent', () => {
+describe('checkGranteeFieldsPresent', () => {
   it('passes when each column is set on at least one record', () => {
-    expect(() =>
-      assertGranteeFieldsPresent(
+    expect(
+      checkGranteeFieldsPresent(
         [
           withoutColumns(completeRecord('recA'), 'Project Links'),
           record({ 'Project Links': ['https://example.com'] }, 'recB')
         ],
         ALL_COLUMNS
       )
-    ).not.toThrow()
+    ).toBeUndefined()
   })
 
-  it('throws listing every column absent from all records', () => {
+  it('returns an error listing every column absent from all records', () => {
     const incomplete = withoutColumns(
       completeRecord(),
       'Country',
       'Project Links'
     )
-    expect(() => assertGranteeFieldsPresent([incomplete], ALL_COLUMNS)).toThrow(
-      /"Country", "Project Links"/
-    )
+    expect(
+      errorMessage(checkGranteeFieldsPresent([incomplete], ALL_COLUMNS))
+    ).toMatch(/"Country", "Project Links"/)
   })
 
   it('counts blank strings and empty or all-blank arrays as absent', () => {
@@ -255,9 +262,9 @@ describe('assertGranteeFieldsPresent', () => {
       'Thematic Tag': [],
       'Project Links': ['', '  ']
     }
-    expect(() =>
-      assertGranteeFieldsPresent([record(fields)], ALL_COLUMNS)
-    ).toThrow(/"Year", "Thematic Tag", "Project Links"/)
+    expect(
+      errorMessage(checkGranteeFieldsPresent([record(fields)], ALL_COLUMNS))
+    ).toMatch(/"Year", "Thematic Tag", "Project Links"/)
   })
 
   it('checks only the columns it is given', () => {
@@ -265,13 +272,11 @@ describe('assertGranteeFieldsPresent', () => {
     const published = ALL_COLUMNS.filter(
       (name) => name !== 'Total budget approved'
     )
-    expect(() =>
-      assertGranteeFieldsPresent([noBudget], published)
-    ).not.toThrow()
+    expect(checkGranteeFieldsPresent([noBudget], published)).toBeUndefined()
   })
 
   it('refuses to write an empty directory when there are no records', () => {
-    expect(() => assertGranteeFieldsPresent([], ALL_COLUMNS)).toThrow(
+    expect(errorMessage(checkGranteeFieldsPresent([], ALL_COLUMNS))).toMatch(
       /No published records/
     )
   })
@@ -281,9 +286,9 @@ describe('assertGranteeFieldsPresent', () => {
       const { fields } = toRaw(completeRecord(id))
       return toGranteeRecord(raw({ ...fields, [NAME_ID]: ['X'] }, id))
     })
-    expect(() => assertGranteeFieldsPresent(records, ALL_COLUMNS)).toThrow(
-      /"Project Name"/
-    )
+    expect(
+      errorMessage(checkGranteeFieldsPresent(records, ALL_COLUMNS))
+    ).toMatch(/"Project Name"/)
   })
 
   it('fails when no project leader resolves to a named contact', () => {
@@ -292,9 +297,9 @@ describe('assertGranteeFieldsPresent', () => {
       'Project Leader': ['recUnnamed']
     })
     const records = resolveProjectLeaders([unresolved], new Map())
-    expect(() => assertGranteeFieldsPresent(records, ALL_COLUMNS)).toThrow(
-      /"Project Leader"/
-    )
+    expect(
+      errorMessage(checkGranteeFieldsPresent(records, ALL_COLUMNS))
+    ).toMatch(/"Project Leader"/)
   })
 })
 
@@ -312,6 +317,13 @@ describe('buildContactNameMap', () => {
       ['recAda', 'Ada Lovelace']
     ])
     expect(warn).not.toHaveBeenCalled()
+  })
+
+  it('stores names trimmed', () => {
+    const contacts = [raw({ fldName: ' Ada Lovelace ' }, 'recAda')]
+    expect(buildContactNameMap(contacts, 'fldName').get('recAda')).toBe(
+      'Ada Lovelace'
+    )
   })
 
   it('returns an empty map rather than throwing when no contact is named', () => {
@@ -388,17 +400,19 @@ describe('selectPublishedGranteeFields', () => {
     })
   })
 
-  it('throws when Project Name is hidden, since the site drops unnamed grantees', () => {
+  it('returns an error when Project Name is hidden, since the site drops unnamed grantees', () => {
     const visible = ALL_COLUMNS.filter((name) => name !== 'Project Name').map(
       idOf
     )
-    expect(() => selectPublishedGranteeFields(visible)).toThrow(
+    expect(errorMessage(selectPublishedGranteeFields(visible))).toMatch(
       /"Project Name"/
     )
   })
 
-  it('throws when the view has no visible columns', () => {
-    expect(() => selectPublishedGranteeFields([])).toThrow(/"Project Name"/)
+  it('returns an error when the view has no visible columns', () => {
+    expect(errorMessage(selectPublishedGranteeFields([]))).toMatch(
+      /"Project Name"/
+    )
   })
 })
 
