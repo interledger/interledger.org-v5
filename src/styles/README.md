@@ -394,6 +394,8 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
+Header nav layout uses its own pair, `nav-bar:` (full menu bar) and `nav-drawer:` (hamburger drawer), defined in `tailwind.css`. They switch at 1360px inside `.foundation-header`, where the ES labels need the room, and at 1200px in every other header. Use them, not `desktop:`, for anything that differs between the bar and the drawer. Header height stays on `desktop:`, because page offsets depend on it.
+
 #### Bare headings already get the right size — don't add the class above by default
 
 `base/reset.css` sets `h1`–`h6` to their matching `text-h*` token automatically (`h6` shares `h5`, since no `--text-h6` token exists):

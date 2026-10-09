@@ -1,9 +1,13 @@
-import { initHeaderNav, markActiveNavLink } from '@/scripts/header-nav'
+import {
+  FOUNDATION_NAV_BAR_QUERY,
+  initHeaderNav,
+  markActiveNavLink
+} from '@/scripts/header-nav'
 
 const navId = 'block-interledger-mainnavigation'
 const headerRoot = document.getElementById(navId)
 if (headerRoot) {
-  initHeaderNav(navId, 'foundationMenuIcon')
+  initHeaderNav(navId, 'foundationMenuIcon', FOUNDATION_NAV_BAR_QUERY)
   markActiveNavLink(headerRoot)
 }
 
