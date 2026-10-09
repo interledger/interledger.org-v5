@@ -247,7 +247,7 @@ export async function generateBlogMDX(
     `date: ${post.date}`,
     post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
-    post.draft ? `draft: true` : null,
+    post.draft === true ? `draft: true` : null,
     `featured: ${post.featured ?? false}`,
     // Always write locale so ES files never lose `locale: es` on re-export.
     // Bare scalars (not yqs) to match checked-in blog MDX and pathSlug above —
