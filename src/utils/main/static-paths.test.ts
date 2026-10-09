@@ -17,7 +17,7 @@ vi.mock('astro:content', async () => {
 
 const { getCrossSectionPaths, getLocalizedPaths } =
   await import('./static-paths')
-const { setPublishGateForTests } = await import('./blogPosts')
+const { setPublishGateForTests } = await import('./gatedCollection')
 
 function faq(data: {
   locale?: string

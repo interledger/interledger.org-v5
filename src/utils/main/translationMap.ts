@@ -1,5 +1,5 @@
 import type { getCollection } from 'astro:content'
-import { getGatedCollection } from './blogPosts'
+import { getGatedCollection } from './gatedCollection'
 import { defaultLocale, switcherLocales, type Locale } from './locales'
 import { ROUTE_BASES, type RouteCollection } from './routes'
 import { YEARS } from './sessionize'
