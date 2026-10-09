@@ -195,13 +195,21 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+// Listed for the catalog only. scripts/import-airtable.ts imports the module
+// directly, because tsx can't load this barrel's astro:content chains.
 export {
+  GRANTEE_FIELDS,
+  assertGranteeFieldsPresent,
   buildContactNameMap,
   filterPublishedRecords,
-  isTableRecord,
+  findRenamedFields,
+  isRawTableRecord,
+  listUnrenderedViewFields,
   resolveProjectLeaders,
-  sanitizeRecordFields,
-  warnOnMissingProjectNames
+  selectPublishedGranteeFields,
+  toGranteeRecord,
+  warnOnMissingProjectNames,
+  type GranteeFieldName
 } from './main/airtableRecords'
 
 // Main site: Text
