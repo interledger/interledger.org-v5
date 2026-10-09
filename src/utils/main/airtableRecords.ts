@@ -79,9 +79,17 @@ function airtableFormulaErrorReason(value: unknown): string | undefined {
   return undefined
 }
 
+// A name as the site sees it: grantee.ts trims, and drops a blank one.
+function asName(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed === '' ? undefined : trimmed
+}
+
 // Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
 function recordLabel(id: string, projectName: unknown): string {
-  return typeof projectName === 'string' ? `${projectName} (ID: ${id})` : id
+  const name = asName(projectName)
+  return name === undefined ? id : `${name} (ID: ${id})`
 }
 
 // Blank as grantee.ts sees it: it trims strings and drops blank list items.
@@ -150,7 +158,8 @@ export function buildContactNameMap(
   const contactsMap = new Map<string, string>()
   for (const record of contactRecords) {
     const name = record.fields[nameFieldId]
-    if (typeof name !== 'string' || name.trim() === '') continue
+    // The name is stored untrimmed, as Airtable has it; typeof narrows it for that.
+    if (typeof name !== 'string' || asName(name) === undefined) continue
     contactsMap.set(record.id, name)
   }
   return contactsMap
@@ -267,8 +276,7 @@ export function listUnrenderedViewFields(
 // while it can still be fixed in Airtable. The record is still written.
 export function warnOnMissingProjectNames(records: TableRecord[]): void {
   for (const record of records) {
-    const name = record.fields[PROJECT_NAME]
-    if (typeof name === 'string' && name.trim() !== '') continue
+    if (asName(record.fields[PROJECT_NAME]) !== undefined) continue
     console.warn(
       `⚠️  Published record ${record.id} has no "${PROJECT_NAME}" — it will not appear in the grantee directory`
     )

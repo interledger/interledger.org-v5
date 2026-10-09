@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  type MockInstance,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi
+} from 'vitest'
 import type { RawTableRecord, TableRecord } from '@/types/airtable'
 import {
   GRANTEE_FIELDS,
@@ -68,7 +76,7 @@ function toRaw(source: TableRecord): RawTableRecord {
   return raw(fields, source.id)
 }
 
-let warn: ReturnType<typeof vi.spyOn>
+let warn: MockInstance<typeof console.warn>
 
 beforeEach(() => {
   warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -179,6 +187,13 @@ describe('toGranteeRecord', () => {
     toGranteeRecord(raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS.Country.id]: 1 }))
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining('for record X (ID: rec1) ')
+    )
+  })
+
+  it('labels a warning with the bare record ID when the name is blank', () => {
+    toGranteeRecord(raw({ [NAME_ID]: '   ', [GRANTEE_FIELDS.Country.id]: 1 }))
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('for record rec1 — ')
     )
   })
 
