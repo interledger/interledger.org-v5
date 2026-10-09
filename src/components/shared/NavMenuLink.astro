@@ -28,13 +28,11 @@ const navLinkClass =
   'nav-link relative no-underline focus-visible:outline-none group/navlink'
 
 const labelSpanClass =
-  'relative after:absolute after:inset-x-0 after:-bottom-[4px] after:h-[2px] ' +
+  'relative inline-block after:absolute after:inset-x-0 after:-bottom-[4px] after:h-[2px] ' +
   'after:origin-left after:bg-current after:scale-x-0 after:transition-transform after:duration-200 after:ease-out after:content-[""] ' +
   'after:hidden desktop:after:block desktop:group-hover/navlink:after:scale-x-100 desktop:group-focus-visible/navlink:after:scale-x-100 ' +
+  'desktop:group-data-[active=true]/navlink:after:scale-x-100 group-data-[active=true]/navlink:after:transition-none ' +
   'motion-reduce:after:transition-none'
-
-const activeClass =
-  'desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8'
 
 const className = [
   navLinkClass,
@@ -42,8 +40,7 @@ const className = [
   itemTextClass,
   'block',
   'max-desktop:-mx-lg max-desktop:px-lg max-desktop:py-md',
-  'px-0 desktop:py-md desktop:pe-md',
-  activeClass
+  'px-0 desktop:py-md desktop:pe-md'
 ].join(' ')
 ---
 
