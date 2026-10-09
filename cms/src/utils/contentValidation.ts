@@ -481,8 +481,7 @@ export function validateGrantInfoCards(
 
   for (const key of ['card1', 'card2', 'card3'] as const) {
     const card = (infoCards as Record<string, unknown>)[key] as
-      | Record<string, unknown>
-      | undefined
+      Record<string, unknown> | undefined
     if (!card || typeof card !== 'object') {
       fieldErrors.push({
         message: `Information Cards: ${key} is required`,

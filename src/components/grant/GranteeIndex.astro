@@ -162,33 +162,25 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
                 {!selectedYear && <Icon name="check" class="size-2.5" />}
               </a>
             </li>
-            {
-              years.map((option) => {
-                const isActive = selectedYear === option.value
-                const href = getGranteeFilterUrl(
-                  directoryPath,
-                  option.value,
-                  selectedTag
-                )
-                return (
-                  <li>
-                    <a
-                      href={href}
-                      class={optionClasses}
-                      aria-current={isActive ? 'page' : undefined}
-                      {...filterAttrs(
-                        option.label,
-                        href,
-                        'content_year_filter'
-                      )}
-                    >
-                      {option.label}
-                      {isActive && <Icon name="check" class="size-2.5" />}
-                    </a>
-                  </li>
-                )
-              })
-            }
+            {years.map((option) => {
+              const isActive = selectedYear === option.value
+              const href = getGranteeFilterUrl(
+                directoryPath,
+                option.value,
+                selectedTag
+              )
+              return <li>
+                <a
+                  href={href}
+                  class={optionClasses}
+                  aria-current={isActive ? 'page' : undefined}
+                  {...filterAttrs(option.label, href, 'content_year_filter')}
+                >
+                  {option.label}
+                  {isActive && <Icon name="check" class="size-2.5" />}
+                </a>
+              </li>
+            })}
           </ul>
         </details>
       </div>
@@ -207,27 +199,23 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
           {allLabel}
         </PillLink>
       </li>
-      {
-        tags.map((option) => {
-          const isActive = selectedTag === option.value
-          const href = getGranteeFilterUrl(
-            directoryPath,
-            selectedYear,
-            option.value
-          )
-          return (
-            <li class="m-0">
-              <PillLink
-                href={href}
-                active={isActive}
-                {...filterAttrs(option.label, href, 'taxonomy_filter')}
-              >
-                {option.label}
-              </PillLink>
-            </li>
-          )
-        })
-      }
+      {tags.map((option) => {
+        const isActive = selectedTag === option.value
+        const href = getGranteeFilterUrl(
+          directoryPath,
+          selectedYear,
+          option.value
+        )
+        return <li class="m-0">
+          <PillLink
+            href={href}
+            active={isActive}
+            {...filterAttrs(option.label, href, 'taxonomy_filter')}
+          >
+            {option.label}
+          </PillLink>
+        </li>
+      })}
     </ul>
   </div>
 
@@ -239,9 +227,7 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
     {t('grantee.results', { count: totalCount })}
   </p>
 </section>
-{
-  /* Outside [data-grantee-search-root] so aria-busy does not defer this announcement. */
-}
+{/* Outside [data-grantee-search-root] so aria-busy does not defer this announcement. */}
 <p class="sr-only" data-grantee-searching aria-live="polite" hidden>
   {t('grantee.search.searching')}
 </p>
@@ -266,23 +252,20 @@ const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
   data-grantee-list
   hidden={grantees.length === 0}
 >
-  {
-    grantees.map((grantee) => (
-      <GranteeCard
-        grantee={grantee}
-        directoryPath={directoryPath}
-        selectedYear={selectedYear}
-      />
-    ))
-  }
+  {grantees.map((grantee) => (
+    <GranteeCard
+      grantee={grantee}
+      directoryPath={directoryPath}
+      selectedYear={selectedYear}
+    />
+  ))}
 </ol>
 <ol
   class="list-none p-0 m-0 flex flex-col gap-2xl"
   aria-label={t('aria.grantee.list')}
   data-grantee-search-results
   hidden
->
-</ol>
+></ol>
 
 <GranteeSearchResultTemplate />
 

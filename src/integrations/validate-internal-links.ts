@@ -476,12 +476,7 @@ export interface TargetIndex {
 }
 
 export type ResolutionKind =
-  | 'file'
-  | 'redirect'
-  | 'ssr'
-  | 'netlify-redirect'
-  | 'allowed'
-  | 'none'
+  'file' | 'redirect' | 'ssr' | 'netlify-redirect' | 'allowed' | 'none'
 
 export function resolveTarget(
   index: TargetIndex,

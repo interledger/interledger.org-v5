@@ -79,130 +79,124 @@ const ctaUmami = cta
 const headingClasses = 'font-extrabold text-neutral-0'
 ---
 
-{
-  heroTitle ? (
-    <section
-      data-component="HackathonHero"
-      data-umami-component="hackathon-hero"
-      class="flex flex-col items-stretch bg-royal-purple-100 text-neutral-0 -mt-(--site-header-height) pt-(--site-header-height) tablet:min-h-[80vh] desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) desktop:min-h-[100vh]"
-      aria-labelledby="hackathon-hero-title"
-    >
-      {breadcrumbs && breadcrumbs.length > 0 ? (
-        <div class="px-content pt-page-offset">
-          <div class="content-column">
-            <Breadcrumbs breadcrumbs={breadcrumbs}>
-              <slot name="after-breadcrumbs" />
-            </Breadcrumbs>
-          </div>
-        </div>
-      ) : (
-        isFallback && (
-          <div class="px-content pt-page-offset">
-            <div class="content-column flex justify-end">
-              <slot name="after-breadcrumbs" />
-            </div>
-          </div>
-        )
-      )}
-      <div class="flex-1 flex flex-col px-content pt-xl pb-3xl tablet:py-5xl">
-        <div
-          class:list={[
-            'flex-1 content-column grid items-center gap-3xl',
-            hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : '',
-            breadcrumbs ? 'desktop:-translate-y-[10%]' : ''
-          ]}
-        >
-          <div class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100">
-            <HackathonLogo class="mb-3xl" />
-            <h1 id="hackathon-hero-title" class={headingClasses}>
-              {heroTitle}
-            </h1>
-            {description && (
-              <p class="mt-xl whitespace-pre-line text-h5 text-apricot-100 tablet:text-h5-md desktop:text-h5-lg">
-                {description}
-              </p>
-            )}
-            {cta && (
-              <nav
-                aria-label={t('hackathonHero.cta_navigation')}
-                class="mt-2xl"
-              >
-                <LinkButton
-                  href={cta.link}
-                  variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-                  mode={cta.style === 'secondary' ? 'dark' : undefined}
-                  external={cta.external}
-                  class="w-full tablet:w-auto"
-                  {...ctaUmami}
-                >
-                  {cta.text}
-                </LinkButton>
-              </nav>
-            )}
-          </div>
-
-          {hasImage && desktopImage && (
-            <div class="min-w-0">
-              {imageMobile ? (
-                <>
-                  <OptimizedImage
-                    src={imageMobile}
-                    alt={resolvedMobileAlt ?? ''}
-                    width={HERO_IMAGE_MOBILE_WIDTH}
-                    height={HERO_IMAGE_MOBILE_HEIGHT}
-                    loading="eager"
-                    fetchpriority="high"
-                    decoding="sync"
-                    sizes="100vw"
-                    pictureClass="block tablet:hidden"
-                    class="h-auto w-full object-cover"
-                    placeholder={imageMobileBlur ?? undefined}
-                  />
-                  <OptimizedImage
-                    src={desktopImage}
-                    alt={resolvedDesktopAlt ?? ''}
-                    width={HERO_IMAGE_WIDTH}
-                    height={HERO_IMAGE_HEIGHT}
-                    loading="eager"
-                    fetchpriority="high"
-                    decoding="sync"
-                    sizes={HACKATHON_HERO_SIZES}
-                    pictureClass="hidden tablet:block"
-                    class="h-auto w-full object-cover"
-                    placeholder={desktopBlur ?? undefined}
-                  />
-                </>
-              ) : (
-                <OptimizedImage
-                  src={desktopImage}
-                  alt={resolvedDesktopAlt ?? ''}
-                  width={HERO_IMAGE_WIDTH}
-                  height={HERO_IMAGE_HEIGHT}
-                  loading="eager"
-                  fetchpriority="high"
-                  decoding="sync"
-                  sizes={HACKATHON_HERO_SIZES}
-                  class="h-auto w-full object-cover"
-                  placeholder={desktopBlur ?? undefined}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  ) : (
-    <div class="px-content pt-page-offset">
-      <div class="content-column">
-        {breadcrumbs && breadcrumbs.length > 0 ? (
+{heroTitle ? (
+  <section
+    data-component="HackathonHero"
+    data-umami-component="hackathon-hero"
+    class="flex flex-col items-stretch bg-royal-purple-100 text-neutral-0 -mt-(--site-header-height) pt-(--site-header-height) tablet:min-h-[80vh] desktop:-mt-(--site-header-height-desktop) desktop:pt-(--site-header-height-desktop) desktop:min-h-[100vh]"
+    aria-labelledby="hackathon-hero-title"
+  >
+    {breadcrumbs && breadcrumbs.length > 0 ? (
+      <div class="px-content pt-page-offset">
+        <div class="content-column">
           <Breadcrumbs breadcrumbs={breadcrumbs}>
             <slot name="after-breadcrumbs" />
           </Breadcrumbs>
-        ) : (
+        </div>
+      </div>
+    ) : (
+      isFallback && <div class="px-content pt-page-offset">
+        <div class="content-column flex justify-end">
           <slot name="after-breadcrumbs" />
-        )}
-        <h1 class={headingClasses}>{title}</h1>
+        </div>
+      </div>
+    )}
+    <div class="flex-1 flex flex-col px-content pt-xl pb-3xl tablet:py-5xl">
+      <div
+        class:list={[
+          'flex-1 content-column grid items-center gap-3xl',
+          hasImage ? 'tablet:grid-cols-2 tablet:gap-4xl' : '',
+          breadcrumbs ? 'desktop:-translate-y-[10%]' : ''
+        ]}
+      >
+        <div
+          class="motion-safe:animate-fade-in motion-safe:opacity-0 motion-safe:[animation-fill-mode:forwards] motion-reduce:opacity-100"
+        >
+          <HackathonLogo class="mb-3xl" />
+          <h1 id="hackathon-hero-title" class={headingClasses}>
+            {heroTitle}
+          </h1>
+          {description && <p
+            class="mt-xl whitespace-pre-line text-h5 text-apricot-100 tablet:text-h5-md desktop:text-h5-lg"
+          >
+            {description}
+          </p>}
+          {cta && <nav
+            aria-label={t('hackathonHero.cta_navigation')}
+            class="mt-2xl"
+          >
+            <LinkButton
+              href={cta.link}
+              variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+              mode={cta.style === 'secondary' ? 'dark' : undefined}
+              external={cta.external}
+              class="w-full tablet:w-auto"
+              {...ctaUmami}
+            >
+              {cta.text}
+            </LinkButton>
+          </nav>}
+        </div>
+
+        {hasImage && desktopImage && <div class="min-w-0">
+          {imageMobile ? (
+            <>
+              <OptimizedImage
+                src={imageMobile}
+                alt={resolvedMobileAlt ?? ''}
+                width={HERO_IMAGE_MOBILE_WIDTH}
+                height={HERO_IMAGE_MOBILE_HEIGHT}
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                sizes="100vw"
+                pictureClass="block tablet:hidden"
+                class="h-auto w-full object-cover"
+                placeholder={imageMobileBlur ?? undefined}
+              />
+              <OptimizedImage
+                src={desktopImage}
+                alt={resolvedDesktopAlt ?? ''}
+                width={HERO_IMAGE_WIDTH}
+                height={HERO_IMAGE_HEIGHT}
+                loading="eager"
+                fetchpriority="high"
+                decoding="sync"
+                sizes={HACKATHON_HERO_SIZES}
+                pictureClass="hidden tablet:block"
+                class="h-auto w-full object-cover"
+                placeholder={desktopBlur ?? undefined}
+              />
+            </>
+          ) : (
+            <OptimizedImage
+              src={desktopImage}
+              alt={resolvedDesktopAlt ?? ''}
+              width={HERO_IMAGE_WIDTH}
+              height={HERO_IMAGE_HEIGHT}
+              loading="eager"
+              fetchpriority="high"
+              decoding="sync"
+              sizes={HACKATHON_HERO_SIZES}
+              class="h-auto w-full object-cover"
+              placeholder={desktopBlur ?? undefined}
+            />
+          )}
+        </div>}
       </div>
     </div>
-  )
-}
+  </section>
+) : (
+  <div class="px-content pt-page-offset">
+    <div class="content-column">
+      {breadcrumbs && breadcrumbs.length > 0 ? (
+        <Breadcrumbs breadcrumbs={breadcrumbs}>
+          <slot name="after-breadcrumbs" />
+        </Breadcrumbs>
+      ) : (
+        <slot name="after-breadcrumbs" />
+      )}
+      <h1 class={headingClasses}>{title}</h1>
+    </div>
+  </div>
+)}

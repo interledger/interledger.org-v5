@@ -77,13 +77,9 @@ const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
     <p class="m-0 text-body-lg-standard text-neutral-75">
       {blogData.description ? blogData.description : excerpt}
     </p>
-    {
-      blogData.categories.length > 0 && (
-        <div class="card-nested">
-          <ArticleCategories categories={blogData.categories} path={blogPath} />
-        </div>
-      )
-    }
+    {blogData.categories.length > 0 && <div class="card-nested">
+      <ArticleCategories categories={blogData.categories} path={blogPath} />
+    </div>}
     <BlogCardByline
       bio={blogData.articleBios[0] ?? null}
       date={blogData.date}
@@ -93,28 +89,25 @@ const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
     />
   </div>
   <div class={cardMediaClasses}>
-    {
-      thumbnail && (
-        <div class="relative">
-          <OptimizedImage
-            loading={featured ? 'eager' : 'lazy'}
-            fetchpriority={featured ? 'high' : 'auto'}
-            src={thumbnail.src}
-            width={1100}
-            height={600}
-            alt={thumbnail.alt}
-            class={cardImageClasses}
-            placeholder={thumbnail.blur}
-          />
-          <span aria-hidden="true" class={cardImageBorderClasses} />
-        </div>
-      )
-    }
+    {thumbnail && <div class="relative">
+      <OptimizedImage
+        loading={featured ? 'eager' : 'lazy'}
+        fetchpriority={featured ? 'high' : 'auto'}
+        src={thumbnail.src}
+        width={1100}
+        height={600}
+        alt={thumbnail.alt}
+        class={cardImageClasses}
+        placeholder={thumbnail.blur}
+      />
+      <span aria-hidden="true" class={cardImageBorderClasses} />
+    </div>}
   </div>
   <a
     href={postPath}
     aria-hidden="true"
     tabindex="-1"
     class="absolute inset-0 z-0"
-    {...umamiAttrs(postPath, blogData.title)}></a>
+    {...umamiAttrs(postPath, blogData.title)}
+  ></a>
 </li>

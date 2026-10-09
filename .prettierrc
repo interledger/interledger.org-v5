@@ -3,6 +3,7 @@
   "singleQuote": true,
   "trailingComma": "none",
   "plugins": ["prettier-plugin-astro"],
+  "astroCompressHTML": "html",
   "overrides": [
     {
       "files": "**/*.astro",

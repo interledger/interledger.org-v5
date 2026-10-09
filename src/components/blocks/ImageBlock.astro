@@ -79,65 +79,48 @@ const MOBILE_MQ = '(max-width: 809px)'
 const TABLET_MQ = '(max-width: 1199px)'
 ---
 
-{
-  src && (
-    <figure class="my-0" data-component="ImageBlock">
-      <picture>
-        <ResponsiveSources
-          image={mobile}
-          rawSrc={mobileSrc}
-          media={MOBILE_MQ}
-        />
-        <ResponsiveSources
-          image={tablet}
-          rawSrc={tabletSrc}
-          media={TABLET_MQ}
-        />
-        <ResponsiveSources image={desktop} />
+{src && <figure class="my-0" data-component="ImageBlock">
+  <picture>
+    <ResponsiveSources image={mobile} rawSrc={mobileSrc} media={MOBILE_MQ} />
+    <ResponsiveSources image={tablet} rawSrc={tabletSrc} media={TABLET_MQ} />
+    <ResponsiveSources image={desktop} />
 
-        <img
-          src={src}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-          class:list={[
-            'w-full rounded',
-            needsOutline && 'ring-1 ring-neutral-25'
-          ]}
-          data-unoptimized-src={desktopUnoptimized ? src : undefined}
-        />
-      </picture>
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      class:list={['w-full rounded', needsOutline && 'ring-1 ring-neutral-25']}
+      data-unoptimized-src={desktopUnoptimized ? src : undefined}
+    />
+  </picture>
 
-      {needsFullView && (
-        <figcaption class="mt-s text-right">
-          <a
-            href={src}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-xs text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg text-neutral-75 hover:text-link underline-offset-2 hover:underline transition-colors"
-            {...fullImageAttrs}
-          >
-            View full image
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 18 18"
-              class="h-3 w-3 shrink-0"
-              fill="none"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
-              />
-            </svg>
-          </a>
-        </figcaption>
-      )}
-    </figure>
-  )
-}
+  {needsFullView && <figcaption class="mt-s text-right">
+    <a
+      href={src}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-xs text-body-sm-standard tablet:text-h5-md desktop:text-h5-lg text-neutral-75 hover:text-link underline-offset-2 hover:underline transition-colors"
+      {...fullImageAttrs}
+    >
+      View full image
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 18 18"
+        class="h-3 w-3 shrink-0"
+        fill="none"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M7 3H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M11 1h6m0 0v6m0-6L7 11"
+        />
+      </svg>
+    </a>
+  </figcaption>}
+</figure>}
 
 <script>
   if (import.meta.env.DEV) {

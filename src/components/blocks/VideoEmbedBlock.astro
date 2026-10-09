@@ -18,8 +18,6 @@ const resolvedUrl = url ?? file?.url ?? externalUrl
 const resolvedPoster = typeof poster === 'string' ? poster : poster?.url
 ---
 
-{
-  resolvedUrl && title && (
-    <VideoEmbed url={resolvedUrl} title={title} poster={resolvedPoster} />
-  )
-}
+{resolvedUrl && title && (
+  <VideoEmbed url={resolvedUrl} title={title} poster={resolvedPoster} />
+)}

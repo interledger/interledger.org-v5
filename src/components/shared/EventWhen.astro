@@ -24,51 +24,43 @@ const hasText = Boolean(text) || Astro.slots.has('default')
     {title}
   </h3>
 
-  {
-    (date || time) && (
-      <ul class="m-0 flex list-none flex-col gap-xl p-0">
-        {date && (
-          <li class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0">
-            <Icon
-              name="calendar"
-              class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
-            />
-            <span
-              data-event-meta
-              class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
-            >
-              <span class="sr-only">{t('eventCard.dateLabel')}: </span>
-              {date}
-            </span>
-          </li>
-        )}
-        {time && (
-          <li class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0">
-            <Icon
-              name="clock"
-              class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
-            />
-            <span
-              data-event-meta
-              class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
-            >
-              <span class="sr-only">{t('eventCard.timeLabel')}: </span>
-              {time}
-            </span>
-          </li>
-        )}
-      </ul>
-    )
-  }
-
-  {
-    hasText && (
-      <div
-        data-event-copy
-        class="font-poppins text-h5 text-neutral-100 dark:text-neutral-0 [&_p]:m-0"
+  {(date || time) && <ul class="m-0 flex list-none flex-col gap-xl p-0">
+    {date && <li
+      class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0"
+    >
+      <Icon
+        name="calendar"
+        class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
+      />
+      <span
+        data-event-meta
+        class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
       >
-        <slot>{text}</slot>
-      </div>
-    )
-  }
+        <span class="sr-only">{t('eventCard.dateLabel')}: </span>
+        {date}
+      </span>
+    </li>}
+    {time && <li
+      class="flex items-center gap-lg text-neutral-100 dark:text-neutral-0"
+    >
+      <Icon
+        name="clock"
+        class="size-[26px] shrink-0 text-neutral-75 dark:text-neutral-0 desktop:size-8"
+      />
+      <span
+        data-event-meta
+        class="font-poppins text-h4 tablet:text-h4-md desktop:text-h4-lg"
+      >
+        <span class="sr-only">{t('eventCard.timeLabel')}: </span>
+        {time}
+      </span>
+    </li>}
+  </ul>}
+
+  {hasText && <div
+    data-event-copy
+    class="font-poppins text-h5 text-neutral-100 dark:text-neutral-0 [&_p]:m-0"
+  >
+    <slot>{text}</slot>
+  </div>}
 </div>

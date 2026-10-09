@@ -14,10 +14,7 @@ interface SplitLayoutCta {
 }
 
 type SplitLayoutType =
-  | 'image-text'
-  | 'image-quote'
-  | 'video-text'
-  | 'video-quote'
+  'image-text' | 'image-quote' | 'video-text' | 'video-quote'
 
 type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
 

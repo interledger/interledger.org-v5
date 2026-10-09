@@ -14,12 +14,7 @@ interface InputProps {
 }
 
 type FieldKey =
-  | 'imagePosition'
-  | 'image'
-  | 'videoUrl'
-  | 'quote'
-  | 'quoteSource'
-  | 'cta'
+  'imagePosition' | 'image' | 'videoUrl' | 'quote' | 'quoteSource' | 'cta'
 
 const FIELD_KEYS: FieldKey[] = [
   'imagePosition',

@@ -19,18 +19,16 @@ const commonProps = { slug, contentLocale, isFallback }
 const sectionEntryProps = { ...commonProps, section }
 ---
 
-{
-  kind === 'profile' ? (
-    <ProfileDetailPage {...sectionEntryProps} />
-  ) : kind === 'faq' ? (
-    <FaqPage {...sectionEntryProps} />
-  ) : kind === 'report' ? (
-    <ReportPage {...sectionEntryProps} />
-  ) : kind === 'grant-page' ? (
-    <GrantPage {...commonProps} />
-  ) : kind === 'grant-overview-page' ? (
-    <GrantOverviewPage {...commonProps} />
-  ) : (
-    <slot />
-  )
-}
+{kind === 'profile' ? (
+  <ProfileDetailPage {...sectionEntryProps} />
+) : kind === 'faq' ? (
+  <FaqPage {...sectionEntryProps} />
+) : kind === 'report' ? (
+  <ReportPage {...sectionEntryProps} />
+) : kind === 'grant-page' ? (
+  <GrantPage {...commonProps} />
+) : kind === 'grant-overview-page' ? (
+  <GrantOverviewPage {...commonProps} />
+) : (
+  <slot />
+)}

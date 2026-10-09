@@ -48,13 +48,7 @@ export function ensureAbsoluteUrl(url: string): string {
 }
 
 export type SocialIconName =
-  | 'youtube'
-  | 'slack'
-  | 'github'
-  | 'x'
-  | 'mastodon'
-  | 'linkedin'
-  | 'instagram'
+  'youtube' | 'slack' | 'github' | 'x' | 'mastodon' | 'linkedin' | 'instagram'
 
 /** Generic icon used when a URL matches no known social platform. */
 export const FALLBACK_SOCIAL_ICON = 'link-rounded'

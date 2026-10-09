@@ -76,35 +76,33 @@ focus-visible:bg-link focus-visible:text-neutral-0 focus-visible:outline-none
         <Icon name="arrow-right-keyboard" class="rotate-180 size-6" />
       </a>
     </li>
-    {
-      pages.map((page) =>
-        page === '...' ? (
-          <li>
-            <span
-              aria-hidden="true"
-              class="inline-block m-sm w-[24px] h-[24px] text-center"
-            >
-              &hellip;
-            </span>
-          </li>
-        ) : (
-          <li>
-            <a
-              href={`${baseUrl}${page === 1 ? '' : '/' + page}`}
-              aria-current={currentPage === page ? 'page' : undefined}
-              aria-label={`${pageLabel} ${page}`}
-              class={linkClasses}
-              {...pageAttrs(
-                `${pageLabel} ${page}`,
-                `${baseUrl}${page === 1 ? '' : '/' + page}`
-              )}
-            >
-              <span>{page}</span>
-            </a>
-          </li>
-        )
+    {pages.map((page) =>
+      page === '...' ? (
+        <li>
+          <span
+            aria-hidden="true"
+            class="inline-block m-sm w-[24px] h-[24px] text-center"
+          >
+            &hellip;
+          </span>
+        </li>
+      ) : (
+        <li>
+          <a
+            href={`${baseUrl}${page === 1 ? '' : '/' + page}`}
+            aria-current={currentPage === page ? 'page' : undefined}
+            aria-label={`${pageLabel} ${page}`}
+            class={linkClasses}
+            {...pageAttrs(
+              `${pageLabel} ${page}`,
+              `${baseUrl}${page === 1 ? '' : '/' + page}`
+            )}
+          >
+            <span>{page}</span>
+          </a>
+        </li>
       )
-    }
+    )}
     <li>
       <a
         href={nextUrl}

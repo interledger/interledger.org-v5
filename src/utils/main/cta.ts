@@ -56,8 +56,7 @@ export interface ResolvedCtaLink {
    * is conditional.
    */
   targetAttrs:
-    | { target: '_blank'; rel: 'noopener noreferrer' }
-    | Record<string, never>
+    { target: '_blank'; rel: 'noopener noreferrer' } | Record<string, never>
   /**
    * Spread onto the anchor. Empty unless the link is a document.
    *

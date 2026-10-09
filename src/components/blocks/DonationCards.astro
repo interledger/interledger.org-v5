@@ -108,49 +108,52 @@ const leadClass =
   'm-0 text-h5 font-bold text-neutral-100 dark:text-neutral-50 tablet:text-h5-md desktop:text-h5-lg'
 ---
 
-{
-  label && resolved.length > 0 && (
-    <section
-      data-component="DonationCards"
-      aria-labelledby={headingId}
-      class="relative"
-    >
-      <h2 id={headingId} class="sr-only">
-        {label}
-      </h2>
-      <div class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 tablet:gap-2xl desktop:grid-cols-3">
-        {resolved.map((card, index) => (
-          <article class={cardClass}>
-            <div aria-hidden="true" class={ACCENT_SLOT_CLASS}>
-              <span
-                class:list={[
-                  'block shrink-0 origin-top-left rounded-full transition-transform duration-200 group-hover:scale-130 group-focus-within:scale-130 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
-                  ACCENT_CLASS[index % ACCENT_CLASS.length]
-                ]}
-              />
-            </div>
+{label && resolved.length > 0 && <section
+  data-component="DonationCards"
+  aria-labelledby={headingId}
+  class="relative"
+>
+  <h2 id={headingId} class="sr-only">
+    {label}
+  </h2>
+  <div
+    class="grid grid-cols-1 gap-xl [&>*]:min-w-0 tablet:grid-cols-2 tablet:gap-2xl desktop:grid-cols-3"
+  >
+    {resolved.map((card, index) => <article class={cardClass}>
+      <div aria-hidden="true" class={ACCENT_SLOT_CLASS}>
+        <span
+          class:list={[
+            'block shrink-0 origin-top-left rounded-full transition-transform duration-200 group-hover:scale-130 group-focus-within:scale-130 motion-reduce:transition-none motion-reduce:group-hover:scale-100',
+            ACCENT_CLASS[index % ACCENT_CLASS.length]
+          ]}
+        />
+      </div>
 
-            <h3 class="m-0 !mt-0 !mb-0 !text-h3 tablet:!text-h3-md desktop:!text-h3-lg">
-              {card.heading}
-            </h3>
+      <h3
+        class="m-0 !mt-0 !mb-0 !text-h3 tablet:!text-h3-md desktop:!text-h3-lg"
+      >
+        {card.heading}
+      </h3>
 
-            <p class={leadClass}>{card.amount}</p>
+      <p class={leadClass}>{card.amount}</p>
 
-            {card.summary && <p class={bodyClass}>{card.summary}</p>}
+      {card.summary && <p class={bodyClass}>{card.summary}</p>}
 
-            {card.seats && (
-              <p class="m-0 text-base font-bold text-orchid-100 dark:text-orchid-50">
-                {card.seats}
-              </p>
-            )}
+      {card.seats && <p
+        class="m-0 text-base font-bold text-orchid-100 dark:text-orchid-50"
+      >
+        {card.seats}
+      </p>}
 
-            <hr class="m-0 border-0 border-t border-neutral-50 dark:border-neutral-75" />
+      <hr
+        class="m-0 border-0 border-t border-neutral-50 dark:border-neutral-75"
+      />
 
-            <p class={leadClass}>{card.benefitsLabel ?? 'Benefits'}</p>
+      <p class={leadClass}>{card.benefitsLabel ?? 'Benefits'}</p>
 
-            <p class={bodyClass}>{card.benefits}</p>
+      <p class={bodyClass}>{card.benefits}</p>
 
-            {/* mt-auto pins every CTA to the bottom, so a shorter card's button
+      {/* mt-auto pins every CTA to the bottom, so a shorter card's button
                 still lines up with the others in the row.
 
                 The button's stretched ::after covers the whole card, so clicking
@@ -159,27 +162,22 @@ const leadClass =
                 their script replaces our anchor with its own iframe button, which
                 takes the pseudo-element with it, so those cards stay
                 button-only until Fundraise Up gives us a donate-link URL. */}
-            <div class="mt-auto pt-lg">
-              <LinkButton
-                href={card.cta.href}
-                class="after:absolute after:inset-0 after:content-['']"
-                variant="primary"
-                external={card.cta.external}
-                document={card.cta.document}
-                iconSide={card.cta.icon ? 'right' : 'none'}
-                linkText={card.ctaText}
-                umamiLabel="button_card"
-                umamiBaseComponent="donation_card"
-              >
-                {card.ctaText}
-                {card.cta.icon && (
-                  <Icon name={card.cta.icon} slot="icon-right" />
-                )}
-              </LinkButton>
-            </div>
-          </article>
-        ))}
+      <div class="mt-auto pt-lg">
+        <LinkButton
+          href={card.cta.href}
+          class="after:absolute after:inset-0 after:content-['']"
+          variant="primary"
+          external={card.cta.external}
+          document={card.cta.document}
+          iconSide={card.cta.icon ? 'right' : 'none'}
+          linkText={card.ctaText}
+          umamiLabel="button_card"
+          umamiBaseComponent="donation_card"
+        >
+          {card.ctaText}
+          {card.cta.icon && <Icon name={card.cta.icon} slot="icon-right" />}
+        </LinkButton>
       </div>
-    </section>
-  )
-}
+    </article>)}
+  </div>
+</section>}

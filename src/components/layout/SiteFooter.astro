@@ -168,23 +168,19 @@ const navigationUlClass = twMerge(
           desktop:gap-lg"
           role="list"
         >
-          {
-            socialLinks.map((link) => (
-              <li>
-                <LinkButton
-                  href={link.href}
-                  variant="secondary"
-                  size="lg"
-                  iconOnly
-                  external
-                  aria-label={t(link.labelKey)}
-                  {...footerSocialLink(link.href, t(link.labelKey))}
-                >
-                  <Icon name={link.icon} class="size-6" />
-                </LinkButton>
-              </li>
-            ))
-          }
+          {socialLinks.map((link) => <li>
+            <LinkButton
+              href={link.href}
+              variant="secondary"
+              size="lg"
+              iconOnly
+              external
+              aria-label={t(link.labelKey)}
+              {...footerSocialLink(link.href, t(link.labelKey))}
+            >
+              <Icon name={link.icon} class="size-6" />
+            </LinkButton>
+          </li>)}
         </ul>
       </section>
     </div>
@@ -195,113 +191,91 @@ const navigationUlClass = twMerge(
       class="border-t border-neutral-50 py-3xl"
     >
       <ul class={navigationUlClass} role="list">
-        {
-          footerColumns.map((group, groupIndex) => {
-            const groupHeadingId = `footer-nav-group-${groupIndex}`
-            return (
-              <li class="min-w-0">
-                {/* Deliberate Figma-verified exception: h6 uses the h4 token
+        {footerColumns.map((group, groupIndex) => {
+          const groupHeadingId = `footer-nav-group-${groupIndex}`
+          return <li class="min-w-0">
+            {/* Deliberate Figma-verified exception: h6 uses the h4 token
                     at mobile, then drops to the body-lg-standard scale from
                     tablet on rather than a heading token. */}
-                <h6
-                  id={groupHeadingId}
-                  class="mb-xl text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900"
-                >
-                  {group.label}
-                </h6>
+            <h6
+              id={groupHeadingId}
+              class="mb-xl text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900"
+            >
+              {group.label}
+            </h6>
 
-                {group.items && group.items.length > 0 && !group.subGroups && (
+            {group.items && group.items.length > 0 && !group.subGroups && <ul
+              class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
+              role="list"
+              aria-labelledby={groupHeadingId}
+            >
+              {group.items.map((item) => <li>
+                <LinkButton
+                  variant="ghost"
+                  href={item.href ?? '#'}
+                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
+                  aria-current={isActive(item.href) ? 'page' : undefined}
+                  external={item.openInNewTab}
+                  {...footerLink(item.href ?? '#', undefined, item.label)}
+                >
+                  {item.label}
+                  {item.openInNewTab && (
+                    <Icon
+                      slot="icon-right"
+                      name="external-link"
+                      class={footerExternalLinkIconClass}
+                    />
+                  )}
+                </LinkButton>
+              </li>)}
+            </ul>}
+
+            {group.subGroups && group.subGroups.length > 0 && <div
+              class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col"
+            >
+              {group.subGroups.map((sub, subIndex) => {
+                const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
+                return <div class="flex flex-col gap-xl tablet:gap-md">
+                  <p
+                    id={subHeadingId}
+                    class="mb-0 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
+                  >
+                    <span
+                      class="inline-block border-b border-neutral-100 pb-sm tablet:border-neutral-900"
+                    >
+                      {sub.label}
+                    </span>
+                  </p>
                   <ul
                     class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
                     role="list"
-                    aria-labelledby={groupHeadingId}
+                    aria-labelledby={subHeadingId}
                   >
-                    {group.items.map((item) => (
-                      <li>
-                        <LinkButton
-                          variant="ghost"
-                          href={item.href ?? '#'}
-                          class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
-                          aria-current={
-                            isActive(item.href) ? 'page' : undefined
-                          }
-                          external={item.openInNewTab}
-                          {...footerLink(
-                            item.href ?? '#',
-                            undefined,
-                            item.label
-                          )}
-                        >
-                          {item.label}
-                          {item.openInNewTab && (
-                            <Icon
-                              slot="icon-right"
-                              name="external-link"
-                              class={footerExternalLinkIconClass}
-                            />
-                          )}
-                        </LinkButton>
-                      </li>
-                    ))}
+                    {sub.items.map((item) => <li>
+                      <LinkButton
+                        variant="ghost"
+                        href={item.href ?? '#'}
+                        class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
+                        aria-current={isActive(item.href) ? 'page' : undefined}
+                        external={item.openInNewTab}
+                        {...footerLink(item.href ?? '#', undefined, item.label)}
+                      >
+                        {item.label}
+                        {item.openInNewTab && (
+                          <Icon
+                            slot="icon-right"
+                            name="external-link"
+                            class={footerExternalLinkIconClass}
+                          />
+                        )}
+                      </LinkButton>
+                    </li>)}
                   </ul>
-                )}
-
-                {group.subGroups && group.subGroups.length > 0 && (
-                  <div class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col">
-                    {group.subGroups.map((sub, subIndex) => {
-                      const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
-                      return (
-                        <div class="flex flex-col gap-xl tablet:gap-md">
-                          <p
-                            id={subHeadingId}
-                            class="mb-0 text-caption font-normal uppercase tracking-wide text-neutral-100 whitespace-nowrap tablet:text-neutral-900"
-                          >
-                            <span class="inline-block border-b border-neutral-100 pb-sm tablet:border-neutral-900">
-                              {sub.label}
-                            </span>
-                          </p>
-                          <ul
-                            class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
-                            role="list"
-                            aria-labelledby={subHeadingId}
-                          >
-                            {sub.items.map((item) => (
-                              <li>
-                                <LinkButton
-                                  variant="ghost"
-                                  href={item.href ?? '#'}
-                                  class={`whitespace-nowrap${item.openInNewTab ? ' gap-sm' : ''}`}
-                                  aria-current={
-                                    isActive(item.href) ? 'page' : undefined
-                                  }
-                                  external={item.openInNewTab}
-                                  {...footerLink(
-                                    item.href ?? '#',
-                                    undefined,
-                                    item.label
-                                  )}
-                                >
-                                  {item.label}
-                                  {item.openInNewTab && (
-                                    <Icon
-                                      slot="icon-right"
-                                      name="external-link"
-                                      class={footerExternalLinkIconClass}
-                                    />
-                                  )}
-                                </LinkButton>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </li>
-            )
-          })
-        }
+                </div>
+              })}
+            </div>}
+          </li>
+        })}
       </ul>
     </nav>
 
@@ -312,22 +286,18 @@ const navigationUlClass = twMerge(
       <p class="text-body-sm-standard text-neutral-75">
         {t('footer.copyright')}
       </p>
-      {
-        isHackathonSite && (
-          <a
-            href={hackathonHomeHref}
-            aria-label={t('footer.logo_hackathon')}
-            class={footerLogoLinkClass}
-            {...footerLink(
-              hackathonHomeHref,
-              t('footer.logo_hackathon'),
-              t('footer.logo_hackathon')
-            )}
-          >
-            <HackathonFooterLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
-          </a>
-        )
-      }
+      {isHackathonSite && <a
+        href={hackathonHomeHref}
+        aria-label={t('footer.logo_hackathon')}
+        class={footerLogoLinkClass}
+        {...footerLink(
+          hackathonHomeHref,
+          t('footer.logo_hackathon'),
+          t('footer.logo_hackathon')
+        )}
+      >
+        <HackathonFooterLogo class="h-6 w-auto tablet:h-7.5 desktop:h-8.75" />
+      </a>}
       <a
         href={homeHref}
         aria-label={t('footer.logo_home')}

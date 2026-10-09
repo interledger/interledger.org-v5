@@ -63,22 +63,20 @@ const umamiBase = {
     <div
       class={`mx-auto aspect-square w-full max-w-[220px] overflow-hidden rounded-full outline-[3px] outline-transparent outline-offset-0 transition-[outline-color] duration-slow group-hover:outline-link group-focus-visible:outline-link ${colorClass}`}
     >
-      {
-        photo ? (
-          <OptimizedImage
-            src={photo}
-            alt={photoAlt ?? name}
-            width={240}
-            height={240}
-            loading="lazy"
-            sizes="150px"
-            pictureClass="block h-full w-full"
-            class="h-full w-full object-cover object-[center_18%]"
-          />
-        ) : (
-          <ProfileAvatarFallback />
-        )
-      }
+      {photo ? (
+        <OptimizedImage
+          src={photo}
+          alt={photoAlt ?? name}
+          width={240}
+          height={240}
+          loading="lazy"
+          sizes="150px"
+          pictureClass="block h-full w-full"
+          class="h-full w-full object-cover object-[center_18%]"
+        />
+      ) : (
+        <ProfileAvatarFallback />
+      )}
     </div>
     <div class="max-w-100 mx-auto mt-xl">
       {/* Deliberate Figma-verified exception: h3 uses the h4 token here. */}
@@ -87,13 +85,11 @@ const umamiBase = {
       >
         {name}
       </h3>
-      {
-        tagline && (
-          <p class="mb-xl text-body-lg-standard text-neutral-100 dark:text-neutral-50">
-            {tagline}
-          </p>
-        )
-      }
+      {tagline && <p
+        class="mb-xl text-body-lg-standard text-neutral-100 dark:text-neutral-50"
+      >
+        {tagline}
+      </p>}
     </div>
   </a>
 </article>

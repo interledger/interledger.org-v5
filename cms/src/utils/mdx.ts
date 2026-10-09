@@ -5,7 +5,7 @@
 
 import fs from 'fs'
 import prettier from 'prettier'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 import matter from 'gray-matter'
 import isHtml from 'is-html'
 import TurndownService from 'turndown'
@@ -46,15 +46,42 @@ export function uidToLogLabel(uid: string): string {
 
 /**
  * Options for gray-matter stringify to output single-quoted YAML strings.
- * Uses a custom YAML engine with js-yaml 4's forceQuotes (gray-matter's
+ * Uses a custom YAML engine with js-yaml's forceQuotes (gray-matter's
  * bundled js-yaml 3.x does not support this option).
+ *
+ * js-yaml 5 double-quotes whitespace-only strings. Dropping that rule keeps
+ * them single-quoted, as js-yaml 4 wrote them, so exported files do not change.
  */
-const YAML_QUOTE_OPTS = { forceQuotes: true, quotingType: "'" as const }
+const YAML_QUOTE_OPTS: yaml.DumpOptions = {
+  forceQuotes: true,
+  quoteStyle: 'single',
+  scalarStyleRules: Object.entries(yaml.DEFAULT_SCALAR_STYLE_RULES)
+    .filter(([name]) => name !== 'doubleQuoteWhitespaceOnly')
+    .map(([, rule]) => rule)
+}
+
+/**
+ * js-yaml 4's default schema: the core schema plus timestamps, merge keys and
+ * the binary, omap, pairs and set tags. Dates load as Date objects, and `yes`,
+ * `no`, `on` and `off` stay strings (YAML11_SCHEMA would make them booleans).
+ */
+const YAML_PARSE_SCHEMA = yaml.CORE_SCHEMA.withTags(
+  yaml.timestampTag,
+  yaml.mergeTag,
+  yaml.binaryTag,
+  yaml.omapTag,
+  yaml.pairsTag,
+  yaml.setTag
+)
 
 export const MATTER_STRINGIFY_OPTIONS = {
   engines: {
     yaml: {
-      parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+      parse: (input: string) =>
+        yaml.load(input, { schema: YAML_PARSE_SCHEMA }) as Record<
+          string,
+          unknown
+        >,
       stringify: (data: object) => yaml.dump(data, YAML_QUOTE_OPTS)
     }
   }

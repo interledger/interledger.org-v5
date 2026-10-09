@@ -147,13 +147,9 @@ const headingId = headingText
     headingText && 'flex flex-col gap-block-heading'
   ]}
 >
-  {
-    headingText && headingId && (
-      <h2 id={headingId} class="m-0">
-        {headingText}
-      </h2>
-    )
-  }
+  {headingText && headingId && <h2 id={headingId} class="m-0">
+    {headingText}
+  </h2>}
   <div
     class:list={[
       'grid grid-cols-1 gap-xl desktop:gap-2xl [&>*]:min-w-0',
@@ -163,94 +159,84 @@ const headingId = headingText
         '[&_figure[data-component=InfoCard]]:tablet:aspect-auto [&_figure[data-component=InfoCard]]:tablet:h-full'
     ]}
   >
-    {
-      htmlCards ? (
-        htmlCards.map((card) => {
-          if (variant === 'Info') {
-            return (
-              <InfoCard
-                heading={card.heading}
-                imageSrc={infoCardImageSrc(card) || undefined}
-                imageAlt={card.imageAlt}
-              >
-                <Fragment set:html={card.html} />
-              </InfoCard>
-            )
-          }
+    {htmlCards ? (
+      htmlCards.map((card) => {
+        if (variant === 'Info') {
+          return <InfoCard
+            heading={card.heading}
+            imageSrc={infoCardImageSrc(card) || undefined}
+            imageAlt={card.imageAlt}
+          >
+            <Fragment set:html={card.html} />
+          </InfoCard>
+        }
 
-          // Do not use Exclude<…> here — angle brackets are parsed as JSX.
-          const cardVariant = variant as CtaCardVariant
-          if (!hasSecondaryCta(card)) {
-            warnMissingSecondaryCta(card, cardVariant)
-            const incompleteAriaLabel =
-              (card.heading || 'Card') + ': missing call-to-action'
-            return (
-              <article
-                class="flex h-full flex-col gap-lg rounded-3xl border border-dashed border-coral-red-150 bg-coral-red-50 p-xl text-neutral-900"
-                data-card-incomplete
-                aria-label={incompleteAriaLabel}
-              >
-                <h3 class="m-0">{card.heading || 'Untitled card'}</h3>
-                {card.subHeading && (
-                  <p class="m-0 text-body-sm-standard text-neutral-75">
-                    {card.subHeading}
-                  </p>
-                )}
-                {card.html && (
-                  <div class="text-body-sm-standard" set:html={card.html} />
-                )}
-                <p class="m-0 mt-auto text-body-sm-standard text-coral-red-150">
-                  This card is missing a call-to-action link and cannot be used
-                  yet. Add a button link and label in the CMS or MDX.
-                </p>
-              </article>
-            )
-          }
+        // Do not use Exclude<…> here — angle brackets are parsed as JSX.
+        const cardVariant = variant as CtaCardVariant
+        if (!hasSecondaryCta(card)) {
+          warnMissingSecondaryCta(card, cardVariant)
+          const incompleteAriaLabel =
+            (card.heading || 'Card') + ': missing call-to-action'
+          return <article
+            class="flex h-full flex-col gap-lg rounded-3xl border border-dashed border-coral-red-150 bg-coral-red-50 p-xl text-neutral-900"
+            data-card-incomplete
+            aria-label={incompleteAriaLabel}
+          >
+            <h3 class="m-0">{card.heading || 'Untitled card'}</h3>
+            {card.subHeading && <p
+              class="m-0 text-body-sm-standard text-neutral-75"
+            >
+              {card.subHeading}
+            </p>}
+            {card.html && (
+              <div class="text-body-sm-standard" set:html={card.html} />
+            )}
+            <p class="m-0 mt-auto text-body-sm-standard text-coral-red-150">
+              This card is missing a call-to-action link and cannot be used yet.
+              Add a button link and label in the CMS or MDX.
+            </p>
+          </article>
+        }
 
-          if (cardVariant === 'Title') {
-            return (
-              <TitleCard
-                heading={card.heading}
-                subheading={card.subHeading}
-                buttonUrl={card.secondaryCta.link}
-                buttonText={card.secondaryCta.text}
-                buttonExternal={card.secondaryCta.external}
-                buttonDocument={card.secondaryCta.document}
-                secondButtonUrl={card.secondSecondaryCta?.link}
-                secondButtonText={card.secondSecondaryCta?.text}
-                secondButtonExternal={card.secondSecondaryCta?.external}
-                secondButtonDocument={card.secondSecondaryCta?.document}
-              >
-                <Fragment set:html={card.html} />
-              </TitleCard>
-            )
-          }
-          if (cardVariant === 'Resource') {
-            return (
-              <ResourceCard
-                heading={card.heading}
-                buttonUrl={card.secondaryCta.link}
-                buttonText={card.secondaryCta.text}
-                buttonExternal={card.secondaryCta.external}
-                buttonDocument={card.secondaryCta.document}
-              >
-                <Fragment set:html={card.html} />
-              </ResourceCard>
-            )
-          }
-          return (
-            <NavigationCard
-              heading={card.heading}
-              buttonUrl={card.secondaryCta.link}
-              buttonText={card.secondaryCta.text}
-              buttonExternal={card.secondaryCta.external}
-              buttonDocument={card.secondaryCta.document}
-            />
-          )
-        })
-      ) : (
-        <slot />
-      )
-    }
+        if (cardVariant === 'Title') {
+          return <TitleCard
+            heading={card.heading}
+            subheading={card.subHeading}
+            buttonUrl={card.secondaryCta.link}
+            buttonText={card.secondaryCta.text}
+            buttonExternal={card.secondaryCta.external}
+            buttonDocument={card.secondaryCta.document}
+            secondButtonUrl={card.secondSecondaryCta?.link}
+            secondButtonText={card.secondSecondaryCta?.text}
+            secondButtonExternal={card.secondSecondaryCta?.external}
+            secondButtonDocument={card.secondSecondaryCta?.document}
+          >
+            <Fragment set:html={card.html} />
+          </TitleCard>
+        }
+        if (cardVariant === 'Resource') {
+          return <ResourceCard
+            heading={card.heading}
+            buttonUrl={card.secondaryCta.link}
+            buttonText={card.secondaryCta.text}
+            buttonExternal={card.secondaryCta.external}
+            buttonDocument={card.secondaryCta.document}
+          >
+            <Fragment set:html={card.html} />
+          </ResourceCard>
+        }
+        return (
+          <NavigationCard
+            heading={card.heading}
+            buttonUrl={card.secondaryCta.link}
+            buttonText={card.secondaryCta.text}
+            buttonExternal={card.secondaryCta.external}
+            buttonDocument={card.secondaryCta.document}
+          />
+        )
+      })
+    ) : (
+      <slot />
+    )}
   </div>
 </section>

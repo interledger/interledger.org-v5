@@ -61,38 +61,35 @@ const githubFallbackAttrs = buildUmamiAttrs({
         {t('roadmap.intro')}
       </p>
 
-      {
-        hasData ? (
-          <RoadmapBoard projects={projects} teams={teams} />
-        ) : (
-          <div class="py-xl text-gray-600">
-            <p>
-              {t('roadmap.empty_state_pre')}{' '}
-              <a
-                class="text-link underline"
-                href={GITHUB_FALLBACK_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                {...githubFallbackAttrs}
-              >
-                {t('roadmap.empty_state_link_text')}
-              </a>{' '}
-              {t('roadmap.empty_state_post')}
-            </p>
-          </div>
-        )
-      }
+      {hasData ? (
+        <RoadmapBoard projects={projects} teams={teams} />
+      ) : (
+        <div class="py-xl text-gray-600">
+          <p>
+            {t('roadmap.empty_state_pre')}{' '}
+            <a
+              class="text-link underline"
+              href={GITHUB_FALLBACK_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              {...githubFallbackAttrs}
+            >
+              {t('roadmap.empty_state_link_text')}
+            </a
+            >{' '}
+            {t('roadmap.empty_state_post')}
+          </p>
+        </div>
+      )}
 
-      {
-        generatedAt && (
-          <div class="pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700">
-            {t('roadmap.refreshed_at')}{' '}
-            <time class="roadmap-refreshed" datetime={generatedAt}>
-              {new Date(generatedAt).toUTCString()}
-            </time>
-          </div>
-        )
-      }
+      {generatedAt && <div
+        class="pt-xs text-left text-caption tablet:text-body-sm-standard desktop:text-body-lg-standard text-gray-700"
+      >
+        {t('roadmap.refreshed_at')}{' '}
+        <time class="roadmap-refreshed" datetime={generatedAt}>
+          {new Date(generatedAt).toUTCString()}
+        </time>
+      </div>}
     </div>
   </main>
 </FoundationPageLayout>

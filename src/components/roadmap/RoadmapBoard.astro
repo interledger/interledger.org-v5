@@ -108,24 +108,20 @@ let projectRowIndex = -1
     </button>
   </div>
 
-  {
-    /*
+  {/*
     .board-frame clips children to the border-radius without becoming a scroll
     container (overflow: clip does not create one, unlike overflow: hidden), so
     .board-header-sticky can stick relative to the viewport.
-  */
-  }
+  */}
   <div
     class="board-frame overflow-clip rounded-lg border border-gray-200 shadow-sm"
     style={`--n-months: ${nMonths}; --n-quarters: ${nQuarters}`}
   >
-    {
-      /*
+    {/*
       Sticky header lives OUTSIDE .board-scroll so it can pin to the viewport.
       aria-hidden because column context is conveyed via the visually-hidden
       <thead> + per-row aria. JS keeps its scrollLeft in sync with .board-scroll.
-    */
-    }
+    */}
     <div
       class="board-header-sticky sticky z-20 border-b-2 border-gray-200 bg-gray-50 top-(--site-header-height) desktop:top-(--site-header-height-desktop)"
       aria-hidden="true"
@@ -136,7 +132,9 @@ let projectRowIndex = -1
         >
           <colgroup>
             <col class="col-label" />
-            {months.map(() => <col class="col-month" />)}
+            {months.map(() => (
+              <col class="col-month" />
+            ))}
           </colgroup>
           <thead>
             <tr>
@@ -147,77 +145,63 @@ let projectRowIndex = -1
                 Team / Project
               </th>
 
-              {
-                /* Desktop: quarter headers spanning their months. The quarter
+              {/* Desktop: quarter headers spanning their months. The quarter
                   divider is a left border (skipped on the first quarter) so it
                   lands on the exact same boundary + width as the months'
-                  quarter-start border below it. */
-              }
-              {
-                quarterHeaders.map((qh, qi) => (
-                  <th
-                    class:list={[
-                      'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600',
-                      { 'border-l-2 border-l-gray-300': qi > 0 },
-                      {
-                        'hd-quarter--current bg-primary/10! text-primary!':
-                          qh.q === nowQuarter && qh.year === nowYear
-                      }
-                    ]}
-                    colspan={qh.span}
-                  >
-                    {qh.label}
-                  </th>
-                ))
-              }
+                  quarter-start border below it. */}
+              {quarterHeaders.map((qh, qi) => <th
+                class:list={[
+                  'hd-quarter hd-quarter--desktop whitespace-nowrap border-b border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption desktop:text-body-sm-standard font-bold uppercase tracking-wide text-gray-600',
+                  { 'border-l-2 border-l-gray-300': qi > 0 },
+                  {
+                    'hd-quarter--current bg-primary/10! text-primary!':
+                      qh.q === nowQuarter && qh.year === nowYear
+                  }
+                ]}
+                colspan={qh.span}
+              >
+                {qh.label}
+              </th>)}
 
               {/* Mobile: one column per quarter */}
-              {
-                quarterHeaders.map((qh) => (
-                  <th
-                    class:list={[
-                      'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption font-bold uppercase tracking-wide text-gray-600',
-                      {
-                        'hd-quarter--current bg-primary/10! text-primary!':
-                          qh.q === nowQuarter && qh.year === nowYear
-                      }
-                    ]}
-                  >
-                    {qh.label}
-                  </th>
-                ))
-              }
+              {quarterHeaders.map((qh) => <th
+                class:list={[
+                  'hd-quarter hd-quarter--mobile whitespace-nowrap border-b border-r-2 border-gray-300 bg-gray-50 px-md py-xs text-center align-middle text-caption font-bold uppercase tracking-wide text-gray-600',
+                  {
+                    'hd-quarter--current bg-primary/10! text-primary!':
+                      qh.q === nowQuarter && qh.year === nowYear
+                  }
+                ]}
+              >
+                {qh.label}
+              </th>)}
             </tr>
 
             {/* Month header cells */}
             <tr>
-              {
-                months.map((m, mi) => (
-                  <th
-                    class:list={[
-                      'hd-month whitespace-nowrap border-r border-gray-200 bg-gray-50 px-sm py-xs text-center align-middle text-caption text-gray-700',
-                      {
-                        // Skip on the first month: the label column's right
-                        // border already divides it, so a 2px left border here
-                        // would double up and misalign with the quarter row.
-                        'hd-month--qstart border-l-2 border-l-gray-300!':
-                          m.isQuarterStart && mi > 0
-                      },
-                      {
-                        'hd-month--current bg-primary/10! text-primary!':
-                          m.year === nowYear && m.month === nowMonth
-                      }
-                    ]}
-                  >
-                    {m.label}
-                    {m.year === nowYear && m.month === nowMonth && (
-                      <span class="now-badge mx-auto mt-0.5 block w-fit rounded-full bg-primary px-1 py-0.5 text-[0.55rem] font-bold uppercase tracking-wide text-white">
-                        Now
-                      </span>
-                    )}
-                  </th>
-                ))
-              }
+              {months.map((m, mi) => <th
+                class:list={[
+                  'hd-month whitespace-nowrap border-r border-gray-200 bg-gray-50 px-sm py-xs text-center align-middle text-caption text-gray-700',
+                  {
+                    // Skip on the first month: the label column's right
+                    // border already divides it, so a 2px left border here
+                    // would double up and misalign with the quarter row.
+                    'hd-month--qstart border-l-2 border-l-gray-300!':
+                      m.isQuarterStart && mi > 0
+                  },
+                  {
+                    'hd-month--current bg-primary/10! text-primary!':
+                      m.year === nowYear && m.month === nowMonth
+                  }
+                ]}
+              >
+                {m.label}
+                {m.year === nowYear && m.month === nowMonth && <span
+                  class="now-badge mx-auto mt-0.5 block w-fit rounded-full bg-primary px-1 py-0.5 text-[0.55rem] font-bold uppercase tracking-wide text-white"
+                >
+                  Now
+                </span>}
+              </th>)}
             </tr>
           </thead>
         </table>
@@ -233,25 +217,21 @@ let projectRowIndex = -1
       >
         <colgroup>
           <col class="col-label" />
-          {months.map(() => <col class="col-month" />)}
+          {months.map(() => (
+            <col class="col-month" />
+          ))}
         </colgroup>
 
-        {
-          /*
+        {/*
           Visually-hidden column headers give assistive tech proper column
           associations. Sighted users read the sticky aria-hidden header above.
-        */
-        }
+        */}
         <thead class="sr-only">
           <tr>
             <th scope="col" rowspan="2">Team / Project</th>
-            {
-              quarterHeaders.map((qh) => (
-                <th scope="colgroup" colspan={qh.span}>
-                  {qh.label}
-                </th>
-              ))
-            }
+            {quarterHeaders.map((qh) => <th scope="colgroup" colspan={qh.span}>
+              {qh.label}
+            </th>)}
           </tr>
           <tr>
             {months.map((m) => <th scope="col">{m.label}</th>)}
@@ -259,173 +239,161 @@ let projectRowIndex = -1
         </thead>
 
         <tbody>
-          {
-            gridItems.map((item) => {
-              if (item.type === 'team-header') {
-                const { team } = item
-                return (
-                  <tr aria-label={`Team: ${team.name}`}>
-                    <th
-                      class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-caption desktop:text-body-lg-standard font-bold uppercase tracking-wider text-gray-700"
-                      scope="rowgroup"
-                    >
-                      <div class="inline-flex items-center gap-sm px-md py-xs">
-                        {team.name}
-                      </div>
-                    </th>
-                    <td
-                      class="team-header-track border-y border-gray-300 bg-gray-100"
-                      colspan={nMonths}
-                    />
-                  </tr>
-                )
-              }
+          {gridItems.map((item) => {
+            if (item.type === 'team-header') {
+              const { team } = item
+              return <tr aria-label={`Team: ${team.name}`}>
+                <th
+                  class="team-header sticky left-0 z-4 border-y border-gray-300 bg-gray-100 p-0 text-caption desktop:text-body-lg-standard font-bold uppercase tracking-wider text-gray-700"
+                  scope="rowgroup"
+                >
+                  <div class="inline-flex items-center gap-sm px-md py-xs">
+                    {team.name}
+                  </div>
+                </th>
+                <td
+                  class="team-header-track border-y border-gray-300 bg-gray-100"
+                  colspan={nMonths}
+                />
+              </tr>
+            }
 
-              const { project: proj } = item
-              projectRowIndex++
-              const zebra =
-                projectRowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-              const iconEmoji = resolveIcon(proj.icon)
-              const {
-                hasDates,
-                barLeft,
-                barWidth,
-                hasCompletedBar,
-                completedBarLeft,
-                completedBarWidth,
-                hasExtension,
-                extensionLeft,
-                extensionWidth,
-                datedMilestones
-              } = computeProjectBarProps(proj, pos)
+            const { project: proj } = item
+            projectRowIndex++
+            const zebra = projectRowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+            const iconEmoji = resolveIcon(proj.icon)
+            const {
+              hasDates,
+              barLeft,
+              barWidth,
+              hasCompletedBar,
+              completedBarLeft,
+              completedBarWidth,
+              hasExtension,
+              extensionLeft,
+              extensionWidth,
+              datedMilestones
+            } = computeProjectBarProps(proj, pos)
 
-              return (
-                <tr>
-                  <th
-                    class:list={[
-                      'proj-label sticky left-0 z-4 h-13 border-r border-gray-200 px-md align-middle',
-                      zebra
-                    ]}
-                    scope="row"
-                    title={proj.name}
+            return <tr>
+              <th
+                class:list={[
+                  'proj-label sticky left-0 z-4 h-13 border-r border-gray-200 px-md align-middle',
+                  zebra
+                ]}
+                scope="row"
+                title={proj.name}
+              >
+                <span
+                  class="inline-flex items-center gap-1.5 text-caption tablet:text-body-lg-standard leading-snug text-gray-900"
+                >
+                  {iconEmoji && <span class="shrink-0" aria-hidden="true">
+                    {iconEmoji}
+                  </span>}
+                  <span
+                    class="proj-name-text overflow-hidden text-ellipsis whitespace-nowrap"
                   >
-                    <span class="inline-flex items-center gap-1.5 text-caption tablet:text-body-lg-standard leading-snug text-gray-900">
-                      {iconEmoji && (
-                        <span class="shrink-0" aria-hidden="true">
-                          {iconEmoji}
-                        </span>
-                      )}
-                      <span class="proj-name-text overflow-hidden text-ellipsis whitespace-nowrap">
-                        {proj.name}
-                      </span>
-                    </span>
-                  </th>
+                    {proj.name}
+                  </span>
+                </span>
+              </th>
 
-                  <td
-                    class:list={[
-                      'proj-track relative h-13 overflow-visible align-middle',
-                      zebra
-                    ]}
-                    colspan={nMonths}
-                  >
-                    {/* Visually-hidden date summary, always read by screen readers */}
-                    <span class="sr-only">
-                      {' '}
-                      Project
-                      {[
-                        fmtDate(proj.startDate) &&
-                          `starts ${fmtDate(proj.startDate)}`,
-                        fmtDate(proj.targetDate) &&
-                          `target ${fmtDate(proj.targetDate)}`
-                      ]
-                        .filter(Boolean)
-                        .join('; ') || ' has no dates set'}
-                    </span>
+              <td
+                class:list={[
+                  'proj-track relative h-13 overflow-visible align-middle',
+                  zebra
+                ]}
+                colspan={nMonths}
+              >
+                {/* Visually-hidden date summary, always read by screen readers */}
+                <span class="sr-only">
+                  {' '}
+                  Project
+                  {[
+                    fmtDate(proj.startDate) &&
+                      `starts ${fmtDate(proj.startDate)}`,
+                    fmtDate(proj.targetDate) &&
+                      `target ${fmtDate(proj.targetDate)}`
+                  ]
+                    .filter(Boolean)
+                    .join('; ') || ' has no dates set'}
+                </span>
 
-                    <div class="now-line" aria-hidden="true" />
+                <div class="now-line" aria-hidden="true" />
 
-                    {hasDates && (
-                      <div
-                        class="proj-bar bg-primary/25 border-primary/70"
-                        aria-hidden="true"
-                        style={`left: ${barLeft}%; width: ${barWidth}%;`}
-                      />
-                    )}
+                {hasDates && (
+                  <div
+                    class="proj-bar bg-primary/25 border-primary/70"
+                    aria-hidden="true"
+                    style={`left: ${barLeft}%; width: ${barWidth}%;`}
+                  />
+                )}
 
-                    {hasExtension && (
-                      <div
-                        class="proj-bar proj-bar--extension border-primary/50"
-                        aria-hidden="true"
-                        style={`left: ${extensionLeft}%; width: ${extensionWidth}%;`}
-                        title="Milestones extend past the project target date"
-                      />
-                    )}
+                {hasExtension && (
+                  <div
+                    class="proj-bar proj-bar--extension border-primary/50"
+                    aria-hidden="true"
+                    style={`left: ${extensionLeft}%; width: ${extensionWidth}%;`}
+                    title="Milestones extend past the project target date"
+                  />
+                )}
 
-                    {hasCompletedBar && (
-                      <div
-                        class="proj-bar proj-bar--completed bg-primary/15 border-primary/60"
-                        aria-hidden="true"
-                        style={`left: ${completedBarLeft}%; width: ${completedBarWidth}%;`}
-                        title="Completed"
-                      />
-                    )}
+                {hasCompletedBar && (
+                  <div
+                    class="proj-bar proj-bar--completed bg-primary/15 border-primary/60"
+                    aria-hidden="true"
+                    style={`left: ${completedBarLeft}%; width: ${completedBarWidth}%;`}
+                    title="Completed"
+                  />
+                )}
 
-                    {/* Milestone diamonds, sorted chronologically so DOM order
+                {/* Milestone diamonds, sorted chronologically so DOM order
                         matches visual order (matters for screen readers) */}
-                    {[...datedMilestones]
-                      .sort(
-                        (a, b) =>
-                          new Date(a.targetDate!).getTime() -
-                          new Date(b.targetDate!).getTime()
-                      )
-                      .map((ms) => {
-                        const left = pos
-                          .pctLeft(new Date(ms.targetDate!))
-                          .toFixed(2)
-                        const milestoneLabel = `${ms.name}, target ${fmtDate(ms.targetDate)}`
-                        return (
-                          <button
-                            type="button"
-                            class="ms-pin"
-                            aria-label={milestoneLabel}
-                            style={`left: ${left}%`}
-                            {...milestonePinUmamiAttrs(milestoneLabel)}
-                            data-umami-event-project={proj.name}
-                            data-umami-event-milestone={ms.name}
-                          >
-                            <span
-                              class="ms-diamond bg-primary"
-                              aria-hidden="true"
-                            />
-                            <span class="ms-pin-name" aria-hidden="true">
-                              {ms.name}
-                              <span class="ms-pin-date">
-                                {fmtDate(ms.targetDate)}
-                              </span>
-                            </span>
-                          </button>
-                        )
-                      })}
-                  </td>
-                </tr>
-              )
-            })
-          }
+                {[...datedMilestones]
+                  .sort(
+                    (a, b) =>
+                      new Date(a.targetDate!).getTime() -
+                      new Date(b.targetDate!).getTime()
+                  )
+                  .map((ms) => {
+                    const left = pos
+                      .pctLeft(new Date(ms.targetDate!))
+                      .toFixed(2)
+                    const milestoneLabel = `${ms.name}, target ${fmtDate(ms.targetDate)}`
+                    return <button
+                      type="button"
+                      class="ms-pin"
+                      aria-label={milestoneLabel}
+                      style={`left: ${left}%`}
+                      {...milestonePinUmamiAttrs(milestoneLabel)}
+                      data-umami-event-project={proj.name}
+                      data-umami-event-milestone={ms.name}
+                    >
+                      <span class="ms-diamond bg-primary" aria-hidden="true" />
+                      <span class="ms-pin-name" aria-hidden="true">
+                        {ms.name}
+                        <span class="ms-pin-date">
+                          {fmtDate(ms.targetDate)}
+                        </span>
+                      </span>
+                    </button>
+                  })}
+              </td>
+            </tr>
+          })}
         </tbody>
       </table>
     </div>
   </div>
 </div>
 
-{
-  /*
+{/*
   Scoped CSS is intentionally limited to what Tailwind cannot express cleanly:
   fixed table column widths + the responsive quarter/month column swap and its
   "full timeline" toggle state, the milestone tooltip (pseudo-element arrow),
   scrollbar theming, the duration-bar geometry, and reduced-motion. Everything
   static is Tailwind utilities above; data-driven positions are inline styles.
-*/
-}
+*/}
 <style>
   /* Header + body tables share one column template. */
   .board-header-table,

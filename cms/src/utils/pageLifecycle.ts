@@ -69,13 +69,14 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
-const API_TOKEN_STRATEGY = 'api-token'
+// Strapi 5.57 renamed the content API token strategy (was `api-token`).
+const API_TOKEN_STRATEGY = 'content-api-token'
 
 /**
  * True for an automation request, such as the repo's sync scripts:
- * authenticated with an API token and sending `x-skip-mdx-export`. Admin
- * sessions use the `admin` strategy, so an editor can't pass for one by adding
- * the header. The header is caller-controlled, so this doesn't single out the
+ * authenticated with a content API token and sending `x-skip-mdx-export`.
+ * Admin sessions use the `admin` strategy and admin tokens the `admin-token`
+ * strategy, so neither can pass for one by adding the header. The header is caller-controlled, so this doesn't single out the
  * sync: any API token with the permission qualifies. Tokens are issued by
  * admins only.
  */
@@ -393,10 +394,7 @@ export function readLocaleFromUpdateEvent(event: {
     typeof combined === 'string' && combined.length > 0 ? combined : defaultLang
 
   let source:
-    | 'params.locale'
-    | 'params.data.locale'
-    | 'params.where.locale'
-    | 'default'
+    'params.locale' | 'params.data.locale' | 'params.where.locale' | 'default'
   if (!(typeof combined === 'string' && combined.length > 0)) {
     source = 'default'
   } else if (fromLocale != null && fromLocale === combined) {

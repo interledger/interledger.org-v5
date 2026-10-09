@@ -73,11 +73,9 @@ const btnAttrs = (href: string) =>
           <Icon name="arrow-right-keyboard" class="rotate-90" />
         </span>
         <span class="text-primary">
-          {
-            isEsActive
-              ? t('blog.lang_filter.spanish')
-              : t('blog.lang_filter.english')
-          }
+          {isEsActive
+            ? t('blog.lang_filter.spanish')
+            : t('blog.lang_filter.english')}
         </span>
       </summary>
       <ul class={dropdownClasses}>
@@ -106,20 +104,12 @@ const btnAttrs = (href: string) =>
       </ul>
     </details>
   </div>
-  {
-    isEsActive && (
-      <span class="text-body-sm-standard italic">
-        ({t('blog.lang_filter.more_en_available')})
-      </span>
-    )
-  }
-  {
-    isEnActiveOnEs && (
-      <span class="text-body-sm-standard italic">
-        ({t('blog.lang_filter.es_available')})
-      </span>
-    )
-  }
+  {isEsActive && <span class="text-body-sm-standard italic">
+    ({t('blog.lang_filter.more_en_available')})
+  </span>}
+  {isEnActiveOnEs && <span class="text-body-sm-standard italic">
+    ({t('blog.lang_filter.es_available')})
+  </span>}
 </div>
 
 <script>

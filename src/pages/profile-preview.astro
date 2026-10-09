@@ -74,65 +74,49 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
       >
         <div class="flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight">
           <h1 class="text-neutral-900">{name}</h1>
-          {
-            displayRole && (
-              <p class="mt-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-2 border-link pb-md font-normal">
-                {displayRole}
-              </p>
-            )
-          }
+          {displayRole && <p
+            class="mt-0 text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 inline-block border-b-2 border-link pb-md font-normal"
+          >
+            {displayRole}
+          </p>}
         </div>
-        {
-          photo?.url && (
-            <img
-              src={photo.url}
-              alt={photoAlt}
-              width={400}
-              height={400}
-              loading="lazy"
-            />
-          )
-        }
+        {photo?.url && (
+          <img
+            src={photo.url}
+            alt={photoAlt}
+            width={400}
+            height={400}
+            loading="lazy"
+          />
+        )}
       </div>
     </header>
     <div class="max-w-narrow m-auto my-lg px-2xl">
-      {
-        description && (
-          <section data-prose class="mb-2xl">
-            <Paragraph content={description} />
-          </section>
-        )
-      }
-      {
-        cta && (
-          <div class="mb-2xl">
-            <LinkButton
-              href={cta.link}
-              variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-              size="lg"
-              external={cta.external}
-              {...buildUmamiAttrs({
-                pathname: Astro.url.pathname,
-                lang: profile.locale ?? 'en',
-                label: 'button_cta',
-                baseComponent: 'profile',
-                href: cta.link,
-                linkText: cta.text
-              })}
-            >
-              {cta.text}
-              <Icon name="arrow-right" slot="icon-right" />
-            </LinkButton>
-          </div>
-        )
-      }
-      {
-        content.length > 0 && (
-          <section data-prose class="mb-2xl">
-            <DynamicZone blocks={content} />
-          </section>
-        )
-      }
+      {description && <section data-prose class="mb-2xl">
+        <Paragraph content={description} />
+      </section>}
+      {cta && <div class="mb-2xl">
+        <LinkButton
+          href={cta.link}
+          variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+          size="lg"
+          external={cta.external}
+          {...buildUmamiAttrs({
+            pathname: Astro.url.pathname,
+            lang: profile.locale ?? 'en',
+            label: 'button_cta',
+            baseComponent: 'profile',
+            href: cta.link,
+            linkText: cta.text
+          })}
+        >
+          {cta.text}
+          <Icon name="arrow-right" slot="icon-right" />
+        </LinkButton>
+      </div>}
+      {content.length > 0 && <section data-prose class="mb-2xl">
+        <DynamicZone blocks={content} />
+      </section>}
     </div>
   </main>
 </BaseLayout>

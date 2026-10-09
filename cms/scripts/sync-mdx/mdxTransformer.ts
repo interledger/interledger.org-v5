@@ -579,9 +579,7 @@ export async function buildProfilePayload(
     }
 
     const photoAltFrontmatter = mdx.frontmatter.photoAlt as
-      | string
-      | null
-      | undefined
+      string | null | undefined
     const media = photoId
       ? {
           image: photoId,

@@ -97,34 +97,30 @@ const renderLinkNode = (node: LinkNode, umamiCtx: LinkUmamiCtx) => {
 <section class="px-content">
   <div class="content-column">
     <h2 class="mb-lg">{title}</h2>
-    {
-      content.map((block) => {
-        switch (block.type) {
-          case 'paragraph':
-            return (
-              <p
-                class="mb-s"
-                set:html={renderChildren(block.children, linkUmamiCtx)}
+    {content.map((block) => {
+      switch (block.type) {
+        case 'paragraph':
+          return (
+            <p
+              class="mb-s"
+              set:html={renderChildren(block.children, linkUmamiCtx)}
+            />
+          )
+        case 'list': {
+          const isOrdered = block.format === 'ordered'
+          const ListTag = isOrdered ? 'ol' : 'ul'
+          return <ListTag class="mb-s">
+            {block.children.map((item) => (
+              <li
+                class="mb-xs"
+                set:html={renderChildren(item.children, linkUmamiCtx)}
               />
-            )
-          case 'list': {
-            const isOrdered = block.format === 'ordered'
-            const ListTag = isOrdered ? 'ol' : 'ul'
-            return (
-              <ListTag class="mb-s">
-                {block.children.map((item) => (
-                  <li
-                    class="mb-xs"
-                    set:html={renderChildren(item.children, linkUmamiCtx)}
-                  />
-                ))}
-              </ListTag>
-            )
-          }
-          default:
-            return null
+            ))}
+          </ListTag>
         }
-      })
-    }
+        default:
+          return null
+      }
+    })}
   </div>
 </section>

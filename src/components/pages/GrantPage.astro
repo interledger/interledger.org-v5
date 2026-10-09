@@ -134,50 +134,41 @@ const heroLcpPreload =
     >
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </PageHero>
-    {
-      programOverviewHtml && (
-        <section class="px-content">
-          <div class="content-column">
-            <div
-              data-prose
-              class:list={[grantSectionHeadingClass, '[&>h2:first-child]:mt-0']}
-              set:html={programOverviewHtml}
-            />
-          </div>
-        </section>
-      )
-    }
+    {programOverviewHtml && <section class="px-content">
+      <div class="content-column">
+        <div
+          data-prose
+          class:list={[grantSectionHeadingClass, '[&>h2:first-child]:mt-0']}
+          set:html={programOverviewHtml}
+        />
+      </div>
+    </section>}
 
-    {
-      primaryCta && resolvedPrimaryCta && (
-        <section class="px-content" data-stack="cta">
-          <div class="content-column">
-            <LinkButton
-              href={resolvedPrimaryCta.href}
-              variant="primary"
-              external={resolvedPrimaryCta.external}
-              document={resolvedPrimaryCta.document}
-              linkText={primaryCta.text}
-              umamiLabel="button_cta"
-              umamiBaseComponent="primary_cta"
-            >
-              {primaryCta.text}
-              <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
-            </LinkButton>
-          </div>
-        </section>
-      )
-    }
+    {primaryCta && resolvedPrimaryCta && <section
+      class="px-content"
+      data-stack="cta"
+    >
+      <div class="content-column">
+        <LinkButton
+          href={resolvedPrimaryCta.href}
+          variant="primary"
+          external={resolvedPrimaryCta.external}
+          document={resolvedPrimaryCta.document}
+          linkText={primaryCta.text}
+          umamiLabel="button_cta"
+          umamiBaseComponent="primary_cta"
+        >
+          {primaryCta.text}
+          <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
+        </LinkButton>
+      </div>
+    </section>}
 
-    {
-      infoCards && (
-        <section class="px-content">
-          <div class="content-column">
-            <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
-          </div>
-        </section>
-      )
-    }
+    {infoCards && <section class="px-content">
+      <div class="content-column">
+        <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
+      </div>
+    </section>}
 
     <section class="px-content">
       <div class="content-column">
@@ -204,15 +195,11 @@ const heroLcpPreload =
       </div>
     </section>
 
-    {
-      faqSection && (
-        <section class="px-content">
-          <div class="content-column">
-            <GrantFaqSection {...faqSection} />
-          </div>
-        </section>
-      )
-    }
+    {faqSection && <section class="px-content">
+      <div class="content-column">
+        <GrantFaqSection {...faqSection} />
+      </div>
+    </section>}
 
     <section class="px-content">
       <div class="content-column">

@@ -75,29 +75,29 @@ const ctaLink = (href: string, linkText?: string) =>
     >
       <div class="max-desktop:block desktop:hidden px-lg pt-lg pb-md">
         <div class="flex items-center justify-between gap-xl">
-          {
-            alternateLocaleHref && alternateLocaleLabel ? (
-              <a
-                href={alternateLocaleHref}
-                hreflang={alternateLocale}
-                class="foundation-drawer-language-label font-poppins text-h4-md no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
-                aria-label={t('nav.switch_language', {
-                  locale: alternateLocaleLabel
-                })}
-                {...navLink(
-                  alternateLocaleHref,
-                  t('nav.language'),
-                  t('nav.switch_language', { locale: alternateLocaleLabel })
-                )}
-              >
-                {t('nav.language')}
-              </a>
-            ) : (
-              <span class="foundation-drawer-language-label font-poppins text-h4-md">
-                {t('nav.language')}
-              </span>
-            )
-          }
+          {alternateLocaleHref && alternateLocaleLabel ? (
+            <a
+              href={alternateLocaleHref}
+              hreflang={alternateLocale}
+              class="foundation-drawer-language-label font-poppins text-h4-md no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link"
+              aria-label={t('nav.switch_language', {
+                locale: alternateLocaleLabel
+              })}
+              {...navLink(
+                alternateLocaleHref,
+                t('nav.language'),
+                t('nav.switch_language', { locale: alternateLocaleLabel })
+              )}
+            >
+              {t('nav.language')}
+            </a>
+          ) : (
+            <span
+              class="foundation-drawer-language-label font-poppins text-h4-md"
+            >
+              {t('nav.language')}
+            </span>
+          )}
           <LanguageSwitcher />
         </div>
       </div>
@@ -105,22 +105,18 @@ const ctaLink = (href: string, linkText?: string) =>
         class="desktop:hidden mx-lg mt-0 mb-lg border-t border-neutral-25 dark:border-neutral-75"
       />
       <FoundationNavMenu menuGroups={mainMenu} theme="dark" />
-      {
-        ctaButton && (
-          <div class="desktop:hidden mx-lg mt-xl mb-4xl">
-            <LinkButton
-              href={ctaButton.href || '#'}
-              variant="primary"
-              size="sm"
-              external={ctaButton.openInNewTab}
-              class="w-full"
-              {...ctaLink(ctaButton.href || '#', ctaButton.label)}
-            >
-              {ctaButton.label}
-            </LinkButton>
-          </div>
-        )
-      }
+      {ctaButton && <div class="desktop:hidden mx-lg mt-xl mb-4xl">
+        <LinkButton
+          href={ctaButton.href || '#'}
+          variant="primary"
+          size="sm"
+          external={ctaButton.openInNewTab}
+          class="w-full"
+          {...ctaLink(ctaButton.href || '#', ctaButton.label)}
+        >
+          {ctaButton.label}
+        </LinkButton>
+      </div>}
     </div>
     <FoundationNavActions ctaButton={ctaButton} hideCtaIcon />
     <HamburgerButton

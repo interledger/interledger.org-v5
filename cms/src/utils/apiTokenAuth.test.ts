@@ -64,26 +64,64 @@ describe('extractBearerToken', () => {
 })
 
 function strapiWith(service: unknown) {
-  return { service: () => service }
+  return {
+    service: (uid: string) =>
+      uid === 'admin::api-token-content-api' ? service : undefined
+  }
 }
 
 describe('isFullAccessApiToken', () => {
   it('accepts a full-access token', async () => {
     const hash = vi.fn(() => 'hashed')
-    const getBy = vi.fn(async () => ({ type: 'full-access' }))
+    const getByAccessKey = vi.fn(async () => ({
+      type: 'full-access',
+      kind: 'content-api'
+    }))
 
     await expect(
-      isFullAccessApiToken(strapiWith({ hash, getBy }), 'raw-token')
+      isFullAccessApiToken(strapiWith({ hash, getByAccessKey }), 'raw-token')
     ).resolves.toBe(true)
 
     expect(hash).toHaveBeenCalledWith('raw-token')
-    expect(getBy).toHaveBeenCalledWith({ accessKey: 'hashed' })
+    expect(getByAccessKey).toHaveBeenCalledWith('hashed')
+  })
+
+  it('rejects an expired full-access token', async () => {
+    const strapi = strapiWith({
+      hash: () => 'hashed',
+      getByAccessKey: async () => ({
+        type: 'full-access',
+        kind: 'content-api',
+        expiresAt: '2020-01-01T00:00:00.000Z'
+      })
+    })
+    await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
+  })
+
+  it('accepts a full-access token that has not expired', async () => {
+    const strapi = strapiWith({
+      hash: () => 'hashed',
+      getByAccessKey: async () => ({
+        type: 'full-access',
+        kind: 'content-api',
+        expiresAt: '2999-01-01T00:00:00.000Z'
+      })
+    })
+    await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(true)
+  })
+
+  it('rejects an admin token', async () => {
+    const strapi = strapiWith({
+      hash: () => 'hashed',
+      getByAccessKey: async () => ({ type: 'full-access', kind: 'admin' })
+    })
+    await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
   })
 
   it('rejects a read-only token', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => ({ type: 'read-only' })
+      getByAccessKey: async () => ({ type: 'read-only' })
     })
     await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
   })
@@ -91,7 +129,7 @@ describe('isFullAccessApiToken', () => {
   it('rejects a custom token', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => ({ type: 'custom' })
+      getByAccessKey: async () => ({ type: 'custom' })
     })
     await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
   })
@@ -99,7 +137,7 @@ describe('isFullAccessApiToken', () => {
   it('rejects a token with no matching record', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => null
+      getByAccessKey: async () => null
     })
     await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
   })
@@ -107,7 +145,7 @@ describe('isFullAccessApiToken', () => {
   it('rejects a record that carries no type', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => ({})
+      getByAccessKey: async () => ({})
     })
     await expect(isFullAccessApiToken(strapi, 'raw')).resolves.toBe(false)
   })
@@ -115,7 +153,7 @@ describe('isFullAccessApiToken', () => {
   it('returns an Error when the token service is missing', async () => {
     const result = await isFullAccessApiToken(strapiWith(undefined), 'raw')
     expect(result).toBeInstanceOf(Error)
-    expect((result as Error).message).toContain('admin::api-token')
+    expect((result as Error).message).toContain('admin::api-token-content-api')
   })
 
   it('returns an Error when the service lacks the methods it needs', async () => {
@@ -131,7 +169,7 @@ describe('isFullAccessApiToken', () => {
   it('returns an Error when the lookup throws', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => {
+      getByAccessKey: async () => {
         throw new Error('connection lost')
       }
     })
@@ -143,7 +181,7 @@ describe('isFullAccessApiToken', () => {
   it('wraps a non-Error throw', async () => {
     const strapi = strapiWith({
       hash: () => 'hashed',
-      getBy: async () => {
+      getByAccessKey: async () => {
         throw 'string failure'
       }
     })

@@ -99,13 +99,9 @@ const featuredPosts = showFeatured
         contentLang={contentLang}
         isTermFallback={isTermFallback}
       >
-        {
-          featuredPosts.length > 0 && (
-            <div slot="featured">
-              <FeaturedPosts posts={featuredPosts} />
-            </div>
-          )
-        }
+        {featuredPosts.length > 0 && <div slot="featured">
+          <FeaturedPosts posts={featuredPosts} />
+        </div>}
       </BlogIndexFoundation>
       <div data-blog-pagination>
         <Pagination
