@@ -22,7 +22,7 @@ vi.mock('astro:content', async () => {
 
 const { paginateAllPosts, paginatePostsByTerm, ALL_TERM_SLUG } =
   await import('./tagFilter')
-const { setPublishGateForTests } = await import('./blogPosts')
+const { setPublishGateForTests } = await import('./gatedCollection')
 
 const NOW = new Date('2026-09-18T09:30:00.000Z')
 

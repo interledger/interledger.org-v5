@@ -90,3 +90,55 @@ describe('generateGrantOverviewPageMDX', () => {
     expect(parsed.data.ctaStrip.description).toBe('line one\n\nline two')
   })
 })
+
+describe('generateGrantOverviewPageMDX — draft', () => {
+  it('writes draft: true when the box is checked', async () => {
+    const mdx = await generateGrantOverviewPageMDX(
+      {
+        ...{
+          id: 1,
+          documentId: 'overview-1',
+          title: 'Digital Finance',
+          pathSlug: 'digital-finance',
+          description: 'Funding for digital finance work.',
+          locale: 'en',
+          ctaStrip: {
+            heading: 'Ready?',
+            description: 'Apply now.',
+            primaryButtonText: 'Apply',
+            primaryButtonLink: '/apply'
+          }
+        },
+        draft: true
+      },
+      {}
+    )
+
+    expect(matter(mdx).data.draft).toBe(true)
+  })
+
+  it('clears a stale draft key once the box is unchecked', async () => {
+    const mdx = await generateGrantOverviewPageMDX(
+      {
+        ...{
+          id: 1,
+          documentId: 'overview-1',
+          title: 'Digital Finance',
+          pathSlug: 'digital-finance',
+          description: 'Funding for digital finance work.',
+          locale: 'en',
+          ctaStrip: {
+            heading: 'Ready?',
+            description: 'Apply now.',
+            primaryButtonText: 'Apply',
+            primaryButtonLink: '/apply'
+          }
+        },
+        draft: false
+      },
+      { draft: true }
+    )
+
+    expect(matter(mdx).data).not.toHaveProperty('draft')
+  })
+})

@@ -1,6 +1,6 @@
 ---
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
@@ -33,7 +33,8 @@ import {
   useTranslations,
   HACKATHON_HERO_SIZES,
   HACKATHON_HOME_SLUG,
-  buildSectionEntryBreadcrumbs
+  buildSectionEntryBreadcrumbs,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -44,14 +45,14 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 
-const pages = await getCollection('hackathon-pages')
+const pages = await getGatedCollection('hackathon-pages')
 const entry = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
 if (!entry) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection('profiles')
+Astro.locals.profileEntries = await getGatedCollection('profiles')
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 

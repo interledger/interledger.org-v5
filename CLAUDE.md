@@ -301,22 +301,33 @@ the places real breakage lives.
   opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
   not the translation of page 4 of the ES blog anyway.
 
-## The Publish Gate (future-dated blog posts)
+## The Publish Gate (future-dated blog posts and drafts)
 
 Site changes are promoted from `staging` to production on a cadence, so a blog
-post scheduled for a future launch date must not block unrelated promotions. On
-production the `date` frontmatter field is a real publish gate: a post dated
-later than today is excluded from the collection entirely. Staging, playground,
-deploy previews and local dev show everything, so upcoming content stays
-reviewable.
+post scheduled for a future launch date, or a page still in progress, must not
+block unrelated promotions. On production two frontmatter fields are real
+publish gates, and a gated entry is excluded from the collection entirely:
 
-- **One reader, no exceptions.** All blog collection access goes through
-  `getBlogPosts()` / `getGatedCollection()` in `src/utils/main/blogPosts.ts`.
-  Never call `getCollection('foundation-blog')` directly — six readers with six
+- `date` on blog posts: a post dated later than today is hidden.
+- `draft: true` on every page collection except the podcast page (blog, grant,
+  grant overview, report, FAQ, profile, summit, hackathon, foundation). Editors
+  set it with the **Draft** checkbox in Strapi. The CMS writes the key only
+  when it is checked, and the schema defaults a missing key to `false`.
+
+Staging, playground, deploy previews and local dev show everything, so upcoming
+content and drafts stay reviewable.
+
+- **One reader, no exceptions.** All page collection access goes through
+  `getGatedCollection()` in `src/utils/main/gatedCollection.ts`, and blog
+  access through `getBlogPosts()` (`src/utils/main/blogPosts.ts`), which wraps
+  it. Never call `getCollection()` directly for a page collection: a page
+  lookup, a profile grid or a listing that reads around the gate shows a draft
+  on production even though its route was never built. Six readers with six
   filters is how a route set ends up disagreeing with the category pills or the
-  language-switcher map, which is exactly how a scheduled post leaks. Ungated
-  collections pass straight through `getGatedCollection`, so the two
+  language-switcher map, which is exactly how a scheduled post leaks. The two
   collection-agnostic callers (`getLocalizedPaths`, `buildMap`) use it too.
+  `podcastPagination.ts` is the one exception: the podcast page has no draft
+  field.
 - **The gate cascades to translations.** Filtering each entry on its own `date`
   is not enough: `getLocalizedPaths` builds every ES route from the EN entry
   list, and nothing forces a translation to carry its original's date. A
@@ -326,7 +337,13 @@ reviewable.
   did not survive the date filter. Only inside the gated branch: a dangling
   `localizes` with the gate off is a pre-existing content bug, not this gate's
   business.
-- **Gated by collection name, not field shape.** `GATED_COLLECTIONS` lists
+- **Drafts cascade the same way, more narrowly.** A draft original takes its
+  translations with it. The draft gate only drops translations of originals it
+  removed, keyed by `section` + `pathSlug` because cross-section collections
+  reuse slugs across sections, so it never touches a dangling `localizes` in a
+  collection with no drafts. A draft translation of a live original is dropped
+  alone, and its ES route falls back to the EN content.
+- **Date gate by collection name, not field shape.** `DATE_GATED_COLLECTIONS` lists
   `foundation-blog` only. `reports` also has a `date`, but it is an object
   (`{ publishDate, lastUpdated }`) — sniffing for the field would gate the wrong
   thing. An entry with no date, or an unparseable one, always counts as
@@ -336,8 +353,10 @@ reviewable.
   Vite `define` `__HIDE_FUTURE_POSTS__` (`astro.config.mjs`), and
   `hideFuturePosts()` prefers the define. It reads Netlify's `CONTEXT`
   (`production` gates; `branch-deploy`, `deploy-preview` and a missing value do
-  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. No per-context
-  env vars in `netlify.toml`.
+  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. Drafts follow
+  the same pattern with their own pair: `shouldHideDrafts()` frozen into
+  `__HIDE_DRAFTS__`, overridden by `DRAFT_FILTER=on|off`. No per-context env
+  vars in `netlify.toml`.
 - **`BUILD_NOW` is frozen at module load.** A build starting at 23:59:50 UTC
   would otherwise gate the listing on one day and the static paths on the next,
   emitting a post's URL with nothing linking to it.
@@ -353,8 +372,17 @@ reviewable.
   but only for `staging`/`playground`.
 - **`date` is overloaded.** It is both the displayed/sort date and the publish
   gate. Back-dating to push a post down the listing is safe; forward-dating to
-  show a nicer date now hides it. There is no `draft` flag and no separate
-  `publishDate`, so "publish now, display a future date" is not possible.
+  show a nicer date now hides it. There is no separate `publishDate`, so
+  "publish now, display a future date" is not possible. `draft` hides a post
+  regardless of its date.
+- **Links to a draft are broken links on production.** A nav entry, a body
+  link or a redirect pointing at a draft resolves on staging but not in the
+  production build, so the internal link check reports it, and
+  `LINK_CHECK=strict` fails the Force Reset publish. That is intended: unlink
+  the page or publish it first.
+- **A section home page should not be a draft.** Index routes such as
+  `/summit/` render their home entry (`HOME_CONTENT_SLUG`) without a static
+  path, so a draft home still gets a route, and it redirects to `/404`.
 - **`/blog/preview` is unaffected** — it is SSR and fetches Strapi by
   `documentId`, bypassing the collection. That is the way to view a scheduled
   post on production.
@@ -368,6 +396,11 @@ reviewable.
 
   Then check `dist/blog/<slug>/index.html`, `dist/blog-search-index.json`,
   `dist/sitemap-*.xml` and `dist/blog/index.html` for the slug.
+
+  For drafts, set `draft: true` on an entry and build with `DRAFT_FILTER=on`
+  and then `off` (or `CONTEXT=production` / `branch-deploy`). Check that the
+  page's `dist/<path>/index.html`, its sitemap entry and any listing or profile
+  grid that shows it appear only in the second build.
 
 ## Git
 

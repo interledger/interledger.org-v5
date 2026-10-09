@@ -93,9 +93,13 @@ jobs:
       # IMAGE_CDN=on builds the same shape Netlify ships, and skips the ~17 min
       # encode. LINK_CHECK=strict turns link findings from a warning into a
       # failure — set nowhere else, so this is where broken links stop a deploy.
+      # CONTEXT=production turns on the publish gates (drafts, future-dated
+      # posts) as Netlify's production build does, so a link to a page that
+      # production hides fails here instead of going live broken.
       - name: Build
         if: env.BUILD == 'true'
         env:
+          CONTEXT: 'production'
           IMAGE_CDN: 'on'
           LINK_CHECK: 'strict'
         run: |

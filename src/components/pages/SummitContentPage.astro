@@ -1,7 +1,12 @@
 ---
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
-import { type Locale, getHeroSectionStyle, isDemoPathSlug } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import {
+  type Locale,
+  getHeroSectionStyle,
+  isDemoPathSlug,
+  getGatedCollection
+} from '@/utils'
+import { render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
@@ -40,7 +45,7 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('summit-pages')
+const pages = await getGatedCollection('summit-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -48,7 +53,7 @@ const mdxPage = pages.find(
 
 if (!mdxPage) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection('profiles')
+Astro.locals.profileEntries = await getGatedCollection('profiles')
 
 const { Content: MdxContent } = await render(mdxPage)
 const mdxData = mdxPage.data

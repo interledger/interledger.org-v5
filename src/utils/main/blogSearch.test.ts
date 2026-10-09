@@ -21,7 +21,7 @@ vi.mock('astro:content', async () => {
 })
 
 const { getBlogSearchIndex } = await import('./blogSearch')
-const { setPublishGateForTests } = await import('./blogPosts')
+const { setPublishGateForTests } = await import('./gatedCollection')
 const {
   setImageCdnEnabledForTests,
   setDeployedImageSourcesForTests,

@@ -1,5 +1,5 @@
 /**
- * Publish gate for future-dated content.
+ * Publish gate for future-dated and draft content.
  *
  * Website changes are promoted from staging to production on a set cadence, so
  * a blog post scheduled for a future launch date would otherwise block every
@@ -18,10 +18,12 @@
 
 const MS_PER_DAY = 86_400_000
 
+type BuildEnv = Record<string, string | undefined>
+
 /**
- * Whether this build should hide future-dated posts.
+ * Whether a publish gate is on for this build.
  *
- * `BLOG_DATE_FILTER` is an explicit override — `on` or `off` — and wins over
+ * `overrideKey` names an explicit override — `on` or `off` — that wins over
  * everything. It is how the production behaviour gets verified locally, where
  * `CONTEXT` is absent.
  *
@@ -35,13 +37,16 @@ const MS_PER_DAY = 86_400_000
  * `netlify/plugins/robots-header` already decides what is production, and needs
  * no per-context env vars in netlify.toml.
  */
-export function shouldHideFuturePosts(
-  env: Record<string, string | undefined> = process.env
-): boolean {
-  const override = env.BLOG_DATE_FILTER?.trim().toLowerCase()
+function isGateOn(overrideKey: string, env: BuildEnv): boolean {
+  const override = env[overrideKey]?.trim().toLowerCase()
   if (override === 'on') return true
   if (override === 'off') return false
   return env.CONTEXT?.trim().toLowerCase() === 'production'
+}
+
+/** Whether this build hides future-dated posts. Override: `BLOG_DATE_FILTER`. */
+export function shouldHideFuturePosts(env: BuildEnv = process.env): boolean {
+  return isGateOn('BLOG_DATE_FILTER', env)
 }
 
 export function hideFuturePosts(): boolean {
@@ -51,15 +56,38 @@ export function hideFuturePosts(): boolean {
 }
 
 /**
+ * Whether this build hides entries marked `draft: true`. Override:
+ * `DRAFT_FILTER`. Staging, playground, deploy previews and local builds show
+ * drafts, so editors can review work in progress.
+ */
+export function shouldHideDrafts(env: BuildEnv = process.env): boolean {
+  return isGateOn('DRAFT_FILTER', env)
+}
+
+export function hideDrafts(): boolean {
+  return typeof __HIDE_DRAFTS__ === 'boolean'
+    ? __HIDE_DRAFTS__
+    : shouldHideDrafts()
+}
+
+/**
+ * Whether an entry's frontmatter marks it as a draft.
+ *
+ * Only a literal `true` counts. A missing or malformed value means published:
+ * content must never be hidden by a field nobody set.
+ */
+export function isDraft(data: { draft?: unknown } | undefined): boolean {
+  return data?.draft === true
+}
+
+/**
  * Resolves the instant the gate measures "future" against.
  *
  * `BLOG_DATE_FILTER_AS_OF=<ISO date>` pins it, which is the only practical way
  * to verify the gate against real content — build twice with different values
  * rather than editing a post's date and remembering to revert it.
  */
-export function resolveGateNow(
-  env: Record<string, string | undefined> = process.env
-): Date {
+export function resolveGateNow(env: BuildEnv = process.env): Date {
   const asOf = env.BLOG_DATE_FILTER_AS_OF?.trim()
   if (!asOf) return new Date()
 

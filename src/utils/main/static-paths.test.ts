@@ -17,7 +17,7 @@ vi.mock('astro:content', async () => {
 
 const { getCrossSectionPaths, getLocalizedPaths } =
   await import('./static-paths')
-const { setPublishGateForTests } = await import('./blogPosts')
+const { setPublishGateForTests } = await import('./gatedCollection')
 
 function faq(data: {
   locale?: string
@@ -204,5 +204,75 @@ describe('getLocalizedPaths publish gate', () => {
     const paths = await getLocalizedPaths('foundation-pages', 'en', 'page')
 
     expect(paths.map((p) => p.params.page)).toEqual(['about'])
+  })
+})
+
+describe('draft gate', () => {
+  afterEach(() => {
+    setPublishGateForTests(null)
+  })
+
+  function mockPages(name: string, entries: Record<string, unknown>[]) {
+    getCollectionMock.mockImplementation(async (collection: string) =>
+      collection === name
+        ? entries.map((data) => ({ data: { locale: 'en', ...data } }))
+        : []
+    )
+  }
+
+  it('emits no path for a draft on production, so its URL 404s', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    mockPages('foundation-pages', [
+      { pathSlug: 'about' },
+      { pathSlug: 'wip', draft: true }
+    ])
+
+    const paths = await getLocalizedPaths('foundation-pages', 'en', 'page')
+
+    expect(paths.map((p) => p.params.page)).toEqual(['about'])
+  })
+
+  it('emits the draft when the gate is off', async () => {
+    setPublishGateForTests({ hideDrafts: false, hideFuturePosts: false })
+    mockPages('foundation-pages', [
+      { pathSlug: 'about' },
+      { pathSlug: 'wip', draft: true }
+    ])
+
+    const paths = await getLocalizedPaths('foundation-pages', 'en', 'page')
+
+    expect(paths.map((p) => p.params.page)).toEqual(['about', 'wip'])
+  })
+
+  it('falls back to EN when only the ES translation is a draft', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    mockPages('grant-pages', [
+      { pathSlug: 'web' },
+      { pathSlug: 'web-es', locale: 'es', localizes: 'web', draft: true }
+    ])
+
+    const paths = await getLocalizedPaths('grant-pages', 'es', 'page')
+
+    expect(paths).toHaveLength(1)
+    expect(paths[0].params.page).toBe('web')
+    expect(paths[0].props).toMatchObject({ locale: 'en', isFallback: true })
+  })
+
+  it('drops a draft cross-section entry from its section only', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    getCollectionMock.mockImplementation(async (name: string) =>
+      name === 'faqs'
+        ? [
+            faq({ section: 'foundation' }),
+            { data: { ...faq({ section: 'hackathon' }).data, draft: true } }
+          ]
+        : []
+    )
+
+    const hackathon = await getCrossSectionPaths('hackathon', 'en', 'page')
+    const foundation = await getCrossSectionPaths('foundation', 'en', 'page')
+
+    expect(hackathon.filter((p) => p.props.kind === 'faq')).toEqual([])
+    expect(foundation.filter((p) => p.props.kind === 'faq')).toHaveLength(1)
   })
 })

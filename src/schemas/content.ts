@@ -24,6 +24,11 @@ const pathSlugSchema = (required = true) =>
 // `localizes` names the English pathSlug, so it is compared bare like one.
 const localizesSchema = bareSlugSchema.optional()
 
+// Work-in-progress flag. Production builds drop drafts from every collection
+// read (see src/utils/main/gatedCollection.ts); other builds show them. The
+// CMS writes `draft: true` only when set, so a missing key means published.
+const draftSchema = z.boolean().optional().default(false)
+
 // Allowed blog categories. Keep in sync with the `shared.category` Strapi component
 // (cms/src/components/shared/category.json) and the `blog.categories.*` keys in
 // src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
@@ -80,6 +85,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -103,6 +109,7 @@ export const foundationPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -116,6 +123,7 @@ export const summitPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -139,6 +147,7 @@ export const hackathonPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -260,6 +269,7 @@ export const grantPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -287,6 +297,7 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
+  draft: draftSchema,
   localizes: localizesSchema,
   locale: z.string().optional()
 })
@@ -316,6 +327,7 @@ export const profileFrontmatterSchema = z.object({
   role: z.string().nullable().optional(),
   cta: heroCtaSchema.optional(),
   locale: z.string(),
+  draft: draftSchema,
   localizes: localizesSchema
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
@@ -342,6 +354,7 @@ export const faqFrontmatterSchema = z.object({
   introParagraph: z.string().nullable().optional(),
   faqSections: z.array(faqSectionSchema).min(1),
   locale: z.string(),
+  draft: draftSchema,
   localizes: localizesSchema
 })
 export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
@@ -367,6 +380,7 @@ export const reportFrontmatterSchema = z.object({
   date: reportDateSchema.optional(),
   authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),
+  draft: draftSchema,
   localizes: localizesSchema
 })
 export type ReportFrontmatterType = z.infer<typeof reportFrontmatterSchema>

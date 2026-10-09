@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
@@ -9,7 +8,8 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   parseMarkdown,
-  getSectionPageLayout
+  getSectionPageLayout,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -23,7 +23,7 @@ const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const allFaqs = await getCollection('faqs')
+const allFaqs = await getGatedCollection('faqs')
 const entry = allFaqs.find(
   (f) =>
     f.data.pathSlug === slug &&

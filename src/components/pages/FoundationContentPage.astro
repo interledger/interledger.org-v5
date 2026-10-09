@@ -4,9 +4,10 @@ import {
   type Locale,
   isDemoPathSlug,
   useTranslations,
-  localizeRoute
+  localizeRoute,
+  getGatedCollection
 } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
@@ -47,7 +48,7 @@ interface Props {
 }
 
 const { slug, contentLocale, isFallback = false } = Astro.props
-const pages = await getCollection('foundation-pages')
+const pages = await getGatedCollection('foundation-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -55,7 +56,7 @@ const mdxPage = pages.find(
 
 if (!mdxPage) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection('profiles')
+Astro.locals.profileEntries = await getGatedCollection('profiles')
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 

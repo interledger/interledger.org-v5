@@ -9,6 +9,7 @@ import matter from 'gray-matter'
 import {
   ckeditorFieldToParsedMarkdown,
   defaultLang,
+  draftFrontmatter,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 
@@ -25,6 +26,7 @@ export interface FaqMdxSection {
 export interface FaqMdxInput {
   title: string
   pathSlug: string
+  draft?: boolean | null
   section?: 'summit' | 'hackathon' | 'foundation' | null
   heading: string
   description: string
@@ -64,6 +66,7 @@ export function generateFaqMdx(faq: FaqMdxInput, englishSlug?: string): string {
   const frontmatter: Record<string, unknown> = {
     title: faq.title,
     pathSlug: faq.pathSlug,
+    ...draftFrontmatter(faq.draft),
     ...(faq.section ? { section: faq.section } : {}),
     heading: faq.heading,
     description: faq.description,

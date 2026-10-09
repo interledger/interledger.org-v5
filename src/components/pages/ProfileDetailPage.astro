@@ -1,6 +1,6 @@
 ---
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
@@ -21,7 +21,8 @@ import {
   buildSectionEntryBreadcrumbs,
   buildUmamiAttrs,
   getSectionPageLayout,
-  isDemoPathSlug
+  isDemoPathSlug,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -35,7 +36,7 @@ const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const allProfiles = await getCollection('profiles')
+const allProfiles = await getGatedCollection('profiles')
 const entry = allProfiles.find(
   (p) =>
     p.data.pathSlug === slug &&
