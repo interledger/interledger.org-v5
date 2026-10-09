@@ -153,11 +153,14 @@ export {
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 
-// Main site: Publish gate (future-dated content is hidden on production only)
+// Main site: Publish gate (future-dated and draft content is hidden on production only)
 export {
+  hideDrafts,
   hideFuturePosts,
+  isDraft,
   isPublishedAt,
   resolveGateNow,
+  shouldHideDrafts,
   shouldHideFuturePosts
 } from './main/publishGate'
 

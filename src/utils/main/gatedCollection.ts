@@ -4,10 +4,19 @@ import {
   type CollectionKey
 } from 'astro:content'
 import { defaultLocale } from './locales'
-import { hideFuturePosts, isPublishedAt, resolveGateNow } from './publishGate'
+import {
+  hideDrafts,
+  hideFuturePosts,
+  isDraft,
+  isPublishedAt,
+  resolveGateNow
+} from './publishGate'
 
 /**
  * The single reader for gated content collections.
+ *
+ * Two gates run here. Drafts (`draft: true`) are dropped from every collection,
+ * and future-dated posts from the blog. Both are on for production builds only.
  *
  * Blog posts are read from six independent places — listings and pagination,
  * the search index, static paths, the featured strip, the post detail page and
@@ -29,7 +38,7 @@ import { hideFuturePosts, isPublishedAt, resolveGateNow } from './publishGate'
  * but it is an object (`{ publishDate, lastUpdated }`), so sniffing for the
  * field would gate the wrong thing.
  */
-const GATED_COLLECTIONS = new Set<CollectionKey>(['foundation-blog'])
+const DATE_GATED_COLLECTIONS = new Set<CollectionKey>(['foundation-blog'])
 
 /**
  * Frozen once, at module load.
@@ -45,14 +54,16 @@ const BUILD_NOW = resolveGateNow()
 
 interface PublishGateOverrides {
   hideFuturePosts?: boolean
+  hideDrafts?: boolean
   now?: Date
 }
 
 let testOverrides: PublishGateOverrides | null = null
 
 /**
- * Test seam. `__HIDE_FUTURE_POSTS__` is a Vite `define` and `BUILD_NOW` is
- * fixed at import time, so neither can be driven from a test body; tests set
+ * Test seam. `__HIDE_FUTURE_POSTS__` and `__HIDE_DRAFTS__` are Vite `define`s
+ * and `BUILD_NOW` is fixed at import time, so none can be driven from a test
+ * body; tests set
  * the gate explicitly here rather than reading ambient env, so a CI runner that
  * happens to export `CONTEXT` cannot flip them.
  */
@@ -62,9 +73,16 @@ export function setPublishGateForTests(
   testOverrides = overrides
 }
 
-function resolveGate(): { enabled: boolean; now: Date } {
+interface ResolvedGate {
+  hidesFuturePosts: boolean
+  hidesDrafts: boolean
+  now: Date
+}
+
+function resolveGate(): ResolvedGate {
   return {
-    enabled: testOverrides?.hideFuturePosts ?? hideFuturePosts(),
+    hidesFuturePosts: testOverrides?.hideFuturePosts ?? hideFuturePosts(),
+    hidesDrafts: testOverrides?.hideDrafts ?? hideDrafts(),
     now: testOverrides?.now ?? BUILD_NOW
   }
 }
@@ -78,9 +96,11 @@ function resolveGate(): { enabled: boolean; now: Date } {
  */
 interface GatedEntryData {
   date?: unknown
+  draft?: unknown
   locale?: unknown
   pathSlug?: unknown
   localizes?: unknown
+  section?: unknown
 }
 
 function readData(entry: unknown): GatedEntryData {
@@ -101,6 +121,36 @@ function readString(value: unknown): string | undefined {
 }
 
 /**
+ * Identifies the original a translation points at.
+ *
+ * Cross-section collections (faqs, reports, profiles) can reuse one pathSlug
+ * in two sections, so the section is part of the key. `section` is not
+ * localized in Strapi, so a translation carries its original's section.
+ * Collections without a section key on the slug alone.
+ */
+function originalKey(data: GatedEntryData, slug: string): string {
+  return `${readString(data.section) ?? ''}/${slug}`
+}
+
+function defaultLocaleKeys<T>(entries: T[]): Set<string> {
+  const keys = new Set<string>()
+  for (const entry of entries) {
+    const data = readData(entry)
+    const slug = readString(data.pathSlug)
+    if (data.locale === defaultLocale && slug) {
+      keys.add(originalKey(data, slug))
+    }
+  }
+  return keys
+}
+
+function localizesKey(entry: unknown): string | undefined {
+  const data = readData(entry)
+  const localizes = readString(data.localizes)
+  return localizes ? originalKey(data, localizes) : undefined
+}
+
+/**
  * Drops translations whose original did not survive the date gate.
  *
  * The gate filters each entry on its own `date`, but `getLocalizedPaths` builds
@@ -111,43 +161,71 @@ function readString(value: unknown): string | undefined {
  * pills, the cross-language routes and the search index would all advertise a
  * URL that was never built (INTORG-1239).
  *
- * Runs only inside the gated branch. With the gate off nothing is removed, and
- * a translation whose `localizes` never resolved is a pre-existing content bug
- * this deliberately does not touch.
+ * Runs only inside the date-gated branch. With the gate off nothing is
+ * removed, and a translation whose `localizes` never resolved is a
+ * pre-existing content bug this deliberately does not touch.
  */
 function dropOrphanedTranslations<T>(published: T[]): T[] {
-  const survivingOriginals = new Set(
-    published
-      .filter((entry) => readData(entry).locale === defaultLocale)
-      .map((entry) => readString(readData(entry).pathSlug))
-      .filter((slug): slug is string => slug !== undefined)
-  )
+  const survivingOriginals = defaultLocaleKeys(published)
 
   return published.filter((entry) => {
-    const localizes = readString(readData(entry).localizes)
-    if (!localizes) return true
-    return survivingOriginals.has(localizes)
+    const key = localizesKey(entry)
+    return key === undefined || survivingOriginals.has(key)
   })
 }
 
 /**
- * `getCollection`, with future-dated entries removed on production.
+ * Drops translations of the originals the draft gate removed.
+ *
+ * The same INTORG-1239 cascade as {@link dropOrphanedTranslations}, scoped to
+ * what this gate removed: a draft original takes its translations with it.
+ * A translation whose `localizes` never resolved is left alone, as before,
+ * so turning the draft gate on changes nothing for a collection with no
+ * drafts. A draft translation of a live original is dropped on its own, and
+ * its route falls back to the original's content.
+ */
+function dropTranslationsOfRemoved<T>(entries: T[], kept: T[]): T[] {
+  if (kept.length === entries.length) return kept
+
+  const keptOriginals = defaultLocaleKeys(kept)
+  const removedOriginals = new Set(
+    [...defaultLocaleKeys(entries)].filter((key) => !keptOriginals.has(key))
+  )
+  if (removedOriginals.size === 0) return kept
+
+  return kept.filter((entry) => {
+    const key = localizesKey(entry)
+    return key === undefined || !removedOriginals.has(key)
+  })
+}
+
+/**
+ * `getCollection`, with draft and future-dated entries removed on production.
  *
  * Collection-agnostic so the two callers that loop over every collection —
  * `getLocalizedPaths` and `buildMap` — can swap in without a type change:
  * passing a union of collection names still yields `CollectionEntry<union>[]`.
- * Ungated collections pass straight through.
+ * The draft gate applies to every collection, and one without a `draft` field
+ * passes through. The date gate applies to `DATE_GATED_COLLECTIONS` only.
  */
 export async function getGatedCollection<C extends CollectionKey>(
   collection: C
 ): Promise<CollectionEntry<C>[]> {
   const entries = await getCollection(collection)
-  if (!GATED_COLLECTIONS.has(collection)) return entries
+  const { hidesFuturePosts, hidesDrafts, now } = resolveGate()
 
-  const { enabled, now } = resolveGate()
-  if (!enabled) return entries
+  const finished = hidesDrafts
+    ? dropTranslationsOfRemoved(
+        entries,
+        entries.filter((entry) => !isDraft(readData(entry)))
+      )
+    : entries
 
-  const published = entries.filter((entry) =>
+  if (!hidesFuturePosts || !DATE_GATED_COLLECTIONS.has(collection)) {
+    return finished
+  }
+
+  const published = finished.filter((entry) =>
     isPublishedAt(readPublishDate(entry), now)
   )
   return dropOrphanedTranslations(published)

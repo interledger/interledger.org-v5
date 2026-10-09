@@ -148,14 +148,20 @@ describe('orphaned translations', () => {
     })
     getCollectionMock.mockResolvedValue([liveEn, liveEs])
 
-    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual(['live', 'en-vivo'])
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'live',
+      'en-vivo'
+    ])
   })
 
   it('keeps both when the gate is off, so staging still reviews the pair', async () => {
     setPublishGateForTests({ hideFuturePosts: false, now: NOW })
     getCollectionMock.mockResolvedValue([SCHEDULED_EN, PAST_ES])
 
-    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual(['scheduled', 'programado'])
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'scheduled',
+      'programado'
+    ])
   })
 
   it('leaves a translation with a dangling localizes alone — not this gate\u2019s bug', async () => {
@@ -168,7 +174,9 @@ describe('orphaned translations', () => {
     })
     getCollectionMock.mockResolvedValue([orphan])
 
-    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual(['huerfano'])
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'huerfano'
+    ])
   })
 
   it('does not treat a standalone ES post (no localizes) as an orphan', async () => {
@@ -180,6 +188,133 @@ describe('orphaned translations', () => {
     })
     getCollectionMock.mockResolvedValue([SCHEDULED_EN, standalone])
 
-    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual(['independiente'])
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'independiente'
+    ])
+  })
+})
+
+describe('drafts', () => {
+  function page(data: Record<string, unknown>) {
+    return { id: String(data.pathSlug), data: { locale: 'en', ...data } }
+  }
+
+  it('drops a draft from any collection when the gate is on', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    getCollectionMock.mockResolvedValue([
+      page({ pathSlug: 'live' }),
+      page({ pathSlug: 'wip', draft: true }),
+      page({ pathSlug: 'explicit', draft: false })
+    ])
+
+    expect(slugsOf(await getGatedCollection('foundation-pages'))).toEqual([
+      'live',
+      'explicit'
+    ])
+  })
+
+  it('keeps drafts when the gate is off, so staging can review them', async () => {
+    setPublishGateForTests({ hideDrafts: false, hideFuturePosts: false })
+    const pages = [
+      page({ pathSlug: 'live' }),
+      page({ pathSlug: 'wip', draft: true })
+    ]
+    getCollectionMock.mockResolvedValue(pages)
+
+    expect(await getGatedCollection('faqs')).toEqual(pages)
+  })
+
+  it('drops the translations of a draft original', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    getCollectionMock.mockResolvedValue([
+      page({ pathSlug: 'wip', draft: true }),
+      page({ pathSlug: 'borrador', locale: 'es', localizes: 'wip' })
+    ])
+
+    expect(await getGatedCollection('grant-pages')).toEqual([])
+  })
+
+  it('keeps the original when only its translation is a draft', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    getCollectionMock.mockResolvedValue([
+      page({ pathSlug: 'live' }),
+      page({
+        pathSlug: 'en-vivo',
+        locale: 'es',
+        localizes: 'live',
+        draft: true
+      })
+    ])
+
+    expect(slugsOf(await getGatedCollection('grant-pages'))).toEqual(['live'])
+  })
+
+  it('leaves a translation with a dangling localizes alone', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    const pages = [
+      page({ pathSlug: 'wip', draft: true }),
+      page({ pathSlug: 'huerfano', locale: 'es', localizes: 'never-existed' })
+    ]
+    getCollectionMock.mockResolvedValue(pages)
+
+    expect(slugsOf(await getGatedCollection('foundation-pages'))).toEqual([
+      'huerfano'
+    ])
+  })
+
+  it('scopes the cascade to the section, since cross-section slugs repeat', async () => {
+    setPublishGateForTests({ hideDrafts: true, hideFuturePosts: false })
+    getCollectionMock.mockResolvedValue([
+      page({ pathSlug: 'faq', section: 'summit', draft: true }),
+      page({ pathSlug: 'faq', section: 'foundation' }),
+      page({
+        pathSlug: 'preguntas',
+        section: 'foundation',
+        locale: 'es',
+        localizes: 'faq'
+      }),
+      page({
+        pathSlug: 'preguntas-summit',
+        section: 'summit',
+        locale: 'es',
+        localizes: 'faq'
+      })
+    ])
+
+    expect(slugsOf(await getGatedCollection('faqs'))).toEqual([
+      'faq',
+      'preguntas'
+    ])
+  })
+
+  it('applies both gates to the blog independently', async () => {
+    setPublishGateForTests({
+      hideDrafts: true,
+      hideFuturePosts: true,
+      now: NOW
+    })
+    const draftPast = makePost({ slug: 'draft-past', date: '2024-01-01' })
+    ;(draftPast.data as { draft?: boolean }).draft = true
+    getCollectionMock.mockResolvedValue([PAST, draftPast, TOMORROW])
+
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'past'
+    ])
+  })
+
+  it('applies only the date gate when drafts are shown', async () => {
+    setPublishGateForTests({
+      hideDrafts: false,
+      hideFuturePosts: true,
+      now: NOW
+    })
+    const draftPast = makePost({ slug: 'draft-past', date: '2024-01-01' })
+    ;(draftPast.data as { draft?: boolean }).draft = true
+    getCollectionMock.mockResolvedValue([PAST, draftPast, TOMORROW])
+
+    expect(slugsOf(await getGatedCollection('foundation-blog'))).toEqual([
+      'past',
+      'draft-past'
+    ])
   })
 })

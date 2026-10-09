@@ -1,5 +1,5 @@
 /**
- * Publish gate for future-dated content.
+ * Publish gate for future-dated and draft content.
  *
  * Website changes are promoted from staging to production on a set cadence, so
  * a blog post scheduled for a future launch date would otherwise block every
@@ -48,6 +48,39 @@ export function hideFuturePosts(): boolean {
   return typeof __HIDE_FUTURE_POSTS__ === 'boolean'
     ? __HIDE_FUTURE_POSTS__
     : shouldHideFuturePosts()
+}
+
+/**
+ * Whether this build should hide entries marked `draft: true`.
+ *
+ * Same decision as {@link shouldHideFuturePosts}, with its own override:
+ * `DRAFT_FILTER=on|off` wins, otherwise only a Netlify `production` build
+ * hides drafts. Staging, playground, deploy previews and local builds show
+ * them, so editors can review work in progress.
+ */
+export function shouldHideDrafts(
+  env: Record<string, string | undefined> = process.env
+): boolean {
+  const override = env.DRAFT_FILTER?.trim().toLowerCase()
+  if (override === 'on') return true
+  if (override === 'off') return false
+  return env.CONTEXT?.trim().toLowerCase() === 'production'
+}
+
+export function hideDrafts(): boolean {
+  return typeof __HIDE_DRAFTS__ === 'boolean'
+    ? __HIDE_DRAFTS__
+    : shouldHideDrafts()
+}
+
+/**
+ * Whether an entry's frontmatter marks it as a draft.
+ *
+ * Only a literal `true` counts. A missing or malformed value means published:
+ * content must never be hidden by a field nobody set.
+ */
+export function isDraft(data: { draft?: unknown } | undefined): boolean {
+  return data?.draft === true
 }
 
 /**
