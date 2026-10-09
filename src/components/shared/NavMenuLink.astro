@@ -1,22 +1,15 @@
 ---
-import Icon from '@/components/shared/Icon.astro'
+import LabelWithTrailingIcon from '@/components/shared/LabelWithTrailingIcon.astro'
 import { buildNavLinkUmamiAttrs, useTranslations } from '@/utils'
 
 interface Props {
   href: string
   label: string
   theme?: 'light' | 'dark'
-  variant?: 'flat' | 'mega'
   openInNewTab?: boolean
 }
 
-const {
-  href,
-  label,
-  theme = 'light',
-  variant = 'flat',
-  openInNewTab = false
-} = Astro.props
+const { href, label, theme = 'light', openInNewTab = false } = Astro.props
 
 const isDark = theme === 'dark'
 const { routeLocale } = Astro.locals
@@ -31,32 +24,24 @@ const umamiAttrs = buildNavLinkUmamiAttrs(
 
 const itemTextClass = isDark ? 'text-neutral-25' : 'text-black'
 
-const externalLinkIconClass = 'ms-sm size-4 shrink-0 translate-y-[-1px]'
-
 const navLinkClass =
   'nav-link relative no-underline focus-visible:outline-none group/navlink'
 
 const labelSpanClass =
-  'relative after:absolute after:inset-x-0 after:-bottom-[4px] after:h-[2px] ' +
+  'relative inline-block after:absolute after:inset-x-0 after:-bottom-[4px] after:h-[2px] ' +
   'after:origin-left after:bg-current after:scale-x-0 after:transition-transform after:duration-200 after:ease-out after:content-[""] ' +
   'after:hidden desktop:after:block desktop:group-hover/navlink:after:scale-x-100 desktop:group-focus-visible/navlink:after:scale-x-100 ' +
+  'desktop:group-data-[active=true]/navlink:after:scale-x-100 group-data-[active=true]/navlink:after:transition-none ' +
   'motion-reduce:after:transition-none'
-
-const activeClass =
-  'desktop:data-[active=true]:underline desktop:data-[active=true]:decoration-current desktop:data-[active=true]:decoration-2 desktop:data-[active=true]:underline-offset-8'
 
 const className = [
   navLinkClass,
   'text-base',
   itemTextClass,
-  openInNewTab ? 'inline-flex items-center' : 'block',
+  'block',
   'max-desktop:-mx-lg max-desktop:px-lg max-desktop:py-md',
-  'px-0 desktop:py-md desktop:pe-md',
-  activeClass,
-  variant === 'mega' && 'whitespace-nowrap'
-]
-  .filter(Boolean)
-  .join(' ')
+  'px-0 desktop:py-md desktop:pe-md'
+].join(' ')
 ---
 
 <a
@@ -66,17 +51,14 @@ const className = [
   {...umamiAttrs}
   {...openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
 >
-  <span class={labelSpanClass}>{label}</span>
-  {
-    openInNewTab && (
-      <>
-        <Icon
-          name="external-link"
-          class={externalLinkIconClass}
-          aria-hidden="true"
-        />
-        <span class="sr-only">{t('aria.opens_new_tab')}</span>
-      </>
-    )
-  }
+  <span class={labelSpanClass}>
+    {
+      openInNewTab ? (
+        <LabelWithTrailingIcon label={label} icon="external-link" />
+      ) : (
+        label
+      )
+    }
+  </span>
+  {openInNewTab && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
 </a>

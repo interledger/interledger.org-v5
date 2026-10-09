@@ -230,6 +230,24 @@ export function panelMaxHeightSteps(state: PanelHeightState): string[] {
   return ['0px']
 }
 
+// Matches the --spacing-2xl gutter in the mega panel's max-w cap
+// (FoundationNavMenu.astro).
+const PANEL_GUTTER_PX = 32
+
+/**
+ * Horizontal px to move a desktop panel so it sits inside the viewport gutter.
+ * When the panel is wider than the space, its left edge wins so the first
+ * column stays readable.
+ */
+export function panelOverflowShift(
+  left: number,
+  right: number,
+  viewportWidth: number
+): number {
+  const shift = Math.min(0, viewportWidth - PANEL_GUTTER_PX - right)
+  return Math.max(shift, PANEL_GUTTER_PX - left)
+}
+
 // Longer than the 500ms panel transition, so the fallback only fires when no
 // transition ran at all (reduced motion, or a panel with no height change).
 const PANEL_TRANSITION_TIMEOUT_MS = 700
@@ -336,6 +354,26 @@ function initSubmenuToggle(root: HTMLElement) {
     syncPanelHeight(btn)
   }
 
+  /**
+   * Slides an opening desktop panel back on screen. `translate` composes with
+   * the centred wide panel's `transform` in navigation.css.
+   */
+  function keepPanelOnScreen(btn: HTMLElement) {
+    const panel = getPanel(btn)
+    if (!panel) return
+
+    panel.style.translate = ''
+    if (!wideNav.matches) return
+
+    const { left, right } = panel.getBoundingClientRect()
+    const shift = panelOverflowShift(
+      left,
+      right,
+      document.documentElement.clientWidth
+    )
+    if (shift) panel.style.translate = `${shift}px`
+  }
+
   function closeSubmenu(btn: HTMLElement) {
     btn.setAttribute('aria-expanded', 'false')
     btn.setAttribute('data-open', 'false')
@@ -365,16 +403,22 @@ function initSubmenuToggle(root: HTMLElement) {
       clickedButton.setAttribute('aria-expanded', wasOpen ? 'false' : 'true')
       clickedButton.setAttribute('data-open', wasOpen ? 'false' : 'true')
       syncPanel(clickedButton)
+      if (!wasOpen) keepPanelOnScreen(clickedButton)
     })
   })
 
-  // Close a submenu when focus leaves its menu group (Tab-out on desktop).
   menuItems.forEach((menuItem) => {
+    const btn = menuItem.querySelector<HTMLElement>('[data-submenu-button]')
+    if (!btn) return
+
+    // Hover opens the panel in CSS, and `:hover` already applies here.
+    menuItem.addEventListener('mouseenter', () => keepPanelOnScreen(btn))
+
+    // Close a submenu when focus leaves its menu group (Tab-out on desktop).
     menuItem.addEventListener('focusout', (event) => {
       const relatedTarget = (event as FocusEvent).relatedTarget as Node | null
       if (!relatedTarget || !menuItem.contains(relatedTarget)) {
-        const btn = menuItem.querySelector<HTMLElement>('[data-submenu-button]')
-        if (btn) closeSubmenu(btn)
+        closeSubmenu(btn)
       }
     })
   })

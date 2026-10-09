@@ -22,6 +22,10 @@ const sectionClasses = twMerge(
   'tablet:min-h-screen',
   className
 )
+// Figma card widths for the homepage stats, as caps: a fixed width overflows the grid track when the
+// heading column squeezes the list, and the text spills into the next card.
+const STAT_CARD_MAX_WIDTHS =
+  'max-w-[227px] tablet:max-w-[251px] desktop:max-w-[290px]'
 ---
 
 <section
@@ -49,7 +53,14 @@ const sectionClasses = twMerge(
       role="list"
       class="m-0 flex list-none flex-col items-center gap-md p-0 tablet:w-full tablet:max-w-[600px] tablet:flex-row tablet:flex-wrap tablet:items-start tablet:justify-between tablet:gap-y-2xl desktop:grid desktop:w-auto desktop:max-w-none desktop:grid-cols-2 desktop:gap-md"
     >
-      {stats.map((stat) => <StatCard {...stat} />)}
+      {
+        stats.map((stat) => (
+          <StatCard
+            {...stat}
+            class={twMerge(STAT_CARD_MAX_WIDTHS, stat.class)}
+          />
+        ))
+      }
     </ul>
   </div>
 </section>

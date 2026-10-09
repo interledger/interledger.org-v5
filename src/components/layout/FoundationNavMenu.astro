@@ -19,8 +19,8 @@ const MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD = 3
 
 /**
  * A panel with more columns than this is wider than the menu bar can hang off
- * one button, so it anchors to the list. `data-wide-panel` lets navigation.css
- * re-centre it on the narrowest desktop widths — see "Dropdown panel anchoring".
+ * one button, so it anchors to the header. `data-wide-panel` lets
+ * navigation.css centre it on the page — see "Dropdown panel anchoring".
  */
 const hasWidePanel = (group: MenuGroup) =>
   (group.subGroups?.length ?? 0) > MEGA_MENU_STATIC_POSITION_SUBGROUP_THRESHOLD
@@ -69,7 +69,10 @@ const submenuListClass =
 
 const flatSubmenuPanelClass = `w-full px-lg ${panelToggleClass} desktop:min-w-full desktop:px-2xl desktop:py-xl desktop:group-hover:w-max desktop:peer-data-[open=true]:w-max`
 
-const megaMenuClass = `flex flex-col gap-y-0 px-lg ${panelToggleClass} desktop:grid desktop:gap-3xl desktop:p-3xl`
+// The panel is as wide as its columns' content, capped at the viewport minus
+// the header gutter. Past the cap, the `auto` columns share the space and
+// their labels wrap.
+const megaMenuClass = `flex flex-col gap-y-0 px-lg ${panelToggleClass} desktop:grid desktop:w-max desktop:max-w-[calc(100vw-2*var(--spacing-2xl))] desktop:gap-3xl desktop:p-3xl`
 
 const subGroupHeadingTextClass = isDark
   ? 'text-neutral-50 border-neutral-75'
@@ -78,11 +81,11 @@ const subGroupHeadingTextClass = isDark
 const megaSubGroupClass =
   'mt-lg flex flex-col gap-y-md desktop:mt-0 desktop:gap-0'
 
-const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide whitespace-nowrap pb-sm desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
+const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption uppercase tracking-wide pb-sm desktop:mb-xs desktop:pb-md ${subGroupHeadingTextClass}`
 ---
 
 <ul
-  class="list-none flex flex-col max-desktop:gap-sm gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md desktop:relative"
+  class="list-none flex flex-col max-desktop:gap-sm gap-xl ps-0 desktop:flex desktop:flex-row desktop:items-center desktop:justify-center desktop:gap-md"
   id="siteNavMenu"
   data-component="FoundationNavMenu"
   data-nav-list
@@ -121,7 +124,7 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
               id={panelId}
               class={megaMenuClass}
               aria-labelledby={buttonId}
-              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), max-content);`}
+              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), auto);`}
             >
               {group.subGroups.map((subGroup) => (
                 <div class={megaSubGroupClass}>
@@ -133,7 +136,6 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
                           href={item.href || '#'}
                           label={item.label}
                           theme={theme}
-                          variant="mega"
                           openInNewTab={item.openInNewTab}
                         />
                       </li>

@@ -56,11 +56,10 @@
   }
 
   @media (min-width: 1200px) {
+    /* Keep the wrapper unpositioned and untransformed: either would make it
+       the wide dropdown panel's anchor instead of the header — see
+       "Dropdown panel anchoring". */
     .header-nav-wrapper {
-      position: relative;
-      top: 0;
-      right: 0;
-      transform: none;
       background: transparent;
       border-width: 0;
     }
@@ -171,22 +170,27 @@
 }
 
 /* ================================================================
-   Dropdown panel anchoring: narrow desktop widths only
+   Dropdown panel anchoring
 
-   Panels are absolutely positioned and hang from the left edge of their
-   button (or, for the wide multi-column panel, the left edge of the menu
-   list). Between 1200px and 1500px the bar is narrow enough that the
-   right-hand ones ran past the viewport: the four-column Grants panel by
-   85px at 1200px, Get Involved by 94px. In that band only, the wide panel
-   centres on the menu list and the last menu hangs its panel from its own
-   right edge. From 1500px up there is room again and every panel goes back
-   to the left-aligned treatment.
+   Panels hang from their button's left edge, except two:
+   - the wide panel centres on the header (its item, list and wrapper are
+     all static);
+   - the last menu's panel hangs from its right edge.
+   Both apply at every desktop width, not just where they would otherwise
+   overflow. That is deliberate: the dropdowns keep one layout instead of
+   jumping between alignments as the window crosses a breakpoint.
+   Any other panel that would still overflow is slid back on screen by
+   keepPanelOnScreen in src/scripts/header-nav.ts.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */
 
-@media (min-width: 1200px) and (max-width: 1499px) {
+@media (min-width: 1200px) {
   [data-nav-list] > li[data-wide-panel] .submenu-panel {
+    /* Same height as the other panels, measured from the header instead of
+       the button: the 40px button sits centred in the 80px header, so its
+       panel's top at 100% + 1.5rem lands 4px below the header's bottom edge. */
+    top: calc(100% + var(--spacing-xs));
     left: 50%;
     right: auto;
     transform: translateX(-50%);
