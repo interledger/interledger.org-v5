@@ -457,6 +457,13 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     faqSections: Schema.Attribute.Component<'blocks.faq-section', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -586,6 +593,13 @@ export interface ApiFoundationBlogPostFoundationBlogPost
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     featured: Schema.Attribute.Boolean &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -775,6 +789,13 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -861,6 +882,13 @@ export interface ApiGrantOverviewPageGrantOverviewPage
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     followUpContent: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -959,6 +987,13 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     faqSection: Schema.Attribute.Component<'blocks.grant-faq-section', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1119,6 +1154,13 @@ export interface ApiHackathonPageHackathonPage
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1297,6 +1339,13 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1466,6 +1515,13 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     heading: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1618,6 +1674,13 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

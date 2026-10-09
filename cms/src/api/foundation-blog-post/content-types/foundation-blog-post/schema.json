@@ -37,6 +37,16 @@
       "regex": "^/?[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*/?$",
       "required": true
     },
+    "draft": {
+      "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "default": false
+    },
     "date": {
       "type": "date",
       "pluginOptions": {
