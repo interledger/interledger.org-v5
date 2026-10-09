@@ -31,7 +31,8 @@ const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Website field in Projects table
 
 // Every Projects column the sync can read, checked against the metadata. Which
-// of them are fetched depends on the view: see selectPublishedGranteeFields.
+// grantee columns are fetched depends on the view (see
+// selectPublishedGranteeFields); the publish flag always is.
 const READ_FIELDS: { name: string; id: string }[] = [
   ...Object.entries(GRANTEE_FIELDS).map(([name, { id }]) => ({ name, id })),
   { name: 'Published on Website', id: PUBLISHED_ON_WEBSITE_FIELD_ID }
@@ -181,7 +182,14 @@ async function importAirtableData() {
       `⚠️  Field "${name}" is named "${airtableName}" in Airtable — still synced by ID and written as "${name}"`
     )
   }
-  const visibleFieldIds = granteeView.visibleFieldIds ?? []
+  // Airtable lists visibleFieldIds for grid views only. Without this check a
+  // view of another type reads as one with every column hidden.
+  const visibleFieldIds = granteeView.visibleFieldIds
+  if (visibleFieldIds === undefined) {
+    throw new Error(
+      `View '${VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
+    )
+  }
   const selection = selectPublishedGranteeFields(visibleFieldIds)
   if (selection instanceof Error) throw selection
   const { published, hidden } = selection
