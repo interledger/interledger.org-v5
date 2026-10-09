@@ -3,9 +3,9 @@ import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import { getCollection, render } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import SectionsNav from '@/components/shared/SectionsNav.astro'
 import ReportIntro from '@/components/blocks/ReportIntro.astro'
 import ReportSection from '@/components/blocks/ReportSection.astro'
-import ReportSectionsNav from '@/components/blocks/ReportSectionsNav.astro'
 import ReportText from '@/components/shared/ReportText.astro'
 import AuthorByline from '@/components/shared/AuthorByline.astro'
 import AuthorBio from '@/components/shared/AuthorBio.astro'
@@ -54,7 +54,7 @@ const bioTextEntries = authorBios?.filter((bio) => bio.text) ?? []
 const hasAuthorBios = bioTextEntries.length > 0
 // generateReportMdx/reportIntroHandler guarantee <ReportIntro> is always the
 // leading element when present — see ReportIntro.astro's comment for why
-// this offsets ReportSectionsNav's grid row below.
+// this offsets SectionsNav's grid row below.
 const hasIntro = Boolean(entry.body?.trim().startsWith('<ReportIntro'))
 // Drives whether the references-relocation target/script render at all —
 // the ReportSection itself stays a normal row in the nav column; only its
@@ -150,9 +150,10 @@ const Layout = getSectionPageLayout(section)
                     gridRow: `${hasIntro ? 2 : 1} / span ${sections.length}`
                   }}
                 >
-                  <ReportSectionsNav
+                  <SectionsNav
                     sections={sections}
                     uiLocale={routeLocale}
+                    kind="report"
                   />
                 </div>
                 <MdxContent
