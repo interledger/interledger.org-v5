@@ -63,9 +63,9 @@ let testOverrides: PublishGateOverrides | null = null
 /**
  * Test seam. `__HIDE_FUTURE_POSTS__` and `__HIDE_DRAFTS__` are Vite `define`s
  * and `BUILD_NOW` is fixed at import time, so none can be driven from a test
- * body; tests set
- * the gate explicitly here rather than reading ambient env, so a CI runner that
- * happens to export `CONTEXT` cannot flip them.
+ * body; tests set the gate explicitly here rather than reading ambient env, so
+ * a CI runner that happens to export `CONTEXT` cannot flip them. Once any
+ * override is set, a gate it leaves out is off rather than read from env.
  */
 export function setPublishGateForTests(
   overrides: PublishGateOverrides | null
@@ -80,10 +80,17 @@ interface ResolvedGate {
 }
 
 function resolveGate(): ResolvedGate {
+  if (testOverrides) {
+    return {
+      hidesFuturePosts: testOverrides.hideFuturePosts ?? false,
+      hidesDrafts: testOverrides.hideDrafts ?? false,
+      now: testOverrides.now ?? BUILD_NOW
+    }
+  }
   return {
-    hidesFuturePosts: testOverrides?.hideFuturePosts ?? hideFuturePosts(),
-    hidesDrafts: testOverrides?.hideDrafts ?? hideDrafts(),
-    now: testOverrides?.now ?? BUILD_NOW
+    hidesFuturePosts: hideFuturePosts(),
+    hidesDrafts: hideDrafts(),
+    now: BUILD_NOW
   }
 }
 

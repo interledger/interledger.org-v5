@@ -318,3 +318,21 @@ describe('drafts', () => {
     ])
   })
 })
+
+describe('test overrides', () => {
+  const originalFilter = process.env.DRAFT_FILTER
+
+  afterEach(() => {
+    if (originalFilter === undefined) delete process.env.DRAFT_FILTER
+    else process.env.DRAFT_FILTER = originalFilter
+  })
+
+  it('treats a gate left out of the overrides as off, whatever the env says', async () => {
+    process.env.DRAFT_FILTER = 'on'
+    setPublishGateForTests({ hideFuturePosts: false })
+    const pages = [{ id: 'wip', data: { pathSlug: 'wip', draft: true } }]
+    getCollectionMock.mockResolvedValue(pages)
+
+    expect(await getGatedCollection('foundation-pages')).toEqual(pages)
+  })
+})
