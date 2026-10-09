@@ -42,14 +42,14 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
-| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                         |
+| Variable                    | Description                                                                                                                                                                                                 |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                             |
+| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                          |
+| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: the repo Strapi runs from). On the VM it must be the workflow's `ENV_DEPLOY_PATH` checkout, since the two writers share a lock inside its `.git` |
+| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).      |
+| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                 |
+| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                              |
 
 ### Git Sync Failure Reporting
 
@@ -68,18 +68,85 @@ For local development and CI, set `STRAPI_DISABLE_GIT_SYNC=true` instead.
 - **The alert throttles repeat failures** for 15 minutes. The throttle key
   is the root cause, not the content type, because one broken clone makes
   every save fail. The next alert states how many repeats it blocked.
+- **Conflict alerts** (`⚠️ … overwrote branch changes`) are a third outcome,
+  not a failure and not a recovery. They fire on a healthy repo, do not mark
+  it unhealthy, and carry their own throttle key, so an outage cannot bury a
+  conflict notice or the reverse.
+
+### Git Sync Conflict Strategy
+
+An editor save races PRs merged to the deploy branch, because Astro → Strapi
+only runs daily. `cms/src/utils/gitSync.ts` resolves that race in the CMS's
+favour — see [Content Conflict Resolution](../README.md#content-conflict-resolution)
+for the policy and what a developer should do when their PR is superseded.
+
+Implementation notes that are easy to get wrong:
+
+- **`-X theirs` is the CMS side, not the upstream side.** A rebase swaps
+  `ours`/`theirs`: `ours` is the branch being replayed onto, `theirs` is the
+  commit being replayed. Flipping it to `-X ours` silently inverts the policy.
+  `git checkout --theirs` is swapped the same way.
+- **The push comes first.** The common case is a clean fast-forward, and that
+  path never fetches, rebases or stashes, so it never touches a working tree
+  Strapi may be mid-write on. Only a rejected push triggers the integrate.
+- **The checkout is never left mid-rebase.** Every unsalvageable rebase ends in
+  `git rebase --abort`, and a sync that finds an interrupted rebase, merge or
+  cherry-pick from an earlier run clears it first — then pushes whatever
+  commits that run never got out. Before this, one conflict wedged the clone
+  until someone cleared it by hand: every later save failed, and so did the
+  daily workflow's integrate step.
+- **Giving up unwinds the commit** with `git reset --soft HEAD~1`, but only when
+  the sync provably made it: the checkout was level with origin before it
+  committed and is exactly one ahead now. An ahead-count of one alone is not
+  proof — a commit an earlier sync stranded counts too, and if this sync's own
+  commit was dropped as empty during the rebase, `HEAD~1` would rewrite the
+  older one. Anything else is left for the next sync to push. `--soft` keeps the
+  content staged, so the next save retries it.
+- **Lock contention is retried, not reported.** The daily workflow and editor
+  saves share a checkout, so `index.lock` collisions are expected. The retry
+  covers the status read, `git add`, `git commit` and `git push` — every command
+  that takes the repository lock.
+- **Both writers take one advisory mutex.** `.git/strapi-sync.lock`, claimed
+  by writing the owner details to a temp file and hard-linking it into place
+  (`fs.linkSync` here, `ln` in the workflow). A link fails when the target
+  exists, and the contents are written before it, so the lock is never visible
+  half-formed — an exclusive create would leave an empty lock behind if the
+  process died between the create and the write. Without the mutex each side's
+  `git rebase --abort` could discard a rebase the other had in flight, since
+  the workflow integrates **before** it stops the Strapi service. Staleness is
+  read from the file's mtime, never its contents: a holder that dies is
+  reclaimed after 10 minutes by moving the lock aside, which only one contender
+  can win. Release checks the contents are still the releaser's own, so an
+  overrun holder never deletes its successor's lock. A sync that cannot acquire
+  within 30s fails and is retried by the next save rather than proceeding
+  unserialised. The workflow holds the lock only around its git integrate, not
+  the rebuild. Keep the path and the 10-minute window in step on both sides;
+  the owner line is only read by a human.
+- **`autoStash` covers tracked modifications only.** A page Strapi has written
+  but not yet staged is untracked, and a rebase refuses to start if an incoming
+  commit adds that same path. The lifecycle sync stages and commits before it
+  ever rebases, so it is unaffected. The workflow does not stage anything:
+  staging lets the rebase start, but the autostash pop then collides on the
+  same path and leaves conflict markers in `src/content`. Instead it checks for
+  untracked files the incoming commits add and refuses to integrate, with the
+  checkout untouched. The check is a snapshot — a save landing between it and
+  the rebase can still stop the rebase — which fails the same safe way.
 
 ### Git Sync Repository Target
 
-Lifecycle hooks that commit MDX updates now write to a dedicated staging clone configured by `STRAPI_GIT_SYNC_REPO_PATH`.
+Lifecycle hooks that commit MDX updates write to a dedicated clone configured by `STRAPI_GIT_SYNC_REPO_PATH`.
 
 Page MDX output is written under `src/content/foundation-pages` inside `STRAPI_GIT_SYNC_REPO_PATH`, with localized pages under `src/content/foundation-pages/{locale}/`.
 
 This was introduced to:
 
 - Avoid fragile relative-path repository detection,
-- Ensure content commits happen in the intended staging checkout,
-- Fail fast on startup if the target folder is missing or not on the `staging` branch.
+- Ensure content commits happen in the intended checkout,
+- Fail fast on startup rather than on the first editor save.
+
+`validateGitSyncRepoOnStartup` refuses to boot when git sync is enabled and any of these hold: `SLACK_WEBHOOK_URL` is unset (a failed sync would go unreported), the configured path does not exist, it is not a git checkout, or its branch cannot be read. It also clears an interrupted rebase, merge or cherry-pick left by an earlier run, so a restart un-wedges a checkout and the state shows in the boot log.
+
+**The branch is read, not asserted.** Each environment's clone tracks its own branch — `staging` on the staging VM, `playground` on the playground VM — and the sync commits and pushes to whichever branch the clone is on. There is deliberately no check that it is `staging`.
 
 ### Running the CMS - Development
 
