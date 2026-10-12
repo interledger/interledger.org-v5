@@ -107,7 +107,7 @@ const accordionName = faqAccordionGroupName()
           class="group/item w-full scroll-mt-(--site-header-height) border-b border-neutral-25 pb-lg first:pt-0 last:border-b-0 last:pb-0 tablet:pb-xl desktop:scroll-mt-(--site-header-height-desktop) dark:border-neutral-75"
         >
           <summary
-            class="flex w-full cursor-pointer list-none items-start justify-between gap-sm text-left [&::-webkit-details-marker]:hidden"
+            class="flex w-full cursor-pointer list-none items-center justify-between gap-sm text-left [&::-webkit-details-marker]:hidden"
             {...faqToggleAttrs(item.question)}
           >
             <span
@@ -117,7 +117,7 @@ const accordionName = faqAccordionGroupName()
             </span>
             <Icon
               name="arrow-down"
-              class="size-8 shrink-0 text-neutral-100 transition-transform duration-200 group-open/item:rotate-180 dark:text-neutral-0"
+              class="size-8 shrink-0 text-link transition-transform duration-200 group-open/item:rotate-180 motion-reduce:transition-none"
             />
           </summary>
           <FaqAnswerPanel>
