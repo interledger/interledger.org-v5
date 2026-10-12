@@ -243,6 +243,7 @@ export {
   getSpeakerPages,
   getSessionPages
 } from './main/summit-talks-speakers'
+export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 
 // Main site: Images
 export {

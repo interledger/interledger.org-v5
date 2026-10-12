@@ -380,9 +380,16 @@ content and drafts stay reviewable.
   production build, so the internal link check reports it, and
   `LINK_CHECK=strict` fails the Force Reset publish. That is intended: unlink
   the page or publish it first.
-- **A section home page should not be a draft.** Index routes such as
-  `/summit/` render their home entry (`HOME_CONTENT_SLUG`) without a static
-  path, so a draft home still gets a route, and it redirects to `/404`.
+- **A draft summit home fails the production build.** `/summit/` and
+  `/es/summit/` are fixed index routes that render the `HOME_CONTENT_SLUG`
+  entry without a static path. A gated-out home would still emit a page that
+  redirects to `/404`, which neither the sitemap nor the link check catches, so
+  with the draft gate on the index routes throw on `resolveSummitHome`'s error.
+  With it off they keep the redirect, so a missing home never blocks staging.
+  A draft ES home alone is fine: it falls
+  back to the EN content. Other section homes (hackathon `overview`) come from
+  static paths, so a draft one just has no route, and links to it are
+  reported like any other.
 - **`/blog/preview` is unaffected** — it is SSR and fetches Strapi by
   `documentId`, bypassing the collection. That is the way to view a scheduled
   post on production.

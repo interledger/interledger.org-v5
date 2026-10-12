@@ -1,8 +1,25 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
-import { HOME_CONTENT_SLUG, type Locale } from '@/utils'
+import {
+  HOME_CONTENT_SLUG,
+  type Locale,
+  getGatedCollection,
+  hideDrafts,
+  resolveSummitHome
+} from '@/utils'
 
 const pageLang: Locale = 'en'
+
+const home = resolveSummitHome(
+  await getGatedCollection('summit-pages'),
+  pageLang
+)
+// Production fails the build: a drafted home must not ship as a /404 redirect.
+if (home instanceof Error && hideDrafts()) throw home
+if (home instanceof Error) return Astro.redirect('/404')
 ---
 
-<SummitContentPage slug={HOME_CONTENT_SLUG} contentLocale={pageLang} />
+<SummitContentPage
+  slug={HOME_CONTENT_SLUG}
+  contentLocale={home.contentLocale}
+/>
