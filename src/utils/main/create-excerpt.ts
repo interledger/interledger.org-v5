@@ -1,5 +1,5 @@
 import { convert } from 'html-to-text'
-import MarkdownIt from 'markdown-it'
+import markdownit, { type MarkdownIt } from 'markdown-it'
 
 const CONVERT_OPTIONS = {
   wordwrap: null as null,
@@ -32,8 +32,7 @@ const DISPLAY_CONVERT_OPTIONS = {
 function plainTextFromHtml(
   html: string,
   convertOptions:
-    | typeof CONVERT_OPTIONS
-    | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
+    typeof CONVERT_OPTIONS | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
 ): string {
   const text = convert(html, convertOptions)
   return convert(text, convertOptions)
@@ -43,15 +42,14 @@ function excerptFromMarkdown(
   parser: MarkdownIt,
   body: unknown,
   convertOptions:
-    | typeof CONVERT_OPTIONS
-    | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
+    typeof CONVERT_OPTIONS | typeof DISPLAY_CONVERT_OPTIONS = CONVERT_OPTIONS
 ): string {
   const safeBody = typeof body === 'string' ? body : ''
   return plainTextFromHtml(parser.render(safeBody), convertOptions)
 }
 
-const excerptParser = new MarkdownIt()
-const searchPlainParser = new MarkdownIt().disable([
+const excerptParser = markdownit()
+const searchPlainParser = markdownit().disable([
   'heading',
   'lheading',
   'blockquote'

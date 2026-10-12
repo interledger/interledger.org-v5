@@ -134,13 +134,9 @@ const content = page.content || []
     cta={resolvedCta}
   />
 
-  {
-    content.length > 0 && (
-      <section class="px-content py-4xl">
-        <div class="content-column min-w-0" data-prose>
-          <DynamicZone blocks={content} />
-        </div>
-      </section>
-    )
-  }
+  {content.length > 0 && <section class="px-content py-4xl">
+    <div class="content-column min-w-0" data-prose>
+      <DynamicZone blocks={content} />
+    </div>
+  </section>}
 </HackathonPageLayout>

@@ -141,62 +141,60 @@ const hasSecondary = Boolean(
 )
 ---
 
-{
-  hasPrimary && (
-    <section
-      data-component="CtaStrip"
-      class:list={[
-        'relative isolate overflow-clip rounded-3xl',
-        'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
-        // Dark card (INTORG-1083). Figma's `Theme` variant changes exactly four
-        // things: the fill, a hairline border that only exists on dark, the
-        // heading colour and the description colour. Radius, padding, gaps and
-        // every type ramp are shared, so nothing else moves.
-        //
-        // On the hackathon the page itself is neutral-150, so the card is the
-        // same colour as its background and the border is the only thing
-        // separating them. It is structural, not decoration.
-        //
-        // The border is always present and merely transparent on light,
-        // following the `ghost` button in buttonVariants. One that existed only
-        // on dark would shrink the content box by 2px between themes, and Figma
-        // draws both at the same width.
-        //
-        // Green is pistachio-100 in the light theme. Its dark pair is
-        // forest-green-100, the same pairing profile heroes use, so a green
-        // strip stays green on the summit and hackathon rather than falling
-        // back to the near-black card. The primary button stays orchid.
-        isGreen
-          ? 'bg-pistachio-100 dark:bg-forest-green-100'
-          : 'bg-soft-indigo-50 dark:bg-neutral-150',
-        isGreen
-          ? 'border border-transparent dark:border-forest-green-50'
-          : 'border border-transparent dark:border-ice-indigo-100',
-        // The summit content wrapper styles every descendant anchor with
-        // `[&_a]:text-current`, so the page's white body colour reaches inside
-        // this card. That selector has a higher specificity than the button's
-        // own `text-neutral-100`, so the secondary button renders white on light
-        // indigo (about 1.06:1). Re-assert the colours through a selector that
-        // outranks the wrapper.
-        // Re-assert all three states, not only the resting one. This selector
-        // also outranks the button's own `focus-visible:text-neutral-900`, so
-        // without the third rule the text would stay neutral-100 on focus
-        // instead of deepening to black (Copilot, #484).
-        //
-        // The dark twins are not optional. These light rules land at 0,2,1,
-        // while `mode="auto"`'s own `dark:text-neutral-25` lands at 0,1,0 —
-        // Tailwind compiles the `dark` variant to `:where([data-theme=dark], …)`,
-        // and `:where()` adds no specificity. So the card would keep asserting
-        // the light colours over a dark background without a counterpart here.
-        '[&_a.cta-strip-secondary]:text-neutral-100',
-        '[&_a.cta-strip-secondary:hover]:text-neutral-900',
-        '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900',
-        'dark:[&_a.cta-strip-secondary]:text-neutral-25',
-        'dark:[&_a.cta-strip-secondary:hover]:text-neutral-25',
-        'dark:[&_a.cta-strip-secondary:focus-visible]:text-neutral-0'
-      ]}
-    >
-      {/*
+{hasPrimary && <section
+  data-component="CtaStrip"
+  class:list={[
+    'relative isolate overflow-clip rounded-3xl',
+    'px-lg py-xl tablet:p-2xl desktop:p-3xl-tight',
+    // Dark card (INTORG-1083). Figma's `Theme` variant changes exactly four
+    // things: the fill, a hairline border that only exists on dark, the
+    // heading colour and the description colour. Radius, padding, gaps and
+    // every type ramp are shared, so nothing else moves.
+    //
+    // On the hackathon the page itself is neutral-150, so the card is the
+    // same colour as its background and the border is the only thing
+    // separating them. It is structural, not decoration.
+    //
+    // The border is always present and merely transparent on light,
+    // following the `ghost` button in buttonVariants. One that existed only
+    // on dark would shrink the content box by 2px between themes, and Figma
+    // draws both at the same width.
+    //
+    // Green is pistachio-100 in the light theme. Its dark pair is
+    // forest-green-100, the same pairing profile heroes use, so a green
+    // strip stays green on the summit and hackathon rather than falling
+    // back to the near-black card. The primary button stays orchid.
+    isGreen
+      ? 'bg-pistachio-100 dark:bg-forest-green-100'
+      : 'bg-soft-indigo-50 dark:bg-neutral-150',
+    isGreen
+      ? 'border border-transparent dark:border-forest-green-50'
+      : 'border border-transparent dark:border-ice-indigo-100',
+    // The summit content wrapper styles every descendant anchor with
+    // `[&_a]:text-current`, so the page's white body colour reaches inside
+    // this card. That selector has a higher specificity than the button's
+    // own `text-neutral-100`, so the secondary button renders white on light
+    // indigo (about 1.06:1). Re-assert the colours through a selector that
+    // outranks the wrapper.
+    // Re-assert all three states, not only the resting one. This selector
+    // also outranks the button's own `focus-visible:text-neutral-900`, so
+    // without the third rule the text would stay neutral-100 on focus
+    // instead of deepening to black (Copilot, #484).
+    //
+    // The dark twins are not optional. These light rules land at 0,2,1,
+    // while `mode="auto"`'s own `dark:text-neutral-25` lands at 0,1,0 —
+    // Tailwind compiles the `dark` variant to `:where([data-theme=dark], …)`,
+    // and `:where()` adds no specificity. So the card would keep asserting
+    // the light colours over a dark background without a counterpart here.
+    '[&_a.cta-strip-secondary]:text-neutral-100',
+    '[&_a.cta-strip-secondary:hover]:text-neutral-900',
+    '[&_a.cta-strip-secondary:focus-visible]:text-neutral-900',
+    'dark:[&_a.cta-strip-secondary]:text-neutral-25',
+    'dark:[&_a.cta-strip-secondary:hover]:text-neutral-25',
+    'dark:[&_a.cta-strip-secondary:focus-visible]:text-neutral-0'
+  ]}
+>
+  {/*
         Network motif on the left edge, muted in the file (30% opacity).
         Absolutely positioned so it never affects layout.
 
@@ -205,93 +203,85 @@ const hasSecondary = Boolean(
         of that same file. Its height is the card's, so the crop meets the
         top and bottom edges instead of floating in the middle.
       */}
-      <img
-        src={
-          isGreen
-            ? '/img/blocks/cta-strip-network-green.svg'
-            : '/img/blocks/cta-strip-network.svg'
-        }
-        alt=""
-        aria-hidden="true"
-        width={isGreen ? 218 : 436}
-        height={isGreen ? 174 : 439}
-        loading="lazy"
-        class:list={[
-          'pointer-events-none absolute left-0 -z-10 w-auto max-w-none',
-          isGreen
-            ? 'top-0 h-full'
-            : 'top-1/2 h-[175%] desktop:h-[155%] -translate-x-1/2 -translate-y-1/2'
-        ]}
-      />
+  <img
+    src={
+      isGreen
+        ? '/img/blocks/cta-strip-network-green.svg'
+        : '/img/blocks/cta-strip-network.svg'
+    }
+    alt=""
+    aria-hidden="true"
+    width={isGreen ? 218 : 436}
+    height={isGreen ? 174 : 439}
+    loading="lazy"
+    class:list={[
+      'pointer-events-none absolute left-0 -z-10 w-auto max-w-none',
+      isGreen
+        ? 'top-0 h-full'
+        : 'top-1/2 h-[175%] desktop:h-[155%] -translate-x-1/2 -translate-y-1/2'
+    ]}
+  />
 
-      <div class="flex flex-col items-center gap-lg text-center">
-        {heading && (
-          // Deliberate Figma-verified exception: h2 uses the h3 token here.
-          <h2 class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900 dark:text-neutral-0">
-            {heading}
-          </h2>
+  <div class="flex flex-col items-center gap-lg text-center">
+    {/* Deliberate Figma-verified exception: h2 uses the h3 token here. */}
+    {heading && <h2
+      class="font-poppins text-h3 tablet:text-h3-md desktop:text-h3-lg my-0 text-neutral-900 dark:text-neutral-0"
+    >
+      {heading}
+    </h2>}
+
+    {hasDescription && <div
+      class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 dark:text-neutral-25 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2"
+    >
+      {descriptionHtml ? <Fragment set:html={descriptionHtml} /> : <slot />}
+    </div>}
+
+    <div
+      class:list={[
+        'flex w-full gap-sm tablet:w-fit',
+        hasSecondary
+          ? 'flex-col items-stretch tablet:flex-row tablet:items-center tablet:justify-center'
+          : 'flex-col items-stretch'
+      ]}
+    >
+      <LinkButton
+        href={resolvedPrimary.href}
+        variant="primary"
+        external={resolvedPrimary.external}
+        document={resolvedPrimary.document}
+        iconSide={resolvedPrimary.icon ? 'right' : 'none'}
+        class:list={[hasSecondary ? 'w-full tablet:w-auto' : 'w-full']}
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: primaryButtonLink,
+          linkText: primaryButtonText
+        })}
+      >
+        {primaryButtonText}
+        {resolvedPrimary.icon && (
+          <Icon name={resolvedPrimary.icon} slot="icon-right" />
         )}
+      </LinkButton>
 
-        {hasDescription && (
-          <div class="font-poppins text-h4 [&_a]:text-h4 [&_p]:text-h4 tablet:text-h4-md [&_a]:tablet:text-h4-md [&_p]:tablet:text-h4-md desktop:text-h4-lg [&_a]:desktop:text-h4-lg [&_p]:desktop:text-h4-lg text-neutral-100 dark:text-neutral-25 [&_p]:my-0 [&_a]:underline [&_a]:underline-offset-2">
-            {descriptionHtml ? (
-              <Fragment set:html={descriptionHtml} />
-            ) : (
-              <slot />
-            )}
-          </div>
+      {hasSecondary && resolvedSecondary && <LinkButton
+        href={resolvedSecondary.href}
+        variant="secondary"
+        mode="auto"
+        external={resolvedSecondary.external}
+        document={resolvedSecondary.document}
+        iconSide={resolvedSecondary.icon ? 'right' : 'none'}
+        class="cta-strip-secondary w-full tablet:w-auto"
+        {...buildUmamiAttrs({
+          ...umamiBase,
+          href: secondaryButtonLink,
+          linkText: secondaryButtonText
+        })}
+      >
+        {secondaryButtonText}
+        {resolvedSecondary.icon && (
+          <Icon name={resolvedSecondary.icon} slot="icon-right" />
         )}
-
-        <div
-          class:list={[
-            'flex w-full gap-sm tablet:w-fit',
-            hasSecondary
-              ? 'flex-col items-stretch tablet:flex-row tablet:items-center tablet:justify-center'
-              : 'flex-col items-stretch'
-          ]}
-        >
-          <LinkButton
-            href={resolvedPrimary.href}
-            variant="primary"
-            external={resolvedPrimary.external}
-            document={resolvedPrimary.document}
-            iconSide={resolvedPrimary.icon ? 'right' : 'none'}
-            class:list={[hasSecondary ? 'w-full tablet:w-auto' : 'w-full']}
-            {...buildUmamiAttrs({
-              ...umamiBase,
-              href: primaryButtonLink,
-              linkText: primaryButtonText
-            })}
-          >
-            {primaryButtonText}
-            {resolvedPrimary.icon && (
-              <Icon name={resolvedPrimary.icon} slot="icon-right" />
-            )}
-          </LinkButton>
-
-          {hasSecondary && resolvedSecondary && (
-            <LinkButton
-              href={resolvedSecondary.href}
-              variant="secondary"
-              mode="auto"
-              external={resolvedSecondary.external}
-              document={resolvedSecondary.document}
-              iconSide={resolvedSecondary.icon ? 'right' : 'none'}
-              class="cta-strip-secondary w-full tablet:w-auto"
-              {...buildUmamiAttrs({
-                ...umamiBase,
-                href: secondaryButtonLink,
-                linkText: secondaryButtonText
-              })}
-            >
-              {secondaryButtonText}
-              {resolvedSecondary.icon && (
-                <Icon name={resolvedSecondary.icon} slot="icon-right" />
-              )}
-            </LinkButton>
-          )}
-        </div>
-      </div>
-    </section>
-  )
-}
+      </LinkButton>}
+    </div>
+  </div>
+</section>}

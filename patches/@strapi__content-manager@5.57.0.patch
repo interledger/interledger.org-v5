@@ -1,5 +1,5 @@
 diff --git a/dist/admin/services/documents.js b/dist/admin/services/documents.js
-index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b77267653db8ae5 100644
+index 4a1c535267e63d94168934274f055573e7b78961..1ad759a403b7f8e798426a7fa0756dea38ea37ad 100644
 --- a/dist/admin/services/documents.js
 +++ b/dist/admin/services/documents.js
 @@ -65,7 +65,16 @@ const documentApi = api.contentManagerApi.injectEndpoints({
@@ -30,7 +30,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b772676
                  transformResponse: (response, meta, arg)=>{
                      /**
           * TODO v6
-@@ -269,7 +279,14 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -293,7 +303,14 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -46,7 +46,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b772676
                      return [
                          {
                              type: 'Document',
-@@ -320,7 +337,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -344,7 +361,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -61,7 +61,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b772676
                      return [
                          {
                              type: 'Document',
-@@ -348,8 +371,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
+@@ -372,8 +395,13 @@ const documentApi = api.contentManagerApi.injectEndpoints({
                      try {
                          await queryFulfilled;
                      } catch  {
@@ -78,7 +78,7 @@ index 91c63173e66aab5c8abfaad1c779776b510c0d82..97707f36479f7d355a4978955b772676
                  },
                  transformResponse: (response, meta, arg)=>{
 diff --git a/dist/admin/services/documents.mjs b/dist/admin/services/documents.mjs
-index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..f822c6c05010e4288596e6862304fcf2068c4ea4 100644
+index 7447b5cb491c75924cbb802fd1c42a85b99ac7f5..10461e16979c20023f9de3969ea79a2a74f9b77d 100644
 --- a/dist/admin/services/documents.mjs
 +++ b/dist/admin/services/documents.mjs
 @@ -63,7 +63,16 @@ const documentApi = contentManagerApi.injectEndpoints({
@@ -109,7 +109,7 @@ index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..f822c6c05010e4288596e6862304fcf2
                  transformResponse: (response, meta, arg)=>{
                      /**
           * TODO v6
-@@ -267,7 +277,14 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -291,7 +301,14 @@ const documentApi = contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -125,7 +125,7 @@ index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..f822c6c05010e4288596e6862304fcf2
                      return [
                          {
                              type: 'Document',
-@@ -318,7 +335,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -342,7 +359,13 @@ const documentApi = contentManagerApi.injectEndpoints({
                              params
                          }
                      }),
@@ -140,7 +140,7 @@ index 4a7bec77421fd671c74b8976fd8be97940c0d5c7..f822c6c05010e4288596e6862304fcf2
                      return [
                          {
                              type: 'Document',
-@@ -346,8 +369,13 @@ const documentApi = contentManagerApi.injectEndpoints({
+@@ -370,8 +393,13 @@ const documentApi = contentManagerApi.injectEndpoints({
                      try {
                          await queryFulfilled;
                      } catch  {

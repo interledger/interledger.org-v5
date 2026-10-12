@@ -24,10 +24,22 @@ export interface View {
   visibleFieldIds?: string[]
 }
 
+export type AirtableFieldValue = string | number | string[]
+
+// A record as the API returns it, keyed by field ID (the sync always sets
+// returnFieldsByFieldId). Values are unvalidated.
+export interface RawTableRecord {
+  id: string
+  createdTime: string
+  fields: Record<string, unknown>
+}
+
+// A record as written to grantee-data.json, keyed by column name. Airtable
+// omits empty cells, so any column can be missing.
 export interface TableRecord {
   id: string
   createdTime: string
   fields: {
-    [key: string]: string | number | string[]
+    [key: string]: AirtableFieldValue | undefined
   }
 }

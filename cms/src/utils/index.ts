@@ -24,7 +24,11 @@ export {
 } from './uploadLimits'
 
 // API token authorization (routes registered outside Strapi's middleware)
-export { extractBearerToken, isFullAccessApiToken } from './apiTokenAuth'
+export {
+  CONTENT_API_TOKEN_SERVICE,
+  extractBearerToken,
+  isFullAccessApiToken
+} from './apiTokenAuth'
 
 // Disk → Media Library seeding (bootstrap + sync:images)
 export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'

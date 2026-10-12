@@ -75,6 +75,7 @@ Two segments instead of one prevents collisions where the final segment alone is
 
 Single instrumentation point for all bounded link interactions across all three microsites.
 
+<!-- prettier-ignore -->
 ```astro
 ---
 // src/components/TrackedLink.astro

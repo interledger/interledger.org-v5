@@ -38,6 +38,7 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
+  CONTENT_API_TOKEN_SERVICE,
   isFullAccessApiToken,
   SERVER_STATUS_PATH,
   DEV_BUILD_ID,
@@ -308,6 +309,8 @@ interface UploadProvider {
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
   checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
+  replace?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
+  replaceStream?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
 }
 
 export interface UploadFile {
@@ -628,7 +631,7 @@ function createImageSizeLimitTransform(label: string): Transform {
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
  */
-function overrideUploadProvider(strapi: StrapiInstance): void {
+export function overrideUploadProvider(strapi: StrapiInstance): void {
   const uploadPlugin = strapi.plugin('upload')
   if (!uploadPlugin?.provider) {
     strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
@@ -680,6 +683,14 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
+  // The local provider has its own replace methods since Strapi 5.57. They
+  // write to `public/uploads/`, not to `uploadPath`, and skip the streaming
+  // byte check and the check after write above (Strapi still calls
+  // checkFileSize first). Without them, Strapi replaces a file with `delete`
+  // and then `upload`.
+  delete provider.replace
+  delete provider.replaceStream
+
   provider.delete = async (file: UploadFile) => {
     const candidates = [
       path.join(uploadPath, `${file.hash}${file.ext}`),
@@ -707,8 +718,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   if (!uploadPlugin) return
 
   const uploadService = uploadPlugin.service('upload') as
-    | UploadService
-    | undefined
+    UploadService | undefined
   if (uploadService) {
     await uploadService.setSettings({
       responsiveDimensions: false,
@@ -720,8 +730,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 
   const imgService = uploadPlugin.service('image-manipulation') as
-    | ImageManipulationService
-    | undefined
+    ImageManipulationService | undefined
   if (imgService) {
     imgService.generateThumbnail = async () => null
     imgService.generateResponsiveFormats = async () => []
@@ -830,7 +839,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   if (!outputPath) return
 
   const tokenService = strapi.service(
-    'admin::api-token'
+    CONTENT_API_TOKEN_SERVICE
   ) as AdminApiTokenService
 
   const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
@@ -1723,11 +1732,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   if (!plugin) return
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   if (!contentTypeService || !componentService) return
 
@@ -2186,11 +2193,9 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   for (const [uid, editLayout] of Object.entries(contentTypeLayouts)) {
     try {
@@ -2411,8 +2416,7 @@ export default {
     // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
     // Available badge compare it by bare slug.
     const uidService = strapi.plugin('content-manager')?.service('uid') as
-      | UidService
-      | undefined
+      UidService | undefined
     if (uidService) {
       patchUidServiceForSlashedSlugs(
         uidService,

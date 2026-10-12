@@ -78,11 +78,9 @@ const overlayUmamiAttrs = buildUmamiAttrs({
       umamiBaseComponent="resource_cards"
     >
       {buttonText}
-      {
-        trailingIcon && (
-          <Icon name={trailingIcon} slot="icon-right" class="size-5" />
-        )
-      }
+      {trailingIcon && (
+        <Icon name={trailingIcon} slot="icon-right" class="size-5" />
+      )}
     </LinkButton>
   </div>
   <a
@@ -92,5 +90,6 @@ const overlayUmamiAttrs = buildUmamiAttrs({
     class="absolute inset-0 z-0"
     {...overlayTargetAttrs}
     {...overlayDownloadAttrs}
-    {...overlayUmamiAttrs}></a>
+    {...overlayUmamiAttrs}
+  ></a>
 </article>

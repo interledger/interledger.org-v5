@@ -26,19 +26,15 @@ const ctaAttrs =
 <div
   class="flex items-center gap-md desktop:col-start-3 desktop:col-end-4 desktop:justify-self-end max-desktop:flex-col max-desktop:items-start max-desktop:px-lg"
 >
-  {
-    ctaButton && (
-      <a
-        class={ctaLinkClass}
-        href={ctaButton.href || '#'}
-        {...ctaAttrs}
-        {...(ctaButton.openInNewTab
-          ? { target: '_blank', rel: 'noopener noreferrer' }
-          : {})}
-      >
-        {ctaButton.label}
-      </a>
-    )
-  }
+  {ctaButton && <a
+    class={ctaLinkClass}
+    href={ctaButton.href || '#'}
+    {...ctaAttrs}
+    {...(ctaButton.openInNewTab
+      ? { target: '_blank', rel: 'noopener noreferrer' }
+      : {})}
+  >
+    {ctaButton.label}
+  </a>}
   <LanguageSwitcher />
 </div>

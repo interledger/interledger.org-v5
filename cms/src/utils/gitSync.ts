@@ -69,10 +69,7 @@ export class GitCommandError extends Error {
 }
 
 export type GitSyncSkipReason =
-  | 'disabled'
-  | 'no-changes'
-  | 'no-stage-paths'
-  | 'no-valid-paths'
+  'disabled' | 'no-changes' | 'no-stage-paths' | 'no-valid-paths'
 
 /**
  * The result of one sync attempt. This type shows the difference between

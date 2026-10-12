@@ -27,21 +27,17 @@ const ctaAttrs =
   class="flex items-center gap-md nav-bar:col-start-3 nav-bar:col-end-4 nav-bar:row-start-1 nav-bar:self-center nav-bar:justify-self-end nav-drawer:flex-col nav-drawer:items-start nav-drawer:px-lg"
   data-component="FoundationNavActions"
 >
-  {
-    ctaButton && (
-      <LinkButton
-        href={ctaButton.href || '#'}
-        variant="primary"
-        size="sm"
-        external={ctaButton.openInNewTab}
-        iconSide={hideCtaIcon ? 'none' : undefined}
-        class="nav-drawer:hidden"
-        {...ctaAttrs}
-      >
-        {ctaButton.label}
-        {!hideCtaIcon && <Icon slot="icon-right" name="arrow-right" />}
-      </LinkButton>
-    )
-  }
+  {ctaButton && <LinkButton
+    href={ctaButton.href || '#'}
+    variant="primary"
+    size="sm"
+    external={ctaButton.openInNewTab}
+    iconSide={hideCtaIcon ? 'none' : undefined}
+    class="nav-drawer:hidden"
+    {...ctaAttrs}
+  >
+    {ctaButton.label}
+    {!hideCtaIcon && <Icon slot="icon-right" name="arrow-right" />}
+  </LinkButton>}
   <LanguageSwitcher class="nav-drawer:hidden" />
 </div>

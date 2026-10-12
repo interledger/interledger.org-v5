@@ -118,41 +118,35 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
     gridColsClass
   ]}
 >
-  {
-    mediaFirst && hasMedia && (
-      <div class={columnClass}>
-        {isVideoLayout && videoUrl ? (
-          <VideoEmbed
-            url={videoUrl}
-            title={imageAlt?.trim() || 'Video'}
-            poster={imageSrc}
-          />
-        ) : imageSrc ? (
-          <OptimizedImage
-            src={imageSrc}
-            alt={imageAlt ?? ''}
-            width={640}
-            height={480}
-            loading="lazy"
-            class="w-full h-auto rounded-lg object-cover"
-          />
-        ) : null}
-      </div>
-    )
-  }
+  {mediaFirst && hasMedia && <div class={columnClass}>
+    {isVideoLayout && videoUrl ? (
+      <VideoEmbed
+        url={videoUrl}
+        title={imageAlt?.trim() || 'Video'}
+        poster={imageSrc}
+      />
+    ) : imageSrc ? (
+      <OptimizedImage
+        src={imageSrc}
+        alt={imageAlt ?? ''}
+        width={640}
+        height={480}
+        loading="lazy"
+        class="w-full h-auto rounded-lg object-cover"
+      />
+    ) : null}
+  </div>}
 
   <div class={contentColumnClass}>
-    {
-      isQuoteLayout && quote ? (
-        <Blockquote quote={quote} source={quoteSource} />
-      ) : (
-        <>
-          <div class="[&>*:last-child]:mb-0">
-            <slot />
-          </div>
-          {ctaText && resolvedCta && (
-            <div>
-              {/*
+    {isQuoteLayout && quote ? (
+      <Blockquote quote={quote} source={quoteSource} />
+    ) : (
+      <>
+        <div class="[&>*:last-child]:mb-0">
+          <slot />
+        </div>
+        {ctaText && resolvedCta && <div>
+          {/*
                 `mode="auto"` because this block renders on foundation (light)
                 as well as on the two permanently dark microsites. Without it
                 the secondary falls back to `light`, whose `text-neutral-100`
@@ -165,51 +159,45 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
                 An icon-less button then keeps the with-icon padding and its
                 label sits 8px off centre.
               */}
-              <LinkButton
-                href={resolvedCta.href}
-                variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
-                mode="auto"
-                external={resolvedCta.external}
-                document={resolvedCta.document}
-                iconSide={resolvedCta.icon ? 'right' : 'none'}
-                linkText={ctaText}
-                umamiLabel="button_cta"
-                umamiBaseComponent={
-                  ctaStyle === 'secondary' ? 'secondary_cta' : 'primary_cta'
-                }
-              >
-                {ctaText}
-                {resolvedCta.icon && (
-                  <Icon name={resolvedCta.icon} slot="icon-right" />
-                )}
-              </LinkButton>
-            </div>
-          )}
-        </>
-      )
-    }
+          <LinkButton
+            href={resolvedCta.href}
+            variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
+            mode="auto"
+            external={resolvedCta.external}
+            document={resolvedCta.document}
+            iconSide={resolvedCta.icon ? 'right' : 'none'}
+            linkText={ctaText}
+            umamiLabel="button_cta"
+            umamiBaseComponent={
+              ctaStyle === 'secondary' ? 'secondary_cta' : 'primary_cta'
+            }
+          >
+            {ctaText}
+            {resolvedCta.icon && (
+              <Icon name={resolvedCta.icon} slot="icon-right" />
+            )}
+          </LinkButton>
+        </div>}
+      </>
+    )}
   </div>
 
-  {
-    !mediaFirst && hasMedia && (
-      <div class={columnClass}>
-        {isVideoLayout && videoUrl ? (
-          <VideoEmbed
-            url={videoUrl}
-            title={imageAlt?.trim() || 'Video'}
-            poster={imageSrc}
-          />
-        ) : imageSrc ? (
-          <OptimizedImage
-            src={imageSrc}
-            alt={imageAlt ?? ''}
-            width={640}
-            height={480}
-            loading="lazy"
-            class="w-full h-auto rounded-lg object-cover"
-          />
-        ) : null}
-      </div>
-    )
-  }
+  {!mediaFirst && hasMedia && <div class={columnClass}>
+    {isVideoLayout && videoUrl ? (
+      <VideoEmbed
+        url={videoUrl}
+        title={imageAlt?.trim() || 'Video'}
+        poster={imageSrc}
+      />
+    ) : imageSrc ? (
+      <OptimizedImage
+        src={imageSrc}
+        alt={imageAlt ?? ''}
+        width={640}
+        height={480}
+        loading="lazy"
+        class="w-full h-auto rounded-lg object-cover"
+      />
+    ) : null}
+  </div>}
 </div>
