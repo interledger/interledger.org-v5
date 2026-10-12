@@ -15,6 +15,10 @@ vi.mock('astro:content', async () => {
 })
 
 const { buildSectionEntryBreadcrumbs } = await import('./breadcrumbs')
+const { ui } = await import('@/data/ui')
+
+const translator = (locale: keyof typeof ui) => (key: keyof typeof ui.en) =>
+  ui[locale][key]
 
 describe('buildSectionEntryBreadcrumbs', () => {
   it('builds Home > parents > label for a foundation entry with a nested pathSlug', () => {
@@ -23,12 +27,12 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'FAQ',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Grant', href: '/grant/our-grantmaking' },
+      { name: 'Grants', href: '/grant/our-grantmaking' },
       { name: 'Education', href: '/grant/education' },
       { name: 'On Campus', href: '/grant/education/on-campus' },
       { name: 'FAQ', href: '/grant/education/on-campus/faq' }
@@ -41,7 +45,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'The Role of Stablecoins',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs).toEqual([
@@ -60,7 +64,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'FAQ',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs).toEqual([
@@ -75,7 +79,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'summit',
       'FAQ',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs).toEqual([
@@ -92,7 +96,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'hackathon',
       'Jane Doe',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs).toEqual([
@@ -110,11 +114,11 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'Jane Doe',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs[1]).toEqual({
-      name: 'Grant',
+      name: 'Grants',
       href: '/grant/our-grantmaking'
     })
   })
@@ -127,14 +131,31 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'Jane Doe',
       'es',
-      'Inicio'
+      translator('es')
     )
 
     expect(breadcrumbs).toEqual([
       { name: 'Inicio', href: '/es' },
-      { name: 'Grant', href: '/es/grant/our-grantmaking' },
-      { name: 'Fellowship', href: '/es/grant/fellowship' },
+      { name: 'Subvenciones', href: '/es/grant/our-grantmaking' },
+      { name: 'Becas', href: '/es/grant/fellowship' },
       { name: 'Jane Doe', href: '/es/grant/fellowship/jane-doe' }
+    ])
+  })
+
+  it('localizes the grant label and keeps the future money program name', () => {
+    const breadcrumbs = buildSectionEntryBreadcrumbs(
+      'grant/future-money/re-simulate',
+      'foundation',
+      'Re/Simular',
+      'es',
+      translator('es')
+    )
+
+    expect(breadcrumbs.map((crumb) => crumb.name)).toEqual([
+      'Inicio',
+      'Subvenciones',
+      'Future Money',
+      'Re/Simular'
     ])
   })
 
@@ -144,7 +165,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'summit',
       'FAQ',
       'en',
-      'Home'
+      translator('en')
     )
 
     expect(breadcrumbs.map((crumb) => crumb.href)).toEqual([
@@ -154,6 +175,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       '/summit/grant/2025',
       '/summit/grant/2025/faq'
     ])
+    expect(breadcrumbs[2].name).toBe('Grant')
   })
 
   it('uses the route locale for hrefs, not the content locale', () => {
@@ -164,7 +186,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'foundation',
       'FAQ',
       'es',
-      'Inicio'
+      translator('es')
     )
 
     expect(breadcrumbs).toEqual([

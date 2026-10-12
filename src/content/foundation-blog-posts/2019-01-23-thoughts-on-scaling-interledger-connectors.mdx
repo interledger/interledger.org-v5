@@ -2,7 +2,7 @@
 title: Thoughts on Scaling Interledger Connectors
 description: Streaming payments mean that Interledger connectors need to process huge volumes of Interledger packets, but the current reference implementation is hard to run at scale.
 date: 2019-01-23
-pathSlug: thoughts-on-scaling-interledger-connectors
+pathSlug: /thoughts-on-scaling-interledger-connectors/
 featured: false
 locale: en
 articleBios:
@@ -12,9 +12,9 @@ categories:
   - Engineering
   - Interledger Technology
 relatedArticles:
-  - interledger-how-to-interconnect-all-blockchains-and-value-networks
-  - interledger-universe
-  - simplifying-interledger-the-graveyard-of-possible-protocol-features
+  - /interledger-how-to-interconnect-all-blockchains-and-value-networks/
+  - /interledger-universe/
+  - /simplifying-interledger-the-graveyard-of-possible-protocol-features/
 legacy: true
 ---
 
@@ -41,7 +41,7 @@ This set of features meant that we could support a single protocol for both clie
 
 Interledger Service Providers (ILSPs) need to run multiple instances of the connector in order to process large volumes of Interledger packets. Unfortunately, this is difficult to do today, arguably because of BTP and its use of WebSockets.
 
-Current ILSPs that run multiple connectors configure different WebSocket URLs and ILP addresses for each instance. As a result, peering with another ILSP requires configuring each connector with *all* of the URLs and ILP addresses of the peer’s connectors (n² connections). This complicates configuring connectors, exposes an ILSP’s internal network configuration to their peers (a potential security concern), and prevents “autoscaling” connectors (having a cloud provider automatically deploy new instances to handle additional demand). Furthermore, if a single connector instance crashes, any applications that are in the process of sending packets to or from that ILP address (for example, using [STREAM](https://medium.com/interledger-blog/streaming-money-and-data-over-ilp-fabd76fc991e)) will need to re-establish their connection with a new ILP address.
+Current ILSPs that run multiple connectors configure different WebSocket URLs and ILP addresses for each instance. As a result, peering with another ILSP requires configuring each connector with _all_ of the URLs and ILP addresses of the peer’s connectors (n² connections). This complicates configuring connectors, exposes an ILSP’s internal network configuration to their peers (a potential security concern), and prevents “autoscaling” connectors (having a cloud provider automatically deploy new instances to handle additional demand). Furthermore, if a single connector instance crashes, any applications that are in the process of sending packets to or from that ILP address (for example, using [STREAM](https://medium.com/interledger-blog/streaming-money-and-data-over-ilp-fabd76fc991e)) will need to re-establish their connection with a new ILP address.
 
 ## Stateless, HTTP-Based Connectors
 
@@ -79,4 +79,4 @@ Until the end of last year, I had thought that we would eventually replace SPSP 
 
 This was how I learned to stop worrying and love HTTP(S). If receiving money already requires a publicly accessible HTTPS server, then why not just use another HTTPS endpoint to receive ILP packets? Making connectors stateless should help us scale to handle greater volumes of ILP packets and enable groundbreaking use cases with efficient streaming payments.
 
-If you’re interested in helping to scale Interledger infrastructure, get in touch because companies in the Interledger community are hiring and looking for people with your skills! You can also join the [Interledger Community Group calls](/events), where we’ll be discussing this topic and many others.
+If you’re interested in helping to scale Interledger infrastructure, get in touch because companies in the Interledger community are hiring and looking for people with your skills! You can also join the [Interledger Community Group calls](/events/), where we’ll be discussing this topic and many others.

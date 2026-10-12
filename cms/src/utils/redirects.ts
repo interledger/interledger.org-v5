@@ -16,6 +16,7 @@
 
 import { errors } from '@strapi/utils'
 import { createAsyncLock } from './asyncLock'
+import { toSlashedPath } from './relativeLinks'
 
 export const REDIRECT_CATEGORIES = [
   'site_pages',
@@ -84,19 +85,46 @@ function isHttpsUrl(value: string): boolean {
   return new URL(value).hostname !== ''
 }
 
-/** Trims and drops a trailing slash, which Astro would ignore anyway. */
-export function normalizeRedirectSource(source: string): string {
-  const trimmed = source.trim()
-  return trimmed.length > 1 ? trimmed.replace(/\/+$/, '') : trimmed
-}
-
 function withoutTrailingSlash(path: string): string {
   return path.length > 1 ? path.replace(/\/+$/, '') : path
 }
 
 /**
- * The on-site path a destination sends visitors to, in the form sources are
- * stored in: query, fragment and trailing slash dropped. Netlify matches a
+ * Trims and stores the source as `/path/`, like every other path the CMS
+ * saves (INTORG-1254). A value without a leading slash is left for
+ * validation to reject: it may be a full URL pasted by mistake.
+ */
+export function normalizeRedirectSource(source: string): string {
+  const trimmed = source.trim()
+  if (!trimmed.startsWith('/') || trimmed === '/') return trimmed
+  return `${withoutTrailingSlash(trimmed)}/`
+}
+
+/**
+ * The key two sources are compared by. Netlify matches a rule with or without
+ * its trailing slash, and rows stored before INTORG-1254 hold `/old` where
+ * new ones hold `/old/`, so `/old` and `/old/` are one source.
+ */
+export function redirectSourceKey(source: string): string {
+  return withoutTrailingSlash(source.trim())
+}
+
+/** Every stored form of a source, for an exact-match database filter. */
+function redirectSourceVariants(source: string): string[] {
+  const key = redirectSourceKey(source)
+  return key === '/' ? [key] : [key, `${key}/`]
+}
+
+/** An on-site destination stored as `/path/`; an https URL is left alone. */
+function normalizeRedirectDestination(destination: string): string {
+  const trimmed = destination.trim()
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return trimmed
+  return toSlashedPath(trimmed)
+}
+
+/**
+ * The on-site path a destination sends visitors to, as a source key (see
+ * {@link redirectSourceKey}): query, fragment and trailing slash dropped. Netlify matches a
  * source by path alone, so `/second?x=1` and `/second#top` still hit a
  * `/second` redirect. Undefined for an external https URL, which leaves the
  * site and can't chain with our rules.
@@ -114,7 +142,7 @@ interface FieldError {
 
 function sourceError(source: unknown): string | undefined {
   if (typeof source !== 'string' || source.trim() === '') {
-    return 'Enter the old path, e.g. /old-page'
+    return 'Enter the old path, e.g. /old-page/'
   }
   const normalized = normalizeRedirectSource(source)
   if (!normalized.startsWith('/')) {
@@ -132,7 +160,7 @@ function destinationError(
   source: unknown
 ): string | undefined {
   if (typeof destination !== 'string' || destination.trim() === '') {
-    return 'Enter the new path, e.g. /new-page'
+    return 'Enter the new path, e.g. /new-page/'
   }
   const trimmed = destination.trim()
   if (!trimmed.startsWith('/') && !isHttpsUrl(trimmed)) {
@@ -144,7 +172,7 @@ function destinationError(
   }
   if (
     typeof source === 'string' &&
-    redirectTargetPath(trimmed) === normalizeRedirectSource(source)
+    redirectTargetPath(trimmed) === redirectSourceKey(source)
   ) {
     return 'The new path is the same as the old one'
   }
@@ -181,13 +209,13 @@ export function validateRedirectInput(
   })
 }
 
-/** Normalizes `source` in place so the stored value is the canonical path. */
+/** Normalizes both paths in place so the stored values are canonical. */
 export function normalizeRedirectInput(data: Record<string, unknown>): void {
   if (typeof data.source === 'string') {
     data.source = normalizeRedirectSource(data.source)
   }
   if (typeof data.destination === 'string') {
-    data.destination = data.destination.trim()
+    data.destination = normalizeRedirectDestination(data.destination)
   }
 }
 
@@ -325,15 +353,25 @@ async function findOtherEnabledRedirect(
   filters: Record<string, unknown>,
   matches: (entry: StoredRedirect) => boolean = () => true
 ): Promise<StoredRedirect | undefined> {
+  return findOtherRedirect(
+    check,
+    filters,
+    (entry) => isRedirectEnabled(entry) && matches(entry)
+  )
+}
+
+/** Another redirect, enabled or not, matching `filters` and `matches`. */
+async function findOtherRedirect(
+  check: RedirectLinkCheck,
+  filters: Record<string, unknown>,
+  matches: (entry: StoredRedirect) => boolean = () => true
+): Promise<StoredRedirect | undefined> {
   const candidates = (await check.documents.findMany({
     filters,
     fields: LINK_FIELDS
   })) as StoredRedirect[]
   return candidates.find(
-    (entry) =>
-      entry.documentId !== check.documentId &&
-      isRedirectEnabled(entry) &&
-      matches(entry)
+    (entry) => entry.documentId !== check.documentId && matches(entry)
   )
 }
 
@@ -360,15 +398,32 @@ export async function validateRedirectLinks(
   // Missing or malformed values are validateRedirectInput's job.
   if (!source || !destination) return undefined
 
+  const sourceKey = redirectSourceKey(source)
   const target = redirectTargetPath(destination)
-  if (target === source) {
+  if (target === sourceKey) {
     return linkError('destination', 'The new path is the same as the old one')
   }
+
+  // Strapi's `unique` compares exact strings, so it lets `/old/` in beside a
+  // row still holding `/old`, though Netlify treats them as one rule.
+  const twin = await findOtherRedirect(check, {
+    source: { $in: redirectSourceVariants(source) }
+  })
+  if (twin) {
+    return linkError(
+      'source',
+      `${String(twin.source)} already has a redirect. Edit that one instead.`
+    )
+  }
+
   // A disabled redirect never reaches Astro, so it can't be part of a chain.
   if (!enabled) return undefined
 
   const onward =
-    target && (await findOtherEnabledRedirect(check, { source: target }))
+    target &&
+    (await findOtherEnabledRedirect(check, {
+      source: { $in: redirectSourceVariants(target) }
+    }))
   if (onward) {
     return linkError(
       'destination',
@@ -380,10 +435,10 @@ export async function validateRedirectLinks(
   // or trailing slash follows it: the prefix narrows, the path decides.
   const incoming = await findOtherEnabledRedirect(
     check,
-    { destination: { $startsWith: source } },
+    { destination: { $startsWith: sourceKey } },
     (entry) =>
       typeof entry.destination === 'string' &&
-      redirectTargetPath(entry.destination) === source
+      redirectTargetPath(entry.destination) === sourceKey
   )
   if (incoming) {
     return linkError(
@@ -513,9 +568,10 @@ function configShapeProblems(json: unknown): string[] {
 }
 
 /**
- * The per-row checks Strapi applies on save, plus a canonical-source check:
- * Strapi stores the normalized source, so `/old/` in the file would never
- * match its stored row and every re-seed would try to create it again.
+ * The per-row checks Strapi applies on save, plus a canonical-form check:
+ * Strapi stores the normalized source and destination, so a file holding
+ * `/old` would differ from its stored `/old/` and every re-seed would write
+ * the row again.
  */
 function entryProblems(entry: RedirectEntry): string[] {
   const problems: string[] = []
@@ -528,6 +584,13 @@ function entryProblems(entry: RedirectEntry): string[] {
   }
   const badDestination = destinationError(entry.destination, entry.source)
   if (badDestination) problems.push(`${entry.source}: ${badDestination}`)
+  else if (
+    normalizeRedirectDestination(entry.destination) !== entry.destination
+  ) {
+    problems.push(
+      `${entry.source}: write the new path as ${normalizeRedirectDestination(entry.destination)}`
+    )
+  }
   return problems
 }
 
@@ -535,8 +598,9 @@ function duplicateSourceProblems(entries: RedirectEntry[]): string[] {
   const seen = new Set<string>()
   const problems: string[] = []
   for (const { source } of entries) {
-    if (seen.has(source)) problems.push(`${source}: listed more than once`)
-    seen.add(source)
+    const key = redirectSourceKey(source)
+    if (seen.has(key)) problems.push(`${source}: listed more than once`)
+    seen.add(key)
   }
   return problems
 }
@@ -549,13 +613,13 @@ function duplicateSourceProblems(entries: RedirectEntry[]): string[] {
 export function findRedirectChains(entries: RedirectEntry[]): string[] {
   const enabled = entries.filter(isRedirectEnabled)
   const onwardBySource = new Map(
-    enabled.map((entry) => [entry.source, entry.destination])
+    enabled.map((entry) => [redirectSourceKey(entry.source), entry.destination])
   )
   const problems: string[] = []
   for (const { source, destination } of enabled) {
     const target = redirectTargetPath(destination)
     // A self-redirect is reported as one, not as a chain to itself.
-    if (target === undefined || target === source) continue
+    if (target === undefined || target === redirectSourceKey(source)) continue
     const onward = onwardBySource.get(target)
     if (onward !== undefined) {
       problems.push(
@@ -599,14 +663,18 @@ export function parseRedirectConfigFile(
 /**
  * Stored redirects whose source the file no longer has: the rows the sync
  * deletes so Strapi mirrors redirects.json, as sync:mdx does for MDX files.
- * Matched on the exact source, the same key the sync looks rows up by.
+ * Matched on {@link redirectSourceKey}, the same key the sync looks rows up by.
  */
 export function findOrphanedRedirects<T extends Pick<RedirectEntry, 'source'>>(
   entries: Pick<RedirectEntry, 'source'>[],
   stored: Iterable<T>
 ): T[] {
-  const fileSources = new Set(entries.map((entry) => entry.source))
-  return [...stored].filter((row) => !fileSources.has(row.source))
+  const fileSources = new Set(
+    entries.map((entry) => redirectSourceKey(entry.source))
+  )
+  return [...stored].filter(
+    (row) => !fileSources.has(redirectSourceKey(row.source))
+  )
 }
 
 /**

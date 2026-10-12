@@ -28,11 +28,6 @@ export function useTranslations(lang: Locale) {
   }
 }
 
-export {
-  buildRoutePath,
-  COLLECTION_INDEX_SLUG,
-  translatePath,
-  getBlogPostPath
-} from './translatePath'
+export type Translate = ReturnType<typeof useTranslations>
 
 export { HOME_CONTENT_SLUG } from './routes'

@@ -1743,7 +1743,7 @@ export interface SharedLocalizedMedia extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
-    alternativeText: Schema.Attribute.String &
+    alternativeText: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1888,7 +1888,7 @@ export interface SharedSocialLink extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'blocks.agenda': BlocksAgenda
       'blocks.agenda-item': BlocksAgendaItem

@@ -90,34 +90,32 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
   data-component="FoundationNavMenu"
   data-nav-list
 >
-  {
-    menuGroups.map((group) => {
-      const groupSlug = toSlug(group.label)
-      const buttonId = `nav-menu-${groupSlug}-button`
-      const panelId = `nav-menu-${groupSlug}-panel`
+  {menuGroups.map((group) => {
+    const groupSlug = toSlug(group.label)
+    const buttonId = `nav-menu-${groupSlug}-button`
+    const panelId = `nav-menu-${groupSlug}-panel`
 
-      return (
-        <li
-          class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
-          data-menu-level="1"
-          data-wide-panel={hasWidePanel(group) ? '' : undefined}
-        >
-          <button
-            type="button"
-            id={buttonId}
-            aria-expanded="false"
-            aria-controls={panelId}
-            aria-label={t('nav.submenu_toggle', { label: group.label })}
-            {...submenuToggleAttrs(group.label)}
-            class={navButtonClass}
-            data-submenu-button
-            data-open="false"
-          >
-            <span aria-hidden="true">{group.label}</span>
-            <span class={navButtonChevronClass} aria-hidden="true">
-              <Icon name="arrow-down" class="size-8 desktop:size-5" />
-            </span>
-          </button>
+    return <li
+      class={`group ${hasWidePanel(group) ? 'desktop:static' : 'desktop:relative'}`}
+      data-menu-level="1"
+      data-wide-panel={hasWidePanel(group) ? '' : undefined}
+    >
+      <button
+        type="button"
+        id={buttonId}
+        aria-expanded="false"
+        aria-controls={panelId}
+        aria-label={t('nav.submenu_toggle', { label: group.label })}
+        {...submenuToggleAttrs(group.label)}
+        class={navButtonClass}
+        data-submenu-button
+        data-open="false"
+      >
+        <span aria-hidden="true">{group.label}</span>
+        <span class={navButtonChevronClass} aria-hidden="true">
+          <Icon name="arrow-down" class="size-8 desktop:size-5" />
+        </span>
+      </button>
 
           {group.subGroups && group.subGroups.length > 0 ? (
             <section

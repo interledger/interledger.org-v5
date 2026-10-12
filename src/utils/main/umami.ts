@@ -194,7 +194,7 @@ function getDestination(href: string | null | undefined): {
 
   const normalized = stripKnownOrigin(trimmed)
 
-  // A hash-only href (`#section`, e.g. FaqSectionsNav's in-page jumps) is a
+  // A hash-only href (`#section`, e.g. SectionsNav's in-page jumps) is a
   // same-page anchor, not a navigation destination — treat it like a
   // destination-less interaction rather than letting the empty remainder
   // below collapse to `<section>_home`.
@@ -359,9 +359,9 @@ export function buildNavCtaUmamiAttrs(
 }
 
 /**
- * Shared Umami attrs for an in-page section-nav link (`FaqSectionsNav.astro`,
- * `ReportSectionsNav.astro`) — same `#id` anchor shape, distinguished by
- * `baseComponent` per content domain (`faq`, `report`).
+ * Shared Umami attrs for an in-page section-nav link (`SectionsNav.astro`).
+ * Same `#id` anchor shape, distinguished by `baseComponent` per content
+ * domain (`faq`, `report`).
  */
 export function buildSectionNavLinkUmamiAttrs(
   pathname: string,

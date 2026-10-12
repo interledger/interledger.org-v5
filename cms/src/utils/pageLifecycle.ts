@@ -23,6 +23,7 @@ import {
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import { mdxRelativePath } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
@@ -68,13 +69,14 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
-const API_TOKEN_STRATEGY = 'api-token'
+// Strapi 5.57 renamed the content API token strategy (was `api-token`).
+const API_TOKEN_STRATEGY = 'content-api-token'
 
 /**
  * True for an automation request, such as the repo's sync scripts:
- * authenticated with an API token and sending `x-skip-mdx-export`. Admin
- * sessions use the `admin` strategy, so an editor can't pass for one by adding
- * the header. The header is caller-controlled, so this doesn't single out the
+ * authenticated with a content API token and sending `x-skip-mdx-export`.
+ * Admin sessions use the `admin` strategy and admin tokens the `admin-token`
+ * strategy, so neither can pass for one by adding the header. The header is caller-controlled, so this doesn't single out the
  * sync: any API token with the permission qualifies. Tokens are issued by
  * admins only.
  */
@@ -139,7 +141,7 @@ function normalizePathSlug(pathSlug: unknown): string {
 }
 
 /**
- * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
+ * Resolves the MDX filepath for a page from `pathSlug` (full URL path; surrounding slashes are trimmed).
  * Segments before the last `/` are directories; the last segment is the filename stem.
  *
  * Pass `englishSlug` for a non-default locale, the same way the blog and flat
@@ -507,7 +509,7 @@ export function createPageLifecycle<T extends UID.ContentType>(
       const { oldPathSlug } = event.state
 
       // If this locale's pathSlug changed, remove only that locale's old file
-      if (oldPathSlug && oldPathSlug !== result.pathSlug) {
+      if (oldPathSlug && !isSameSlug(oldPathSlug, result.pathSlug)) {
         console.log(
           `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
         )

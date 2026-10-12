@@ -31,24 +31,39 @@ function erroredFields(err: unknown): string[] {
 
 describe('normalizeRedirectSource', () => {
   it.each([
-    ['/about/', '/about'],
-    ['  /about  ', '/about'],
-    ['/about///', '/about'],
+    ['/about', '/about/'],
+    ['/about/', '/about/'],
+    ['  /about  ', '/about/'],
+    ['/about///', '/about/'],
     ['/', '/'],
-    ['', '']
+    ['', ''],
+    // Left for validation to reject, not turned into a path.
+    ['about', 'about'],
+    ['https://interledger.org/old', 'https://interledger.org/old']
   ])('%j → %j', (input, expected) => {
     expect(normalizeRedirectSource(input)).toBe(expected)
   })
 })
 
 describe('normalizeRedirectInput', () => {
-  it('canonicalizes the source and trims the destination', () => {
+  it('stores both paths as /path/', () => {
     const data: Record<string, unknown> = {
-      source: ' /old/ ',
-      destination: ' /new/ '
+      source: ' /old ',
+      destination: ' /new?x=1 '
     }
     normalizeRedirectInput(data)
-    expect(data).toEqual({ source: '/old', destination: '/new/' })
+    expect(data).toEqual({ source: '/old/', destination: '/new/?x=1' })
+  })
+
+  it('leaves an https destination and a file link alone', () => {
+    for (const destination of [
+      'https://example.org/docs',
+      '/uploads/img/original/report.pdf'
+    ]) {
+      const data: Record<string, unknown> = { source: '/old', destination }
+      normalizeRedirectInput(data)
+      expect(data.destination).toBe(destination)
+    }
   })
 
   it('leaves absent and non-string fields alone', () => {
@@ -246,12 +261,15 @@ function fakeFinder(rows: Row[]): RedirectFinder {
       rows.find((row) => row.documentId === documentId) ?? null,
     findMany: async ({ filters }) => {
       const { source, destination } = filters as {
-        source?: string
+        source?: string | { $in: string[] }
         destination?: { $in?: string[]; $startsWith?: string }
       }
       return rows.filter(
         (row) =>
-          (source === undefined || row.source === source) &&
+          (source === undefined ||
+            (typeof source === 'string'
+              ? row.source === source
+              : source.$in.includes(row.source))) &&
           (destination?.$in === undefined ||
             destination.$in.includes(row.destination)) &&
           (destination?.$startsWith === undefined ||
@@ -284,6 +302,27 @@ describe('validateRedirectLinks', () => {
     })
     expect(erroredFields(err)).toEqual(['destination'])
     expect(fieldErrors(err)[0]!.message).toContain('/new')
+  })
+
+  // Rows saved before INTORG-1254 hold `/old`; new saves hold `/old/`.
+  // Netlify treats them as one rule, so Strapi must too.
+  it('rejects a source another row holds without its trailing slash', async () => {
+    const err = await validateRedirectLinks({
+      documents,
+      data: { source: '/old/', destination: '/elsewhere/' }
+    })
+    expect(erroredFields(err)).toEqual(['source'])
+    expect(fieldErrors(err)[0]!.message).toContain(
+      '/old already has a redirect'
+    )
+  })
+
+  it('rejects a slashed source another redirect already points at', async () => {
+    const err = await validateRedirectLinks({
+      documents,
+      data: { source: '/tech/overview/', destination: '/tech/' }
+    })
+    expect(erroredFields(err)).toEqual(['source'])
   })
 
   it('rejects a source another redirect already points at', async () => {
@@ -414,8 +453,8 @@ describe('parseRedirectConfigFile', () => {
 
   it('returns the entries for a valid file', () => {
     const result = parseRedirectConfigFile({
-      site_pages: [rule('/a', '/b')],
-      hackathon: [rule('/c', 'https://example.org/d')]
+      site_pages: [rule('/a/', '/b/')],
+      hackathon: [rule('/c/', 'https://example.org/d')]
     })
     expect(result).toHaveLength(2)
   })
@@ -463,8 +502,14 @@ describe('parseRedirectConfigFile', () => {
   )
 
   it('rejects a source Strapi would store in another form', () => {
+    expect(problems({ site_pages: [rule('/a', '/b/')] })).toContain(
+      'write it as /a/'
+    )
+  })
+
+  it('rejects a destination Strapi would store in another form', () => {
     expect(problems({ site_pages: [rule('/a/', '/b')] })).toContain(
-      'write it as /a'
+      'write the new path as /b/'
     )
   })
 
@@ -491,7 +536,11 @@ describe('parseRedirectConfigFile', () => {
 
   it('reports every problem, not just the first', () => {
     const message = problems({
-      site_pages: [rule('/a', '/a'), rule('/b', '//evil'), rule('/b', '/c')]
+      site_pages: [
+        rule('/a/', '/a/'),
+        rule('/b/', '//evil'),
+        rule('/b/', '/c/')
+      ]
     })
     expect(message).toContain('3 invalid redirect(s)')
   })
@@ -796,7 +845,7 @@ describe('validateAndSaveRedirect', () => {
 
     expect(firstResult).not.toBeInstanceOf(Error)
     expect(erroredFields(secondResult)).toEqual(['source'])
-    expect(rows.map((row) => row.source)).toEqual(['/a'])
+    expect(rows.map((row) => row.source)).toEqual(['/a/'])
   })
 
   it('saves the normalized data', async () => {
@@ -811,7 +860,7 @@ describe('validateAndSaveRedirect', () => {
     )
 
     expect(rows).toEqual([
-      { documentId: 'new-0', source: '/old', destination: '/new' }
+      { documentId: 'new-0', source: '/old/', destination: '/new/' }
     ])
   })
 
@@ -883,6 +932,17 @@ describe('findOrphanedRedirects', () => {
 
   it('returns every stored row for an empty file', () => {
     expect(findOrphanedRedirects([], stored)).toEqual(stored)
+  })
+
+  // The sync updates such a row to the file's form; deleting it would drop
+  // the redirect from Strapi (INTORG-1254).
+  it('keeps a row whose source differs from the file only by a trailing slash', () => {
+    const entries = [
+      { source: '/old-a/' },
+      { source: '/old-b/' },
+      { source: '/Old-C/' }
+    ]
+    expect(findOrphanedRedirects(entries, stored)).toEqual([])
   })
 
   it('matches the exact source, case included', () => {

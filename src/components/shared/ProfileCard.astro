@@ -1,7 +1,12 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import ProfileAvatarFallback from '@/components/shared/ProfileAvatarFallback.astro'
-import { defaultLocale, buildUmamiAttrs } from '@/utils'
+import {
+  addTrailingSlash,
+  defaultLocale,
+  buildUmamiAttrs,
+  trimSlashes
+} from '@/utils'
 import { getProfileAvatarColorClass } from '@/components/shared/profileColors'
 
 interface Props {
@@ -31,7 +36,9 @@ const colorClass = getProfileAvatarColorClass(colorIndex)
 const { routeLocale } = Astro.locals
 const langPrefix = routeLocale === defaultLocale ? '' : `/${routeLocale}`
 const sectionPrefix = section && section !== 'foundation' ? `/${section}` : ''
-const profileLink = `${langPrefix}${sectionPrefix}/${pathSlug}`
+const profileLink = addTrailingSlash(
+  `${langPrefix}${sectionPrefix}/${trimSlashes(pathSlug)}`
+)
 
 const umamiBase = {
   currentPath: umamiContext,

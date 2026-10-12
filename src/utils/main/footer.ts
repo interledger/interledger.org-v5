@@ -1,6 +1,7 @@
 import type { MenuGroup, NavigationSite } from '@/types/navigation'
 import type { SocialIconName } from '../shared/url'
-import { translatePath, type Locale, type UiKey, useTranslations } from './i18'
+import { type Locale, type UiKey, useTranslations } from './i18'
+import { translatePath } from './translatePath'
 
 export interface SocialLink {
   href: string

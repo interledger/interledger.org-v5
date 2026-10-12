@@ -22,6 +22,7 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
+import { bareSlug } from '@/utils'
 import { getStringAttr, getStringArrayAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
@@ -87,7 +88,7 @@ export function createRelationResolver(
       }
     }
 
-    if (dryRun && dryRunPathSlugs?.has(`${locale}:${pathSlug}`)) {
+    if (dryRun && dryRunPathSlugs?.has(`${locale}:${bareSlug(pathSlug)}`)) {
       console.log(
         `   ⚠️  [DRY-RUN] Relation "${pathSlug}" (${apiId}) not yet in Strapi for "${locale}" — would be created by this same sync run.`
       )

@@ -16,7 +16,11 @@ import {
   validateGrantPageFaqSection,
   validateFaqSections,
   validateSectionScopedSlug,
+  validateUniqueSlug,
   type SectionScopedSlugFinder,
+  patchUidServiceForSlashedSlugs,
+  type UidDocuments,
+  type UidService,
   validateAndSaveRedirect,
   redirectDeleteError,
   isCodeSyncRequest,
@@ -34,6 +38,7 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
+  CONTENT_API_TOKEN_SERVICE,
   isFullAccessApiToken,
   SERVER_STATUS_PATH,
   DEV_BUILD_ID,
@@ -221,6 +226,17 @@ const SECTION_SCOPED_SLUG_UIDS = [
   'api::report.report'
 ] as const
 
+/** Content types whose `pathSlug` is `unique: true` across the collection. */
+const UNIQUE_SLUG_UIDS = [
+  'api::foundation-page.foundation-page',
+  'api::summit-page.summit-page',
+  'api::hackathon-page.hackathon-page',
+  'api::grant-page.grant-page',
+  'api::grant-overview-page.grant-overview-page',
+  'api::podcast-page.podcast-page',
+  'api::foundation-blog-post.foundation-blog-post'
+] as const
+
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
   findMany: (options: Record<string, unknown>) => Promise<unknown[]>
@@ -293,6 +309,8 @@ interface UploadProvider {
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
   checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
+  replace?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
+  replaceStream?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
 }
 
 export interface UploadFile {
@@ -324,6 +342,7 @@ interface StrapiPlugin {
     | CmComponentsService
     | UploadService
     | ImageManipulationService
+    | UidService
     | undefined
   provider?: UploadProvider
 }
@@ -612,7 +631,7 @@ function createImageSizeLimitTransform(label: string): Transform {
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
  */
-function overrideUploadProvider(strapi: StrapiInstance): void {
+export function overrideUploadProvider(strapi: StrapiInstance): void {
   const uploadPlugin = strapi.plugin('upload')
   if (!uploadPlugin?.provider) {
     strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
@@ -663,6 +682,14 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     assertWrittenImageWithinLimit(file, dest, label)
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
+
+  // The local provider has its own replace methods since Strapi 5.57. They
+  // write to `public/uploads/`, not to `uploadPath`, and skip the streaming
+  // byte check and the check after write above (Strapi still calls
+  // checkFileSize first). Without them, Strapi replaces a file with `delete`
+  // and then `upload`.
+  delete provider.replace
+  delete provider.replaceStream
 
   provider.delete = async (file: UploadFile) => {
     const candidates = [
@@ -814,7 +841,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   if (!outputPath) return
 
   const tokenService = strapi.service(
-    'admin::api-token'
+    CONTENT_API_TOKEN_SERVICE
   ) as AdminApiTokenService
 
   const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
@@ -991,7 +1018,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
       pathSlug:
-        'Path relative to the chosen Section, no leading slash, e.g. 2025/judges/jane-doe. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path relative to the chosen Section, starting and ending with a slash, e.g. /2025/judges/jane-doe/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
@@ -1002,28 +1029,28 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the site root (/). Example: about-us → /about-us; no leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path of the page, starting and ending with a slash. Example: /about-us/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::summit-page.summit-page': {
       title:
         'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to /summit/. Example: faq → /summit/faq. Do not include /summit/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path after /summit, starting and ending with a slash. Example: /faq/ → /summit/faq/. Do not include /summit. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       title:
         'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to /hackathon/. Example: overview → /hackathon/overview. Do not include /hackathon/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path after /hackathon, starting and ending with a slash. Example: /overview/ → /hackathon/overview/. Do not include /hackathon. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       title:
         'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to /grant/. Example: education/on-campus → /grant/education/on-campus. No leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path after /grant, starting and ending with a slash. Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
@@ -1031,7 +1058,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path after /grant, starting and ending with a slash. Example: /education/ → /grant/education/. Must not clash with any Grant Page slug. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
@@ -1039,7 +1066,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path must be set to "podcast". We only render one page with slug "podcast", at /podcast. Other slugs will not be built. If you need changes contact the frontend dev team.',
+        'Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
@@ -1053,7 +1080,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path after /blog, starting and ending with a slash. Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -1065,13 +1092,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
       thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
       relatedArticles:
-        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path after /blog (e.g. /my-related-post/), not the full URL.'
     },
     'api::faq.faq': {
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /grant/education/on-campus/faq/). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
       description:
@@ -1090,7 +1117,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /policy-and-advocacy/role-stablecoins-.../). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       section:
         'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
       description:
@@ -1412,7 +1439,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileBio: 'We recommend a max of 255 characters'
     },
     'shared.related-article': {
-      slug: 'Add exactly 3. Enter the slug of the related post - the segment after /blog/, not the full URL (e.g. my-related-post). No leading slash'
+      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save.'
     },
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
@@ -1503,13 +1530,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.cta-button': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
       document:
@@ -1521,26 +1548,26 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'One button, or two side by side. On mobile they stack and both go full width.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
+      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'navigation.menu-item': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     },
     'blocks.grant-faq-section': {
       ctaLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
       ctaExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       ctaDocument:
@@ -1612,13 +1639,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
       primaryButtonExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       primaryButtonDocument:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
       secondaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
+        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
       secondaryButtonExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       secondaryButtonDocument:
@@ -1626,7 +1653,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.quote': {
       authorLink:
-        'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+        'Optional. For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     },
     // Strapi renders a description for a scalar field only. `logo`,
     // `socialLinks` and `cta` are components, so a description on them never
@@ -1653,7 +1680,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
       benefitsLabel: 'Optional. Defaults to "Benefits".',
       ctaLink:
-        'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, start with a forward slash. For another site, use a full URL.'
+        'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     }
   }
 
@@ -2294,9 +2321,8 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Auto-correct relative-link slashes (add a leading slash to
-        // href-like fields that are missing one, strip one from path-segment
-        // fields that shouldn't have one) and strip the CMS origin CKEditor
+        // Auto-correct relative-link slashes (href-like and path-segment
+        // fields are stored as /path/) and strip the CMS origin CKEditor
         // prefixes onto upload URLs, before any validation below runs.
         if (!NAV_UIDS.has(ctx.uid)) {
           normalizeRelativeLinksInDocumentData(ctx.params.data)
@@ -2379,6 +2405,29 @@ export default {
           ) as unknown as SectionScopedSlugFinder,
           ...args
         })
+      )
+    }
+    // Strapi's own `unique` check compares exact strings, so `about` and
+    // `/about/` would pass as two slugs (INTORG-1254).
+    for (const uid of UNIQUE_SLUG_UIDS) {
+      registerAsyncDocumentValidation(strapi, uid, (args) =>
+        validateUniqueSlug({
+          documents: strapi.documents(
+            uid
+          ) as unknown as SectionScopedSlugFinder,
+          ...args
+        })
+      )
+    }
+    // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
+    // Available badge compare it by bare slug.
+    const uidService = strapi.plugin('content-manager')?.service('uid') as
+      | UidService
+      | undefined
+    if (uidService) {
+      patchUidServiceForSlashedSlugs(
+        uidService,
+        (uid) => strapi.documents(uid) as unknown as UidDocuments
       )
     }
     registerDocumentValidation(
@@ -2483,7 +2532,7 @@ export default {
       return next()
     })
 
-    // Normalize nav href fields (force leading slash), then validate required
+    // Normalize nav href fields (stored as /path/), then validate required
     // menu/CTA labels, before saving to DB
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {

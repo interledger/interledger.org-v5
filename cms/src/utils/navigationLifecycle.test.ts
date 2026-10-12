@@ -52,9 +52,9 @@ describe('sanitizeMenuItem', () => {
   })
 
   it('keeps label and href', () => {
-    expect(sanitizeMenuItem({ label: 'About', href: '/about' })).toEqual({
+    expect(sanitizeMenuItem({ label: 'About', href: '/about/' })).toEqual({
       label: 'About',
-      href: '/about'
+      href: '/about/'
     })
   })
 
@@ -72,20 +72,20 @@ describe('sanitizeMenuItem', () => {
 
   it('includes openInNewTab only when true', () => {
     expect(
-      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: true })
-    ).toEqual({ label: 'Ext', href: '/ext', openInNewTab: true })
+      sanitizeMenuItem({ label: 'Ext', href: '/ext/', openInNewTab: true })
+    ).toEqual({ label: 'Ext', href: '/ext/', openInNewTab: true })
   })
 
   it('omits openInNewTab when false', () => {
     expect(
-      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: false })
-    ).toEqual({ label: 'Ext', href: '/ext' })
+      sanitizeMenuItem({ label: 'Ext', href: '/ext/', openInNewTab: false })
+    ).toEqual({ label: 'Ext', href: '/ext/' })
   })
 
   it('omits openInNewTab when null', () => {
     expect(
-      sanitizeMenuItem({ label: 'Ext', href: '/ext', openInNewTab: null })
-    ).toEqual({ label: 'Ext', href: '/ext' })
+      sanitizeMenuItem({ label: 'Ext', href: '/ext/', openInNewTab: null })
+    ).toEqual({ label: 'Ext', href: '/ext/' })
   })
 })
 
@@ -95,9 +95,9 @@ describe('sanitizeMenuGroup', () => {
   })
 
   it('includes href when present', () => {
-    expect(sanitizeMenuGroup({ label: 'Group', href: '/group' })).toEqual({
+    expect(sanitizeMenuGroup({ label: 'Group', href: '/group/' })).toEqual({
       label: 'Group',
-      href: '/group'
+      href: '/group/'
     })
   })
 
@@ -111,20 +111,20 @@ describe('sanitizeMenuGroup', () => {
     const group = {
       label: 'Nav',
       items: [
-        { label: 'A', href: '/a' },
+        { label: 'A', href: '/a/' },
         { label: 'B', href: null, openInNewTab: null }
       ]
     }
     expect(sanitizeMenuGroup(group)).toEqual({
       label: 'Nav',
-      items: [{ label: 'A', href: '/a' }, { label: 'B' }]
+      items: [{ label: 'A', href: '/a/' }, { label: 'B' }]
     })
   })
 
   it('filters out null items', () => {
     const group = {
       label: 'Nav',
-      items: [null, { label: 'A', href: '/a' }, undefined] as (
+      items: [null, { label: 'A', href: '/a/' }, undefined] as (
         | MenuItem
         | null
         | undefined
@@ -132,7 +132,7 @@ describe('sanitizeMenuGroup', () => {
     }
     expect(sanitizeMenuGroup(group)).toEqual({
       label: 'Nav',
-      items: [{ label: 'A', href: '/a' }]
+      items: [{ label: 'A', href: '/a/' }]
     })
   })
 
@@ -155,7 +155,7 @@ describe('sanitizeMenuGroup', () => {
           label: 'Standards',
           items: [
             { label: 'ILP', href: 'interledger' },
-            { label: 'Open Payments', href: '/open-payments' }
+            { label: 'Open Payments', href: '/open-payments/' }
           ]
         }
       ]
@@ -166,8 +166,8 @@ describe('sanitizeMenuGroup', () => {
         {
           label: 'Standards',
           items: [
-            { label: 'ILP', href: '/interledger' },
-            { label: 'Open Payments', href: '/open-payments' }
+            { label: 'ILP', href: '/interledger/' },
+            { label: 'Open Payments', href: '/open-payments/' }
           ]
         }
       ]
@@ -183,13 +183,13 @@ describe('sanitizeMenuGroup', () => {
   it('keeps both items and subGroups when both are present', () => {
     const group = {
       label: 'Tech',
-      items: [{ label: 'A', href: '/a' }],
-      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b' }] }]
+      items: [{ label: 'A', href: '/a/' }],
+      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b/' }] }]
     }
     expect(sanitizeMenuGroup(group)).toEqual({
       label: 'Tech',
-      items: [{ label: 'A', href: '/a' }],
-      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b' }] }]
+      items: [{ label: 'A', href: '/a/' }],
+      subGroups: [{ label: 'Sub', items: [{ label: 'B', href: '/b/' }] }]
     })
   })
 })
@@ -205,13 +205,13 @@ describe('sanitizeMenuSubGroup', () => {
     const subGroup = {
       label: 'Standards',
       items: [
-        { label: 'A', href: '/a' },
+        { label: 'A', href: '/a/' },
         { label: 'B', href: null, openInNewTab: null }
       ]
     }
     expect(sanitizeMenuSubGroup(subGroup)).toEqual({
       label: 'Standards',
-      items: [{ label: 'A', href: '/a' }, { label: 'B' }]
+      items: [{ label: 'A', href: '/a/' }, { label: 'B' }]
     })
   })
 
@@ -230,12 +230,12 @@ describe('sanitizeNavigation', () => {
   it('sanitizes mainMenu groups', () => {
     const data = {
       mainMenu: [
-        { label: 'Foundation', items: [{ label: 'About', href: '/about' }] }
+        { label: 'Foundation', items: [{ label: 'About', href: '/about/' }] }
       ]
     }
     expect(sanitizeNavigation(data)).toEqual({
       mainMenu: [
-        { label: 'Foundation', items: [{ label: 'About', href: '/about' }] }
+        { label: 'Foundation', items: [{ label: 'About', href: '/about/' }] }
       ]
     })
   })
@@ -243,11 +243,11 @@ describe('sanitizeNavigation', () => {
   it('includes ctaButton when present', () => {
     const data = {
       mainMenu: [],
-      ctaButton: { label: 'Summit', href: '/summit' }
+      ctaButton: { label: 'Summit', href: '/summit/' }
     }
     expect(sanitizeNavigation(data)).toEqual({
       mainMenu: [],
-      ctaButton: { label: 'Summit', href: '/summit' }
+      ctaButton: { label: 'Summit', href: '/summit/' }
     })
   })
 

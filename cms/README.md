@@ -134,8 +134,8 @@ When content is published or updated in Strapi:
   Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
 - MDX files for **profile pages** are stored **flat** under `src/content/profiles/` (and `src/content/profiles/es/` for localized entries). The filename is derived from the `pathSlug` with slashes replaced by hyphens.<br/>
-  Example: `section: foundation`, `pathSlug: grant/fellowship/jane-doe` → `src/content/profiles/grant-fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe`.<br/>
-  Example: `section: summit`, `pathSlug: 2025/speakers/jane-doe` → `src/content/profiles/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe`.
+  Example: `section: foundation`, `pathSlug: /grant/fellowship/jane-doe/` → `src/content/profiles/grant-fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe/`.<br/>
+  Example: `section: summit`, `pathSlug: /2025/speakers/jane-doe/` → `src/content/profiles/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe/`.
 
 **Profile pages**
 
@@ -149,11 +149,11 @@ When content is published or updated in Strapi:
 
 Each profile's public URL is built from the `section` and `pathSlug` fields:
 
-| Part           | Field              | Example                     |
-| -------------- | ------------------ | --------------------------- |
-| Domain         | _(static label)_   | `interledger.org`           |
-| Section prefix | `section` dropdown | _(none for foundation)_     |
-| Path           | `pathSlug`         | `grant/fellowship/jane-doe` |
+| Part           | Field              | Example                       |
+| -------------- | ------------------ | ----------------------------- |
+| Domain         | _(static label)_   | `interledger.org`             |
+| Section prefix | `section` dropdown | _(none for foundation)_       |
+| Path           | `pathSlug`         | `/grant/fellowship/jane-doe/` |
 
 The **section** dropdown controls routing and breadcrumbs:
 
@@ -163,7 +163,7 @@ The **section** dropdown controls routing and breadcrumbs:
 | Summit (`summit`)         | `/summit`                            | `src/pages/summit/[...page].astro`    |
 | Hackathon (`hackathon`)   | `/hackathon`                         | `src/pages/hackathon/[...page].astro` |
 
-For **foundation** profiles, `pathSlug` is the full site path (e.g. `grant/fellowship/jane-doe` → `/grant/fellowship/jane-doe`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `2025/speakers/jane-doe` → `/summit/2025/speakers/jane-doe`).
+For **foundation** profiles, `pathSlug` is the full site path (e.g. `/grant/fellowship/jane-doe/` → `/grant/fellowship/jane-doe/`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `/2025/speakers/jane-doe/` → `/summit/2025/speakers/jane-doe/`).
 
 **Migrating from ambassadors**
 

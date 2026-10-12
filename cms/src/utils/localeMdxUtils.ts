@@ -7,6 +7,7 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import { LOCALES, defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
+import { isSameSlug } from './relativeLinks'
 
 /**
  * Removes the `localizes` field from locale MDX files that reference the given
@@ -37,7 +38,10 @@ export function removeLocalizesFromLocaleFiles(
           const { data: frontmatter, content } = matter(raw)
           const sectionMatches =
             section == null || frontmatter.section === section
-          if (frontmatter.localizes === englishSlug && sectionMatches) {
+          const localizesEnglish =
+            typeof frontmatter.localizes === 'string' &&
+            isSameSlug(frontmatter.localizes, englishSlug)
+          if (localizesEnglish && sectionMatches) {
             const rest = { ...(frontmatter as Record<string, unknown>) }
             delete rest.localizes
             fs.writeFileSync(

@@ -27,6 +27,17 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+/** Values of the `filters[pathSlug][$in][n]` params, in order. */
+function pathSlugFilter(params: URLSearchParams): string[] {
+  return [...params.entries()]
+    .filter(([key]) => key.startsWith('filters[pathSlug][$in]'))
+    .map(([, value]) => value)
+}
+
+function slugForms(bare: string): string[] {
+  return [bare, `/${bare}/`]
+}
+
 describe('findByPathSlug', () => {
   const client = () =>
     createStrapiClient({ baseUrl: 'http://strapi.test', token: 't' })
@@ -35,7 +46,7 @@ describe('findByPathSlug', () => {
     await client().findByPathSlug('faqs', 'faq', 'en')
 
     const params = new URLSearchParams(requestedQuery(fetchMock))
-    expect(params.get('filters[pathSlug][$eq]')).toBe('faq')
+    expect(pathSlugFilter(params)).toEqual(slugForms('faq'))
     expect(params.get('locale')).toBe('en')
     expect(params.has('filters[section][$eq]')).toBe(false)
   })
@@ -44,8 +55,18 @@ describe('findByPathSlug', () => {
     await client().findByPathSlug('faqs', 'faq', 'en', 'hackathon')
 
     const params = new URLSearchParams(requestedQuery(fetchMock))
-    expect(params.get('filters[pathSlug][$eq]')).toBe('faq')
+    expect(pathSlugFilter(params)).toEqual(slugForms('faq'))
     expect(params.get('filters[section][$eq]')).toBe('hackathon')
+  })
+
+  // Stored slugs move from `faq` to `/faq/` (INTORG-1254). Until every row has
+  // moved, the lookup must find either form, whichever form it is given.
+  it('matches the bare and the slashed form of the slug', async () => {
+    await client().findByPathSlug('faqs', '/faq/', 'en')
+
+    const params = new URLSearchParams(requestedQuery(fetchMock))
+    expect(pathSlugFilter(params)).toEqual(slugForms('faq'))
+    expect(params.has('filters[pathSlug][$eq]')).toBe(false)
   })
 
   it('omits the section filter when none is given', async () => {
@@ -61,7 +82,7 @@ describe('findByPathSlug', () => {
     await client().findByPathSlug('faqs', 'grant/grantmaking-faq', 'en')
 
     const params = new URLSearchParams(requestedQuery(fetchMock))
-    expect(params.get('filters[pathSlug][$eq]')).toBe('grant/grantmaking-faq')
+    expect(pathSlugFilter(params)).toEqual(slugForms('grant/grantmaking-faq'))
   })
 
   // Nothing restricts the characters in a pathSlug beyond trimming slashes, so
@@ -74,7 +95,7 @@ describe('findByPathSlug', () => {
     expect(query).toContain('faq%26locale%3Des')
 
     const params = new URLSearchParams(query)
-    expect(params.get('filters[pathSlug][$eq]')).toBe('faq&locale=es')
+    expect(pathSlugFilter(params)).toEqual(slugForms('faq&locale=es'))
     expect(params.get('locale')).toBe('en')
   })
 
@@ -82,7 +103,7 @@ describe('findByPathSlug', () => {
     await client().findByPathSlug('faqs', 'a b#c', 'en')
 
     const params = new URLSearchParams(requestedQuery(fetchMock))
-    expect(params.get('filters[pathSlug][$eq]')).toBe('a b#c')
+    expect(pathSlugFilter(params)).toEqual(slugForms('a b#c'))
   })
 })
 
@@ -94,7 +115,7 @@ describe('findAllByPathSlug', () => {
     await client().findAllByPathSlug('profile-pages', 'speakers/jane-doe', 'en')
 
     const params = new URLSearchParams(requestedQuery(fetchMock))
-    expect(params.get('filters[pathSlug][$eq]')).toBe('speakers/jane-doe')
+    expect(pathSlugFilter(params)).toEqual(slugForms('speakers/jane-doe'))
     expect(params.has('filters[section][$eq]')).toBe(false)
   })
 

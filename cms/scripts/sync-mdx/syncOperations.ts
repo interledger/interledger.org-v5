@@ -17,6 +17,7 @@ import type { MDXFile } from './mdxTypes'
 import type { ContentTypes } from './config'
 import type { StrapiEntry } from './strapiClient'
 import type { SyncContext, SyncResults } from './types'
+import { isSameSlug } from '@/utils'
 import { hasMdxFile } from './localeMatch'
 import {
   formatIdentity,
@@ -193,7 +194,7 @@ export async function syncUnmatchedLocales(
     const matchedEnglishEntry = localeLocalizes
       ? allStrapiEntries.find(
           (entry) =>
-            entry.pathSlug === localeLocalizes &&
+            isSameSlug(entry.pathSlug, localeLocalizes) &&
             identityForEntry(config, entry).section === identity.section
         )
       : undefined

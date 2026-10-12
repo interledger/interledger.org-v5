@@ -1,9 +1,13 @@
-import { describe, expect, it, vi } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
 import {
   assertUploadWithinLimit,
   buildLayoutConfiguration,
   createCheckFileSize,
+  overrideUploadProvider,
   registerDocumentValidation
 } from './index'
 
@@ -303,5 +307,59 @@ describe('createCheckFileSize', () => {
 
   it('works when the provider has no size check of its own', async () => {
     await expect(createCheckFileSize()(oversized)).rejects.toThrow(/2 MB limit/)
+  })
+})
+
+describe('overrideUploadProvider', () => {
+  const tempDirs: string[] = []
+
+  afterEach(() => {
+    for (const dir of tempDirs.splice(0)) {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  function overrideWithTempPublicDir() {
+    const publicDir = fs.mkdtempSync(path.join(os.tmpdir(), 'upload-provider-'))
+    tempDirs.push(publicDir)
+    const provider: Record<string, unknown> = {
+      upload: vi.fn(),
+      uploadStream: vi.fn(),
+      delete: vi.fn(),
+      checkFileSize: vi.fn(),
+      replace: vi.fn(),
+      replaceStream: vi.fn()
+    }
+    const strapi = {
+      plugin: () => ({ provider }),
+      dirs: { static: { public: publicDir } },
+      log: { info: vi.fn(), warn: vi.fn() }
+    } as unknown as Parameters<typeof overrideUploadProvider>[0]
+    overrideUploadProvider(strapi)
+    return { provider, publicDir }
+  }
+
+  // The local provider's replace methods write to public/uploads/ and skip
+  // the image size limit. Without them, Strapi replaces a file with delete
+  // and upload, which go through this override.
+  it('removes the provider replace methods', () => {
+    const { provider } = overrideWithTempPublicDir()
+    expect(provider.replace).toBeUndefined()
+    expect(provider.replaceStream).toBeUndefined()
+  })
+
+  it('writes uploads under uploads/img/original', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const file = {
+      hash: 'abc',
+      ext: '.txt',
+      mime: 'text/plain',
+      buffer: Buffer.from('x')
+    }
+    await (provider.upload as (f: typeof file) => Promise<void>)(file)
+    expect(
+      fs.existsSync(path.join(publicDir, 'uploads/img/original/abc.txt'))
+    ).toBe(true)
+    expect((file as { url?: string }).url).toBe('/uploads/img/original/abc.txt')
   })
 })

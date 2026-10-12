@@ -1,21 +1,31 @@
 ---
+/**
+ * In-page section list shared by the FAQ page and report pages.
+ * `kind` selects the accessible name and the Umami bucket.
+ */
 import {
   useTranslations,
   buildSectionNavLinkUmamiAttrs,
   type Locale
 } from '@/utils'
 
-interface FaqNavSection {
+interface SectionNavItem {
   id: string
   heading: string
 }
 
 interface Props {
-  sections: FaqNavSection[]
+  sections: SectionNavItem[]
   uiLocale: Locale
+  kind: 'faq' | 'report'
 }
 
-const { sections, uiLocale } = Astro.props
+const LABEL_KEY = {
+  faq: 'faq.sections_nav',
+  report: 'report.sections_nav'
+} as const
+
+const { sections, uiLocale, kind } = Astro.props
 const t = useTranslations(uiLocale)
 const { routeLocale } = Astro.locals
 
@@ -23,25 +33,29 @@ const sectionNavAttrs = (id: string, heading: string) =>
   buildSectionNavLinkUmamiAttrs(
     Astro.url.pathname,
     routeLocale,
-    'faq',
+    kind,
     id,
     heading
   )
+
+// The list is padded and the nav sets scroll-padding because overflow-y-auto
+// clips box-shadow. A link flush with the scrollport loses the sides of its
+// focus ring.
 ---
 
 <nav
-  data-faq-nav
+  data-section-nav
   data-lenis-prevent
-  aria-label={t('faq.sections_nav')}
-  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
+  aria-label={t(LABEL_KEY[kind])}
+  class="tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-2xl))] tablet:max-h-[calc(100dvh-var(--site-header-height)-var(--spacing-2xl)-var(--spacing-2xl))] tablet:overflow-y-auto tablet:scroll-p-xs desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-2xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-2xl)-var(--spacing-2xl))]"
 >
-  <ul class="m-0 flex list-none flex-col gap-2xl p-0 desktop:gap-xl">
+  <ul class="m-0 flex list-none flex-col gap-2xl p-xs desktop:gap-xl">
     {
       sections.map((section, index) => (
         <li class="m-0">
           <a
             href={`#${section.id}`}
-            data-faq-nav-link
+            data-section-nav-link
             data-target={section.id}
             data-active={index === 0 ? 'true' : 'false'}
             aria-current={index === 0 ? 'true' : undefined}
@@ -69,12 +83,10 @@ const sectionNavAttrs = (id: string, heading: string) =>
 </nav>
 
 <script>
-  // Scoped per instance via [data-faq-nav] so multiple FAQ pages' scripts
-  // don't collide.
   import { initSectionNavScrollspy } from '@/scripts/section-nav-scrollspy'
 
   initSectionNavScrollspy({
-    containerSelector: '[data-faq-nav]',
-    linkSelector: '[data-faq-nav-link]'
+    containerSelector: '[data-section-nav]',
+    linkSelector: '[data-section-nav-link]'
   })
 </script>

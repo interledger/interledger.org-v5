@@ -1,12 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
 
-// `./i18` -> `translatePath` -> `translationMapData` reaches into real
-// content collections via `getCollection`, which isn't available under
-// plain vitest. Mock `./i18` directly instead of the virtual-module chain
-// other suites use (see navigation.test.ts) — getFooterOnlyColumn only cares
-// that it calls `t`/`translatePath` with the right keys, not how they resolve.
+// `./translatePath` -> `translationMapData` reaches into real content
+// collections via `getCollection`, which isn't available under plain vitest.
+// Both are mocked rather than the virtual-module chain other suites use (see
+// navigation.test.ts) — getFooterOnlyColumn only cares that it calls
+// `t`/`translatePath` with the right keys, not how they resolve.
 vi.mock('./i18', () => ({
-  useTranslations: (lang: string) => (key: string) => `${lang}:${key}`,
+  useTranslations: (lang: string) => (key: string) => `${lang}:${key}`
+}))
+vi.mock('./translatePath', () => ({
   translatePath: (routeBase: string, lang: string, enSlug: string) =>
     `/${lang}/${routeBase}/${enSlug}`
 }))

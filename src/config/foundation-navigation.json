@@ -5,19 +5,19 @@
       "items": [
         {
           "label": "Our Journey",
-          "href": "/about-us"
+          "href": "/about-us/"
         },
         {
           "label": "How Interledger Works",
-          "href": "/how-interledger-works"
+          "href": "/how-interledger-works/"
         },
         {
           "label": "Our Team",
-          "href": "/team"
+          "href": "/team/"
         },
         {
           "label": "Policy & Advocacy",
-          "href": "/policy-and-advocacy"
+          "href": "/policy-and-advocacy/"
         }
       ]
     },
@@ -29,7 +29,7 @@
           "items": [
             {
               "label": "Interledger Tech",
-              "href": "/tech/overview"
+              "href": "/tech/overview/"
             },
             {
               "label": "Developer Portal",
@@ -42,15 +42,15 @@
           "items": [
             {
               "label": "Interledger Protocol",
-              "href": "/tech/interledger-protocol"
+              "href": "/tech/interledger-protocol/"
             },
             {
               "label": "Open Payments",
-              "href": "/tech/open-payments"
+              "href": "/tech/open-payments/"
             },
             {
               "label": "Web Monetization",
-              "href": "/tech/web-monetization"
+              "href": "/tech/web-monetization/"
             }
           ]
         },
@@ -59,11 +59,11 @@
           "items": [
             {
               "label": "Rafiki",
-              "href": "/tech/rafiki"
+              "href": "/tech/rafiki/"
             },
             {
               "label": "Test Tools",
-              "href": "/tech/test-tools"
+              "href": "/tech/test-tools/"
             },
             {
               "label": "Web Monetization",
@@ -82,11 +82,11 @@
           "items": [
             {
               "label": "Overview",
-              "href": "/grant/our-grantmaking"
+              "href": "/grant/our-grantmaking/"
             },
             {
               "label": "Grantee Directory",
-              "href": "/grant/grantee-directory"
+              "href": "/grant/grantee-directory/"
             }
           ]
         },
@@ -95,15 +95,15 @@
           "items": [
             {
               "label": "Overview",
-              "href": "/grant/education"
+              "href": "/grant/education/"
             },
             {
               "label": "NextGen",
-              "href": "/grant/education/nextgen"
+              "href": "/grant/education/nextgen/"
             },
             {
               "label": "Interledger on Campus",
-              "href": "/grant/education/on-campus"
+              "href": "/grant/education/on-campus/"
             }
           ]
         },
@@ -112,23 +112,23 @@
           "items": [
             {
               "label": "Overview",
-              "href": "/grant/innovation"
+              "href": "/grant/innovation/"
             },
             {
               "label": "Digital Financial Services",
-              "href": "/grant/innovation/financial-services"
+              "href": "/grant/innovation/financial-services/"
             },
             {
               "label": "Open Payments Accelerator",
-              "href": "/grant/innovation/accelerator"
+              "href": "/grant/innovation/accelerator/"
             },
             {
               "label": "Open Payments SDK",
-              "href": "/grant/innovation/sdk"
+              "href": "/grant/innovation/sdk/"
             },
             {
               "label": "Grant for the Web",
-              "href": "/grant/innovation/grant-web"
+              "href": "/grant/innovation/grant-web/"
             }
           ]
         },
@@ -137,19 +137,19 @@
           "items": [
             {
               "label": "Research Grants",
-              "href": "/grant/call-for-papers"
+              "href": "/grant/call-for-papers/"
             },
             {
               "label": "Policy Grants",
-              "href": "/grant/public-policy-activation"
+              "href": "/grant/public-policy-activation/"
             },
             {
               "label": "Fellowships",
-              "href": "/grant/fellowship"
+              "href": "/grant/fellowship/"
             },
             {
               "label": "Local Impact Grants",
-              "href": "/grant/local-impact-grant"
+              "href": "/grant/local-impact-grant/"
             }
           ]
         }
@@ -160,15 +160,15 @@
       "items": [
         {
           "label": "Blog",
-          "href": "/blog"
+          "href": "/blog/"
         },
         {
           "label": "Podcasts",
-          "href": "/podcast"
+          "href": "/podcast/"
         },
         {
           "label": "Research & Reports",
-          "href": "/research-and-reports"
+          "href": "/research-and-reports/"
         }
       ]
     },
@@ -180,15 +180,15 @@
           "items": [
             {
               "label": "Calendar",
-              "href": "/events"
+              "href": "/events/"
             },
             {
               "label": "Interledger Summit",
-              "href": "/summit"
+              "href": "/summit/"
             },
             {
               "label": "Interledger Hackathons",
-              "href": "/hackathon/overview"
+              "href": "/hackathon/overview/"
             }
           ]
         },
@@ -197,7 +197,7 @@
           "items": [
             {
               "label": "Start Here",
-              "href": "/community"
+              "href": "/community/"
             },
             {
               "label": "Community Forum",
@@ -211,6 +211,6 @@
   ],
   "ctaButton": {
     "label": "Hackathons",
-    "href": "/hackathon/overview"
+    "href": "/hackathon/overview/"
   }
 }

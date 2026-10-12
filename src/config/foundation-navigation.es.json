@@ -5,19 +5,19 @@
       "items": [
         {
           "label": "Nuestra trayectoria",
-          "href": "/es/about-us"
+          "href": "/es/about-us/"
         },
         {
           "label": "Cómo funciona Interledger",
-          "href": "/es/how-interledger-works"
+          "href": "/es/how-interledger-works/"
         },
         {
           "label": "Nuestro equipo",
-          "href": "/es/team"
+          "href": "/es/team/"
         },
         {
           "label": "Política y defensa",
-          "href": "/es/policy-and-advocacy"
+          "href": "/es/policy-and-advocacy/"
         }
       ]
     },
@@ -29,7 +29,7 @@
           "items": [
             {
               "label": "Tecnología de Interledger",
-              "href": "/es/tech/overview"
+              "href": "/es/tech/overview/"
             },
             {
               "label": "Portal para desarrolladores",
@@ -42,15 +42,15 @@
           "items": [
             {
               "label": "Interledger Protocol",
-              "href": "/es/tech/interledger-protocol"
+              "href": "/es/tech/interledger-protocol/"
             },
             {
               "label": "Open Payments",
-              "href": "/es/tech/open-payments"
+              "href": "/es/tech/open-payments/"
             },
             {
               "label": "Web Monetization",
-              "href": "/es/tech/web-monetization"
+              "href": "/es/tech/web-monetization/"
             }
           ]
         },
@@ -59,11 +59,11 @@
           "items": [
             {
               "label": "Rafiki",
-              "href": "/es/tech/rafiki"
+              "href": "/es/tech/rafiki/"
             },
             {
               "label": "Herramientas de prueba",
-              "href": "/es/tech/test-tools"
+              "href": "/es/tech/test-tools/"
             },
             {
               "label": "Web Monetization",
@@ -82,11 +82,11 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/es/grant/our-grantmaking"
+              "href": "/es/grant/our-grantmaking/"
             },
             {
               "label": "Directorio de beneficiarios de subvenciones",
-              "href": "/es/grant/grantee-directory"
+              "href": "/es/grant/grantee-directory/"
             }
           ]
         },
@@ -95,15 +95,15 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/es/grant/education"
+              "href": "/es/grant/education/"
             },
             {
               "label": "NextGen",
-              "href": "/es/grant/education/nextgen"
+              "href": "/es/grant/education/nextgen/"
             },
             {
               "label": "Interledger on Campus",
-              "href": "/es/grant/education/on-campus"
+              "href": "/es/grant/education/on-campus/"
             }
           ]
         },
@@ -112,23 +112,23 @@
           "items": [
             {
               "label": "Descripción general",
-              "href": "/es/grant/innovation"
+              "href": "/es/grant/innovation/"
             },
             {
               "label": "Digital Financial Services",
-              "href": "/es/grant/innovation/financial-services"
+              "href": "/es/grant/innovation/financial-services/"
             },
             {
               "label": "Open Payments Accelerator",
-              "href": "/es/grant/innovation/accelerator"
+              "href": "/es/grant/innovation/accelerator/"
             },
             {
               "label": "SDK de Open Payments",
-              "href": "/es/grant/innovation/sdk"
+              "href": "/es/grant/innovation/sdk/"
             },
             {
               "label": "Grant for the Web",
-              "href": "/es/grant/innovation/grant-web"
+              "href": "/es/grant/innovation/grant-web/"
             }
           ]
         },
@@ -137,19 +137,19 @@
           "items": [
             {
               "label": "Subvenciones para la investigación",
-              "href": "/es/grant/call-for-papers"
+              "href": "/es/grant/call-for-papers/"
             },
             {
               "label": "Subvenciones para políticas públicas",
-              "href": "/es/grant/public-policy-activation"
+              "href": "/es/grant/public-policy-activation/"
             },
             {
               "label": "Becas",
-              "href": "/es/grant/fellowship"
+              "href": "/es/grant/fellowship/"
             },
             {
               "label": "Local Impact Grants",
-              "href": "/es/grant/local-impact-grant"
+              "href": "/es/grant/local-impact-grant/"
             }
           ]
         }
@@ -160,15 +160,15 @@
       "items": [
         {
           "label": "Blog",
-          "href": "/es/blog"
+          "href": "/es/blog/"
         },
         {
           "label": "Pódcasts",
-          "href": "/es/podcast"
+          "href": "/es/podcast/"
         },
         {
           "label": "Investigaciones e informes",
-          "href": "/es/research-and-reports"
+          "href": "/es/research-and-reports/"
         }
       ]
     },
@@ -180,15 +180,15 @@
           "items": [
             {
               "label": "Calendario",
-              "href": "/es/events"
+              "href": "/es/events/"
             },
             {
               "label": "Interledger Summit",
-              "href": "/es/summit"
+              "href": "/es/summit/"
             },
             {
               "label": "Hackatones de Interledger",
-              "href": "/es/hackathon/overview"
+              "href": "/es/hackathon/overview/"
             }
           ]
         },
@@ -197,7 +197,7 @@
           "items": [
             {
               "label": "Comience aquí",
-              "href": "/es/community"
+              "href": "/es/community/"
             },
             {
               "label": "Foro de la comunidad",
@@ -211,6 +211,6 @@
   ],
   "ctaButton": {
     "label": "Hackatones",
-    "href": "/es/hackathon/overview"
+    "href": "/es/hackathon/overview/"
   }
 }

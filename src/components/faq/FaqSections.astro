@@ -7,7 +7,7 @@ import {
 } from '@/utils'
 import type { FaqSectionType } from '@/schemas/content'
 import Icon from '@/components/shared/Icon.astro'
-import FaqSectionsNav from '@/components/faq/FaqSectionsNav.astro'
+import SectionsNav from '@/components/shared/SectionsNav.astro'
 import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
@@ -63,9 +63,10 @@ const accordionName = faqAccordionGroupName()
   class="flex w-full flex-col tablet:flex-row tablet:gap-2xl desktop:gap-4xl"
 >
   <div class="hidden tablet:block tablet:w-3/10 tablet:shrink-0">
-    <FaqSectionsNav
+    <SectionsNav
       sections={sectionsWithIds.map(({ id, heading }) => ({ id, heading }))}
       uiLocale={uiLocale}
+      kind="faq"
     />
   </div>
 

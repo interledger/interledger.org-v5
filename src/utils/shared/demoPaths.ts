@@ -1,3 +1,5 @@
+import { trimSlashes } from './url'
+
 /**
  * Demo content pages (e.g. `demo-foundation-page`) are for design/QA only.
  * Path slugs that start with `demo-` (or are exactly `demo`) are treated as
@@ -5,7 +7,7 @@
  */
 export function isDemoPathSlug(pathSlug: string | undefined | null): boolean {
   if (!pathSlug) return false
-  const slug = pathSlug.replace(/^\/+|\/+$/g, '')
+  const slug = trimSlashes(pathSlug)
   // Match path segments (slugs can include nested `/` segments), same rule as
   // isDemoPathname so sitemap exclusion and noindex stay aligned.
   return slug

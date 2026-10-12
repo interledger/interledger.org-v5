@@ -27,6 +27,20 @@ describe('foundationBlogFrontmatterSchema', () => {
     expect(parsed.date).toBeInstanceOf(Date)
   })
 
+  // Content stores slugs as `/slug/` (INTORG-1254); routing compares them bare.
+  it('strips slashes from pathSlug, localizes and relatedArticles', () => {
+    const parsed = foundationBlogFrontmatterSchema.parse({
+      ...base,
+      pathSlug: '/a-post/',
+      localizes: '/the-original/',
+      relatedArticles: ['/one/', 'two', '/three']
+    })
+
+    expect(parsed.pathSlug).toBe('a-post')
+    expect(parsed.localizes).toBe('the-original')
+    expect(parsed.relatedArticles).toEqual(['one', 'two', 'three'])
+  })
+
   it('coerces date and lastUpdated to Date', () => {
     const parsed = foundationBlogFrontmatterSchema.parse({
       ...base,

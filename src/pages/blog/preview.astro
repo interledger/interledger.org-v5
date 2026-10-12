@@ -1,7 +1,12 @@
 ---
 import CommunityLinksFoundation from '@/components/blog/CommunityLinksFoundation.astro'
 import BlogPostLayout from '@/layouts/BlogPostLayout.astro'
-import { applyPreviewNoStore, fetchStrapi, parseMarkdown } from '@/utils'
+import {
+  applyPreviewNoStore,
+  fetchStrapi,
+  parseMarkdown,
+  trimSlashes
+} from '@/utils'
 
 interface BlogPostPreview {
   title: string
@@ -22,7 +27,7 @@ interface BlogPostPreview {
 // Get the documentId from the query string
 export const prerender = false
 applyPreviewNoStore(Astro.response.headers)
-const documentId = Astro.url.searchParams.get('slug')
+const documentId = Astro.url.searchParams.get('pathSlug')
 if (!documentId) {
   throw new Error('Missing documentId in preview URL')
 }
@@ -46,7 +51,7 @@ if (!article) {
 const frontmatter = {
   title: article.title,
   description: article.description,
-  pathSlug: article.pathSlug,
+  pathSlug: trimSlashes(article.pathSlug),
   locale: article.locale,
   date: new Date(article.publishedAt),
   lastUpdated: article.lastUpdated ? new Date(article.lastUpdated) : undefined,
