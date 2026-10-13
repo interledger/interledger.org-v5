@@ -20,17 +20,17 @@ interface Props {
 const { testMode = !productionDeploy() } = Astro.props
 ---
 
-{
-  /*
+{/*
     Shaves a round trip off the first checkout open. No `crossorigin`: the
     install snippet injects a plain <script src> with no crossorigin attribute,
     so the widget is fetched in no-cors mode. A crossorigin preconnect would
     warm a CORS connection the browser then cannot reuse for it.
-  */
-}
+  */}
 <link rel="preconnect" href="https://cdn.fundraiseup.com" />
 
-{testMode && <script is:inline>window.fundraiseup_livemode = false</script>}
+{testMode && <script is:inline>
+  window.fundraiseup_livemode = false
+</script>}
 
 <!-- Fundraise Up: the new standard for online giving -->
 <script is:inline>

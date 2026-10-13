@@ -113,15 +113,13 @@ const heroLcpPreload =
     <section class="px-content">
       <div class="content-column">
         <div data-prose class="mx-auto max-w-content">
-          {
-            /*
+          {/*
             Scoped to the blocks a fundraising page uses, not a copy of
             `FoundationContentPage`'s 28-entry map. An MDX file reaching for a
             block that is not here fails the build with an undefined-component
             error rather than rendering nothing, so the gap is loud. Converge
             the two maps when the route lands.
-          */
-          }
+          */}
           <MdxContent
             components={{
               ...RICH_TEXT_MDX_COMPONENTS,

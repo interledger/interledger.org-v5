@@ -82,31 +82,25 @@ const heroLcpPreload =
     PREVIEW MODE - This content is not published
   </div>
   <main class="page-stack pb-section" data-pillar="mission">
-    {
-      pageTitle && (
-        <PageHero
-          title={pageTitle}
-          description={heroDescription}
-          image={heroImage}
-          imageMobile={heroImageMobile}
-          imageAlt={heroImageAlt}
-          imageMobileAlt={heroImageMobileAlt}
-          cta={cta}
-          breadcrumbs={breadcrumbs}
-          imageBand="default"
-        />
-      )
-    }
-    {
-      content.length > 0 && (
-        <section class="px-content">
-          <div class="content-column">
-            <div class="mx-auto max-w-content" data-prose>
-              <DynamicZone blocks={content} />
-            </div>
-          </div>
-        </section>
-      )
-    }
+    {pageTitle && (
+      <PageHero
+        title={pageTitle}
+        description={heroDescription}
+        image={heroImage}
+        imageMobile={heroImageMobile}
+        imageAlt={heroImageAlt}
+        imageMobileAlt={heroImageMobileAlt}
+        cta={cta}
+        breadcrumbs={breadcrumbs}
+        imageBand="default"
+      />
+    )}
+    {content.length > 0 && <section class="px-content">
+      <div class="content-column">
+        <div class="mx-auto max-w-content" data-prose>
+          <DynamicZone blocks={content} />
+        </div>
+      </div>
+    </section>}
   </main>
 </FoundationPageLayout>
