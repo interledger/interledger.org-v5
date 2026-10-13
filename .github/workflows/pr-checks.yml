@@ -223,6 +223,25 @@ jobs:
           echo "every content entry below will report as 'would create', not 'would update' — that's expected."
           pnpm run sync:mdx:dry-run
 
+      # The redirect dry-run applies every check the real sync applies, so a
+      # file that passes here also syncs on staging. The images dry-run is
+      # left out: this Strapi starts empty, so it would list every file.
+      - name: Run navigation sync in dry-run mode
+        working-directory: cms
+        env:
+          STRAPI_URL: http://localhost:1337
+        run: |
+          export STRAPI_API_TOKEN=$(cat .ci-api-token)
+          pnpm run sync:navigation:dry-run
+
+      - name: Run redirects sync in dry-run mode
+        working-directory: cms
+        env:
+          STRAPI_URL: http://localhost:1337
+        run: |
+          export STRAPI_API_TOKEN=$(cat .ci-api-token)
+          pnpm run sync:redirects:dry-run
+
       - name: Stop ephemeral Strapi
         if: always()
         working-directory: cms
