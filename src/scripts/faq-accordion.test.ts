@@ -5,7 +5,9 @@ import {
   handleFaqItemClick,
   initFaqAccordion,
   openFaqPanel,
+  keepQuestionReadable,
   questionScrollDestination,
+  revealQuestionStart,
   scrollQuestionIntoView
 } from './faq-accordion'
 
@@ -199,6 +201,7 @@ describe('handleFaqItemClick', () => {
     a.panel.dataset.open = 'true'
     const b = makeItem(false)
     const accordion = {
+      dataset: {} as Record<string, string | undefined>,
       querySelectorAll: (selector: string) =>
         selector === '[data-faq-item]' ? [a.item, b.item] : []
     }
@@ -213,6 +216,73 @@ describe('handleFaqItemClick', () => {
     expect(b.item.open).toBe(true)
     expect(scrollTo).not.toHaveBeenCalled()
     expect(b.item.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('keeps a visible question still when the accordion opts out of scrolling', () => {
+    stubMatchMedia(false)
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('requestAnimationFrame', vi.fn())
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
+
+    const a = makeItem(true)
+    a.item.dataset.faqExpanded = 'true'
+    a.panel.dataset.open = 'true'
+    const b = makeItem(false)
+    b.item.getBoundingClientRect = () => ({ top: 400 })
+    const accordion = {
+      dataset: { faqNoScroll: 'true' },
+      querySelectorAll: () => []
+    }
+    const closest = (selector: string) =>
+      selector === '[data-faq-accordion]' ? accordion : null
+    a.item.closest = closest
+    b.item.closest = closest
+
+    handleFaqItemClick(
+      b.item as unknown as HTMLDetailsElement,
+      [a.item, b.item] as unknown as HTMLDetailsElement[]
+    )
+
+    expect(b.item.open).toBe(true)
+    expect(a.item.open).toBe(false)
+    expect(a.panel.addEventListener).not.toHaveBeenCalled()
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(b.item.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('scrolls a covered question only back to the header', () => {
+    stubMatchMedia(false)
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('scrollY', 1000)
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
+
+    const item = makeItem(false).item
+    item.getBoundingClientRect = () => ({ top: -40 })
+
+    revealQuestionStart(item as unknown as HTMLElement)
+
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(1000 - 40 - 76, { immediate: true })
+  })
+
+  it('holds the clicked question still when an answer above it closes', () => {
+    stubMatchMedia(false)
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('scrollY', 2000)
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
+
+    const item = makeItem(false).item
+    item.getBoundingClientRect = () => ({ top: 120 })
+
+    keepQuestionReadable(item as unknown as HTMLElement, 500)
+
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(2000 - (500 - 120), {
+      immediate: true
+    })
   })
 
   it('collapses an already expanded item without scrolling', () => {

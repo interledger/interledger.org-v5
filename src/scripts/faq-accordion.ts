@@ -1,6 +1,11 @@
 /**
  * Exclusive FAQ questions: opening one closes the others in the same
  * accordion, then scrolls the opened question under the site header.
+ * An accordion with `data-faq-no-scroll` does not pin the opened question
+ * under the header. Grant FAQ uses it: the title column is sticky, and
+ * that pin drags the column. If closing the question above leaves the new
+ * one up past where it was clicked, the page follows so the start stays
+ * put. A question the header is already covering is brought down to it.
  *
  * Native `<details name>` does the exclusive grouping without JS, but it
  * cannot animate closed — the UA hides the body the instant `open` is
@@ -17,6 +22,7 @@
 
 const ACCORDION_SELECTOR = '[data-faq-accordion]'
 const ITEM_SELECTOR = '[data-faq-item]'
+const NO_SCROLL_KEY = 'faqNoScroll'
 
 /** Unique `<details name>` so exclusive grouping stays inside one accordion. */
 export function faqAccordionGroupName(): string {
@@ -75,7 +81,46 @@ function isLastAccordionItem(item: HTMLElement): boolean {
   return items.length > 0 && items[items.length - 1] === item
 }
 
+/** Grant FAQ opts out. Scrolling there moves its sticky title column. */
+function keepsPlace(item: HTMLElement): boolean {
+  const root = item.closest(ACCORDION_SELECTOR) as HTMLElement | null
+  return root?.dataset[NO_SCROLL_KEY] === 'true'
+}
+
+function headerClearance(item: HTMLElement): number {
+  const margin = parseFloat(getComputedStyle(item).scrollMarginTop)
+  return Number.isFinite(margin) ? margin : 0
+}
+
+/**
+ * Grant FAQ only. Scrolls the minimum to put a question the header is
+ * covering just under the header. A question already clear of it is left
+ * alone.
+ */
+export function revealQuestionStart(item: HTMLElement): void {
+  if (item.getBoundingClientRect().top >= headerClearance(item)) return
+  applyScroll(questionScrollDestination(item))
+}
+
+/**
+ * Grant FAQ only. Closing an answer above the click lifts the question.
+ * Scroll by that lift so it stays where it was clicked. If the header was
+ * already covering it, bring it down to the header instead.
+ */
+export function keepQuestionReadable(
+  item: HTMLElement,
+  topBefore: number
+): void {
+  const lifted = topBefore - item.getBoundingClientRect().top
+  if (topBefore >= headerClearance(item)) {
+    if (lifted > 0) applyScroll(globalThis.scrollY - lifted)
+    return
+  }
+  revealQuestionStart(item)
+}
+
 export function scrollQuestionIntoView(item: HTMLElement): void {
+  if (keepsPlace(item)) return
   // Snapping the last question under the header bottoms the page and
   // drags a sticky sibling (FAQ section nav) with it. Leave it in place.
   if (isLastAccordionItem(item)) return
@@ -174,13 +219,16 @@ export function handleFaqItemClick(
     return
   }
 
+  const stay = keepsPlace(item)
+  const topBefore = stay ? item.getBoundingClientRect().top : 0
   for (const other of items) {
     if (other !== item && isExpanded(other)) {
       closeFaqPanel(other, { instant: true })
     }
   }
   openFaqPanel(item)
-  scrollQuestionIntoView(item)
+  if (stay) keepQuestionReadable(item, topBefore)
+  else scrollQuestionIntoView(item)
 }
 
 export function initFaqAccordion(root: ParentNode = document): void {
