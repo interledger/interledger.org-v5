@@ -1425,12 +1425,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       slug: 'Related Post Slug'
     },
     'blocks.donation-cards': {
-      ariaLabel: 'Accessible label for the row'
+      ariaLabel: 'Accessible label for the row',
+      cards: 'Cards'
     },
     'blocks.donation-card': {
+      heading: 'Heading',
       amount: 'Gift size',
+      summary: 'Summary',
       seats: 'Seats line',
       benefitsLabel: 'Benefits label',
+      benefits: 'Benefits',
       ctaText: 'Button text',
       ctaLink: 'Button link',
       ctaExternal: 'Opens in a new tab',
