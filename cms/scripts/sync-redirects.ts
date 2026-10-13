@@ -246,8 +246,10 @@ async function main() {
 
   await assertStrapiRunning(STRAPI_URL)
   const stored = await fetchStoredRedirects(STRAPI_URL, STRAPI_TOKEN)
-  // Delete first: every write re-runs the server's chain check against the
-  // live table, and a removed row could otherwise block a valid write.
+  // The server skips its chain check for these writes, because the parse
+  // above already checked the whole file. Rows are written one at a time, so
+  // a per-row check would see rows not yet updated and could refuse a valid
+  // file (INTORG-1295).
   const deleted = await pruneRedirects(
     entries,
     stored,
