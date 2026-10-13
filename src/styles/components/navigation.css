@@ -11,6 +11,7 @@
 
   /* Layout switches use the `nav-bar:` and `nav-drawer:` variants from
      tailwind.css, so each header changes at its own width. */
+
   .header-nav-wrapper {
     @variant nav-bar {
       grid-column-start: 2;
@@ -72,12 +73,11 @@
     }
   }
 
+  /* Keep the wrapper unpositioned and untransformed: either would make it
+     the wide dropdown panel's anchor instead of the header — see
+     "Dropdown panel anchoring". */
   .header-nav-wrapper {
     @variant nav-bar {
-      position: relative;
-      top: 0;
-      right: 0;
-      transform: none;
       background: transparent;
       border-width: 0;
     }
@@ -171,7 +171,7 @@
   box-shadow: none;
 }
 
-/* Menu bar layout: translucent bar; dropdown panels keep their own solid backgrounds. */
+/* Desktop: translucent bar; dropdown panels keep their own solid backgrounds. */
 :is(.foundation-header[data-theme='dark'], .hackathon-header) {
   @variant nav-bar {
     background-color: rgb(13 13 13 / 0.7);
@@ -202,50 +202,28 @@
 /* ================================================================
    Dropdown panel anchoring
 
-   In the menu bar layout, panels are absolutely positioned and hang from
-   the left edge of their button. The last menu hangs its panel from its own right edge instead.
-   Left-aligned, it ran past the viewport: Get Involved by 94px at 1200px,
-   and ES Involúcrese by 111px at 1500px, where the ES list is wider.
-
-   The wide multi-column panel (Grants) does not fit under any one button.
-   Its labels do not wrap, so in ES it is 1400px wide and ran off the
-   screen at every desktop width. It anchors to the whole nav bar instead:
-   centred on it, never wider than it, and its labels wrap only when that
-   cap applies. Its edges then line up with the logo and the CTA at most.
-   The list and its wrapper drop their positioning so the nav bar becomes
-   the containing block. `top: auto` keeps the panel at its static place
-   under its button, and the margin gives the same gap as the other panels.
+   Panels hang from their button's left edge, except two:
+   - the wide panel centres on the header (its item, list and wrapper are
+     all static);
+   - the last menu's panel hangs from its right edge.
+   Both apply at every desktop width, not just where they would otherwise
+   overflow. That is deliberate: the dropdowns keep one layout instead of
+   jumping between alignments as the window crosses a breakpoint.
+   Any other panel that would still overflow is slid back on screen by
+   keepPanelOnScreen in src/scripts/header-nav.ts.
 
    Unlayered so it beats the Tailwind positioning utilities in the markup.
    ================================================================ */
 
-.foundation-header [data-nav] {
+[data-nav-list] > li[data-wide-panel] .submenu-panel {
   @variant nav-bar {
-    position: relative;
-  }
-}
-
-.foundation-header :is([data-nav-wrapper], [data-nav-list]) {
-  @variant nav-bar {
-    position: static;
-  }
-}
-
-.foundation-header [data-nav-list] > li[data-wide-panel] .submenu-panel {
-  @variant nav-bar {
-    top: auto;
+    /* Same height as the other panels, measured from the header instead of
+       the button: the 40px button sits centred in the 80px header, so its
+       panel's top at 100% + 1.5rem lands 4px below the header's bottom edge. */
+    top: calc(100% + var(--spacing-xs));
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    margin-top: 1.5rem;
-    width: max-content;
-    max-width: 100%;
-  }
-}
-
-.foundation-header [data-nav-list] > li[data-wide-panel] :is(.nav-subgroup-heading, a) {
-  @variant nav-bar {
-    white-space: normal;
   }
 }
 
@@ -256,7 +234,7 @@
   }
 }
 
-/* Nav button hover/focus backgrounds (menu bar only) */
+/* Nav button hover/focus backgrounds (desktop only) */
 :is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
   @variant nav-bar {
     background-color: var(--color-neutral-100);
@@ -269,7 +247,7 @@
   }
 }
 
-/* Dropdown panel backgrounds (menu bar only) */
+/* Dropdown panel backgrounds (desktop only) */
 :is(.foundation-header[data-theme='dark'], .hackathon-header) .submenu-panel {
   @variant nav-bar {
     background-color: var(--color-neutral-150);

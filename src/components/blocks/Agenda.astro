@@ -132,8 +132,9 @@ const renderedItems = await Promise.all(
         {item.hasAdditionalInfo && <li
           class="mt-md flex min-w-0 flex-col justify-center pl-md tablet:col-start-2 tablet:row-span-2 tablet:row-start-1 tablet:mt-0 tablet:border-l tablet:border-neutral-50 tablet:pl-2xl dark:tablet:border-neutral-75"
         >
-          {additionalInfoLabel && <span class="sr-only">{additionalInfoLabel},
-          </span>}
+          {additionalInfoLabel && <span class="sr-only"
+            >{additionalInfoLabel},</span
+          >}
           <div
             data-agenda-info
             class="m-0 text-body-sm-standard tablet:text-body-lg-standard [&_ul]:mb-0 [&_ol]:mb-0 [&_a]:text-inherit [&_blockquote]:text-inherit [&_ol]:text-inherit [&_p]:text-inherit [&_ul]:text-inherit [&_li]:mb-0"

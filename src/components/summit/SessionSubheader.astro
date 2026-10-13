@@ -21,8 +21,9 @@ const t = useTranslations(lang)
   <p class="mb-4">
     <time datetime={talk.startsAt}>{formatDateTime(talk.startsAt, lang)} </time>
     - {getDurationInMinutes(talk.startsAt, talk.endsAt)} min
-    {talk.recordingUrl && showRecordingLabel && <span>
-      ({t('summit.recording_available')})</span>}
+    {talk.recordingUrl && showRecordingLabel && <span
+      >({t('summit.recording_available')})</span
+    >}
   </p>
   {talk.translations.length > 0 && <ul
     aria-label={t('summit.available_translations')}

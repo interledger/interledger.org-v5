@@ -146,6 +146,12 @@
       "status": 301
     },
     {
+      "source": "/interledger.pdf/",
+      "destination": "/developers/rfcs/interledger-protocol/",
+      "status": 301,
+      "note": "Updates the whitepaper link while we have no whitepaper."
+    },
+    {
       "source": "/interledger/",
       "destination": "/tech/interledger-protocol/",
       "status": 301
