@@ -229,6 +229,7 @@ const SECTION_SCOPED_SLUG_UIDS = [
 /** Content types whose `pathSlug` is `unique: true` across the collection. */
 const UNIQUE_SLUG_UIDS = [
   'api::foundation-page.foundation-page',
+  'api::fundraising-page.fundraising-page',
   'api::summit-page.summit-page',
   'api::hackathon-page.hackathon-page',
   'api::grant-page.grant-page',
@@ -1041,11 +1042,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Donate" — not "Interledger Foundation | Donate". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path relative to the site root (/). Example: get-involved/donate → /get-involved/donate; no leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+        'Path of the page, starting and ending with a slash. Example: /get-involved/donate/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
-      content:
-        'Donation Cards are only on this page type. The template loads the Fundraise Up script.'
+      // A dynamic-zone hint stays hidden until a block is added, then Strapi
+      // clips it to one line. The same note is on the Donation Cards component.
+      content: ''
     },
     'api::summit-page.summit-page': {
       title:
