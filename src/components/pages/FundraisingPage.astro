@@ -19,7 +19,6 @@ import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
   isDemoPathSlug,
-  productionDeploy,
   useTranslations,
   localizeRoute
 } from '@/utils'
@@ -92,14 +91,8 @@ const heroLcpPreload =
   noindex={noindex}
   heroLcpPreload={heroLcpPreload}
 >
-  {
-    /*
-    Test mode on every build but the Netlify production deploy, so a staging
-    or preview build cannot charge a real card.
-  */
-  }
   <Fragment slot="head">
-    <FundraiseUpScript testMode={!productionDeploy()} />
+    <FundraiseUpScript />
   </Fragment>
   <main class="page-stack pb-section" data-pillar="mission">
     <PageHero
