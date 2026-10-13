@@ -32,12 +32,16 @@ function loadBuildCssMinifier(): MinifyCss {
 }
 
 const minifyCss = loadBuildCssMinifier()
-const SRC_DIR = path.join(import.meta.dirname)
+const SRC_DIR = import.meta.dirname
 const STYLE_BLOCK = /<style[^>]*>([\s\S]*?)<\/style>/g
+// Lightning CSS keeps an unknown at-rule as raw tokens and never parses the
+// declarations inside it, so a Tailwind `@utility` is checked as a class.
+const TAILWIND_UTILITY = /@utility\s+([\w-]+)\s*\{/g
+const INNERMOST_VAR = /var\([^()]*\)/g
 
 /** Every stylesheet under src/ that declares an animation. */
 function readAnimatedStylesheets(): Array<{ file: string; css: string }> {
-  const files = globSync(['**/*.astro', 'styles/**/*.css'], { cwd: SRC_DIR })
+  const files = globSync('**/*.{astro,css}', { cwd: SRC_DIR })
   return files
     .map((file) => {
       const source = readFileSync(path.join(SRC_DIR, file), 'utf8')
@@ -46,14 +50,16 @@ function readAnimatedStylesheets(): Array<{ file: string; css: string }> {
             '\n'
           )
         : source
-      return { file, css }
+      return { file, css: css.replace(TAILWIND_UTILITY, '.$1 {') }
     })
     .filter(({ css }) => css.includes('animation'))
 }
 
 /**
- * The build minifies twice. Without browser targets Lightning CSS rewrites
- * the most, so this is the strictest setting the build could use.
+ * Mirrors the build: Astro sets Vite's `build.target` to `esnext`, so Vite
+ * runs Lightning CSS with no browser targets, which is what lets it fold a
+ * timeline into the shorthand. The CSS is minified more than once on its way
+ * to the page, and the second pass is what exposes the range bug.
  */
 function minifyLikeTheBuild(file: string, css: string): string[] {
   const minifyOnce = (input: string): string =>
@@ -76,7 +82,12 @@ function declarationValues(css: string, property: string): string[] {
 
 /** `view()`, `scroll()` or a named `--timeline`, outside any `var()`. */
 function namesATimeline(animationShorthand: string): boolean {
-  const withoutVars = animationShorthand.replace(/var\([^)]*\)/g, '')
+  let withoutVars = animationShorthand
+  let previous
+  do {
+    previous = withoutVars
+    withoutVars = withoutVars.replace(INNERMOST_VAR, '')
+  } while (withoutVars !== previous)
   return /view\(|scroll\(|(?:^|\s)--[\w-]+/.test(withoutVars)
 }
 
