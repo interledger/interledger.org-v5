@@ -117,53 +117,45 @@ const subGroupHeadingClass = `nav-subgroup-heading w-full border-b text-caption 
         </span>
       </button>
 
-          {group.subGroups && group.subGroups.length > 0 ? (
-            <section
-              id={panelId}
-              class={megaMenuClass}
-              aria-labelledby={buttonId}
-              style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), auto);`}
-            >
-              {group.subGroups.map((subGroup) => (
-                <div class={megaSubGroupClass}>
-                  <h3 class={subGroupHeadingClass}>{subGroup.label}</h3>
-                  <ul class={submenuListClass}>
-                    {subGroup.items.map((item) => (
-                      <li data-menu-level="2">
-                        <NavMenuLink
-                          href={item.href || '#'}
-                          label={item.label}
-                          theme={theme}
-                          openInNewTab={item.openInNewTab}
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </section>
-          ) : group.items && group.items.length > 0 ? (
-            <section
-              id={panelId}
-              class={flatSubmenuPanelClass}
-              aria-labelledby={buttonId}
-            >
-              <ul class={submenuListClass}>
-                {group.items.map((item) => (
-                  <li data-menu-level="2">
-                    <NavMenuLink
-                      href={item.href || '#'}
-                      label={item.label}
-                      theme={theme}
-                      openInNewTab={item.openInNewTab}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-        </li>
-      )
-    })
-  }
+      {group.subGroups && group.subGroups.length > 0 ? (
+        <section
+          id={panelId}
+          class={megaMenuClass}
+          aria-labelledby={buttonId}
+          style={`--mega-menu-cols: ${group.subGroups.length}; grid-template-columns: repeat(var(--mega-menu-cols), auto);`}
+        >
+          {group.subGroups.map((subGroup) => <div class={megaSubGroupClass}>
+            <h3 class={subGroupHeadingClass}>{subGroup.label}</h3>
+            <ul class={submenuListClass}>
+              {subGroup.items.map((item) => <li data-menu-level="2">
+                <NavMenuLink
+                  href={item.href || '#'}
+                  label={item.label}
+                  theme={theme}
+                  openInNewTab={item.openInNewTab}
+                />
+              </li>)}
+            </ul>
+          </div>)}
+        </section>
+      ) : group.items && group.items.length > 0 ? (
+        <section
+          id={panelId}
+          class={flatSubmenuPanelClass}
+          aria-labelledby={buttonId}
+        >
+          <ul class={submenuListClass}>
+            {group.items.map((item) => <li data-menu-level="2">
+              <NavMenuLink
+                href={item.href || '#'}
+                label={item.label}
+                theme={theme}
+                openInNewTab={item.openInNewTab}
+              />
+            </li>)}
+          </ul>
+        </section>
+      ) : null}
+    </li>
+  })}
 </ul>

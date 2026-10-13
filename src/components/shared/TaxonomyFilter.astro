@@ -62,27 +62,23 @@ const filterAttrs = (linkText: string, href?: string) =>
       {t(taxonomy.allLabelKey)}
     </PillLink>
   </li>
-  {
-    terms.map((term) => {
-      const label = translateTerm(taxonomy.i18nPrefix, term, t)
-      const isEnabled = enabledSet === null || enabledSet.has(term)
-      const isActive = selectedTerm === term
-      const termHref = isEnabled
-        ? getTermUrl(href, taxonomy.segment, term, contentLangOverride)
-        : undefined
+  {terms.map((term) => {
+    const label = translateTerm(taxonomy.i18nPrefix, term, t)
+    const isEnabled = enabledSet === null || enabledSet.has(term)
+    const isActive = selectedTerm === term
+    const termHref = isEnabled
+      ? getTermUrl(href, taxonomy.segment, term, contentLangOverride)
+      : undefined
 
-      return (
-        <li>
-          <PillLink
-            href={termHref}
-            active={isActive}
-            disabled={!isEnabled}
-            {...(isEnabled ? filterAttrs(label, termHref) : {})}
-          >
-            {label}
-          </PillLink>
-        </li>
-      )
-    })
-  }
+    return <li>
+      <PillLink
+        href={termHref}
+        active={isActive}
+        disabled={!isEnabled}
+        {...(isEnabled ? filterAttrs(label, termHref) : {})}
+      >
+        {label}
+      </PillLink>
+    </li>
+  })}
 </ul>

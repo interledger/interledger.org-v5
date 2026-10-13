@@ -99,19 +99,15 @@ const threePillars = [
       {t('pillarsSection.heading')}
     </h2>
     <ul class={cardsContainerClasses} role="list">
-      {
-        threePillars.map((pillar) => (
-          <li class={cardDivs}>
-            <PillarCard
-              title={pillar.title}
-              description={pillar.description}
-              href={pillar.href}
-              class={pillar.bg}
-              umamiAttr={pillarUmamiAttrs(pillar.href, pillar.title)}
-            />
-          </li>
-        ))
-      }
+      {threePillars.map((pillar) => <li class={cardDivs}>
+        <PillarCard
+          title={pillar.title}
+          description={pillar.description}
+          href={pillar.href}
+          class={pillar.bg}
+          umamiAttr={pillarUmamiAttrs(pillar.href, pillar.title)}
+        />
+      </li>)}
     </ul>
   </div>
 </section>

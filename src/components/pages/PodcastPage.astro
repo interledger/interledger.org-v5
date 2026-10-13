@@ -120,29 +120,25 @@ const heroLcpPreload =
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </PageHero>
 
-    {
-      isLandingPage && (
-        <section class="px-content">
-          {/*
+    {isLandingPage && <section class="px-content">
+      {/*
             The intro text and the cards share one prose flow, so the standard
             rhythm decides the gap between them. The text ends on the heading
             that titles the cards, and prose/rhythm.css gives that pair the
             tighter heading gap instead of a full section break.
           */}
-          <div class="content-column">
-            <div data-prose>
-              {textSectionHtml && <Fragment set:html={textSectionHtml} />}
-              <CardGrid
-                ariaLabel={titleCards.ariaLabel}
-                columns={titleCards.columns}
-                variant="Title"
-                titleCards={titleCards.cards}
-              />
-            </div>
-          </div>
-        </section>
-      )
-    }
+      <div class="content-column">
+        <div data-prose>
+          {textSectionHtml && <Fragment set:html={textSectionHtml} />}
+          <CardGrid
+            ariaLabel={titleCards.ariaLabel}
+            columns={titleCards.columns}
+            variant="Title"
+            titleCards={titleCards.cards}
+          />
+        </div>
+      </div>
+    </section>}
 
     <section aria-label={t('aria.podcast.filters_label')} class="px-content">
       <div class="content-column">

@@ -29,18 +29,14 @@ const categoryAttrs = (label: string, href: string) =>
 
 <nav aria-label={t('aria.article_categories')}>
   <ul class="flex flex-wrap gap-xs list-none m-0 p-0">
-    {
-      categories.map((category) => {
-        const label = translateTerm('blog.categories', category, t)
-        const href = getTermUrl(path, CATEGORY_SEGMENT, category)
-        return (
-          <li class="m-0">
-            <PillLink href={href} {...categoryAttrs(label, href)}>
-              {label}
-            </PillLink>
-          </li>
-        )
-      })
-    }
+    {categories.map((category) => {
+      const label = translateTerm('blog.categories', category, t)
+      const href = getTermUrl(path, CATEGORY_SEGMENT, category)
+      return <li class="m-0">
+        <PillLink href={href} {...categoryAttrs(label, href)}>
+          {label}
+        </PillLink>
+      </li>
+    })}
   </ul>
 </nav>

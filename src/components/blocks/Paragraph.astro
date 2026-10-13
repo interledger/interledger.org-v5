@@ -45,12 +45,10 @@ const htmlContent = hasContent
   : null
 ---
 
-{
-  hasContent ? (
-    <div data-component="Paragraph" class={className} set:html={htmlContent} />
-  ) : (
-    <div data-component="Paragraph" class={className}>
-      <slot />
-    </div>
-  )
-}
+{hasContent ? (
+  <div data-component="Paragraph" class={className} set:html={htmlContent} />
+) : (
+  <div data-component="Paragraph" class={className}>
+    <slot />
+  </div>
+)}

@@ -97,51 +97,41 @@ const resolved = buttons
   })
 ---
 
-{
-  resolved.length > 0 && (
-    <div
-      data-component="CtaButtons"
-      class:list={[
-        spacing === 'prose' &&
-          'mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl',
-        'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
-      ]}
-    >
-      {/*
+{resolved.length > 0 && <div
+  data-component="CtaButtons"
+  class:list={[
+    spacing === 'prose' &&
+      'mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl',
+    'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+  ]}
+>
+  {/*
         `iconSide` is explicit because LinkButton otherwise infers it from
         `Astro.slots.has('icon-right')`, which reports true even when the slot
         holds a falsy conditional and renders nothing. It also has to honour
         `hideIcons`: a button whose icon is suppressed needs the symmetric
         padding, or its label sits 8px off centre.
       */}
-      {resolved.map((button) => (
-        <LinkButton
-          href={button.href}
-          variant={button.variant}
-          mode="auto"
-          external={button.external}
-          document={button.document}
-          iconSide={!hideIcons && button.icon ? 'right' : 'none'}
-          class="w-full tablet:w-auto"
-          {...buildUmamiAttrs({
-            pathname: Astro.url.pathname,
-            lang: routeLocale,
-            label: umamiLabel ?? 'button_cta',
-            baseComponent:
-              umamiBaseComponent ??
-              (button.variant === 'secondary'
-                ? 'secondary_cta'
-                : 'primary_cta'),
-            href: button.href,
-            linkText: button.text
-          })}
-        >
-          {button.text}
-          {!hideIcons && button.icon && (
-            <Icon name={button.icon} slot="icon-right" />
-          )}
-        </LinkButton>
-      ))}
-    </div>
-  )
-}
+  {resolved.map((button) => <LinkButton
+    href={button.href}
+    variant={button.variant}
+    mode="auto"
+    external={button.external}
+    document={button.document}
+    iconSide={!hideIcons && button.icon ? 'right' : 'none'}
+    class="w-full tablet:w-auto"
+    {...buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      label: umamiLabel ?? 'button_cta',
+      baseComponent:
+        umamiBaseComponent ??
+        (button.variant === 'secondary' ? 'secondary_cta' : 'primary_cta'),
+      href: button.href,
+      linkText: button.text
+    })}
+  >
+    {button.text}
+    {!hideIcons && button.icon && <Icon name={button.icon} slot="icon-right" />}
+  </LinkButton>)}
+</div>}

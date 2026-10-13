@@ -49,16 +49,14 @@ const className = [
   class={className}
   data-component="NavMenuLink"
   {...umamiAttrs}
-  {...openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...(openInNewTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
 >
   <span class={labelSpanClass}>
-    {
-      openInNewTab ? (
-        <LabelWithTrailingIcon label={label} icon="external-link" />
-      ) : (
-        label
-      )
-    }
+    {openInNewTab ? (
+      <LabelWithTrailingIcon label={label} icon="external-link" />
+    ) : (
+      label
+    )}
   </span>
   {openInNewTab && <span class="sr-only">{t('aria.opens_new_tab')}</span>}
 </a>

@@ -29,17 +29,15 @@ const label = t('summit.speakers_pagination', { year })
       <SpeakersList speakers={speakers} basePath={basePath} year={year} />
     </section>
 
-    {
-      page.lastPage && page.lastPage > 1 && (
-        <Pagination
-          baseUrl={basePath}
-          length={page.lastPage}
-          currentPage={page.currentPage}
-          prevUrl={page.url.prev}
-          nextUrl={page.url.next}
-          label={label}
-        />
-      )
-    }
+    {page.lastPage && page.lastPage > 1 && (
+      <Pagination
+        baseUrl={basePath}
+        length={page.lastPage}
+        currentPage={page.currentPage}
+        prevUrl={page.url.prev}
+        nextUrl={page.url.next}
+        label={label}
+      />
+    )}
   </main>
 </SummitPageLayout>

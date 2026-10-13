@@ -80,9 +80,7 @@ const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
           </div>
 
           <div id="form-wrapper">
-            {
-              /* Deliberate Figma-verified exception: h2 uses the h4 token here. */
-            }
+            {/* Deliberate Figma-verified exception: h2 uses the h4 token here. */}
             <h2
               class="text-h4 tablet:text-h4-md desktop:text-h4-lg text-neutral-900 mb-2xl"
               id="contact-form-heading"
@@ -178,19 +176,15 @@ const errorClasses = 'hidden mb-0 text-body-sm-standard text-red-600'
                       'aria-labelledby': 'topic-summary'
                     }}
                   >
-                    {
-                      topics.map((topic) => (
-                        <FilterDropdownOption
-                          id={`topic-option-${topic.value.replaceAll(' ', '-')}`}
-                          role="option"
-                          data-value={topic.value}
-                          data-label={topic.label}
-                          selected={false}
-                        >
-                          {topic.label}
-                        </FilterDropdownOption>
-                      ))
-                    }
+                    {topics.map((topic) => <FilterDropdownOption
+                      id={`topic-option-${topic.value.replaceAll(' ', '-')}`}
+                      role="option"
+                      data-value={topic.value}
+                      data-label={topic.label}
+                      selected={false}
+                    >
+                      {topic.label}
+                    </FilterDropdownOption>)}
                   </FilterDropdown>
                 </div>
               </div>

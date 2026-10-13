@@ -77,8 +77,7 @@ export async function isFullAccessApiToken(
   token: string
 ): Promise<boolean | Error> {
   const service = strapi.service(CONTENT_API_TOKEN_SERVICE) as
-    | ApiTokenService
-    | undefined
+    ApiTokenService | undefined
 
   if (
     !service ||
