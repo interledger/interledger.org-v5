@@ -578,6 +578,8 @@ Use `@utility` in `src/styles/utilities/` when a single `@theme` token isn't eno
 
 Import the new file from `tailwind.css` so it lands in the utilities layer.
 
+**Next to `animation-timeline`, keep `animation` a `var()` or use the longhands.** The example is safe only because its shorthand is a `var()`. With a literal value (`animation: rise 1s linear both`), the build minifier folds the timeline into the shorthand, browsers reject the result, and the animation is static in production while `astro dev` still animates it. Use `animation-name`, `animation-duration` and the other longhands instead. For a full view range, write `animation-range: cover`, not `entry 0% exit 100%`: the minifier turns the end into `exit 0%`. `src/scrollDrivenAnimations.test.ts` checks both.
+
 **Don't name a `@utility` the same as an existing `--<namespace>-*` token** (e.g. `@utility animate-fade-in` alongside `--animate-fade-in`) — they collide and the `@utility` can be silently dropped. Either use a different class name (as `animate-rise-in-view` does, consuming `--animate-scroll-rise` via `var()`) or skip the token.
 
 ### Override Component Style
