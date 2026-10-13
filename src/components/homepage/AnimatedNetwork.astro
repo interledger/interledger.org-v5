@@ -137,10 +137,23 @@ import { ANIMATED_NETWORK_PROBLEM_HEADING_ID } from '@/components/homepage/anima
   @media (min-width: 810px) {
     [data-component='AnimatedNetwork'] .network-svg:not(.network-svg--static) {
       transform-origin: 50% 52%; /* registration mark in the SVG (960/1920, 1648/3186) */
-      /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
-      animation: network-rotate 1ms linear both;
+      /*
+       * Longhands, not the `animation` shorthand: Lightning CSS (Vite's build
+       * minifier) folds a shorthand plus `animation-timeline` into one
+       * shorthand that browsers reject, so the art never animates in builds.
+       * 1ms duration: scroll-driven pattern — timeline controls progress, not duration.
+       */
+      animation-name: network-rotate;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
       animation-timeline: --network-track;
-      animation-range: entry 0% exit 100%;
+      /*
+       * `cover` is `entry 0% exit 100%`. Written that way, Lightning CSS prints
+       * the end as a bare `exit`, then re-reads it as `exit 0%` on its second
+       * pass, cutting the rotation short.
+       */
+      animation-range: cover;
     }
 
     [data-component='AnimatedNetwork'].network--compositing
@@ -178,8 +191,11 @@ import { ANIMATED_NETWORK_PROBLEM_HEADING_ID } from '@/components/homepage/anima
       opacity: 0;
       transform: scale(1);
       transform-origin: center center;
-      /* 1ms duration: scroll-driven pattern — timeline controls progress, not duration. */
-      animation: growing-circle-grow 1ms linear forwards;
+      /* Longhands for the same minifier reason as .network-svg above. */
+      animation-name: growing-circle-grow;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
       animation-timeline: --network-track;
       animation-range: cover var(--network-circle-range-start) cover
         var(--network-circle-range-end);
