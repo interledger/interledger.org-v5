@@ -137,8 +137,15 @@ const threePillars = [
     section:has(:focus-visible) .pillars-heading {
       position: static;
     }
+    /*
+     * Longhands, not the `animation` shorthand: Lightning CSS (Vite's build
+     * minifier) folds a shorthand plus `animation-timeline` into one
+     * shorthand that browsers reject, so the heading never shrinks in builds.
+     */
     .pillars-heading {
-      animation: shrink linear forwards;
+      animation-name: shrink;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
       animation-timeline: view();
       animation-range-start: 10%;
     }
