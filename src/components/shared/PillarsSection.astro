@@ -141,6 +141,9 @@ const threePillars = [
      * Longhands, not the `animation` shorthand: Lightning CSS (Vite's build
      * minifier) folds a shorthand plus `animation-timeline` into one
      * shorthand that browsers reject, so the heading never shrinks in builds.
+     * Longhands don't reset what they leave out, so the range end is set
+     * explicitly: otherwise the 35% end from `tablet:animate-rise-in-view`
+     * carries over.
      */
     .pillars-heading {
       animation-name: shrink;
@@ -148,6 +151,7 @@ const threePillars = [
       animation-fill-mode: forwards;
       animation-timeline: view();
       animation-range-start: 10%;
+      animation-range-end: normal;
     }
   }
 
