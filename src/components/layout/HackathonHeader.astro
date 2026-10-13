@@ -8,6 +8,7 @@ import HackathonNavLogo from '@/components/logos/HackathonNavLogo.astro'
 import HamburgerButton from '@/components/shared/HamburgerButton.astro'
 import LanguageSwitcher from '@/components/shared/LanguageSwitcher.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
+import { DEFAULT_NAV_BAR_QUERY } from '@/scripts/header-nav'
 import {
   translatePath,
   useTranslations,
@@ -126,14 +127,14 @@ const ctaLink = (href: string, linkText?: string) =>
   </nav>
 </header>
 
-<!-- Synchronous init: set data-offscreen before first paint on desktop so the
-     browser never renders the drawer in mobile-closed state then flips it.
-     The module script below handles all interactions; this only sets the
-     initial attribute to match the viewport. -->
-<script is:inline>
+<!-- Synchronous init: set data-offscreen before first paint when the menu bar
+     shows, so the browser never renders the drawer in mobile-closed state then
+     flips it. The module script below handles all interactions; this only sets
+     the initial attribute to match the viewport. -->
+<script is:inline define:vars={{ navBarQuery: DEFAULT_NAV_BAR_QUERY }}>
   ;(function () {
     const w = document.getElementById('hackathonNavLinks')
-    if (w && window.matchMedia('(min-width: 1200px)').matches) {
+    if (w && window.matchMedia(navBarQuery).matches) {
       w.dataset.offscreen = 'false'
       w.removeAttribute('inert')
     }

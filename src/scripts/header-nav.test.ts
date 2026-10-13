@@ -70,21 +70,32 @@ describe('panelOverflowShift', () => {
 
 describe('nav bar queries', () => {
   const tailwindCss = readFileSync('src/styles/tailwind.css', 'utf8')
-  const navBarVariant = tailwindCss.match(
-    /@custom-variant nav-bar \{[\s\S]*?\n\}/
-  )?.[0]
-  const variantWidths = [
-    ...(navBarVariant ?? '').matchAll(/width >= (\d+px)/g)
-  ].map((match) => match[1])
+
+  /** The widths a nav variant in tailwind.css compares against, in order. */
+  const variantWidths = (name: string, operator: '>=' | '<') => {
+    const variant = tailwindCss.match(
+      new RegExp(`@custom-variant ${name} \\{[\\s\\S]*?\\n\\}`)
+    )?.[0]
+    return [
+      ...(variant ?? '').matchAll(new RegExp(`width ${operator} (\\d+px)`, 'g'))
+    ].map((match) => match[1])
+  }
 
   const queryWidth = (query: string) => query.match(/(\d+px)/)?.[1]
+  const expectedWidths = [
+    queryWidth(FOUNDATION_NAV_BAR_QUERY),
+    queryWidth(DEFAULT_NAV_BAR_QUERY)
+  ]
 
   // The JS drawer state and the CSS layout must flip at the same width, or
   // the bar renders with an inert, offscreen menu (or the reverse).
   it('match the widths in the nav-bar CSS variant', () => {
-    expect(variantWidths).toEqual([
-      queryWidth(FOUNDATION_NAV_BAR_QUERY),
-      queryWidth(DEFAULT_NAV_BAR_QUERY)
-    ])
+    expect(variantWidths('nav-bar', '>=')).toEqual(expectedWidths)
+  })
+
+  // nav-drawer must end exactly where nav-bar starts. A gap leaves a band
+  // with neither layout, and an overlap applies both at once.
+  it('match the widths in the nav-drawer CSS variant', () => {
+    expect(variantWidths('nav-drawer', '<')).toEqual(expectedWidths)
   })
 })
