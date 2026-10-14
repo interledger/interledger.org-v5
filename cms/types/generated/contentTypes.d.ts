@@ -801,6 +801,13 @@ export interface ApiFoundationPageFoundationPage
           localized: true
         }
       }>
+    draft: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -889,13 +896,6 @@ export interface ApiFundraisingPageFundraisingPage
           localized: true
         }
       }>
-    draft: Schema.Attribute.Boolean &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }> &
-      Schema.Attribute.DefaultTo<false>
     hero: Schema.Attribute.Component<'shared.hero', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
