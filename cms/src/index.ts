@@ -1828,6 +1828,7 @@ async function configureLayouts(strapi: StrapiInstance) {
   const plugin = strapi.plugin('content-manager')
   if (!plugin) return
 
+  // `draft` is deliberately absent: DraftCheckbox renders it in the Entry panel.
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::foundation-blog-post.foundation-blog-post': [
       [{ name: 'title', size: 12 }],
