@@ -16,6 +16,7 @@ import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker
 import { areAdminNoticesDisabled } from '../utils/adminNotice'
 import { NOTICES_ROUTE_ID, decideAdminRouteWrap } from '../utils/adminRoutes'
 import { AdminNoticesLayout } from './notices/AdminNoticesLayout'
+import { DraftCheckbox } from './DraftCheckbox'
 import {
   DISABLED_ROW_CSS,
   INJECT_COLUMN_IN_TABLE_HOOK,
@@ -303,6 +304,14 @@ export default {
     registerHook: (name: string, fn: typeof markDisabledListRows) => void
   }) {
     app.registerHook(INJECT_COLUMN_IN_TABLE_HOOK, markDisabledListRows)
+
+    // Renders inside the Publish panel, below the action buttons.
+    strapiApp
+      ?.getPlugin('content-manager')
+      .injectComponent('editView', 'right-links', {
+        name: 'draft-checkbox',
+        Component: DraftCheckbox
+      })
 
     // TEMP UI Fix: inject styles until Strapi supports proper theming
     const style = document.createElement('style')

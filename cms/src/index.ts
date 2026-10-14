@@ -885,11 +885,6 @@ function collectMediaPaths(dir: string): string[] {
   return results
 }
 
-// Same helper text on every page type that supports drafts (INTORG-1289).
-// Production builds drop drafts; see src/utils/main/gatedCollection.ts.
-const DRAFT_FIELD_DESCRIPTION =
-  'Enable this if the page is still a work in progress and should not be displayed in production.'
-
 /**
  * Configure pretty labels for field names in the admin panel.
  * This updates the content-manager metadata stored in the database.
@@ -1031,7 +1026,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       tagline:
         'Used on profile grids below the avatar and name. Not shown on the profile page.',
       category:
@@ -1047,7 +1041,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
@@ -1066,7 +1059,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: ''
     },
     'api::summit-page.summit-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
       pathSlug:
@@ -1074,7 +1066,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
       pathSlug:
@@ -1082,7 +1073,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
@@ -1091,7 +1081,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
@@ -1114,7 +1103,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'The full list of podcast episodes. Author in chronological order (oldest first); the site displays newest first.'
     },
     'api::foundation-blog-post.foundation-blog-post': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
       pathSlug:
@@ -1133,7 +1121,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path after /blog (e.g. /my-related-post/), not the full URL.'
     },
     'api::faq.faq': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
@@ -1153,7 +1140,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       // where hints do render.
     },
     'api::report.report': {
-      draft: DRAFT_FIELD_DESCRIPTION,
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug:
@@ -1846,7 +1832,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [
         { name: 'date', size: 4 },
         { name: 'lastUpdated', size: 4 },
@@ -1872,7 +1857,6 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'category', size: 6 }],
       [{ name: 'media', size: 12 }],
       [{ name: 'role', size: 12 }],
@@ -1887,7 +1871,6 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'heading', size: 12 }],
       [{ name: 'author_bio', size: 12 }],
@@ -1898,7 +1881,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::foundation-page.foundation-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -1913,7 +1895,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::summit-page.summit-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -1921,7 +1902,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::hackathon-page.hackathon-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -1929,7 +1909,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::grant-overview-page.grant-overview-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }],
@@ -1949,7 +1928,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'api::grant-page.grant-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'programOverview', size: 12 }],
@@ -1965,7 +1943,6 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'section', size: 6 }
       ],
       [{ name: 'pathSlug', size: 12 }],
-      [{ name: 'draft', size: 6 }],
       [{ name: 'heading', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'introParagraph', size: 12 }],
