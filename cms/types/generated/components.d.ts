@@ -454,7 +454,7 @@ export interface BlocksDonationCard extends Struct.ComponentSchema {
 export interface BlocksDonationCards extends Struct.ComponentSchema {
   collectionName: 'components_blocks_donation_cards'
   info: {
-    description: "Row of giving tiers. A page carrying this block loads the Fundraise Up script, so a card's CTA can point at a Fundraise Up Element ID."
+    description: 'Row of giving tiers. Only on a Fundraising Page. That template loads the Fundraise Up script, so a card CTA can point at an Element ID.'
     displayName: 'Donation Cards'
     icon: 'heart'
   }
@@ -1743,7 +1743,7 @@ export interface SharedLocalizedMedia extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
-    alternativeText: Schema.Attribute.String &
+    alternativeText: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1888,7 +1888,7 @@ export interface SharedSocialLink extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'blocks.agenda': BlocksAgenda
       'blocks.agenda-item': BlocksAgendaItem

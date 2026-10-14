@@ -44,6 +44,30 @@ function isGateOn(overrideKey: string, env: BuildEnv): boolean {
   return env.CONTEXT?.trim().toLowerCase() === 'production'
 }
 
+/**
+ * Whether this build is Netlify's production deploy.
+ *
+ * Staging, deploy previews, playground and local dev are not: `CONTEXT` is
+ * unset or something other than `production`. `BLOG_DATE_FILTER` does not
+ * apply here. That override exists to rehearse the blog gate, and must not
+ * switch a card checkout between test and live.
+ */
+export function isProductionDeploy(
+  env: Record<string, string | undefined> = process.env
+): boolean {
+  return env.CONTEXT?.trim().toLowerCase() === 'production'
+}
+
+/**
+ * Build-time pin of `isProductionDeploy`. `CONTEXT` is not guaranteed in the
+ * Functions runtime, so callers must not re-read `process.env` per request.
+ */
+export function productionDeploy(): boolean {
+  return typeof __IS_PRODUCTION_DEPLOY__ === 'boolean'
+    ? __IS_PRODUCTION_DEPLOY__
+    : isProductionDeploy()
+}
+
 /** Whether this build hides future-dated posts. Override: `BLOG_DATE_FILTER`. */
 export function shouldHideFuturePosts(env: BuildEnv = process.env): boolean {
   return isGateOn('BLOG_DATE_FILTER', env)

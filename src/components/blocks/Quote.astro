@@ -93,68 +93,58 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
   data-umami-component="quote"
   class="my-2xl border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl"
 >
-  {
-    authorAbove && (
-      <figcaption class="mb-sm flex items-center gap-md">
-        {image && (
-          <OptimizedImage
-            src={image.src}
-            alt={image.alt}
-            width={44}
-            height={44}
-            class="size-[44px] shrink-0 rounded-full object-cover"
-            loading="lazy"
+  {authorAbove && <figcaption class="mb-sm flex items-center gap-md">
+    {image && (
+      <OptimizedImage
+        src={image.src}
+        alt={image.alt}
+        width={44}
+        height={44}
+        class="size-[44px] shrink-0 rounded-full object-cover"
+        loading="lazy"
+      />
+    )}
+    {authorName &&
+      (safeAuthorLink ? (
+        <a
+          href={safeAuthorLink}
+          class={authorLinkClasses}
+          rel={
+            isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
+          }
+          target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+          {...quoteAuthorUmamiAttrs(authorName)}
+        >
+          <span>{authorName}</span>
+          <Icon
+            name="link-rounded"
+            class="size-5 shrink-0 text-current"
+            aria-hidden="true"
           />
-        )}
-        {authorName &&
-          (safeAuthorLink ? (
-            <a
-              href={safeAuthorLink}
-              class={authorLinkClasses}
-              rel={
-                isExternalHref(safeAuthorLink)
-                  ? 'noopener noreferrer'
-                  : undefined
-              }
-              target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
-              {...quoteAuthorUmamiAttrs(authorName)}
-            >
-              <span>{authorName}</span>
-              <Icon
-                name="link-rounded"
-                class="size-5 shrink-0 text-current"
-                aria-hidden="true"
-              />
-              {isExternalHref(safeAuthorLink) && (
-                <span class="sr-only">{t('quote.external_link')}</span>
-              )}
-            </a>
-          ) : (
-            <cite class:list={['not-italic', authorTypeClasses]}>
-              {authorName}
-            </cite>
-          ))}
-        {!authorName && safeAuthorLink && (
-          <a
-            href={safeAuthorLink}
-            class={authorLinkClasses}
-            rel={
-              isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
-            }
-            target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
-            aria-label={t('quote.author_link_label')}
-            {...quoteAuthorUmamiAttrs(undefined, t('quote.author_link_label'))}
-          >
-            <Icon
-              name="link-rounded"
-              class="size-5 shrink-0 text-current"
-              aria-hidden="true"
-            />
-          </a>
-        )}
-      </figcaption>
-    )
-  }
+          {isExternalHref(safeAuthorLink) && <span class="sr-only"
+            >{t('quote.external_link')}</span
+          >}
+        </a>
+      ) : (
+        <cite class:list={['not-italic', authorTypeClasses]}>
+          {authorName}
+        </cite>
+      ))}
+    {!authorName && safeAuthorLink && <a
+      href={safeAuthorLink}
+      class={authorLinkClasses}
+      rel={isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined}
+      target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+      aria-label={t('quote.author_link_label')}
+      {...quoteAuthorUmamiAttrs(undefined, t('quote.author_link_label'))}
+    >
+      <Icon
+        name="link-rounded"
+        class="size-5 shrink-0 text-current"
+        aria-hidden="true"
+      />
+    </a>}
+  </figcaption>}
 
   <blockquote
     class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg"
@@ -173,15 +163,11 @@ const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} 
     }
   </blockquote>
 
-  {
-    authorBelow && (
-      <figcaption class="mt-0">
-        <p class:list={['m-0', authorTypeClasses]}>
-          – <cite class="not-italic font-normal">{authorName}</cite>
-        </p>
-      </figcaption>
-    )
-  }
+  {authorBelow && <figcaption class="mt-0">
+    <p class:list={['m-0', authorTypeClasses]}>
+      – <cite class="not-italic font-normal">{authorName}</cite>
+    </p>
+  </figcaption>}
 </figure>
 
 <style>

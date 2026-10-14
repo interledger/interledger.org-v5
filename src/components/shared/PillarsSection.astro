@@ -99,19 +99,15 @@ const threePillars = [
       {t('pillarsSection.heading')}
     </h2>
     <ul class={cardsContainerClasses} role="list">
-      {
-        threePillars.map((pillar) => (
-          <li class={cardDivs}>
-            <PillarCard
-              title={pillar.title}
-              description={pillar.description}
-              href={pillar.href}
-              class={pillar.bg}
-              umamiAttr={pillarUmamiAttrs(pillar.href, pillar.title)}
-            />
-          </li>
-        ))
-      }
+      {threePillars.map((pillar) => <li class={cardDivs}>
+        <PillarCard
+          title={pillar.title}
+          description={pillar.description}
+          href={pillar.href}
+          class={pillar.bg}
+          umamiAttr={pillarUmamiAttrs(pillar.href, pillar.title)}
+        />
+      </li>)}
     </ul>
   </div>
 </section>
@@ -141,10 +137,21 @@ const threePillars = [
     section:has(:focus-visible) .pillars-heading {
       position: static;
     }
+    /*
+     * Longhands, not the `animation` shorthand: Lightning CSS (Vite's build
+     * minifier) folds a shorthand plus `animation-timeline` into one
+     * shorthand that browsers reject, so the heading never shrinks in builds.
+     * Longhands don't reset what they leave out, so the range end is set
+     * explicitly: otherwise the 35% end from `tablet:animate-rise-in-view`
+     * carries over.
+     */
     .pillars-heading {
-      animation: shrink linear forwards;
+      animation-name: shrink;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
       animation-timeline: view();
       animation-range-start: 10%;
+      animation-range-end: normal;
     }
   }
 

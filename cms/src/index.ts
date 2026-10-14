@@ -38,6 +38,7 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
+  CONTENT_API_TOKEN_SERVICE,
   isFullAccessApiToken,
   SERVER_STATUS_PATH,
   DEV_BUILD_ID,
@@ -228,6 +229,7 @@ const SECTION_SCOPED_SLUG_UIDS = [
 /** Content types whose `pathSlug` is `unique: true` across the collection. */
 const UNIQUE_SLUG_UIDS = [
   'api::foundation-page.foundation-page',
+  'api::fundraising-page.fundraising-page',
   'api::summit-page.summit-page',
   'api::hackathon-page.hackathon-page',
   'api::grant-page.grant-page',
@@ -308,6 +310,8 @@ interface UploadProvider {
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
   checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
+  replace?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
+  replaceStream?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
 }
 
 export interface UploadFile {
@@ -628,7 +632,7 @@ function createImageSizeLimitTransform(label: string): Transform {
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
  */
-function overrideUploadProvider(strapi: StrapiInstance): void {
+export function overrideUploadProvider(strapi: StrapiInstance): void {
   const uploadPlugin = strapi.plugin('upload')
   if (!uploadPlugin?.provider) {
     strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
@@ -680,6 +684,14 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
+  // The local provider has its own replace methods since Strapi 5.57. They
+  // write to `public/uploads/`, not to `uploadPath`, and skip the streaming
+  // byte check and the check after write above (Strapi still calls
+  // checkFileSize first). Without them, Strapi replaces a file with `delete`
+  // and then `upload`.
+  delete provider.replace
+  delete provider.replaceStream
+
   provider.delete = async (file: UploadFile) => {
     const candidates = [
       path.join(uploadPath, `${file.hash}${file.ext}`),
@@ -707,8 +719,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   if (!uploadPlugin) return
 
   const uploadService = uploadPlugin.service('upload') as
-    | UploadService
-    | undefined
+    UploadService | undefined
   if (uploadService) {
     await uploadService.setSettings({
       responsiveDimensions: false,
@@ -720,8 +731,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 
   const imgService = uploadPlugin.service('image-manipulation') as
-    | ImageManipulationService
-    | undefined
+    ImageManipulationService | undefined
   if (imgService) {
     imgService.generateThumbnail = async () => null
     imgService.generateResponsiveFormats = async () => []
@@ -830,7 +840,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   if (!outputPath) return
 
   const tokenService = strapi.service(
-    'admin::api-token'
+    CONTENT_API_TOKEN_SERVICE
   ) as AdminApiTokenService
 
   const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
@@ -921,6 +931,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'api::foundation-page.foundation-page': {
       draft: 'Draft',
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      hero: 'Hero',
+      content: 'Page Content'
+    },
+    'api::fundraising-page.fundraising-page': {
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -1036,6 +1053,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       pathSlug:
         'Path of the page, starting and ending with a slash. Example: /about-us/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
       description: 'Short description used for SEO. Aim for 120–160 characters.'
+    },
+    'api::fundraising-page.fundraising-page': {
+      title:
+        'Enter only the page name, e.g. "Donate" — not "Interledger Foundation | Donate". The "Interledger Foundation |" part is added automatically in the browser tab.',
+      pathSlug:
+        'Path of the page, starting and ending with a slash. Example: /get-involved/donate/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      description:
+        'Short description used for SEO. Aim for 120–160 characters.',
+      // A dynamic-zone hint stays hidden until a block is added, then Strapi
+      // clips it to one line. The same note is on the Donation Cards component.
+      content: ''
     },
     'api::summit-page.summit-page': {
       draft: DRAFT_FIELD_DESCRIPTION,
@@ -1422,12 +1450,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       slug: 'Related Post Slug'
     },
     'blocks.donation-cards': {
-      ariaLabel: 'Accessible label for the row'
+      ariaLabel: 'Accessible label for the row',
+      cards: 'Cards'
     },
     'blocks.donation-card': {
+      heading: 'Heading',
       amount: 'Gift size',
+      summary: 'Summary',
       seats: 'Seats line',
       benefitsLabel: 'Benefits label',
+      benefits: 'Benefits',
       ctaText: 'Button text',
       ctaLink: 'Button link',
       ctaExternal: 'Opens in a new tab',
@@ -1746,11 +1778,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   if (!plugin) return
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   if (!contentTypeService || !componentService) return
 
@@ -1869,6 +1899,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'draft', size: 6 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
+    'api::fundraising-page.fundraising-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'hero', size: 12 }],
       [{ name: 'content', size: 12 }]
@@ -2218,11 +2255,9 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   for (const [uid, editLayout] of Object.entries(contentTypeLayouts)) {
     try {
@@ -2443,8 +2478,7 @@ export default {
     // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
     // Available badge compare it by bare slug.
     const uidService = strapi.plugin('content-manager')?.service('uid') as
-      | UidService
-      | undefined
+      UidService | undefined
     if (uidService) {
       patchUidServiceForSlashedSlugs(
         uidService,
@@ -2454,6 +2488,17 @@ export default {
     registerDocumentValidation(
       strapi,
       'api::foundation-page.foundation-page',
+      (body) =>
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::fundraising-page.fundraising-page',
       (body) =>
         mergeValidationErrors(
           validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),

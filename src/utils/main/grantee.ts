@@ -16,6 +16,7 @@ import {
   isSafeMarkdownHref
 } from '../shared/url'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
+import type { GranteeFieldName } from './airtableRecords'
 
 export const GRANTEE_PAGE_SIZE = 10
 
@@ -181,7 +182,8 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null
   if (!isRecord(value.fields)) return null
 
-  const fields = value.fields
+  // Typed by the sync's column map, so the editor flags a key the sync never writes.
+  const fields: Partial<Record<GranteeFieldName, unknown>> = value.fields
   const name = asTrimmedString(fields['Project Name'])
   if (!name) return null
 

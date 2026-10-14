@@ -26,6 +26,11 @@ export interface AdminApiToken extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         minLength: 1
       }>
+    adminPermissions: Schema.Attribute.Relation<
+      'oneToMany',
+      'admin::permission'
+    >
+    adminUserOwner: Schema.Attribute.Relation<'manyToOne', 'admin::user'>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private
@@ -39,6 +44,9 @@ export interface AdminApiToken extends Struct.CollectionTypeSchema {
         minLength: 1
       }>
     expiresAt: Schema.Attribute.DateTime
+    kind: Schema.Attribute.Enumeration<['content-api', 'admin']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'content-api'>
     lastUsedAt: Schema.Attribute.DateTime
     lifespan: Schema.Attribute.BigInteger
     locale: Schema.Attribute.String & Schema.Attribute.Private
@@ -56,7 +64,6 @@ export interface AdminApiToken extends Struct.CollectionTypeSchema {
     >
     publishedAt: Schema.Attribute.DateTime
     type: Schema.Attribute.Enumeration<['read-only', 'full-access', 'custom']> &
-      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'read-only'>
     updatedAt: Schema.Attribute.DateTime
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -134,6 +141,7 @@ export interface AdminPermission extends Struct.CollectionTypeSchema {
         minLength: 1
       }>
     actionParameters: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<{}>
+    apiToken: Schema.Attribute.Relation<'manyToOne', 'admin::api-token'>
     conditions: Schema.Attribute.JSON & Schema.Attribute.DefaultTo<[]>
     createdAt: Schema.Attribute.DateTime
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -241,6 +249,7 @@ export interface AdminSession extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private
     localizations: Schema.Attribute.Relation<'oneToMany', 'admin::session'> &
       Schema.Attribute.Private
+    metadata: Schema.Attribute.JSON & Schema.Attribute.Private
     origin: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Private
@@ -385,6 +394,8 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
     }
   }
   attributes: {
+    apiTokens: Schema.Attribute.Relation<'oneToMany', 'admin::api-token'> &
+      Schema.Attribute.Private
     blocked: Schema.Attribute.Boolean &
       Schema.Attribute.Private &
       Schema.Attribute.DefaultTo<false>
@@ -421,6 +432,8 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime
     registrationToken: Schema.Attribute.String & Schema.Attribute.Private
     resetPasswordToken: Schema.Attribute.String & Schema.Attribute.Private
+    resetPasswordTokenExpiresAt: Schema.Attribute.DateTime &
+      Schema.Attribute.Private
     roles: Schema.Attribute.Relation<'manyToMany', 'admin::role'> &
       Schema.Attribute.Private
     updatedAt: Schema.Attribute.DateTime
@@ -770,6 +783,93 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote',
+        'blocks.code-block'
+      ]
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    createdAt: Schema.Attribute.DateTime
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    hero: Schema.Attribute.Component<'shared.hero', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    locale: Schema.Attribute.String
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::foundation-page.foundation-page'
+    >
+    pathSlug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    publishedAt: Schema.Attribute.DateTime
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    updatedAt: Schema.Attribute.DateTime
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private
+  }
+}
+
+export interface ApiFundraisingPageFundraisingPage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'fundraising-pages'
+  info: {
+    description: 'Loads the Fundraise Up script. Donation Cards are only on this page type. Full path slug sets the URL and file location.'
+    displayName: 'Fundraising Page'
+    pluralName: 'fundraising-pages'
+    singularName: 'fundraising-page'
+  }
+  options: {
+    draftAndPublish: false
+  }
+  pluginOptions: {
+    i18n: {
+      localized: true
+    }
+  }
+  attributes: {
+    content: Schema.Attribute.DynamicZone<
+      [
+        'blocks.paragraph',
+        'blocks.agenda',
+        'blocks.split-layout',
+        'blocks.profile-grid',
+        'blocks.blockquote',
+        'blocks.cta-strip',
+        'blocks.pdf-embed',
+        'blocks.video-embed',
+        'blocks.image-block',
+        'blocks.number-tiles',
+        'blocks.card-grid',
+        'blocks.carousel',
+        'blocks.faq',
+        'blocks.cta-buttons',
+        'blocks.event-card',
+        'blocks.quote',
         'blocks.code-block',
         'blocks.donation-cards'
       ]
@@ -805,7 +905,7 @@ export interface ApiFoundationPageFoundationPage
     locale: Schema.Attribute.String
     localizations: Schema.Attribute.Relation<
       'oneToMany',
-      'api::foundation-page.foundation-page'
+      'api::fundraising-page.fundraising-page'
     >
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -2104,7 +2204,7 @@ export interface PluginUploadFolder extends Struct.CollectionTypeSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken
       'admin::api-token-permission': AdminApiTokenPermission
@@ -2118,6 +2218,7 @@ declare module '@strapi/strapi' {
       'api::foundation-blog-post.foundation-blog-post': ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-navigation.foundation-navigation': ApiFoundationNavigationFoundationNavigation
       'api::foundation-page.foundation-page': ApiFoundationPageFoundationPage
+      'api::fundraising-page.fundraising-page': ApiFundraisingPageFundraisingPage
       'api::grant-overview-page.grant-overview-page': ApiGrantOverviewPageGrantOverviewPage
       'api::grant-page.grant-page': ApiGrantPageGrantPage
       'api::hackathon-navigation.hackathon-navigation': ApiHackathonNavigationHackathonNavigation

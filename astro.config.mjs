@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import { unified } from '@astrojs/markdown-remark'
 import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
@@ -16,6 +17,7 @@ import { validateInternalLinks } from './src/integrations/validate-internal-link
 import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 import {
+  isProductionDeploy,
   shouldHideDrafts,
   shouldHideFuturePosts
 } from './src/utils/main/publishGate.ts'
@@ -24,6 +26,10 @@ import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
+  // Astro 7 changed the default to 'jsx', which removes the whitespace
+  // between inline elements across line breaks. `true` keeps the HTML rules.
+  // .prettierrc sets astroCompressHTML to the same mode.
+  compressHTML: true,
   build: {
     // Inline project CSS so Lighthouse does not wait on extra /_astro/*.css round trips.
     inlineStylesheets: 'always'
@@ -57,7 +63,11 @@ export default defineConfig({
     ]
   }),
   markdown: {
-    rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    // The rehype plugins need the unified pipeline. Astro 7's default
+    // processor, Satteri, does not run them. MDX inherits this processor.
+    processor: unified({
+      rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    })
   },
   integrations: [
     stripDocsCssFromMainSite(),
@@ -172,9 +182,13 @@ export default defineConfig({
     // The publish gate is pinned the same way, for the same reason: CONTEXT is
     // a build-time signal and isn't guaranteed in the Functions runtime.
     // See src/utils/main/publishGate.ts (hideFuturePosts, hideDrafts).
+    //
+    // Checkout livemode is pinned beside it. A missing CONTEXT must keep
+    // Fundraise Up in test mode, not fall through to a live charge.
     define: {
       __IMAGE_CDN_ENABLED__: JSON.stringify(isImageCdnEnabled()),
       __HIDE_FUTURE_POSTS__: JSON.stringify(shouldHideFuturePosts()),
+      __IS_PRODUCTION_DEPLOY__: JSON.stringify(isProductionDeploy()),
       __HIDE_DRAFTS__: JSON.stringify(shouldHideDrafts())
     },
     server: {

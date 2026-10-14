@@ -21,6 +21,8 @@ const getPreviewPathname = (
     case 'api::foundation-page.foundation-page':
       // documentId comes directly from the handler — no findOne needed
       return `/preview/page-preview?documentId=${documentId}`
+    case 'api::fundraising-page.fundraising-page':
+      return `/preview/page-preview?documentId=${documentId}&type=fundraising`
     case 'api::profile-page.profile-page':
       return `/profile-preview?documentId=${documentId}`
     case 'api::summit-page.summit-page':

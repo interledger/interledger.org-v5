@@ -318,7 +318,7 @@ export const ui = {
     'hackathonHero.logo.alt': 'Open Payments Hackathon by Interledger',
     'hackathonHero.cta_navigation': 'Featured actions',
     'animatedNetwork.problem.heading':
-      "Our Financial Systems Weren't Built to Work Together",
+      "Financial Systems Weren't Built to Work Together",
     'animatedNetwork.problem.body_1':
       'Today, money runs on systems that were never designed to work together. Each has its own rules, formats, and ways of connecting.',
     'animatedNetwork.problem.body_2': "That's if they connect at all.",
@@ -720,7 +720,7 @@ export const ui = {
     'hackathonHero.logo.alt': 'Open Payments Hackathon by Interledger',
     'hackathonHero.cta_navigation': 'Acciones destacadas',
     'animatedNetwork.problem.heading':
-      'Nuestros sistemas financieros no se crearon para funcionar juntos',
+      'Los sistemas financieros no se crearon para funcionar juntos',
     'animatedNetwork.problem.body_1':
       'Hoy, el dinero se mueve sobre sistemas que nunca se diseñaron para trabajar juntos. Cada uno tiene sus propias reglas, formatos y formas de conectarse.',
     'animatedNetwork.problem.body_2': 'Eso, si es que se conectan.',

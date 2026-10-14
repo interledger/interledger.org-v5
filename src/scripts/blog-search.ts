@@ -10,12 +10,6 @@ import {
 // (createExcerpt/markdown-it). matchesBlogSearch is the client-safe filter;
 // the search entry type is erased at compile time.
 
-declare global {
-  interface Window {
-    umami?: { track: (event: string, data?: Record<string, string>) => void }
-  }
-}
-
 const DEBOUNCE_MS = 200
 const QUERY_PARAM = 'q'
 

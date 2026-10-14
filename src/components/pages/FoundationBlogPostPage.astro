@@ -71,22 +71,15 @@ const relatedPosts = resolveRelatedPosts(
     }}
   />
   <Fragment slot="after-article">
-    {
-      mdxData?.articleBios?.length > 0 &&
-        mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
-          <AuthorBio bios={mdxData.articleBios.filter((bio) => bio.text)} />
-        )
-    }
+    {mdxData?.articleBios?.length > 0 &&
+      mdxData.articleBios.filter((bio) => bio.text).length > 0 && (
+        <AuthorBio bios={mdxData.articleBios.filter((bio) => bio.text)} />
+      )}
 
     <CommunityLinksFoundation />
 
-    {
-      relatedPosts.length > 0 && (
-        <RelatedArticles
-          posts={relatedPosts}
-          heading={t('blog.related.title')}
-        />
-      )
-    }
+    {relatedPosts.length > 0 && (
+      <RelatedArticles posts={relatedPosts} heading={t('blog.related.title')} />
+    )}
   </Fragment>
 </BlogPostLayout>

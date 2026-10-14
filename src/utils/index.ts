@@ -157,8 +157,10 @@ export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 export {
   hideDrafts,
   hideFuturePosts,
+  isProductionDeploy,
   isDraft,
   isPublishedAt,
+  productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
   shouldHideFuturePosts
@@ -199,6 +201,22 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+// Listed for the catalog only. scripts/import-airtable.ts imports the module
+// directly, because tsx can't load this barrel's astro:content chains.
+export {
+  GRANTEE_FIELDS,
+  checkGranteeFieldsPresent,
+  buildContactNameMap,
+  filterPublishedRecords,
+  findRenamedFields,
+  isRawTableRecord,
+  listUnrenderedViewFields,
+  resolveProjectLeaders,
+  selectPublishedGranteeFields,
+  toGranteeRecord,
+  warnOnMissingProjectNames,
+  type GranteeFieldName
+} from './main/airtableRecords'
 
 // Main site: Text
 export { generateSlug } from './main/slug'
@@ -228,6 +246,7 @@ export {
   type CtaLinkInput,
   type ResolvedCtaLink
 } from './main/cta'
+export { isFundraiseUpElementHref } from './main/fundraiseUp'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'

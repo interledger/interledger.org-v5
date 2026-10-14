@@ -1,8 +1,5 @@
 export type LayoutType =
-  | 'image-text'
-  | 'image-quote'
-  | 'video-text'
-  | 'video-quote'
+  'image-text' | 'image-quote' | 'video-text' | 'video-quote'
 
 export const LAYOUT_TYPE_LABELS: Record<LayoutType, string> = {
   'image-text': 'Image + Text',

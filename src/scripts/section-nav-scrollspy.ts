@@ -1,7 +1,7 @@
 /**
  * Scrollspy: highlights whichever section is currently in the "reading band"
  * near the top of the viewport, by toggling `data-active`/`aria-current` on
- * the matching nav link. Shared by FaqSectionsNav and ReportSectionsNav.
+ * the matching nav link. Shared by SectionsNav (FAQ pages and reports).
  *
  * Modeled on the intersecting-Set pattern in
  * src/components/layout/foundation-header.ts. Each container is scoped via

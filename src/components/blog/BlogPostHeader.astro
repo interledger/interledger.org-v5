@@ -51,11 +51,9 @@ const blogPath = translatePath(
   <h1 itemprop="headline" class="text-neutral-900 break-words">
     {frontmatter.title}
   </h1>
-  {
-    frontmatter.categories?.length > 0 && (
-      <ArticleCategories categories={frontmatter.categories} path={blogPath} />
-    )
-  }
+  {frontmatter.categories?.length > 0 && (
+    <ArticleCategories categories={frontmatter.categories} path={blogPath} />
+  )}
   <div class="flex flex-col gap-xl">
     {authors.length > 0 && <AuthorByline authors={authors} />}
     <div class="text-body-lg-standard text-neutral-900">
@@ -66,73 +64,65 @@ const blogPath = translatePath(
       >
         {publishedLong}
       </time>
-      {
-        updatedDate && (
-          <time
-            datetime={updatedIso}
-            itemprop="dateModified"
-            class="pl-sm ml-sm text-neutral-75 border-l border-l-neutral-75"
-          >
-            {t('blog.updated')} {updatedLong}
-          </time>
-        )
-      }
+      {updatedDate && <time
+        datetime={updatedIso}
+        itemprop="dateModified"
+        class="pl-sm ml-sm text-neutral-75 border-l border-l-neutral-75"
+      >
+        {t('blog.updated')} {updatedLong}
+      </time>}
     </div>
   </div>
-  {
-    frontmatter.featureImage && (
-      <div>
-        {
-          // Separate OptimizedImages (not one <picture>) so mobile can carry
-          // its own alt when the crop/content differs from desktop.
-          frontmatter.featureImageMobile ? (
-            <>
-              <OptimizedImage
-                src={frontmatter.featureImageMobile}
-                alt={
-                  frontmatter.featureImageMobileAlt ??
-                  frontmatter.featureImageAlt ??
-                  ''
-                }
-                width={FEATURE_MOBILE.width}
-                height={FEATURE_MOBILE.height}
-                loading="eager"
-                fetchpriority="high"
-                decoding="sync"
-                media={PAGE_HERO_MOBILE_MEDIA}
-                class="w-full h-auto rounded-3xl"
-                pictureClass="tablet:hidden"
-                placeholder={frontmatter.featureImageMobileBlur}
-              />
-              <OptimizedImage
-                src={frontmatter.featureImage}
-                alt={frontmatter.featureImageAlt ?? ''}
-                width={FEATURE_DESKTOP.width}
-                height={FEATURE_DESKTOP.height}
-                loading="eager"
-                fetchpriority="high"
-                decoding="sync"
-                media={PAGE_HERO_DESKTOP_MEDIA}
-                class="w-full h-auto rounded-3xl"
-                pictureClass="hidden tablet:block"
-                placeholder={frontmatter.featureImageBlur}
-              />
-            </>
-          ) : (
-            <OptimizedImage
-              src={frontmatter.featureImage}
-              alt={frontmatter.featureImageAlt ?? ''}
-              width={FEATURE_DESKTOP.width}
-              height={FEATURE_DESKTOP.height}
-              loading="eager"
-              fetchpriority="high"
-              decoding="sync"
-              class="w-full h-auto rounded-3xl"
-              placeholder={frontmatter.featureImageBlur}
-            />
-          )
-        }
-      </div>
-    )
-  }
+  {frontmatter.featureImage && <div>
+    {
+      // Separate OptimizedImages (not one <picture>) so mobile can carry
+      // its own alt when the crop/content differs from desktop.
+      frontmatter.featureImageMobile ? (
+        <>
+          <OptimizedImage
+            src={frontmatter.featureImageMobile}
+            alt={
+              frontmatter.featureImageMobileAlt ??
+              frontmatter.featureImageAlt ??
+              ''
+            }
+            width={FEATURE_MOBILE.width}
+            height={FEATURE_MOBILE.height}
+            loading="eager"
+            fetchpriority="high"
+            decoding="sync"
+            media={PAGE_HERO_MOBILE_MEDIA}
+            class="w-full h-auto rounded-3xl"
+            pictureClass="tablet:hidden"
+            placeholder={frontmatter.featureImageMobileBlur}
+          />
+          <OptimizedImage
+            src={frontmatter.featureImage}
+            alt={frontmatter.featureImageAlt ?? ''}
+            width={FEATURE_DESKTOP.width}
+            height={FEATURE_DESKTOP.height}
+            loading="eager"
+            fetchpriority="high"
+            decoding="sync"
+            media={PAGE_HERO_DESKTOP_MEDIA}
+            class="w-full h-auto rounded-3xl"
+            pictureClass="hidden tablet:block"
+            placeholder={frontmatter.featureImageBlur}
+          />
+        </>
+      ) : (
+        <OptimizedImage
+          src={frontmatter.featureImage}
+          alt={frontmatter.featureImageAlt ?? ''}
+          width={FEATURE_DESKTOP.width}
+          height={FEATURE_DESKTOP.height}
+          loading="eager"
+          fetchpriority="high"
+          decoding="sync"
+          class="w-full h-auto rounded-3xl"
+          placeholder={frontmatter.featureImageBlur}
+        />
+      )
+    }
+  </div>}
 </div>

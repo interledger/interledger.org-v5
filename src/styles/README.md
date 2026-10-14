@@ -19,7 +19,8 @@ src/styles/
 ├── base/                     # Base layer - CSS reset, fonts, runtime overrides
 │   ├── typography.css        # Font-face declarations
 │   ├── reset.css            # Tailwind Preflight + keyframes + element styles
-│   └── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
+│   ├── variables.css        # Runtime vars: --color-primary base, dependent vars, pillar overrides
+│   └── starlight-parity.css # Main-site rules that used to leak from the docs CSS (see "Starlight Docs Isolation")
 ├── components/              # Component layer - overridable by utilities
 │   ├── navigation.css       # Header nav, mobile drawer, language switcher chrome
 │   └── prose/              # Prose variants by content type
@@ -314,7 +315,9 @@ Prose styles are layered for flexibility:
 <!-- Blog article -->
 <article data-prose-blog>
   <h2>Article Title</h2>
-  <table>...</table>
+  <table>
+    ...
+  </table>
   <code>inline code</code>
 </article>
 
@@ -393,6 +396,8 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 ```
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
+
+Header nav layout uses its own pair, `nav-bar:` (full menu bar) and `nav-drawer:` (hamburger drawer), defined in `tailwind.css`. They switch at 1360px inside `.foundation-header`, where the ES labels need the room, and at 1200px in every other header. Use them, not `desktop:`, for anything that differs between the bar and the drawer. Header height stays on `desktop:`, because page offsets depend on it.
 
 #### Bare headings already get the right size — don't add the class above by default
 
@@ -573,6 +578,8 @@ Use `@utility` in `src/styles/utilities/` when a single `@theme` token isn't eno
 
 Import the new file from `tailwind.css` so it lands in the utilities layer.
 
+**Next to `animation-timeline`, keep `animation` a `var()` or use the longhands.** The example is safe only because its shorthand is a `var()`. With a literal value (`animation: rise 1s linear both`), the build minifier folds the timeline into the shorthand, browsers reject the result, and the animation is static in production while `astro dev` still animates it. Use `animation-name`, `animation-duration` and the other longhands instead. For a full view range, write `animation-range: cover`, not `entry 0% exit 100%`: the minifier turns the end into `exit 0%`. `src/scrollDrivenAnimations.test.ts` checks both.
+
 **Don't name a `@utility` the same as an existing `--<namespace>-*` token** (e.g. `@utility animate-fade-in` alongside `--animate-fade-in`) — they collide and the `@utility` can be silently dropped. Either use a different class name (as `animate-rise-in-view` does, consuming `--animate-scroll-rise` via `var()`) or skip the token.
 
 ### Override Component Style
@@ -602,6 +609,10 @@ The site has **two separate CSS systems** that never coexist in the same browser
 - **CSS:** registered in `astro.config.mjs` under Starlight's `customCss`: `@interledger/docs-design-system` themes, `interledger.css`, `atom-one-light.min.css`. Starlight bundles these into its own CSS assets and ships them only on docs routes.
 - **Variables:** `--step-*`, `--space-*`, `--color-primary`, `--sl-*` from `ilf-docs.css`, `teal-theme.css`, and `interledger.css`. All at `:root` — docs pages are the only ones that load these files, so there is no caller to conflict with.
 - **Prose:** Starlight's own markdown rendering (`.sl-markdown-content`).
+
+### `base/starlight-parity.css`
+
+Until Astro 6.4, the docs CSS also loaded on every main-site page, and some of its rules won over ours. Production looks the way it does partly because of that. Astro 6.4 and later load the docs CSS on docs routes only, so `starlight-parity.css` restates, on the main site only, the rules that won: font smoothing, the anchor scroll offset, the corner radius and shadow on tables and code blocks (with the darker shadow on dark pages), word breaks in table code, and the footnote styles. It uses the same cascade position the leaked rules had, so it changes nothing visible. These are raw values. Moving them to design tokens is a follow-up.
 
 ### Rules to keep them isolated
 

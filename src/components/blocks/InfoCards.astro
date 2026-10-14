@@ -38,12 +38,8 @@ const htmlCards = await Promise.all(
 <div data-component="InfoCards" class="flex flex-col gap-block-heading">
   {heading && <h2 class="m-0 text-neutral-900">{heading}</h2>}
   <div class="flex flex-col gap-xl desktop:flex-row desktop:gap-2xl">
-    {
-      htmlCards.map((card) => (
-        <InfoCard heading={card.heading}>
-          <Fragment set:html={card.html} />
-        </InfoCard>
-      ))
-    }
+    {htmlCards.map((card) => <InfoCard heading={card.heading}>
+      <Fragment set:html={card.html} />
+    </InfoCard>)}
   </div>
 </div>

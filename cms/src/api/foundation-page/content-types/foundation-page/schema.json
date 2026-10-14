@@ -88,8 +88,7 @@
         "blocks.cta-buttons",
         "blocks.event-card",
         "blocks.quote",
-        "blocks.code-block",
-        "blocks.donation-cards"
+        "blocks.code-block"
       ]
     }
   }

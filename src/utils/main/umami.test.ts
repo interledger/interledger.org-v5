@@ -266,7 +266,7 @@ describe('buildUmamiAttrs — destination_path / destination_section', () => {
   })
 
   it('omits destination properties for a hash-only in-page anchor', () => {
-    // FaqSectionsNav links to `#section` on the same page — that's not a
+    // SectionsNav links to `#section` on the same page — that's not a
     // navigation destination, so it must not collapse to `foundation_home`.
     const attrs = buildUmamiAttrs({
       label: 'nav',
