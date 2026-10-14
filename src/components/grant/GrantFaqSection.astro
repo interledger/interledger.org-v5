@@ -82,7 +82,7 @@ const accordionName = faqAccordionGroupName()
 
 <div
   data-component="GrantFaqSection"
-  class="flex flex-col gap-3xl [overflow-anchor:none] desktop:flex-row desktop:items-start desktop:gap-6xl"
+  class="flex flex-col gap-3xl desktop:flex-row desktop:items-start desktop:gap-6xl"
 >
   <div
     class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
@@ -125,12 +125,13 @@ const accordionName = faqAccordionGroupName()
     </div>
   </div>
 
-  <!-- Right column. data-faq-no-scroll keeps the question where it was
-       clicked, and clears the header only when that covers the start. -->
+  <!-- Right column. data-faq-hold-position keeps a desktop click from
+       dragging the sticky title. Scroll anchoring stays off this column
+       only, so the title can still anchor. -->
   <div
-    class="flex flex-1 flex-col gap-lg tablet:gap-xl desktop:pt-lg"
+    class="flex flex-1 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-lg"
     data-faq-accordion
-    data-faq-no-scroll="true"
+    data-faq-hold-position="true"
   >
     {renderedItems.map((item) => <details
       name={accordionName}
