@@ -1151,7 +1151,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'The heading shown at the top of the report page. Can differ from the Page Title.',
       introParagraph:
-        'Optional intro paragraph shown below the heading and dates.',
+        'Optional intro shown below the heading and dates. Supports images, tables and lists. Headings here do not appear in the section navigation.',
       date: 'Optional. Add this component to show a Publish Date (required once added) and an optional Last Updated date.'
     }
   }
