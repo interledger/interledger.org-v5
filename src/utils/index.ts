@@ -232,6 +232,11 @@ export {
   createExcerpt,
   createSearchPlainText
 } from './main/create-excerpt'
+export {
+  hasReportIntro,
+  getReportNavSections,
+  type ReportNavSection
+} from './main/reportSections'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
