@@ -6,6 +6,13 @@
 // this element occupies row 1 and is given `col-span-full`, which is why
 // ReportPage.astro offsets SectionsNav's grid row by one when an intro
 // is present — that offset would be wrong if this invariant ever broke.
+//
+// The intro is CKEditor rich text, so tables and lists take the report
+// body's styles (reportRichText.ts). Only the paragraph size stays larger.
+import {
+  REPORT_LIST_SPACING_CLASS,
+  REPORT_TABLE_CLASS
+} from '@/components/shared/reportRichText'
 import { useTranslations } from '@/utils'
 
 const { routeLocale } = Astro.locals
@@ -14,7 +21,11 @@ const t = useTranslations(routeLocale)
 
 <section aria-label={t('report.introduction')} data-report-intro>
   <div
-    class="mb-section text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg"
+    class:list={[
+      'mb-section text-body-lg-standard tablet:text-h5-md text-neutral-100 [&_:is(p,li)]:text-neutral-100 [&_:is(p,ul,ol,li,a)]:text-body-lg-standard [&_:is(p,ul,ol,li,a)]:tablet:text-h5-md desktop:text-h5-lg [&_:is(p,ul,ol,li,a)]:desktop:text-h5-lg',
+      REPORT_TABLE_CLASS,
+      REPORT_LIST_SPACING_CLASS
+    ]}
   >
     <slot />
   </div>
