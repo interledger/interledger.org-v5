@@ -6,7 +6,8 @@ import {
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
   formatMdx,
-  looksLikeHtmlField
+  looksLikeHtmlField,
+  yamlSingleQuoteScalar
 } from './mdx'
 import { serialize as serializeCtaStrip } from '../serializers/blocks/cta-strip.serializer'
 import { serialize as serializeQuote } from '../serializers/blocks/quote.serializer'
@@ -249,5 +250,22 @@ describe('MATTER_STRINGIFY_OPTIONS', () => {
       MATTER_STRINGIFY_OPTIONS
     )
     expect(data.date).toBeInstanceOf(Date)
+  })
+})
+
+describe('yamlSingleQuoteScalar', () => {
+  it.each([
+    ['gig workers.\n', "'gig workers. '"],
+    ['a\nb', "'a b'"],
+    ['a\r\nb', "'a b'"],
+    ['a\rb', "'a b'"],
+    ['a\n\nb', "'a b'"],
+    ['a\vb', "'a b'"],
+    ['a\tb', "'a\tb'"],
+    ["It's", "'It''s'"],
+    [null, 'null'],
+    [undefined, 'null']
+  ])('serializes %j as %j', (value, expected) => {
+    expect(yamlSingleQuoteScalar(value)).toBe(expected)
   })
 })

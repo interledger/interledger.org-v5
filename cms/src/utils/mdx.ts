@@ -87,15 +87,24 @@ export const MATTER_STRINGIFY_OPTIONS = {
   }
 } as Record<string, unknown>
 
+// C0 controls other than tab. In a single-quoted scalar, LF fails Astro's YAML
+// parser, every other one except CR fails gray-matter's js-yaml 3, and a lone
+// CR survives into the parsed value. Tab is safe in both, so it is kept.
+// eslint-disable-next-line no-control-regex -- intentionally matching C0 controls to fold them, not a typo
+const YAML_UNSAFE_CONTROL_CHARS = /[\x00-\x08\x0A-\x1F]+/g
+
 /**
  * Serializes a value as a YAML scalar: single-quoted string or 'null'.
- * Escapes internal single quotes per YAML spec ('').
+ * Folds each run of C0 control characters other than tab (line breaks
+ * included) into one space
+ * and escapes internal single quotes per YAML spec ('').
  */
 export function yamlSingleQuoteScalar(
   value: string | null | undefined
 ): string {
   if (value === null || value === undefined) return 'null'
-  return `'${String(value).replace(/\r\n/g, '\n').replace(/'/g, "''")}'`
+  const oneLine = String(value).replace(YAML_UNSAFE_CONTROL_CHARS, ' ')
+  return `'${oneLine.replace(/'/g, "''")}'`
 }
 
 /**
