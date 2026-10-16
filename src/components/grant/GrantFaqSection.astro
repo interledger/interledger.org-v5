@@ -125,10 +125,13 @@ const accordionName = faqAccordionGroupName()
     </div>
   </div>
 
-  <!-- Right column: accordion -->
+  <!-- Right column. data-faq-hold-position keeps a desktop click from
+       dragging the sticky title. Scroll anchoring stays off this column
+       only, so the title can still anchor. -->
   <div
-    class="flex flex-1 flex-col gap-lg tablet:gap-xl desktop:pt-lg"
+    class="flex flex-1 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-lg"
     data-faq-accordion
+    data-faq-hold-position="true"
   >
     {renderedItems.map((item) => <details
       name={accordionName}
