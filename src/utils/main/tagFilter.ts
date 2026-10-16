@@ -2,6 +2,7 @@ import type { PaginateFunction } from 'astro'
 import type { CollectionEntry } from 'astro:content'
 import type { BlogCollectionType } from '@/content.config'
 import { getBlogPosts } from './blogPosts'
+import { joinPagePath } from '../shared/url'
 import type { Locale, UiKey } from './i18'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 
@@ -89,7 +90,7 @@ export function getTermSlug(term: string) {
 /** Routing sentinel for the canonical "all terms" filter page/URL segment. */
 export const ALL_TERM_SLUG = 'all'
 
-/** Builds the URL of a taxonomy filter page, e.g. `/blog/category/announcements`.
+/** Builds the URL of a taxonomy filter page, e.g. `/blog/category/announcements/`.
  *  Appends `/lang/<locale>` when contentLangOverride is set (cross-lang combo routes).
  */
 export function getTermUrl(
@@ -100,28 +101,9 @@ export function getTermUrl(
 ) {
   const slug = getTermSlug(term)
   if (contentLangOverride) {
-    return `${basePath}/${segment}/${slug}/lang/${contentLangOverride}`
+    return joinPagePath(basePath, segment, slug, 'lang', contentLangOverride)
   }
-  return `${basePath}/${segment}/${slug}`
-}
-
-/**
- * Builds the EN and ES hrefs for the content-language toggle buttons/links.
- * Both links always use the /lang/<locale> URL form so the selection is
- * reflected in the URL and stays sticky through subsequent navigation
- * (taxonomy filter, All button, language switcher).
- */
-export function buildContentLangHrefs(
-  blogIndexHref: string,
-  selectedTerm?: string
-): { enHref: string; esHref: string } {
-  const crossLangBase = selectedTerm
-    ? `${blogIndexHref}/${CATEGORY_SEGMENT}/${getTermSlug(selectedTerm)}`
-    : blogIndexHref
-  return {
-    enHref: `${crossLangBase}/lang/en`,
-    esHref: `${crossLangBase}/lang/es`
-  }
+  return joinPagePath(basePath, segment, slug)
 }
 
 export function translateTerm(

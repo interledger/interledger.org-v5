@@ -40,6 +40,12 @@ describe('toSlashedPath', () => {
       '/uploads/img/original/report.pdf'
     )
     expect(toSlashedPath('uploads/a.png?v=2')).toBe('/uploads/a.png?v=2')
+    expect(toSlashedPath('/audio/episode.mp3')).toBe('/audio/episode.mp3')
+  })
+
+  it('slashes a page whose slug ends in a dot and digits', () => {
+    expect(toSlashedPath('/blog/what-is-web3.0')).toBe('/blog/what-is-web3.0/')
+    expect(toSlashedPath('/release/1.2.3#notes')).toBe('/release/1.2.3/#notes')
   })
 
   it.each([

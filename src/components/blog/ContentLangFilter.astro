@@ -3,6 +3,7 @@ import {
   useTranslations,
   buildUmamiAttrs,
   stripPagination,
+  joinPagePath,
   CATEGORY_SEGMENT,
   ALL_TERM_SLUG
 } from '@/utils'
@@ -21,15 +22,17 @@ const t = useTranslations(routeLocale)
 // Derive lang-switch hrefs from the current pathname so that any active
 // category filter (including /category/all) is preserved when switching.
 // - On a /lang/ URL: swap the locale suffix, keeping the rest of the path.
-// - Otherwise: append /lang/<locale> to the current path.
+// - On a category URL: append /lang/<locale>.
+// - Otherwise: append /category/all/lang/<locale>, since lang routes only
+//   exist under a category.
 const pathname = stripPagination(Astro.url.pathname)
 const base = pathname.includes('/lang/')
   ? pathname.replace(/\/lang\/[^/]+$/, '')
   : pathname.includes(`/${CATEGORY_SEGMENT}/`)
     ? pathname
-    : `${pathname}/${CATEGORY_SEGMENT}/${ALL_TERM_SLUG}`
-const enHref = `${base}/lang/en`
-const esHref = `${base}/lang/es`
+    : joinPagePath(pathname, CATEGORY_SEGMENT, ALL_TERM_SLUG)
+const enHref = joinPagePath(base, 'lang', 'en')
+const esHref = joinPagePath(base, 'lang', 'es')
 
 const isEnActive = contentLang === 'en'
 const isEnActiveOnEs = isEnActive && routeLocale === 'es'

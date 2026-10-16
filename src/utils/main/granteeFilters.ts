@@ -1,4 +1,5 @@
 import { foldSearchText } from '../shared/foldSearchText'
+import { joinPagePath } from '../shared/url'
 import { generateSlug } from './slug'
 
 export const ALL_GRANTEE_YEAR_SLUG = 'all'
@@ -10,20 +11,18 @@ export function isGranteeYearSlug(value: string): boolean {
   return /^\d{4}$/.test(value)
 }
 
-/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024`. */
+/** Builds a directory listing URL, e.g. `/grant/grantee-directory/2024/`. */
 export function getGranteeFilterUrl(
   directoryPath: string,
   year?: string,
   tag?: string
 ): string {
-  const yearSegment = year?.trim() || undefined
-  const tagSegment = tag?.trim() || undefined
-  if (!yearSegment && !tagSegment) return directoryPath
-  if (!yearSegment) {
-    return `${directoryPath}/${GRANTEE_TAG_PREFIX}/${tagSegment}`
-  }
-  if (!tagSegment) return `${directoryPath}/${yearSegment}`
-  return `${directoryPath}/${yearSegment}/${GRANTEE_TAG_PREFIX}/${tagSegment}`
+  const tagSlug = tag?.trim()
+  return joinPagePath(
+    directoryPath,
+    year?.trim() ?? '',
+    tagSlug ? `${GRANTEE_TAG_PREFIX}/${tagSlug}` : ''
+  )
 }
 
 export interface GranteeFilters {

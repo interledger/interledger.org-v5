@@ -2,7 +2,7 @@
 title: Get involved
 ---
 
-We appreciate your interest in contributing to Interledger and welcome contributions from everyone who shares our vision of an open, fair, and financially inclusive web. It is important that we maintain a safe and positive community experience for all, so we do require that all who are willing to participate agree to adhere to our [Participation Guidelines](/participation-guidelines).
+We appreciate your interest in contributing to Interledger and welcome contributions from everyone who shares our vision of an open, fair, and financially inclusive web. It is important that we maintain a safe and positive community experience for all, so we do require that all who are willing to participate agree to adhere to our [Participation Guidelines](/participation-guidelines/).
 
 ## Contributing to Interledger
 

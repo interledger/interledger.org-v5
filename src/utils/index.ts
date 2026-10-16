@@ -9,6 +9,8 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  isFilePath,
+  joinPagePath,
   trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
@@ -114,6 +116,7 @@ export {
 } from './main/static-paths'
 export {
   type BreadcrumbItem,
+  buildHomeBreadcrumb,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
@@ -124,7 +127,6 @@ export {
   getTermSlug,
   getTermUrl,
   translateTerm,
-  buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm,
   ALL_TERM_SLUG,

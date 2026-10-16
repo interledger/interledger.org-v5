@@ -20,7 +20,7 @@ vi.mock('astro:content', async () => {
   return { z, getCollection: getCollectionMock }
 })
 
-const { paginateAllPosts, paginatePostsByTerm, ALL_TERM_SLUG } =
+const { paginateAllPosts, paginatePostsByTerm, getTermUrl, ALL_TERM_SLUG } =
   await import('./tagFilter')
 const { setPublishGateForTests } = await import('./gatedCollection')
 
@@ -79,6 +79,26 @@ beforeEach(() => {
 
 afterEach(() => {
   setPublishGateForTests(null)
+})
+
+describe('getTermUrl', () => {
+  it('builds a slashed filter URL from the slugified term', () => {
+    expect(getTermUrl('/blog', 'category', 'Open Payments')).toBe(
+      '/blog/category/open-payments/'
+    )
+  })
+
+  it('gives the same URL whether the base path is slashed or not', () => {
+    expect(getTermUrl('/es/blog/', 'category', 'news')).toBe(
+      '/es/blog/category/news/'
+    )
+  })
+
+  it('appends /lang/<locale> when a content language is set', () => {
+    expect(getTermUrl('/blog', 'category', 'news', 'es')).toBe(
+      '/blog/category/news/lang/es/'
+    )
+  })
 })
 
 describe('paginateAllPosts', () => {

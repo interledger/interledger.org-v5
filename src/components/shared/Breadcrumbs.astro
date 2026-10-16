@@ -65,7 +65,7 @@ function getNameClasses(isLast: boolean): string {
       itemtype="https://schema.org/BreadcrumbList"
     >
       {breadcrumbs.map((crumb, index) => {
-        const isCurrent = crumb.href === currentPath
+        const isCurrent = stripTrailingSlash(crumb.href) === currentPath
         const isLast = index === breadcrumbs.length - 1
         // Active page is plain text — not a link, so no hover/focus chrome (INTORG-949).
         const isActivePage = isLast || isCurrent

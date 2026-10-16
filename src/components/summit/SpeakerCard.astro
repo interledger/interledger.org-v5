@@ -1,6 +1,11 @@
 ---
 import type { Speaker } from '@/types/summit'
-import { generateSlug, buildUmamiAttrs, AVATAR_CDN_WIDTHS } from '@/utils'
+import {
+  generateSlug,
+  buildUmamiAttrs,
+  joinPagePath,
+  AVATAR_CDN_WIDTHS
+} from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
 interface Props {
@@ -11,7 +16,7 @@ interface Props {
 
 const { speaker, basePath } = Astro.props
 const { routeLocale } = Astro.locals
-const href = `${basePath}/${generateSlug(speaker.name)}`
+const href = joinPagePath(basePath, generateSlug(speaker.name))
 
 const attrs = buildUmamiAttrs({
   pathname: Astro.url.pathname,

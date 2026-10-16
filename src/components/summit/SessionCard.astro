@@ -6,6 +6,7 @@ import {
   type Locale,
   getTranslation,
   buildSessionCardUmamiAttrs,
+  joinPagePath,
   AVATAR_CDN_WIDTHS
 } from '@/utils'
 import SessionSubheader from './SessionSubheader.astro'
@@ -19,7 +20,7 @@ interface Props {
 }
 
 const { talkPreview, basePath, lang } = Astro.props
-const href = `${basePath}/${generateSlug(talkPreview.title)}`
+const href = joinPagePath(basePath, generateSlug(talkPreview.title))
 const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
 const title = translation?.title ?? talkPreview.title

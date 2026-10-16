@@ -126,11 +126,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Overview',
-          link: '/developers/get-started'
+          link: '/developers/get-started/'
         },
         {
           label: 'Get involved',
-          link: '/developers/get-involved'
+          link: '/developers/get-involved/'
         },
         {
           label: 'Specifications',
