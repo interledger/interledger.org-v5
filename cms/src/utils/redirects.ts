@@ -282,13 +282,6 @@ export interface RedirectLinkCheck {
   data: Record<string, unknown>
   /** Present on update, absent on create. */
   documentId?: string
-  /**
-   * True for a write from the code sync. The sync checks the whole file for
-   * chains before its first write, then writes one row at a time. Rows it
-   * has not reached yet still hold old values, so a per-row chain check can
-   * refuse a file that has no chain.
-   */
-  skipChainCheck?: boolean
 }
 
 interface StoredRedirect {
@@ -396,9 +389,7 @@ function linkError(
  * enabled one. A chain costs visitors an extra hop, and `src/redirects.test.ts`
  * fails on one, so letting it through here would block the next developer PR.
  * Re-enabling a redirect runs the chain check again, since the other side of
- * the chain may have changed while it was off. A code-sync write skips the
- * chain check (see {@link RedirectLinkCheck.skipChainCheck}), but not the
- * self-redirect and duplicate-source checks.
+ * the chain may have changed while it was off.
  */
 export async function validateRedirectLinks(
   check: RedirectLinkCheck
@@ -426,7 +417,7 @@ export async function validateRedirectLinks(
   }
 
   // A disabled redirect never reaches Astro, so it can't be part of a chain.
-  if (!enabled || check.skipChainCheck) return undefined
+  if (!enabled) return undefined
 
   const onward =
     target &&
@@ -466,8 +457,6 @@ export interface RedirectWrite {
   /** Present on update, absent on create. */
   documentId?: string
   isCreate: boolean
-  /** See {@link RedirectLinkCheck.skipChainCheck}. */
-  skipChainCheck?: boolean
 }
 
 // validateRedirectLinks reads the other redirects and then the write lands, so
@@ -494,8 +483,7 @@ export function validateAndSaveRedirect<T>(
       (await validateRedirectLinks({
         documents: write.documents,
         data: write.data,
-        documentId: write.documentId,
-        skipChainCheck: write.skipChainCheck
+        documentId: write.documentId
       }))
     return invalid ?? save()
   })

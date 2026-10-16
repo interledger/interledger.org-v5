@@ -907,60 +907,6 @@ describe('validateAndSaveRedirect', () => {
   })
 })
 
-describe('validateRedirectLinks for a code-sync write', () => {
-  // The sync writes redirects.json row by row. Here the file moves both
-  // paths to /es/tech/hacktober/, but the stale /es/hacktoberfest/ row is
-  // only updated later in the run (INTORG-1295).
-  const documents = fakeFinder([
-    {
-      documentId: 'stale',
-      source: '/es/hacktoberfest/',
-      destination: '/es/tech/hacktoberfest/'
-    }
-  ])
-  const data = {
-    source: '/es/tech/hacktoberfest/',
-    destination: '/es/tech/hacktober/'
-  }
-
-  it('refuses the write as a chain for an editor', async () => {
-    const err = await validateRedirectLinks({ documents, data })
-    expect(erroredFields(err)).toEqual(['source'])
-  })
-
-  it('accepts the write when the chain check is skipped', async () => {
-    await expect(
-      validateRedirectLinks({ documents, data, skipChainCheck: true })
-    ).resolves.toBeUndefined()
-  })
-
-  it('still refuses a self-redirect', async () => {
-    const err = await validateRedirectLinks({
-      documents,
-      data: { source: '/a/', destination: '/a/' },
-      skipChainCheck: true
-    })
-    expect(erroredFields(err)).toEqual(['destination'])
-  })
-
-  it('still refuses a duplicate source', async () => {
-    const err = await validateRedirectLinks({
-      documents,
-      data: { source: '/es/hacktoberfest', destination: '/elsewhere/' },
-      skipChainCheck: true
-    })
-    expect(erroredFields(err)).toEqual(['source'])
-  })
-
-  it('passes the flag through validateAndSaveRedirect', async () => {
-    const result = await validateAndSaveRedirect(
-      { documents, data: { ...data }, isCreate: true, skipChainCheck: true },
-      async () => 'saved'
-    )
-    expect(result).toBe('saved')
-  })
-})
-
 describe('findOrphanedRedirects', () => {
   const stored = [
     { source: '/old-a', documentId: 'a' },

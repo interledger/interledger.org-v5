@@ -2486,10 +2486,8 @@ export default {
     // redirects.json no longer has. Then
     // canonicalize the paths and reject anything that isn't one literal path
     // (patterns belong in public/_redirects) and any self-redirect or chain,
-    // before it reaches the DB and the exported redirects.json. The code sync
-    // skips the chain check: it checks the whole file first, and its
-    // row-by-row writes pass through states the file never holds. The check
-    // and the write run under one lock (validateAndSaveRedirect), so two saves
+    // before it reaches the DB and the exported redirects.json. The check and
+    // the write run under one lock (validateAndSaveRedirect), so two saves
     // can't each pass the chain check and commit a chain between them.
     //
     // Matching `delete` covers every document-service delete: Strapi 5's
@@ -2517,8 +2515,7 @@ export default {
             ) as unknown as RedirectFinder,
             data: ctx.params.data ?? {},
             documentId: ctx.params.documentId,
-            isCreate: ctx.action === 'create',
-            skipChainCheck: isCodeSyncRequest()
+            isCreate: ctx.action === 'create'
           },
           () => next()
         )
