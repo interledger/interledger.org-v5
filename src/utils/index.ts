@@ -247,6 +247,14 @@ export {
   type ResolvedCtaLink
 } from './main/cta'
 export { isFundraiseUpElementHref } from './main/fundraiseUp'
+export {
+  normalizeBlockIntro,
+  type NormalizedBlockIntro
+} from './main/blockIntro'
+export {
+  SELF_SPACED_BLOCKS,
+  getPreviewBlockGapClass
+} from './main/dynamicZoneSpacing'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'

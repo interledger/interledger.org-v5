@@ -1,0 +1,51 @@
+---
+/**
+ * The optional intro a block opens with: Heading (h2), Subheading (h3) and a
+ * markdown Description. Renders nothing when every field is empty.
+ *
+ * Spacing comes from the --intro-* tokens (src/styles/base/variables.css),
+ * which the block root tunes with `data-intro-variant`. Every spacer is
+ * padding on the element above it, so it disappears with that element and
+ * never collapses into a neighbour.
+ *
+ * Heading sizes are explicit so the intro reads the same on narrow templates,
+ * where reset.css drops bare headings one tier.
+ */
+import type { BlockIntro } from '@/types/blockIntro'
+import { normalizeBlockIntro, parseMarkdown } from '@/utils'
+
+interface Props {
+  intro?: BlockIntro | null
+  /** Lets the block's `<section aria-labelledby>` point at the heading. */
+  headingId?: string
+  umamiContext?: string
+}
+
+const { intro, headingId, umamiContext } = Astro.props
+const normalized = normalizeBlockIntro(intro)
+const description = await parseMarkdown(normalized?.description, {
+  page: umamiContext,
+  pathname: Astro.url.pathname,
+  lang: Astro.locals.routeLocale
+})
+---
+
+{normalized && <header class="pt-(--intro-top)">
+  {normalized.heading && <h2
+    id={headingId}
+    class="m-0 pt-(--intro-h2-pt) pb-(--intro-h2-h3) text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
+  >
+    {normalized.heading}
+  </h2>}
+  {normalized.subheading && <h3
+    class="m-0 pt-(--intro-h3-pt) pb-(--intro-h3-desc) text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg dark:text-neutral-0"
+  >
+    {normalized.subheading}
+  </h3>}
+  {description && (
+    <div
+      class="pb-(--intro-desc) [&>:first-child]:mt-0 [&>:last-child]:mb-0"
+      set:html={description}
+    />
+  )}
+</header>}

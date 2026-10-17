@@ -11,7 +11,9 @@
  *
  * Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so the
  * gap above is tight, 24px up to `desktop` and 32px from there. The block that
- * follows is independent and takes the standard 120px.
+ * follows is independent and takes the standard 120px. A block that owns its
+ * spacing (`data-intro-variant`, INTORG-1154) brings most of that gap in its
+ * intro, so before one the CTA keeps only that block's padding-bottom.
  *
  * The block sits in the prose flow, where a paragraph carries a 32px bottom
  * margin. Adjacent margins collapse to the larger of the pair, so that 32px
@@ -101,7 +103,7 @@ const resolved = buttons
   data-component="CtaButtons"
   class:list={[
     spacing === 'prose' &&
-      'mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl',
+      'mt-xl mb-section [&:last-child]:mb-0 [&:has(+[data-intro-variant])]:mb-(--block-pb) desktop:mt-2xl',
     'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
   ]}
 >

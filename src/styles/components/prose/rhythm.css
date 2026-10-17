@@ -29,6 +29,11 @@
  * Text elements keep the tighter flow rhythm from prose/default.css. Margins
  * of adjacent siblings collapse to the larger of the two, so a paragraph that
  * meets a real block still gets the full section gap.
+ *
+ * A block with `data-intro-variant` owns its spacing instead
+ * (components/block-intro.css) and sits out this rhythm. While pages mix
+ * those blocks with legacy ones, the transitional rules below keep the gap
+ * between the two kinds at --space-section.
  */
 
 @layer components {
@@ -41,7 +46,8 @@
     > [data-component]:not(
         [data-component='CtaButtons'],
         [data-component='Paragraph'],
-        .cta-link
+        .cta-link,
+        [data-intro-variant]
       ) {
       margin-block: var(--space-section);
     }
@@ -73,9 +79,11 @@
       + [data-component]:not(
         [data-component='CtaButtons'],
         [data-component='Paragraph'],
-        .cta-link
+        .cta-link,
+        [data-intro-variant]
       ),
-    > [data-component='Paragraph']:has(> h2:last-child) + [data-component] {
+    > [data-component='Paragraph']:has(> h2:last-child)
+      + [data-component]:not([data-intro-variant]) {
       margin-block-start: var(--space-block-heading);
     }
 
@@ -95,6 +103,56 @@
     > [data-component='Paragraph']:has(+ [data-component='CtaButtons'])
       > :is(p, h2, h3, h4, h5, h6, ul, ol):last-child {
       margin-block-end: 0;
+    }
+
+    /* Transitional (INTORG-1154): a page mixing blocks that own their
+       spacing with legacy ones. An intro block opens with its intro
+       (--intro-top plus the heading's padding) and closes with
+       --block-pb; on desktop the two add up to --space-section when the
+       intro has a heading. These rules give a legacy neighbour the same:
+
+       - Before an intro block, the legacy element stands in for the
+         padding-bottom it doesn't have yet.
+       - After one, it takes --space-section less the padding the intro
+         block already put there. A Paragraph that opens on an h2 gets the
+         same on that h2, whose own section margin would otherwise collapse
+         through the wrapper and win.
+
+       An intro block with an empty intro has no top, so a legacy element
+       sits --block-pb above it: the minimum A2 of the spec gives every
+       block. Astro emits a component's <script> as its next sibling, so
+       each rule also reaches across one script. CtaButtons and CtaLink set
+       their bottom margin with a utility, which this layer cannot beat;
+       they handle the intro block themselves.
+
+       Each selector matches the block rule's specificity or beats it, and
+       comes after it. Delete once every block owns its spacing. */
+    > :not([data-intro-variant], script):has(
+        + [data-intro-variant],
+        + script + [data-intro-variant]
+      ) {
+      margin-block-end: var(--block-pb);
+    }
+
+    /* Its last child's own margin (a paragraph's 32px) would collapse
+       through the unpadded wrapper and beat a smaller --block-pb on mobile,
+       so the wrapper alone sets the gap. */
+    > :not([data-intro-variant], script):has(
+        + [data-intro-variant],
+        + script + [data-intro-variant]
+      )
+      > :last-child {
+      margin-block-end: 0;
+    }
+
+    > [data-intro-variant] + :not([data-intro-variant], script),
+    > [data-intro-variant] + script + :not([data-intro-variant], script),
+    > [data-intro-variant] + [data-component='Paragraph'] > h2:first-child,
+    > [data-intro-variant]
+      + script
+      + [data-component='Paragraph']
+      > h2:first-child {
+      margin-block-start: calc(var(--space-section) - var(--block-pb));
     }
 
     /* The stack around the prose already supplies the outer gap, and the page
@@ -124,6 +182,12 @@
         :has(~ :not(script))
       ) {
       margin-block-end: 0;
+    }
+
+    /* Same for the padding an intro block owns: at the end of the prose it
+       would stack on the page's own bottom padding. */
+    > [data-intro-variant]:not(:has(~ :not(script))) {
+      padding-block-end: 0;
     }
 
     /* A trailing margin one level down does the same damage as one at the

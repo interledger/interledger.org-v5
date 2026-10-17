@@ -1557,6 +1557,41 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedBlockIntro extends Struct.ComponentSchema {
+  collectionName: 'components_shared_block_intros'
+  info: {
+    description: "Optional heading (H2), subheading (H3) and description shown above a block's content"
+    displayName: 'Block Intro'
+    icon: 'heading'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface SharedCategory extends Struct.ComponentSchema {
   collectionName: 'components_shared_categories'
   info: {
@@ -1936,6 +1971,7 @@ declare module '@strapi/strapi' {
       'navigation.menu-item': NavigationMenuItem
       'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
+      'shared.block-intro': SharedBlockIntro
       'shared.category': SharedCategory
       'shared.cta-button': SharedCtaButton
       'shared.cta-link': SharedCtaLink

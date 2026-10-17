@@ -1,0 +1,18 @@
+/**
+ * Blocks that own their spacing (INTORG-1154)
+ *
+ * A block root carrying `data-intro-variant` renders a `BlockIntro` and owns
+ * both of its edges: the intro supplies the top (--intro-top plus the
+ * heading's own padding), and this rule the bottom. Padding, not margin, so
+ * the bottom adds to the next block's intro instead of collapsing into it.
+ *
+ * These blocks sit out the --space-section rhythm in prose/rhythm.css and in
+ * DynamicZone.astro. The values and the per-variant overrides live in
+ * base/variables.css.
+ */
+
+@layer components {
+  [data-intro-variant] {
+    padding-block-end: var(--block-pb);
+  }
+}
