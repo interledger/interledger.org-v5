@@ -48,7 +48,7 @@ text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
 tablet:px-0
 `
 const listSpacingClasses = `[&_:is(p,a,h3,h4,h5,h6)]:mb-xl ${REPORT_LIST_SPACING_CLASS}`
-const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,li,a)]:text-h5 tablet:p-xl tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg ${listSpacingClasses}`
+const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,a,li):not(:where(th,td)_*)]:text-h5 tablet:p-xl tablet:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-md desktop:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-lg ${listSpacingClasses}`
 const paragraphClasses = `${REPORT_TABLE_CLASS} ${listSpacingClasses}`
 ---
 
