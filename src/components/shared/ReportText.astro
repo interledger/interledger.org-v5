@@ -40,7 +40,7 @@ const props = Astro.props
 // which relies on footnotes.css alone to look like a real footnote list.
 const sharedClasses = `
 px-lg [&_*:last-child]:mb-0
-text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
+text-body-lg-standard [&_:is(p,a,li):not(:where(th,td)_*)]:text-body-lg-standard
 tablet:px-0
 `
 const listSpacingClasses = `[&_:is(p,ol,ul,a,h3,h4,h5,h6)]:mb-xl [&_li]:mb-md`
