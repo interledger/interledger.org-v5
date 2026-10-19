@@ -90,7 +90,10 @@ const TABLET_MQ = '(max-width: 1199px)'
       alt={alt}
       loading="lazy"
       decoding="async"
-      class:list={['w-full rounded', needsOutline && 'ring-1 ring-neutral-25']}
+      class:list={[
+        'w-full rounded-3xl',
+        needsOutline && 'ring-1 ring-neutral-25'
+      ]}
       data-unoptimized-src={desktopUnoptimized ? src : undefined}
     />
   </picture>
