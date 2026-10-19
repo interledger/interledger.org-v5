@@ -1441,6 +1441,107 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksTimeline extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timelines'
+  info: {
+    description: 'Scrolling timeline of dated events grouped into sections. Section colours follow a fixed sequence; editors do not pick them. Only on a Foundation Page.'
+    displayName: 'Timeline'
+    icon: 'clock'
+  }
+  attributes: {
+    sections: Schema.Attribute.Component<'blocks.timeline-section', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
+export interface BlocksTimelineEvent extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timeline_events'
+  info: {
+    description: 'One dated event in a timeline section: when it happened, what happened, and a one- or two-word tag.'
+    displayName: 'Timeline Event'
+    icon: 'calendar'
+  }
+  attributes: {
+    date: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    tag: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksTimelineSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timeline_sections'
+  info: {
+    description: 'A chapter of the timeline. Its heading, subheading and description stay on screen while the reader scrolls through its events.'
+    displayName: 'Timeline Section'
+    icon: 'layer'
+  }
+  attributes: {
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    events: Schema.Attribute.Component<'blocks.timeline-event', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksTitleCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_title_cards'
   info: {
@@ -2036,6 +2137,9 @@ declare module '@strapi/strapi' {
       'blocks.report-text': BlocksReportText
       'blocks.resource-card': BlocksResourceCard
       'blocks.split-layout': BlocksSplitLayout
+      'blocks.timeline': BlocksTimeline
+      'blocks.timeline-event': BlocksTimelineEvent
+      'blocks.timeline-section': BlocksTimelineSection
       'blocks.title-card': BlocksTitleCard
       'blocks.title-card-grid': BlocksTitleCardGrid
       'blocks.video-embed': BlocksVideoEmbed

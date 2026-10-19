@@ -1471,6 +1471,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaLink: 'Button link',
       ctaExternal: 'Opens in a new tab',
       ctaDocument: 'Link is a document'
+    },
+    'blocks.timeline': {
+      sections: 'Sections'
+    },
+    'blocks.timeline-section': {
+      heading: 'Section heading',
+      subheading: 'Section subheading',
+      description: 'Section description',
+      events: 'Events'
+    },
+    'blocks.timeline-event': {
+      date: 'Date',
+      description: 'Description',
+      tag: 'Tag'
     }
   }
 
@@ -1765,6 +1779,19 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       benefitsLabel: 'Optional. Defaults to "Benefits".',
       ctaLink:
         'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+    },
+    'blocks.timeline': {
+      sections:
+        'Required, at least one. Each section groups the events of one chapter. Its heading, subheading and description stay on screen while the reader scrolls through its events. Colours follow a fixed sequence and cannot be chosen.'
+    },
+    'blocks.timeline-section': {
+      events:
+        'Required, at least one. Listed in the order they appear; the timeline does not sort by date.'
+    },
+    'blocks.timeline-event': {
+      date: 'Required. Shown as typed, e.g. "Oct 2015", "2015-2017" or "today".',
+      description: 'Required. Explain what event took place.',
+      tag: 'Required. Just one or two words, e.g. "Standards / Protocol".'
     }
   }
 

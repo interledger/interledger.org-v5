@@ -36,6 +36,7 @@ import { serialize as ctaButtons } from './cta-buttons.serializer'
 import { serialize as hackathonAnimation } from './hackathon-animation.serializer'
 import { serialize as internalAdvert } from './internal-advert.serializer'
 import { serialize as donationCards } from './donation-cards.serializer'
+import { serialize as timeline } from './timeline.serializer'
 
 export { sanitizeCardGridsInDocumentData }
 
@@ -63,7 +64,8 @@ const SERIALIZERS: Record<string, (block: unknown) => string> = {
   'blocks.cta-buttons': ctaButtons,
   'blocks.hackathon-animation': hackathonAnimation,
   'blocks.internal-advert': internalAdvert,
-  'blocks.donation-cards': donationCards
+  'blocks.donation-cards': donationCards,
+  'blocks.timeline': timeline
 }
 
 /**

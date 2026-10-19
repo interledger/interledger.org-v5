@@ -217,6 +217,15 @@ export {
   type CtaStripColor
 } from './ctaStrip'
 export {
+  MIN_TIMELINE_SECTIONS,
+  MIN_TIMELINE_EVENTS,
+  validateTimelineSections,
+  normalizeTimelineSections,
+  TimelineFieldError,
+  type TimelineEvent,
+  type TimelineSection
+} from './timeline'
+export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'

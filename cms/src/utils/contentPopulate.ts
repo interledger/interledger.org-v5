@@ -123,6 +123,9 @@ const FOUNDATION_PAGE_BLOCKS = {
   'blocks.code-block': {},
   'blocks.donation-cards': {
     populate: { cards: true }
+  },
+  'blocks.timeline': {
+    populate: { sections: { populate: { events: true } } }
   }
 } as const
 
