@@ -81,6 +81,9 @@ const desktopUnoptimized =
 // Sources are ordered narrow-first so the first matching <source> wins.
 const MOBILE_MQ = '(max-width: 809px)'
 const TABLET_MQ = '(max-width: 1199px)'
+
+// No margin utility on the root. prose/rhythm.css owns the section gap,
+// and a utility sits in a later cascade layer and would cancel it.
 ---
 
 {src && <IntroBlockFrame component="ImageBlock" intro={intro}>
