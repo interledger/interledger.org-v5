@@ -12,10 +12,6 @@
  */
 import type { ReportTextType } from '@/types/report'
 import CtaButtons from '@/components/blocks/CtaButtons.astro'
-import {
-  REPORT_LIST_SPACING_CLASS,
-  REPORT_TABLE_CLASS
-} from '@/components/shared/reportRichText'
 import { useTranslations } from '@/utils'
 
 interface ButtonProps {
@@ -37,19 +33,21 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const props = Astro.props
-// List margin/padding utilities live on paragraphClasses/disclaimerClasses,
-// not here — they'd otherwise beat footnotes.css's own list/counter layout
-// (Tailwind's utilities layer always wins over footnotes.css's `@layer
-// components` rules regardless of source order) for the References branch,
-// which relies on footnotes.css alone to look like a real footnote list.
+// List margins live on the Paragraph and Disclaimer wrappers (blockSpacingClasses
+// and `[data-prose-report]`), not here. Here they would beat footnotes.css's
+// own list/counter layout (Tailwind's utilities layer always wins over
+// footnotes.css's `@layer components` rules regardless of source order) for
+// the References branch, which relies on footnotes.css alone to look like a
+// real footnote list.
 const sharedClasses = `
 px-lg [&_*:last-child]:mb-0
 text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
 tablet:px-0
 `
-const listSpacingClasses = `[&_:is(p,a,h3,h4,h5,h6)]:mb-xl ${REPORT_LIST_SPACING_CLASS}`
-const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,a,li):not(:where(th,td)_*)]:text-h5 tablet:p-xl tablet:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-md desktop:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-lg ${listSpacingClasses}`
-const paragraphClasses = `${REPORT_TABLE_CLASS} ${listSpacingClasses}`
+// Table and list styles come from `[data-prose-report]` (prose/report.css),
+// which ReportIntro shares.
+const blockSpacingClasses = `[&_:is(p,a,h3,h4,h5,h6)]:mb-xl`
+const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,a,li):not(:where(th,td)_*)]:text-h5 tablet:p-xl tablet:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-md desktop:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-lg ${blockSpacingClasses}`
 ---
 
 {props.type === 'Button' ? (
@@ -84,6 +82,7 @@ const paragraphClasses = `${REPORT_TABLE_CLASS} ${listSpacingClasses}`
     {props.type === 'Disclaimer' ? (
       <div
         data-report-text="disclaimer"
+        data-prose-report
         role="note"
         aria-label={t('report.disclaimer_label')}
         class={disclaimerClasses}
@@ -95,7 +94,11 @@ const paragraphClasses = `${REPORT_TABLE_CLASS} ${listSpacingClasses}`
         <slot />
       </div>
     ) : (
-      <div data-report-text="paragraph" class={paragraphClasses}>
+      <div
+        data-report-text="paragraph"
+        data-prose-report
+        class={blockSpacingClasses}
+      >
         <slot />
       </div>
     )}

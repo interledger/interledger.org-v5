@@ -96,6 +96,7 @@
 @import './components/prose/table.css';
 @import './components/prose/summit.css';
 @import './components/prose/footnotes.css';
+@import './components/prose/report.css';
 @import './components/navigation.css';
 
 /* Utilities layer - custom @utility definitions */
