@@ -265,6 +265,12 @@ export {
   SELF_SPACED_BLOCKS,
   getPreviewBlockGapClass
 } from './main/dynamicZoneSpacing'
+export {
+  TIMELINE_ACCENT_COUNT,
+  timelineAccentIndex,
+  timelineEventOffsets,
+  resolveTimelineSections
+} from './main/timeline'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'
