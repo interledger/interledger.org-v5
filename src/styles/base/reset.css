@@ -74,8 +74,7 @@
 
   /* Clears the fixed header on fragment jumps, tab-focus, and focused
      scrollIntoView() targets (e.g. ContactPage's form errors). */
-  :where(:target, :is(h1, h2, h3, h4, h5, h6)[id], [id]:focus-visible)
-  {
+  :where(:target, :is(h1, h2, h3, h4, h5, h6)[id], [id]:focus-visible) {
     scroll-margin-top: var(--site-header-height);
     @variant desktop {
       scroll-margin-top: var(--site-header-height-desktop);
@@ -95,12 +94,12 @@
     font-weight: 600;
   }
 
-  /* h1/h2 tokens already carry their own bold weight (700/600): don't stack
+  /* h1–h4 tokens already carry their own bold weight (700/600): don't stack
      another one when Google Docs wraps the whole line in <strong> — inherit
      matches whatever the heading's own weight is instead of forcing 600.
-     h3–h6 use lighter tokens and keep the global 600 above so ### **Title**
-     still reads as bold. */
-  :is(h1, h2) :is(b, strong) {
+     h5/h6 use a regular token and keep the global 600 above so a bold
+     ##### **Title** still reads as bold. */
+  :is(h1, h2, h3, h4) :is(b, strong) {
     font-weight: inherit;
   }
 
