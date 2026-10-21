@@ -2,57 +2,10 @@
 /**
  * Timeline block — dated events grouped into sections (INTORG-930).
  *
- * On desktop one panel sits beside the events and shows the heading,
- * subheading and description of whichever section's events cross the middle
- * of the viewport; the words swap in place. The label sticks for the whole
- * timeline and scrolls away with the last event. Every field is plain text with a fixed
- * shape, so the sections arrive as one static array prop — the same shape as
- * `NumberTiles` and `DonationCards` — which keeps the MDX ↔ Strapi round trip
- * to plain text fields.
- *
- * The panel keeps each header beside its own events in the DOM, so a screen
- * reader still meets them in order: the section list flattens into one grid
- * (`display: contents`), every header shares the sticky left cell, and each is
- * shown by a scroll timeline on its own events. A hidden header comes forward
- * while it holds keyboard focus. Without `timeline-scope`, each header falls
- * back to sticking within its own section, pushed off by the next. Below
- * desktop the same flattening applies with a narrow left column: only the
- * section heading, written vertically and stuck beside the rail, crossfades
- * as each section's events cross the viewport middle; subheading and
- * description stay in the desktop panel only.
- *
- * Skip links — plain in-page anchors, no JS, keyboard-reachable — link
- * "Return" to the top of the timeline and "Skip" past its bottom, both
- * reading the same `navLinks`. A flattened section has no box to land on,
- * so neither target is a section. Below `desktop:` they render as one bar,
- * fixed to the viewport's bottom edge below `tablet:`, with a `view-timeline`
- * on the block itself driving its opacity (inset, so the bar waits until the
- * block has
- * entered a little and leaves before the block has fully gone); at `tablet:`
- * it sits in normal flow instead (always visible, nothing to fix in place).
- * Its label is "Return"/"Skip" below `tablet:` and "Return to top"/"Skip to
- * bottom" at `tablet:` and above (both rendered, toggled with CSS so only the
- * visible one reaches the accessibility tree). At `desktop:` the bar is
- * hidden; the same links render instead inside every section's header panel
- * (always the long label — there's room), so they crossfade in and out with
- * the rest of that panel's content via the same per-section scroll timeline.
- *
- * Block-level heading, subheading and description are deliberately absent:
- * they arrive with the shared block intro once INTORG-1154 lands
- * (INTORG-1348). Until then the page supplies the h2 above the block (a
- * Paragraph heading), so section headings are h3.
- *
- * Events hang off a vertical rail. The stretch between two dots fades from
- * the page (white, or the dark page in dark mode) into the next dot's colour.
- * That gradient draws downward as the reader scrolls, and each dot grows from
- * small to large as the line reaches it. Both are CSS scroll-driven
- * animations, so there is no client JS. Each segment and dot is its own view
- * timeline, inset to a line across the middle of the viewport, so progress is
- * "how far that line has travelled through it". The gradient is revealed with
- * a clip rather than a scale, so the white-to-colour fade stays mapped to the
- * whole stretch instead of squashing into the revealed part. Where
- * `animation-timeline` is unsupported, or the reader prefers reduced motion,
- * the gradient is painted in full and every dot is full size.
+ * No block heading, subheading, or description until the shared block intro
+ * lands (INTORG-1154, INTORG-1348). Until then the page supplies the h2, so
+ * section headings are h3. Colour is not stored: it follows event position
+ * across the whole timeline.
  */
 import type { TimelineSection } from '@/types/timeline'
 import Icon from '@/components/shared/Icon.astro'
@@ -365,19 +318,22 @@ const skipIconFrameClass =
 </section>}
 
 <style>
-  /* html already has scroll-padding for the fixed header (5.775rem, from the
-     Starlight reset) — more than the real header, which is shorter. Cancel
-     the surplus on both Return's and Skip's targets, so the block's top or
-     bottom edge meets the header instead of leaving a gap under it. */
+  /* html scroll-padding-top (--scroll-padding-top) is more than the real
+     header. Cancel the surplus on Return's and Skip's targets so the block's
+     top or bottom edge meets the header instead of leaving a gap under it. */
   [data-timeline],
   [data-timeline-end] {
-    scroll-margin-top: calc(var(--site-header-height) - 5.775rem);
+    scroll-margin-top: calc(
+      var(--site-header-height) - var(--scroll-padding-top)
+    );
   }
 
   @media (width >= 1200px) {
     [data-timeline],
     [data-timeline-end] {
-      scroll-margin-top: calc(var(--site-header-height-desktop) - 5.775rem);
+      scroll-margin-top: calc(
+        var(--site-header-height-desktop) - var(--scroll-padding-top)
+      );
     }
   }
 
@@ -504,6 +460,7 @@ const skipIconFrameClass =
         inset-inline: 0;
         bottom: 0;
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
         animation: timeline-header-active linear;
         animation-range: cover;
@@ -518,6 +475,15 @@ const skipIconFrameClass =
       [data-timeline-mobile-nav] * {
         pointer-events: inherit;
       }
+
+      /* Keyboard focus wins over scroll position, or Return/Skip would be
+         invisible (and the focus ring clipped by opacity: 0). */
+      [data-timeline]:has([data-timeline-mobile-nav]:focus-within)
+        [data-timeline-mobile-nav] {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+      }
     }
   }
 
@@ -525,6 +491,7 @@ const skipIconFrameClass =
     from,
     to {
       opacity: 1;
+      visibility: visible;
       pointer-events: auto;
     }
   }
@@ -554,6 +521,7 @@ const skipIconFrameClass =
       align-self: stretch;
       position: static;
       opacity: 0;
+      visibility: hidden;
       pointer-events: none;
       animation: timeline-header-active linear;
       animation-timeline: var(--timeline-section);
@@ -585,11 +553,13 @@ const skipIconFrameClass =
     [data-timeline-sections]:has([data-timeline-header]:focus-within)
       [data-timeline-header]:not(:focus-within) {
       opacity: 0 !important;
+      visibility: hidden !important;
       pointer-events: none !important;
     }
 
     [data-timeline-sections] [data-timeline-header]:focus-within {
       opacity: 1 !important;
+      visibility: visible !important;
       pointer-events: auto !important;
     }
 
