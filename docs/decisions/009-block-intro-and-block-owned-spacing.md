@@ -67,17 +67,17 @@ All designs are in the [ILF New Design](https://www.figma.com/design/Tjtpc6NlHgu
 
 All the typography tokens already exist in `src/styles/theme.css`. Bare `h1`–`h4` pick them up from `reset.css`.
 
-| Style                     | Mobile | Tablet | Desktop | Weight                               |
-| ------------------------- | ------ | ------ | ------- | ------------------------------------ |
-| H1 (hero only)            | 40/48  | 56/64  | 76/84   | 700                                  |
-| H2                        | 32/40  | 40/48  | 56/64   | 600                                  |
-| H3                        | 24/32  | 28/36  | 40/48   | 500; **600** as a header (see below) |
-| H4                        | 20/30  | 22/32  | 28/40   | 500; **600** as a header (see below) |
-| Body / description ("H5") | 18/28  | 18/28  | 20/30   | 400                                  |
-| body-lg                   | 16/26  | 16/26  | 16/26   | 400 / 600                            |
-| body-sm                   | 14/22  | 14/22  | 14/22   | 400                                  |
+| Style                     | Mobile | Tablet | Desktop | Weight    |
+| ------------------------- | ------ | ------ | ------- | --------- |
+| H1 (hero only)            | 40/48  | 56/64  | 76/84   | 700       |
+| H2                        | 32/40  | 40/48  | 56/64   | 600       |
+| H3                        | 24/32  | 28/36  | 40/48   | 600       |
+| H4                        | 20/30  | 22/32  | 28/40   | 600       |
+| Body / description ("H5") | 18/28  | 18/28  | 20/30   | 400       |
+| body-lg                   | 16/26  | 16/26  | 16/26   | 400 / 600 |
+| body-sm                   | 14/22  | 14/22  | 14/22   | 400       |
 
-**Header weight (Figma, 2026-10-21).** Headings drawn as headers, the intro subheading and the Paragraph block's H3 and H4, use Figma's "H3 (for header)" and "H4 (for header)" styles. These are the same sizes in **SemiBold (600)**. The global H3 and H4 tokens stay Medium (500) for the components that use them, such as card titles and FAQ questions. In code, `font-semibold` sits on those headings: `BlockIntro` now, and the Paragraph block in Phase 3.
+**H3 and H4 weight (Figma, 2026-10-21).** H3 and H4 are SemiBold (600) everywhere, following Figma's "H3 (for header)" and "H4 (for header)" styles. They used to be Medium (500). The change is in the global tokens (`theme.css`), so every heading and every component that uses them follows. Only a component with its own explicit weight stays as it is.
 
 Colours:
 
