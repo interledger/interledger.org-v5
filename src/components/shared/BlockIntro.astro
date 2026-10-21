@@ -47,7 +47,7 @@ const description = await parseMarkdown(normalized?.description, {
   </h3>}
   {description && (
     <div
-      class="pb-(--intro-desc) [&>:first-child]:mt-0 [&>:last-child]:mb-0"
+      class="pb-(--intro-desc) [&>:first-child]:mt-0 [&>:last-child]:mb-0 [&_:is(h1,h2,h3,h4,h5,h6)]:font-semibold"
       set:html={description}
     />
   )}
