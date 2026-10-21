@@ -20,7 +20,8 @@
   html {
     accent-color: hsl(180 100% 23%);
     /* 1.5rem plus the docs nav height (4.275rem). */
-    scroll-padding-top: 5.775rem;
+    --scroll-padding-top: 5.775rem;
+    scroll-padding-top: var(--scroll-padding-top);
   }
 
   body {

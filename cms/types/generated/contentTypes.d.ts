@@ -783,7 +783,8 @@ export interface ApiFoundationPageFoundationPage
         'blocks.cta-buttons',
         'blocks.event-card',
         'blocks.quote',
-        'blocks.code-block'
+        'blocks.code-block',
+        'blocks.timeline'
       ]
     > &
       Schema.Attribute.SetPluginOptions<{

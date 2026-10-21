@@ -52,6 +52,7 @@ import './ctaButtonsHandler'
 import './hackathonAnimationHandler'
 import './internalAdvertHandler'
 import './donationCardsHandler'
+import './timelineHandler'
 import { createRelationResolver } from './profileHandler'
 import { type ParserContext } from './mdxBlockParser'
 

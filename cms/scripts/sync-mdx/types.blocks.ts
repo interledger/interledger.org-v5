@@ -45,6 +45,16 @@ export {
   type ReportTextType
 } from '../../src/utils/reportText'
 
+import type { TimelineSection } from '../../src/utils/timeline'
+
+export {
+  MIN_TIMELINE_SECTIONS,
+  MIN_TIMELINE_EVENTS,
+  normalizeTimelineSections,
+  type TimelineEvent,
+  type TimelineSection
+} from '../../src/utils/timeline'
+
 // ---------------------------------------------------------------------------
 // Shared
 // ---------------------------------------------------------------------------
@@ -469,6 +479,16 @@ export interface DonationCardsBlock extends StrapiBlockBase {
   cards: DonationCard[]
 }
 
+/**
+ * blocks.timeline — dated events grouped into sections whose heading,
+ * subheading and description stay on screen while the reader scrolls through
+ * them. Section colours are assigned by position in Astro, never stored.
+ */
+export interface TimelineBlock extends StrapiBlockBase {
+  __component: 'blocks.timeline'
+  sections: TimelineSection[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -499,3 +519,4 @@ export type ParsedBlock =
   | HackathonAnimationBlock
   | InternalAdvertBlock
   | DonationCardsBlock
+  | TimelineBlock

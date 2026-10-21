@@ -252,6 +252,12 @@ export {
   type ResolvedCtaLink
 } from './main/cta'
 export { isFundraiseUpElementHref } from './main/fundraiseUp'
+export {
+  TIMELINE_ACCENT_COUNT,
+  timelineAccentIndex,
+  timelineEventOffsets,
+  resolveTimelineSections
+} from './main/timeline'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'

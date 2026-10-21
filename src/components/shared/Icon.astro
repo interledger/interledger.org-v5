@@ -23,6 +23,7 @@ interface Props {
     | 'arrow-right-keyboard'
     | 'arrow-right'
     | 'arrow-down'
+    | 'arrow-down-dotted'
     | 'link-rounded'
     | 'external-link'
     | 'download'
@@ -69,6 +70,10 @@ const ICONS: Record<Props['name'], IconDefinition> = {
   'arrow-right-keyboard': {
     viewBox: '0 0 24 24',
     body: '<path d="M13.2924 12L8.69238 7.40002L9.40038 6.69202L14.7084 12L9.40038 17.308L8.69238 16.6L13.2924 12Z" fill="currentColor"/>'
+  },
+  'arrow-down-dotted': {
+    viewBox: '0 0 24 24',
+    body: '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" stroke-dasharray="2 2.5" d="M12 4v14"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.5 14.5L12 19l4.5-4.5"/>'
   },
   'arrow-down': {
     viewBox: '0 0 24 24',

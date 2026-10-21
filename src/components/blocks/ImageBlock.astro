@@ -77,9 +77,12 @@ const desktopUnoptimized =
 // Sources are ordered narrow-first so the first matching <source> wins.
 const MOBILE_MQ = '(max-width: 809px)'
 const TABLET_MQ = '(max-width: 1199px)'
+
+// No margin utility on the root. prose/rhythm.css owns the section gap,
+// and a utility sits in a later cascade layer and would cancel it.
 ---
 
-{src && <figure class="my-0" data-component="ImageBlock">
+{src && <figure data-component="ImageBlock">
   <picture>
     <ResponsiveSources image={mobile} rawSrc={mobileSrc} media={MOBILE_MQ} />
     <ResponsiveSources image={tablet} rawSrc={tabletSrc} media={TABLET_MQ} />
