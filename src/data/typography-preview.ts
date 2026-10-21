@@ -50,14 +50,14 @@ const MOBILE_PRESETS: TypographyPreset[] = [
   {
     label: 'H3',
     className: 'text-h3',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 24,
     lineHeightPx: 32
   },
   {
     label: 'H4',
     className: 'text-h4',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 20,
     lineHeightPx: 30
   },
@@ -123,14 +123,14 @@ const TABLET_PRESETS: TypographyPreset[] = [
   {
     label: 'H3',
     className: 'text-h3-md',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 28,
     lineHeightPx: 36
   },
   {
     label: 'H4',
     className: 'text-h4-md',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 22,
     lineHeightPx: 32
   },
@@ -196,14 +196,14 @@ const DESKTOP_PRESETS: TypographyPreset[] = [
   {
     label: 'H3',
     className: 'text-h3-lg',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 40,
     lineHeightPx: 48
   },
   {
     label: 'H4',
     className: 'text-h4-lg',
-    fontWeight: 600,
+    fontWeight: 500,
     fontSizePx: 28,
     lineHeightPx: 40
   },

@@ -8,6 +8,9 @@
  * padding on the element above it, so it disappears with that element and
  * never collapses into a neighbour.
  *
+ * The subheading uses Figma's "H3 (for header)" style: the H3 size in
+ * SemiBold (600), not the Medium of the global H3 token.
+ *
  * Heading sizes are explicit so the intro reads the same on narrow templates,
  * where reset.css drops bare headings one tier.
  */
@@ -38,7 +41,7 @@ const description = await parseMarkdown(normalized?.description, {
     {normalized.heading}
   </h2>}
   {normalized.subheading && <h3
-    class="m-0 pt-(--intro-h3-pt) pb-(--intro-h3-desc) text-neutral-900 dark:text-neutral-0"
+    class="m-0 pt-(--intro-h3-pt) pb-(--intro-h3-desc) font-semibold text-neutral-900 dark:text-neutral-0"
   >
     {normalized.subheading}
   </h3>}
