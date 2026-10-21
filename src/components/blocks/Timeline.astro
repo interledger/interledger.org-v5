@@ -416,13 +416,24 @@ const skipIconFrameClass =
         view-timeline-inset: 40% 50%;
       }
 
+      /* Longhands, not the `animation` shorthand: a 0s duration (the
+         shorthand's default) is scrubbed by Chrome/Safari's scroll timeline
+         but not applied at all by Firefox, leaving the un-animated resting
+         style forever (AnimatedNetwork.astro's own longhand rule has the
+         same note). */
       [data-timeline-fill] {
-        animation: timeline-fill linear both;
+        animation-name: timeline-fill;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-range: cover;
       }
 
       [data-timeline-dot] {
-        animation: timeline-dot-grow linear both;
+        animation-name: timeline-dot-grow;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-range: cover;
       }
 
@@ -462,7 +473,9 @@ const skipIconFrameClass =
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
-        animation: timeline-header-active linear;
+        animation-name: timeline-header-active;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
         animation-range: cover;
       }
 
@@ -523,9 +536,17 @@ const skipIconFrameClass =
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
-      animation: timeline-header-active linear;
-      animation-timeline: var(--timeline-section);
+      animation-name: timeline-header-active;
+      animation-duration: 1ms;
+      animation-timing-function: linear;
       animation-range: cover;
+    }
+
+    /* Own rule: the minifier folds a same-rule animation-timeline into the
+       shorthand, which browsers reject. Lightning CSS currently leaves this
+       var()-timeline rule alone even combined, but don't rely on that. */
+    [data-timeline-section] [data-timeline-header] {
+      animation-timeline: var(--timeline-section);
     }
 
     [data-timeline-label] {
