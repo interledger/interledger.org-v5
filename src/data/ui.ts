@@ -731,7 +731,7 @@ export const ui = {
     'animatedNetwork.problem.video_title':
       'El problema que estamos resolviendo (video)',
     'pillarsSection.heading':
-      'Imaginamos un mundo donde el dinero se mueve con libertad y la oportunidad llega con él.',
+      'Creemos en un mundo donde el dinero se mueve con libertad y la oportunidad le sigue.',
     'pillarsSection.card1_title': 'Construimos la Tecnología',
     'pillarsSection.card1_description':
       'Custodiamos estándares abiertos y construimos infraestructura para que los sistemas financieros se conecten una vez y se integren con muchos.',
