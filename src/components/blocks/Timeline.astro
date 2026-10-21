@@ -330,7 +330,7 @@ const skipIconFrameClass =
     })}
   </ol>
 
-  {lastIndex > 0 && <div
+  <div
     data-timeline-mobile-nav
     class="sticky bottom-0 z-10 tablet:static tablet:z-auto desktop:hidden"
   >
@@ -354,7 +354,7 @@ const skipIconFrameClass =
         <span class="hidden tablet:inline">{link.longLabel}</span>
       </a>)}
     </nav>
-  </div>}
+  </div>
   {/* Bottom edge of the block, including its padding, so Skip lands past it. */}
   <div
     id={timelineEndId}
@@ -365,22 +365,17 @@ const skipIconFrameClass =
 </section>}
 
 <style>
-  /* html already has scroll-padding for the fixed header (5.775rem, from
-     the Starlight reset). :target adds a scroll-margin on top of that, and
-     the two stack, so an anchor stops short of the block. */
+  /* html already has scroll-padding for the fixed header (5.775rem, from the
+     Starlight reset) — more than the real header, which is shorter. Cancel
+     the surplus on both Return's and Skip's targets, so the block's top or
+     bottom edge meets the header instead of leaving a gap under it. */
   [data-timeline],
-  [data-timeline-end] {
-    scroll-margin-top: 0;
-  }
-
-  /* That padding clears more than the header. Cancel the surplus on Skip's
-     target so the block's bottom edge meets the header and the next section
-     is what's on screen. */
   [data-timeline-end] {
     scroll-margin-top: calc(var(--site-header-height) - 5.775rem);
   }
 
   @media (width >= 1200px) {
+    [data-timeline],
     [data-timeline-end] {
       scroll-margin-top: calc(var(--site-header-height-desktop) - 5.775rem);
     }
