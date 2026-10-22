@@ -68,8 +68,9 @@
       text-decoration-color: currentColor;
     }
 
-    /* Site-wide paragraph (and sibling text-flow) gap: 32px. `Paragraph`
-       blocks sit in this rhythm too — see prose/rhythm.css. */
+    /* Site-wide paragraph (and sibling text-flow) gap: 32px. Text inside a
+       Paragraph block is spaced by the block instead (ADR-009 A3–A5, see
+       prose/paragraph-block.css). */
     p,
     h2,
     h3,
@@ -98,9 +99,10 @@
        `CtaButtons.astro`. Keep the two in step.
 
        This rule only sees a bare element. When the markdown is wrapped in a
-       `Paragraph` block, `prose/rhythm.css` does the same job for the wrapper,
-       and it also keeps `CtaButtons` out of the section rhythm. Three places,
-       one behaviour. */
+       `Paragraph` block, `prose/paragraph-block.css` does the same job for
+       the block (`prose/rhythm.css` for a profile's legacy Paragraph), and
+       rhythm.css keeps `CtaButtons` out of the section rhythm. One
+       behaviour, several places. */
     :is(p, h2, h3, h4, h5, h6, ul, ol):has(+ [data-component='CtaButtons']) {
       margin-block-end: 0;
     }

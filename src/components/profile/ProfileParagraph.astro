@@ -1,0 +1,13 @@
+---
+/**
+ * Paragraph for profile bodies: keeps the prose rhythm instead of the
+ * Paragraph block spacing (ADR-009, D3), until profile pages get their own
+ * narrow-page spacing.
+ */
+import type { ComponentProps } from 'astro/types'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+
+type Props = Omit<ComponentProps<typeof Paragraph>, 'legacySpacing'>
+---
+
+<Paragraph {...Astro.props} legacySpacing><slot /></Paragraph>

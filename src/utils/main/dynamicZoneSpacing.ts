@@ -42,6 +42,7 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.faq',
   'blocks.image-block',
   'blocks.number-tiles',
+  'blocks.paragraph',
   'blocks.pdf-embed',
   'blocks.profile-grid',
   'blocks.quote',
@@ -58,6 +59,10 @@ const SECTION_GAP_AFTER_SELF_SPACED =
 
 /**
  * Class for the wrapper margin above a preview block, or `null` for none.
+ *
+ * Approximate at the top: the preview pages keep their own top padding, so
+ * a first block that opens with an intro or a Paragraph sits lower there
+ * than under a live page's hero (ADR-009, A6).
  * `prevUid` is `null` for the first block.
  */
 export function getPreviewBlockGapClass(
@@ -67,9 +72,6 @@ export function getPreviewBlockGapClass(
 ): string | null {
   if (prevUid === null) return null
   if (OWNS_ITS_SPACING.has(uid)) return null
-  // Consecutive Paragraphs are running text, not section breaks. Inner `p`
-  // already carries the 32px prose gap (prose/default.css).
-  if (uid === 'blocks.paragraph' && prevUid === 'blocks.paragraph') return null
 
   const isSelfSpaced = selfSpacedBlocks.has(uid)
   const prevIsSelfSpaced = selfSpacedBlocks.has(prevUid)

@@ -9,6 +9,7 @@ import ProfileHeroBand from '@/components/shared/ProfileHeroBand.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
+import ProfileParagraph from '@/components/profile/ProfileParagraph.astro'
 import {
   getProfileHeroColorClass,
   getProfileAvatarColorClass
@@ -129,7 +130,7 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
           aria-label={t('profile.description')}
           class="mb-2xl"
         >
-          <Paragraph content={description} />
+          <Paragraph content={description} legacySpacing />
         </section>}
         {hasCta && <div class="mb-2xl">
           <LinkButton
@@ -156,7 +157,12 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
           aria-label={t('profile.biography')}
           class="mb-2xl [&_h2:not(:first-of-type)]:mt-4xl desktop:[&_h2:not(:first-of-type)]:mt-5xl [&_h2]:mb-2xl [&_hr]:my-4xl desktop:[&_hr]:my-5xl [&_p:has(>a):has(+p:has(>a))]:mb-sm"
         >
-          <MdxContent components={{ ...RICH_TEXT_MDX_COMPONENTS, Paragraph }} />
+          <MdxContent
+            components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
+              Paragraph: ProfileParagraph
+            }}
+          />
         </section>}
       </div>
     </div>

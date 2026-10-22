@@ -177,6 +177,63 @@
     }
   }
 
+  /* Paragraph block spacing (ADR-009, A3–A5). Padding, so it adds up with
+     the block's --block-pb and never collapses. Headings take "first" only
+     at the very top of the content (--para-lead-pt, set where a template
+     lets content start under its hero); everywhere else a block above
+     supplies the rest of the gap. A paragraph's top depends on what is
+     directly above it. Read by components/prose/paragraph-block.css. */
+  :root {
+    --para-first-pt: var(--spacing-4xl);
+    --para-h2-pt: var(--spacing-3xl-tight);
+    --para-h2-pb: var(--spacing-md);
+    --para-h3-pt: var(--spacing-xl);
+    --para-h3-pb: var(--spacing-sm);
+    --para-h4-pt: var(--spacing-lg);
+    --para-h4-pb: var(--spacing-xs);
+    --para-p-pb: var(--spacing-sm);
+    --para-p-lead-pt: calc(var(--spacing-lg) + var(--spacing-xs));
+    --para-p-after-h2: var(--spacing-xl);
+    --para-p-after-h3: var(--spacing-lg);
+    --para-p-after-h4: var(--spacing-md);
+    --para-p-after-p: var(--spacing-lg);
+    --para-p-after-media: var(--spacing-2xl);
+
+    @variant tablet {
+      --para-first-pt: var(--spacing-5xl);
+      --para-h2-pt: var(--spacing-4xl);
+      --para-h2-pb: var(--spacing-lg);
+      --para-h3-pt: var(--spacing-2xl);
+      --para-h3-pb: var(--spacing-md);
+      --para-h4-pt: var(--spacing-xl);
+      --para-h4-pb: var(--spacing-sm);
+      --para-p-pb: var(--spacing-md);
+      --para-p-lead-pt: var(--spacing-3xl-tight);
+      --para-p-after-h2: var(--spacing-2xl);
+      --para-p-after-h3: var(--spacing-xl);
+      --para-p-after-h4: var(--spacing-lg);
+      --para-p-after-p: var(--spacing-xl);
+      --para-p-after-media: var(--spacing-3xl-tight);
+    }
+
+    @variant desktop {
+      --para-first-pt: var(--spacing-6xl);
+      --para-h2-pt: var(--spacing-5xl);
+      --para-h2-pb: var(--spacing-xl);
+      --para-h3-pt: var(--spacing-3xl-tight);
+      --para-h3-pb: var(--spacing-lg);
+      --para-h4-pt: var(--spacing-2xl);
+      --para-h4-pb: var(--spacing-md);
+      --para-p-pb: var(--spacing-lg);
+      --para-p-lead-pt: var(--spacing-4xl);
+      --para-p-after-h2: var(--spacing-3xl-tight);
+      --para-p-after-h3: var(--spacing-2xl);
+      --para-p-after-h4: var(--spacing-xl);
+      --para-p-after-p: var(--spacing-2xl);
+      --para-p-after-media: var(--spacing-4xl);
+    }
+  }
+
   /* Block intro variants: only the spacers that differ from Universal.
      `0px`, not `0`: a unitless zero is invalid inside calc(). */
   [data-intro-variant='button-cta'] {

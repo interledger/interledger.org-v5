@@ -13,11 +13,13 @@ export interface BlockIntroData {
 /**
  * Spacing variant of the intro, from the Figma "Used for" property. Set on
  * the block root as `data-intro-variant`; the spacer values per variant live
- * in src/styles/base/variables.css.
+ * in src/styles/base/variables.css. `paragraph` marks a Paragraph block,
+ * which has no intro but owns its spacing like the blocks that do.
  */
 export const BLOCK_INTRO_VARIANTS = [
   'universal',
   'button-cta',
-  'split-layout'
+  'split-layout',
+  'paragraph'
 ] as const
 export type BlockIntroVariant = (typeof BLOCK_INTRO_VARIANTS)[number]

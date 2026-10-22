@@ -474,15 +474,17 @@ Every page except the home page uses **one** gap between its top-level elements,
 | ----------------------- | ---------------------------------- | ------------------------------------------------------ |
 | `--space-section`       | 64px / 80px tablet / 120px desktop | Between two top-level elements: sections, prose blocks |
 | `--space-block-heading` | 48px                               | Between a heading and the content it titles            |
-| `--spacing-2xl`         | 32px                               | Between paragraphs (bare `p` or a `Paragraph` block)   |
+| `--spacing-2xl`         | 32px                               | Between bare paragraphs (markdown outside a block)     |
 
-`--space-section` is always the larger of the first pair, so a section break reads wider than a heading break. `Paragraph` is running text, not a section: consecutive Paragraphs use the 32px text rhythm from `prose/default.css`, same as adjacent `<p>` tags.
+`--space-section` is always the larger of the first pair, so a section break reads wider than a heading break. Bare markdown paragraphs use the 32px text rhythm from `prose/default.css`.
+
+**Blocks that own their spacing (ADR-009).** A block root with `data-intro-variant` renders an optional intro at its top and pads its bottom with `--block-pb`, so it sits out the rhythm below. A `Paragraph` block is one of them (`data-intro-variant="paragraph"`): inside it, `prose/paragraph-block.css` pads each heading, paragraph and media element by what is above it (ADR-009 A3–A5, tokens `--para-*` in `base/variables.css`). Profile pages render Paragraph with `legacySpacing` and keep the old rhythm (D3). While pages mix these blocks with legacy ones, transitional rules in `prose/rhythm.css` and `utilities/spacing.css` (`page-stack`) keep the gap between the two kinds at `--space-section`.
 
 **A block never carries its own vertical margin.** The container decides:
 
 - `page-stack` on `<main>` spaces the page's sections. Sections carry `px-content` for the gutter and nothing else.
-- `prose/rhythm.css` spaces the children of `[data-prose]`, `[data-prose-blog]`, and `[data-prose-summit]`. It targets any child with a `data-component` attribute except `Paragraph` (text flow, 32px). That is why a block component must set that attribute on its **root** element.
-- `DynamicZone.astro` applies the same value in the Strapi preview, so a block sits in the same place there as on the live page. Consecutive `blocks.paragraph` items skip the section gap and keep the 32px paragraph rhythm.
+- `prose/rhythm.css` spaces the children of `[data-prose]`, `[data-prose-blog]`, and `[data-prose-summit]`. It targets any child with a `data-component` attribute, except blocks that own their spacing. That is why a block component must set that attribute on its **root** element.
+- `DynamicZone.astro` applies the same value in the Strapi preview, so a block sits in the same place there as on the live page. Blocks that own their spacing are listed in `SELF_SPACED_BLOCKS` (`utils/main/dynamicZoneSpacing.ts`).
 
 Single-side reads, for the edges of a stack: `mt-section`, `mb-section`, `pt-section`, `pb-section`, `gap-section`.
 

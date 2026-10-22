@@ -154,6 +154,19 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 - **Deploy:** run `sync:mdx` right after merging. Saving the timetable or podcast page in Strapi before that exports the pre-migration shape back over the MDX.
 - **Blind spot:** a section whose prose _ends_ on a self-spaced block still ends like a legacy one, because `rhythm.css` drops that block's padding at the end of the prose. That holds the 120 today; revisit when the transitional rules go.
 
+**Phase 3 status (2026-10-22).** The Paragraph block spacing (A3–A5) is done, on every template with blog posts included.
+
+- **How:** `Paragraph.astro` sets `data-intro-variant="paragraph"`, so the block gets `--block-pb` and the transitional rules treat it as self-spaced. `prose/paragraph-block.css` zeroes the prose margins inside it and pads headings, paragraphs and media with the `--para-*` tokens.
+- **"First" top (A3):** only where content starts under the hero, through `--para-lead-pt`: page-stack templates (`utilities/spacing.css`), hackathon and summit content sections, and the first block after a blog post header. Anywhere else a Paragraph opening on a heading takes "not first" and the block above supplies the rest.
+- **Profiles keep the old rhythm** (D3): `legacySpacing` on Paragraph, through `ProfileParagraph` in the MDX map and `legacyParagraphSpacing` on DynamicZone in the profile preview. The Paragraph rules in `rhythm.css` now reach only these.
+- **Kept, transitional:** the CTA pairing (CtaButtons without an intro, CtaLink) and the fake-intro rule for a Paragraph that ends on a heading before a legacy block (two blog posts with a CodeBlock; `events.mdx` before its CardGrid).
+- **Behaviour that follows the design (check at review):**
+  - p → p is 48 on desktop (was 32), H2 → p 64, and a list or table after a sentence sits 60 below it (A5).
+  - Between two Paragraph blocks: the last paragraph's 16 + block 40 + H2 80, as Figma draws it.
+  - A Paragraph that opens on an H3 after another block sits 40 + 40 below it, H3's "not first".
+  - Blog posts space their Paragraph blocks like pages; the narrow-page values are a follow-up (Figma, 2026-10-22).
+- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers. The top of the preview is still approximate: the preview pages keep their own top padding.
+
 ### Phase 4: Cleanup
 
 - Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.

@@ -1,13 +1,24 @@
 ---
+import type { BlockIntroVariant } from '@/types/blockIntro'
 import { parseMarkdown } from '@/utils'
 
 interface Props {
   content?: string
   alignment?: 'left' | 'center' | 'right'
   umamiContext?: string
+  /**
+   * Keep the prose rhythm instead of the Paragraph block spacing (ADR-009,
+   * D3). Profile pages only, until their narrow-page spacing is designed.
+   */
+  legacySpacing?: boolean
 }
 
-const { content, alignment = 'left', umamiContext } = Astro.props
+const {
+  content,
+  alignment = 'left',
+  umamiContext,
+  legacySpacing = false
+} = Astro.props
 const { routeLocale } = Astro.locals
 
 const alignmentClass =
@@ -15,27 +26,15 @@ const alignmentClass =
     ? 'text-center'
     : alignment === 'right'
       ? 'text-right'
-      : ''
+      : undefined
 
-// A CTA that directly follows a paragraph belongs to that paragraph, so
-// Paragraph tightens the pair (24px, 32px from desktop). CtaLink owns
-// mb-section below; the prose container only supplies the gap for
-// ordinary blocks.
-//
-// `:has(+ .cta-link)` lets the paragraph react to what follows it, so neither
-// the editor nor the MDX author has to mark the pair up. Written as a literal
-// string because the Tailwind v4 scanner reads the source text.
-//
-// The last-child rule is load-bearing, not tidying. This wrapper has no
-// padding or border, so the bottom margin of its final paragraph collapses
-// out of it and the larger of the two margins wins. That inner margin is 32px,
-// which silently swallowed the 24px below desktop. Zero it and the wrapper's
-// own margin decides the gap.
-const CTA_PAIR_SPACING =
-  '[&:has(+.cta-link)]:mb-xl desktop:[&:has(+.cta-link)]:mb-2xl [&:has(+.cta-link)>*:last-child]:mb-0'
+// The block owns its spacing (components/prose/paragraph-block.css), the CTA
+// that follows it included.
+const introVariant: BlockIntroVariant | undefined = legacySpacing
+  ? undefined
+  : 'paragraph'
 
 const hasContent = content != null && content !== ''
-const className = [alignmentClass, CTA_PAIR_SPACING].filter(Boolean).join(' ')
 const htmlContent = hasContent
   ? await parseMarkdown(content, {
       page: umamiContext,
@@ -46,9 +45,18 @@ const htmlContent = hasContent
 ---
 
 {hasContent ? (
-  <div data-component="Paragraph" class={className} set:html={htmlContent} />
+  <div
+    data-component="Paragraph"
+    data-intro-variant={introVariant}
+    class={alignmentClass}
+    set:html={htmlContent}
+  />
 ) : (
-  <div data-component="Paragraph" class={className}>
+  <div
+    data-component="Paragraph"
+    data-intro-variant={introVariant}
+    class={alignmentClass}
+  >
     <slot />
   </div>
 )}

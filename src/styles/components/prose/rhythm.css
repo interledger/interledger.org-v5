@@ -10,15 +10,17 @@
  *
  *   --space-section        between two top-level blocks (image, FAQ, …)
  *   --space-block-heading  between a heading and the content under it
- *   --spacing-2xl          between paragraphs (bare `p` or a `Paragraph` block)
+ *   --spacing-2xl          between bare paragraphs (markdown outside a block)
  *
  * `--space-section` is the larger of the first pair, so a section break always
  * reads wider than a heading break. Paragraph spacing is the tighter text
- * rhythm from prose/default.css (32px), not a section break.
+ * rhythm from prose/default.css (32px), not a section break. Text inside a
+ * Paragraph block is spaced by the block itself (prose/paragraph-block.css).
  *
  * A "block" is any child carrying `data-component`, except `Paragraph`.
- * `Paragraph` is running text that happens to be wrapped; treating it as a
- * section stacked 64/80/120px holes between ordinary paragraphs. Block
+ * A Paragraph block owns its spacing (`data-intro-variant="paragraph"`,
+ * prose/paragraph-block.css). The Paragraph rules below only reach a
+ * Paragraph without that marker, which profile pages still render (D3). Block
  * components set `data-component` on their root, so the rhythm reaches an
  * MDX page (direct child of the prose container) and a Strapi preview alike.
  *
@@ -58,7 +60,7 @@
        the same in both. A block's own heading is not in this flow. Those zero
        their margins with a utility, which wins over this layer. */
     > h2,
-    > [data-component='Paragraph'] > h2 {
+    > [data-component='Paragraph']:not([data-intro-variant]) > h2 {
       margin-block-start: var(--space-section);
       margin-block-end: var(--space-block-heading);
     }
@@ -82,12 +84,16 @@
         .cta-link,
         [data-intro-variant]
       ),
-    > [data-component='Paragraph']:has(> h2:last-child)
+    > [data-component='Paragraph']:not([data-intro-variant]):has(
+        > h2:last-child
+      )
       + [data-component]:not([data-intro-variant]) {
       margin-block-start: var(--space-block-heading);
     }
 
-    > [data-component='Paragraph']:has(> h2:last-child) {
+    > [data-component='Paragraph']:not([data-intro-variant]):has(
+        > h2:last-child
+      ) {
       margin-block-end: 0;
     }
 
@@ -96,11 +102,15 @@
        follows, but a `Paragraph` block wraps its markdown in a div, so that
        rule cannot see it. Zero the wrapper and its last text child, and let
        the CTA's own tight top margin decide the gap. */
-    > [data-component='Paragraph']:has(+ [data-component='CtaButtons']) {
+    > [data-component='Paragraph']:not([data-intro-variant]):has(
+        + [data-component='CtaButtons']
+      ) {
       margin-block-end: 0;
     }
 
-    > [data-component='Paragraph']:has(+ [data-component='CtaButtons'])
+    > [data-component='Paragraph']:not([data-intro-variant]):has(
+        + [data-component='CtaButtons']
+      )
       > :is(p, h2, h3, h4, h5, h6, ul, ol):last-child {
       margin-block-end: 0;
     }
@@ -147,10 +157,12 @@
 
     > [data-intro-variant] + :not([data-intro-variant], script),
     > [data-intro-variant] + script + :not([data-intro-variant], script),
-    > [data-intro-variant] + [data-component='Paragraph'] > h2:first-child,
+    > [data-intro-variant]
+      + [data-component='Paragraph']:not([data-intro-variant])
+      > h2:first-child,
     > [data-intro-variant]
       + script
-      + [data-component='Paragraph']
+      + [data-component='Paragraph']:not([data-intro-variant])
       > h2:first-child {
       margin-block-start: calc(var(--space-section) - var(--block-pb));
     }

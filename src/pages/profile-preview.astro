@@ -93,7 +93,7 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
     </header>
     <div class="max-w-narrow m-auto my-lg px-2xl">
       {description && <section data-prose class="mb-2xl">
-        <Paragraph content={description} />
+        <Paragraph content={description} legacySpacing />
       </section>}
       {cta && <div class="mb-2xl">
         <LinkButton
@@ -115,7 +115,7 @@ const cta = profile.cta?.text && profile.cta?.link ? profile.cta : null
         </LinkButton>
       </div>}
       {content.length > 0 && <section data-prose class="mb-2xl">
-        <DynamicZone blocks={content} />
+        <DynamicZone blocks={content} legacyParagraphSpacing />
       </section>}
     </div>
   </main>

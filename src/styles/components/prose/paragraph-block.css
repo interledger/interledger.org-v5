@@ -1,0 +1,195 @@
+/**
+ * Paragraph block spacing (ADR-009, A3–A5)
+ *
+ * A Paragraph block owns its spacing like any other block: it carries
+ * `data-intro-variant="paragraph"`, so components/block-intro.css gives it
+ * --block-pb at the bottom and prose/rhythm.css treats it as self-spaced.
+ * Inside it, the running text drops the prose margins (prose/default.css,
+ * prose/foundation.css) and is spaced with padding, which adds up instead of
+ * collapsing:
+ *
+ * - A heading pads its top and bottom by level (A3). Only a heading at the
+ *   very top of the content takes the "first" top, through --para-lead-pt,
+ *   which the template sets where content starts under its hero
+ *   (utilities/spacing.css). Anywhere else the block above supplies the
+ *   rest of the gap.
+ * - A paragraph pads its top by what is directly above it, and its bottom by
+ *   --para-p-pb (A4).
+ * - An image, table or list pads its top by --media-pt and has no bottom
+ *   (A5): what follows supplies the gap. The media themselves stay as built.
+ *
+ * Blockquotes, rules and anything else keep their own margins. Profile pages
+ * render Paragraph without the marker (`legacySpacing`), so they keep the
+ * prose rhythm (D3). Values live in base/variables.css.
+ */
+
+@layer components {
+  /* Not scoped to the prose container: the Strapi preview wraps each block
+     in its own element. The doubled attribute is for specificity, so these
+     beat the prose rules for Paragraph lists in prose/foundation.css. */
+  [data-component='Paragraph'][data-intro-variant='paragraph'] {
+    /* Only the first block of the content can take the "first" top. */
+    &:not(:first-child) {
+      --para-lead-pt: initial;
+    }
+
+    & > :is(h2, h3, h4, h5, h6, p, ul, ol, table, .table-scroll) {
+      margin-block: 0;
+    }
+
+    /* Headings (A3). H3 and below use the header weight (A0). */
+    & > h2 {
+      padding-block: var(--para-h2-pt) var(--para-h2-pb);
+    }
+
+    & > h3 {
+      padding-block: var(--para-h3-pt) var(--para-h3-pb);
+      font-weight: 600;
+    }
+
+    & > :is(h4, h5, h6) {
+      padding-block: var(--para-h4-pt) var(--para-h4-pb);
+      font-weight: 600;
+    }
+
+    & > h2:first-child {
+      padding-block-start: var(--para-lead-pt, var(--para-h2-pt));
+    }
+
+    & > h3:first-child {
+      padding-block-start: var(--para-lead-pt, var(--para-h3-pt));
+    }
+
+    & > :is(h4, h5, h6):first-child {
+      padding-block-start: var(--para-lead-pt, var(--para-h4-pt));
+    }
+
+    /* Body (A4): the top depends on what is directly above. */
+    & > p {
+      padding-block: var(--para-p-after-p) var(--para-p-pb);
+    }
+
+    & > p:first-child {
+      padding-block-start: var(--para-p-lead-pt);
+    }
+
+    & > h2 + p {
+      padding-block-start: var(--para-p-after-h2);
+    }
+
+    & > h3 + p {
+      padding-block-start: var(--para-p-after-h3);
+    }
+
+    & > :is(h4, h5, h6) + p {
+      padding-block-start: var(--para-p-after-h4);
+    }
+
+    /* Media (A5). Markdown wraps a lone image in a <p>. */
+    &
+      > :is(
+        ul,
+        ol,
+        table,
+        .table-scroll,
+        p:has(> :is(picture, img):only-child)
+      ) {
+      padding-block: var(--media-pt) 0;
+    }
+
+    &
+      > :is(ul, ol, table, .table-scroll, p:has(> :is(picture, img):only-child))
+      + p:not(:has(> :is(picture, img):only-child)) {
+      padding-block-start: var(--para-p-after-media);
+    }
+
+    /* The list's last item, or a list nested at its end, would add its own
+       gap below the list: margins collapse out through the unpadded list. */
+    & > :is(ul, ol) > li:last-child,
+    & > :is(ul, ol) > li:last-child :is(ul, ol, li, p):last-child {
+      margin-block-end: 0;
+    }
+  }
+
+  /* A CTA belongs to the paragraph above it (B2): the pair keeps its tight
+     24 / 32 gap instead of a block break. CtaButtons without an intro sets
+     that gap as its own top margin, so the Paragraph gives up its bottom
+     padding. A CtaLink has no top margin, so the Paragraph's bottom padding
+     becomes the gap. Each case is its own rule: one `:has()` listing both
+     would take the more specific branch's weight and override the other.
+
+     The second selector of each is the Strapi preview, where DynamicZone
+     wraps every block in its own element. */
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']:has(
+      + [data-component='CtaButtons']:not([data-intro-variant])
+    ),
+  :has(> [data-intro-variant='paragraph']):has(
+      + * > [data-component='CtaButtons']:not([data-intro-variant])
+    )
+    > [data-intro-variant='paragraph'] {
+    padding-block-end: 0;
+
+    & > :last-child {
+      padding-block-end: 0;
+    }
+  }
+
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']:has(+ .cta-link),
+  :has(> [data-intro-variant='paragraph']):has(+ * > .cta-link)
+    > [data-intro-variant='paragraph'] {
+    padding-block-end: var(--spacing-xl);
+
+    @variant desktop {
+      padding-block-end: var(--spacing-2xl);
+    }
+
+    & > :last-child {
+      padding-block-end: 0;
+    }
+  }
+
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']
+    + .cta-link {
+    margin-block-start: 0;
+  }
+
+  /* At the end of the prose the page pads its own bottom, and rhythm.css
+     drops the block's --block-pb; its last child's padding would still add
+     to the page's. */
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']:not(:has(~ :not(script)))
+    > :last-child {
+    padding-block-end: 0;
+  }
+
+  /* A blog post's content starts under its header (BlogPostHeader, the
+     first child of the article), so the first Paragraph after it takes the
+     "first" top (A3). Outscores the `:not(:first-child)` reset above. */
+  [data-prose-blog]
+    > :first-child
+    + [data-component='Paragraph'][data-intro-variant='paragraph'] {
+    --para-lead-pt: var(--para-first-pt);
+  }
+
+  /* A Paragraph that ends on a heading titles the legacy block after it (a
+     "fake intro"). The pair keeps the heading gap it has today rather than
+     a block break. A block with an intro of its own is spaced normally.
+     Transitional: goes with the legacy blocks. */
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']:has(
+      > :is(h2, h3, h4, h5, h6):last-child
+    ):has(+ :not([data-intro-variant], script, .cta-link)) {
+    padding-block-end: 0;
+
+    & > :last-child {
+      padding-block-end: 0;
+    }
+
+    & + :not([data-intro-variant], script, .cta-link) {
+      margin-block-start: var(--space-block-heading);
+    }
+  }
+}

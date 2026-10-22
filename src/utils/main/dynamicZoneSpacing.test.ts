@@ -21,7 +21,7 @@ describe('getPreviewBlockGapClass', () => {
     ).toBeNull()
   })
 
-  it('runs consecutive Paragraphs together', () => {
+  it('adds nothing between two Paragraph blocks, which own their spacing', () => {
     expect(
       getPreviewBlockGapClass('blocks.paragraph', 'blocks.paragraph')
     ).toBeNull()
