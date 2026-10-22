@@ -206,6 +206,25 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     ).toEqual({ content: [block] })
   })
 
+  // A URL missing its scheme is broken either way, but slashing it would
+  // disguise it as an internal link.
+  it('does not turn a scheme-less external URL into a site path', async () => {
+    const block = {
+      __component: 'blocks.split-layout',
+      videoUrl: 'www.youtube.com/watch?v=abc123'
+    }
+    expect(
+      await normalize('api::foundation-page.foundation-page', {
+        content: [block]
+      })
+    ).toEqual({ content: [block] })
+    expect(
+      await normalize('api::podcast-page.podcast-page', {
+        podcasts: [{ url: 'twitter.com/interledger' }]
+      })
+    ).toEqual({ podcasts: [{ url: 'twitter.com/interledger' }] })
+  })
+
   it('only cuts the origin of an upload in a URL field', async () => {
     expect(
       await normalize('api::foundation-page.foundation-page', {

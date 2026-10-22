@@ -22,13 +22,30 @@ function toSiteHref(afterOrigin: string): string {
 }
 
 /**
- * The stored form of a link field: a URL on our own site becomes its relative,
- * slashed path, so readers stay in the environment they are on (INTORG-1300).
+ * A URL on our own site as its relative, slashed path, so readers stay in the
+ * environment they are on (INTORG-1300), and an upload URL as its file path.
+ * Anything else is returned as is.
  */
-export function toStoredHref(value: string): string {
+function withoutOwnOrigins(value: string): string {
   const siteUrl = value.trim().match(SITE_URL)
   if (siteUrl) return toSiteHref(siteUrl[2])
-  return toSlashedPath(stripUploadOrigin(value))
+  return stripUploadOrigin(value)
+}
+
+/** The stored form of a link field: own origins cut, then {@link toSlashedPath}. */
+export function toStoredHref(value: string): string {
+  return toSlashedPath(withoutOwnOrigins(value))
+}
+
+/**
+ * The stored form of a field holding a media or external URL (a video, a PDF,
+ * a podcast). As {@link toStoredHref}, but only a value starting with `/` is
+ * slashed: a scheme-less `www.youtube.com/…` is a broken external URL, and
+ * slashing it would disguise it as an internal link.
+ */
+export function toStoredUrl(value: string): string {
+  const relative = withoutOwnOrigins(value)
+  return relative.trim().startsWith('/') ? toSlashedPath(relative) : relative
 }
 
 /**

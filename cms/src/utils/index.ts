@@ -389,7 +389,8 @@ export {
   stripUploadOrigin,
   stripSiteOriginsInText,
   stripUploadOriginsInText,
-  toStoredHref
+  toStoredHref,
+  toStoredUrl
 } from './relativeLinks'
 export {
   normalizeRelativeLinksInDocumentData,

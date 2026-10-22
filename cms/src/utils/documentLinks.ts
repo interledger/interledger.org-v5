@@ -10,7 +10,8 @@ import {
   stripSiteOriginsInText,
   stripUploadOriginsInText,
   toSlashedSlug,
-  toStoredHref
+  toStoredHref,
+  toStoredUrl
 } from './relativeLinks'
 
 // `@strapi/utils` doesn't export its schema types, so they are read off
@@ -32,11 +33,11 @@ const HREF_LIKE_FIELDS = new Set([
   'primaryButtonLink',
   'secondaryButtonLink',
   'authorLink',
-  'url',
-  'videoUrl',
-  'externalUrl',
   'destination'
 ])
+
+/** Fields holding a media or external URL, where a bare value is not a path. */
+const URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
 
 const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
 
@@ -81,6 +82,7 @@ export async function normalizeRelativeLinksInDocumentData<T>(
     ({ data: node, key, value, attribute }) => {
       if (typeof value !== 'string' || CODE_FIELDS.has(key)) return
       if (HREF_LIKE_FIELDS.has(key)) node[key] = toStoredHref(value)
+      else if (URL_FIELDS.has(key)) node[key] = toStoredUrl(value)
       else if (PATH_SEGMENT_FIELDS.has(key)) node[key] = toSlashedSlug(value)
       else node[key] = normalizeText(value, attribute)
     },
