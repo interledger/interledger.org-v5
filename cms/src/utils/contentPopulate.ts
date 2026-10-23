@@ -61,7 +61,7 @@ const GRANT_BLOCKS = {
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.agenda': {
-    populate: { items: true }
+    populate: { intro: true, days: { populate: { items: true } }, items: true }
   },
   'blocks.split-layout': {
     populate: {
@@ -197,7 +197,11 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { intro: true, tiles: true }
     },
     'blocks.agenda': {
-      populate: { items: true }
+      populate: {
+        intro: true,
+        days: { populate: { items: true } },
+        items: true
+      }
     },
     'blocks.split-layout': {
       populate: {
@@ -303,6 +307,7 @@ export const PODCAST_PAGE_CONTENT_POPULATE = {
   },
   titleCards: {
     populate: {
+      intro: true,
       titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } }
     }
   },

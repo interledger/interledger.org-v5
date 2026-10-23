@@ -143,10 +143,22 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 9. Blog posts are in scope ([D3](../decisions/009-block-intro-and-block-owned-spacing.md#decision)): their Paragraph blocks get the same rules under `[data-prose-blog]`. Zero the `blog.css` margins inside the block the same way, and check a post on its narrow column.
 10. Update `src/styles/README.md` and the comment at the top of `rhythm.css`.
 
+**Phase 2c status (2026-10-22).** D5 agreed. Agenda days, the grant InfoCards intro, the podcast Title Cards intro and page-stack self-spacing are done.
+
+- **Agenda:** `days` of `{ date, items }`; "Day N" comes from the position (`agenda.day`) and the date is formatted per locale with no year ("Friday, October 16"), read as UTC so no time zone shifts the day. Figma separates the two with a gap and colour, so screen readers get an sr-only comma instead of a visible dot. Day headings are `h3` under an intro heading and `h2` without one, so the outline never skips a level. The legacy `items` render as one undated list with no day heading, and a legacy `heading` becomes the intro heading, as on the other blocks. The two 2026 timetable agendas (EN and ES) were merged by hand, 2026 taken from the page. The holiday contest agenda kept its `items` and got a real intro instead.
+- **InfoCards:** its `heading` field becomes the intro heading in the component. No schema change, as there is nothing else to put in an intro.
+- **Podcast Title Cards:** `titleCards.intro` (schema, export, sync, content). The heading moved out of `textSection`, and `splitTrailingHeading` is gone (done here rather than in Phase 4).
+- **Page stack** (`utilities/spacing.css`): a section holding a self-spaced block, directly or as the first block of its prose, gets the same transitional maths as `rhythm.css`. The grant FAQ section dropped its `pb-0` and zeroed spacers. Its accordion column now offsets by the intro's top spacing on desktop, so the first question stays 16px below the heading text.
+- **Behaviour that follows the design (check at review):** the grant FAQ section sits 80 below the section above on desktop (was 120): the Split layout variant has no top spacer there (A1).
+- **Open question (before Phase 4):** the holiday contest agenda is a milestone timeline ("Oct 22", "Nov 13–17"), not dated days, so it cannot move to `days`. Either keep `items` as a supported undated mode, or make it a different block.
+- **Deploy:** run `sync:mdx` right after merging. Saving the timetable or podcast page in Strapi before that exports the pre-migration shape back over the MDX.
+- **Blind spot:** a section whose prose _ends_ on a self-spaced block still ends like a legacy one, because `rhythm.css` drops that block's padding at the end of the prose. That holds the 120 today; revisit when the transitional rules go.
+
 ### Phase 4: Cleanup
 
 - Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
-- Remove `splitTrailingHeading` and its tests (`src/utils/main/blockIntro.ts`) once podcast Title Cards read their own intro.
+- Remove the legacy Agenda `heading`. `items` waits on the undated-agenda question in the Phase 2c status.
+- Remove the page-stack transitional rules in `utilities/spacing.css` with the `rhythm.css` ones.
 - Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
 - Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
 

@@ -97,17 +97,15 @@ const accordionName = faqAccordionGroupName()
 
 {/*
   The FAQ split (ADR-009, B5): intro and button max 40%, the accordion max
-  60%, 120 apart on desktop; stacked in that order below. Until the grant
-  template lets its sections own their spacing (Phase 2c) the page stack
-  supplies the gaps around this section, so it drops its own: `pb-0` below,
-  and no intro top spacer or heading padding above.
+  60%, 120 apart on desktop; stacked in that order below. It owns its
+  spacing like any intro block; the page stack (utilities/spacing.css)
+  leaves its gaps to it.
 */}
 <section
   data-component="GrantFaqSection"
   data-intro-variant="split-layout"
   aria-labelledby={headingId}
-  style="--intro-top: 0px; --intro-h2-pt: 0px"
-  class="flex flex-col gap-3xl pb-0 desktop:grid desktop:grid-cols-[2fr_3fr] desktop:items-start desktop:gap-6xl"
+  class="flex flex-col gap-3xl desktop:grid desktop:grid-cols-[2fr_3fr] desktop:items-start desktop:gap-6xl"
 >
   <div class="flex flex-col desktop:sticky desktop:top-6xl">
     <BlockIntro intro={intro} headingId={headingId} />
@@ -134,9 +132,11 @@ const accordionName = faqAccordionGroupName()
 
   <!-- Right column. data-faq-hold-position keeps a desktop click from
        dragging the sticky title. Scroll anchoring stays off this column
-       only, so the title can still anchor. -->
+       only, so the title can still anchor. On desktop the first question
+       starts 16px below the top of the heading text, past the intro's own
+       top spacing. -->
   <div
-    class="flex min-w-0 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-lg"
+    class="flex min-w-0 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-[calc(var(--intro-top)+var(--intro-h2-pt)+var(--spacing-lg))]"
     data-faq-accordion
     data-faq-hold-position="true"
   >

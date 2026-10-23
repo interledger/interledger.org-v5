@@ -5,6 +5,11 @@
   },
   "options": {},
   "attributes": {
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro"
+    },
     "titleCards": {
       "type": "component",
       "component": "blocks.title-card",

@@ -78,4 +78,50 @@ describe('Agenda handler', () => {
       }
     ])
   })
+
+  it('round-trips the intro and the dated days', async () => {
+    const days = [
+      { date: '2026-10-16', items },
+      { date: '2026-10-17', items }
+    ]
+    const mdx = serialize({ intro: { heading: 'Timetable' }, days })
+    const blocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.agenda',
+        intro: { heading: 'Timetable' },
+        days
+      }
+    ])
+  })
+
+  it('reads days over a legacy heading and items left beside them', async () => {
+    const days = [{ date: '2026-10-16', items }]
+    const blocks = await parseMdxToBlocks(
+      `<Agenda heading="Friday" items={${JSON.stringify(items)}} days={${JSON.stringify(days)}} />`,
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([{ __component: 'blocks.agenda', days }])
+  })
+
+  it.each([
+    ['an empty list', []],
+    ['a day without a date', [{ items }]],
+    ['a date that is not YYYY-MM-DD', [{ date: 'Friday October 16', items }]],
+    ['an impossible date', [{ date: '2026-02-30', items }]],
+    ['a day with one item', [{ date: '2026-10-16', items: [items[0]] }]]
+  ])('rejects days with %s', async (_label, days) => {
+    const result = await parseMdxToBlocks(
+      `<Agenda days={${JSON.stringify(days)}} />`,
+      { locale: 'en' }
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      prop: 'days'
+    })
+  })
 })

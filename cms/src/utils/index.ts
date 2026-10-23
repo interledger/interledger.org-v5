@@ -10,6 +10,9 @@ export {
   type SerializedBlockIntro
 } from './contentTypes'
 
+// Calendar dates (Strapi `date` fields)
+export { isCalendarDate } from './calendarDate'
+
 // Code block
 export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
 

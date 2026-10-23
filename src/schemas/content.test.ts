@@ -169,6 +169,21 @@ describe('podcastPageFrontmatterSchema', () => {
     expect(result.success).toBe(true)
   })
 
+  it('accepts a title cards intro and rejects an unknown intro key', () => {
+    const withIntro = (intro: Record<string, string>) =>
+      podcastPageFrontmatterSchema.safeParse({
+        ...podcastPageBase,
+        titleCards: { ...podcastPageBase.titleCards, intro }
+      })
+
+    expect(withIntro({ heading: 'Explore our Featured Series' }).success).toBe(
+      true
+    )
+    expect(withIntro({ title: 'Explore our Featured Series' }).success).toBe(
+      false
+    )
+  })
+
   it('rejects a page with no title cards', () => {
     const result = podcastPageFrontmatterSchema.safeParse({
       ...podcastPageBase,

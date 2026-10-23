@@ -56,18 +56,78 @@
   }
 
   /*
+   * Transitional (INTORG-1154): sections whose block owns its spacing, the
+   * same maths as the block rhythm in prose/rhythm.css, one level up. A
+   * template section holds its block in `.content-column`, either directly
+   * (a grant's InfoCards or FAQ) or as the first block of its prose.
+   *
+   * - A section opening on such a block gets --block-pb above it, standing in
+   *   for the padding-bottom the section above doesn't have; the block's
+   *   intro supplies the rest of the gap. A block with an empty intro has no
+   *   top, so it sits --block-pb below, the minimum A2 gives every block.
+   * - A section that is such a block ends on its --block-pb, so the section
+   *   after it takes --space-section less that padding, or nothing when it
+   *   opens on an intro of its own.
+   *
+   * A section's prose ending on such a block is not covered: rhythm.css
+   * drops the padding of the last block in the prose, so it ends like any
+   * other section. A CTA section keeps its tight gap. Delete these with the
+   * prose rules, once every block owns its spacing.
+   */
+  &
+    > *
+    + :has(
+      > .content-column > [data-intro-variant]:first-child,
+      > .content-column > [data-prose] > [data-intro-variant]:first-child
+    ) {
+    margin-block-start: var(--block-pb);
+  }
+
+  & > :has(> .content-column > [data-intro-variant]:first-child),
+  & > :has(> .content-column > [data-intro-variant]:first-child) + script {
+    & + :not(script, [data-stack='cta']) {
+      margin-block-start: calc(var(--space-section) - var(--block-pb));
+    }
+
+    /* A Paragraph opening that section's prose keeps its h2's section
+       margin, which collapses out through the wrappers and wins over the
+       smaller gap above. */
+    &
+      + :not(script, [data-stack='cta'])
+      [data-prose]
+      > [data-component='Paragraph']:first-child
+      > h2:first-child {
+      margin-block-start: 0;
+    }
+
+    &
+      + :has(
+        > .content-column > [data-intro-variant]:first-child,
+        > .content-column > [data-prose] > [data-intro-variant]:first-child
+      ) {
+      margin-block-start: 0;
+    }
+  }
+
+  /*
    * Content starts right under the hero (ADR-009, A6): when the section after
-   * it opens its prose with a block that owns its spacing and has an intro
+   * it opens with a block that owns its spacing and has an intro
    * (`[data-block-intro]`, set by BlockIntro), that intro is the whole gap.
-   * The intro is the block's own child, or one level down where the block
-   * puts it in a column (SplitLayout). A later section, a block without an
-   * intro and a legacy first block keep the stack gap, the last until the
-   * Paragraph spacing lands (Phase 3). PageHero emits its `<script>` as the
-   * next sibling, so reach across one.
+   * The block is the section's own, or the first in its prose; the intro is
+   * the block's child, or one level down where the block puts it in a column
+   * (SplitLayout). A block without an intro takes the --block-pb rule
+   * above; a legacy first block keeps the stack gap until the Paragraph
+   * spacing lands (Phase 3).
+   * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &
     > :first-child
     + :has(
+      .content-column > [data-intro-variant]:first-child > [data-block-intro],
+      .content-column
+        > [data-intro-variant]:first-child
+        > *
+        > [data-block-intro],
       [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
       [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
     ),
@@ -75,6 +135,11 @@
     > :first-child
     + script
     + :has(
+      .content-column > [data-intro-variant]:first-child > [data-block-intro],
+      .content-column
+        > [data-intro-variant]:first-child
+        > *
+        > [data-block-intro],
       [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
       [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
     ) {

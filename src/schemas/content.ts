@@ -413,7 +413,18 @@ const podcastTitleCardSchema = z.object({
   })
 })
 
+// A block intro in frontmatter (ADR-009): the keys the CMS writes, each
+// optional; the CMS leaves the whole object out when it is empty.
+const blockIntroSchema = z
+  .object({
+    heading: z.string().optional(),
+    subheading: z.string().optional(),
+    description: z.string().optional()
+  })
+  .strict()
+
 const podcastTitleCardsSchema = z.object({
+  intro: blockIntroSchema.optional(),
   columns: z.enum(['Three', 'Two']),
   ariaLabel: z.string().min(1, 'ariaLabel is required'),
   cards: z.array(podcastTitleCardSchema).min(1)

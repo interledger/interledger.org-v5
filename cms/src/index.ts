@@ -1096,7 +1096,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
-        'Optional paragraph shown below the hero, above the title cards. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
+        'Optional paragraph shown below the hero, above the title cards. Put the heading that titles the cards in Title Cards → Intro, not here. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
       titleCards:
         'List every featured podcast series shown at the top of the page.',
       podcasts:
@@ -1344,7 +1344,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description'
     },
     'blocks.agenda': {
-      heading: 'Heading (optional)',
+      intro: 'Intro',
+      days: 'Days',
+      heading: 'Day heading (deprecated)',
+      items: 'Agenda items (deprecated)'
+    },
+    'blocks.agenda-day': {
+      date: 'Date',
       items: 'Agenda items (minimum 2)'
     },
     'blocks.agenda-item': {
@@ -1443,6 +1449,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quote: 'Quote',
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button (deprecated)'
+    },
+    'blocks.title-card-grid': {
+      intro: 'Intro',
+      titleCards: 'Title Cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessible label'
     },
     'blocks.title-card': {
       heading: 'Heading',
@@ -1585,6 +1597,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Rich text for the content column. Leave empty when using a Quote.'
     },
     'blocks.title-card-grid': {
+      intro:
+        'Optional heading, subheading and description above the cards. On the podcast page it titles the featured series.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
@@ -1678,7 +1692,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     },
     'blocks.agenda': {
-      heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
+      days: 'Each day is numbered automatically ("Day 1", "Day 2", …) and shows its date.',
+      heading:
+        'Deprecated: add a day under Days instead. Only used when Days is empty.',
+      items:
+        'Deprecated: add a day under Days instead. Only used when Days is empty.'
     },
     'blocks.event-card': {
       title: LEGACY_HEADING_DESCRIPTION,
@@ -2065,7 +2083,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }]
     ],
     'blocks.agenda': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'days', size: 12 }],
       [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
+    'blocks.agenda-day': [
+      [{ name: 'date', size: 6 }],
       [{ name: 'items', size: 12 }]
     ],
     'blocks.agenda-item': [
@@ -2238,6 +2262,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
+    'blocks.title-card-grid': [
+      [{ name: 'intro', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
+    ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],
       [{ name: 'subHeading', size: 12 }],
@@ -2304,6 +2336,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
   const componentMainFields: Record<string, string> = {
+    'blocks.agenda-day': 'date',
     'blocks.agenda-item': 'time',
     'blocks.report-text': 'textType',
     // Collapsed repeatable rows show the button label rather than a generic

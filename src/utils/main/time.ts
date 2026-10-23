@@ -41,6 +41,40 @@ export function formatDate(date: Date, lang = defaultLocale) {
   })
 }
 
+const CALENDAR_DATE = /^(\d{4})-(\d{2})-(\d{2})$/
+
+// Agenda day headings — weekday, month and day, no year (e.g. "Friday,
+// October 16"). The date is a calendar day with no time zone, so it is read
+// and formatted in UTC: any other zone can shift it to the day before.
+export function formatAgendaDate(isoDate: string, lang = defaultLocale) {
+  const match = CALENDAR_DATE.exec(isoDate)
+  if (!match) return ''
+
+  const [, year, month, day] = match.map(Number)
+  // Date rolls an impossible day over (2026-02-30 → March 2, 2026-13-01 →
+  // the next January), so check every part survived.
+  const date = new Date(Date.UTC(year!, month! - 1, day!))
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month! - 1 ||
+    date.getUTCDate() !== day
+  )
+    return ''
+
+  const localeMap: Record<Locale, string> = {
+    es: 'es-ES',
+    en: 'en-US'
+  }
+  const locale = localeMap[lang] ?? localeMap[defaultLocale]
+
+  return new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC'
+  }).format(date)
+}
+
 export function getDurationInMinutes(startsAt: string, endsAt: string) {
   const start = new Date(startsAt)
   const end = new Date(endsAt)

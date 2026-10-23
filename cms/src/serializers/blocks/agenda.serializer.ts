@@ -2,9 +2,12 @@ import {
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   htmlToMarkdown,
+  isCalendarDate,
   looksLikeHtmlField,
+  serializeIntroProp,
   INLINE_BREAK_TAG,
   SerializerFieldError,
+  type BlockIntroInput,
   type FieldError
 } from '../../utils'
 
@@ -16,10 +19,27 @@ interface AgendaItem {
   additionalInfo?: string
 }
 
-interface AgendaBlock {
-  heading?: string
+interface AgendaDay {
+  date?: string | null
   items?: AgendaItem[]
 }
+
+interface AgendaBlock {
+  intro?: BlockIntroInput | null
+  days?: AgendaDay[]
+  /** @deprecated One day per block, before `days`. Used when `days` is empty. */
+  heading?: string
+  /** @deprecated One day per block, before `days`. Used when `days` is empty. */
+  items?: AgendaItem[]
+}
+
+interface SerializedAgendaItem {
+  time: string
+  activity: string
+  additionalInfo?: string
+}
+
+type FieldPath = FieldError['path']
 
 // heading and additionalInfo are CKEditor fields: a line break needs
 // promoting or it's lost or rendered as literal text. additionalInfo renders
@@ -48,30 +68,36 @@ function normalizePlainText(value: string | undefined): string {
   return (looksLikeHtmlField(value) ? htmlToMarkdown(value) : value).trim()
 }
 
-export function serialize(block: AgendaBlock): string {
-  const fieldErrors: FieldError[] = []
-
-  if (!block.items || block.items.length < MIN_ITEMS) {
+/**
+ * Normalizes one list of items, pushing an error for each missing field.
+ * `path` is where the list sits: `['items']` or `['days', n, 'items']`.
+ */
+function serializeItems(
+  items: AgendaItem[] | undefined,
+  path: FieldPath,
+  fieldErrors: FieldError[]
+): SerializedAgendaItem[] {
+  if (!items || items.length < MIN_ITEMS) {
     fieldErrors.push({
-      path: ['items'],
+      path,
       message: `Agenda block requires at least ${MIN_ITEMS} items`
     })
   }
 
-  const items = (block.items ?? []).map((item, index) => {
+  return (items ?? []).map((item, index) => {
     const time = normalizePlainText(item.time)
     const activity = normalizePlainText(item.activity)
     const additionalInfo = normalizeRichText(item.additionalInfo)
 
     if (!time) {
       fieldErrors.push({
-        path: ['items', index, 'time'],
+        path: [...path, index, 'time'],
         message: `Agenda item ${index + 1} is missing a time`
       })
     }
     if (!activity) {
       fieldErrors.push({
-        path: ['items', index, 'activity'],
+        path: [...path, index, 'activity'],
         message: `Agenda item ${index + 1} is missing an activity`
       })
     }
@@ -80,12 +106,52 @@ export function serialize(block: AgendaBlock): string {
       ? { time, activity, additionalInfo }
       : { time, activity }
   })
+}
+
+function serializeDays(days: AgendaDay[], fieldErrors: FieldError[]): string {
+  const serialized = days.map((day, index) => {
+    if (!isCalendarDate(day.date)) {
+      fieldErrors.push({
+        path: ['days', index, 'date'],
+        message: `Agenda day ${index + 1} is missing a date`
+      })
+    }
+    const items = serializeItems(
+      day.items,
+      ['days', index, 'items'],
+      fieldErrors
+    )
+    return { date: day.date ?? '', items }
+  })
+  return ` days={${JSON.stringify(serialized)}}`
+}
+
+/** The single-day shape every agenda had before `days`. */
+function serializeLegacyDay(
+  block: AgendaBlock,
+  fieldErrors: FieldError[]
+): string {
+  const items = serializeItems(block.items, ['items'], fieldErrors)
+  const heading = normalizeHeading(block.heading)
+  const headingAttr = heading ? ` heading={${JSON.stringify(heading)}}` : ''
+  return `${headingAttr} items={${JSON.stringify(items)}}`
+}
+
+export function serialize(block: AgendaBlock): string {
+  // A new block has neither: point the editor at Days, not the legacy list.
+  if (!block.days?.length && !block.items?.length) {
+    throw new SerializerFieldError([
+      { path: ['days'], message: 'Agenda block requires at least one day' }
+    ])
+  }
+
+  const fieldErrors: FieldError[] = []
+  const scheduleAttrs = block.days?.length
+    ? serializeDays(block.days, fieldErrors)
+    : serializeLegacyDay(block, fieldErrors)
 
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  const heading = normalizeHeading(block.heading)
-  const headingAttr = heading ? ` heading={${JSON.stringify(heading)}}` : ''
-  const itemsAttr = ` items={${JSON.stringify(items)}}`
-
-  return `<Agenda${headingAttr}${itemsAttr} />`
+  const introAttr = serializeIntroProp(block.intro)
+  return `<Agenda${introAttr}${scheduleAttrs} />`
 }

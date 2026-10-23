@@ -3,10 +3,30 @@
   "info": {
     "displayName": "Agenda",
     "icon": "calendar",
-    "description": "A schedule with an optional heading and at least two agenda items"
+    "description": "A schedule of one or more days, each with its date and agenda items"
   },
   "options": {},
   "attributes": {
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "days": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.agenda-day",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "heading": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",
@@ -23,8 +43,6 @@
       "type": "component",
       "repeatable": true,
       "component": "blocks.agenda-item",
-      "required": true,
-      "min": 2,
       "pluginOptions": {
         "i18n": {
           "localized": true

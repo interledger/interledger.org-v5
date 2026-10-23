@@ -2673,6 +2673,41 @@ describe('buildPodcastPagePayload', () => {
     expect((payload as Record<string, unknown>).textSection).toBeNull()
   })
 
+  it('sends the title cards intro, and null when the MDX has none', async () => {
+    const withIntro = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      createMdxFile({
+        pathSlug: 'podcast',
+        frontmatter: {
+          ...basePodcastPageFrontmatter,
+          titleCards: {
+            ...basePodcastPageFrontmatter.titleCards,
+            intro: { heading: 'Explore our Featured Series' }
+          }
+        }
+      })
+    )
+    const without = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      createMdxFile({
+        pathSlug: 'podcast',
+        frontmatter: basePodcastPageFrontmatter
+      })
+    )
+
+    const introOf = (payload: unknown) =>
+      (
+        (payload as Record<string, unknown>).titleCards as Record<
+          string,
+          unknown
+        >
+      ).intro
+    expect(introOf(withIntro)).toEqual({
+      heading: 'Explore our Featured Series'
+    })
+    expect(introOf(without)).toBeNull()
+  })
+
   it('sends purple when the ctaStrip does not set a colour', async () => {
     const mdx = createMdxFile({
       pathSlug: 'podcast',

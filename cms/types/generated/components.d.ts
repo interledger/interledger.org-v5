@@ -3,11 +3,17 @@ import type { Schema, Struct } from '@strapi/strapi'
 export interface BlocksAgenda extends Struct.ComponentSchema {
   collectionName: 'components_blocks_agendas'
   info: {
-    description: 'A schedule with an optional heading and at least two agenda items'
+    description: 'A schedule of one or more days, each with its date and agenda items'
     displayName: 'Agenda'
     icon: 'calendar'
   }
   attributes: {
+    days: Schema.Attribute.Component<'blocks.agenda-day', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     heading: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -15,6 +21,36 @@ export interface BlocksAgenda extends Struct.ComponentSchema {
           preset: 'defaultMarkdown'
         }
       > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    items: Schema.Attribute.Component<'blocks.agenda-item', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksAgendaDay extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_agenda_days'
+  info: {
+    description: 'One day of an agenda: its date and at least two scheduled items'
+    displayName: 'Agenda Day'
+    icon: 'calendar'
+  }
+  attributes: {
+    date: Schema.Attribute.Date &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1503,6 +1539,7 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
     columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Three'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -2022,6 +2059,7 @@ declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
       'blocks.agenda': BlocksAgenda
+      'blocks.agenda-day': BlocksAgendaDay
       'blocks.agenda-item': BlocksAgendaItem
       'blocks.blockquote': BlocksBlockquote
       'blocks.callout-text': BlocksCalloutText

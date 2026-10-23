@@ -18,6 +18,8 @@ import {
   heroFrontmatter
 } from './mdx'
 import { ctaStripColorMdxFields } from './ctaStrip'
+import { normalizeBlockIntroForMdx } from './blockIntro'
+import type { BlockIntroInput } from './contentTypes'
 
 export interface PodcastPageCtaStrip {
   heading?: string
@@ -37,6 +39,7 @@ export interface PodcastPageTitleCard {
 }
 
 export interface PodcastPageTitleCardGrid {
+  intro?: BlockIntroInput | null
   columns: 'Three' | 'Two'
   ariaLabel: string
   titleCards: PodcastPageTitleCard[]
@@ -62,7 +65,9 @@ export interface PodcastPageInput {
 }
 
 function titleCardsFrontmatter(grid: PodcastPageTitleCardGrid) {
+  const intro = normalizeBlockIntroForMdx(grid.intro)
   return {
+    ...(intro ? { intro } : {}),
     columns: grid.columns,
     ariaLabel: grid.ariaLabel,
     cards: grid.titleCards.map((card) => ({

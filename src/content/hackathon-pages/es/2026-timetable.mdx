@@ -7,61 +7,64 @@ localizes: '/2026-timetable/'
 ---
 
 <Agenda
-  heading={'Viernes 16 de octubre'}
-  items={[
-    { time: '08:30 - 10:00', activity: 'Registro y desayuno' },
-    { time: '10:00 - 10:30', activity: 'Ceremonia de bienvenida' },
+  days={[
     {
-      time: '10:30 - 10:45',
-      activity: 'Sesión informativa para los jueces',
-      additionalInfo:
-        'Los jueces se quedan en el auditorio para una sesión informativa'
+      date: '2026-10-16',
+      items: [
+        { time: '08:30 - 10:00', activity: 'Registro y desayuno' },
+        { time: '10:00 - 10:30', activity: 'Ceremonia de bienvenida' },
+        {
+          time: '10:30 - 10:45',
+          activity: 'Sesión informativa para los jueces',
+          additionalInfo:
+            'Los jueces se quedan en el auditorio para una sesión informativa'
+        },
+        {
+          time: '10:30 - 14:00',
+          activity: 'Sesión 1: Hacking',
+          additionalInfo:
+            'Los participantes salen del auditorio y empiezan a hackear.'
+        },
+        { time: '14:00 - 15:00', activity: 'Comida' },
+        { time: '15:00 - 17:30', activity: 'Sesión 2: Hacking' },
+        { time: '17:30 - 18:00', activity: 'Salidas' }
+      ]
     },
     {
-      time: '10:30 - 14:00',
-      activity: 'Sesión 1: Hacking',
-      additionalInfo:
-        'Los participantes salen del auditorio y empiezan a hackear.'
-    },
-    { time: '14:00 - 15:00', activity: 'Comida' },
-    { time: '15:00 - 17:30', activity: 'Sesión 2: Hacking' },
-    { time: '17:30 - 18:00', activity: 'Salidas' }
-  ]}
-/>
-
-<Agenda
-  heading={'Sábado 17 de octubre'}
-  items={[
-    { time: '07:00 - 08:00', activity: 'Registro y desayuno' },
-    { time: '08:00 - 11:00', activity: 'Sesión 3: Hacking' },
-    {
-      time: '11:00',
-      activity: 'Entrega y evaluación',
-      additionalInfo:
-        'Todo el código final se debe enviar a los repositorios públicos de GitHub. Los videos de demostración y las presentaciones deben subirse a la carpeta del equipo antes de las 11:00. Revisión del código de cada proyecto.'
-    },
-    {
-      time: '11:00 - 11:50',
-      activity: 'Práctica de presentaciones',
-      additionalInfo:
-        'Los participantes se dirigen al auditorio para ensayar sus presentaciones. Momento de networking en la planta baja, donde se servirán refrigerios.'
-    },
-    {
-      time: '11:50',
-      activity:
-        'Equipos vuelvan a sus salas para la primera ronda de evaluación'
-    },
-    { time: '12:00 - 13:00', activity: 'Ronda 1 Evaluación' },
-    { time: '13:00 - 14:30', activity: 'Comida' },
-    {
-      time: '14:30 - 15:30',
-      activity: 'Se anuncian los finalistas. Evaluación de la segunda ronda'
-    },
-    { time: '15:30 - 16:30', activity: 'Networking y refrigerio' },
-    {
-      time: '16:30 - 17:30',
-      activity: 'Anuncio de los ganadores y ceremonia de clausura'
-    },
-    { time: '17:30 - 18:00', activity: 'Salidas' }
+      date: '2026-10-17',
+      items: [
+        { time: '07:00 - 08:00', activity: 'Registro y desayuno' },
+        { time: '08:00 - 11:00', activity: 'Sesión 3: Hacking' },
+        {
+          time: '11:00',
+          activity: 'Entrega y evaluación',
+          additionalInfo:
+            'Todo el código final se debe enviar a los repositorios públicos de GitHub. Los videos de demostración y las presentaciones deben subirse a la carpeta del equipo antes de las 11:00. Revisión del código de cada proyecto.'
+        },
+        {
+          time: '11:00 - 11:50',
+          activity: 'Práctica de presentaciones',
+          additionalInfo:
+            'Los participantes se dirigen al auditorio para ensayar sus presentaciones. Momento de networking en la planta baja, donde se servirán refrigerios.'
+        },
+        {
+          time: '11:50',
+          activity:
+            'Equipos vuelvan a sus salas para la primera ronda de evaluación'
+        },
+        { time: '12:00 - 13:00', activity: 'Ronda 1 Evaluación' },
+        { time: '13:00 - 14:30', activity: 'Comida' },
+        {
+          time: '14:30 - 15:30',
+          activity: 'Se anuncian los finalistas. Evaluación de la segunda ronda'
+        },
+        { time: '15:30 - 16:30', activity: 'Networking y refrigerio' },
+        {
+          time: '16:30 - 17:30',
+          activity: 'Anuncio de los ganadores y ceremonia de clausura'
+        },
+        { time: '17:30 - 18:00', activity: 'Salidas' }
+      ]
+    }
   ]}
 />

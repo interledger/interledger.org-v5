@@ -84,6 +84,25 @@ describe('validateContentBlocks', () => {
     expect(err).toBeUndefined()
   })
 
+  it('accepts an agenda block with dated days', () => {
+    const err = validateContentBlocks([
+      {
+        __component: 'blocks.agenda',
+        days: [
+          {
+            date: '2026-10-16',
+            items: [
+              { time: '8:30 am', activity: 'Registration' },
+              { time: '9:30 am', activity: 'Welcome' }
+            ]
+          }
+        ]
+      }
+    ])
+
+    expect(err).toBeUndefined()
+  })
+
   it('rejects incomplete agenda items with field-level paths', () => {
     const err = validateContentBlocks([
       {

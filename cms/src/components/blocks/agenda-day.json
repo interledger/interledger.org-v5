@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_blocks_agenda_days",
+  "info": {
+    "displayName": "Agenda Day",
+    "icon": "calendar",
+    "description": "One day of an agenda: its date and at least two scheduled items"
+  },
+  "options": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "items": {
+      "type": "component",
+      "repeatable": true,
+      "component": "blocks.agenda-item",
+      "required": true,
+      "min": 2,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}
