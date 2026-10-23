@@ -9,6 +9,7 @@ import type { StrapiApp } from '@strapi/admin/strapi-admin'
 // and throws `ckeditor-duplicated-modules`.
 import {
   PasteFromMarkdownExperimental,
+  type ClipboardInputTransformationEvent,
   type Editor,
   type HeadingOption
 } from 'ckeditor5'
@@ -28,16 +29,7 @@ import {
   prepareHtmlForMarkdown,
   restoreSoftBreaks
 } from './markdownRoundTrip'
-
-// Minimal clipboard callback types for the Google Docs paste cleanup plugin.
-interface CKEditorDataTransfer {
-  getData(format: string): string
-}
-
-interface CKEditorInsertionData {
-  dataTransfer: CKEditorDataTransfer
-  content: unknown
-}
+import { keepPastedImageAlt, uploadPastedDataImages } from './pastedImages'
 
 // Strapi document IDs: lowercase alphanumeric, typically 24 chars
 const DOC_ID_PATTERN = /^[a-z0-9]{20,26}$/
@@ -90,12 +82,16 @@ const markdownPresetNoH1: Preset = {
       // instead of producing real list items. This plugin parses pasted
       // plain-text/markdown content into real CKEditor content on paste.
       PasteFromMarkdownExperimental,
+      // Runs at inputTransformation, ahead of ImageUpload, so the images in
+      // the cleaned HTML still go through the upload. It used to replace the
+      // content at contentInsertion, after ImageUpload, which kept pasted
+      // images as inline base64.
       function cleanGoogleDocsOnPaste(editor: Editor) {
         const clipboardPlugin = editor.plugins.get('ClipboardPipeline')
 
-        clipboardPlugin.on(
-          'contentInsertion',
-          (evt: unknown, data: CKEditorInsertionData) => {
+        clipboardPlugin.on<ClipboardInputTransformationEvent>(
+          'inputTransformation',
+          (_evt, data) => {
             const htmlContent = data.dataTransfer.getData('text/html')
 
             if (
@@ -113,17 +109,14 @@ const markdownPresetNoH1: Preset = {
                 // Remove meta tags
                 .replace(/<meta[^>]*>/gi, '')
 
-              // Parse the cleaned HTML and insert it
-              const viewFragment = editor.data.processor.toView(cleanedHtml)
-              const modelFragment = editor.data.toModel(viewFragment)
-
-              // Replace the content that would be inserted
-              data.content = modelFragment
+              data.content = editor.data.processor.toView(cleanedHtml)
             }
           },
           { priority: 'high' }
         )
       },
+      uploadPastedDataImages,
+      keepPastedImageAlt,
       // Preserve markdown footnotes ([^1] refs and [^1]: definitions) through
       // the editor's markdown round-trip. The GFM processor otherwise turns
       // them into plain links + an ordered list, which serialize back as dead
