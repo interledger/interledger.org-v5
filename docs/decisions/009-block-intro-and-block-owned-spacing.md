@@ -57,7 +57,7 @@ All designs are in the [ILF New Design](https://www.figma.com/design/Tjtpc6NlHgu
 ### How spacing ownership works
 
 - **Tokens.** `src/styles/base/variables.css` defines `--intro-top`, `--intro-h2-pt`, `--intro-h2-h3`, `--intro-h3-pt`, `--intro-h3-desc`, `--intro-desc`, `--block-pb` and `--media-pt`, per breakpoint, from the existing spacing tokens. They are declared on `:root` and again on every `[data-intro-variant]`, so a nested block starts from the defaults. Variants override only what differs ([A1](#a1-intro-every-block)).
-- **Intro.** `src/components/shared/BlockIntro.astro` renders a `<header>` with the h2, h3 and description. Each spacer is padding on the element above it, so it disappears with that element. An empty intro renders nothing.
+- **Intro.** `src/components/shared/BlockIntro.astro` renders a `<header>` with the h2, h3 and description. Each spacer is padding on the element above it, so it disappears with that element. An empty intro renders the default block spacer (`data-intro-spacer`, `--intro-empty`), sized only inside a block that owns its spacing.
 - **Block.** `[data-intro-variant]` gets `padding-block-end: var(--block-pb)` (`components/block-intro.css`). At the end of the prose that padding drops, like the trailing margins today.
 - **Mixed pages (transitional).** A legacy element before an intro block keeps only `--block-pb` below it. A legacy element after one takes `--space-section − --block-pb` above it. Both rules reach across the `<script>` Astro emits after a component, and CTAs apply the same rule through a utility. On desktop, with a heading in the intro, every pair of blocks therefore stays 120 apart. These rules are deleted once every block owns its spacing.
 
@@ -134,14 +134,14 @@ Variant overrides:
 
 Rules:
 
-- An intro with all three fields empty renders nothing, not even the top spacer.
+- An intro with all three fields empty renders the **default block spacer** instead: an empty element **20 / 30 / 60** high (mobile / tablet / desktop), Figma's min height on the intro (corrected 2026-10-23, Anca's #800 review; this rule first said it rendered nothing). A block without an intro therefore sits pb + spacer below the block above: **44 / 62 / 100**. 30 is off the spacing scale; it is Figma's value.
 - Heading is always `<h2>` and Subheading always `<h3>`. Visual size stays tied to the level.
 - An intro with only a subheading renders it as `<h3>`, never promoted to `<h2>`. The editor decides the content and is told about the skipped level (designer, 2026-10-16). The same goes for a Paragraph that starts with an H3.
 - The description is rich text: paragraphs, links and bold.
 
 #### A2. Block padding-bottom (every block, including Paragraph)
 
-**24 / 32 / 40**, confirmed by design. This is the minimum spacing a block owns even when it has no intro.
+**24 / 32 / 40**, confirmed by design. A block without an intro also keeps the default block spacer at its top ([A1](#a1-intro-every-block)).
 
 Gap between two blocks, from the end of one block's content to the next block's H2 text: pb + top spacer + H2 pt = **72 / 96 / 120**. Desktop equals today's `--space-section` (120).
 
@@ -321,7 +321,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 **Negative / costs**
 
 - Every block needs a schema change, serializer, sync handler, component change and a content migration. Legacy `title`/`heading` fields live alongside `intro` until each migration has run on staging and production.
-- During the rollout, mixed pages depend on transitional CSS, and `SELF_SPACED_BLOCKS` must be kept in step with the components by hand. A few edge cases differ from the target. A fake-intro Paragraph before an intro block gives 128 on desktop, and an intro block with an empty intro sits 40 below a legacy one.
+- During the rollout, mixed pages depend on transitional CSS, and `SELF_SPACED_BLOCKS` must be kept in step with the components by hand. A few edge cases differ from the target. A fake-intro Paragraph before an intro block gives 128 on desktop.
 - The paragraph spec changes visible spacing on every rich-text page. For example, p → p becomes 48 on desktop, up from 32.
 - Under the hero the gap becomes 0, and the first block supplies its own top. The templates' current gap below the hero or bare H1 (for example `mb-2xl tablet:mb-3xl` on the hero-less H1) has to go, or it stacks on that top.
 
