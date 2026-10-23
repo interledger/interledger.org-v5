@@ -44,7 +44,8 @@ import {
   DEV_BUILD_ID,
   createServerStatusHandler,
   readAdminBuildId,
-  resolveAdminIndexHtmlPath
+  resolveAdminIndexHtmlPath,
+  type GetModel
 } from './utils'
 import {
   validateContentBlocks,
@@ -385,6 +386,7 @@ interface StrapiInstance {
     use: (middleware: DocumentValidationMiddleware) => void
   }
   log: StrapiLogger
+  getModel: GetModel
   dirs: { static: { public: string } }
   db?: {
     lifecycles?: {
@@ -2440,11 +2442,16 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Auto-correct relative-link slashes (href-like and path-segment
-        // fields are stored as /path/) and strip the CMS origin CKEditor
-        // prefixes onto upload URLs, before any validation below runs.
+        // Store every link in its relative form before any validation below
+        // runs: link and slug fields as /path/, our own site's origins
+        // (any environment) stripped, and the CMS origin CKEditor prefixes
+        // onto upload URLs stripped. See documentLinks.ts.
         if (!NAV_UIDS.has(ctx.uid)) {
-          normalizeRelativeLinksInDocumentData(ctx.params.data)
+          ctx.params.data = await normalizeRelativeLinksInDocumentData(
+            ctx.params.data,
+            strapi.getModel(ctx.uid),
+            (uid) => strapi.getModel(uid)
+          )
         }
 
         // Drop inactive card-grid variant arrays before schema/business

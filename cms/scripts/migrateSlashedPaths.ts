@@ -25,7 +25,10 @@ const FRONTMATTER = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/
 
 const SLUG_KEYS = ['pathSlug', 'localizes']
 
-/** Frontmatter keys an editor fills with a link (see `HREF_LIKE_FIELDS`). */
+/**
+ * Frontmatter keys an editor fills with a link (see `HREF_LIKE_FIELDS` in
+ * `cms/src/utils/documentLinks.ts`).
+ */
 const LINK_KEYS = [
   'href',
   'link',

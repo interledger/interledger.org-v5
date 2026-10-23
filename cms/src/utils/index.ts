@@ -398,8 +398,14 @@ export {
   toSlashedPath,
   toSlashedSlug,
   mapOutsideMarkdownCode,
-  normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
-  stripUploadOriginsInText
+  stripSiteOriginsInText,
+  stripUploadOriginsInText,
+  toStoredHref,
+  toStoredUrl
 } from './relativeLinks'
+export {
+  normalizeRelativeLinksInDocumentData,
+  type GetModel
+} from './documentLinks'

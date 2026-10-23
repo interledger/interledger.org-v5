@@ -23,6 +23,8 @@ describe('getNewTabLinkAttrs', () => {
     'https://www.interledger.org',
     'HTTPS://WWW.INTERLEDGER.ORG/blog',
     'https://www.interledger.org.',
+    'https://staging.interledger.org/about-us',
+    'https://playground--interledger-org-v5.netlify.app/about-us',
     '//interledger.org/about-us',
     '/about-us',
     'about-us',
