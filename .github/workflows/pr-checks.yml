@@ -223,6 +223,17 @@ jobs:
           echo "every content entry below will report as 'would create', not 'would update' — that's expected."
           pnpm run sync:mdx:dry-run
 
+      # The images dry-run is left out: this Strapi starts empty, so it would
+      # list every file. redirects.json is checked by the cms suite, which
+      # needs no Strapi.
+      - name: Run navigation sync in dry-run mode
+        working-directory: cms
+        env:
+          STRAPI_URL: http://localhost:1337
+        run: |
+          export STRAPI_API_TOKEN=$(cat .ci-api-token)
+          pnpm run sync:navigation:dry-run
+
       - name: Stop ephemeral Strapi
         if: always()
         working-directory: cms

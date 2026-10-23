@@ -1,7 +1,14 @@
 import type { ProfilePageBase } from '../../api/profile-page/types'
+import {
+  introWithLegacyHeading,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble, escSingle } from '../shared'
 
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  /** @deprecated Legacy heading; exported as `intro.heading` until removed. */
   heading?: string
   profiles?: ProfilePageBase[]
   category?: string
@@ -11,14 +18,14 @@ export function serialize(block: {
     .filter((profile) => profile?.pathSlug)
     .map((profile) => `'${escSingle(profile.pathSlug)}'`)
 
-  const headingAttr = block.heading
-    ? ` heading="${escDouble(block.heading)}"`
-    : ''
+  const introAttr = serializeIntroProp(
+    introWithLegacyHeading(block.intro, block.heading)
+  )
   const pathSlugsAttr =
     pathSlugs.length > 0 ? ` pathSlugs={[${pathSlugs.join(',')}]}` : ''
   const categoryAttr =
     block.category && pathSlugs.length === 0
       ? ` category="${escDouble(block.category)}"`
       : ''
-  return `<ProfileGrid${headingAttr}${pathSlugsAttr}${categoryAttr} />`
+  return `<ProfileGrid${introAttr}${pathSlugsAttr}${categoryAttr} />`
 }

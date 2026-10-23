@@ -103,7 +103,7 @@ export const ui = {
       'If you want to stay updated with all open opportunities and news from the Interledger Foundation, you can subscribe to our',
     'blog.community.github': 'GitHub',
     'blog.community.newsletter': 'newsletter',
-    'blog.community.slack': 'community slack',
+    'blog.community.slack': 'community Slack',
     'blog.community.call': 'community call',
     'blog.categories.engineering': 'Engineering',
     'blog.categories.grantmaking': 'Grantmaking',
@@ -731,7 +731,7 @@ export const ui = {
     'animatedNetwork.problem.video_title':
       'El problema que estamos resolviendo (video)',
     'pillarsSection.heading':
-      'Imaginamos un mundo donde el dinero se mueve con libertad y la oportunidad llega con él.',
+      'Creemos en un mundo donde el dinero se mueve con libertad y la oportunidad le sigue.',
     'pillarsSection.card1_title': 'Construimos la Tecnología',
     'pillarsSection.card1_description':
       'Custodiamos estándares abiertos y construimos infraestructura para que los sistemas financieros se conecten una vez y se integren con muchos.',

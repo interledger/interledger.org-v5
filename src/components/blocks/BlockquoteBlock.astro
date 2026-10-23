@@ -1,17 +1,23 @@
 ---
 /**
- * Blockquote Block for Dynamic Zones (SSR Preview)
- * Passes quote as slot content; Blockquote.astro handles source markdown parsing
+ * Blockquote block: the shared Blockquote inside the block frame (ADR-009).
+ * The Strapi preview passes `quote`; MDX passes the quote as children, which
+ * reach Blockquote.astro through the slot. Blockquote.astro parses `source`.
  */
 
 import Blockquote from '@/components/shared/Blockquote.astro'
+import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
 
 interface Props {
-  quote: string
+  intro?: BlockIntroData | null
+  quote?: string
   source?: string
 }
 
-const { quote, source } = Astro.props
+const { intro, quote, source } = Astro.props
 ---
 
-<Blockquote quote={quote} source={source} />
+<IntroBlockFrame component="Blockquote" intro={intro}>
+  <Blockquote quote={quote} source={source}><slot /></Blockquote>
+</IntroBlockFrame>

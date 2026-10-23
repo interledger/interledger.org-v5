@@ -12,6 +12,8 @@
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
+import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import {
   buildUmamiAttrs,
   isExternalHref,
@@ -25,6 +27,7 @@ interface StrapiMedia {
 }
 
 interface Props {
+  intro?: BlockIntroData | null
   /** Plain quote text from Strapi; omitted when MDX supplies children. */
   quote?: string
   authorName?: string
@@ -34,7 +37,8 @@ interface Props {
   umamiContext?: string
 }
 
-const { quote, authorName, authorImage, authorLink, umamiContext } = Astro.props
+const { intro, quote, authorName, authorImage, authorLink, umamiContext } =
+  Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -88,87 +92,88 @@ const authorTypeClasses =
 const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link`
 ---
 
-<figure
-  data-component="quote"
-  data-umami-component="quote"
-  class="my-2xl border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl"
->
-  {authorAbove && <figcaption class="mb-sm flex items-center gap-md">
-    {image && (
-      <OptimizedImage
-        src={image.src}
-        alt={image.alt}
-        width={44}
-        height={44}
-        class="size-[44px] shrink-0 rounded-full object-cover"
-        loading="lazy"
-      />
-    )}
-    {authorName &&
-      (safeAuthorLink ? (
-        <a
-          href={safeAuthorLink}
-          class={authorLinkClasses}
-          rel={
-            isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
-          }
-          target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
-          {...quoteAuthorUmamiAttrs(authorName)}
-        >
-          <span>{authorName}</span>
-          <Icon
-            name="link-rounded"
-            class="size-5 shrink-0 text-current"
-            aria-hidden="true"
-          />
-          {isExternalHref(safeAuthorLink) && <span class="sr-only"
-            >{t('quote.external_link')}</span
-          >}
-        </a>
-      ) : (
-        <cite class:list={['not-italic', authorTypeClasses]}>
-          {authorName}
-        </cite>
-      ))}
-    {!authorName && safeAuthorLink && <a
-      href={safeAuthorLink}
-      class={authorLinkClasses}
-      rel={isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined}
-      target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
-      aria-label={t('quote.author_link_label')}
-      {...quoteAuthorUmamiAttrs(undefined, t('quote.author_link_label'))}
-    >
-      <Icon
-        name="link-rounded"
-        class="size-5 shrink-0 text-current"
-        aria-hidden="true"
-      />
-    </a>}
-  </figcaption>}
-
-  <blockquote
-    class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg"
+<IntroBlockFrame component="Quote" intro={intro} umamiContext={umamiContext}>
+  <figure
+    data-umami-component="quote"
+    class="border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl"
   >
-    {
-      // String prop: keep marks in the same text run. Slot (MDX): children are
-      // often block <p>s — use CSS ::before/::after on first/last child so the
-      // marks stay inline and don't become separate paragraphs.
-      quote != null && quote !== '' ? (
-        <p class="m-0">{`“${quote}”`}</p>
-      ) : (
-        <div class="quote-slot">
-          <slot />
-        </div>
-      )
-    }
-  </blockquote>
+    {authorAbove && <figcaption class="mb-sm flex items-center gap-md">
+      {image && (
+        <OptimizedImage
+          src={image.src}
+          alt={image.alt}
+          width={44}
+          height={44}
+          class="size-[44px] shrink-0 rounded-full object-cover"
+          loading="lazy"
+        />
+      )}
+      {authorName &&
+        (safeAuthorLink ? (
+          <a
+            href={safeAuthorLink}
+            class={authorLinkClasses}
+            rel={
+              isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined
+            }
+            target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+            {...quoteAuthorUmamiAttrs(authorName)}
+          >
+            <span>{authorName}</span>
+            <Icon
+              name="link-rounded"
+              class="size-5 shrink-0 text-current"
+              aria-hidden="true"
+            />
+            {isExternalHref(safeAuthorLink) && <span class="sr-only"
+              >{t('quote.external_link')}</span
+            >}
+          </a>
+        ) : (
+          <cite class:list={['not-italic', authorTypeClasses]}>
+            {authorName}
+          </cite>
+        ))}
+      {!authorName && safeAuthorLink && <a
+        href={safeAuthorLink}
+        class={authorLinkClasses}
+        rel={isExternalHref(safeAuthorLink) ? 'noopener noreferrer' : undefined}
+        target={isExternalHref(safeAuthorLink) ? '_blank' : undefined}
+        aria-label={t('quote.author_link_label')}
+        {...quoteAuthorUmamiAttrs(undefined, t('quote.author_link_label'))}
+      >
+        <Icon
+          name="link-rounded"
+          class="size-5 shrink-0 text-current"
+          aria-hidden="true"
+        />
+      </a>}
+    </figcaption>}
 
-  {authorBelow && <figcaption class="mt-0">
-    <p class:list={['m-0', authorTypeClasses]}>
-      – <cite class="not-italic font-normal">{authorName}</cite>
-    </p>
-  </figcaption>}
-</figure>
+    <blockquote
+      class="quote-body m-0 border-0 p-0 text-h5 tablet:text-h5-md desktop:text-h5-lg"
+    >
+      {
+        // String prop: keep marks in the same text run. Slot (MDX): children are
+        // often block <p>s — use CSS ::before/::after on first/last child so the
+        // marks stay inline and don't become separate paragraphs.
+        quote != null && quote !== '' ? (
+          <p class="m-0">{`“${quote}”`}</p>
+        ) : (
+          <div class="quote-slot">
+            <slot />
+          </div>
+        )
+      }
+    </blockquote>
+
+    {authorBelow && <figcaption class="mt-0">
+      <p class:list={['m-0', authorTypeClasses]}>
+        – <cite class="not-italic font-normal">{authorName}</cite>
+      </p>
+    </figcaption>}
+  </figure>
+</IntroBlockFrame>
 
 <style>
   /*

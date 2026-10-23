@@ -16,7 +16,9 @@ import {
   buildSectionEntryBreadcrumbs,
   formatDate,
   getSectionPageLayout,
-  getGatedCollection
+  getGatedCollection,
+  hasReportIntro,
+  getReportNavSections
 } from '@/utils'
 
 interface Props {
@@ -25,14 +27,6 @@ interface Props {
   section: SiteSection
   isFallback?: boolean
 }
-
-// Section headings are authored as markdown `##` inside <ReportSection> (see
-// report-section.serializer.ts), so Astro's own heading collector picks them
-// up — this is the only depth that maps to a report section's own heading.
-const REPORT_SECTION_HEADING_DEPTH = 2
-// Auto-generated sr-only "Footnotes" landmark (depth 2, fixed id) — not an
-// authored section, so it must be excluded from the nav.
-const FOOTNOTES_HEADING_ID = 'footnote-label'
 
 const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
@@ -53,22 +47,15 @@ const { title, heading, description, date, authorBios } = entry.data
 const hasBody = Boolean(entry.body?.trim())
 const bioTextEntries = authorBios?.filter((bio) => bio.text) ?? []
 const hasAuthorBios = bioTextEntries.length > 0
-// generateReportMdx/reportIntroHandler guarantee <ReportIntro> is always the
-// leading element when present — see ReportIntro.astro's comment for why
-// this offsets SectionsNav's grid row below.
-const hasIntro = Boolean(entry.body?.trim().startsWith('<ReportIntro'))
+// See ReportIntro.astro's comment for why this offsets SectionsNav's grid row
+// below.
+const hasIntro = hasReportIntro(entry.body)
 // Drives whether the references-relocation target/script render at all —
 // the ReportSection itself stays a normal row in the nav column; only its
 // <ReportText type="References"> child gets moved client-side (see the
 // <script> below) into the full-width slot near the footnotes.
 const hasReferencesSection = Boolean(entry.body?.includes('type="References"'))
-const sections = headings
-  .filter(
-    (h) =>
-      h.depth === REPORT_SECTION_HEADING_DEPTH &&
-      h.slug !== FOOTNOTES_HEADING_ID
-  )
-  .map((h) => ({ id: h.slug, heading: h.text }))
+const sections = getReportNavSections(entry.body, headings)
 
 const breadcrumbs = buildSectionEntryBreadcrumbs(
   entry.data.pathSlug,

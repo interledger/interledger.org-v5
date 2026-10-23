@@ -49,7 +49,7 @@ describe('LogoCarousel handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.carousel',
-        heading: 'In partnership with',
+        intro: { heading: 'In partnership with' },
         accessibilityLabel: 'Our Partners',
         logos: [{ image: 12, alternativeText: 'Plata' }]
       }

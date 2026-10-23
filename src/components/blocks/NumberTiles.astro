@@ -10,10 +10,14 @@
 // desktop; a 5th+ tile wraps to a new row, left-aligned (grid auto-placement's
 // default behavior, no extra CSS needed).
 import StatCard from '@/components/shared/StatCard.astro'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import {
   buildNumberTileAriaLabel,
   formatStatNumber,
-  parseStatNumber
+  blockIntroA11y,
+  parseStatNumber,
+  resolveBlockIntro
 } from '@/utils'
 
 interface Tile {
@@ -25,15 +29,15 @@ interface Tile {
 }
 
 interface Props {
+  intro?: BlockIntroData | null
+  /** @deprecated Legacy heading, rendered as the intro heading. */
   title?: string
   tiles: Tile[]
 }
 
 const { tiles } = Astro.props
-const title = Astro.props.title?.trim() || undefined
-const titleId = title
-  ? `number-tiles-heading-${crypto.randomUUID()}`
-  : undefined
+const intro = resolveBlockIntro(Astro.props.intro, Astro.props.title)
+const { headingId } = blockIntroA11y(intro, 'number-tiles')
 
 // Number tiles use the h2 heading scale (56px at desktop), smaller than
 // StatsSection's homepage h1. Suffix steps down one type size and sits
@@ -48,15 +52,10 @@ const LABEL_CLASS = 'text-left text-neutral-75 dark:text-neutral-0'
 <section
   data-component="NumberTiles"
   data-umami-component="number-tiles"
-  aria-labelledby={titleId}
-  class:list={[title && 'flex flex-col gap-block-heading']}
+  data-intro-variant="universal"
+  aria-labelledby={headingId}
 >
-  {title && titleId && <h2
-    id={titleId}
-    class="m-0 text-neutral-900 dark:text-neutral-0"
-  >
-    {title}
-  </h2>}
+  <BlockIntro intro={intro} headingId={headingId} />
   <ul
     role="list"
     class="m-0 grid list-none grid-cols-2 gap-x-xl gap-y-xl p-0 desktop:grid-cols-4"

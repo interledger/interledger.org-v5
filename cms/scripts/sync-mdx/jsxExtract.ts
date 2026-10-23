@@ -11,6 +11,11 @@ import type { RootContent } from 'mdast'
 import type { MdxJsxAttribute } from 'mdast-util-mdx-jsx'
 import type { JsxBlockNode } from './mdxBlockParser'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
+import {
+  BLOCK_INTRO_FIELDS,
+  type BlockIntroField,
+  type SerializedBlockIntro
+} from '../../src/utils/contentTypes'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -673,6 +678,98 @@ export function getStaticLiteralAttr(
   }
 
   return evaluateStaticLiteral(expression, meta)
+}
+
+// ---------------------------------------------------------------------------
+// Block intro
+// ---------------------------------------------------------------------------
+
+const BLOCK_INTRO_FIELD_SET: ReadonlySet<string> = new Set(BLOCK_INTRO_FIELDS)
+
+function isBlockIntroField(key: string): key is BlockIntroField {
+  return BLOCK_INTRO_FIELD_SET.has(key)
+}
+
+/**
+ * Extract the `intro` prop that `serializeIntroProp` writes: a static object
+ * with optional `heading`, `subheading` and `description` strings. Values are
+ * trimmed and empty ones dropped, so the result maps straight onto the
+ * `shared.block-intro` component.
+ *
+ * Returns `undefined` when the prop is absent and `null` when it is present
+ * with every field empty. A handler passes either on as `intro: null`, so
+ * removing an intro from the MDX clears it in Strapi.
+ *
+ * An unknown key throws rather than being dropped, so a typo such as `title`
+ * fails the sync instead of losing the author's text on the next export.
+ *
+ * @example
+ * ```ts
+ * // <Faq intro={{"heading":"Questions","description":"Ask **us**."}} />
+ * getIntroAttr(node)  // → { heading: 'Questions', description: 'Ask **us**.' }
+ * ```
+ */
+export function getIntroAttr(
+  node: JsxBlockNode
+): SerializedBlockIntro | null | undefined {
+  const value = getStaticLiteralAttr(node, 'intro')
+  if (value === undefined) return undefined
+
+  const invalid = (message: string) =>
+    new MdxParserError({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      message: `Prop "intro" ${message}`,
+      component: node.name ?? undefined,
+      prop: 'intro',
+      line: node.position?.start.line,
+      column: node.position?.start.column
+    })
+
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw invalid(
+      'must be an object with optional heading, subheading and description.'
+    )
+  }
+
+  const intro: SerializedBlockIntro = {}
+  for (const [key, fieldValue] of Object.entries(value)) {
+    if (!isBlockIntroField(key)) {
+      throw invalid(
+        `has an unknown key "${key}". Allowed keys: ${BLOCK_INTRO_FIELDS.join(', ')}.`
+      )
+    }
+    if (fieldValue === null || fieldValue === undefined) continue
+    if (typeof fieldValue !== 'string') {
+      throw invalid(`field "${key}" must be a string.`)
+    }
+    const text = fieldValue.trim()
+    if (text) intro[key] = text
+  }
+
+  return Object.keys(intro).length > 0 ? intro : null
+}
+
+/**
+ * The intro of a block that still accepts its legacy heading attribute
+ * (`title=` or `heading=`, until Phase 4 of INTORG-1154). An `intro` prop
+ * wins; without one, a non-blank legacy value becomes the intro heading.
+ * Returns `null` when there is no intro; the handler then leaves the field
+ * out, like any other empty optional field.
+ *
+ * @example
+ * ```ts
+ * // <NumberTiles title="Overview" tiles={…} />
+ * getIntroWithLegacyHeading(node, 'title')  // → { heading: 'Overview' }
+ * ```
+ */
+export function getIntroWithLegacyHeading(
+  node: JsxBlockNode,
+  legacyAttr: string
+): SerializedBlockIntro | null {
+  const intro = getIntroAttr(node)
+  if (intro !== undefined) return intro
+  const legacyHeading = getStringAttr(node, legacyAttr)?.trim()
+  return legacyHeading ? { heading: legacyHeading } : null
 }
 
 // ---------------------------------------------------------------------------

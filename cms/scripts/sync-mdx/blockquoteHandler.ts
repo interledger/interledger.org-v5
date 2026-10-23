@@ -11,7 +11,7 @@
 import { formatBlockquote } from '@/utils'
 import type { ParsedBlock, BlockquoteBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr } from './jsxExtract'
+import { getIntroAttr, getStringAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -48,8 +48,10 @@ async function handleBlockquote(
       })
     }
 
+    const intro = getIntroAttr(node)
     const block: BlockquoteBlock = {
       __component: 'blocks.blockquote',
+      ...(intro ? { intro } : {}),
       quote
     }
 

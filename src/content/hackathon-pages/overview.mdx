@@ -14,7 +14,7 @@ locale: 'en'
 ---
 
 <NumberTiles
-  title="Overview"
+  intro={{ heading: 'Overview' }}
   tiles={[
     { number: '150', suffix: '+', description: 'Builders' },
     { number: '2', suffix: '-Day', description: 'Code Rush' },
@@ -38,7 +38,7 @@ During an Interledger Open Payments Hackathon, you'll take on a real financial c
   mobileSrc="/img/hackathon/2025-hackathon-collection-mobile.webp"
 />
 
-<EventCard title="Open Payments Hackathon 2026">
+<EventCard intro={{"heading":"Open Payments Hackathon 2026"}}>
 
 <EventWhen title="When?" date="October 16 and 17, 2026" time="2 days" />
 
@@ -62,7 +62,7 @@ breakthrough in payments could start with you.
 
 <HackathonAnimation />
 
-<CardGrid title="Why Participate?" ariaLabel="Reasons to participate" variant="Info" columns="Three">
+<CardGrid intro={{"heading":"Why Participate?"}} ariaLabel="Reasons to participate" variant="Info" columns="Three">
 <InfoCard heading="Build Something Real">
 
 Turn a real financial challenge into a working prototype in 2 days — not an

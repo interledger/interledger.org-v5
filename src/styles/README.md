@@ -302,6 +302,7 @@ Prose styles are layered for flexibility:
 3. **blog.css** - Adds code, spacing for `[data-prose-blog]`
 4. **table.css** - Shared table styles for `[data-prose-blog]` and `[data-prose-faq]`
 5. **summit.css** - Normalizes headings for `[data-prose-summit]`
+6. **report.css** - Shared table and list styles for `[data-prose-report]` (report intro and body)
 
 ### Example Usage
 

@@ -9,7 +9,8 @@ describe('carousel serializer', () => {
       logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
-    expect(result).toContain('heading="In partnership with"')
+    expect(result).toContain('intro={{"heading":"In partnership with"}}')
+    expect(result).not.toContain('heading="')
     expect(result).toContain('accessibilityLabel="Our Partners"')
     expect(result).toContain(
       'logos={[{"name":"Plata","src":"/img/plata.png"}]}'
@@ -59,7 +60,7 @@ describe('carousel serializer', () => {
       logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
     expect(result).toContain('accessibilityLabel="Our Partners"')
   })
 

@@ -33,19 +33,21 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const props = Astro.props
-// List margin/padding utilities live on paragraphClasses/disclaimerClasses,
-// not here — they'd otherwise beat footnotes.css's own list/counter layout
-// (Tailwind's utilities layer always wins over footnotes.css's `@layer
-// components` rules regardless of source order) for the References branch,
-// which relies on footnotes.css alone to look like a real footnote list.
+// List margins live on the Paragraph and Disclaimer wrappers (blockSpacingClasses
+// and `[data-prose-report]`), not here. Here they would beat footnotes.css's
+// own list/counter layout (Tailwind's utilities layer always wins over
+// footnotes.css's `@layer components` rules regardless of source order) for
+// the References branch, which relies on footnotes.css alone to look like a
+// real footnote list.
 const sharedClasses = `
 px-lg [&_*:last-child]:mb-0
-text-body-lg-standard [&_:is(p,a,li)]:text-body-lg-standard
+text-body-lg-standard [&_:is(p,a,li):not(:where(th,td)_*)]:text-body-lg-standard
 tablet:px-0
 `
-const listSpacingClasses = `[&_:is(p,ol,ul,a,h3,h4,h5,h6)]:mb-xl [&_li]:mb-md`
-const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,li,a)]:text-h5 tablet:p-xl tablet:[&_:is(p,li,a)]:text-h5-md desktop:[&_:is(p,li,a)]:text-h5-lg ${listSpacingClasses}`
-const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutral-75 [&_thead_th]:text-body-sm-emphasis desktop:[&_thead_th]:text-body-lg-emphasis ${listSpacingClasses}`
+// Table and list styles come from `[data-prose-report]` (prose/report.css),
+// which ReportIntro shares.
+const blockSpacingClasses = `[&_:is(p,a,h3,h4,h5,h6)]:mb-xl`
+const disclaimerClasses = `p-lg text-h5 text-neutral-150 rounded-3xl border border-neutral-75 bg-ice-indigo-100 [&_:is(p,ul,ol)]:m-0 [&_:is(p,li)]:text-neutral-150 [&_:is(p,a,li):not(:where(th,td)_*)]:text-h5 tablet:p-xl tablet:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-md desktop:[&_:is(p,a,li):not(:where(th,td)_*)]:text-h5-lg ${blockSpacingClasses}`
 ---
 
 {props.type === 'Button' ? (
@@ -80,6 +82,7 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
     {props.type === 'Disclaimer' ? (
       <div
         data-report-text="disclaimer"
+        data-prose-report
         role="note"
         aria-label={t('report.disclaimer_label')}
         class={disclaimerClasses}
@@ -91,7 +94,11 @@ const paragraphClasses = `[&_table]:w-full [&_:is(th,td)]:p-md [&_th]:text-neutr
         <slot />
       </div>
     ) : (
-      <div data-report-text="paragraph" class={paragraphClasses}>
+      <div
+        data-report-text="paragraph"
+        data-prose-report
+        class={blockSpacingClasses}
+      >
         <slot />
       </div>
     )}

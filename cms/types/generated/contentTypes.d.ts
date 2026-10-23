@@ -1633,7 +1633,7 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
         {
-          preset: 'basicMarkdownPreset'
+          preset: 'defaultMarkdown'
         }
       > &
       Schema.Attribute.SetPluginOptions<{

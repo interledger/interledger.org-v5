@@ -81,13 +81,13 @@ Early arrival for speakers.
 `
     const blocks = await parseMdxToBlocks(mdx, ctx)
     const block = blocks[0] as {
-      title?: string
+      intro?: { heading?: string }
       when: { text?: string }
       where: { text?: string }
       apply: { text?: string; title?: string }
     }
 
-    expect(block.title).toBe('Upcoming')
+    expect(block.intro).toEqual({ heading: 'Upcoming' })
     expect(block.when.text).toContain('Early arrival for speakers.')
     expect(block.where.text).toContain('Main hall only.')
     expect(block.apply.text).toContain('Please read the guidelines first.')

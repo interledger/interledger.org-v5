@@ -1,4 +1,12 @@
+import {
+  introWithLegacyHeading,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
+
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  /** @deprecated Legacy heading; exported as `intro.heading` until removed. */
   title?: string
   tiles?: {
     number?: string
@@ -33,9 +41,10 @@ export function serialize(block: {
     }
   })
 
-  const title = block.title?.trim()
-  const titleAttr = title ? ` title=${JSON.stringify(title)}` : ''
+  const introAttr = serializeIntroProp(
+    introWithLegacyHeading(block.intro, block.title)
+  )
   const tilesAttr = ` tiles={${JSON.stringify(tileItems)}}`
 
-  return `<NumberTiles${titleAttr}${tilesAttr} />`
+  return `<NumberTiles${introAttr}${tilesAttr} />`
 }

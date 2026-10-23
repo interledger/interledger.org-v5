@@ -1,0 +1,81 @@
+---
+title: 'Web Monetization in the Agentic Age'
+description: 'Web Monetization in the Agentic Age. What is Web Monetization and how does it work? How does Web Monetization compare to x402 and the Machine Payments Protocol? What problems does Web Monetization solve in the Agentic Age?'
+date: 2026-10-22
+pathSlug: /web-monetization-in-the-agentic-age/
+draft: true
+featured: false
+locale: en
+featureImage: '/uploads/img/original/Web_Monetization_Agentic_Age_25d56b43c2.jpg'
+featureImageBlur: 'data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAAAQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQAALfEXLowAA/uMmiffURedoLQlAfq0mkXn/qqnr9Xllr7R8elnmVC66oAAA'
+articleBios:
+  - author: 'Sabine Schaller'
+    text: |
+      Sabine is Chief Technology Officer at the Interledger Foundation, where she leads work on open standards including the Interledger Protocol, Open Payments, and Web Monetization. She has grown within the organization from Engineering Lead to CTO, shaping how these technologies are built and adopted. With a background spanning research, consulting, and startup leadership, she brings a systems-level perspective to her work, with a long-standing interest in data ownership and the Internet of Value.
+    image: '/uploads/img/original/Sabine_Schaller_CTO_675e2e06c7.jpeg'
+    imageAlt: 'Sabine Schaller'
+categories:
+  - 'Interledger Technology'
+relatedArticles:
+  - '/web-monetization-open-payments-part-3-sending-money/'
+  - '/web-isnt-free/'
+  - '/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time/'
+---
+
+<Paragraph>
+
+In 2019, [Web Monetization](/tech/web-monetization/) emerged as the first use case for the [Interledger Protocol](/tech/interledger-protocol/). The idea was simple: while consuming content, a user’s browser or browser extension would stream micropayments to the creators of or contributors to a website without the user having to actively give consent for each payment. All the user had to do was set up some daily or monthly limit and the technology would do the rest. 
+
+And all the site had to include was a piece of code: first a script, later a meta tag, and in its newest iteration, a link tag. No heavy coding involved but a simple way to signal to the world “I’m accepting payments.” 
+
+The world has changed a lot since 2019. Over time, the dependence on the Interledger Protocol was dropped from the Web Monetization specification. And while we are still browsing the web, we do so less and less. Instead, many of us have personal agents now that browse on our behalf. With protocols like [x402](https://x402.org/) and [Machine Payments Protocol](https://mpp.dev/) emerging, is Web Monetization still relevant today? Indeed it is, and here is why. 
+
+## Recap: What is Web Monetization and how does it work?
+
+Web Monetization is a [browser API](https://webmonetization.org/specification/) that allows websites to automatically receive payments from users, facilitated by the user agent (typically a browser or extension) and a user's preferred monetization provider (wallet at a financial service provider or Web Monetization service provider). Notably, the website’s owner cannot set a price for a piece of content. The user decides how much they wish to pay on which terms. This could be a couple of cents per minute on the page or a flat payment when it’s loaded. Consequently, it’s a mechanism for a website to signal that it is able to accept payments. 
+
+Web Monetization is enabled by the website owner by adding a monetization link tag to their website’s HTML, which looks something like this
+
+</Paragraph>
+
+<CodeBlock language="html" code={`<link rel="monetization" href="https://wallet.example.com/alice">`} />
+
+<Paragraph>
+
+The href points to an [Open Payments](/tech/open-payments/) wallet address, which is an endpoint that contains information about how to send a payment to the website’s owner. The user agent will then create an incoming payment on the website owner’s account and start sending payments. It will also emit events on the link tag about the status of the monetization. The website itself may check whether it received payments by listening to these events and checking against the incoming payment URL listed there. It may use this information to display special content to the user but is not required to do so. The website may decide not to act on this information at all. 
+
+Most notably, Web Monetization doesn't ask, "How much does this cost?" It asks, "Is this page eligible for support?" and how much (if anything) flows is entirely up to the user’s own settings. It's closer to an automatic tip jar than a checkout.
+
+## How does Web Monetization compare to x402 and the Machine Payments Protocol?
+
+x402 is an HTTP 402 ("Payment Required")-based protocol [launched by Coinbase in May of 2025](https://www.coinbase.com/developer-platform/discover/launches/x402). It was designed for machine-to-machine payments in stablecoins and allows a server to request payment for a specific resource. The flow is as follows:
+
+1. Client requests a resource
+2. Server returns HTTP response 402 and details about how to pay
+3. Client pays
+4. Client re-requests the resource with proof of payment
+5. Server returns the resource
+
+It is a transactional and required flow. If the client doesn’t pay, it will not get access to the content.  
+
+The Machine Payments Protocol (MPP), co-authored by Stripe and Tempo and [announced in March of 2026](https://stripe.com/blog/machine-payments-protocol), is a payment-method-agnostic evolution of x402 that's interoperable with x402. It follows the same core idea (quoted price, required payment, then access) but supports cards and other rails, not just stablecoins.
+
+x402 and MPP are not the only agentic payment protocols out there. The space of agentic payments has expanded rapidly in 2026, and there's a growing list of adjacent protocols (i.e. AP2 - [Agent Payments Protocol](https://ap2-protocol.org/), ACP - [Agentic Commerce Protocol](https://www.agenticcommerce.dev/), UCP - [Universal Commerce Protocol](https://ucp.dev/)) that handle authorization, discovery, and checkout in the agentic payments and commerce stack.
+
+Worth mentioning, though: MPP's payment-method-agnosticism doesn't guarantee that any two parties can actually pay each other. If the receiving side only accepts card payments and the sending side only holds stablecoins, the payment still can't go through. That's an interoperability problem, and it's exactly what Interledger, one of the payment protocols that powers Web Monetization, was built to solve.
+
+Coming back to Web Monetization, it's not a competitor to x402 and MPP but serves a different purpose. x402 and MPP will unlock content for a specific price, whereas Web Monetization merely signals that a website can and will accept payments.
+
+## What problems does Web Monetization solve in the Agentic Age?
+
+Even though we are consuming our content now differently from when Web Monetization was first introduced, the specification still allows for the passive, low-stakes value transfer it was designed for. It’s a use case that is not directly addressed by other protocols.
+
+Web Monetization gives AI agents an unambiguous, machine-readable "this site accepts payments" flag that doesn't require negotiating a price or committing to a transaction before fetching or rendering content. Instead of using a browser or a browser extension, we can use our AI agents to pay for content on our behalf. All we as humans need to do is to equip our AI agents with a budget and clear instructions on how to spend it. Over time, these AI agents may even learn which content we value most and automatically optimize how they spend their budget to reflect our preferences. 
+
+So, is Web Monetization still relevant in the agentic age? Indeed, it is. It solves a problem x402 and MPP were never built to solve, and neither is trying to replace the other. They can all coexist without stepping on each other's toes.
+
+Picture an AI agent visiting a publisher's site on your behalf. The page has a monetization link tag, so a few cents stream to the publisher automatically as it loads. No negotiation, no price, just the ambient support your agent's budget was configured to give. Later in that same visit, the agent wants the publisher's premium data feed, which sits behind MPP. This time there's a quoted price and a required payment before it gets anything back. Same page, same agent, two different kinds of payment happening side by side.
+
+That's the actual answer to "is Web Monetization still relevant." It's the layer that allows us to quietly support what we value, without a transaction attached to every single interaction, even as software does more of the browsing for us. x402 and MPP are the layers that make it possible to charge a set price when a set price is owed. An agentic web doesn't have to pick between free, supported, and paid. It just needs protocols that together support all these models. Increasingly, it has them.
+
+</Paragraph>

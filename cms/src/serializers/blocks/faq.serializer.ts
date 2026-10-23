@@ -2,12 +2,22 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
   ckeditorFieldToCompiledMarkdown,
+  introWithLegacyHeading,
+  serializeIntroProp,
+  type BlockIntroInput,
   type FieldError
 } from '../../utils'
 
 interface FaqItem {
   question?: string
   answer?: string
+}
+
+interface FaqBlock {
+  intro?: BlockIntroInput | null
+  /** @deprecated Legacy heading; exported as `intro.heading` until removed. */
+  heading?: string
+  items?: FaqItem[]
 }
 
 /**
@@ -35,12 +45,9 @@ function validateFaqItem(item: FaqItem, index: number): FieldError[] {
 /**
  * Validate the whole block. Returns every failing field across the block and
  * all of its questions, so an editor can fix everything in one pass.
- * `heading` is optional and is deliberately not checked.
+ * The intro (and the legacy `heading`) are optional and not checked.
  */
-function validateFaq(block: {
-  heading?: string
-  items?: FaqItem[]
-}): FieldError[] {
+function validateFaq(block: FaqBlock): FieldError[] {
   // Strapi's `required`/`min` constraints aren't enforced at save time
   if (!Array.isArray(block.items) || block.items.length === 0) {
     return [
@@ -54,17 +61,14 @@ function validateFaq(block: {
   return block.items.flatMap(validateFaqItem)
 }
 
-export function serialize(block: {
-  heading?: string
-  items?: FaqItem[]
-}): string {
+export function serialize(block: FaqBlock): string {
   const fieldErrors = validateFaq(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
   // Validation above guarantees items and their fields are present from here on.
-  const headingAttr = block.heading?.trim()
-    ? ` heading="${esc(block.heading.trim())}"`
-    : ''
+  const introAttr = serializeIntroProp(
+    introWithLegacyHeading(block.intro, block.heading)
+  )
 
   const items = block.items.map((item) => {
     // `answer` is a CKEditor field: usually already markdown, but convert
@@ -80,5 +84,5 @@ export function serialize(block: {
     return `<FaqItem question="${esc(item.question.trim())}">\n\n${answer}\n\n</FaqItem>`
   })
 
-  return `<Faq${headingAttr}>\n\n${items.join('\n\n')}\n\n</Faq>`
+  return `<Faq${introAttr}>\n\n${items.join('\n\n')}\n\n</Faq>`
 }

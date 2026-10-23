@@ -109,6 +109,8 @@ const gridColsClass = hasMedia
 
 const columnClass = 'w-full min-w-0'
 const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
+// Same 24px corner as VideoEmbed, which fills this column for a video block.
+const mediaImageClass = 'w-full h-auto rounded-3xl object-cover'
 ---
 
 <div
@@ -132,7 +134,7 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
         width={640}
         height={480}
         loading="lazy"
-        class="w-full h-auto rounded-lg object-cover"
+        class={mediaImageClass}
       />
     ) : null}
   </div>}
@@ -196,7 +198,7 @@ const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
         width={640}
         height={480}
         loading="lazy"
-        class="w-full h-auto rounded-lg object-cover"
+        class={mediaImageClass}
       />
     ) : null}
   </div>}

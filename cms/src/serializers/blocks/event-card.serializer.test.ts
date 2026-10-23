@@ -51,7 +51,7 @@ describe('event-card.serializer', () => {
       apply: { ...apply, text: 'A 24h hackathon for students.' }
     })
 
-    expect(mdx).toContain('<EventCard title="Upcoming">')
+    expect(mdx).toContain('<EventCard intro={{"heading":"Upcoming"}}>')
     expect(mdx).toContain('<EventWhen')
     expect(mdx).toContain('Doors open early for speakers.')
     expect(mdx).toContain('</EventWhen>')

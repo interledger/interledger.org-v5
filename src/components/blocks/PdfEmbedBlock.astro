@@ -1,15 +1,25 @@
 ---
 import PdfEmbed from '@/components/shared/PdfEmbed.astro'
+import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+
+// Used two ways: as the MDX `<PdfEmbed url="..." />` entry, which passes `url`,
+// and via DynamicZone, which passes the raw Strapi block (`file` /
+// `externalUrl`).
 
 interface Props {
+  intro?: BlockIntroData | null
+  url?: string
   file?: { url: string }
   externalUrl?: string
   label?: string
 }
 
-const { file, externalUrl, label } = Astro.props
+const { intro, url: urlProp, file, externalUrl, label } = Astro.props
 
-const url = file?.url ?? externalUrl
+const url = urlProp ?? file?.url ?? externalUrl
 ---
 
-{url && <PdfEmbed url={url} label={label} />}
+{url && <IntroBlockFrame component="PdfEmbed" intro={intro}>
+  <PdfEmbed url={url} label={label} />
+</IntroBlockFrame>}

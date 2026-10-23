@@ -122,7 +122,12 @@ const breadcrumbs = showBreadcrumbs
     >
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </HackathonHero>
-    <section class="px-content py-4xl">
+    {/* No top padding when the prose opens with a block that owns its
+      spacing and has an intro: the intro is the gap under the hero
+      (ADR-009, A6). */}
+    <section
+      class="px-content py-4xl [&:has([data-prose]>[data-intro-variant]:first-child>[data-block-intro])]:pt-0"
+    >
       <div class="content-column">
         <div data-prose>
           <MdxContent

@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { describe, expect, it } from 'vitest'
+import redirectsJson from '@site/config/redirects.json'
 import {
   REDIRECT_CATEGORIES,
   normalizeRedirectInput,
@@ -904,6 +905,14 @@ describe('validateAndSaveRedirect', () => {
 
     expect(failed).toBe(dbError)
     expect(next).toBe('saved')
+  })
+})
+
+describe('src/config/redirects.json', () => {
+  // The sync applies these checks before its first write, so a file that
+  // fails here stops sync:redirects on staging.
+  it('passes every check the redirect sync applies to the file', () => {
+    expect(parseRedirectConfigFile(redirectsJson)).not.toBeInstanceOf(Error)
   })
 })
 

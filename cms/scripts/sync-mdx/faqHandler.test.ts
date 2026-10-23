@@ -14,7 +14,21 @@ const faq = (items: string[], attrs = '') =>
   [`<Faq${attrs}>`, ...items, '</Faq>'].join('\n')
 
 describe('Faq handler', () => {
-  it('parses a block with a heading and a single question', async () => {
+  it('parses an intro', async () => {
+    const blocks = await parseMdxToBlocks(
+      faq(
+        [item('What is it?')],
+        ' intro={{"heading":"About us","description":"The basics."}}'
+      ),
+      ctx
+    )
+
+    expect(blocks[0]).toMatchObject({
+      intro: { heading: 'About us', description: 'The basics.' }
+    })
+  })
+
+  it('reads a legacy heading as the intro heading', async () => {
     const blocks = await parseMdxToBlocks(
       faq([item('What is it?')], ' heading="About us"'),
       ctx
@@ -23,15 +37,16 @@ describe('Faq handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.faq',
-        heading: 'About us',
+        intro: { heading: 'About us' },
         items: [{ question: 'What is it?', answer: 'An answer.' }]
       }
     ])
   })
 
-  it('omits heading when the attribute is absent', async () => {
+  it('omits the intro when there is none', async () => {
     const blocks = await parseMdxToBlocks(faq([item('What is it?')]), ctx)
 
+    expect(blocks[0]).not.toHaveProperty('intro')
     expect(blocks[0]).not.toHaveProperty('heading')
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.faq',
