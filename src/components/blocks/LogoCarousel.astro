@@ -122,10 +122,15 @@ const homepagePaddingClasses =
   'px-lg pb-3xl-tight tablet:px-xl desktop:px-5xl desktop:pb-3xl'
 const CONTENT_BLOCK_STYLE = '--block-pb: var(--spacing-3xl-tight)'
 const containerClasses = `
-  max-w-content py-3xl m-auto
-  border-t border-neutral-50
-  dark:border-neutral-75
+  max-w-content pb-3xl m-auto
   flex flex-col gap-block-heading
+`
+// The homepage divides the carousel from the section above. A content block
+// opens on its intro instead, so a divider and top padding there would sit
+// between the intro and the logos.
+const homepageContainerClasses = `
+  pt-3xl border-t border-neutral-50
+  dark:border-neutral-75
 `
 // Deliberate Figma-verified exception: h2 uses the h3 token here.
 const headerClasses = `
@@ -161,7 +166,9 @@ const logoClasses = `
   aria-labelledby={headingId}
 >
   <BlockIntro intro={intro} headingId={headingId} />
-  <div class={containerClasses}>
+  <div
+    class:list={[containerClasses, !isContentBlock && homepageContainerClasses]}
+  >
     {headingText && headingId && <h2 id={headingId} class={headerClasses}>
       {headingText}
     </h2>}
