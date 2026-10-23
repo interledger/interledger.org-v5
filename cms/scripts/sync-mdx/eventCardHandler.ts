@@ -2,7 +2,7 @@
  * EventCard (+ EventWhen / EventWhere / EventApply) handler for MDX → Strapi.
  *
  * Handles:
- * - <EventCard>
+ * - <EventCard intro={{ heading: '…' }}>
  *     <EventWhen title="…" date="…" time="…">optional text</EventWhen>
  *     <EventWhere title="…" location="…">optional text</EventWhere>
  *     <EventApply title="…" buttonText="…" buttonUrl="…" buttonExternal={bool}
@@ -11,7 +11,8 @@
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
  * optional. Optional body text is JSX children on When, Where, and Apply.
- * EventCard `title` and EventApply `title` are optional.
+ * The intro and EventApply `title` are optional. A legacy EventCard `title`
+ * is still read, as the intro heading.
  */
 
 import type {
