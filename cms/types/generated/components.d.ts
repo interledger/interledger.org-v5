@@ -340,6 +340,12 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     primaryButtonDocument: Schema.Attribute.Boolean &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1371,6 +1377,18 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
     icon: 'layout'
   }
   attributes: {
+    buttons: Schema.Attribute.Component<'shared.cta-button', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 2
+        },
+        number
+      >
     content: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -1389,14 +1407,14 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    displayRatio: Schema.Attribute.Enumeration<['1:1', '1:2', '2:1']> &
+    displayRatio: Schema.Attribute.Enumeration<['3:2', '2:1', '1:1', '1:2']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false
         }
       }> &
-      Schema.Attribute.DefaultTo<'2:1'>
+      Schema.Attribute.DefaultTo<'3:2'>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1405,6 +1423,12 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'right'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     layoutType: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.CustomField<'plugin::split-layout-type-picker.layout-type'> &

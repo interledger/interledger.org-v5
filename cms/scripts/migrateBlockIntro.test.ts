@@ -88,6 +88,72 @@ describe('migrateBlockIntro: phase 2a blocks', () => {
   })
 })
 
+describe('migrateBlockIntro: phase 2b blocks', () => {
+  it('leaves the CtaStrip title alone', () => {
+    const source =
+      '<CtaStrip heading="Join us" primaryButtonText="Apply" primaryButtonLink="/apply/" />\n'
+    expect(migrate(source).source).toBeNull()
+  })
+
+  it('turns a SplitLayout single CTA into a button group', () => {
+    const source = [
+      '<SplitLayout',
+      '  imageSrc="/img/a.png"',
+      '  ctaText="Read more"',
+      '  ctaLink="/more/"',
+      '  ctaStyle="secondary"',
+      '  ctaExternal={true}',
+      '>',
+      '',
+      'Body.',
+      '',
+      '</SplitLayout>',
+      ''
+    ].join('\n')
+    const result = migrate(source).source
+    expect(result).toContain(
+      'buttons={[{"text":"Read more","link":"/more/","style":"secondary","external":true}]}'
+    )
+    expect(result).not.toMatch(/cta(Text|Link|Style|External)=/)
+    // Dropped attributes take their line with them.
+    expect(result).toContain('  imageSrc="/img/a.png"\n  buttons={')
+    expect(result).toMatch(/buttons=\{[^\n]*\}\n>/)
+    expect(result).toContain('imageSrc="/img/a.png"')
+  })
+
+  it.each([
+    ['valueless', 'ctaExternal ctaDocument'],
+    ['expression', 'ctaExternal={true} ctaDocument={true}'],
+    ['quoted', 'ctaExternal="true" ctaDocument="true"']
+  ])('keeps %s true flags on the button', (_form, flags) => {
+    const result = migrate(
+      `<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/" ${flags}>\n\nBody.\n\n</SplitLayout>\n`
+    ).source
+    expect(result).toContain('"external":true')
+    expect(result).toContain('"document":true')
+  })
+
+  it('treats a quoted false flag as unset', () => {
+    const result = migrate(
+      '<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/" ctaExternal="false">\n\nBody.\n\n</SplitLayout>\n'
+    ).source
+    expect(result).not.toContain('"external"')
+  })
+
+  it('leaves no space before the closing bracket of a one-line tag', () => {
+    const result = migrate(
+      '<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/">\n\nBody.\n\n</SplitLayout>\n'
+    ).source
+    expect(result).toContain('"style":"primary"}]}>')
+  })
+
+  it('leaves a SplitLayout that already has buttons alone', () => {
+    const source =
+      '<SplitLayout imageSrc="/a.png" buttons={[]} ctaText="Old" ctaLink="/old/">\n\nBody.\n\n</SplitLayout>\n'
+    expect(migrate(source).source).toBeNull()
+  })
+})
+
 describe('migrateBlockIntro: fake intros', () => {
   const fakeIntro = (
     body: string,

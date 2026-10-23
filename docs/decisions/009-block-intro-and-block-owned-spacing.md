@@ -49,8 +49,8 @@ All designs are in the [ILF New Design](https://www.figma.com/design/Tjtpc6NlHgu
 | D3  | **Paragraph spec scope.** The paragraph rules ([A3](#a3-paragraph-block-headings)–[A5](#a5-paragraph-block-media-image--video-table-list)) apply only to `[data-component='Paragraph']`, on every template, blog posts included. Blog posts also use the block frame and intro like any page. Markdown outside a Paragraph block and profile (`.max-w-narrow`) running text are untouched.                                                                                                                                                                                               | Agreed (blog in scope, 2026-10-22) |
 | D4  | **Rollout.** Blocks adopt the intro one at a time, piloting on CardGrid, FAQ and NumberTiles. While pages mix migrated and legacy blocks, transitional rules keep the gap between the two kinds at `--space-section` (see below).                                                                                                                                                                                                                                                                                                                                                        | Agreed                             |
 | D5  | **Agenda days.** Agenda gets `intro` plus a repeatable `days: blocks.agenda-day = { date: date, items: agenda-item[] }`. "Day N" is rendered from the index (an i18n string), not stored. Editors pick the date with Strapi's native date picker. Consecutive per-day Agenda blocks are merged into one by migration.                                                                                                                                                                                                                                                                    | Pending sign-off                   |
-| D6  | **CTA strip.** `heading` moves into `intro.heading`. The strip keeps its own `description` (the in-strip copy) and buttons.                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Proposed                           |
-| D7  | **Split layout.** Split layout gets `intro`. The first column becomes intro + an optional button group (primary + secondary, replacing the single `cta`). The media is always 4:3. The second column holds media, or a list of FAQ accordions, which flips the column widths ([B5](#b5-split-layout-544163402-split-layout-intro)). The FAQ option is new to the Strapi model.                                                                                                                                                                                                           | Pending sign-off                   |
+| D6  | **CTA strip.** The `heading` field is the **CTA strip title** and always renders inside the strip. Like every other block, a page-block CTA strip can also have an optional intro above the strip. Page templates that render a strip themselves (grant, podcast, blog listing) have no intro (`standalone`).                                                                                                                                                                                                                                                                            | Agreed                             |
+| D7  | **Split layout.** Split layout gets `intro` and a button group (primary + optional secondary, replacing the single `cta`). A new `3:2` ratio is the default for new blocks and carries the design: 60/40 columns, a 4:3 image with radius 24, media padding only with buttons. Existing ratios (2:1, 1:1, 1:2) and image positions keep their look. Stacked, the order is always text → buttons → media. The FAQ split is the grant page's FAQ section, not a Split layout option ([B5](#b5-split-layout-544163402-split-layout-intro)).                                                 | Agreed                             |
 | D8  | **Blockquote `source`.** Blockquote keeps its Strapi structure, `source` included, and its current rendering. Only the spacing rules change (designer, 2026-10-16).                                                                                                                                                                                                                                                                                                                                                                                                                      | Agreed                             |
 | D9  | **Spacing only, existing components unchanged.** This work is about spacing consistency between and within sections, around components that are already built and documented. Every block component and every paragraph sub-component (image, table, list) keeps its current implementation. Figma uses them as placeholders to show the spacing, so their drawings are not a restyle (designer, 2026-10-16). The only structural changes are the ones the design asks for explicitly: the intro (D1), the Agenda days (D5), the CTA strip heading (D6) and the Split layout rules (D7). | Agreed                             |
 
@@ -126,12 +126,11 @@ The real distance from the top of the block to the H2 text is the top spacer plu
 
 Variant overrides:
 
-| Variant          | Used by                                                                                                         | Differences from the table above                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda | none                                                              |
-| **Button CTA**   | CTA buttons block                                                                                               | description spacer **0**                                          |
-| **Profile Grid** | Profile Grid                                                                                                    | none; same values as Universal since the latest pass              |
-| **Split layout** | Split layout                                                                                                    | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
+| Variant          | Used by                                                                                                                       | Differences from the table above                                  |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Profile Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda | none                                                              |
+| **Button CTA**   | CTA buttons block                                                                                                             | description spacer **0**                                          |
+| **Split layout** | Split layout                                                                                                                  | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
 
 Rules:
 
@@ -166,7 +165,7 @@ Padding-bottom is **8 / 12 / 16**. Paragraphs inside one container stack with ga
 
 | Above                                   | Mobile | Tablet | Desktop |
 | --------------------------------------- | ------ | ------ | ------- |
-| nothing (block starts with a paragraph) | 60     | 80     | 120     |
+| nothing (block starts with a paragraph) | 20     | 40     | 60      |
 | H2                                      | 24     | 32     | 40      |
 | H3                                      | 16     | 24     | 32      |
 | H4                                      | 12     | 16     | 24      |
@@ -243,7 +242,8 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 - The intro column is top-aligned. A media column is vertically centred; an FAQ column is top-aligned.
 - Media is on the right, and its aspect ratio is **4:3**, the only ratio for now.
-- **FAQ variant** ([`5487:82409`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82409), with CTA [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)): the second column holds the existing FAQ component (D9), unchanged. Only desktop is drawn.
+- **In code** (D7): these rules are the `3:2` display ratio, the default for new blocks. Blocks saved with 2:1, 1:1 or 1:2, or with the image on the left, keep their current look on desktop.
+- **FAQ variant:** the grant page's FAQ section (`GrantFaqSection`, title + subtitle + description + CTA on the left, accordions on the right; e.g. `/grant/education/on-campus/`). It takes the Split layout intro and the 40 / 60 widths; its data model and accordion are unchanged.
 
 **Tablet and mobile:** stacked, in the order **intro → buttons → media**, or **intro → buttons → FAQ** for the FAQ variant.
 
@@ -293,8 +293,9 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 #### B14. CTA strip ([`5474:73965`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-73965))
 
-- **The heading moves out of the strip, into the intro above it** (D6).
-- The strip itself (copy, buttons, background, motif) stays as built.
+- **The CTA strip title** (`heading`) stays inside the strip (D6).
+- An optional intro sits above the strip, as on every other block.
+- The strip itself (title, copy, buttons, background, motif) stays as built.
 
 ---
 

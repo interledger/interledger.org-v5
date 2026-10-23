@@ -727,7 +727,7 @@ export function getIntroAttr(
 
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw invalid(
-      'must be an object with optional heading, subheading and description.'
+      `must be an object with optional ${BLOCK_INTRO_FIELDS.join(', ')}.`
     )
   }
 

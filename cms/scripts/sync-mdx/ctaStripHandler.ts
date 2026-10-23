@@ -3,7 +3,8 @@
  *
  * Handles:
  * - <CtaStrip
- *     heading="…"              (optional)
+ *     intro={{…}}              (optional, above the strip)
+ *     heading="…"              (optional CTA strip title, inside the strip)
  *     primaryButtonText="…"
  *     primaryButtonLink="…"
  *     secondaryButtonText="…"  (optional)
@@ -24,7 +25,7 @@ import {
   type CtaStripBlock
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr } from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getIntroAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -41,6 +42,7 @@ async function handleCtaStrip(
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
+    const intro = getIntroAttr(node)
     const heading = getStringAttr(node, 'heading')
     const primaryButtonText = getStringAttr(node, 'primaryButtonText', {
       required: true
@@ -92,6 +94,7 @@ async function handleCtaStrip(
 
     const block: CtaStripBlock = {
       __component: 'blocks.cta-strip',
+      ...(intro ? { intro } : {}),
       primaryButtonText,
       primaryButtonLink
     }

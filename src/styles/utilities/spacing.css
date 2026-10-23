@@ -59,20 +59,24 @@
    * Content starts right under the hero (ADR-009, A6): when the section after
    * it opens its prose with a block that owns its spacing and has an intro
    * (`[data-block-intro]`, set by BlockIntro), that intro is the whole gap.
-   * A later section, a block without an intro and a legacy first block keep
-   * the stack gap, the last until the Paragraph spacing lands (Phase 3). PageHero emits its
-   * `<script>` as the next sibling, so reach across one.
+   * The intro is the block's own child, or one level down where the block
+   * puts it in a column (SplitLayout). A later section, a block without an
+   * intro and a legacy first block keep the stack gap, the last until the
+   * Paragraph spacing lands (Phase 3). PageHero emits its `<script>` as the
+   * next sibling, so reach across one.
    */
   &
     > :first-child
     + :has(
-      [data-prose] > [data-intro-variant]:first-child > [data-block-intro]
+      [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
+      [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
     ),
   &
     > :first-child
     + script
     + :has(
-      [data-prose] > [data-intro-variant]:first-child > [data-block-intro]
+      [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
+      [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
     ) {
     margin-block-start: 0;
   }

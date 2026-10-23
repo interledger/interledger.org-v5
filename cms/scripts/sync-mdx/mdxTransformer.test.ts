@@ -1114,7 +1114,9 @@ describe('buildGrantPagePayload', () => {
           displayRatio: '2:1',
           media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
-          cta: { text: 'Apply', link: 'https://example.com' }
+          buttons: [
+            { text: 'Apply', link: 'https://example.com', style: 'primary' }
+          ]
         }
       ])
     })
@@ -2033,7 +2035,9 @@ describe('buildGrantOverviewPagePayload', () => {
           displayRatio: '2:1',
           media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
-          cta: { text: 'Apply', link: 'https://example.com' }
+          buttons: [
+            { text: 'Apply', link: 'https://example.com', style: 'primary' }
+          ]
         }
       ])
     })
