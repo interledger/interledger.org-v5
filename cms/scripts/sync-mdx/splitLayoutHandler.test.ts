@@ -63,11 +63,14 @@ describe('SplitLayout handler', () => {
         displayRatio: '2:1',
         media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: null },
         content: 'Some **body** copy.',
-        cta: {
-          text: 'Apply',
-          link: 'https://example.com',
-          external: true
-        }
+        buttons: [
+          {
+            text: 'Apply',
+            link: 'https://example.com',
+            style: 'primary',
+            external: true
+          }
+        ]
       }
     ])
   })
@@ -79,12 +82,11 @@ describe('SplitLayout handler', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      cta: {
-        text: 'Application pack',
-        link: '/uploads/pack.pdf',
-        document: true
-      }
+      buttons: [
+        { text: 'Application pack', link: '/uploads/pack.pdf', document: true }
+      ]
     })
+    expect(blocks[0]).not.toHaveProperty('cta')
   })
 
   it('omits the CTA document flag when ctaDocument is absent', async () => {
@@ -94,9 +96,9 @@ describe('SplitLayout handler', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      cta: { text: 'Apply', link: '/apply' }
+      buttons: [{ text: 'Apply', link: '/apply' }]
     })
-    expect(blocks[0].cta).not.toHaveProperty('document')
+    expect(blocks[0].buttons?.[0]).not.toHaveProperty('document')
   })
 
   it('parses imageAlt into media.alternativeText', async () => {
@@ -200,11 +202,7 @@ describe('SplitLayout handler', () => {
     )
 
     expect(blocks[0]).toMatchObject({
-      cta: {
-        text: 'Learn',
-        link: '/learn',
-        style: 'secondary'
-      }
+      buttons: [{ text: 'Learn', link: '/learn', style: 'secondary' }]
     })
   })
 
@@ -381,5 +379,48 @@ describe('SplitLayout handler — mixed content', () => {
       content: 'Split body.'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
+  })
+})
+
+describe('SplitLayout handler: intro and button group', () => {
+  it('parses the intro, the button group and the 3:2 ratio', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout intro={{"heading":"Heading","subheading":"Sub"}} displayRatio="3:2" imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"Apply","link":"/apply/","style":"primary"},{"text":"More","link":"/more/","style":"secondary"}]} />`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      intro: { heading: 'Heading', subheading: 'Sub' },
+      displayRatio: '3:2',
+      buttons: [
+        { text: 'Apply', link: '/apply/', style: 'primary' },
+        { text: 'More', link: '/more/', style: 'secondary' }
+      ]
+    })
+    expect(blocks[0]).not.toHaveProperty('content')
+  })
+
+  it('prefers the button group over legacy cta attributes', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"New","link":"/new/"}]} ctaText="Old" ctaLink="/old/">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      buttons: [{ text: 'New', link: '/new/', style: 'primary' }]
+    })
+  })
+
+  it('rejects an invalid button group', async () => {
+    const result = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"","link":"/x/"}]}>Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      prop: 'buttons'
+    })
   })
 })

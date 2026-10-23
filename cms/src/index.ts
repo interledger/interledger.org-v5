@@ -1377,8 +1377,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
+      intro: 'Intro',
       color: 'Color',
-      heading: 'Heading',
+      heading: 'CTA strip title',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
       primaryButtonLink: 'Primary Button URL',
@@ -1427,6 +1428,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       poster: 'Cover image'
     },
     'blocks.split-layout': {
+      intro: 'Intro',
+      buttons: 'Buttons',
       layoutType: 'Layout',
       imagePosition: 'Image position',
       displayRatio: 'Display ratio',
@@ -1439,7 +1442,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content',
       quote: 'Quote',
       quoteSource: 'Quote Attribution',
-      cta: 'Call-to-action Button'
+      cta: 'Call-to-action Button (deprecated)'
     },
     'blocks.title-card': {
       heading: 'Heading',
@@ -1472,10 +1475,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
-  // Shared helper text for the block intro (ADR-009) and the legacy heading
-  // fields it replaces until they are removed (INTORG-1154, Phase 4).
-  const BLOCK_INTRO_DESCRIPTION =
-    'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.'
+  // Helper text for the legacy heading fields the block intro (ADR-009)
+  // replaces until they are removed (INTORG-1154, Phase 4). There is none for
+  // `intro` itself, or any other component field (the Split layout `buttons`
+  // and `cta`): Strapi shows a description for scalar fields only.
   const LEGACY_HEADING_DESCRIPTION =
     'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
 
@@ -1498,7 +1501,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save.'
     },
     'blocks.profile-grid': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       heading: LEGACY_HEADING_DESCRIPTION,
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
@@ -1512,7 +1514,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       url: 'A Castopod or YouTube embed link, e.g. https://podcast.interledger.org/@futuremoneypodcast/episodes/example-embed'
     },
     'blocks.image-block': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       tabletImage:
         'Use if your image needs different proportions or cropping on medium-sized screens.',
       mobileImage:
@@ -1531,7 +1532,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
     },
     'blocks.video-embed': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       source:
         'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected; use YouTube for larger videos.',
       externalUrl:
@@ -1559,7 +1559,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
     'blocks.faq': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       heading: LEGACY_HEADING_DESCRIPTION
     },
     'blocks.faq-item': {
@@ -1576,7 +1575,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
       displayRatio:
-        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
+        'Content-to-media width. 3:2 (default) is the current design: 60/40 with a 4:3 image. 2:1 wider content; 1:1 equal columns; 1:2 wider media.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
       quote:
@@ -1604,15 +1603,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'blocks.cta-buttons': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       buttons:
         'One button, or two side by side. On mobile they stack and both go full width.'
-    },
-    'blocks.pdf-embed': {
-      intro: BLOCK_INTRO_DESCRIPTION
-    },
-    'blocks.blockquote': {
-      intro: BLOCK_INTRO_DESCRIPTION
     },
     'shared.block-intro': {
       heading: 'Optional. The block title, shown as an H2.',
@@ -1647,11 +1639,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.number-tiles': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       title: LEGACY_HEADING_DESCRIPTION
     },
     'blocks.card-grid': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       title: LEGACY_HEADING_DESCRIPTION,
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
@@ -1670,7 +1660,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       heading: LEGACY_HEADING_DESCRIPTION,
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
@@ -1692,7 +1681,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       title: LEGACY_HEADING_DESCRIPTION,
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
@@ -1716,7 +1704,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     },
+    // `intro` is a component field, so Strapi shows no hint for it: it sits
+    // above the strip in page blocks and is unused on grant, grant overview
+    // and podcast pages.
     'blocks.cta-strip': {
+      heading: 'Optional. Shown inside the strip, above the description.',
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
@@ -1733,7 +1725,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.quote': {
-      intro: BLOCK_INTRO_DESCRIPTION,
       authorLink:
         'Optional. For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     },
@@ -2153,6 +2144,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.cta-strip': [
+      [{ name: 'intro', size: 12 }],
       [
         { name: 'heading', size: 9 },
         { name: 'color', size: 3 }
@@ -2228,6 +2220,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'code', size: 12 }]
     ],
     'blocks.split-layout': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'layoutType', size: 12 }],
       [{ name: 'image', size: 12 }],
       [
@@ -2242,6 +2235,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quote', size: 8 },
         { name: 'quoteSource', size: 4 }
       ],
+      [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
     'blocks.title-card': [

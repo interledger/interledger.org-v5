@@ -5,6 +5,17 @@
  */
 
 /**
+ * Blocks that own their spacing only in some cases, so neither
+ * OWNS_ITS_SPACING nor SELF_SPACED_BLOCKS describes them: CtaButtons with an intro, and SplitLayout with an
+ * intro or the 3:2 design ratio. The preview treats them as legacy blocks,
+ * which is exact for most of them and approximate for the rest.
+ */
+export const CONDITIONALLY_SELF_SPACED: ReadonlySet<string> = new Set([
+  'blocks.cta-buttons',
+  'blocks.split-layout'
+])
+
+/**
  * Blocks that keep their own margin. Only a block that renders in both the
  * preview and an exported MDX page belongs here: in MDX there is no wrapper,
  * so the component's own margin is the only spacing it gets.
@@ -13,9 +24,7 @@
  * stays here rather than in SELF_SPACED_BLOCKS: the preview keeps its usual
  * tight pairing, and is only approximate for a CtaButtons with an intro.
  */
-export const OWNS_ITS_SPACING: ReadonlySet<string> = new Set([
-  'blocks.cta-buttons'
-])
+const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
 
 /**
  * Blocks that render a `BlockIntro` and set `data-intro-variant` on their
@@ -27,6 +36,7 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.blockquote',
   'blocks.card-grid',
   'blocks.carousel',
+  'blocks.cta-strip',
   'blocks.event-card',
   'blocks.faq',
   'blocks.image-block',

@@ -2,7 +2,14 @@
 import Icon from '@/components/shared/Icon.astro'
 import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
-import { parseMarkdown, resolveCtaLink, buildUmamiAttrs } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import {
+  blockIntroA11y,
+  buildUmamiAttrs,
+  normalizeBlockIntro,
+  parseMarkdown,
+  resolveCtaLink
+} from '@/utils'
 import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
 interface FaqItem {
@@ -46,10 +53,9 @@ const faqToggleUmamiAttrs = (question: string) =>
   })
 
 // Whitespace-only values are treated as absent, matching
-// validateGrantPageFaqSection and generateGrantPageMDX — otherwise a " "
-// subtitle renders a blank heading, and a lone trimmed-empty cta half
-// renders a broken button.
-const trimmedSubtitle = subtitle?.trim() || undefined
+// validateGrantPageFaqSection and generateGrantPageMDX — otherwise a lone
+// trimmed-empty cta half renders a broken button. The intro drops a blank
+// subtitle itself.
 const trimmedCtaText = ctaText?.trim() || undefined
 const trimmedCtaLink = ctaLink?.trim() || undefined
 
@@ -75,61 +81,62 @@ const renderedItems = await Promise.all(
   }))
 )
 
+// The FAQ split (ADR-009, B5): the section's title, subtitle and description
+// are its intro, in the Split layout variant.
+const intro = normalizeBlockIntro({
+  heading: title,
+  subheading: subtitle,
+  description
+})
+const { headingId } = blockIntroA11y(intro, 'grant-faq')
+
 // Unique so this grant FAQ doesn't exclusive-close another accordion on
 // the same page when JS is off. initFaqAccordion strips `name`.
 const accordionName = faqAccordionGroupName()
 ---
 
-<div
+{/*
+  The FAQ split (ADR-009, B5): intro and button max 40%, the accordion max
+  60%, 120 apart on desktop; stacked in that order below. Until the grant
+  template lets its sections own their spacing (Phase 2c) the page stack
+  supplies the gaps around this section, so it drops its own: `pb-0` below,
+  and no intro top spacer or heading padding above.
+*/}
+<section
   data-component="GrantFaqSection"
-  class="flex flex-col gap-3xl desktop:flex-row desktop:items-start desktop:gap-6xl"
+  data-intro-variant="split-layout"
+  aria-labelledby={headingId}
+  style="--intro-top: 0px; --intro-h2-pt: 0px"
+  class="flex flex-col gap-3xl pb-0 desktop:grid desktop:grid-cols-[2fr_3fr] desktop:items-start desktop:gap-6xl"
 >
-  <div
-    class="flex flex-col desktop:w-[38%] desktop:shrink-0 desktop:sticky desktop:top-6xl"
-  >
-    <h2 class="my-0 text-neutral-900 dark:text-neutral-0">
-      {title}
-    </h2>
-
-    <div class="mt-xl desktop:mt-3xl">
-      {/* Deliberate Figma-verified exception: h3 uses the h4 token here. */}
-      {trimmedSubtitle && <h3
-        class="text-h4 tablet:text-h4-md desktop:text-h4-lg my-0 text-neutral-900 dark:text-neutral-0"
+  <div class="flex flex-col desktop:sticky desktop:top-6xl">
+    <BlockIntro intro={intro} headingId={headingId} />
+    {trimmedCtaText && trimmedCtaLink && <div class="pt-xl desktop:pt-2xl">
+      <LinkButton
+        href={resolvedCta!.href}
+        variant="secondary"
+        mode="auto"
+        external={resolvedCta!.external}
+        document={resolvedCta!.document}
+        iconSide={resolvedCta!.icon ? 'right' : 'none'}
+        class="w-full mx-auto tablet:w-auto tablet:mx-0"
+        linkText={trimmedCtaText}
+        umamiLabel="button_cta"
+        umamiBaseComponent="faq"
       >
-        {trimmedSubtitle}
-      </h3>}
-      <p
-        class="mt-lg mb-0 text-body-lg-standard text-neutral-75 dark:text-neutral-0"
-      >
-        {description}
-      </p>
-      {trimmedCtaText && trimmedCtaLink && <div class="mt-2xl">
-        <LinkButton
-          href={resolvedCta!.href}
-          variant="secondary"
-          mode="auto"
-          external={resolvedCta!.external}
-          document={resolvedCta!.document}
-          iconSide={resolvedCta!.icon ? 'right' : 'none'}
-          class="w-full mx-auto tablet:w-auto tablet:mx-0"
-          linkText={trimmedCtaText}
-          umamiLabel="button_cta"
-          umamiBaseComponent="faq"
-        >
-          {trimmedCtaText}
-          {resolvedCta!.icon && (
-            <Icon name={resolvedCta!.icon} slot="icon-right" />
-          )}
-        </LinkButton>
-      </div>}
-    </div>
+        {trimmedCtaText}
+        {resolvedCta!.icon && (
+          <Icon name={resolvedCta!.icon} slot="icon-right" />
+        )}
+      </LinkButton>
+    </div>}
   </div>
 
   <!-- Right column. data-faq-hold-position keeps a desktop click from
        dragging the sticky title. Scroll anchoring stays off this column
        only, so the title can still anchor. -->
   <div
-    class="flex flex-1 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-lg"
+    class="flex min-w-0 flex-col gap-lg [overflow-anchor:none] tablet:gap-xl desktop:pt-lg"
     data-faq-accordion
     data-faq-hold-position="true"
   >
@@ -161,7 +168,7 @@ const accordionName = faqAccordionGroupName()
       </FaqAnswerPanel>
     </details>)}
   </div>
-</div>
+</section>
 
 <style>
   :global([data-component='GrantFaqSection'] [data-prose-faq] > :last-child) {

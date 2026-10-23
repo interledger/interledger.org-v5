@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { serialize as serializeBlockquote } from '../../src/serializers/blocks/blockquote.serializer'
 import { serialize as serializeCarousel } from '../../src/serializers/blocks/carousel.serializer'
+import { serialize as serializeSplitLayout } from '../../src/serializers/blocks/split-layout.serializer'
 import { serialize as serializeCtaButtons } from '../../src/serializers/blocks/cta-buttons.serializer'
 import { serialize as serializeImageBlock } from '../../src/serializers/blocks/image-block.serializer'
 import { serialize as serializePdfEmbed } from '../../src/serializers/blocks/pdf-embed.serializer'
@@ -11,6 +12,7 @@ import { serialize as serializeVideoEmbed } from '../../src/serializers/blocks/v
 // Side-effect imports: register the handlers
 import './blockquoteHandler'
 import './carouselHandler'
+import './splitLayoutHandler'
 import './ctaButtonsHandler'
 import './imageBlockHandler'
 import './pdfEmbedHandler'
@@ -115,6 +117,45 @@ describe('block intro round-trip on intro-only blocks', () => {
         intro: { heading: 'In partnership with' }
       })
       expect(blocks[0]).not.toHaveProperty('heading')
+    })
+  })
+
+  describe('SplitLayout', () => {
+    const buttons = [
+      { text: 'Apply', link: '/apply/', style: 'primary' },
+      { text: 'More', link: '/more/', style: 'secondary' }
+    ]
+
+    it('keeps its intro and button group', async () => {
+      const blocks = await parseMdxToBlocks(
+        serializeSplitLayout({
+          intro,
+          layoutType: 'image-text',
+          displayRatio: '3:2',
+          media: { image: { url: '/img/a.png' }, alternativeText: 'A' },
+          buttons
+        }),
+        ctx
+      )
+      expect(blocks[0]).toMatchObject({ intro, displayRatio: '3:2', buttons })
+    })
+
+    it('exports a legacy cta as a one-button group', async () => {
+      const blocks = await parseMdxToBlocks(
+        serializeSplitLayout({
+          layoutType: 'image-text',
+          media: { image: { url: '/img/a.png' } },
+          content: 'Body.',
+          cta: { text: 'Apply', link: '/apply/', external: true }
+        }),
+        ctx
+      )
+      expect(blocks[0]).toMatchObject({
+        buttons: [
+          { text: 'Apply', link: '/apply/', style: 'primary', external: true }
+        ]
+      })
+      expect(blocks[0]).not.toHaveProperty('cta')
     })
   })
 })

@@ -7,6 +7,16 @@
   },
   "options": {},
   "attributes": {
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "layoutType": {
       "type": "customField",
       "customField": "plugin::split-layout-type-picker.layout-type",
@@ -33,10 +43,10 @@
     },
     "displayRatio": {
       "type": "enumeration",
-      "enum": ["1:1", "1:2", "2:1"],
+      "enum": ["3:2", "2:1", "1:1", "1:2"],
       "required": true,
-      "default": "2:1",
-      "description": "Content-to-media column ratio. 1:1 equal columns; 2:1 wider content (default); 1:2 wider media.",
+      "default": "3:2",
+      "description": "Content-to-media column ratio. 3:2 (default) is the current design: 60/40 columns with a 4:3 image. 2:1 wider content; 1:1 equal columns; 1:2 wider media.",
       "pluginOptions": {
         "i18n": {
           "localized": false
@@ -88,6 +98,17 @@
     "quoteSource": {
       "type": "string",
       "description": "Attribution / source for the quote.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "buttons": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.cta-button",
+      "max": 2,
       "pluginOptions": {
         "i18n": {
           "localized": true

@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { OWNS_ITS_SPACING, SELF_SPACED_BLOCKS } from './dynamicZoneSpacing'
+import {
+  CONDITIONALLY_SELF_SPACED,
+  SELF_SPACED_BLOCKS
+} from './dynamicZoneSpacing'
 
 const BLOCKS_DIR = path.resolve(import.meta.dirname, '../../components/blocks')
 const DYNAMIC_ZONE = path.join(BLOCKS_DIR, 'DynamicZone.astro')
@@ -70,7 +73,7 @@ describe('SELF_SPACED_BLOCKS', () => {
     // here would sit an extra --space-section lower in the preview; one
     // listed without the attribute would lose its gap there.
     const selfSpaced = [...files]
-      .filter(([uid]) => !OWNS_ITS_SPACING.has(uid))
+      .filter(([uid]) => !CONDITIONALLY_SELF_SPACED.has(uid))
       .filter(([, file]) => setsIntroVariant(file))
       .map(([uid]) => uid)
       .sort()

@@ -16,7 +16,12 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true,
+      cta: true
+    }
   },
   'blocks.blockquote': { populate: { intro: true } },
   'blocks.callout-text': {},
@@ -31,7 +36,7 @@ const GRANT_BLOCKS = {
       mobileImage: true
     }
   },
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.carousel': {
     populate: { intro: true, logos: { populate: { image: true } } }
   },
@@ -59,7 +64,12 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { items: true }
   },
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true,
+      cta: true
+    }
   },
   'blocks.profile': {
     populate: {
@@ -74,7 +84,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { intro: true, authorImage: true }
   },
   'blocks.callout-text': {},
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.pdf-embed': {
     populate: { intro: true, file: true }
   },
@@ -190,12 +200,17 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { items: true }
     },
     'blocks.split-layout': {
-      populate: { media: { populate: { image: true } }, cta: true }
+      populate: {
+        intro: true,
+        media: { populate: { image: true } },
+        buttons: true,
+        cta: true
+      }
     },
     'blocks.profile-grid': {
       populate: { intro: true, profiles: true }
     },
-    'blocks.cta-strip': {},
+    'blocks.cta-strip': { populate: { intro: true } },
     'blocks.carousel': {
       populate: { intro: true, logos: { populate: { image: true } } }
     },

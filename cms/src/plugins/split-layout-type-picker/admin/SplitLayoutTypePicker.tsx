@@ -238,6 +238,7 @@ function clearIrrelevantFields(
   if (!showText) {
     setFieldValue(`${prefix}.content`, null)
     setFieldValue(`${prefix}.cta`, null)
+    setFieldValue(`${prefix}.buttons`, [])
   }
   if (!showQuote) {
     setFieldValue(`${prefix}.quote`, null)

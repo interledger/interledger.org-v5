@@ -1,15 +1,47 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
-import LinkButton from '@/components/shared/LinkButton.astro'
-import Icon from '@/components/shared/Icon.astro'
 import Blockquote from '@/components/shared/Blockquote.astro'
-import { resolveCtaLink } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import CtaButtons from '@/components/blocks/CtaButtons.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import { blockIntroA11y, normalizeBlockIntro, parseMarkdown } from '@/utils'
 
-/** Content-to-media column ratio (admin labels). Astro maps these to grid `fr` tracks. */
-export type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
+/**
+ * Content-to-media column ratio (admin labels). Astro maps these to grid `fr`
+ * tracks. 3:2 is the current design (ADR-009, B5): 60/40 columns, a 4:3 image
+ * with radius 24, and paragraph-media padding around the image when there are
+ * buttons. The older ratios keep their original look.
+ */
+export type SplitLayoutDisplayRatio = '3:2' | '2:1' | '1:1' | '1:2'
+
+interface SplitLayoutButton {
+  text: string
+  link: string
+  style?: 'primary' | 'secondary'
+  external?: boolean
+  document?: boolean
+}
+
+/** The raw Strapi shapes DynamicZone passes in the draft preview. */
+interface StrapiMedia {
+  image?: { url?: string; alternativeText?: string | null } | null
+  alternativeText?: string | null
+}
+
+interface StrapiCta {
+  text?: string
+  link?: string
+  style?: string
+  external?: boolean
+  document?: boolean
+}
 
 interface Props {
+  /** Block intro (ADR-009), above the two columns like every block's. */
+  intro?: BlockIntroData | null
+  /** Button group under the text: one button, or primary + secondary. */
+  buttons?: SplitLayoutButton[] | null
   layoutType?: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   /** Which side the image or video column appears on. Default: right. */
   imagePosition?: 'left' | 'right'
@@ -30,9 +62,15 @@ interface Props {
   ctaStyle?: string
   ctaExternal?: boolean
   ctaDocument?: boolean
+  /** Preview only: the Strapi media component (MDX passes imageSrc). */
+  media?: StrapiMedia | null
+  /** Preview only: the Strapi rich text (MDX passes it as children). */
+  content?: string | null
+  /** Preview only: the legacy Strapi CTA component (MDX passes ctaText…). */
+  cta?: StrapiCta | null
 }
 
-const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
+const DISPLAY_RATIOS = ['3:2', '2:1', '1:1', '1:2'] as const
 
 /**
  * Full class strings so Tailwind can detect them at build time. The split
@@ -40,16 +78,19 @@ const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
  * two columns plus the 120px gutter leave each side too narrow on a tablet.
  */
 const GRID_COLS_BY_ORDER_AND_RATIO = {
-  // media column first in the DOM (imagePosition=left)
+  // media in the first grid column (imagePosition=left; `desktop:order-first`)
   left: {
+    // content:media 3:2 → media 2fr, content 3fr
+    '3:2': 'desktop:grid-cols-[2fr_3fr]',
     '1:1': 'desktop:grid-cols-2',
     // content:media 2:1 → media 1fr, content 2fr
     '2:1': 'desktop:grid-cols-[1fr_2fr]',
     // content:media 1:2 → media 2fr, content 1fr
     '1:2': 'desktop:grid-cols-[2fr_1fr]'
   },
-  // content column first in the DOM (imagePosition=right)
+  // content in the first grid column (imagePosition=right)
   right: {
+    '3:2': 'desktop:grid-cols-[3fr_2fr]',
     '1:1': 'desktop:grid-cols-2',
     '2:1': 'desktop:grid-cols-[2fr_1fr]',
     '1:2': 'desktop:grid-cols-[1fr_2fr]'
@@ -60,11 +101,13 @@ const GRID_COLS_BY_ORDER_AND_RATIO = {
 >
 
 const {
+  intro: introProp,
+  buttons: buttonsProp,
   layoutType,
   imagePosition = 'right',
   displayRatio: displayRatioProp,
-  imageSrc,
-  imageAlt,
+  imageSrc: imageSrcProp,
+  imageAlt: imageAltProp,
   videoUrl,
   quote,
   quoteSource,
@@ -72,20 +115,52 @@ const {
   ctaLink,
   ctaStyle,
   ctaExternal,
-  ctaDocument
+  ctaDocument,
+  media,
+  content,
+  cta
 } = Astro.props
 
-// Icon by link kind (INTORG-938). Before this the block showed `arrow-right`
-// when the link was external, which is the rule inverted. An internal link
-// still shows nothing: the arrow-on-internal rule covers components an editor
-// picks, and this CTA belongs to a page template (Sarah, INTORG-907, 2026-08-09).
-const resolvedCta = ctaLink
-  ? resolveCtaLink({
-      url: ctaLink,
-      external: ctaExternal,
-      document: ctaDocument
-    })
-  : null
+// MDX passes flat props and children; the Strapi draft preview passes the raw
+// block (DynamicZone spreads it), so read its media, rich text and CTA too.
+const imageSrc = imageSrcProp ?? media?.image?.url ?? undefined
+const imageAlt =
+  imageAltProp ??
+  media?.alternativeText ??
+  media?.image?.alternativeText ??
+  undefined
+const previewBodyHtml =
+  !Astro.slots.has('default') && content
+    ? await parseMarkdown(content, {
+        pathname: Astro.url.pathname,
+        lang: Astro.locals.routeLocale
+      })
+    : ''
+
+const intro = normalizeBlockIntro(introProp)
+const { headingId } = blockIntroA11y(intro, 'split-layout')
+
+// The button group, or a legacy single CTA as a one-button group.
+const legacyCta: StrapiCta = cta ?? {
+  text: ctaText,
+  link: ctaLink,
+  style: ctaStyle,
+  external: ctaExternal,
+  document: ctaDocument
+}
+const legacyCtaButtons: SplitLayoutButton[] =
+  legacyCta.text && legacyCta.link
+    ? [
+        {
+          text: legacyCta.text,
+          link: legacyCta.link,
+          style: legacyCta.style === 'secondary' ? 'secondary' : 'primary',
+          external: legacyCta.external,
+          document: legacyCta.document
+        }
+      ]
+    : []
+const buttons = buttonsProp?.length ? buttonsProp : legacyCtaButtons
 
 // Unknown ratios fall back to 2:1 here; sync handler/serializer hard-fail instead.
 const displayRatio: SplitLayoutDisplayRatio =
@@ -107,99 +182,87 @@ const gridColsClass = hasMedia
   ? GRID_COLS_BY_ORDER_AND_RATIO[mediaFirst ? 'left' : 'right'][displayRatio]
   : 'desktop:grid-cols-1'
 
+const isDesignRatio = displayRatio === '3:2'
+const hasButtons = !isQuoteLayout && buttons.length > 0
+// A block with an intro or the design ratio owns its spacing (ADR-009). The
+// existing ratios without an intro keep the prose section rhythm, so pages
+// built before the redesign keep their gaps (D7).
+const ownsSpacing = Boolean(intro) || isDesignRatio
+
 const columnClass = 'w-full min-w-0'
-const contentColumnClass = `${columnClass} flex flex-col gap-2xl`
-// Same 24px corner as VideoEmbed, which fills this column for a video block.
-const mediaImageClass = 'w-full h-auto rounded-3xl object-cover'
+const contentColumnClass = `${columnClass} flex flex-col`
+// The text column always comes first in the DOM, so the reading and focus
+// order match the stacked layout (text, buttons, media). Media on the left
+// moves to the first grid column on desktop only.
+const mediaColumnClass = [columnClass, mediaFirst && 'desktop:order-first']
+  .filter(Boolean)
+  .join(' ')
+const imageClass = isDesignRatio
+  ? 'w-full aspect-[4/3] rounded-3xl object-cover'
+  : 'w-full h-auto rounded-3xl object-cover'
 ---
 
-<div
+{/*
+  The intro sits above the two columns, as on every other block (Anca,
+  #800 review, 2026-10-22). The columns are centred on each other on
+  desktop.
+*/}
+<section
   data-component="SplitLayout"
-  class:list={[
-    'flex flex-col gap-3xl desktop:grid desktop:items-center desktop:gap-6xl',
-    gridColsClass
-  ]}
+  data-intro-variant={ownsSpacing ? 'universal' : undefined}
+  aria-labelledby={headingId}
 >
-  {mediaFirst && hasMedia && <div class={columnClass}>
-    {isVideoLayout && videoUrl ? (
-      <VideoEmbed
-        url={videoUrl}
-        title={imageAlt?.trim() || 'Video'}
-        poster={imageSrc}
-      />
-    ) : imageSrc ? (
-      <OptimizedImage
-        src={imageSrc}
-        alt={imageAlt ?? ''}
-        width={640}
-        height={480}
-        loading="lazy"
-        class={mediaImageClass}
-      />
-    ) : null}
-  </div>}
-
-  <div class={contentColumnClass}>
-    {isQuoteLayout && quote ? (
-      <Blockquote quote={quote} source={quoteSource} />
-    ) : (
-      <>
-        <div class="[&>*:last-child]:mb-0">
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[
+      'flex flex-col desktop:grid desktop:items-center desktop:gap-6xl',
+      // Stacked, the design ratio leaves the paragraph media gap between
+      // text and media; the older ratios keep theirs.
+      isDesignRatio ? 'gap-xl tablet:gap-2xl' : 'gap-3xl',
+      gridColsClass
+    ]}
+  >
+    <div class={contentColumnClass}>
+      {isQuoteLayout && quote ? (
+        <Blockquote quote={quote} source={quoteSource} />
+      ) : previewBodyHtml ? (
+        <div
+          class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+          set:html={previewBodyHtml}
+        />
+      ) : (
+        <div class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
           <slot />
         </div>
-        {ctaText && resolvedCta && <div>
-          {/*
-                `mode="auto"` because this block renders on foundation (light)
-                as well as on the two permanently dark microsites. Without it
-                the secondary falls back to `light`, whose `text-neutral-100`
-                label measures 1.10:1 on the hackathon's `neutral-150` page and
-                is effectively invisible (INTORG-1072).
+      )}
+      {hasButtons && <div class="pt-xl desktop:pt-2xl">
+        {/*
+            CtaButtons with `spacing="none"`: the group sits inside this
+            column, not in the prose flow, so it takes none of its pairing
+            margins. Its buttons use `mode="auto"`, which keeps the secondary
+            readable on the dark microsites (INTORG-1072).
+          */}
+        <CtaButtons buttons={buttons} spacing="none" />
+      </div>}
+    </div>
 
-                `iconSide` is explicit because LinkButton otherwise infers it
-                from `Astro.slots.has('icon-right')`, which reports true even
-                when the slot holds a falsy conditional and renders nothing.
-                An icon-less button then keeps the with-icon padding and its
-                label sits 8px off centre.
-              */}
-          <LinkButton
-            href={resolvedCta.href}
-            variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
-            mode="auto"
-            external={resolvedCta.external}
-            document={resolvedCta.document}
-            iconSide={resolvedCta.icon ? 'right' : 'none'}
-            linkText={ctaText}
-            umamiLabel="button_cta"
-            umamiBaseComponent={
-              ctaStyle === 'secondary' ? 'secondary_cta' : 'primary_cta'
-            }
-          >
-            {ctaText}
-            {resolvedCta.icon && (
-              <Icon name={resolvedCta.icon} slot="icon-right" />
-            )}
-          </LinkButton>
-        </div>}
-      </>
-    )}
+    {hasMedia && <div class={mediaColumnClass}>
+      {isVideoLayout && videoUrl ? (
+        <VideoEmbed
+          url={videoUrl}
+          title={imageAlt?.trim() || 'Video'}
+          poster={imageSrc}
+        />
+      ) : imageSrc ? (
+        <OptimizedImage
+          src={imageSrc}
+          alt={imageAlt ?? ''}
+          width={640}
+          height={480}
+          loading="lazy"
+          class={imageClass}
+        />
+      ) : null}
+    </div>}
   </div>
-
-  {!mediaFirst && hasMedia && <div class={columnClass}>
-    {isVideoLayout && videoUrl ? (
-      <VideoEmbed
-        url={videoUrl}
-        title={imageAlt?.trim() || 'Video'}
-        poster={imageSrc}
-      />
-    ) : imageSrc ? (
-      <OptimizedImage
-        src={imageSrc}
-        alt={imageAlt ?? ''}
-        width={640}
-        height={480}
-        loading="lazy"
-        class={mediaImageClass}
-      />
-    ) : null}
-  </div>}
-</div>
+</section>

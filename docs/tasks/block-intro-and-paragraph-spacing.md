@@ -85,6 +85,24 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
   - `FundraisingPage` maps none of these blocks, though its schema allows them.
   - The root `page-preview.astro` doesn't populate image, video or PDF media.
 
+**Phase 2b status (2026-10-20).** D6 and D7 agreed. CTA strip, Split layout and the grant FAQ section are done.
+
+- **CTA strip:** `heading` is the CTA strip title, always inside the strip, and an optional intro sits above it (corrected 2026-10-21; the first pass had moved the heading into the intro). Template strips (grant, grant overview, podcast, blog listing) pass `standalone` and have no intro.
+- **Split layout:**
+  - `intro` and `buttons` (shared with CtaButtons: `ctaButtonsProp.ts`, `serializeCtaButtonEntries`).
+  - The `3:2` ratio carries the design. Existing content has no `displayRatio`, so it stays 2:1 and keeps its look. Stacked, the text always comes first.
+  - The draft preview now maps `media`, `content` and `cta`.
+- **Split layout admin form:** the type picker doesn't hide `intro` or `buttons` per layout. It clears `buttons` when switching to a quote layout.
+- **Grant FAQ section:** `pb-0` until Phase 2c teaches the grant template's page stack about self-spaced sections.
+- **Migration:** 6 Split layout CTAs became button groups. CTA strip titles stay as they are.
+- **Split layout spacing:** owns its spacing only with an intro or the 3:2 ratio (`CONDITIONALLY_SELF_SPACED`). Existing 2:1, 1:1 and 1:2 blocks without an intro keep the section rhythm.
+- **Behaviour that follows the design (check at review):**
+  - Migrated Split layout CTAs render through the button group: an internal primary gets the arrow, and buttons are full width on mobile (B2).
+  - Below desktop, the Split layout intro keeps its description spacer (24 / 32) before the buttons' 24, as the designer confirmed (E-Q16).
+  - The grant FAQ section's subtitle and description now use the intro styles (H3 size, body text).
+  - A Split layout with an intro as the first block under the hero sits 40 below it on desktop (split variant: no top spacer).
+- **Admin:** the CTA strip `heading` is labelled "CTA strip title". The intro is a component field, so Strapi shows no hint for it; it is unused on grant, grant overview and podcast pages.
+
 ### Phase 2: Remaining blocks
 
 Same recipe as Phase 1. Blocks that are already built only gain the intro and the block spacing ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). The listed structural changes follow the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
@@ -103,6 +121,7 @@ Same recipe as Phase 1. Blocks that are already built only gain the intro and th
 | SplitLayout                        | split-layout | none                                            | [B5](../decisions/009-block-intro-and-block-owned-spacing.md#b5-split-layout-544163402-split-layout-intro), [D7](../decisions/009-block-intro-and-block-owned-spacing.md#decision): columns 60 / 40 (flipped for FAQ accordions), gap 120; media 4:3, radius 24; intro → buttons → media; media padding only with a CTA; button group; new FAQ option in the second column; fix the preview prop gap |
 | Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): days model and migration; "Day N" + date heading; agenda styles stay as built                                                                                                                                                             |
 | InfoCards (grant), GrantFaqSection | universal    | `heading`; `title` + `subtitle` + `description` | single fields                                                                                                                                                                                                                                                                                                                                                                                        |
+| Title Cards (podcast)              | universal    | trailing `## Heading` in `textSection`          | Give the podcast title card grid its own `intro` (schema, export, sync, migration out of `textSection`). Then `PodcastPage` reads it instead of `splitTrailingHeading`, which is transitional and goes in Phase 4.                                                                                                                                                                                   |
 
 Not in Figma, so left alone: DonationCards, InternalAdvert, CodeBlock, CalloutText, ReportSection, HackathonAnimation, CtaLink.
 
@@ -113,7 +132,7 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 1. Zero the `default.css` bottom margins inside the block, and apply the [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)/[A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values as padding.
 2. H3 and H4 inside the block use the header weight, SemiBold 600 ([A0](../decisions/009-block-intro-and-block-owned-spacing.md#a0-tokens)).
 3. Sibling selectors:
-   - `> :is(h2,h3,h4):first-child` and `> p:first-child` get the "first" values, only when the block is the first child of the prose container; otherwise the "not first" values.
+   - When the block is the first child of the prose container, its first element gets the "first" padding-top. A heading (`> :is(h2,h3,h4):first-child`) gets **60 / 80 / 120** ([A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)). A paragraph (`> p:first-child`) gets **20 / 40 / 60** ([A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body), designer, 2026-10-21). Otherwise the "not first" values apply.
    - `h2 + p`, `h3 + p`, `h4 + p`, `p + p` get the [A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values.
    - Media + p gets the "Image, table or list on top" padding-top (32 / 40 / 60). Media has no padding-bottom, so that padding is the whole gap.
 4. Media wrappers `> :is(ul, ol, figure, .table-wrapper, p:has(> img:only-child))` get `padding-block-start: var(--media-pt)` and no padding-bottom. Marked wraps a lone image in a `<p>`.
@@ -127,6 +146,8 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 ### Phase 4: Cleanup
 
 - Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
+- Remove `splitTrailingHeading` and its tests (`src/utils/main/blockIntro.ts`) once podcast Title Cards read their own intro.
+- Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
 - Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
 
 ---

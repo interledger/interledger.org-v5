@@ -1,9 +1,13 @@
 import {
   ckeditorFieldToCompiledMarkdown,
   getImageUrl,
-  hasMediaValue
+  hasMediaValue,
+  serializeIntroProp,
+  type BlockIntroInput,
+  type CtaButtonEntry
 } from '../../utils'
 import { escDouble as esc } from '../shared'
+import { serializeCtaButtonEntries } from './cta-buttons.serializer'
 
 interface SplitLayoutCta {
   text?: string
@@ -16,7 +20,7 @@ interface SplitLayoutCta {
 type SplitLayoutType =
   'image-text' | 'image-quote' | 'video-text' | 'video-quote'
 
-type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
+type SplitLayoutDisplayRatio = '3:2' | '2:1' | '1:1' | '1:2'
 
 const SPLIT_LAYOUT_TYPES = [
   'image-text',
@@ -25,9 +29,27 @@ const SPLIT_LAYOUT_TYPES = [
   'video-quote'
 ] as const
 
-const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
+const DISPLAY_RATIOS = ['3:2', '2:1', '1:1', '1:2'] as const
+
+/** A legacy single CTA as a one-button group, or no buttons. */
+function legacyCtaButtons(
+  cta: SplitLayoutCta | null | undefined
+): CtaButtonEntry[] {
+  if (!cta?.text || !cta.link) return []
+  return [
+    {
+      text: cta.text,
+      link: cta.link,
+      style: cta.style ?? 'primary',
+      external: cta.external,
+      document: cta.document
+    }
+  ]
+}
 
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  buttons?: CtaButtonEntry[] | null
   layoutType?: string | null
   imagePosition?: 'left' | 'right'
   displayRatio?: SplitLayoutDisplayRatio | string | null
@@ -39,9 +61,12 @@ export function serialize(block: {
   content?: string | null
   quote?: string | null
   quoteSource?: string | null
+  /** @deprecated Legacy single CTA; exported as the button group. */
   cta?: SplitLayoutCta | null
 }): string {
   const attrs: string[] = []
+  const introAttr = serializeIntroProp(block.intro).trim()
+  if (introAttr) attrs.push(introAttr)
   const layoutType = block.layoutType ?? inferLayoutType(block)
   if (!isSplitLayoutType(layoutType)) {
     throw new Error(
@@ -99,31 +124,25 @@ export function serialize(block: {
     attrs.push(`quoteSource="${esc(block.quoteSource)}"`)
   }
 
-  const cta = block.cta
-  if (cta?.external && cta?.document) {
+  if (!block.buttons?.length && block.cta?.external && block.cta?.document) {
     throw new Error(
       'Split layout CTA cannot be both external and document. Pick one: ' +
         'external opens a new tab, document downloads a file.'
     )
   }
-  if (isTextLayout && cta?.text && cta?.link) {
-    attrs.push(`ctaText="${esc(cta.text)}"`)
-    attrs.push(`ctaLink="${esc(cta.link)}"`)
-    if (cta.style && cta.style !== 'primary') {
-      attrs.push(`ctaStyle="${esc(cta.style)}"`)
-    }
-    if (cta.external) {
-      attrs.push(`ctaExternal={true}`)
-    }
-    if (cta.document) {
-      attrs.push(`ctaDocument={true}`)
-    }
+  // The button group; a legacy single CTA exports as a one-button group.
+  const buttons = block.buttons?.length
+    ? block.buttons
+    : legacyCtaButtons(block.cta)
+  if (isTextLayout && buttons.length > 0) {
+    const entries = serializeCtaButtonEntries(buttons)
+    attrs.push(`buttons={${JSON.stringify(entries)}}`)
   }
 
   const raw = isTextLayout ? (block.content ?? '') : ''
   const body = raw ? ckeditorFieldToCompiledMarkdown(raw) : ''
-  if (isTextLayout && !body)
-    throw new Error('Split layout text variants require content')
+  if (isTextLayout && !body && !introAttr)
+    throw new Error('Split layout text variants require content or an intro')
   const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''
 
   if (body) {
