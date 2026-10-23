@@ -573,6 +573,7 @@ describe('stripSiteOriginsInText in plain text', () => {
     '<a href="mailto:programteam@interledger.org">',
     '<CtaStrip primaryButtonLink="https://podcast.interledger.org/@futuremoneypodcast/episodes/x">',
     '<a title="see https://interledger.org/x">',
+    '<a title="Hello, https://interledger.org/x">',
     '<interledger.org/x>'
   ])('leaves %s unchanged', (text) => {
     expect(stripPlainText(text)).toBe(text)

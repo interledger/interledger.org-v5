@@ -125,10 +125,12 @@ const INSIDE_HTML_TAG = new RegExp(`${HTML_TAG_OPEN}$`)
 
 /**
  * The start of an HTML attribute value, quoted or not (`src=`, `href="`), or
- * of a later srcset entry (`500w, `): there the URL is the link itself.
+ * of a later srcset entry (`500w, `): there the URL is the link itself. A
+ * comma elsewhere in a tag is prose (`title="Hello, …"`).
  */
 const HTML_ATTRIBUTE_VALUE_START = new RegExp(
-  String.raw`${HTML_TAG_OPEN}(?:\s[\w:-]+\s*=\s*["']?|,\s*)$`
+  String.raw`${HTML_TAG_OPEN}(?:\s[\w:-]+\s*=\s*["']?|\ssrcset\s*=\s*["']?[^"'<>]*,\s*)$`,
+  'i'
 )
 
 /**
