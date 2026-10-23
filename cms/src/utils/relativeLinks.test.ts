@@ -591,7 +591,12 @@ describe('stripSiteOriginsInText in plain text', () => {
     '<CtaStrip primaryButtonLink="https://podcast.interledger.org/@futuremoneypodcast/episodes/x">',
     '<a title="see https://interledger.org/x">',
     '<a title="Hello, https://interledger.org/x">',
-    '<interledger.org/x>'
+    // An attribute value that is not a link, even one that starts with a URL.
+    '<a title="https://interledger.org/x">',
+    '<img alt="interledger.org logo">',
+    '<interledger.org/x>',
+    // Our host as the userinfo of another host.
+    'https://interledger.org@evil.com/x'
   ])('leaves %s unchanged', (text) => {
     expect(stripPlainText(text)).toBe(text)
   })
@@ -669,6 +674,14 @@ describe('stripSiteOriginsInText in rich text', () => {
     )
   })
 
+  it('makes a link attribute relative and leaves alt text alone', () => {
+    expect(
+      stripRichText(
+        '<img src="https://interledger.org/a.png" alt="interledger.org">'
+      )
+    ).toBe('<img src="/a.png" alt="interledger.org">')
+  })
+
   it('makes a link target relative, as in plain text', () => {
     expect(stripRichText('[a](https://interledger.org/grant)')).toBe(
       '[a](/grant/)'
@@ -685,7 +698,8 @@ describe('stripSiteOriginsInText in rich text', () => {
     'See https://interledger.org.evil.com/x',
     '[a](https://interledger.org.evil.com/x)',
     'See https://interledger.organization.com',
-    'See https://interledger.org:8080/x'
+    'See https://interledger.org:8080/x',
+    'See https://interledger.org@evil.com/x'
   ])('leaves %s unchanged', (text) => {
     expect(stripRichText(text)).toBe(text)
   })

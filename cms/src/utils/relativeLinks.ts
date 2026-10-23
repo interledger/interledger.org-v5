@@ -130,13 +130,17 @@ const HTML_TAG_OPEN = String.raw`(?<!\\)<[a-zA-Z][^<>]*`
 /** Anywhere inside an HTML tag. */
 const INSIDE_HTML_TAG = new RegExp(`${HTML_TAG_OPEN}$`)
 
+/** The HTML attributes whose value is a link. */
+const LINK_ATTRIBUTE = '(?:href|src|srcset|action|poster)'
+
 /**
- * The start of an HTML attribute value, quoted or not (`src=`, `href="`), or
- * of a later srcset entry (`500w, `): there the URL is the link itself. A
- * comma elsewhere in a tag is prose (`title="Hello, …"`).
+ * The start of a link attribute's value, quoted or not (`src=`, `href="`), or
+ * of a later srcset entry (`500w, `): there the URL is the link itself. Any
+ * other attribute (`alt`, `title`) holds prose, and so does a comma outside
+ * srcset (`title="Hello, …"`).
  */
 const HTML_ATTRIBUTE_VALUE_START = new RegExp(
-  String.raw`${HTML_TAG_OPEN}(?:\s[\w:-]+\s*=\s*["']?|\ssrcset\s*=\s*["']?[^"'<>]*,\s*)$`,
+  String.raw`${HTML_TAG_OPEN}(?:\s${LINK_ATTRIBUTE}\s*=\s*["']?|\ssrcset\s*=\s*["']?[^"'<>]*,\s*)$`,
   'i'
 )
 
@@ -251,11 +255,12 @@ const rewriteUploadUrl: UrlRewrite = (_origin, path, context) => {
 }
 
 /**
- * Where our host ends in text: not before a port or a longer host
- * (`interledger.org.evil.com`, `interledger.organization`). Italics (`_`)
- * and a sentence's closing `.` still end it.
+ * Where our host ends in text: not before a port, a longer host
+ * (`interledger.org.evil.com`, `interledger.organization`) or an `@` that
+ * makes it the userinfo of another host (`interledger.org@evil.com`).
+ * Italics (`_`) and a sentence's closing `.` still end it.
  */
-const SITE_HOST_END = String.raw`(?![A-Za-z0-9-]|\.[A-Za-z0-9]|:\d)`
+const SITE_HOST_END = String.raw`(?![A-Za-z0-9-]|\.[A-Za-z0-9]|:\d|@)`
 
 /**
  * An own-site URL in text, with or without a scheme: group 1 the origin,
