@@ -316,6 +316,20 @@ describe('normalizeRelativeLinksInDocumentData rich text', () => {
     ).toEqual({ body: LINKED_STAGING_BLOG })
   })
 
+  it('keeps balanced parentheses whole through every pass', async () => {
+    expect(
+      await normalize('api::grant-page.grant-page', {
+        programOverview:
+          'See https://interledger.org/a_(b), [x](https://interledger.org/a_(b)) ' +
+          'and [d](https://cms.example/uploads/img/original/a_(1).pdf)'
+      })
+    ).toEqual({
+      programOverview:
+        'See [https://interledger.org/a_(b)](/a_(b)/), [x](/a_(b)/) ' +
+        'and [d](/uploads/img/original/a_(1).pdf)'
+    })
+  })
+
   it('only slashes a bare own-site URL in a plain field', async () => {
     expect(
       await normalize('api::foundation-page.foundation-page', {

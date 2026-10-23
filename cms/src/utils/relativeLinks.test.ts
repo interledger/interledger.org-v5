@@ -179,6 +179,12 @@ describe('slashInternalMarkdownLinks', () => {
     )
   })
 
+  it('slashes after balanced parentheses, not inside them', () => {
+    expect(
+      slashInternalMarkdownLinks('[x](/a_(b)) and [y](/(a)(b)?c=(d))')
+    ).toBe('[x](/a_(b)/) and [y](/(a)(b)/?c=(d))')
+  })
+
   it.each([
     '[ext](https://example.org/x)',
     '[proto](//example.org/x)',
@@ -186,6 +192,7 @@ describe('slashInternalMarkdownLinks', () => {
     '[mail](mailto:a@b.org)',
     '![chart](/img/blog/chart.png)',
     '[report](/uploads/img/original/report.pdf)',
+    '[report](/uploads/img/original/report_(1).pdf)',
     '[done](/about/)'
   ])('leaves %s alone', (text) => {
     expect(slashInternalMarkdownLinks(text)).toBe(text)

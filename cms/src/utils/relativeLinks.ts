@@ -358,8 +358,12 @@ export function mapOutsideMarkdownCode(
   return result + rewrite(text.slice(cursor))
 }
 
-/** An inline Markdown link to a site path: `](/path)`, not `](//host)`. */
-const INTERNAL_MARKDOWN_LINK = /\]\((\/(?!\/)[^)\s]*)\)/g
+/**
+ * An inline Markdown link to a site path: `](/path)`, not `](//host)`. The
+ * path keeps balanced parentheses, as `URL_IN_TEXT_REST` does, so
+ * `](/a_(b))` is slashed after the `)`, not inside it.
+ */
+const INTERNAL_MARKDOWN_LINK = /\]\((\/(?!\/)(?:[^()\s]|\([^()\s]*\))*)\)/g
 
 /**
  * Gives every internal Markdown link in a text the stored `/path/` form
