@@ -32,6 +32,9 @@ describe('stripKnownOrigin', () => {
   it.each([
     'https://community.interledger.org/x',
     'https://example.com/x',
+    // Only http(s) with no port, as the CMS strips on save.
+    'http://interledger.org:8080/x',
+    'ftp://interledger.org/x',
     '/about/',
     'not a url'
   ])('leaves %s unchanged', (href) => {

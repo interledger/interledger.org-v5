@@ -148,23 +148,30 @@ export function isSiteHostname(hostname: string): boolean {
   )
 }
 
+const WEB_PROTOCOLS = new Set(['http:', 'https:'])
+
 /**
  * Rewrites an absolute link to the site's own domain into a relative path,
  * so it flows through the internal classification pipeline instead of the
  * external one, and keeps the reader in the environment they are on.
- * Non-matching or unparseable hrefs are returned unchanged.
+ * Only http(s) with no port counts as our site, as the CMS strips on save, so
+ * a link stored absolute is not rendered relative. Non-matching or
+ * unparseable hrefs are returned unchanged.
  */
 export function stripKnownOrigin(href: string): string {
   // `new URL` can't parse a protocol-relative `//host` without a scheme.
   const parsable = href.startsWith('//') ? `https:${href}` : href
   try {
     const url = new URL(parsable)
+    const isOwnSite =
+      WEB_PROTOCOLS.has(url.protocol) &&
+      url.port === '' &&
+      isSiteHostname(url.hostname)
+    if (!isOwnSite) return href
     // A leading `//` would make the path a protocol-relative link to a host
     // named after its first segment.
     const path = url.pathname.replace(/^\/+/, '/')
-    return isSiteHostname(url.hostname)
-      ? `${path}${url.search}${url.hash}`
-      : href
+    return `${path}${url.search}${url.hash}`
   } catch {
     return href
   }
