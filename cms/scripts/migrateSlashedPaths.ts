@@ -27,7 +27,7 @@ const SLUG_KEYS = ['pathSlug', 'localizes']
 
 /**
  * Frontmatter keys an editor fills with a link (see `HREF_LIKE_FIELDS` in
- * `src/utils/documentLinks.ts`).
+ * `cms/src/utils/documentLinks.ts`).
  */
 const LINK_KEYS = [
   'href',
