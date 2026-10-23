@@ -2,7 +2,7 @@
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
-import { blockIntroLabel, resolveBlockIntro } from '@/utils'
+import { blockIntroA11y, resolveBlockIntro } from '@/utils'
 
 /** MDX / site shape */
 interface LogoMdx {
@@ -44,10 +44,9 @@ const isContentBlock = !standalone
 const intro = isContentBlock ? resolveBlockIntro(introProp, heading) : null
 const headingText = isContentBlock ? undefined : heading?.trim() || undefined
 // Stable for this render; unique across multiple carousels on one page.
-const headingId =
-  headingText || blockIntroLabel(intro)
-    ? `logo-carousel-heading-${crypto.randomUUID()}`
-    : undefined
+const headingId = headingText
+  ? `logo-carousel-heading-${crypto.randomUUID()}`
+  : blockIntroA11y(intro, 'logo-carousel').headingId
 
 // Skip incomplete logos instead of throwing — DynamicZone preview can see
 // half-finished CMS rows; save-time validation (validateContentBlocks) is the

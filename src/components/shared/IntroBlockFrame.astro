@@ -11,7 +11,7 @@
  */
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData, BlockIntroVariant } from '@/types/blockIntro'
-import { blockIntroLabel, normalizeBlockIntro } from '@/utils'
+import { blockIntroA11y, normalizeBlockIntro } from '@/utils'
 
 interface Props {
   /** The block's `data-component` name, e.g. `ImageBlock`. */
@@ -37,9 +37,10 @@ const {
   bare = false
 } = Astro.props
 const normalized = normalizeBlockIntro(intro)
-const labelId = blockIntroLabel(normalized)
-  ? `${component.toLowerCase()}-intro-${crypto.randomUUID()}`
-  : undefined
+const { headingId: labelId } = blockIntroA11y(
+  normalized,
+  component.toLowerCase()
+)
 ---
 
 {bare ? (

@@ -26,7 +26,7 @@ import {
   useTranslations,
   toProfileData,
   getGatedCollection,
-  blockIntroLabel,
+  blockIntroA11y,
   resolveBlockIntro
 } from '@/utils'
 import { resolveKnownProfilePathSlug } from '@/utils/main/profileGridColors'
@@ -56,11 +56,13 @@ const {
   category
 } = Astro.props
 const intro = resolveBlockIntro(introProp, heading)
-const headingId = blockIntroLabel(intro)
-  ? `profile-grid-heading-${crypto.randomUUID()}`
-  : undefined
 const { routeLocale, profileEntries: preloadedProfileEntries } = Astro.locals
 const t = useTranslations(routeLocale)
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'profile-grid',
+  t('profile.profiles')
+)
 
 async function loadProfileEntries(): Promise<CollectionEntry<'profiles'>[]> {
   return preloadedProfileEntries ?? (await getGatedCollection('profiles'))
@@ -97,7 +99,7 @@ if (propProfiles) {
 
 <section
   aria-labelledby={headingId}
-  aria-label={headingId ? undefined : t('profile.profiles')}
+  aria-label={ariaLabel}
   data-component="ProfileGrid"
   data-intro-variant="universal"
 >

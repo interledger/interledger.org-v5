@@ -15,7 +15,7 @@ import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
-import { blockIntroLabel, resolveBlockIntro, useTranslations } from '@/utils'
+import { blockIntroA11y, resolveBlockIntro, useTranslations } from '@/utils'
 
 interface EventWhenData {
   title: string
@@ -57,9 +57,11 @@ const t = useTranslations(routeLocale)
 const fromStrapi = Boolean(when && where)
 const hasApply = Boolean(apply?.primaryCta?.text && apply?.primaryCta?.link)
 const intro = resolveBlockIntro(introProp, title)
-const headingId = blockIntroLabel(intro)
-  ? `event-card-heading-${crypto.randomUUID()}`
-  : undefined
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'event-card',
+  t('eventCard.block_label')
+)
 
 // Populate gaps (e.g. preview missing nested when/where) must not paint an
 // empty bordered shell. MDX authoring always has default-slot children.
@@ -71,7 +73,7 @@ if (!fromStrapi && !Astro.slots.has('default')) {
 <section
   data-component="EventCard"
   data-intro-variant="universal"
-  aria-label={headingId ? undefined : t('eventCard.block_label')}
+  aria-label={ariaLabel}
   aria-labelledby={headingId}
   class="w-full"
 >

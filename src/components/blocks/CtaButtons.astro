@@ -28,7 +28,7 @@ import Icon from '@/components/shared/Icon.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
 import {
-  blockIntroLabel,
+  blockIntroA11y,
   buildUmamiAttrs,
   normalizeBlockIntro,
   resolveCtaLink,
@@ -77,9 +77,7 @@ const {
 } = Astro.props
 const { routeLocale, site } = Astro.locals
 const intro = normalizeBlockIntro(introProp)
-const headingId = blockIntroLabel(intro)
-  ? `cta-buttons-heading-${crypto.randomUUID()}`
-  : undefined
+const { headingId } = blockIntroA11y(intro, 'cta-buttons')
 const Root = intro ? 'section' : 'div'
 // The buttons sit 24 / 24 / 32 below the intro, except under a heading on
 // its own, whose spacer is already the gap (designer, 2026-10-19).
