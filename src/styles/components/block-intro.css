@@ -15,4 +15,17 @@
   [data-intro-variant] {
     padding-block-end: var(--block-pb);
   }
+
+  /* An empty intro renders the default block spacer instead (A1). Outside a
+     block that owns its spacing (a CTA without an intro, the homepage
+     carousel, a legacy Split layout) the block keeps its old spacing, so the
+     spacer takes no room there. */
+  [data-intro-spacer] {
+    display: none;
+  }
+
+  [data-intro-variant] > [data-intro-spacer] {
+    display: block;
+    block-size: var(--intro-empty);
+  }
 }
