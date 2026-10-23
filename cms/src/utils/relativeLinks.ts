@@ -104,13 +104,20 @@ const MARKDOWN_CODE =
 const URL_IN_TEXT_CHAR = String.raw`[^\s"'()<>[\]|]`
 
 /**
+ * The rest of a URL found in text. Like GFM and CommonMark it keeps balanced
+ * parentheses (`/wiki/Foo_(bar)`), one level deep, so an unmatched `)` still
+ * closes the prose or the `[…](…)` around it.
+ */
+const URL_IN_TEXT_REST = String.raw`(?:${URL_IN_TEXT_CHAR}|\(${URL_IN_TEXT_CHAR}*\))*`
+
+/**
  * An absolute URL to our upload path: group 1 the origin, group 2 the path.
  * The host stops at `/`, `?` and `#`, so an external URL whose query or
  * fragment merely mentions the upload path does not match. The scheme is
  * case-insensitive and the path is not, as in `stripUploadOrigin`.
  */
 const UPLOAD_URL_IN_TEXT = new RegExp(
-  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}${URL_IN_TEXT_CHAR}*)`,
+  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}${URL_IN_TEXT_REST})`,
   'g'
 )
 
@@ -255,7 +262,7 @@ const SITE_HOST_END = String.raw`(?![A-Za-z0-9-]|\.[A-Za-z0-9]|:\d)`
  * group 2 the rest. Unanchored, so it is classified by what surrounds it.
  */
 const SITE_URL_IN_TEXT = new RegExp(
-  `((?:https?://)?${SITE_HOST})${SITE_HOST_END}((?:[/?#]${URL_IN_TEXT_CHAR}*)?)`,
+  `((?:https?://)?${SITE_HOST})${SITE_HOST_END}((?:[/?#]${URL_IN_TEXT_REST})?)`,
   'gi'
 )
 

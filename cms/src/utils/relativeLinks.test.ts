@@ -426,6 +426,16 @@ describe('stripUploadOriginsInText', () => {
     expect(stripUploadOriginsInText(text)).toBe(text)
   })
 
+  it('keeps balanced parentheses in a bare upload URL', () => {
+    expect(
+      stripUploadOriginsInText(
+        'See https://cms.example/uploads/img/original/a_(1).pdf now'
+      )
+    ).toBe(
+      'See [/uploads/img/original/a_(1).pdf](/uploads/img/original/a_(1).pdf) now'
+    )
+  })
+
   it('links a bare upload URL in a footnote, as in prose', () => {
     expect(
       stripUploadOriginsInText(
@@ -579,6 +589,18 @@ describe('stripSiteOriginsInText in plain text', () => {
     expect(stripPlainText(text)).toBe(text)
   })
 
+  it('keeps balanced parentheses in a URL, as GFM and CommonMark do', () => {
+    expect(stripPlainText('See https://interledger.org/a_(b) now')).toBe(
+      'See https://interledger.org/a_(b)/ now'
+    )
+    expect(stripPlainText('[x](https://interledger.org/a_(b))')).toBe(
+      '[x](/a_(b)/)'
+    )
+    expect(stripPlainText('(see https://interledger.org/a_(b))')).toBe(
+      '(see https://interledger.org/a_(b)/)'
+    )
+  })
+
   it('makes an unquoted HTML attribute target relative', () => {
     expect(stripPlainText('<a href=https://interledger.org/x>')).toBe(
       '<a href=/x/>'
@@ -631,6 +653,12 @@ describe('stripSiteOriginsInText in rich text', () => {
   it('links a URL in a footnote', () => {
     expect(stripRichText('[^4]: https://interledger.org/blog/x')).toBe(
       '[^4]: [https://interledger.org/blog/x](/blog/x/)'
+    )
+  })
+
+  it('links a bare URL with balanced parentheses whole', () => {
+    expect(stripRichText('See https://interledger.org/a_(b) now')).toBe(
+      'See [https://interledger.org/a_(b)](/a_(b)/) now'
     )
   })
 
