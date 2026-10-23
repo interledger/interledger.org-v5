@@ -13,7 +13,7 @@
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
 import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
-import type { BlockIntro } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import {
   buildUmamiAttrs,
   isExternalHref,
@@ -27,7 +27,7 @@ interface StrapiMedia {
 }
 
 interface Props {
-  intro?: BlockIntro | null
+  intro?: BlockIntroData | null
   /** No block frame: the plain prose rhythm (blog posts). */
   bare?: boolean
   /** Plain quote text from Strapi; omitted when MDX supplies children. */

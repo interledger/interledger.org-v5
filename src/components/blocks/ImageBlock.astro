@@ -7,7 +7,7 @@ import {
 } from '@/utils'
 import ResponsiveSources from '@/components/shared/ResponsiveSources.astro'
 import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
-import type { BlockIntro } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 
 interface MediaFile {
   url?: string
@@ -20,7 +20,7 @@ interface LocalizedMedia {
 }
 
 interface Props {
-  intro?: BlockIntro | null
+  intro?: BlockIntroData | null
   /** No block frame: the plain prose rhythm (blog posts). */
   bare?: boolean
   src?: string

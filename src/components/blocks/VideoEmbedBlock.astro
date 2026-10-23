@@ -1,13 +1,13 @@
 ---
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
-import type { BlockIntro } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 
 // Used two ways: as an MDX components-map entry (GrantPage / GrantOverviewPage),
 // where the serialized `<VideoEmbed url="..." />` passes `url` directly; and via
 // DynamicZone, which passes the raw Strapi block (`file` / `externalUrl`).
 interface Props {
-  intro?: BlockIntro | null
+  intro?: BlockIntroData | null
   url?: string
   file?: { url: string }
   externalUrl?: string
