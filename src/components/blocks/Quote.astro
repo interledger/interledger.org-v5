@@ -28,8 +28,6 @@ interface StrapiMedia {
 
 interface Props {
   intro?: BlockIntroData | null
-  /** No block frame: the plain prose rhythm (blog posts). */
-  bare?: boolean
   /** Plain quote text from Strapi; omitted when MDX supplies children. */
   quote?: string
   authorName?: string
@@ -39,15 +37,8 @@ interface Props {
   umamiContext?: string
 }
 
-const {
-  intro,
-  bare = false,
-  quote,
-  authorName,
-  authorImage,
-  authorLink,
-  umamiContext
-} = Astro.props
+const { intro, quote, authorName, authorImage, authorLink, umamiContext } =
+  Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -101,19 +92,10 @@ const authorTypeClasses =
 const authorLinkClasses = `inline-flex items-center gap-sm ${authorTypeClasses} no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link`
 ---
 
-<IntroBlockFrame
-  component="Quote"
-  intro={intro}
-  umamiContext={umamiContext}
-  bare={bare}
->
+<IntroBlockFrame component="Quote" intro={intro} umamiContext={umamiContext}>
   <figure
-    data-component={bare ? 'quote' : undefined}
     data-umami-component="quote"
-    class:list={[
-      bare && 'my-2xl',
-      'border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl'
-    ]}
+    class="border-x-2 border-raspberry-100 dark:border-orchid-100 px-xl py-0 tablet:px-xl"
   >
     {authorAbove && <figcaption class="mb-sm flex items-center gap-md">
       {image && (

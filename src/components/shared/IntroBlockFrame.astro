@@ -21,9 +21,9 @@ interface Props {
   class?: string
   umamiContext?: string
   /**
-   * Render the content alone, with no frame, intro or block spacing. For
-   * templates that keep the plain prose rhythm (blog posts, ADR-009 D3); the
-   * content component then carries `data-component` itself.
+   * Render the content alone, with no frame, intro or block spacing. For a
+   * block that is sometimes not a block of its own (a standalone CTA strip);
+   * the content component then carries `data-component` itself.
    */
   bare?: boolean
 }

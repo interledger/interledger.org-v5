@@ -21,8 +21,6 @@ interface LocalizedMedia {
 
 interface Props {
   intro?: BlockIntroData | null
-  /** No block frame: the plain prose rhythm (blog posts). */
-  bare?: boolean
   src?: string
   alt?: string
   tabletSrc?: string
@@ -37,7 +35,6 @@ interface Props {
 
 const {
   intro,
-  bare = false,
   src: srcProp,
   alt: altProp,
   tabletSrc: tabletSrcProp,
@@ -86,8 +83,8 @@ const MOBILE_MQ = '(max-width: 809px)'
 const TABLET_MQ = '(max-width: 1199px)'
 ---
 
-{src && <IntroBlockFrame component="ImageBlock" intro={intro} bare={bare}>
-  <figure class="my-0" data-component={bare ? 'ImageBlock' : undefined}>
+{src && <IntroBlockFrame component="ImageBlock" intro={intro}>
+  <figure class="my-0">
     <picture>
       <ResponsiveSources image={mobile} rawSrc={mobileSrc} media={MOBILE_MQ} />
       <ResponsiveSources image={tablet} rawSrc={tabletSrc} media={TABLET_MQ} />
