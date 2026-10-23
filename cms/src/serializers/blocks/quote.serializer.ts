@@ -1,13 +1,17 @@
 import {
   getImageUrl,
   hasMediaValue,
-  ckeditorFieldToCompiledMarkdown
+  ckeditorFieldToCompiledMarkdown,
+  serializeIntroProp,
+  type BlockIntroInput
 } from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 type ImageField = { url?: string; alternativeText?: string } | number
 
 export function serialize(block: {
+  /** Optional block intro (ADR-009). */
+  intro?: BlockIntroInput | null
   quote?: string
   authorName?: string
   authorImage?: ImageField
@@ -22,6 +26,8 @@ export function serialize(block: {
   const quote = escMdxBraces(ckeditorFieldToCompiledMarkdown(block.quote))
 
   const attrs: string[] = []
+  const introAttr = serializeIntroProp(block.intro).trim()
+  if (introAttr) attrs.push(introAttr)
   if (block.authorName?.trim()) {
     attrs.push(`authorName="${esc(block.authorName.trim())}"`)
   }

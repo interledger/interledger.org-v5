@@ -8,7 +8,9 @@ import TitleCard from '@/components/shared/TitleCard.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
-import { generateSlug, parseMarkdown } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import { blockIntroA11y, parseMarkdown, resolveBlockIntro } from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
@@ -43,6 +45,8 @@ type CtaCardVariant = 'Title' | 'Resource' | 'Navigation'
 type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
+  intro?: BlockIntroData | null
+  /** @deprecated Legacy heading, rendered as the intro heading. */
   title?: string
   ariaLabel: string
   variant: string
@@ -54,6 +58,7 @@ interface Props {
 }
 
 const {
+  intro: introProp,
   title,
   ariaLabel,
   variant,
@@ -131,25 +136,23 @@ function warnMissingSecondaryCta(
   )
 }
 
-const headingText = title?.trim() || undefined
-const headingId = headingText
-  ? `card-grid-heading-${generateSlug(`${cardGridPath} ${headingText}`) || 'untitled'}`
-  : undefined
+const intro = resolveBlockIntro(introProp, title)
+const { headingId, ariaLabel: sectionAriaLabel } = blockIntroA11y(
+  intro,
+  'card-grid',
+  ariaLabel
+)
 ---
 
 <section
   data-component="CardGrid"
+  data-intro-variant="universal"
   data-columns={columns}
-  aria-label={headingId ? undefined : ariaLabel}
+  aria-label={sectionAriaLabel}
   aria-labelledby={headingId}
-  class:list={[
-    '[&_h3]:!mb-0',
-    headingText && 'flex flex-col gap-block-heading'
-  ]}
+  class="[&_h3]:!mb-0"
 >
-  {headingText && headingId && <h2 id={headingId} class="m-0">
-    {headingText}
-  </h2>}
+  <BlockIntro intro={intro} headingId={headingId} />
   <div
     class:list={[
       'grid grid-cols-1 gap-xl desktop:gap-2xl [&>*]:min-w-0',

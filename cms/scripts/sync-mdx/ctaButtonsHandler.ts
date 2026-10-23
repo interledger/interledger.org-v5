@@ -19,7 +19,7 @@ import {
   type CtaButtonsBlock,
   type ParsedBlock
 } from './types.blocks'
-import { getStaticLiteralAttr } from './jsxExtract'
+import { getIntroAttr, getStaticLiteralAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -109,8 +109,10 @@ async function handleCtaButtons(
     const ruleError = validateCtaButtonComposition(buttons)
     if (ruleError) fail(ruleError.message)
 
+    const intro = getIntroAttr(node)
     const block: CtaButtonsBlock = {
       __component: 'blocks.cta-buttons',
+      ...(intro ? { intro } : {}),
       buttons
     }
 

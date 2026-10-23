@@ -2,7 +2,7 @@
  * Faq + FaqItem component handler for the MDX block parser.
  *
  * Handles:
- * - <Faq heading="...">
+ * - <Faq intro={{"heading":"..."}}>
  *     <FaqItem question="...">
  *       answer markdown
  *     </FaqItem>
@@ -10,12 +10,17 @@
  *   </Faq>
  *
  * Maps to Strapi blocks.faq.
- * Each <FaqItem> becomes one `items` entry. `heading` is optional.
+ * Each <FaqItem> becomes one `items` entry. `intro` is optional; a legacy
+ * `heading="…"` is read as the intro heading.
  */
 
 import type { ParsedBlock, FaqItem, FaqBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getChildElements } from './jsxExtract'
+import {
+  getStringAttr,
+  getChildElements,
+  getIntroWithLegacyHeading
+} from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -52,7 +57,7 @@ async function handleFaq(
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
-    const heading = getStringAttr(node, 'heading')
+    const intro = getIntroWithLegacyHeading(node, 'heading')
 
     const itemNodes = getChildElements(node, 'FaqItem')
     if (itemNodes.length === 0) {
@@ -67,11 +72,8 @@ async function handleFaq(
 
     const block: FaqBlock = {
       __component: 'blocks.faq',
+      ...(intro ? { intro } : {}),
       items: itemNodes.map(parseFaqItem)
-    }
-
-    if (heading !== undefined) {
-      block.heading = heading
     }
 
     return [block]

@@ -17,7 +17,7 @@
  */
 
 import type { ParsedBlock, VideoEmbedBlock } from './types.blocks'
-import { getStringAttr } from './jsxExtract'
+import { getIntroAttr, getStringAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 import type { JsxBlockNode } from './mdxBlockParser'
 import {
@@ -35,8 +35,10 @@ async function handleVideoEmbed(
     const title = getStringAttr(node, 'title', { required: true })
     const poster = getStringAttr(node, 'poster')
 
+    const intro = getIntroAttr(node)
     const block: VideoEmbedBlock = {
       __component: 'blocks.video-embed',
+      ...(intro ? { intro } : {}),
       source: url.startsWith('/uploads/') ? 'media_library' : 'external_url',
       title
     }

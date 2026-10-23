@@ -9,9 +9,9 @@ const enCtx: ParserContext = { locale: 'en' }
 const esCtx: ParserContext = { locale: 'es' }
 
 describe('Faq round-trip (serialize → parse)', () => {
-  it('round-trips a block with a heading and one question (en)', async () => {
+  it('round-trips a block with an intro and one question (en)', async () => {
     const original = {
-      heading: 'About the Interledger Foundation',
+      intro: { heading: 'About the Interledger Foundation' },
       items: [
         {
           question: 'What is the Interledger Foundation?',
@@ -25,9 +25,9 @@ describe('Faq round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
   })
 
-  it('round-trips a block with a heading and one question (es)', async () => {
+  it('round-trips a block with an intro and one question (es)', async () => {
     const original = {
-      heading: 'Sobre la Fundación Interledger',
+      intro: { heading: 'Sobre la Fundación Interledger' },
       items: [
         {
           question: '¿Qué es la Fundación Interledger?',
@@ -41,7 +41,7 @@ describe('Faq round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
   })
 
-  it('round-trips a block with no heading', async () => {
+  it('round-trips a block with no intro', async () => {
     const original = {
       items: [{ question: 'Do I need a team?', answer: 'No.' }]
     }
@@ -49,12 +49,40 @@ describe('Faq round-trip (serialize → parse)', () => {
     const blocks = await parseMdxToBlocks(serialize(original), enCtx)
 
     expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
+    expect(blocks[0]).not.toHaveProperty('intro')
+  })
+
+  it('round-trips a full intro', async () => {
+    const original = {
+      intro: {
+        heading: 'Questions',
+        subheading: 'Before you apply',
+        description: 'Read the [rules](/rules/) first.'
+      },
+      items: [{ question: 'Do I need a team?', answer: 'No.' }]
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
+  })
+
+  it('exports a legacy heading as the intro heading', async () => {
+    const blocks = await parseMdxToBlocks(
+      serialize({
+        heading: 'Attending',
+        items: [{ question: 'Is it recorded?', answer: 'Yes.' }]
+      }),
+      enCtx
+    )
+
+    expect(blocks[0]).toMatchObject({ intro: { heading: 'Attending' } })
     expect(blocks[0]).not.toHaveProperty('heading')
   })
 
   it('round-trips multiple questions, preserving order', async () => {
     const original = {
-      heading: 'Attending',
+      intro: { heading: 'Attending' },
       items: [
         { question: 'Who should attend?', answer: 'Anyone building payments.' },
         { question: 'Are stipends available?', answer: 'A limited number.' },
@@ -80,7 +108,7 @@ describe('Faq round-trip (serialize → parse)', () => {
 
   it('round-trips attribute values with quotes, ampersands and angle brackets', async () => {
     const original = {
-      heading: 'A & B',
+      intro: { heading: 'A & B' },
       items: [
         {
           question: 'Is it "free" & <open>?',

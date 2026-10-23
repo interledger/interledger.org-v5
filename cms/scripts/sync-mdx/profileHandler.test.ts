@@ -334,7 +334,7 @@ describe('ProfileGrid handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: 'Our Team',
+        intro: { heading: 'Our Team' },
         profiles: {
           connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
         }
@@ -361,7 +361,7 @@ describe('ProfileGrid handler', () => {
       ctxWith({ alice: 'doc-alice' })
     )
 
-    expect(blocks[0]).not.toHaveProperty('heading')
+    expect(blocks[0]).not.toHaveProperty('intro')
   })
 
   it('returns MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
@@ -384,7 +384,7 @@ describe('ProfileGrid handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: 'Past Fellows',
+        intro: { heading: 'Past Fellows' },
         category: 'Past Fellows'
       }
     ])
@@ -400,7 +400,7 @@ describe('ProfileGrid handler', () => {
       __component: 'blocks.profile-grid',
       category: 'Past Fellows'
     })
-    expect(blocks[0]).not.toHaveProperty('heading')
+    expect(blocks[0]).not.toHaveProperty('intro')
   })
 
   it('returns UNRESOLVED_RELATION when any pathSlug is unresolved', async () => {
@@ -442,7 +442,7 @@ describe('ProfileCard handler (locale import)', () => {
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.profile-grid',
-      heading: 'Equipo',
+      intro: { heading: 'Equipo' },
       profiles: {
         connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
       }

@@ -2,8 +2,10 @@ import {
   SerializerFieldError,
   hasConflictingCtaFlags,
   isCtaButtonStyle,
+  serializeIntroProp,
   validateCtaButtonCount,
   validateCtaButtonStyles,
+  type BlockIntroInput,
   type CtaButtonEntry,
   type CtaButtonsRuleError,
   type FieldError
@@ -55,7 +57,10 @@ function toFieldError(error: CtaButtonsRuleError): SerializerFieldError {
   ])
 }
 
-export function serialize(block: { buttons?: CtaButtonEntry[] }): string {
+export function serialize(block: {
+  intro?: BlockIntroInput | null
+  buttons?: CtaButtonEntry[]
+}): string {
   // Strapi's required/min/max constraints aren't enforced on save, and the
   // composition rules can't be expressed in the schema at all.
   //
@@ -86,5 +91,6 @@ export function serialize(block: { buttons?: CtaButtonEntry[] }): string {
     ...(button.document ? { document: true } : {})
   }))
 
-  return `<CtaButtons buttons={${JSON.stringify(entries)}} />`
+  const introAttr = serializeIntroProp(block.intro)
+  return `<CtaButtons${introAttr} buttons={${JSON.stringify(entries)}} />`
 }

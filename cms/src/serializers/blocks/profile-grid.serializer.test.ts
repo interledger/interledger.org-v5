@@ -13,13 +13,13 @@ describe('profile-grid serializer', () => {
       category: '2025 Hackathon Judges'
     })
     expect(result).toBe(
-      '<ProfileGrid heading="Meet the judges" category="2025 Hackathon Judges" />'
+      '<ProfileGrid intro={{"heading":"Meet the judges"}} category="2025 Hackathon Judges" />'
     )
   })
 
   it('leaves an ampersand and an angle bracket literal in an attribute value', () => {
     const result = serialize({ heading: 'A & B', category: 'C > D' })
-    expect(result).toContain('heading="A & B"')
+    expect(result).toContain('intro={{"heading":"A & B"}}')
     expect(result).toContain('category="C > D"')
   })
 
@@ -40,7 +40,7 @@ describe('profile-grid serializer', () => {
       profiles: [{ name: 'Alice', pathSlug: 'alice' }]
     })
     expect(result).toBe(
-      '<ProfileGrid heading="Team" pathSlugs={[\'alice\']} />'
+      '<ProfileGrid intro={{"heading":"Team"}} pathSlugs={[\'alice\']} />'
     )
   })
 
@@ -56,6 +56,6 @@ describe('profile-grid serializer', () => {
 
   it('renders with neither category nor profiles', () => {
     const result = serialize({ heading: 'Empty' })
-    expect(result).toBe('<ProfileGrid heading="Empty" />')
+    expect(result).toBe('<ProfileGrid intro={{"heading":"Empty"}} />')
   })
 })

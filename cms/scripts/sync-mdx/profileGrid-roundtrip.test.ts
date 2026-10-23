@@ -31,22 +31,25 @@ describe('ProfileGrid round-trip (serialize → parse)', () => {
     ])
   })
 
-  it('round-trips a grid with a heading', async () => {
-    const original = { heading: 'Meet the judges', category: 'Leadership' }
+  it('round-trips a grid with an intro', async () => {
+    const original = {
+      intro: { heading: 'Meet the judges', subheading: 'Our panel' },
+      category: 'Leadership'
+    }
     const blocks = await parseMdxToBlocks(serialize(original), ctx)
 
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
         category: 'Leadership',
-        heading: 'Meet the judges'
+        intro: { heading: 'Meet the judges', subheading: 'Our panel' }
       }
     ])
   })
 
   it('round-trips manually picked profiles, preserving order', async () => {
     const original = {
-      heading: 'Meet the judges',
+      intro: { heading: 'Meet the judges' },
       profiles: [
         { name: 'Alice', pathSlug: 'alice' },
         { name: 'Bob', pathSlug: 'bob' }
@@ -61,7 +64,7 @@ describe('ProfileGrid round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: 'Meet the judges',
+        intro: { heading: 'Meet the judges' },
         profiles: {
           connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
         }

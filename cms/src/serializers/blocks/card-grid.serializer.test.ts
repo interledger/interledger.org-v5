@@ -120,7 +120,34 @@ describe('card-grid serializer', () => {
     expect(result).toContain('secondButtonExternal={false}')
   })
 
-  it('serializes an optional title and omits it when blank', () => {
+  it('serializes the intro', () => {
+    expect(
+      serialize({
+        intro: { heading: 'Why Participate?', description: 'Three reasons.' },
+        ariaLabel: 'Reasons to participate',
+        variant: 'Info',
+        columns: 'Three',
+        cards: [infoCard]
+      })
+    ).toContain(
+      '<CardGrid intro={{"heading":"Why Participate?","description":"Three reasons."}} ariaLabel="Reasons to participate"'
+    )
+  })
+
+  it('prefers the intro over the legacy title', () => {
+    const result = serialize({
+      intro: { heading: 'New' },
+      title: 'Old',
+      ariaLabel: 'Info',
+      variant: 'Info',
+      columns: 'Three',
+      cards: [infoCard]
+    })
+    expect(result).toContain('intro={{"heading":"New"}}')
+    expect(result).not.toContain('Old')
+  })
+
+  it('exports a legacy title as the intro heading and omits it when blank', () => {
     expect(
       serialize({
         title: 'Why Participate?',
@@ -130,7 +157,7 @@ describe('card-grid serializer', () => {
         cards: [infoCard]
       })
     ).toContain(
-      '<CardGrid title="Why Participate?" ariaLabel="Reasons to participate"'
+      '<CardGrid intro={{"heading":"Why Participate?"}} ariaLabel="Reasons to participate"'
     )
 
     expect(
@@ -141,7 +168,7 @@ describe('card-grid serializer', () => {
         columns: 'Three',
         cards: [infoCard]
       })
-    ).not.toContain('title="')
+    ).not.toMatch(/title=|intro=/)
   })
 
   it('serializes Resource cards with document flag', () => {

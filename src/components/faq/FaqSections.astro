@@ -123,7 +123,7 @@ const accordionName = faqAccordionGroupName()
           <FaqAnswerPanel>
             <div
               data-prose-faq
-              class="text-neutral-75 mt-md dark:text-neutral-50 [&_:is(p,a,li)]:text-h5 [&_:is(p,a,li)]:tablet:text-h5-md [&_:is(p,a,li)]:desktop:text-h5-lg [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit [&_:is(p,ul,ol,.table-scroll):last-child]:mb-0 [&_:is(p,ul,ol,.table-scroll):last-child]:[margin-block-end:0]"
+              class="text-neutral-75 mt-md dark:text-neutral-50 [&_:is(p,a,li):not(:where(th,td)_*)]:text-h5 [&_:is(p,a,li):not(:where(th,td)_*)]:tablet:text-h5-md [&_:is(p,a,li):not(:where(th,td)_*)]:desktop:text-h5-lg [&_li>p:first-of-type]:inline [&_:is(p,li)]:text-inherit [&_:is(p,ul,ol,.table-scroll):last-child]:mb-0 [&_:is(p,ul,ol,.table-scroll):last-child]:[margin-block-end:0]"
               set:html={item.answerHtml}
             />
           </FaqAnswerPanel>

@@ -7,6 +7,16 @@
   },
   "options": {},
   "attributes": {
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "source": {
       "type": "enumeration",
       "enum": ["media_library", "external_url"],

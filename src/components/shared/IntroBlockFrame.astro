@@ -1,0 +1,62 @@
+---
+/**
+ * Root for a block that owns its spacing (ADR-009): renders the block's
+ * optional intro above its content and sets `data-intro-variant`, which gives
+ * the block its bottom padding and takes it out of the prose rhythm.
+ *
+ * For blocks whose content is another component (an image, a video, a
+ * quote), so that component stays usable on its own without block spacing.
+ * The section is labelled by the intro when the intro has a heading or a
+ * subheading; without one it is a plain, unnamed section.
+ */
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData, BlockIntroVariant } from '@/types/blockIntro'
+import { blockIntroA11y, normalizeBlockIntro } from '@/utils'
+
+interface Props {
+  /** The block's `data-component` name, e.g. `ImageBlock`. */
+  component: string
+  intro?: BlockIntroData | null
+  variant?: BlockIntroVariant
+  class?: string
+  umamiContext?: string
+  /**
+   * Render the content alone, with no frame, intro or block spacing. For a
+   * block that is sometimes not a block of its own (a standalone CTA strip);
+   * the content component then carries `data-component` itself.
+   */
+  bare?: boolean
+}
+
+const {
+  component,
+  intro,
+  variant = 'universal',
+  class: className,
+  umamiContext,
+  bare = false
+} = Astro.props
+const normalized = normalizeBlockIntro(intro)
+const { headingId: labelId } = blockIntroA11y(
+  normalized,
+  component.toLowerCase()
+)
+---
+
+{bare ? (
+  <slot />
+) : (
+  <section
+    data-component={component}
+    data-intro-variant={variant}
+    aria-labelledby={labelId}
+    class={className}
+  >
+    <BlockIntro
+      intro={normalized}
+      headingId={labelId}
+      umamiContext={umamiContext}
+    />
+    <slot />
+  </section>
+)}

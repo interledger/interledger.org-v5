@@ -1,5 +1,8 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import { blockIntroA11y, resolveBlockIntro } from '@/utils'
 
 /** MDX / site shape */
 interface LogoMdx {
@@ -14,17 +17,36 @@ interface LogoStrapi {
 }
 
 interface Props {
-  heading?: string
+  /** Block intro (ADR-009): sits above the carousel in a content block. */
+  intro?: BlockIntroData | null
+  /**
+   * The centred title on the homepage. In a content block it is the
+   * deprecated legacy heading, rendered as the intro heading.
+   */
+  heading?: string | null
+  /**
+   * Outside the block system (the homepage): keeps the centred heading and
+   * its own bottom padding instead of an intro and block spacing.
+   */
+  standalone?: boolean
   accessibilityLabel: string
   logos: Array<LogoMdx | LogoStrapi>
 }
 
-const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
-const headingText = heading?.trim() || undefined
+const {
+  intro: introProp,
+  heading,
+  standalone = false,
+  accessibilityLabel,
+  logos: rawLogos
+} = Astro.props
+const isContentBlock = !standalone
+const intro = isContentBlock ? resolveBlockIntro(introProp, heading) : null
+const headingText = isContentBlock ? undefined : heading?.trim() || undefined
 // Stable for this render; unique across multiple carousels on one page.
 const headingId = headingText
   ? `logo-carousel-heading-${crypto.randomUUID()}`
-  : undefined
+  : blockIntroA11y(intro, 'logo-carousel').headingId
 
 // Skip incomplete logos instead of throwing — DynamicZone preview can see
 // half-finished CMS rows; save-time validation (validateContentBlocks) is the
@@ -89,17 +111,26 @@ const carouselStyle = `
 `
 
 const sectionClasses = `
-  px-lg pb-3xl-tight
   bg-neutral-0 text-neutral-900
   dark:bg-neutral-150 dark:text-neutral-0
-  tablet:px-xl
-  desktop:px-5xl desktop:pb-3xl
 `
+// The homepage keeps its own side gutters and bottom padding. A content block
+// runs the full width of the content column with no side padding, so its
+// intro lines up with every other block, and takes the block padding at the
+// bottom: 40 on every device by design (ADR-009, B12).
+const homepagePaddingClasses =
+  'px-lg pb-3xl-tight tablet:px-xl desktop:px-5xl desktop:pb-3xl'
+const CONTENT_BLOCK_STYLE = '--block-pb: var(--spacing-3xl-tight)'
 const containerClasses = `
-  max-w-content py-3xl m-auto
-  border-t border-neutral-50
-  dark:border-neutral-75
+  max-w-content pb-3xl m-auto
   flex flex-col gap-block-heading
+`
+// The homepage divides the carousel from the section above. A content block
+// opens on its intro instead, so a divider and top padding there would sit
+// between the intro and the logos.
+const homepageContainerClasses = `
+  pt-3xl border-t border-neutral-50
+  dark:border-neutral-75
 `
 // Deliberate Figma-verified exception: h2 uses the h3 token here.
 const headerClasses = `
@@ -129,10 +160,15 @@ const logoClasses = `
 
 <section
   data-component="LogoCarousel"
-  class={sectionClasses}
+  data-intro-variant={isContentBlock ? 'universal' : undefined}
+  class:list={[sectionClasses, !isContentBlock && homepagePaddingClasses]}
+  style={isContentBlock ? CONTENT_BLOCK_STYLE : undefined}
   aria-labelledby={headingId}
 >
-  <div class={containerClasses}>
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[containerClasses, !isContentBlock && homepageContainerClasses]}
+  >
     {headingText && headingId && <h2 id={headingId} class={headerClasses}>
       {headingText}
     </h2>}

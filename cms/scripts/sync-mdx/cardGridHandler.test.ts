@@ -111,7 +111,34 @@ describe('CardGrid handler', () => {
     )
   })
 
-  it('parses an optional title', async () => {
+  it('parses an intro', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid intro={{"heading":"Why Participate?","subheading":"Three reasons"}} ariaLabel="Reasons" variant="Info" columns="Three">',
+        '<InfoCard heading="Why">Body</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(blocks[0]).toMatchObject({
+      intro: { heading: 'Why Participate?', subheading: 'Three reasons' }
+    })
+  })
+
+  it('prefers the intro over a legacy title', async () => {
+    const blocks = await parseMdxToBlocks(
+      [
+        '<CardGrid intro={{"heading":"New"}} title="Old" ariaLabel="Reasons" variant="Info" columns="Three">',
+        '<InfoCard heading="Why">Body</InfoCard>',
+        '</CardGrid>'
+      ].join('\n'),
+      ctx
+    )
+    expect(blocks[0]).toMatchObject({ intro: { heading: 'New' } })
+    expect(blocks[0]).not.toHaveProperty('title')
+  })
+
+  it('reads a legacy title as the intro heading', async () => {
     const blocks = await parseMdxToBlocks(
       [
         '<CardGrid title="Why Participate?" ariaLabel="Reasons" variant="Info" columns="Three">',
@@ -121,7 +148,7 @@ describe('CardGrid handler', () => {
       ctx
     )
     expect(blocks[0]).toMatchObject({
-      title: 'Why Participate?',
+      intro: { heading: 'Why Participate?' },
       ariaLabel: 'Reasons',
       variant: 'Info'
     })

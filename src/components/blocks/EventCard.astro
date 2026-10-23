@@ -3,8 +3,8 @@
  * Event Card — full-width When / Where / optional Apply columns.
  *
  * One card per use (no multi-card grid). When Apply is omitted, When and Where
- * expand across the available width (INTORG-891). Optional `title` sits above
- * the card, not inside the bordered surface.
+ * expand across the available width (INTORG-891). The optional intro sits
+ * above the card, not inside the bordered surface.
  *
  * Strapi preview passes structured `when` / `where` / `apply` props.
  * MDX authoring passes <EventWhen>, <EventWhere>, and optional <EventApply>
@@ -13,7 +13,9 @@
 import EventWhen from '@/components/shared/EventWhen.astro'
 import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
-import { useTranslations } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import { blockIntroA11y, resolveBlockIntro, useTranslations } from '@/utils'
 
 interface EventWhenData {
   title: string
@@ -40,22 +42,26 @@ interface EventApplyData {
 }
 
 interface Props {
+  intro?: BlockIntroData | null
+  /** @deprecated Legacy heading, rendered as the intro heading. */
   title?: string
   when?: EventWhenData
   where?: EventWhereData
   apply?: EventApplyData | null
 }
 
-const { title, when, where, apply } = Astro.props
+const { intro: introProp, title, when, where, apply } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const fromStrapi = Boolean(when && where)
 const hasApply = Boolean(apply?.primaryCta?.text && apply?.primaryCta?.link)
-const heading = title?.trim()
-const headingId = heading
-  ? `event-card-heading-${crypto.randomUUID()}`
-  : undefined
+const intro = resolveBlockIntro(introProp, title)
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'event-card',
+  t('eventCard.block_label')
+)
 
 // Populate gaps (e.g. preview missing nested when/where) must not paint an
 // empty bordered shell. MDX authoring always has default-slot children.
@@ -66,16 +72,12 @@ if (!fromStrapi && !Astro.slots.has('default')) {
 
 <section
   data-component="EventCard"
-  aria-label={heading ? undefined : t('eventCard.block_label')}
+  data-intro-variant="universal"
+  aria-label={ariaLabel}
   aria-labelledby={headingId}
-  class:list={['w-full', heading && 'flex flex-col gap-block-heading']}
+  class="w-full"
 >
-  {heading && headingId && <h2
-    id={headingId}
-    class="m-0 text-neutral-100 dark:text-neutral-0"
-  >
-    {heading}
-  </h2>}
+  <BlockIntro intro={intro} headingId={headingId} />
   <div
     class:list={[
       'rounded-3xl border border-neutral-50 bg-white',

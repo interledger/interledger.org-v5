@@ -1,11 +1,18 @@
 ---
 /**
- * FAQ block — an optional heading above an accordion of question/answer pairs.
+ * FAQ block — an optional intro above an accordion of question/answer pairs.
  *
  * Full width within the page's content column; the block adds no width
  * constraint of its own (INTORG-909).
  */
-import { parseMarkdown, useTranslations } from '@/utils'
+import {
+  blockIntroA11y,
+  parseMarkdown,
+  resolveBlockIntro,
+  useTranslations
+} from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import FaqItem from '@/components/shared/FaqItem.astro'
 import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
@@ -16,13 +23,21 @@ interface StrapiFaqItem {
 }
 
 interface Props {
+  intro?: BlockIntroData | null
+  /** @deprecated Legacy heading, rendered as the intro heading. */
   heading?: string
   items?: StrapiFaqItem[]
 }
 
-const { heading, items } = Astro.props
+const { items } = Astro.props
+const intro = resolveBlockIntro(Astro.props.intro, Astro.props.heading)
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'faq',
+  t('faq.block_label')
+)
 
 // Unique so two Faq blocks on one page don't exclusive-close each other
 // when JS is off. Locals lets MDX-slotted <FaqItem> children share this
@@ -47,13 +62,12 @@ const renderedItems = items
 ---
 
 <section
-  data-component="faq"
-  aria-label={heading || t('faq.block_label')}
-  class:list={[heading && 'flex flex-col gap-block-heading']}
+  data-component="Faq"
+  data-intro-variant="universal"
+  aria-labelledby={headingId}
+  aria-label={ariaLabel}
 >
-  {heading && <h2 class="m-0 text-neutral-900 dark:text-neutral-0">
-    {heading}
-  </h2>}
+  <BlockIntro intro={intro} headingId={headingId} />
   <div class="flex w-full flex-col gap-xl" data-faq-accordion>
     {renderedItems ? (
       renderedItems.map((item) => <FaqItem

@@ -1,6 +1,9 @@
+import { serializeIntroProp, type BlockIntroInput } from '../../utils'
 import { escDouble as esc } from '../shared'
 
 export function serialize(block: {
+  /** Optional block intro (ADR-009). */
+  intro?: BlockIntroInput | null
   // On export the media relation is populated ({ url }); this serializer is also
   // reused for validation (validateContentBlocks) on the raw write body, where
   // `file` is a bare upload id. Both shapes must be accepted.
@@ -23,7 +26,13 @@ export function serialize(block: {
   const posterUrl =
     typeof block.poster === 'object' ? block.poster?.url : undefined
 
-  const attrs = [`url="${esc(url)}"`, `title="${esc(block.title)}"`]
+  const introAttr = serializeIntroProp(block.intro).trim()
+  const attrs = [
+    ...(introAttr ? [introAttr] : []),
+    `url="${esc(url)}"`,
+    // The play label, not the intro heading.
+    `title="${esc(block.title)}"`
+  ]
   if (posterUrl) attrs.push(`poster="${esc(posterUrl)}"`)
 
   return `<VideoEmbed ${attrs.join(' ')} />`

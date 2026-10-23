@@ -6,6 +6,7 @@ import {
   stripPagination,
   translateTerm,
   parseMarkdown,
+  splitTrailingHeading,
   PODCAST_PAGE_SLUG,
   CATEGORY_SEGMENT
 } from '@/utils'
@@ -81,15 +82,18 @@ const breadcrumbs = [
   { name: heroTitle ?? title, href: podcastPath }
 ]
 
-// Same landing-only gate as the title cards below.
-const textSectionHtml =
-  isLandingPage && textSection
-    ? await parseMarkdown(textSection, {
-        page: 'podcast',
-        pathname: Astro.url.pathname,
-        lang: routeLocale
-      })
-    : undefined
+// Same landing-only gate as the title cards below. The text ends on the
+// heading that titles the cards; it becomes the card grid's intro, so the
+// grid owns the gap under it (ADR-009).
+const textSectionParts =
+  isLandingPage && textSection ? splitTrailingHeading(textSection) : null
+const textSectionHtml = textSectionParts?.body
+  ? await parseMarkdown(textSectionParts.body, {
+      page: 'podcast',
+      pathname: Astro.url.pathname,
+      lang: routeLocale
+    })
+  : undefined
 
 const heroLcpPreload =
   isLandingPage && (heroImage || heroImageMobile)
@@ -122,15 +126,15 @@ const heroLcpPreload =
 
     {isLandingPage && <section class="px-content">
       {/*
-            The intro text and the cards share one prose flow, so the standard
-            rhythm decides the gap between them. The text ends on the heading
-            that titles the cards, and prose/rhythm.css gives that pair the
-            tighter heading gap instead of a full section break.
+            The intro text and the cards share one prose flow. The heading
+            that titles the cards is the grid's intro, so the grid owns the
+            gap between them.
           */}
       <div class="content-column">
         <div data-prose>
           {textSectionHtml && <Fragment set:html={textSectionHtml} />}
           <CardGrid
+            intro={{ heading: textSectionParts?.heading }}
             ariaLabel={titleCards.ariaLabel}
             columns={titleCards.columns}
             variant="Title"

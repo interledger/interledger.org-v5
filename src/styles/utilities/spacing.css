@@ -54,6 +54,28 @@
   & > [data-stack='cta'] {
     margin-block-start: var(--spacing-2xl);
   }
+
+  /*
+   * Content starts right under the hero (ADR-009, A6): when the section after
+   * it opens its prose with a block that owns its spacing and has an intro
+   * (`[data-block-intro]`, set by BlockIntro), that intro is the whole gap.
+   * A later section, a block without an intro and a legacy first block keep
+   * the stack gap, the last until the Paragraph spacing lands (Phase 3). PageHero emits its
+   * `<script>` as the next sibling, so reach across one.
+   */
+  &
+    > :first-child
+    + :has(
+      [data-prose] > [data-intro-variant]:first-child > [data-block-intro]
+    ),
+  &
+    > :first-child
+    + script
+    + :has(
+      [data-prose] > [data-intro-variant]:first-child > [data-block-intro]
+    ) {
+    margin-block-start: 0;
+  }
 }
 
 /*
@@ -119,7 +141,8 @@
  * `[data-prose-blog]` is included because page preview renders the zone
  * under that attribute, the same as a post.
  */
-main > section:not(:last-of-type)
+main
+  > section:not(:last-of-type)
   :is([data-prose], [data-prose-blog], [data-prose-summit])
   > [data-component='LogoCarousel']:not(:has(~ :not(script, style))) {
   padding-block-end: 0;

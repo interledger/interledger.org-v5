@@ -8,10 +8,15 @@ const validItem = {
 }
 
 describe('faq serializer', () => {
-  it('serializes a block with a heading and a single question', () => {
-    const result = serialize({ heading: 'About us', items: [validItem] })
+  it('serializes a block with an intro and a single question', () => {
+    const result = serialize({
+      intro: { heading: 'About us', subheading: 'The basics' },
+      items: [validItem]
+    })
 
-    expect(result).toContain('<Faq heading="About us">')
+    expect(result).toContain(
+      '<Faq intro={{"heading":"About us","subheading":"The basics"}}>'
+    )
     expect(result).toContain(
       '<FaqItem question="What is the Interledger Foundation?">'
     )
@@ -20,18 +25,25 @@ describe('faq serializer', () => {
     expect(result).toContain('</Faq>')
   })
 
+  it('exports a legacy heading as the intro heading', () => {
+    const result = serialize({ heading: 'About us', items: [validItem] })
+
+    expect(result).toContain('<Faq intro={{"heading":"About us"}}>')
+    expect(result).not.toContain('heading="')
+  })
+
   it('omits the heading attribute when the heading is absent', () => {
     const result = serialize({ items: [validItem] })
 
     expect(result).toContain('<Faq>')
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
   })
 
   it('omits the heading attribute when the heading is only whitespace', () => {
     const result = serialize({ heading: '   ', items: [validItem] })
 
     expect(result).toContain('<Faq>')
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
   })
 
   it('serializes multiple questions in order', () => {
@@ -51,7 +63,7 @@ describe('faq serializer', () => {
       items: [{ ...validItem, question: 'Is it "free" & <open>?' }]
     })
 
-    expect(result).toContain('heading="A & B"')
+    expect(result).toContain('intro={{"heading":"A & B"}}')
     expect(result).toContain('question="Is it &quot;free&quot; & <open>?"')
   })
 

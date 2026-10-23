@@ -11,14 +11,14 @@ import { render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import ProfileCard from '@/components/shared/ProfileCard.astro'
 import ProfileGrid from '@/components/shared/ProfileGrid.astro'
-import Blockquote from '@/components/shared/Blockquote.astro'
+import BlockquoteBlock from '@/components/blocks/BlockquoteBlock.astro'
 import Quote from '@/components/blocks/Quote.astro'
 import CalloutText from '@/components/shared/CalloutText.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import SplitLayout from '@/components/blocks/SplitLayout.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
-import PdfEmbed from '@/components/shared/PdfEmbed.astro'
-import VideoEmbed from '@/components/shared/VideoEmbed.astro'
+import PdfEmbedBlock from '@/components/blocks/PdfEmbedBlock.astro'
+import VideoEmbedBlock from '@/components/blocks/VideoEmbedBlock.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
@@ -139,14 +139,14 @@ const heroLcpPreload =
               ...RICH_TEXT_MDX_COMPONENTS,
               ProfileCard,
               ProfileGrid,
-              Blockquote,
+              Blockquote: BlockquoteBlock,
               Quote,
               CalloutText,
               Paragraph,
               SplitLayout,
               CtaStrip,
-              PdfEmbed,
-              VideoEmbed,
+              PdfEmbed: PdfEmbedBlock,
+              VideoEmbed: VideoEmbedBlock,
               InfoCard,
               TitleCard,
               CardGrid,

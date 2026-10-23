@@ -11,7 +11,9 @@
  *
  * Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so the
  * gap above is tight, 24px up to `desktop` and 32px from there. The block that
- * follows is independent and takes the standard 120px.
+ * follows is independent and takes the standard 120px. A block that owns its
+ * spacing (`data-intro-variant`, INTORG-1154) brings most of that gap in its
+ * intro, so before one the CTA keeps only that block's padding-bottom.
  *
  * The block sits in the prose flow, where a paragraph carries a 32px bottom
  * margin. Adjacent margins collapse to the larger of the pair, so that 32px
@@ -23,7 +25,15 @@
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { buildUmamiAttrs, resolveCtaLink, type UmamiLabel } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import {
+  blockIntroA11y,
+  buildUmamiAttrs,
+  normalizeBlockIntro,
+  resolveCtaLink,
+  type UmamiLabel
+} from '@/utils'
 
 interface CtaButtonProp {
   text: string
@@ -34,6 +44,12 @@ interface CtaButtonProp {
 }
 
 interface Props {
+  /**
+   * Block intro (ADR-009, Button CTA variant). With one, the block owns its
+   * spacing like other intro blocks; without one it keeps the tight pairing
+   * with the paragraph above described at the top of this file.
+   */
+  intro?: BlockIntroData | null
   buttons?: CtaButtonProp[]
   /** Template surfaces (event card, hackathon hero) can drop the trailing icon. */
   hideIcons?: boolean
@@ -52,6 +68,7 @@ interface Props {
 }
 
 const {
+  intro: introProp,
   buttons = [],
   hideIcons = false,
   umamiLabel,
@@ -59,6 +76,14 @@ const {
   spacing = 'prose'
 } = Astro.props
 const { routeLocale, site } = Astro.locals
+const intro = normalizeBlockIntro(introProp)
+const { headingId } = blockIntroA11y(intro, 'cta-buttons')
+const Root = intro ? 'section' : 'div'
+// The buttons sit 24 / 24 / 32 below the intro, except under a heading on
+// its own, whose spacer is already the gap (designer, 2026-10-19).
+const isHeadingOnly = Boolean(
+  intro?.heading && !intro.subheading && !intro.description
+)
 
 // A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
 // the same value `BaseLayout` writes to `data-site` for the button tokens, so the
@@ -97,41 +122,53 @@ const resolved = buttons
   })
 ---
 
-{resolved.length > 0 && <div
+{resolved.length > 0 && <Root
   data-component="CtaButtons"
+  data-intro-variant={intro ? 'button-cta' : undefined}
+  aria-labelledby={headingId}
   class:list={[
     spacing === 'prose' &&
-      'mt-xl mb-section [&:last-child]:mb-0 desktop:mt-2xl',
-    'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+      !intro &&
+      'mt-xl mb-section [&:last-child]:mb-0 [&:has(+[data-intro-variant])]:mb-(--block-pb) desktop:mt-2xl'
   ]}
 >
-  {/*
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[
+      intro && !isHeadingOnly && 'pt-xl desktop:pt-2xl',
+      'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+    ]}
+  >
+    {/*
         `iconSide` is explicit because LinkButton otherwise infers it from
         `Astro.slots.has('icon-right')`, which reports true even when the slot
         holds a falsy conditional and renders nothing. It also has to honour
         `hideIcons`: a button whose icon is suppressed needs the symmetric
         padding, or its label sits 8px off centre.
       */}
-  {resolved.map((button) => <LinkButton
-    href={button.href}
-    variant={button.variant}
-    mode="auto"
-    external={button.external}
-    document={button.document}
-    iconSide={!hideIcons && button.icon ? 'right' : 'none'}
-    class="w-full tablet:w-auto"
-    {...buildUmamiAttrs({
-      pathname: Astro.url.pathname,
-      lang: routeLocale,
-      label: umamiLabel ?? 'button_cta',
-      baseComponent:
-        umamiBaseComponent ??
-        (button.variant === 'secondary' ? 'secondary_cta' : 'primary_cta'),
-      href: button.href,
-      linkText: button.text
-    })}
-  >
-    {button.text}
-    {!hideIcons && button.icon && <Icon name={button.icon} slot="icon-right" />}
-  </LinkButton>)}
-</div>}
+    {resolved.map((button) => <LinkButton
+      href={button.href}
+      variant={button.variant}
+      mode="auto"
+      external={button.external}
+      document={button.document}
+      iconSide={!hideIcons && button.icon ? 'right' : 'none'}
+      class="w-full tablet:w-auto"
+      {...buildUmamiAttrs({
+        pathname: Astro.url.pathname,
+        lang: routeLocale,
+        label: umamiLabel ?? 'button_cta',
+        baseComponent:
+          umamiBaseComponent ??
+          (button.variant === 'secondary' ? 'secondary_cta' : 'primary_cta'),
+        href: button.href,
+        linkText: button.text
+      })}
+    >
+      {button.text}
+      {!hideIcons && button.icon && (
+        <Icon name={button.icon} slot="icon-right" />
+      )}
+    </LinkButton>)}
+  </div>
+</Root>}
