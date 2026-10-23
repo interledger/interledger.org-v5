@@ -63,7 +63,7 @@ export const DEFAULT_INLINE_LINK_BASE_COMPONENT = 'inline_link'
 // Absolute links to the site's own domain must classify as internal. Staging
 // and playground count too: editors copy links from whichever environment
 // they work on. Keep in step with the CMS's `SITE_HOSTS` (tested).
-const SITE_HOSTNAMES = new Set([
+export const SITE_HOSTNAMES: ReadonlySet<string> = new Set([
   'interledger.org',
   'www.interledger.org',
   'staging.interledger.org',

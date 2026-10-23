@@ -4,15 +4,15 @@ import {
   buildDeferredUmamiAttrs,
   buildUmamiAttrs,
   extractTitleLabel,
-  isSiteHostname,
+  SITE_HOSTNAMES,
   stripKnownOrigin
 } from './umami'
 
-describe('isSiteHostname', () => {
+describe('SITE_HOSTNAMES', () => {
   // The CMS strips these hosts on save; Astro must treat the same set as the
   // site, or a link stripped in one place stays absolute in the other.
-  it.each(SITE_HOSTS)('counts the CMS site host %s as the site', (host) => {
-    expect(isSiteHostname(host)).toBe(true)
+  it('matches the CMS site hosts exactly', () => {
+    expect(SITE_HOSTNAMES).toEqual(new Set(SITE_HOSTS))
   })
 })
 
