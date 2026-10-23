@@ -314,6 +314,14 @@ describe('stripUploadOriginsInText', () => {
     ).toBe('[guide]: /uploads/img/original/a.pdf')
   })
 
+  it('cuts the origin in a reference definition with no space after the colon', () => {
+    expect(
+      stripUploadOriginsInText(
+        '[guide]:https://cms.example/uploads/img/original/a.pdf'
+      )
+    ).toBe('[guide]:/uploads/img/original/a.pdf')
+  })
+
   it('links a field that is a bare URL alone, since it may be rich text', () => {
     expect(
       stripUploadOriginsInText(

@@ -162,18 +162,18 @@ const TRAILING_PUNCTUATION = /[.,;:!?*_~]+$/
 type UrlInTextContext = 'target' | 'linkText' | 'autolink' | 'bare' | 'leave'
 
 /**
- * An attribute value's start is checked first, so `src=https://…` is a link
- * even though `=` reads as a preceding token. Then a URL nested in another
- * one is left alone, even within an attribute. Any other URL in a tag sits in
- * attribute prose (`title="see …"`) and is treated like link text.
+ * Link targets are checked first, so `src=https://…` and `[id]:https://…` are
+ * links even though `=` and `:` read as a preceding token. Then a URL nested
+ * in another one is left alone, even within an attribute. Any other URL in a
+ * tag sits in attribute prose (`title="see …"`) and is treated like link text.
  */
 function classifyUrlInText(before: string, after: string): UrlInTextContext {
   if (HTML_ATTRIBUTE_VALUE_START.test(before)) return 'target'
-  if (CONTINUES_PRECEDING_TOKEN.test(before)) return 'leave'
-  if (INSIDE_HTML_TAG.test(before)) return 'linkText'
   if (MARKDOWN_DESTINATION.test(before)) return 'target'
   if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
     return 'target'
+  if (CONTINUES_PRECEDING_TOKEN.test(before)) return 'leave'
+  if (INSIDE_HTML_TAG.test(before)) return 'linkText'
   if (INSIDE_LINK_TEXT.test(before)) return 'linkText'
   if (before.endsWith('<') && after.startsWith('>')) return 'autolink'
   return 'bare'
