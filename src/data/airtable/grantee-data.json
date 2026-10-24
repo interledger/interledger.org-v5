@@ -223,7 +223,7 @@
       "Year": "2024",
       "Start Month": "2024-01",
       "Country": "South Africa",
-      "Project Leader": ["Allan  Davids"],
+      "Project Leader": ["Allan Davids"],
       "Thematic Tag": ["Education"],
       "Project Description": "To further fintech research and academic growth via their Financial Innovation Hub, which was launched in 2021 as part of the School of Economics. This Hub serves as a center for groundbreaking studies and development in financial tech, uniting prominent researchers and specialists from across the continent. This partnership aids in creating academic curricula and research projects that champion financial inclusion, digital payment structures, and tech-driven innovation within emerging market sectors.\n",
       "Total budget approved": 550000
@@ -418,7 +418,7 @@
       "Year": "2025",
       "Start Month": "2025-02",
       "Country": "Canada",
-      "Project Leader": ["Andria  Barrett"],
+      "Project Leader": ["Andria Barrett"],
       "Thematic Tag": ["Education", "Advocacy", "Women-Led"],
       "Project Description": "Project, “Empowering Global ROSCA Users through Digital Financial Inclusion,” focuses on ROSCA users and aims to discover what steps need to be taken to support their transition to using digital financial tools that encourage global participation.\n",
       "Total budget approved": 40000,
@@ -761,7 +761,7 @@
       "Year": "2025",
       "Start Month": "2025-01",
       "Country": "France",
-      "Project Leader": ["Benjamin  Bellamy"],
+      "Project Leader": ["Benjamin Bellamy"],
       "Thematic Tag": [
         "Podcasting",
         "Arts & Culture",
@@ -919,7 +919,7 @@
       "Year": "2023",
       "Start Month": "2023-06",
       "Country": "The Netherlands",
-      "Project Leader": ["Carlijn  Kingma"],
+      "Project Leader": ["Carlijn Kingma"],
       "Thematic Tag": [
         "Advocacy",
         "Arts & Culture",
@@ -937,6 +937,24 @@
     }
   },
   {
+    "id": "recxcefOLuAuMAMzz",
+    "createdTime": "2021-05-12T17:44:46.000Z",
+    "fields": {
+      "Project Name": "Alquimétricos Open STEAM toys academy",
+      "Secondary Grant Program Name": "Grant for the Web",
+      "Year": "2021",
+      "Start Month": "2021-09",
+      "Country": "Argentina",
+      "Project Leader": ["Carlos Fernando Daguanno"],
+      "Thematic Tag": ["Education", "OpenSource", "Prototype"],
+      "Project Description": "Alquimétricos was founded in 2015 as an open-source initiative to bring STEAM educational resources to low-income communities, especially in Latin America. Over the years, the project has gained scale, prizes and followers, becoming an international community of educators, designers, makers, communicators and visual artists. This project will research, experiment, and build a case study on monetizing open-access content from the existing platform through Web Monetization to benefit a Brazilian ecosystem of low-income public schools and social institutions, as well as promoting Web Monetization as the main contribution option for premium content subscription. \n",
+      "Total budget approved": 38600,
+      "Project Links": [
+        "https://community.interledger.org/alquimetricos_50/alquimetricos-lab-grant-report-2-5fa0"
+      ]
+    }
+  },
+  {
     "id": "recQ8EQymqJ6fAanN",
     "createdTime": "2025-01-27T23:59:19.000Z",
     "fields": {
@@ -945,7 +963,7 @@
       "Year": "2025",
       "Start Month": "2025-02",
       "Country": "United States",
-      "Project Leader": ["Caroline  Sinders"],
+      "Project Leader": ["Caroline Sinders"],
       "Thematic Tag": [
         "Advocacy",
         "Education",
@@ -1151,7 +1169,7 @@
       "Project Description": "Attention-based podcast monetization is being explored within the tech community but no solution has been widely adopted. Most podcasts are monetized through advertising or subscriptions through platforms like Apple and Spotify which help producers earn revenue while also taking their own cut, tying listener’s consumption to their proprietary platform. What is needed is another option for podcast monetization that is as open and standards-based as podcasting itself and that connects support from listeners to the productions themselves.\n\n\n",
       "Total budget approved": 83875,
       "Project Links": [
-        "https://community.interledger.org/msrbinovich/web-monetization-for-podcasting-4ge4-temp-slug-9294395"
+        "https://community.interledger.org/msrbinovich/web-monetization-for-podcasting-26f7"
       ]
     }
   },
@@ -1287,7 +1305,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "Austria",
-      "Project Leader": ["Dmitry  Erokhin"],
+      "Project Leader": ["Dmitry Erokhin"],
       "Thematic Tag": ["Blogging"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
@@ -1474,7 +1492,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "Nepal",
-      "Project Leader": ["Dr. Ram  Narayan Shrestha"],
+      "Project Leader": ["Dr. Ram Narayan Shrestha"],
       "Thematic Tag": ["Blogging"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
@@ -1489,7 +1507,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "Nigeria",
-      "Project Leader": ["Dr. Raymond  Onuoha"],
+      "Project Leader": ["Dr. Raymond Onuoha"],
       "Thematic Tag": ["Blogging"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
@@ -1504,7 +1522,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "Portugal",
-      "Project Leader": ["Dr. Senka  Hadzic"],
+      "Project Leader": ["Dr. Senka Hadzic"],
       "Thematic Tag": ["Blogging", "Women-Led"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
@@ -1673,7 +1691,7 @@
       "Year": "2020",
       "Start Month": "2020-09",
       "Country": "United States",
-      "Project Leader": ["Erika  Kitzmiller"],
+      "Project Leader": ["Erika Kitzmiller"],
       "Thematic Tag": ["Women-Led"],
       "Project Description": "Testing a new model for providing essential news to small towns through the development of a sustainable, monetized website that will incentivize local residents to produce original news coverage of their community. \n",
       "Total budget approved": 15000,
@@ -1691,7 +1709,7 @@
       "Year": "2022",
       "Start Month": "2022-12",
       "Country": "United States",
-      "Project Leader": ["Erin  Barra"],
+      "Project Leader": ["Erin Barra"],
       "Thematic Tag": [
         "Arts & Culture",
         "Web Monetization",
@@ -1714,7 +1732,7 @@
       "Year": "2023",
       "Start Month": "2023-06",
       "Country": "Zambia",
-      "Project Leader": ["Esther  Mwema"],
+      "Project Leader": ["Esther Mwema"],
       "Thematic Tag": [
         "Arts & Culture",
         "Advocacy",
@@ -1739,7 +1757,7 @@
       "Year": "2026",
       "Start Month": "2026-02",
       "Country": "United States",
-      "Project Leader": ["Evan  Prodromou"],
+      "Project Leader": ["Evan Prodromou"],
       "Thematic Tag": ["Research"],
       "Project Description": "The [Social Web Foundation](https://socialwebfoundation.org/) advocates for interoperable social networks that use web standards. It develops technology standards and operational resources. With a grant from the Interledger Foundation, the Social Web Foundation is researching sustainable revenue and operating models for digital publishers and community-run platforms.\nThe research will explore four key areas:\n- Creator economy: How can individual subject matter experts build and maintain their audience relationships without relying on centralized social media platforms?\n- Web Monetization and multimedia: How can content other than webpages (e.g., podcasts, short- and long-form video) benefit from tools like Web Monetization or Open Payments?\n- Sustainability: How can federated social web community servers operate with sustainable revenue and governance models?\n- Cooperatives: How can the legal and operational challenges of collectively-owned and operated community infrastructure be solved?\n",
       "Total budget approved": 208500
@@ -1807,7 +1825,7 @@
       "Year": "2022",
       "Start Month": "2022-10",
       "Country": "United States",
-      "Project Leader": ["Fernando  Almiñana"],
+      "Project Leader": ["Fernando Almiñana"],
       "Thematic Tag": ["Financial Services", "Software", "Film/Video"],
       "Project Description": "Wallet Guru is an American financial technology company operating digital currency payment solutions with an initial focus on Latin America. The company is developing a payment streaming platform called [Paystreme](https://community.interledger.org/paystreme) that enables users to pay in real-time for services. Users can send payments per second as they consume services such as cell phone coverage, broadband internet, pay TV, and content streaming platforms.\n",
       "Total budget approved": 75000,
@@ -1825,30 +1843,12 @@
       "Year": "2024",
       "Start Month": "2024-07",
       "Country": "United States",
-      "Project Leader": ["Fernando  Almiñana"],
+      "Project Leader": ["Fernando Almiñana"],
       "Thematic Tag": ["Financial Services", "Prototype"],
       "Project Description": "Wallet Guru is an American financial technology company operating digital currency payment solutions with an initial focus on Latin America. The company is developing a payment streaming platform called [Paystreme](https://community.interledger.org/paystreme) that enables users to pay in real-time for services. Users can send payments per second as they consume services such as cell phone coverage, broadband internet, pay TV, and content streaming platforms.\n",
       "Total budget approved": 498000,
       "Project Links": [
         "https://community.interledger.org/fernando/wallet-guru-prototype-final-report-1ofp"
-      ]
-    }
-  },
-  {
-    "id": "recxcefOLuAuMAMzz",
-    "createdTime": "2021-05-12T17:44:46.000Z",
-    "fields": {
-      "Project Name": "Alquimétricos Open STEAM toys academy",
-      "Secondary Grant Program Name": "Grant for the Web",
-      "Year": "2021",
-      "Start Month": "2021-09",
-      "Country": "Argentina",
-      "Project Leader": ["Fernando Daguanno", "Carlos Fernando Daguanno"],
-      "Thematic Tag": ["Education", "OpenSource", "Prototype"],
-      "Project Description": "Alquimétricos was founded in 2015 as an open-source initiative to bring STEAM educational resources to low-income communities, especially in Latin America. Over the years, the project has gained scale, prizes and followers, becoming an international community of educators, designers, makers, communicators and visual artists. This project will research, experiment, and build a case study on monetizing open-access content from the existing platform through Web Monetization to benefit a Brazilian ecosystem of low-income public schools and social institutions, as well as promoting Web Monetization as the main contribution option for premium content subscription. \n",
-      "Total budget approved": 38600,
-      "Project Links": [
-        "https://community.interledger.org/alquimetricos_50/alquimetricos-lab-grant-report-2-5fa0"
       ]
     }
   },
@@ -2043,12 +2043,30 @@
       "Year": "2022",
       "Start Month": "2022-10",
       "Country": "Portugal",
-      "Project Leader": ["Helena Tude Machado", "Helena Tude Machado"],
+      "Project Leader": ["Helena Tude Machado"],
       "Thematic Tag": ["Financial Services", "Blogging", "Women-Led"],
       "Project Description": "[Kult](https://community.interledger.org/kult) is a social platform for curating movies, TV series, books, podcasts, and songs that promote diverse cultural exchange between people and communities. With the mission of bringing value to human curation, it aims to create an open-source digital wallet that any platform can easily replicate. Focusing on financial inclusion for the Brazilian population, it also seeks to integrate the wallet with the PIX structure -- an instant and free electronic payment method offered by the Central Bank of Brazil with over 130 million users per month. \n",
       "Total budget approved": 75000,
       "Project Links": [
         "https://community.interledger.org/patrickrahy/kults-ilp-open-source-digital-wallet-final-grant-report-2-3mn2"
+      ]
+    }
+  },
+  {
+    "id": "recEAgX2CXDxO7N06",
+    "createdTime": "2020-08-05T16:13:39.000Z",
+    "fields": {
+      "Project Name": "Tribe of Noise",
+      "Secondary Grant Program Name": "Grant for the Web",
+      "Year": "2020",
+      "Start Month": "2020-05",
+      "Country": "The Netherlands",
+      "Project Leader": ["Hessel van Oorschot"],
+      "Thematic Tag": ["Arts & Culture"],
+      "Project Description": "We are on a mission and need Grant for the Web’s support. Endgame: Enable creators to share content with the world under their own Creative Commons conditions while Free Music Archive visitors can reward creativity, context and services. Without compromising free and open access, people’s privacy and community norms.\n",
+      "Total budget approved": 90000,
+      "Project Links": [
+        "https://community.interledger.org/freemusicarchive/free-music-archive-grant-report-1-3gm6"
       ]
     }
   },
@@ -2067,24 +2085,6 @@
       "Total budget approved": 100000,
       "Project Links": [
         "https://community.interledger.org/freemusicarchive/free-music-archive-grant-report-2-3gda"
-      ]
-    }
-  },
-  {
-    "id": "recEAgX2CXDxO7N06",
-    "createdTime": "2020-08-05T16:13:39.000Z",
-    "fields": {
-      "Project Name": "Tribe of Noise",
-      "Secondary Grant Program Name": "Grant for the Web",
-      "Year": "2020",
-      "Start Month": "2020-05",
-      "Country": "The Netherlands",
-      "Project Leader": ["Hessel van Oorschot"],
-      "Thematic Tag": ["Arts & Culture"],
-      "Project Description": "We are on a mission and need Grant for the Web’s support. Endgame: Enable creators to share content with the world under their own Creative Commons conditions while Free Music Archive visitors can reward creativity, context and services. Without compromising free and open access, people’s privacy and community norms.\n",
-      "Total budget approved": 90000,
-      "Project Links": [
-        "https://community.interledger.org/freemusicarchive/free-music-archive-grant-report-1-3gm6"
       ]
     }
   },
@@ -2156,7 +2156,7 @@
       "Year": "2021",
       "Start Month": "2021-08",
       "Country": "United States",
-      "Project Leader": ["Imani K  Brown"],
+      "Project Leader": ["Imani K Brown"],
       "Thematic Tag": ["Arts & Culture", "Web Monetization", "Women-Led"],
       "Project Description": "The Black Tattoo Anthology addresses the historical erasure of Black artists and Black tattoo culture. The project will create an anthology that chronicles the Black tattoo experience from professional artists with at least five years in their craft and outlines the historical milestones, movements, and contributions of Black artists and artistry to the tattoo industry. This digital collection will be created, curated, maintained, and Web Monetized by Black practitioners and the tattoo community, and the stories will be shared both digitally and in physical form. \n",
       "Total budget approved": 50783,
@@ -2174,7 +2174,7 @@
       "Year": "2022",
       "Start Month": "2022-10",
       "Country": "Mexico",
-      "Project Leader": ["Isabel  Cruz", "Andrés  Arauz"],
+      "Project Leader": ["Isabel Cruz", "Andrés Arauz"],
       "Thematic Tag": [
         "Financial Services",
         "Advocacy",
@@ -2201,7 +2201,7 @@
       "Year": "2024",
       "Start Month": "2024-01",
       "Country": "Mexico",
-      "Project Leader": ["Isabel  Cruz", "Roberto  Valdovinos"],
+      "Project Leader": ["Isabel Cruz", "Roberto Valdovinos"],
       "Thematic Tag": ["Financial Services", "Prototype", "Women-Led"],
       "Project Description": "The People’s Clearing House (PCH) project builds an ILP-enabled payment platform that connects community banks and savings cooperatives in Mexico to each other, the national RTGS system, and global remittance networks. By enabling digital payments and account-based remittances, the initiative strengthens local financial institutions, expands access to capital, and empowers underserved communities to drive inclusive economic growth.\n",
       "Total budget approved": 899975,
@@ -2453,7 +2453,7 @@
       "Year": "2025",
       "Start Month": "2025-08",
       "Country": "Australia",
-      "Project Leader": ["John  Allsopp"],
+      "Project Leader": ["John Allsopp"],
       "Thematic Tag": ["Web Monetization"],
       "Project Description": "[Conffab](https://conffab.com/?ref=grant-for-the-web) is an online learning platform featuring content from experts curated by leading conference organizers. With a grant from the Interledger Foundation, Conffab will integrate and experiment with Web Monetization as an additional revenue model for its service and its content authors. It also contributed UX feedback on the [Web Monetization WordPress plugin](https://wordpress.org/plugins/interledger-web-monetization-integration/).\n",
       "Total budget approved": 20000
@@ -2630,7 +2630,7 @@
       "Year": "2025",
       "Start Month": "2025-03",
       "Country": "Pakistan",
-      "Project Leader": ["Karim  Jindani"],
+      "Project Leader": ["Karim Jindani"],
       "Thematic Tag": ["Financial Services", "Prototype"],
       "Project Description": "RafikiRemit is a partnership between Paysys Labs and Allied Bank Limited to integrate the bank into the Interledger network, enabling faster, lower-cost cross-border remittances through ILP and Rafiki. By transforming customer accounts into interoperable digital wallets, the project enhances payment efficiency and advances financial inclusion in Pakistan’s remittance ecosystem.\n",
       "Total budget approved": 250000,
@@ -2671,7 +2671,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "India",
-      "Project Leader": ["Keerty  Nakray"],
+      "Project Leader": ["Keerty Nakray"],
       "Thematic Tag": ["Blogging", "Women-Led"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
@@ -2754,7 +2754,7 @@
       "Year": "2021",
       "Start Month": "2021-06",
       "Country": "United States",
-      "Project Leader": ["Lauren Lavin", "Joshua  Duke"],
+      "Project Leader": ["Lauren Lavin", "Joshua Duke"],
       "Thematic Tag": ["Arts & Culture", "Publishing", "Women-Led"],
       "Project Description": "LOS SUELOS, CA is a multimedia content platform that utilizes web monetization to benefit charitable organizations. An immersive literary universe in the vein of Twilight Zone and Stranger Things, LOS SUELOS, CA unites writers, musicians, and artists to create a narrative set in the mysterious, surreal town of Los Suelos.\n",
       "Total budget approved": 48975.28,
@@ -2772,7 +2772,7 @@
       "Year": "2022",
       "Start Month": "2022-03",
       "Country": "The Netherlands",
-      "Project Leader": ["Lawil  Karama"],
+      "Project Leader": ["Lawil Karama"],
       "Thematic Tag": [
         "Financial Services",
         "Convening",
@@ -2821,6 +2821,24 @@
     }
   },
   {
+    "id": "recQF3psMD2NHTOT3",
+    "createdTime": "2020-09-15T22:52:43.000Z",
+    "fields": {
+      "Project Name": "The Effects of Monetization Visibility on User Behavior",
+      "Secondary Grant Program Name": "Grant for the Web",
+      "Year": "2020",
+      "Start Month": "2020-11",
+      "Country": "Israel",
+      "Project Leader": ["Lior Zalmanson"],
+      "Thematic Tag": ["Research", "Web Monetization", "Prototype"],
+      "Project Description": "Conducting experiments to study the effects of a micropayment counter on users' level of attention, length of engagement time, retention, sense of community, and other variables. The project is addressing the challenges of content creators to attract and retain users and make their work sustainable.\n",
+      "Total budget approved": 43000,
+      "Project Links": [
+        "https://community.interledger.org/lior/effect-of-monetization-visibility-on-user-behavior-final-grant-report-1f61"
+      ]
+    }
+  },
+  {
     "id": "recnfvkCORmkij3lL",
     "createdTime": "2021-12-07T17:42:06.000Z",
     "fields": {
@@ -2835,24 +2853,6 @@
       "Total budget approved": 50000,
       "Project Links": [
         "https://community.interledger.org/lior/sharing-funds-sharing-values-final-grant-report-1dib"
-      ]
-    }
-  },
-  {
-    "id": "recQF3psMD2NHTOT3",
-    "createdTime": "2020-09-15T22:52:43.000Z",
-    "fields": {
-      "Project Name": "The Effects of Monetization Visibility on User Behavior",
-      "Secondary Grant Program Name": "Grant for the Web",
-      "Year": "2020",
-      "Start Month": "2020-11",
-      "Country": "Israel",
-      "Project Leader": ["Lior Zalmanson (in the name of Tel Aviv University)"],
-      "Thematic Tag": ["Research", "Web Monetization", "Prototype"],
-      "Project Description": "Conducting experiments to study the effects of a micropayment counter on users' level of attention, length of engagement time, retention, sense of community, and other variables. The project is addressing the challenges of content creators to attract and retain users and make their work sustainable.\n",
-      "Total budget approved": 43000,
-      "Project Links": [
-        "https://community.interledger.org/lior/effect-of-monetization-visibility-on-user-behavior-final-grant-report-1f61"
       ]
     }
   },
@@ -2921,7 +2921,7 @@
       "Year": "2026",
       "Start Month": "2026-01",
       "Country": "Slovenia",
-      "Project Leader": ["Maaike\n van der Veen"],
+      "Project Leader": ["Maaike van der Veen"],
       "Thematic Tag": ["Financial Services", "Prototype", "Women-Led"],
       "Project Description": "FLIQA will integrate ILF Open Payments into its platform, enabling customers to check out using “Pay by Open Payments” while providing merchants with instant payment pointers through partnerships with existing nodes. As it expands across Europe, the GCC, and Latin America, the project combines market research and strategic partnerships to drive adoption of open payments and improve financial access for underserved businesses and communities.\n",
       "Total budget approved": 249276
@@ -2954,28 +2954,13 @@
       "Year": "2022",
       "Start Month": "2022-10",
       "Country": "Uganda",
-      "Project Leader": ["Margaret  Nankya"],
+      "Project Leader": ["Margaret Nankya"],
       "Thematic Tag": ["Financial Services", "Women-Led"],
       "Project Description": "Binusu Wallet is working on the ability to be an interoperable platform and wallet that achieves a wide range of financial applications.\n",
       "Total budget approved": 75000,
       "Project Links": [
         "https://community.interledger.org/binusu/binusu-universal-wallet-progressfinal-grant-report-2-be7"
       ]
-    }
-  },
-  {
-    "id": "recmtI3uIJ7CvquGr",
-    "createdTime": "2025-03-04T16:39:45.000Z",
-    "fields": {
-      "Project Name": "Kanzu Code",
-      "Secondary Grant Program Name": "Digital Financial Services",
-      "Year": "2025",
-      "Start Month": "2025-03",
-      "Country": "Uganda",
-      "Project Leader": ["Maria  Gorrettie Namuddu"],
-      "Thematic Tag": ["Financial Services", "Prototype", "Women-Led"],
-      "Project Description": "This project develops an ILP-enabled instant microloans infrastructure within Kanzu Banking to empower SACCOs, VSLAs, and microfinance institutions in Uganda with fast, accessible digital lending capabilities. By integrating interoperable payment systems, automated credit scoring, and mobile wallet connectivity, the initiative expands financial inclusion and enables underserved communities to access affordable credit and grow their economic opportunities.\n",
-      "Total budget approved": 248006
     }
   },
   {
@@ -2999,6 +2984,21 @@
       "Project Links": [
         "https://community.interledger.org/mariabustillos/the-brick-house-final-grant-report-18hk"
       ]
+    }
+  },
+  {
+    "id": "recmtI3uIJ7CvquGr",
+    "createdTime": "2025-03-04T16:39:45.000Z",
+    "fields": {
+      "Project Name": "Kanzu Code",
+      "Secondary Grant Program Name": "Digital Financial Services",
+      "Year": "2025",
+      "Start Month": "2025-03",
+      "Country": "Uganda",
+      "Project Leader": ["Maria Gorrettie Namuddu"],
+      "Thematic Tag": ["Financial Services", "Prototype", "Women-Led"],
+      "Project Description": "This project develops an ILP-enabled instant microloans infrastructure within Kanzu Banking to empower SACCOs, VSLAs, and microfinance institutions in Uganda with fast, accessible digital lending capabilities. By integrating interoperable payment systems, automated credit scoring, and mobile wallet connectivity, the initiative expands financial inclusion and enables underserved communities to access affordable credit and grow their economic opportunities.\n",
+      "Total budget approved": 248006
     }
   },
   {
@@ -3105,7 +3105,7 @@
       "Year": "2025",
       "Start Month": "2025-04",
       "Country": "United States",
-      "Project Leader": ["Matias  Cortese"],
+      "Project Leader": ["Matias Cortese"],
       "Thematic Tag": ["Convening", "Arts & Culture", "Advocacy", "Women-Led"],
       "Project Description": "The work of AMUCSS (Asociación Mexicana de Uniones de Crédito del Sector Social), the People’s Clearinghouse, and the Interledger Foundation is rooted in one shared belief: that financial inclusion is not just about money, but about people, land, and culture. What might seem like simple economic activity is, in truth, a story of life, resilience, and tradition. One where digital tools meet ancestral knowledge to build a fairer future. This project had the goal of integrating rural reality and technology in the most humane way possible.\n",
       "Total budget approved": 60385,
@@ -3156,7 +3156,7 @@
       "Year": "2021",
       "Start Month": "2021-08",
       "Country": "United States",
-      "Project Leader": ["Metasebia  Yoseph"],
+      "Project Leader": ["Metasebia Yoseph"],
       "Thematic Tag": [
         "Software",
         "Advocacy",
@@ -3180,7 +3180,7 @@
       "Year": "2023",
       "Start Month": "2023-06",
       "Country": "United States",
-      "Project Leader": ["Mia  Wright-Ross"],
+      "Project Leader": ["Mia Wright-Ross"],
       "Thematic Tag": ["Archival", "Arts & Culture", "Women-Led"],
       "Project Description": "Loose Change (Chains) reimagines a structure by which the litter of Hope based lottery tickets can be collected, recycled, and reflected (by Black & Brown Community Liaisons) to question the theologies of money, poverty, wealth, gain, loss, and hope that persists through the Capitalist White Supremacist's systems that prevails within the history and legacy of the U.S. Lottery\n",
       "Total budget approved": 25000,
@@ -3198,7 +3198,7 @@
       "Year": "2026",
       "Start Month": "2026-01",
       "Country": "The Netherlands",
-      "Project Leader": ["Michael  Caster"],
+      "Project Leader": ["Michael Caster"],
       "Thematic Tag": ["Advocacy", "Research", "Privacy"],
       "Project Description": "ARTICLE 19 will map how Hong Kong authorities obtain financial data from overseas financial service providers and what companies do (or fail to do) when responding to such requests. They will deliver (1) legal and policy briefings on US and UK pathways for data access and their human-rights implications; (2) a review of major payment and platform companies’ privacy and transparency practices; and (3) a bilingual (English/Cantonese) practical guide for Hong Kong civil society and a companion resource for fintechs on rights-respecting responses to government requests.\n",
       "Total budget approved": 50000
@@ -3318,7 +3318,7 @@
       "Year": "2025",
       "Start Month": "2025-08",
       "Country": "United Kingdom",
-      "Project Leader": ["Mila T.  Samdub"],
+      "Project Leader": ["Mila T. Samdub"],
       "Thematic Tag": [
         "Research",
         "Digital Public Infrastructure",
@@ -3683,7 +3683,7 @@
       "Year": "2020",
       "Start Month": "2020-09",
       "Country": "Portugal",
-      "Project Leader": ["Patrícia  Carapinha"],
+      "Project Leader": ["Patrícia Carapinha"],
       "Thematic Tag": ["Education", "Publishing", "Women-Led"],
       "Project Description": "Using the personal website [www.pattyalexx.com](http://www.pattyalexx.com) to raise awareness on Web Monetization, crypto currencies, and the Interledger Protocol, by educating readers that arrive to see other content.\n",
       "Total budget approved": 14997,
@@ -3873,6 +3873,24 @@
     }
   },
   {
+    "id": "rec1vlQjguh0Uce8W",
+    "createdTime": "2020-09-15T22:42:52.000Z",
+    "fields": {
+      "Project Name": "Helping Minority Content Creators Monetize on the Web (HMCCMW)",
+      "Secondary Grant Program Name": "Grant for the Web",
+      "Year": "2020",
+      "Start Month": "2020-09",
+      "Country": "United States",
+      "Project Leader": ["Rashon Massey"],
+      "Thematic Tag": ["Advocacy", "Accessibility", "Research"],
+      "Project Description": "Introducing, educating and engaging individuals to/with the tools of Web Monetization via Coil and Puma through the creation of original copyrightable content, with a focus on serving minority groups and women.\n",
+      "Total budget approved": 14000,
+      "Project Links": [
+        "https://community.interledger.org/micopeia/helping-minority-content-creators-monetize-on-the-web-grant-report-4-1fff"
+      ]
+    }
+  },
+  {
     "id": "recdF13LyF1mKXwzS",
     "createdTime": "2021-12-07T17:36:15.000Z",
     "fields": {
@@ -3887,24 +3905,6 @@
       "Total budget approved": 33300,
       "Project Links": [
         "https://community.interledger.org/hsbawm/helping-small-businesses-adopt-web-monetization-final-grant-report-5e65"
-      ]
-    }
-  },
-  {
-    "id": "rec1vlQjguh0Uce8W",
-    "createdTime": "2020-09-15T22:42:52.000Z",
-    "fields": {
-      "Project Name": "Helping Minority Content Creators Monetize on the Web (HMCCMW)",
-      "Secondary Grant Program Name": "Grant for the Web",
-      "Year": "2020",
-      "Start Month": "2020-09",
-      "Country": "United States",
-      "Project Leader": ["Rashon Massey", "Rashon Massey"],
-      "Thematic Tag": ["Advocacy", "Accessibility", "Research"],
-      "Project Description": "Introducing, educating and engaging individuals to/with the tools of Web Monetization via Coil and Puma through the creation of original copyrightable content, with a focus on serving minority groups and women.\n",
-      "Total budget approved": 14000,
-      "Project Links": [
-        "https://community.interledger.org/micopeia/helping-minority-content-creators-monetize-on-the-web-grant-report-4-1fff"
       ]
     }
   },
@@ -4089,28 +4089,13 @@
       "Year": "2025",
       "Start Month": "2025-08",
       "Country": "United States",
-      "Project Leader": ["Ryan  Barrett", "Anuj Ahooja"],
+      "Project Leader": ["Ryan Barrett", "Anuj Ahooja"],
       "Thematic Tag": ["Web Monetization"],
       "Project Description": "[A New Social](https://anew.social/) operates [Bridgy Fed](https://fed.brid.gy/?ref=grant-for-the-web) to provide interoperability between decentralized social network protocols ActivityPub and AT Protocol. With a grant from the Interledger Foundation, A New Social led the lexicon definition for Web Monetization. Then, they integrated into Bridgy Fed with the JSON-LD definition for Web Monetization to have bi-directional Web Monetization wallet address attribution between the ActivityPub and AT Protocol ecosystems.\n",
       "Total budget approved": 10000,
       "Project Links": [
         "https://community.interledger.org/snarfed/bridgy-fed-ilf-grant-final-report-5hfp"
       ]
-    }
-  },
-  {
-    "id": "recPNY3hcj8SWt1az",
-    "createdTime": "2025-12-01T17:37:48.000Z",
-    "fields": {
-      "Project Name": "Sam Smith",
-      "Secondary Grant Program Name": "Call for Papers",
-      "Year": "2025",
-      "Start Month": "2025-09",
-      "Country": "United States",
-      "Project Leader": ["Sam  Smith"],
-      "Thematic Tag": ["Blogging", "Privacy"],
-      "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
-      "Total budget approved": 500
     }
   },
   {
@@ -4132,6 +4117,21 @@
     }
   },
   {
+    "id": "recPNY3hcj8SWt1az",
+    "createdTime": "2025-12-01T17:37:48.000Z",
+    "fields": {
+      "Project Name": "Sam Smith",
+      "Secondary Grant Program Name": "Call for Papers",
+      "Year": "2025",
+      "Start Month": "2025-09",
+      "Country": "United States",
+      "Project Leader": ["Sam Smith"],
+      "Thematic Tag": ["Blogging", "Privacy"],
+      "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
+      "Total budget approved": 500
+    }
+  },
+  {
     "id": "recHmGtsRJSJkWYIm",
     "createdTime": "2023-09-06T17:28:42.000Z",
     "fields": {
@@ -4140,7 +4140,7 @@
       "Year": "2023",
       "Start Month": "2023-09",
       "Country": "India",
-      "Project Leader": ["Santosh  Viswanatham"],
+      "Project Leader": ["Santosh Viswanatham"],
       "Thematic Tag": ["OpenSource", "Advocacy", "Web Monetization"],
       "Project Description": "To build around web monetization projects, particularly the Web monetization provider browser add-on, and make it available as soon as possible for engineers and organisations to test and develop projects related to Web monetization. This extension will not only benefit me but also many others by promoting financial inclusivity through web monetization. The extension will be compatible with the new Web monetization spec and will be updated accordingly as the spec evolves.\n\n",
       "Total budget approved": 50000,
@@ -4159,7 +4159,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "South Africa",
-      "Project Leader": ["Sarah  Corley"],
+      "Project Leader": ["Sarah Corley"],
       "Thematic Tag": ["Advocacy", "Women-Led"],
       "Project Description": "This grant will support the Alliance of Digital Finance and Fintech Associations (AllianceDFA) to lead a global initiative aimed at making Instant Payment Systems more inclusive for fintechs and non-bank actors. The project will assess barriers to participation, amplify the voices of inclusive finance providers, and develop actionable recommendations to improve governance, access, and scalability across regions including Latin America, Africa, and Asia. \n",
       "Total budget approved": 57000,
@@ -4177,7 +4177,7 @@
       "Year": "2026",
       "Start Month": "2026-04",
       "Country": "South Africa",
-      "Project Leader": ["Sarah  Corley"],
+      "Project Leader": ["Sarah Corley"],
       "Thematic Tag": ["Women-Led", "Financial Services"],
       "Project Description": "Core organizational support to the community of practice and global network connecting fintech and digital finance associations whose members serving women, rural communities, and small enterprises.\n",
       "Total budget approved": 57000
@@ -4347,7 +4347,7 @@
       "Year": "2025",
       "Start Month": "2025-08",
       "Country": "United States",
-      "Project Leader": ["Sophia  Collender"],
+      "Project Leader": ["Sophia Collender"],
       "Thematic Tag": ["Civic Tech", "Research", "Women-Led"],
       "Project Description": "How Money Could Move Us: The Feasibility of Payment Interoperability Among Global Mass Transit Systems. This paper will investigate both the potential and the potential challenges of embracing interoperable digital transaction systems as the primary form of payment within mass transit systems around the world, specifically exploring how the Interledger Protocol (ILP) — a protocol the enables rapid interoperable payments — could be pivotal to this aim. By examining the current successes and failures of mass transit payment structures in various cities, this paper will form a comprehensive summary of how the Interledger Protocol (ILP) might act as a vehicle for enabling both greater economic and physical mobility. It will synthesize the findings of case study examples that explore how interoperable digital payments have already been deployed in order to facilitate greater financial access, and what barriers those systems have faced. The qualitative and quantitative insights drawn from this analysis will be applied towards building directly on the summary understanding of the current state of mass transit payment systems in order to draw conclusions about how ILP can most effectively be used to expand access to transit on a global scale.\n",
       "Total budget approved": 5000
@@ -4398,7 +4398,7 @@
       "Year": "2024",
       "Start Month": "2024-03",
       "Country": "Canada",
-      "Project Leader": ["Stephanie  Perrin"],
+      "Project Leader": ["Stephanie Perrin"],
       "Thematic Tag": [
         "Digital Public Infrastructure",
         "Research",
@@ -4528,7 +4528,7 @@
       "Year": "2021",
       "Start Month": "2021-06",
       "Country": "Slovenia",
-      "Project Leader": ["Tadej Štrok", "Maja  Cimerman"],
+      "Project Leader": ["Tadej Štrok", "Maja Cimerman"],
       "Thematic Tag": ["Journalism", "Publishing"],
       "Project Description": "New Day is an experimental project aimed at exploring ways of using the Web Monetization Standard to fund independent and investigative journalism. It will bring together a selection of Slovenian news media outlets and online publications in a pilot program focused on implementation of the Web Monetization Standard, optimization of user onboarding, and testing of communication strategies.\n",
       "Total budget approved": 46014,
@@ -4591,7 +4591,7 @@
       "Project Leader": [
         "Tarunima Prabhakar",
         "Denny George",
-        "Arathy  Puthillam"
+        "Arathy Puthillam"
       ],
       "Thematic Tag": [
         "Web Monetization",
@@ -4706,7 +4706,7 @@
       "Year": "2024",
       "Start Month": "2024-07",
       "Country": "Nigeria",
-      "Project Leader": ["Uchi Uchibeke", "Uchi Uchibeke"],
+      "Project Leader": ["Uchi Uchibeke"],
       "Thematic Tag": ["Financial Services", "Prototype"],
       "Project Description": "Chimoney is integrating the Interledger Protocol across its financial services ecosystem to enable seamless, interoperable payments through its Wallet-as-a-Service platform and ILP-enabled infrastructure. By issuing payment pointers, supporting web monetization, and enabling cross-platform transactions, the project expands access to efficient digital payments and accelerates global adoption of open payments.\n",
       "Total budget approved": 500000,
@@ -4822,7 +4822,7 @@
       "Year": "2023",
       "Start Month": "2023-08",
       "Country": "Germany",
-      "Project Leader": ["Xiaoji  Song"],
+      "Project Leader": ["Xiaoji Song"],
       "Thematic Tag": [
         "Arts & Culture",
         "Archival",
@@ -4846,7 +4846,7 @@
       "Year": "2025",
       "Start Month": "2025-02",
       "Country": "Germany",
-      "Project Leader": ["Xiaoji  Song"],
+      "Project Leader": ["Xiaoji Song"],
       "Thematic Tag": [
         "Advocacy",
         "Education",
@@ -4888,7 +4888,7 @@
       "Year": "2025",
       "Start Month": "2025-09",
       "Country": "India",
-      "Project Leader": ["Yash  Sancheti"],
+      "Project Leader": ["Yash Sancheti"],
       "Thematic Tag": ["Blogging"],
       "Project Description": "Contribution to the Call for Papers blog publication track to expand upon their Call for Paper initial submission in the form of a public-oriented blog post that maintains intellectual rigour while engaging a broader, interdisciplinary readership.\n\n\n",
       "Total budget approved": 500
