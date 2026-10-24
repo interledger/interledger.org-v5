@@ -4,6 +4,7 @@ import {
   type Locale,
   parseMarkdown,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   grantOverviewHubPath,
   grantOverviewRouteParam,
@@ -78,7 +79,7 @@ const pageHref = localizeRoute(grantOverviewRouteParam(slug), routeLocale)
 // where grantsHref and pageHref are identical — a third crumb would just repeat "Grants".
 const isGrantOverviewHub = slug === GRANT_OVERVIEW_PRIMARY_SLUG
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: t('nav.grants'), href: grantsHref },
   ...(isGrantOverviewHub ? [] : [{ name: heroTitle ?? title, href: pageHref }])
 ]

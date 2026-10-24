@@ -4,6 +4,7 @@ import {
   type Locale,
   isDemoPathSlug,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   getGatedCollection
 } from '@/utils'
@@ -81,7 +82,7 @@ const noindex = isDemoPathSlug(mdxPage.data.pathSlug)
 if (isNotFound) return Astro.redirect('/404')
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
 

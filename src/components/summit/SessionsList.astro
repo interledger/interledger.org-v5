@@ -5,7 +5,8 @@ import {
   generateSlug,
   truncateText,
   getTranslation,
-  buildSessionCardUmamiAttrs
+  buildSessionCardUmamiAttrs,
+  joinPagePath
 } from '@/utils'
 
 interface Props {
@@ -24,7 +25,7 @@ const sessionsWithLinks = sessions.map((session) => {
     ...session,
     title,
     description,
-    href: `${sessionBaseHref}/${generateSlug(session.title)}`
+    href: joinPagePath(sessionBaseHref, generateSlug(session.title))
   }
 })
 

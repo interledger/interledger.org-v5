@@ -14,11 +14,21 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { buildSectionEntryBreadcrumbs } = await import('./breadcrumbs')
+const { buildHomeBreadcrumb, buildSectionEntryBreadcrumbs } =
+  await import('./breadcrumbs')
 const { ui } = await import('@/data/ui')
 
 const translator = (locale: keyof typeof ui) => (key: keyof typeof ui.en) =>
   ui[locale][key]
+
+describe('buildHomeBreadcrumb', () => {
+  it.each([
+    ['en', { name: 'Home', href: '/' }],
+    ['es', { name: 'Inicio', href: '/es/' }]
+  ] as const)('links %s home', (locale, expected) => {
+    expect(buildHomeBreadcrumb(locale, translator(locale))).toEqual(expected)
+  })
+})
 
 describe('buildSectionEntryBreadcrumbs', () => {
   it('builds Home > parents > label for a foundation entry with a nested pathSlug', () => {
@@ -32,10 +42,10 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Grants', href: '/grant/our-grantmaking' },
-      { name: 'Education', href: '/grant/education' },
-      { name: 'On Campus', href: '/grant/education/on-campus' },
-      { name: 'FAQ', href: '/grant/education/on-campus/faq' }
+      { name: 'Grants', href: '/grant/our-grantmaking/' },
+      { name: 'Education', href: '/grant/education/' },
+      { name: 'On Campus', href: '/grant/education/on-campus/' },
+      { name: 'FAQ', href: '/grant/education/on-campus/faq/' }
     ])
   })
 
@@ -50,10 +60,10 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Policy And Advocacy', href: '/policy-and-advocacy' },
+      { name: 'Policy And Advocacy', href: '/policy-and-advocacy/' },
       {
         name: 'The Role of Stablecoins',
-        href: '/policy-and-advocacy/role-stablecoins'
+        href: '/policy-and-advocacy/role-stablecoins/'
       }
     ])
   })
@@ -69,7 +79,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'FAQ', href: '/faq' }
+      { name: 'FAQ', href: '/faq/' }
     ])
   })
 
@@ -84,9 +94,9 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Summit', href: '/summit' },
-      { name: '2025', href: '/summit/2025' },
-      { name: 'FAQ', href: '/summit/2025/faq' }
+      { name: 'Summit', href: '/summit/' },
+      { name: '2025', href: '/summit/2025/' },
+      { name: 'FAQ', href: '/summit/2025/faq/' }
     ])
   })
 
@@ -101,10 +111,10 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Hackathon', href: '/hackathon/overview' },
-      { name: '2025', href: '/hackathon/2025' },
-      { name: 'Judges', href: '/hackathon/2025/judges' },
-      { name: 'Jane Doe', href: '/hackathon/2025/judges/jane-doe' }
+      { name: 'Hackathon', href: '/hackathon/overview/' },
+      { name: '2025', href: '/hackathon/2025/' },
+      { name: 'Judges', href: '/hackathon/2025/judges/' },
+      { name: 'Jane Doe', href: '/hackathon/2025/judges/jane-doe/' }
     ])
   })
 
@@ -119,7 +129,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs[1]).toEqual({
       name: 'Grants',
-      href: '/grant/our-grantmaking'
+      href: '/grant/our-grantmaking/'
     })
   })
 
@@ -135,10 +145,10 @@ describe('buildSectionEntryBreadcrumbs', () => {
     )
 
     expect(breadcrumbs).toEqual([
-      { name: 'Inicio', href: '/es' },
-      { name: 'Subvenciones', href: '/es/grant/our-grantmaking' },
-      { name: 'Becas', href: '/es/grant/fellowship' },
-      { name: 'Jane Doe', href: '/es/grant/fellowship/jane-doe' }
+      { name: 'Inicio', href: '/es/' },
+      { name: 'Subvenciones', href: '/es/grant/our-grantmaking/' },
+      { name: 'Becas', href: '/es/grant/fellowship/' },
+      { name: 'Jane Doe', href: '/es/grant/fellowship/jane-doe/' }
     ])
   })
 
@@ -170,10 +180,10 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs.map((crumb) => crumb.href)).toEqual([
       '/',
-      '/summit',
-      '/summit/grant',
-      '/summit/grant/2025',
-      '/summit/grant/2025/faq'
+      '/summit/',
+      '/summit/grant/',
+      '/summit/grant/2025/',
+      '/summit/grant/2025/faq/'
     ])
     expect(breadcrumbs[2].name).toBe('Grant')
   })
@@ -190,8 +200,8 @@ describe('buildSectionEntryBreadcrumbs', () => {
     )
 
     expect(breadcrumbs).toEqual([
-      { name: 'Inicio', href: '/es' },
-      { name: 'FAQ', href: '/es/faq' }
+      { name: 'Inicio', href: '/es/' },
+      { name: 'FAQ', href: '/es/faq/' }
     ])
   })
 })

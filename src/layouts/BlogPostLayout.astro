@@ -8,7 +8,7 @@
  */
 import {
   useTranslations,
-  localizeRoute,
+  buildHomeBreadcrumb,
   translatePath,
   COLLECTION_INDEX_SLUG
 } from '@/utils'
@@ -44,7 +44,7 @@ const postPath = translatePath(
 )
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: t('blog.foundation.title'), href: blogPath },
   { name: frontmatter.title, href: postPath }
 ]

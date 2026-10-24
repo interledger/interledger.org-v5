@@ -54,7 +54,9 @@ const filterAttrs = (linkText: string, href: string, baseComponent: string) =>
 
 const allYearsHref = getGranteeFilterUrl(directoryPath, undefined, selectedTag)
 const allTagsHref = getGranteeFilterUrl(directoryPath, selectedYear, undefined)
-const searchIndexUrl = localizeRoute('/grantee-search-index.json', routeLocale)
+// A file, not a page: localizeRoute and joinPagePath append a trailing slash,
+// so the filename goes after the localized root.
+const searchIndexUrl = `${localizeRoute('/', routeLocale)}grantee-search-index.json`
 ---
 
 <h1 class="my-xl text-neutral-900 desktop:my-3xl">
