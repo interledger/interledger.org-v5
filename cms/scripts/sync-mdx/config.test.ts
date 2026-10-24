@@ -92,37 +92,32 @@ describe('buildContentTypes carousel logo payload', () => {
 })
 
 describe('buildContentTypes draft payload', () => {
-  // Fundraising pages reuse the foundation-page builder, but their Strapi
-  // schema has no `draft` attribute and the REST API rejects unknown keys.
-  it.each([true, undefined])(
-    'omits draft for fundraising pages (frontmatter draft: %s)',
-    async (draft) => {
-      const contentTypes = buildContentTypes(
-        '/nonexistent-project-root',
-        'http://localhost:1337',
-        'token'
-      )
-      const mdx = createMdxFile({
+  it('keeps draft for fundraising pages', async () => {
+    const contentTypes = buildContentTypes(
+      '/nonexistent-project-root',
+      'http://localhost:1337',
+      'token'
+    )
+    const mdx = createMdxFile({
+      pathSlug: 'support-us',
+      frontmatter: {
+        title: 'Support us',
         pathSlug: 'support-us',
-        frontmatter: {
-          title: 'Support us',
-          pathSlug: 'support-us',
-          description: 'Support page',
-          ...(draft === undefined ? {} : { draft })
-        }
-      })
+        description: 'Support page',
+        draft: true
+      }
+    })
 
-      const payload = await contentTypes['fundraising-pages'].buildPayload(
-        mdx,
-        stubStrapi(),
-        null,
-        false
-      )
+    const payload = await contentTypes['fundraising-pages'].buildPayload(
+      mdx,
+      stubStrapi(),
+      null,
+      false
+    )
 
-      expect(payload).not.toBeInstanceOf(Error)
-      expect(payload).not.toHaveProperty('draft')
-    }
-  )
+    expect(payload).not.toBeInstanceOf(Error)
+    expect(payload).toHaveProperty('draft', true)
+  })
 
   it('keeps draft for foundation pages, which share the builder', async () => {
     const contentTypes = buildContentTypes(

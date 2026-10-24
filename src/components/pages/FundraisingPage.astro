@@ -6,23 +6,19 @@
  * extending it. This template always loads Fundraise Up. A foundation page
  * does not, so the other ~200 routes do not pay for the third-party script.
  *
- * **No public route renders this yet.** The collection is defined and the
- * Strapi content type exists, but neither `[...page].astro` nor its Spanish
- * twin includes `fundraising-pages` in `getStaticPaths`, so nothing is built
- * or reachable on the live site. Strapi preview is separate: it renders the
- * draft as a full page (header, footer, hero, blocks) through
- * `FundraisingPagePreview`. Registering the route is the launch change, and
- * that is also when this and `FoundationContentPage` should be reconciled —
- * see the component map below.
+ * `[...page].astro` and its Spanish twin register the routes. A `draft: true`
+ * entry is dropped from production builds by `getGatedCollection` and stays
+ * reachable on staging, deploy previews, and in Strapi preview.
  */
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
+  getGatedCollection,
   isDemoPathSlug,
   useTranslations,
   localizeRoute
 } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
@@ -45,7 +41,7 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 
-const pages = await getCollection('fundraising-pages')
+const pages = await getGatedCollection('fundraising-pages')
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
@@ -117,8 +113,7 @@ const heroLcpPreload =
             Scoped to the blocks a fundraising page uses, not a copy of
             `FoundationContentPage`'s 28-entry map. An MDX file reaching for a
             block that is not here fails the build with an undefined-component
-            error rather than rendering nothing, so the gap is loud. Converge
-            the two maps when the route lands.
+            error rather than rendering nothing, so the gap is loud.
           */}
           <MdxContent
             components={{

@@ -933,6 +933,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Page Content'
     },
     'api::fundraising-page.fundraising-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',

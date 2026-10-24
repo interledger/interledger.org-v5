@@ -35,6 +35,16 @@
       "required": true,
       "unique": true
     },
+    "draft": {
+      "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "default": false
+    },
     "description": {
       "type": "text",
       "pluginOptions": {
