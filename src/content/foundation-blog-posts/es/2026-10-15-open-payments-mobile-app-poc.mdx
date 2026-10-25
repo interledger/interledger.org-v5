@@ -24,7 +24,7 @@ La mayoría de los ejemplos de [Open Payments](https://openpayments.dev/) se eje
 
 La respuesta es sí. En este artículo construimos una pequeña prueba de concepto (PoC) con [Expo](https://expo.dev/) y React Native. La app funciona con la [Interledger Test Wallet](https://wallet.interledger-test.dev/), así que puede usar dinero de prueba.
 
-Esta es una guía práctica. Si participa en el hackathon de Interledger en Colombia este fin de semana, puede seguirla paso a paso, ejecutar la app y construir su propia idea sobre ella.
+Esta es una guía práctica para cualquier persona que quiera construir una app móvil con Open Payments. Puede seguirla paso a paso, ejecutar la app y construir su propia idea sobre ella.
 
 ---
 
@@ -354,7 +354,7 @@ La página de detalle también completa el pago entrante si sigue abierto, por e
 - **Para verificar primero, necesita un cliente que ya tenga una clave.** Un grant interactivo, como la verificación de propiedad, debe estar firmado por un cliente cuya clave la billetera conoce. Un teléfono nuevo no tiene ninguna, así que el backend, con su propia dirección de billetera y su clave, hace ese primer paso.
 - **iOS 27 necesita el ciclo de vida de escenas.** Con el SDK de iOS 27, las apps que no lo usan se cierran al abrirse. Expo SDK 57 ya trae el _scene delegate_; el repositorio incluye un pequeño plugin de configuración que lo activa.
 
-## Qué construir en el hackathon
+## Qué construir después
 
 Algunas ideas, de fácil a difícil:
 
@@ -377,4 +377,4 @@ El WebView dentro de la app es la razón por la que el usuario inicia sesión un
 
 El código está en el [repositorio open-payments-react-native-example](https://github.com/interledger/open-payments-react-native-example). Es experimental y sirve como punto de partida, no como una billetera para producción. La documentación de Open Payments está en [openpayments.dev](https://openpayments.dev/). Si construye algo con esto, o se queda atascado, escríbanos en el [Slack de Interledger](https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA) o abra un issue en GitHub.
 
-¡Mucha suerte en el hackathon! 🚀
+¡A construir! 🚀

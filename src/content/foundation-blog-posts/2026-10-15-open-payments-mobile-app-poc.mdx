@@ -23,7 +23,7 @@ Most [Open Payments](https://openpayments.dev/) examples run on a server or in a
 
 The answer is yes. In this post we build a small proof of concept (PoC) with [Expo](https://expo.dev/) and React Native. The app runs against the [Interledger Test Wallet](https://wallet.interledger-test.dev/), so you can use play money.
 
-This is a hands-on guide. If you join the Interledger hackathon in Colombia this weekend, you can follow it step by step, run the app, and build your own idea on top of it.
+This is a hands-on guide for anyone who wants to build a mobile app with Open Payments. You can follow it step by step, run the app, and build your own idea on top of it.
 
 ---
 
@@ -353,7 +353,7 @@ The detail page also completes the incoming payment if it is still open, for exa
 - **To verify first, you need a client that already has a key.** An interactive grant, like the ownership check, must be signed by a client whose key the wallet knows. A brand-new phone has none, so the backend, with its own wallet address and key, runs that first step.
 - **iOS 27 needs the scene life cycle.** With the iOS 27 SDK, apps that don't use it crash at launch. Expo SDK 57 already has the scene delegate; the repo includes a small config plugin that enables it.
 
-## What to build at the hackathon
+## What to build next
 
 Some ideas, from easy to hard:
 
@@ -376,4 +376,4 @@ The in-app WebView is the reason the user logs in only once.
 
 The code is in the [open-payments-react-native-example repository](https://github.com/interledger/open-payments-react-native-example). It is experimental and meant as a starting point, not a production wallet. You can find the Open Payments docs at [openpayments.dev](https://openpayments.dev/). If you build something with it, or you get stuck, tell us on the [Interledger Slack](https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA) or open an issue on GitHub.
 
-Good luck at the hackathon! 🚀
+Happy building! 🚀
