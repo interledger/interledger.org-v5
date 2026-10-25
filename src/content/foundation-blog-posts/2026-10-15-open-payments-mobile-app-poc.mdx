@@ -156,9 +156,9 @@ The Web Monetization extension solves this with a content script that runs insid
 The app never sees the password or the cookie. When the script reports success, the WebView closes and the app checks `jwks.json` to confirm the key is there.
 
 <ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-login-and-steps.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-login-and-steps-mobile.png"
-  alt="Left: the Test Wallet login page inside the app WebView. Right: the Wallet tab with the device key and the key added to the wallet, and ownership not confirmed yet"
+  src="/img/foundation-blog/2026-10-15/connect-form-and-login.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connect-form-and-login-mobile.png"
+  alt="Left: the Wallet tab with the Connect your wallet form and a wallet address. Right: the Test Wallet login page inside the app WebView, titled Sign in to your wallet"
   needsFullView={true}
 />
 
@@ -187,7 +187,7 @@ The app opens `grant.interact.redirect` in the same WebView. The user is already
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/connect-ownership.png"
   mobileSrc="/img/foundation-blog/2026-10-15/connect-ownership-mobile.png"
-  alt="Left: the Test Wallet page saying it confirmed ownership of the wallet address. Right: the Wallet tab with all three connection steps marked as done"
+  alt="Left: the Test Wallet page confirming ownership of the wallet address and redirecting back to the app. Right: the Wallet tab with ownership confirmed, device key created and key added to the wallet, all marked as done"
   needsFullView={true}
 />
 
