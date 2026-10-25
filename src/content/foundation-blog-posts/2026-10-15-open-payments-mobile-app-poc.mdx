@@ -31,10 +31,10 @@ This is a hands-on guide. If you join the Interledger hackathon in Colombia this
 
 The app has four tabs:
 
-- **Wallet**: connect your wallet. The phone creates its own key, adds it to your wallet, and your wallet confirms that you own the address.
+- **Wallet**: connect your wallet. Your wallet first confirms that you own the address. Then the phone creates its own key and adds it to your wallet.
 - **Send**: a list of contacts. Pick a contact, type an amount, tap **Proceed**, approve the payment in your wallet, done.
 - **History**: every transfer made from the app, with live status from the wallet.
-- **Budget**: a second model, where a server holds the key and the user approves a monthly budget once. We don't cover it in this post.
+- **Budget**: a second model. The app's backend holds the key, and the user approves a monthly budget once for the connected wallet. We don't cover it in this post.
 
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/send-flow.png"
@@ -50,13 +50,22 @@ The important part is the last screen. It is the wallet's real consent page, sho
 You need:
 
 - **Two Test Wallet wallet addresses**. Sign up at [wallet.interledger-test.dev](https://wallet.interledger-test.dev/), finish the (simulated) KYC and add some play money. One address is yours (the sender). The other one is a contact (the receiver). A different currency is fine, for example USD to MXN.
+- **One more wallet address for the app itself.** The app's small backend uses it to talk to your wallet. Give it a clear public name, for example "My Mobile App", because your wallet shows this name when it asks you to confirm.
 - **Node.js 22** and **npm**.
 - **Xcode** with an iOS Simulator, or Android Studio with an emulator. The app uses a development build, not Expo Go, because it uses native modules.
 
-Get the code and run it:
+Get the code and start the backend:
 
-<CodeBlock language="bash" code={`git clone https://github.com/TODO/rafikiupclose.git
-  cd rafikiupclose/mobile/app
+<CodeBlock language="bash" code={`git clone https://github.com/interledger/open-payments-react-native-example.git
+  cd open-payments-react-native-example/server
+  npm install
+  npm run gen-key        # prints a public key: upload it in the Test Wallet under Settings → Developer Keys
+  cp .env.example .env   # set CLIENT_WALLET_ADDRESS, KEY_ID and PRIVATE_KEY_PATH
+  npm run dev`} />
+
+Then run the app:
+
+<CodeBlock language="bash" code={`cd ../app
   npm install
   npx expo run:ios       # or: npx expo run:android`} />
 
@@ -64,13 +73,16 @@ Get the code and run it:
 
 Before the code, here are four ideas that make the whole thing work.
 
-**1. The client is the user's own wallet address.** In Open Payments, every request is signed by a _client_. The auth server finds the client's public key at `{walletAddress}/jwks.json`. In this app, the client is the user's own wallet address, and the key lives on the phone. This is the same model the [Web Monetization extension](https://github.com/interledger/web-monetization-extension) uses. There is no backend.
+**1. Two clients: a small backend and the phone.** In Open Payments, every request is signed by a _client_. The auth server finds the client's public key at `{walletAddress}/jwks.json`.
+
+- **When you connect, the client is the app's backend.** It has its own wallet address and key, so it can ask your wallet to confirm you own the address before the phone has any key.
+- **After that, the client is your own wallet address, with a key that lives on the phone.** This is the same model the [Web Monetization extension](https://github.com/interledger/web-monetization-extension) uses. Sending money never goes through the backend.
 
 **2. The phone signs every request.** The official JavaScript SDK depends on Node.js crypto, so it does not run in React Native. Instead, the app has a small client (about 200 lines) built on `fetch`. It signs each request with [HTTP Message Signatures](https://openpayments.dev/identity/http-signatures/).
 
 **3. The wallet runs in an in-app WebView.** Login and consent happen on the wallet's own web pages. A WebView keeps its cookies when the app restarts. So the user logs in **once**, inside the app, and after that every consent screen opens directly. The Test Wallet session lasts about one month.
 
-**4. Open Payments only supports redirects.** The auth server sends the user to the wallet's consent page, and then redirects back to a `finish` URI with an `interact_ref` and a `hash`. Our finish URI is `rafikiupclose://op/finish`. The WebView catches this redirect, closes, and gives the values to the app.
+**4. Open Payments only supports redirects in the interaction flow.** The auth server sends the user to the wallet's consent page, and then redirects back to a `finish` URI with an `interact_ref` and a `hash`. Our finish URI is `openpayments-rn-example://op/finish`. The WebView catches this redirect, closes, and gives the values to the app.
 
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/send-sequence.png"
@@ -78,15 +90,49 @@ Before the code, here are four ideas that make the whole thing work.
   needsFullView={true}
 />
 
-All the Open Payments code lives in `mobile/app/src/op/`. It has no React Native imports, so you can also run it from Node.js (there is a smoke test script for that).
+All the phone's Open Payments code lives in `app/src/op/`. It has no React Native imports, so you can also run it from Node.js (there is a smoke test script for that). The backend is in `server/`.
 
-## Step 1: Create a key on the phone
+## Step 1: Connect: confirm you own the wallet address
 
-The app creates an Ed25519 key pair with [`@noble/ed25519`](https://github.com/paulmillr/noble-ed25519). We give the library a synchronous SHA-512 function, because React Native (Hermes) has no WebCrypto.
+The user types their wallet address. Before the phone creates any key, we want the wallet to confirm the user really owns this address. Open Payments has a flow for this: [verify wallet address ownership](https://openpayments.dev/guides/verify-wallet-address-ownership/). It is an interactive grant with a `subject` instead of an `access_token`. It gives no payment rights. It only asks the wallet: "is this user the owner of this address?"
+
+There is one catch: every grant request must be signed by a client whose key the wallet already knows. The phone has no key on the user's wallet yet. So the app's **backend** sends this request, signed with its own key:
 
 <CodeBlock
   language="typescript"
-  title="src/op/keys.ts"
+  title="server/src/ownership.ts (simplified)"
+  code={`const walletAddress = await client.walletAddress.get({ url: userWalletAddressUrl })
+  const grant = await client.grant.request(
+    { url: walletAddress.authServer },
+    {
+      subject: { sub_ids: [{ id: walletAddress.id, format: 'uri' }] },
+      interact: {
+        start: ['redirect'],
+        finish: { method: 'redirect', uri: 'openpayments-rn-example://op/finish', nonce }
+      }
+    }
+  )
+  // the app opens grant.interact.redirect in its WebView ...`}
+/>
+
+The app opens `grant.interact.redirect` in the in-app WebView. This is the only time the user logs in to their wallet. The Test Wallet then confirms ownership by itself after a few seconds, and redirects to our finish URI. The app sends the redirect values to the backend. The backend checks the `hash`, continues the grant, and checks that `subject.sub_ids` contains the same address. Then it cancels the grant, because it has no other use.
+
+Since the backend runs on Node.js, it uses the official [`@interledger/open-payments`](https://github.com/interledger/open-payments) SDK.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/connect-form-and-login.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connect-form-and-login-mobile.png"
+  alt="Left: the Wallet tab with the Connect your wallet form and a wallet address. Right: the Test Wallet login page inside the app WebView, titled Sign in to your wallet"
+  needsFullView={true}
+/>
+
+## Step 2: Create a key on the phone
+
+Your wallet confirmed you own the address. Only now does the phone create its own Ed25519 key pair, with [`@noble/ed25519`](https://github.com/paulmillr/noble-ed25519). We give the library a synchronous SHA-512 function, because React Native (Hermes) has no WebCrypto.
+
+<CodeBlock
+  language="typescript"
+  title="app/src/op/keys.ts"
   code={`import * as ed from '@noble/ed25519'
   import { sha512 } from '@noble/hashes/sha2.js'
 
@@ -105,13 +151,13 @@ The app creates an Ed25519 key pair with [`@noble/ed25519`](https://github.com/p
 
 The 32 random bytes come from `expo-crypto`. The private key goes to the iOS Keychain (or Android Keystore) with `expo-secure-store`. It never leaves the phone. Note: the iOS Secure Enclave does not support Ed25519, so the Keychain is the best option here.
 
-## Step 2: Sign every request
+## Step 3: Sign every request
 
 Open Payments uses HTTP Message Signatures. For each request, the app builds a "signature base" string and signs it with the device key:
 
 <CodeBlock
   language="typescript"
-  title="src/op/signatures.ts (simplified)"
+  title="app/src/op/signatures.ts (simplified)"
   code={`const components = ['@method', '@target-uri']
   if (headers['authorization']) components.push('authorization')
   if (body) components.push('content-digest', 'content-length', 'content-type')
@@ -126,17 +172,17 @@ Open Payments uses HTTP Message Signatures. For each request, the app builds a "
   headers['signature'] = 'sig1=:' + toBase64(ed.sign(utf8(base), key.privateKey)) + ':'`}
 />
 
-The `content-digest` header is `sha-512=:<base64>:` of the JSON body. Signatures are easy to get wrong, so the unit tests check our output with `@interledger/http-signature-utils`, the same library Rafiki uses to validate signatures.
+The `content-digest` header is `sha-512=:<base64>:` of the JSON body. Signatures are easy to get wrong, so the unit tests check our output with `@interledger/http-signature-utils`, the same library [Rafiki](https://rafiki.dev), the Open Payments reference implementation, uses to validate signatures.
 
-## Step 3: Add the key to the wallet, automatically
+## Step 4: Add the key to the wallet, automatically
 
 The auth server must find the device key in the wallet's `jwks.json`. Open Payments has no API to register a key, so each wallet does it in its own way. On the Test Wallet you can paste the key on the **Developer Keys** page. That works, but we wanted to skip the copy and paste.
 
-The Web Monetization extension solves this with a content script that runs inside the logged-in wallet page. A WebView lets us do the same thing. The app opens the Developer Keys page and injects a small script. If the user is not logged in yet, the wallet shows its login page first.
+The Web Monetization extension solves this with a content script that runs inside the logged-in wallet page. A WebView lets us do the same thing. The app opens the Developer Keys page and injects a small script. The user is already signed in from Step 1, so this happens without any input.
 
 <CodeBlock
   language="javascript"
-  title="src/device/testWallet.ts (injected script, simplified)"
+  title="app/src/device/testWallet.ts (injected script, simplified)"
   code={`// Runs inside https://wallet.interledger-test.dev, so the wallet's own
   // session cookie authenticates these calls.
   const api = 'https://api-' + location.host
@@ -148,41 +194,16 @@ The Web Monetization extension solves this with a content script that runs insid
     method: 'POST',
     credentials: 'include',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ base64Key: btoa(JSON.stringify(jwk)), nickname: 'Rafiki Upclose mobile' })
+    body: JSON.stringify({ base64Key: btoa(JSON.stringify(jwk)), nickname: 'Open Payments RN Example' })
   })
   window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'key-upload', ok: true }))`}
 />
 
-The app never sees the password or the cookie. When the script reports success, the WebView closes and the app checks `jwks.json` to confirm the key is there.
-
-<ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-form-and-login.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-form-and-login-mobile.png"
-  alt="Left: the Wallet tab with the Connect your wallet form and a wallet address. Right: the Test Wallet login page inside the app WebView, titled Sign in to your wallet"
-  needsFullView={true}
-/>
+The app never sees the password or the cookie. When the script reports success, the WebView closes and the app checks `jwks.json` to confirm the key is there. From now on, every Open Payments request for sending money is signed by the phone, with the user's own wallet address as the client.
 
 A note for real products: this trick depends on the wallet's private API. It works for the Test Wallet, but it is not a standard.
 
-## Step 4: Connect the wallet (verify ownership)
-
-Now the app has a key on the wallet. But does the user really own this wallet address? Open Payments has a flow for this: [verify wallet address ownership](https://openpayments.dev/guides/verify-wallet-address-ownership/). It is an interactive grant with a `subject` instead of an `access_token`. It gives no payment rights. It only asks the wallet: "is this user the owner of this address?"
-
-<CodeBlock
-  language="typescript"
-  title="src/op/connect.ts"
-  code={`const wallet = await client.getWalletAddress(walletAddressUrl)
-  const grant = await client.requestGrant(wallet.authServer, {
-    subject: { sub_ids: [{ id: wallet.id, format: 'uri' }] },
-    interact: {
-      start: ['redirect'],
-      finish: { method: 'redirect', uri: 'rafikiupclose://op/finish', nonce }
-    }
-  })
-  // open grant.interact.redirect in the WebView ...`}
-/>
-
-The app opens `grant.interact.redirect` in the same WebView. The user is already logged in from Step 3, so there is no second login. The Test Wallet confirms ownership by itself after a few seconds. Then the app checks the redirect `hash` and continues the grant. The response contains `subject.sub_ids` with the confirmed address.
+On the left, the wallet confirms ownership (Step 1). On the right, the Wallet tab shows all three connect steps as done:
 
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/connect-ownership.png"
@@ -201,7 +222,7 @@ Each payment uses its own interactive grant. It is a normal checkout: the user s
 
 <CodeBlock
   language="typescript"
-  title="src/op/checkout.ts (prepareCheckout)"
+  title="app/src/op/checkout.ts (prepareCheckout)"
   code={`// 1. Incoming payment at the receiver (non-interactive grant)
   const incomingGrant = await client.requestGrant(receiver.authServer, {
     access_token: { access: [{ type: 'incoming-payment', actions: ['create', 'read', 'complete'] }] }
@@ -227,21 +248,21 @@ Each payment uses its own interactive grant. It is a normal checkout: the user s
     },
     interact: {
       start: ['redirect'],
-      finish: { method: 'redirect', uri: 'rafikiupclose://op/finish', nonce }
+      finish: { method: 'redirect', uri: 'openpayments-rn-example://op/finish', nonce }
     }
   })`}
 />
 
-**Approve.** The app opens `grant.interact.redirect` in the WebView. The user sees "just dollars is requesting access to $1.00" and taps **Accept**. The wallet redirects to our finish URI. The WebView catches it before loading it, and closes:
+**Approve.** The app opens `grant.interact.redirect` in the WebView. The user sees "_Your Wallet Name_ is requesting access to $1.00" and taps **Accept**. For payments, the client is the user's own wallet address, so the screen shows the user's own wallet name. The wallet redirects to our finish URI. The WebView catches it before loading it, and closes:
 
 <CodeBlock
   language="typescript"
-  title="src/components/WalletWebView.tsx"
+  title="app/src/components/WalletWebView.tsx"
   code={`<WebView
     source={{ uri: redirectUrl }}
     originWhitelist={['*']} // so our custom scheme reaches the handler below
     onShouldStartLoadWithRequest={(request) => {
-      if (request.url.startsWith('rafikiupclose://op/finish')) {
+      if (request.url.startsWith('openpayments-rn-example://op/finish')) {
         onFinish(parseQuery(request.url)) // { interact_ref, hash } or { result: 'grant_rejected' }
         return false // don't load it; the modal closes
       }
@@ -254,7 +275,7 @@ Each payment uses its own interactive grant. It is a normal checkout: the user s
 
 <CodeBlock
   language="typescript"
-  title="src/op/checkout.ts (completeCheckout)"
+  title="app/src/op/checkout.ts (completeCheckout)"
   code={`// hash = base64(sha256(clientNonce + '\\n' + interact.finish + '\\n' + interact_ref + '\\n' + authServer))
   if (!verifyInteractionHash({ clientNonce, asFinishNonce, interactRef, grantEndpointUri, receivedHash })) {
     throw new Error('Interaction hash mismatch')
@@ -276,7 +297,7 @@ The fix is in the [docs](https://openpayments.dev/sdk/incoming-complete/): when 
 
 <CodeBlock
   language="typescript"
-  title="src/op/checkout.ts (settleCheckout, simplified)"
+  title="app/src/op/checkout.ts (settleCheckout, simplified)"
   code={`const grant = await client.requestGrant(receiverAuthServer, {
     access_token: { access: [{ type: 'incoming-payment', actions: ['read', 'complete'] }] }
   })
@@ -291,7 +312,7 @@ The fix is in the [docs](https://openpayments.dev/sdk/incoming-complete/): when 
   await client.completeIncomingPayment(incomingPaymentId, token) // POST .../complete`}
 />
 
-A small trap we found: the outgoing payment has a `sentAmount`, but Rafiki gives it in the **sender's** currency. If you compare it with `receiveAmount` (receiver's currency), a USD to COP payment never looks finished. Check delivery on the receiver side instead: the incoming payment's `receivedAmount`, in the receiver's currency.
+A small trap we found: the quote's `receiveAmount` (also shown on the outgoing payment) is only what the quote **promised** the receiver would get. It doesn't confirm what was actually received. The outgoing payment's `sentAmount` doesn't tell you either, because Rafiki reports it in the **sender's** currency. To know the money really arrived, check the receiver's side: the incoming payment's `receivedAmount`, in the receiver's currency. Complete the incoming payment once that reaches the quoted amount.
 
 ## Step 7: History and live status
 
@@ -308,7 +329,7 @@ To read the payment later, the app keeps the payment's grant in the Keychain. Th
 
 <CodeBlock
   language="typescript"
-  title="src/op/payment-status.ts"
+  title="app/src/op/payment-status.ts"
   code={`try {
     return await client.getOutgoingPayment(paymentUrl, grant.accessToken)
   } catch (error) {
@@ -325,10 +346,11 @@ The detail page also completes the incoming payment if it is still open, for exa
 - **Only `redirect` is supported.** Both for starting the interaction and for finishing it. You can check it on any auth server at `/discovery`.
 - **Start and finish in the same browser.** Rafiki checks a session cookie at `/interact/.../finish` that it set at the start. If the consent page moves to another browser or app in the middle, the grant fails with `invalid session`.
 - **A WebView keeps the login, the system browser does not let you script.** `ASWebAuthenticationSession` (iOS) and Custom Tabs (Android) share cookies with Safari or Chrome, and they are the recommended option for real login. But you can't inject a script into them, so automatic key upload is not possible there.
-- **The consent screen shows the client name.** Here the client is the user's own wallet address, so the screen says "just dollars is requesting access to $1.00". The Test Wallet shows the amount, but not the receiver.
+- **The consent screen shows the client's name.** When you connect, the client is the app's backend, so the wallet shows the app's wallet name: pick a clear one. For payments, the client is the user's own wallet address, so the screen says, for example, "just dollars is requesting access to $1.00". The Test Wallet shows the amount, but not the receiver.
 - **Complete the incoming payment.** If there is no `incomingAmount`, nobody else will.
 - **Check delivery on the receiver side.** `sentAmount` uses the sender's currency.
-- **Directed identity does not replace key upload.** The newer `client: { jwk }` option sends the public key in the request body, but it only works for non-interactive grants (incoming payments and quotes). Outgoing payments still need a key in `jwks.json`.
+- **Directed identity doesn't replace key upload, yet.** The newer `client: { jwk }` option sends the public key in the request body instead of looking it up in `jwks.json`. Today Rafiki only accepts it for non-interactive grants (incoming payments and quotes), so outgoing payments still need a key in `jwks.json`. Support for interactive grants is planned. Once it lands, the phone could do the ownership check itself, without the backend.
+- **To verify first, you need a client that already has a key.** An interactive grant, like the ownership check, must be signed by a client whose key the wallet knows. A brand-new phone has none, so the backend, with its own wallet address and key, runs that first step.
 - **iOS 27 needs the scene life cycle.** With the iOS 27 SDK, apps that don't use it crash at launch. Expo SDK 57 already has the scene delegate; the repo includes a small config plugin that enables it.
 
 ## What to build at the hackathon
@@ -345,13 +367,13 @@ Some ideas, from easy to hard:
 
 This PoC shows that a mobile app can work with Open Payments end to end:
 
-1. It keeps its own key.
-2. It connects to the user's wallet with a standard ownership check.
+1. It connects to the user's wallet with a standard ownership check, before it trusts the device.
+2. It keeps its own key on the phone and adds it to the wallet automatically.
 3. It sends money with a clear, per-payment approval.
 4. It finishes the payment on both sides.
 
 The in-app WebView is the reason the user logs in only once.
 
-The code is in the [PoC repository](https://github.com/TODO/rafikiupclose). It is experimental and meant as a starting point, not a production wallet. You can find the Open Payments docs at [openpayments.dev](https://openpayments.dev/). If you build something with it, or you get stuck, tell us on the [Interledger Slack](https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA) or open an issue on GitHub.
+The code is in the [open-payments-react-native-example repository](https://github.com/interledger/open-payments-react-native-example). It is experimental and meant as a starting point, not a production wallet. You can find the Open Payments docs at [openpayments.dev](https://openpayments.dev/). If you build something with it, or you get stuck, tell us on the [Interledger Slack](https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA) or open an issue on GitHub.
 
 Good luck at the hackathon! 🚀
