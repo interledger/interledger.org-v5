@@ -45,5 +45,7 @@ declare namespace App {
      * instead of the document-wide default `faq`.
      */
     faqAccordionGroupName?: string
+    /** Timelines rendered so far on this page, so each gets a unique id. */
+    timelineCount?: number
   }
 }

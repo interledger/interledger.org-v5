@@ -31,7 +31,15 @@ const lastEventIndex =
   resolved.reduce((total, section) => total + section.events.length, 0) - 1
 const eventOffsets = timelineEventOffsets(resolved)
 
-const timelineId = `timeline-${crypto.randomUUID()}`
+/**
+ * Plain `#timeline` reads well in the address bar after Return and Skip.
+ * Counted per page render, so a second timeline on the same page gets
+ * `#timeline-2` instead of a duplicate id.
+ */
+const timelineNumber = (Astro.locals.timelineCount ?? 0) + 1
+Astro.locals.timelineCount = timelineNumber
+const timelineId =
+  timelineNumber === 1 ? 'timeline' : `timeline-${timelineNumber}`
 const timelineEndId = `${timelineId}-end`
 const sectionId = (index: number) => `${timelineId}-section-${index + 1}`
 const sectionEventsId = (index: number) => `${sectionId(index)}-events`
@@ -79,28 +87,6 @@ const DOT_CLASS = [
   'bg-blush-100'
 ] as const
 
-/**
- * Same order as `DOT_CLASS`. The segment leaving an event fades into the
- * next event's colour, which is this list at `timelineAccentIndex(current)`.
- */
-const SEGMENT_COLOR = [
-  'var(--color-orchid-100)',
-  'var(--color-lagoon-100)',
-  'var(--color-emerald-100)',
-  'var(--color-coral-red-100)',
-  'var(--color-deep-teal-100)',
-  'var(--color-tangerine-100)',
-  'var(--color-raspberry-100)',
-  'var(--color-soft-indigo-100)',
-  'var(--color-forest-green-100)',
-  'var(--color-apricot-100)',
-  'var(--color-flamingo-100)',
-  'var(--color-lavender-100)',
-  'var(--color-aqua-mint-100)',
-  'var(--color-pistachio-100)',
-  'var(--color-blush-100)'
-] as const
-
 /** The very first event on the whole timeline is black, outside the cycle above. */
 const FIRST_EVENT_DOT_CLASS = 'bg-neutral-900 dark:bg-neutral-0'
 
@@ -138,7 +124,7 @@ const skipIconFrameClass =
   <ol
     role="list"
     data-timeline-sections
-    class="m-0 flex list-none flex-col gap-section p-0 desktop:gap-0"
+    class="m-0 flex list-none flex-col gap-section p-0 tablet:gap-0"
     style={{
       'timeline-scope': timelineScope.join(', '),
       '--timeline-section-count': String(resolved.length)
@@ -149,7 +135,7 @@ const skipIconFrameClass =
         id={sectionId(index)}
         tabindex="-1"
         data-timeline-section
-        class="scroll-mt-(--site-header-height) outline-none desktop:grid desktop:grid-cols-[1fr_2fr] desktop:items-start desktop:gap-6xl desktop:scroll-mt-(--site-header-height-desktop)"
+        class="scroll-mt-(--site-header-height) outline-none tablet:grid tablet:grid-cols-[1fr_2fr] tablet:items-start tablet:gap-2xl desktop:gap-6xl desktop:scroll-mt-(--site-header-height-desktop)"
         style={{
           '--timeline-section': sectionTimelineName(index),
           '--timeline-section-row': String(index + 1)
@@ -157,29 +143,29 @@ const skipIconFrameClass =
       >
         <header
           data-timeline-header
-          class="flex flex-col desktop:sticky desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
+          class="flex flex-col tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-3xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
         >
           <div
             data-timeline-label
-            class="sticky top-[calc(var(--site-header-height)+var(--spacing-xl))] flex flex-col gap-md desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
+            class="sticky top-[calc(var(--site-header-height)+var(--spacing-xl))] flex flex-col gap-md tablet:top-[calc(var(--site-header-height)+var(--spacing-3xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
           >
             <h3 class="m-0 text-orchid-100 dark:text-orchid-50">
               {section.heading}
             </h3>
             <p
-              class="m-0 hidden text-h4 text-neutral-900 desktop:block tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
+              class="m-0 hidden text-h4 text-neutral-900 tablet:block tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
             >
               {section.subheading}
             </p>
             <p
-              class="m-0 hidden text-neutral-100 desktop:block dark:text-neutral-50"
+              class="m-0 hidden text-neutral-100 tablet:block dark:text-neutral-50"
             >
               {section.description}
             </p>
 
             <nav
               aria-label={t('timeline.section_nav')}
-              class="hidden desktop:absolute desktop:top-[calc(100%+var(--spacing-6xl))] desktop:left-0 desktop:flex desktop:flex-col desktop:items-start desktop:gap-xl"
+              class="hidden tablet:mt-4xl tablet:flex tablet:flex-col tablet:items-start tablet:gap-xl desktop:mt-6xl"
             >
               {navLinks.map((link) => <a
                 href={link.href}
@@ -203,7 +189,7 @@ const skipIconFrameClass =
           aria-label={t('timeline.events_label', {
             heading: section.heading
           })}
-          class="m-0 mt-2xl flex list-none flex-col p-0 outline-none desktop:mt-0 desktop:scroll-mt-(--site-header-height-desktop)"
+          class="m-0 mt-2xl flex list-none flex-col p-0 outline-none tablet:mt-0 desktop:scroll-mt-(--site-header-height-desktop)"
         >
           {section.events.map((event, eventIndex) => {
             const absoluteIndex = eventOffsets[index] + eventIndex
@@ -211,35 +197,31 @@ const skipIconFrameClass =
             return <li
               data-timeline-event
               class:list={[
-                'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg tablet:grid-cols-[8rem_var(--timeline-rail)_1fr] tablet:gap-x-xl',
+                'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg desktop:grid-cols-[8rem_var(--timeline-rail)_1fr] desktop:gap-x-xl',
                 eventIndex === section.events.length - 1 &&
                   index < lastIndex &&
                   'timeline-section-end'
               ]}
             >
               <p
-                class="col-start-2 m-0 text-h5 text-neutral-75 tablet:col-start-1 tablet:row-start-1 tablet:flex tablet:h-(--timeline-rail) tablet:items-center tablet:justify-end tablet:text-right tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-50"
+                class="col-start-2 m-0 text-h5 text-neutral-75 tablet:text-h5-md desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:h-(--timeline-rail) desktop:items-center desktop:justify-end desktop:text-right desktop:text-h4-lg dark:text-neutral-50"
               >
                 {event.date}
               </p>
 
               <div
                 aria-hidden="true"
-                class="relative col-start-1 row-span-2 row-start-1 tablet:col-start-2 tablet:row-span-1"
+                class="relative col-start-1 row-span-2 row-start-1 desktop:col-start-2 desktop:row-span-1"
               >
                 {absoluteIndex < lastEventIndex && <div
                   data-timeline-segment
                   class:list={[
-                    // Only desktop keeps the next section's events directly
-                    // below; elsewhere its header sits in between.
+                    // From tablet up the next section's events sit directly
+                    // below; on a phone its header sits in between.
                     eventIndex === section.events.length - 1 &&
-                      'timeline-section-bridge hidden desktop:block',
+                      'timeline-section-bridge hidden tablet:block',
                     'absolute top-[calc(var(--timeline-rail)/2)] left-1/2 h-full w-0.5 -translate-x-1/2'
                   ]}
-                  style={{
-                    '--timeline-segment-color':
-                      SEGMENT_COLOR[timelineAccentIndex(absoluteIndex)]
-                  }}
                 >
                   <div data-timeline-fill class="absolute inset-0" />
                 </div>}
@@ -259,7 +241,7 @@ const skipIconFrameClass =
 
               <div
                 class:list={[
-                  'col-start-2 flex flex-col items-start gap-lg pt-sm tablet:col-start-3 tablet:row-start-1',
+                  'col-start-2 flex flex-col items-start gap-lg pt-sm desktop:col-start-3 desktop:row-start-1',
                   // The pad is the gap to the next dot. On the last item it
                   // only lengthens the sticky label past the text.
                   absoluteIndex < lastEventIndex && 'pb-(--timeline-item-pad)'
@@ -283,10 +265,7 @@ const skipIconFrameClass =
     })}
   </ol>
 
-  <div
-    data-timeline-mobile-nav
-    class="sticky bottom-0 z-10 tablet:static tablet:z-auto desktop:hidden"
-  >
+  <div data-timeline-mobile-nav class="sticky bottom-0 z-10 tablet:hidden">
     <div
       aria-hidden="true"
       class="h-xl bg-linear-to-t from-neutral-0 to-transparent dark:from-neutral-900"
@@ -303,8 +282,7 @@ const skipIconFrameClass =
         <span class={skipIconFrameClass}>
           <Icon name="arrow-down-dotted" class={link.iconClass} />
         </span>
-        <span class="tablet:hidden">{link.shortLabel}</span>
-        <span class="hidden tablet:inline">{link.longLabel}</span>
+        {link.shortLabel}
       </a>)}
     </nav>
   </div>
@@ -359,28 +337,17 @@ const skipIconFrameClass =
     }
   }
 
-  /* White (the page) at the dot just passed, the next dot's colour on arrival.
-     Dark mode starts from the dark page colour instead of white.
-     The fill is clipped as the reader scrolls; the gradient stays on the
-     full-height box so the colour still lands on the next dot. */
+  /* Unfilled track. The coloured fill is clipped away until the reader
+     reaches it, so this grey has to be there first. */
+  [data-timeline-segment] {
+    background-color: var(--color-neutral-25); /* #e4e4e4 */
+  }
+
+  /* The line is always orchid. Clipping reveals it over the grey track. */
   [data-timeline-fill] {
-    background-image: linear-gradient(
-      to bottom,
-      var(--color-neutral-0),
-      var(--timeline-segment-color)
-    );
+    background-color: var(--color-orchid-100);
   }
 
-  :global([data-theme='dark']) [data-timeline-fill] {
-    background-image: linear-gradient(
-      to bottom,
-      var(--color-neutral-150),
-      var(--timeline-segment-color)
-    );
-  }
-
-  /* Reveal the gradient from the top. Clipping, rather than scaling, keeps
-     white at the upper dot and the colour at the lower one. */
   @keyframes timeline-fill {
     from {
       clip-path: inset(0 0 100% 0);
@@ -450,12 +417,10 @@ const skipIconFrameClass =
     }
 
     /* The bar is a direct child of [data-timeline], so it can read this
-       timeline without `timeline-scope` — unlike the per-section desktop
-       panel below, nothing here needs to reach across to a cousin element.
-       Fixed-to-the-viewport only below `tablet:`; at and above it the bar
-       (Tailwind's `tablet:static` on the element) sits in normal flow, so
-       it's just always visible there — no show/hide needed. Not gated on
-       reduced motion: the show/hide is instant, not movement. */
+       timeline without `timeline-scope` — unlike the per-section panel
+       below, nothing here needs to reach across to a cousin element. Phones
+       only: from `tablet:` the panel carries the links. Not gated on reduced
+       motion: the show/hide is instant, not movement. */
     @media (width < 810px) {
       [data-timeline] {
         view-timeline-name: --timeline-whole;
@@ -509,11 +474,11 @@ const skipIconFrameClass =
     }
   }
 
-  /* The narrow mobile/tablet label column and the wide desktop panel below
-     both read this: it tracks which section's events are crossing the
-     viewport's middle, regardless of breakpoint. Not gated on reduced
-     motion: the swap is an instant change of text, not movement. Desktop
-     values match the `desktop:` tier. */
+  /* The narrow phone label column and the tablet/desktop panel below both
+     read this: it tracks which section's events are crossing the viewport's
+     middle, regardless of breakpoint. Not gated on reduced motion: the swap
+     is an instant change of text, not movement. Breakpoints match the
+     `tablet:` and `desktop:` tiers. */
   @supports (timeline-scope: --timeline-section-1) {
     [data-timeline-events] {
       view-timeline-name: var(--timeline-section);
@@ -523,9 +488,9 @@ const skipIconFrameClass =
 
     /* Every header spans all rows of the left column and stretches to that
        area, so the label inside can stick for the whole timeline and release
-       when the last item's bottom reaches it. The links hang out of the label
-       box: if they added to its height, the words would scroll off while the
-       last item was still on screen. pointer-events is not inherited, so
+       when the last item's bottom reaches it. The links sit inside the label
+       box, so the panel lets go as the last item's bottom meets the links,
+       rather than running on below the end of the rail. pointer-events is not inherited, so
        descendants opt in: otherwise a later section's links sit on top of the
        visible ones and take the click. */
     [data-timeline-header] {
@@ -584,7 +549,8 @@ const skipIconFrameClass =
       pointer-events: auto !important;
     }
 
-    @media (width < 1200px) {
+    /* Phone: the heading turns into a narrow vertical label beside the rail. */
+    @media (width < 810px) {
       [data-timeline] {
         /* The vertical heading's line box. Wider than this clips the letters
            into the rail. */
@@ -596,7 +562,7 @@ const skipIconFrameClass =
         grid-template-columns: var(--timeline-label-width) minmax(0, 1fr);
         /* row-gap, not gap: the shorthand would zero this column gap and
            park the rail against the heading. */
-        column-gap: var(--spacing-2xl);
+        column-gap: var(--spacing-lg);
         row-gap: 0;
       }
 
@@ -627,37 +593,22 @@ const skipIconFrameClass =
       }
     }
 
-    /* Phone only. Tablet keeps the wider gap above. */
-    @media (width < 810px) {
-      [data-timeline-sections] {
-        column-gap: var(--spacing-lg);
-      }
-    }
-
-    /* Tablet headings step up to h3-md, so the vertical label needs the
-       taller line box. Still below the desktop panel. */
-    @media (width >= 810px) and (width < 1200px) {
-      [data-timeline] {
-        --timeline-label-width: var(--text-h3-md--line-height);
-      }
-    }
-
-    @media (width >= 1200px) {
+    /* Tablet and desktop: one fixed panel beside the events. */
+    @media (width >= 810px) {
       [data-timeline-label] {
-        top: calc(var(--site-header-height-desktop) + var(--spacing-7xl));
+        top: calc(var(--site-header-height) + var(--spacing-3xl));
       }
 
-      /* Room for the links that hang below the label as the timeline ends. */
+      /* Space below the timeline. On the block, outside the grid, so it
+         doesn't lengthen the area the panel sticks within. */
       [data-timeline] {
-        padding-bottom: calc(
-          var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
-        );
+        padding-bottom: var(--spacing-5xl);
       }
 
       [data-timeline-sections] {
         display: grid;
         grid-template-columns: 1fr 2fr;
-        column-gap: var(--spacing-6xl);
+        column-gap: var(--spacing-2xl);
         row-gap: 0;
       }
 
@@ -668,6 +619,22 @@ const skipIconFrameClass =
       [data-timeline-events] {
         grid-column: 2;
         grid-row: var(--timeline-section-row);
+      }
+    }
+
+    @media (width >= 1200px) {
+      [data-timeline-label] {
+        top: calc(var(--site-header-height-desktop) + var(--spacing-7xl));
+      }
+
+      [data-timeline] {
+        padding-bottom: calc(
+          var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
+        );
+      }
+
+      [data-timeline-sections] {
+        column-gap: var(--spacing-6xl);
       }
     }
   }
