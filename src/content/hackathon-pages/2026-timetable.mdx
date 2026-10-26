@@ -6,61 +6,52 @@ locale: 'en'
 ---
 
 <Agenda
-  days={[
+  heading={'Friday October 16'}
+  items={[
+    { time: '08:30 - 10:00', activity: 'Registration and breakfast' },
+    { time: '10:00 - 10:30', activity: 'Welcome ceremony' },
     {
-      date: '2026-10-16',
-      items: [
-        { time: '08:30 - 10:00', activity: 'Registration and breakfast' },
-        { time: '10:00 - 10:30', activity: 'Welcome ceremony' },
-        {
-          time: '10:30 - 10:45',
-          activity: 'Judges briefing',
-          additionalInfo: 'Judges remain for a briefing'
-        },
-        {
-          time: '10:30 - 14:00',
-          activity: 'Session 1: Hacking',
-          additionalInfo: 'Participants leave the auditorium and start hacking.'
-        },
-        { time: '14:00 - 15:00', activity: 'Lunch' },
-        { time: '15:00 - 17:30', activity: 'Session 2: Hacking' },
-        { time: '17:30 - 18:00', activity: 'Departures' }
-      ]
+      time: '10:30 - 10:45',
+      activity: 'Judges briefing',
+      additionalInfo: 'Judges remain for a briefing'
     },
     {
-      date: '2026-10-17',
-      items: [
-        { time: '07:00 - 08:00', activity: 'Registration and breakfast' },
-        { time: '08:00 - 11:00', activity: 'Session 3: Hacking' },
-        {
-          time: '11:00am',
-          activity: 'Submission and review',
-          additionalInfo:
-            'All final code submitted into the GitHub public repositories; demo videos and presentations must also be uploaded by 11:00. Code review for each project.'
-        },
-        {
-          time: '11:00 - 11:50',
-          activity: 'Presentation practice',
-          additionalInfo:
-            'Participants move to the main auditorium to practice presentations. Networking downstairs where refreshments are served.'
-        },
-        {
-          time: '11:50am',
-          activity: 'Teams return to rooms for Round 1 judging'
-        },
-        { time: '12:00 - 13:00', activity: 'Round 1 Judging' },
-        { time: '13:00 - 14:30', activity: 'Lunch' },
-        {
-          time: '14:30 - 15:30',
-          activity: 'Finalists Announced. Round 2 Judging'
-        },
-        { time: '15:30 - 16:30', activity: 'Networking and refreshments' },
-        {
-          time: '16:30 - 17:30',
-          activity: 'Winners announced and closing ceremony'
-        },
-        { time: '17:30 - 18:00', activity: 'Departures' }
-      ]
-    }
+      time: '10:30 - 14:00',
+      activity: 'Session 1: Hacking',
+      additionalInfo: 'Participants leave the auditorium and start hacking.'
+    },
+    { time: '14:00 - 15:00', activity: 'Lunch' },
+    { time: '15:00 - 17:30', activity: 'Session 2: Hacking' },
+    { time: '17:30 - 18:00', activity: 'Departures' }
+  ]}
+/>
+
+<Agenda
+  heading={'Saturday October 17'}
+  items={[
+    { time: '07:00 - 08:00', activity: 'Registration and breakfast' },
+    { time: '08:00 - 11:00', activity: 'Session 3: Hacking' },
+    {
+      time: '11:00am',
+      activity: 'Submission and review',
+      additionalInfo:
+        'All final code submitted into the GitHub public repositories; demo videos and presentations must also be uploaded by 11:00. Code review for each project.'
+    },
+    {
+      time: '11:00 - 11:50',
+      activity: 'Presentation practice',
+      additionalInfo:
+        'Participants move to the main auditorium to practice presentations. Networking downstairs where refreshments are served.'
+    },
+    { time: '11:50am', activity: 'Teams return to rooms for Round 1 judging' },
+    { time: '12:00 - 13:00', activity: 'Round 1 Judging' },
+    { time: '13:00 - 14:30', activity: 'Lunch' },
+    { time: '14:30 - 15:30', activity: 'Finalists Announced. Round 2 Judging' },
+    { time: '15:30 - 16:30', activity: 'Networking and refreshments' },
+    {
+      time: '16:30 - 17:30',
+      activity: 'Winners announced and closing ceremony'
+    },
+    { time: '17:30 - 18:00', activity: 'Departures' }
   ]}
 />
