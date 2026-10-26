@@ -42,22 +42,22 @@ All designs are in the [ILF New Design](https://www.figma.com/design/Tjtpc6NlHgu
 
 ## Decision
 
-| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Status                             |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| D1  | **Data model.** A shared Strapi component `shared.block-intro` = `{ heading: string, subheading: string, description: CKEditor basicMarkdown }`, added as an optional `intro` field on each block. It is serialized to MDX as one `intro={{…}}` prop. Existing `title`/`heading` values migrate into `intro.heading`.                                                                                                                                                                                                                                                                    | Agreed                             |
-| D2  | **Spacing ownership.** A block whose root carries `data-intro-variant` owns its top (the intro) and its bottom (`--block-pb`, [A2](#a2-block-padding-bottom-every-block-including-paragraph)). It sits out the `--space-section` rhythm, both in `prose/rhythm.css` and in the Strapi preview (`DynamicZone.astro`). All spacers are padding, never margin.                                                                                                                                                                                                                              | Agreed                             |
-| D3  | **Paragraph spec scope.** The paragraph rules ([A3](#a3-paragraph-block-headings)–[A5](#a5-paragraph-block-media-image--video-table-list)) apply only to `[data-component='Paragraph']`, on every template, blog posts included. Blog posts also use the block frame and intro like any page. Markdown outside a Paragraph block and profile (`.max-w-narrow`) running text are untouched.                                                                                                                                                                                               | Agreed (blog in scope, 2026-10-22) |
-| D4  | **Rollout.** Blocks adopt the intro one at a time, piloting on CardGrid, FAQ and NumberTiles. While pages mix migrated and legacy blocks, transitional rules keep the gap between the two kinds at `--space-section` (see below).                                                                                                                                                                                                                                                                                                                                                        | Agreed                             |
-| D5  | **Agenda days.** Agenda gets `intro` plus a repeatable `days: blocks.agenda-day = { date: date, items: agenda-item[] }`. "Day N" is rendered from the index (an i18n string), not stored. Editors pick the date with Strapi's native date picker. Consecutive per-day Agenda blocks are merged into one by migration.                                                                                                                                                                                                                                                                    | Pending sign-off                   |
-| D6  | **CTA strip.** `heading` moves into `intro.heading`. The strip keeps its own `description` (the in-strip copy) and buttons.                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Proposed                           |
-| D7  | **Split layout.** Split layout gets `intro`. The first column becomes intro + an optional button group (primary + secondary, replacing the single `cta`). The media is always 4:3. The second column holds media, or a list of FAQ accordions, which flips the column widths ([B5](#b5-split-layout-544163402-split-layout-intro)). The FAQ option is new to the Strapi model.                                                                                                                                                                                                           | Pending sign-off                   |
-| D8  | **Blockquote `source`.** Blockquote keeps its Strapi structure, `source` included, and its current rendering. Only the spacing rules change (designer, 2026-10-16).                                                                                                                                                                                                                                                                                                                                                                                                                      | Agreed                             |
-| D9  | **Spacing only, existing components unchanged.** This work is about spacing consistency between and within sections, around components that are already built and documented. Every block component and every paragraph sub-component (image, table, list) keeps its current implementation. Figma uses them as placeholders to show the spacing, so their drawings are not a restyle (designer, 2026-10-16). The only structural changes are the ones the design asks for explicitly: the intro (D1), the Agenda days (D5), the CTA strip heading (D6) and the Split layout rules (D7). | Agreed                             |
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Status                             |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| D1  | **Data model.** A shared Strapi component `shared.block-intro` = `{ heading: string, subheading: string, description: CKEditor basicMarkdown }`, added as an optional `intro` field on each block. It is serialized to MDX as one `intro={{…}}` prop. Existing `title`/`heading` values migrate into `intro.heading`.                                                                                                                                                                                                                                                                                                        | Agreed                             |
+| D2  | **Spacing ownership.** A block whose root carries `data-intro-variant` owns its top (the intro) and its bottom (`--block-pb`, [A2](#a2-block-padding-bottom-every-block-including-paragraph)). It sits out the `--space-section` rhythm, both in `prose/rhythm.css` and in the Strapi preview (`DynamicZone.astro`). All spacers are padding, never margin.                                                                                                                                                                                                                                                                  | Agreed                             |
+| D3  | **Paragraph spec scope.** The paragraph rules ([A3](#a3-paragraph-block-headings)–[A5](#a5-paragraph-block-media-image--video-table-list)) apply only to `[data-component='Paragraph']`, on every template, blog posts included. Blog posts also use the block frame and intro like any page. Markdown outside a Paragraph block and profile (`.max-w-narrow`) running text are untouched.                                                                                                                                                                                                                                   | Agreed (blog in scope, 2026-10-22) |
+| D4  | **Rollout.** Blocks adopt the intro one at a time, piloting on CardGrid, FAQ and NumberTiles. While pages mix migrated and legacy blocks, transitional rules keep the gap between the two kinds at `--space-section` (see below).                                                                                                                                                                                                                                                                                                                                                                                            | Agreed                             |
+| D5  | **Agenda days.** Agenda gets `intro` plus a repeatable `days: blocks.agenda-day = { date: date, items: agenda-item[] }`. "Day N" is rendered from the index (an i18n string), not stored. Editors pick the date with Strapi's native date picker. Consecutive per-day Agenda blocks are merged into one by migration.                                                                                                                                                                                                                                                                                                        | Pending sign-off                   |
+| D6  | **CTA strip.** The `heading` field is the **CTA strip title** and always renders inside the strip. Like every other block, a page-block CTA strip can also have an optional intro above the strip. Page templates that render a strip themselves (grant, podcast, blog listing) have no intro (`standalone`).                                                                                                                                                                                                                                                                                                                | Agreed                             |
+| D7  | **Split layout.** Split layout gets `intro` and a button group (primary + optional secondary, replacing the single `cta`). A new `3:2` ratio is the default for new blocks and carries the design: 60/40 columns, a 4:3 image with radius 24, the intro above both columns like every block's (sync with Anca, 2026-10-22), and the columns centred on each other. Existing ratios (2:1, 1:1, 1:2) and image positions keep their look. Stacked, the order is always text → buttons → media. The FAQ split is the grant page's FAQ section, not a Split layout option ([B5](#b5-split-layout-544163402-split-layout-intro)). | Agreed                             |
+| D8  | **Blockquote `source`.** Blockquote keeps its Strapi structure, `source` included, and its current rendering. Only the spacing rules change (designer, 2026-10-16).                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Agreed                             |
+| D9  | **Spacing only, existing components unchanged.** This work is about spacing consistency between and within sections, around components that are already built and documented. Every block component and every paragraph sub-component (image, table, list) keeps its current implementation. Figma uses them as placeholders to show the spacing, so their drawings are not a restyle (designer, 2026-10-16). The only structural changes are the ones the design asks for explicitly: the intro (D1), the Agenda days (D5), the CTA strip heading (D6) and the Split layout rules (D7).                                     | Agreed                             |
 
 ### How spacing ownership works
 
 - **Tokens.** `src/styles/base/variables.css` defines `--intro-top`, `--intro-h2-pt`, `--intro-h2-h3`, `--intro-h3-pt`, `--intro-h3-desc`, `--intro-desc`, `--block-pb` and `--media-pt`, per breakpoint, from the existing spacing tokens. They are declared on `:root` and again on every `[data-intro-variant]`, so a nested block starts from the defaults. Variants override only what differs ([A1](#a1-intro-every-block)).
-- **Intro.** `src/components/shared/BlockIntro.astro` renders a `<header>` with the h2, h3 and description. Each spacer is padding on the element above it, so it disappears with that element. An empty intro renders nothing.
+- **Intro.** `src/components/shared/BlockIntro.astro` renders a `<header>` with the h2, h3 and description. Each spacer is padding on the element above it, so it disappears with that element. An empty intro renders the default block spacer (`data-intro-spacer`, `--intro-empty`), sized only inside a block that owns its spacing.
 - **Block.** `[data-intro-variant]` gets `padding-block-end: var(--block-pb)` (`components/block-intro.css`). At the end of the prose that padding drops, like the trailing margins today.
 - **Mixed pages (transitional).** A legacy element before an intro block keeps only `--block-pb` below it. A legacy element after one takes `--space-section − --block-pb` above it. Both rules reach across the `<script>` Astro emits after a component, and CTAs apply the same rule through a utility. On desktop, with a heading in the intro, every pair of blocks therefore stays 120 apart. These rules are deleted once every block owns its spacing.
 
@@ -126,23 +126,22 @@ The real distance from the top of the block to the H2 text is the top spacer plu
 
 Variant overrides:
 
-| Variant          | Used by                                                                                                         | Differences from the table above                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda | none                                                              |
-| **Button CTA**   | CTA buttons block                                                                                               | description spacer **0**                                          |
-| **Profile Grid** | Profile Grid                                                                                                    | none; same values as Universal since the latest pass              |
-| **Split layout** | Split layout                                                                                                    | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
+| Variant          | Used by                                                                                                                                     | Differences from the table above                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Profile Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda, Split layout | none                                                              |
+| **Button CTA**   | CTA buttons block                                                                                                                           | description spacer **0**                                          |
+| **Split layout** | Grant FAQ section                                                                                                                           | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
 
 Rules:
 
-- An intro with all three fields empty renders nothing, not even the top spacer.
+- An intro with all three fields empty renders the **default block spacer** instead: an empty element **20 / 30 / 60** high (mobile / tablet / desktop), Figma's min height on the intro (corrected 2026-10-23, Anca's #800 review; this rule first said it rendered nothing). A block without an intro therefore sits pb + spacer below the block above: **44 / 62 / 100**. 30 is off the spacing scale; it is Figma's value.
 - Heading is always `<h2>` and Subheading always `<h3>`. Visual size stays tied to the level.
 - An intro with only a subheading renders it as `<h3>`, never promoted to `<h2>`. The editor decides the content and is told about the skipped level (designer, 2026-10-16). The same goes for a Paragraph that starts with an H3.
 - The description is rich text: paragraphs, links and bold.
 
 #### A2. Block padding-bottom (every block, including Paragraph)
 
-**24 / 32 / 40**, confirmed by design. This is the minimum spacing a block owns even when it has no intro.
+**24 / 32 / 40**, confirmed by design. A block without an intro also keeps the default block spacer at its top ([A1](#a1-intro-every-block)).
 
 Gap between two blocks, from the end of one block's content to the next block's H2 text: pb + top spacer + H2 pt = **72 / 96 / 120**. Desktop equals today's `--space-section` (120).
 
@@ -166,7 +165,7 @@ Padding-bottom is **8 / 12 / 16**. Paragraphs inside one container stack with ga
 
 | Above                                   | Mobile | Tablet | Desktop |
 | --------------------------------------- | ------ | ------ | ------- |
-| nothing (block starts with a paragraph) | 60     | 80     | 120     |
+| nothing (block starts with a paragraph) | 20     | 40     | 60      |
 | H2                                      | 24     | 32     | 40      |
 | H3                                      | 16     | 24     | 32      |
 | H4                                      | 12     | 16     | 24      |
@@ -236,22 +235,24 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 **Desktop:** 2 columns, gap **120** in every variant, with or without a CTA (designer, 2026-10-16; was 60).
 
-| Second column holds | First column (intro + buttons) | Second column |
-| ------------------- | ------------------------------ | ------------- |
-| Media               | full width, max **60%**        | max **40%**   |
-| FAQ accordions      | max **40%**                    | max **60%**   |
+| Second column holds | First column (text + buttons) | Second column |
+| ------------------- | ----------------------------- | ------------- |
+| Media               | full width, max **60%**       | max **40%**   |
+| FAQ accordions      | max **40%**                   | max **60%**   |
 
-- The intro column is top-aligned. A media column is vertically centred; an FAQ column is top-aligned.
+- **The intro sits above the two columns**, with the Universal variant, like every other block (sync with Anca, 2026-10-22). Figma draws it inside the first column; that is not followed. The text column and the media are vertically centred on each other.
+- The grant FAQ section keeps its intro in the first column, with the Split layout intro variant, and its columns top-aligned.
 - Media is on the right, and its aspect ratio is **4:3**, the only ratio for now.
-- **FAQ variant** ([`5487:82409`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82409), with CTA [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)): the second column holds the existing FAQ component (D9), unchanged. Only desktop is drawn.
+- **In code** (D7): these rules are the `3:2` display ratio, the default for new blocks. Blocks saved with 2:1, 1:1 or 1:2, or with the image on the left, keep their current look on desktop.
+- **FAQ variant:** the grant page's FAQ section (`GrantFaqSection`, title + subtitle + description + CTA on the left, accordions on the right; e.g. `/grant/education/on-campus/`). It takes the Split layout intro and the 40 / 60 widths; its data model and accordion are unchanged.
 
-**Tablet and mobile:** stacked, in the order **intro → buttons → media**, or **intro → buttons → FAQ** for the FAQ variant.
+**Tablet and mobile:** stacked, in the order **intro → text → buttons → media**, or **intro → buttons → FAQ** for the FAQ variant. Text and media are 24 / 32 apart, the paragraph-media spacing.
 
 **Details:**
 
-- Media: radius 24. **Only with a CTA**, the media sits in a wrapper with the paragraph-media padding (desktop pt 60 / pb 40, tablet py 32, mobile py 24). Without a CTA there is no wrapper.
+- Media: radius 24. No wrapper padding: with the intro above the columns, the CTA-only media padding Figma draws is not used.
 - Buttons: as in B2.
-- The Split layout intro variant drops the top and description spacers on desktop and uses a 40 H2→H3 spacer. On tablet and mobile it matches Universal. Both are intentional ([A1](#a1-intro-every-block)).
+- The Split layout intro variant (now the grant FAQ section's only) drops the top and description spacers on desktop and uses a 40 H2→H3 spacer. On tablet and mobile it matches Universal. Both are intentional ([A1](#a1-intro-every-block)).
 - **Figma is not the reference for widths and ratios here.** It can't express percentages, so its columns (`1fr 0.75fr`) and image sizes don't match. Follow the rules above. The 1px black border on the CTA image wrappers only highlights the padding; it is not part of the design.
 
 #### B6. Quote ([`5466:66281`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5466-66281)) and Blockquote ([`5467:66429`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5467-66429))
@@ -293,8 +294,9 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 #### B14. CTA strip ([`5474:73965`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-73965))
 
-- **The heading moves out of the strip, into the intro above it** (D6).
-- The strip itself (copy, buttons, background, motif) stays as built.
+- **The CTA strip title** (`heading`) stays inside the strip (D6).
+- An optional intro sits above the strip, as on every other block.
+- The strip itself (title, copy, buttons, background, motif) stays as built.
 
 ---
 
@@ -319,7 +321,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 **Negative / costs**
 
 - Every block needs a schema change, serializer, sync handler, component change and a content migration. Legacy `title`/`heading` fields live alongside `intro` until each migration has run on staging and production.
-- During the rollout, mixed pages depend on transitional CSS, and `SELF_SPACED_BLOCKS` must be kept in step with the components by hand. A few edge cases differ from the target. A fake-intro Paragraph before an intro block gives 128 on desktop, and an intro block with an empty intro sits 40 below a legacy one.
+- During the rollout, mixed pages depend on transitional CSS, and `SELF_SPACED_BLOCKS` must be kept in step with the components by hand. A few edge cases differ from the target. A fake-intro Paragraph before an intro block gives 128 on desktop.
 - The paragraph spec changes visible spacing on every rich-text page. For example, p → p becomes 48 on desktop, up from 32.
 - Under the hero the gap becomes 0, and the first block supplies its own top. The templates' current gap below the hero or bare H1 (for example `mb-2xl tablet:mb-3xl` on the hero-less H1) has to go, or it stacks on that top.
 

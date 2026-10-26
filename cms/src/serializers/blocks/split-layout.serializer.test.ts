@@ -127,7 +127,7 @@ describe('split-layout serializer', () => {
         content: 'Text body.'
       })
     ).toThrow(
-      'Split layout displayRatio must be one of 1:1, 1:2, 2:1. Received "3:1".'
+      'Split layout displayRatio must be one of 3:2, 2:1, 1:1, 1:2. Received "3:1".'
     )
   })
 
@@ -182,8 +182,10 @@ describe('split-layout serializer', () => {
       cta: { text: 'Apply now', link: 'https://example.com' }
     })
 
-    expect(result).toContain('ctaText="Apply now"')
-    expect(result).toContain('ctaLink="https://example.com"')
+    expect(result).toContain(
+      'buttons={[{"text":"Apply now","link":"https://example.com","style":"primary"}]}'
+    )
+    expect(result).not.toContain('ctaText=')
   })
 
   it('serializes the CTA external flag', () => {
@@ -194,8 +196,8 @@ describe('split-layout serializer', () => {
       cta: { text: 'Partner site', link: 'https://example.com', external: true }
     })
 
-    expect(result).toContain('ctaExternal={true}')
-    expect(result).not.toContain('ctaDocument=')
+    expect(result).toContain('"external":true')
+    expect(result).not.toContain('"document"')
   })
 
   it('serializes the CTA document flag', () => {
@@ -210,8 +212,8 @@ describe('split-layout serializer', () => {
       }
     })
 
-    expect(result).toContain('ctaDocument={true}')
-    expect(result).not.toContain('ctaExternal=')
+    expect(result).toContain('"document":true')
+    expect(result).not.toContain('"external"')
   })
 
   it('throws when the CTA is both external and a document', () => {
@@ -269,5 +271,47 @@ describe('split-layout serializer', () => {
     ).toThrow(
       'Split layout type must be one of image-text, image-quote, video-text, video-quote. Received "image-grid".'
     )
+  })
+
+  it('serializes the intro, the button group and the 3:2 ratio', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      displayRatio: '3:2',
+      media: { image: { url: '/img/a.png' }, alternativeText: 'A' },
+      intro: { heading: 'Heading', description: 'Text.' },
+      buttons: [
+        { text: 'Apply', link: '/apply/', style: 'primary' },
+        { text: 'Learn more', link: '/more/', style: 'secondary' }
+      ]
+    })
+    expect(result).toContain(
+      '<SplitLayout intro={{"heading":"Heading","description":"Text."}} displayRatio="3:2"'
+    )
+    expect(result).toContain(
+      'buttons={[{"text":"Apply","link":"/apply/","style":"primary"},{"text":"Learn more","link":"/more/","style":"secondary"}]}'
+    )
+    // An intro alone is enough for a text layout.
+    expect(result).toMatch(/\/>$/)
+  })
+
+  it('prefers the button group over a legacy cta', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      media: { image: { url: '/img/a.png' } },
+      content: 'Body.',
+      buttons: [{ text: 'New', link: '/new/', style: 'primary' }],
+      cta: { text: 'Old', link: '/old/' }
+    })
+    expect(result).toContain('"text":"New"')
+    expect(result).not.toContain('Old')
+  })
+
+  it('still requires content or an intro for text layouts', () => {
+    expect(() =>
+      serialize({
+        layoutType: 'image-text',
+        media: { image: { url: '/img/a.png' } }
+      })
+    ).toThrow('Split layout text variants require content or an intro')
   })
 })

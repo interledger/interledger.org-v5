@@ -2,11 +2,13 @@
  * SplitLayout component handler for the MDX block parser.
  *
  * Handles:
- * - <SplitLayout imagePosition="left|right" displayRatio="1:1|1:2|2:1"
+ * - <SplitLayout intro={{…}} imagePosition="left|right"
+ *     displayRatio="3:2|2:1|1:1|1:2"
  *     imageSrc="..."
  *     videoUrl="..." quote="..." quoteSource="..."
- *     ctaText="..." ctaLink="..." ctaStyle="..." ctaExternal={true}
- *     ctaDocument={true}>
+ *     buttons={[{ text, link, style?, external?, document? }]}>
+ *   A legacy single CTA (ctaText="..." ctaLink="..." ctaStyle="..."
+ *   ctaExternal={true} ctaDocument={true}) is read into `buttons`.
  *   children (markdown body for the content column)
  *   </SplitLayout>
  *
@@ -16,9 +18,10 @@
  * so alt text can be set per locale.
  */
 
-import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
+import type { CtaButton, ParsedBlock, SplitLayoutBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr } from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getIntroAttr } from './jsxExtract'
+import { getCtaButtonsAttr } from './ctaButtonsProp'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -64,7 +67,7 @@ async function handleSplitLayout(
     if (!isDisplayRatio(displayRatio)) {
       throw new MdxParserError({
         code: ParserErrorCode.INVALID_PROP_VALUE,
-        message: `SplitLayout "displayRatio" must be "1:1", "1:2", or "2:1". Received "${displayRatioAttr}".`,
+        message: `SplitLayout "displayRatio" must be "3:2", "2:1", "1:1", or "1:2". Received "${displayRatioAttr}".`,
         component: 'SplitLayout',
         prop: 'displayRatio',
         line: node.position?.start.line,
@@ -93,6 +96,20 @@ async function handleSplitLayout(
         line: node.position?.start.line,
         column: node.position?.start.column
       })
+    }
+
+    /** A legacy single CTA (ctaText, ctaLink, …) as a one-button group. */
+    function legacyCtaButtons(): CtaButton[] {
+      if (!ctaText || !ctaLink) return []
+      return [
+        {
+          text: ctaText.trim(),
+          link: ctaLink.trim(),
+          style: ctaStyle === 'secondary' ? 'secondary' : 'primary',
+          ...(ctaExternal ? { external: true } : {}),
+          ...(ctaDocument ? { document: true } : {})
+        }
+      ]
     }
 
     const content =
@@ -141,8 +158,11 @@ async function handleSplitLayout(
     const isTextLayout = layoutType.endsWith('-text')
     const isQuoteLayout = layoutType.endsWith('-quote')
 
+    const intro = getIntroAttr(node)
+    const buttons = getCtaButtonsAttr(node) ?? legacyCtaButtons()
     const block: SplitLayoutBlock = {
       __component: 'blocks.split-layout',
+      ...(intro ? { intro } : {}),
       layoutType,
       imagePosition: imagePosition as 'left' | 'right',
       displayRatio
@@ -159,15 +179,7 @@ async function handleSplitLayout(
     if (isQuoteLayout && quote) block.quote = quote
     if (isQuoteLayout && quoteSource) block.quoteSource = quoteSource
 
-    if (isTextLayout && ctaText && ctaLink) {
-      block.cta = {
-        text: ctaText,
-        link: ctaLink,
-        ...(ctaStyle ? { style: ctaStyle } : {}),
-        ...(ctaExternal ? { external: true } : {}),
-        ...(ctaDocument ? { document: true } : {})
-      }
-    }
+    if (isTextLayout && buttons.length > 0) block.buttons = buttons
 
     return [block]
   })
@@ -189,5 +201,7 @@ function isSplitLayoutType(
 function isDisplayRatio(
   value: string
 ): value is NonNullable<SplitLayoutBlock['displayRatio']> {
-  return value === '1:1' || value === '1:2' || value === '2:1'
+  return (
+    value === '3:2' || value === '2:1' || value === '1:1' || value === '1:2'
+  )
 }

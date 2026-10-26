@@ -118,9 +118,9 @@
          same on that h2, whose own section margin would otherwise collapse
          through the wrapper and win.
 
-       An intro block with an empty intro has no top, so a legacy element
-       sits --block-pb above it: the minimum A2 of the spec gives every
-       block. Astro emits a component's <script> as its next sibling, so
+       An intro block with an empty intro opens with the default block
+       spacer (--intro-empty) instead, so a legacy element sits --block-pb
+       plus that spacer above it (A1). Astro emits a component's <script> as its next sibling, so
        each rule also reaches across one script. CtaButtons and CtaLink set
        their bottom margin with a utility, which this layer cannot beat;
        they handle the intro block themselves.

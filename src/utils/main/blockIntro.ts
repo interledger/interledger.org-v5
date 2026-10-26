@@ -104,6 +104,9 @@ const TRAILING_H2 = /(?:^|\n)##[ \t]+(.+?)[ \t]*#*[ \t]*\s*$/
  * it, so the heading can become that block's intro instead of running text.
  * Returns the markdown unchanged and `heading: null` when it doesn't end on
  * an h2.
+ *
+ * Transitional (INTORG-1154): only the podcast landing uses it, until its
+ * title card grid gets an intro of its own (Phase 2c). Remove it in Phase 4.
  */
 export function splitTrailingHeading(markdown: string): {
   body: string

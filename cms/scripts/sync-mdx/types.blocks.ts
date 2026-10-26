@@ -137,6 +137,7 @@ export interface CalloutTextBlock extends StrapiBlockBase {
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
+  intro?: SerializedBlockIntro
   heading?: string
   description?: string
   color?: 'purple' | 'green'
@@ -221,10 +222,11 @@ export interface CodeBlockBlock extends StrapiBlockBase {
 /** blocks.split-layout – two-column layout with media on one side and content on the other. */
 export interface SplitLayoutBlock extends StrapiBlockBase {
   __component: 'blocks.split-layout'
+  intro?: SerializedBlockIntro
   layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   imagePosition: 'left' | 'right'
   /** Content : media column ratio. Defaults to 2:1 when omitted in MDX. */
-  displayRatio?: '1:1' | '1:2' | '2:1'
+  displayRatio?: '3:2' | '2:1' | '1:1' | '1:2'
   media?: {
     image: number | null
     /** null when omitted in MDX; '' when explicitly empty (decorative). */
@@ -234,6 +236,9 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   content?: string
   quote?: string
   quoteSource?: string
+  /** The button group; a legacy `cta` is read into it. */
+  buttons?: CtaButton[]
+  /** @deprecated Legacy single CTA, replaced by `buttons`. */
   cta?: {
     text: string
     link: string
