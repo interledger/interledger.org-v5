@@ -181,10 +181,15 @@ const renderedItems = await Promise.all(
   /*
    * Consecutive Agenda blocks are the days of one schedule: they sit 60 apart
    * (Figma, B4) rather than a block break, so the day after drops the empty
-   * intro's spacer and the day before pads its own bottom to 60. Adjacent
+   * intro's spacer and the day before pads its own bottom to 60. An Agenda
+   * with an intro starts a new schedule and keeps the normal block gap. Adjacent
    * siblings only, so it holds on an MDX page; the preview approximates it.
    */
-  :global([data-component='Agenda']:has(+ [data-component='Agenda'])) {
+  :global(
+    [data-component='Agenda']:has(
+      + [data-component='Agenda'] > [data-intro-spacer]
+    )
+  ) {
     padding-block-end: var(--spacing-4xl);
   }
 
