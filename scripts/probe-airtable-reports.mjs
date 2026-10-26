@@ -11,7 +11,8 @@ const SAMPLE_RECORDS = 10
 
 const TABLES = {
   published: 'Published Reports',
-  submitted: 'Submitted Reports'
+  submitted: 'Submitted Reports',
+  grantees: 'Grantees'
 }
 
 // Non-Public fields that the report sync needs, from PRO-370.
@@ -62,7 +63,9 @@ function findTable(tables, name) {
 }
 
 function printFields(table) {
-  const shown = table.fields.filter(isSyncField)
+  // Grantees (PRO-371) is new and has no private fields listed, so show all names.
+  const showAll = table.name === TABLES.grantees
+  const shown = showAll ? table.fields : table.fields.filter(isSyncField)
   console.log(`\n## ${table.name} (${table.id})`)
   console.log(`Fields used by the sync (${shown.length}):`)
   for (const field of shown) {
@@ -73,7 +76,7 @@ function printFields(table) {
   const nameById = new Map(table.fields.map((f) => [f.id, f.name]))
   for (const view of table.views) {
     console.log(`  - ${view.name} [${view.type}] ${view.id}`)
-    if (!view.name.startsWith('PUBLIC') || !view.visibleFieldIds) continue
+    if (!/public/i.test(view.name) || !view.visibleFieldIds) continue
     for (const id of view.visibleFieldIds) {
       console.log(`      visible: ${nameById.get(id) ?? '?'} ${id}`)
     }
@@ -89,9 +92,10 @@ function describeAttachment(attachment) {
   return `${attachment.type}, ${size}, ${dims}, thumbnails: ${thumbs}`
 }
 
-async function probeImages(table) {
+async function probeImages(table, prefix = 'Public') {
+  console.log(`\n## Attachments in ${table.name}`)
   const imageFields = table.fields.filter(
-    (f) => f.type === 'multipleAttachments' && f.name.startsWith('Public')
+    (f) => f.type === 'multipleAttachments' && f.name.startsWith(prefix)
   )
   if (imageFields.length === 0) {
     console.log('\nNo Public attachment fields found.')
@@ -174,6 +178,9 @@ async function main() {
     }
     printFields(table)
   }
+
+  const grantees = findTable(tables, TABLES.grantees)
+  if (grantees) await probeImages(grantees, 'Logo')
 
   const published = findTable(tables, TABLES.published)
   if (!published) return
