@@ -47,9 +47,10 @@ const dayHeadingId =
 const headingId = introA11y.headingId ?? dayHeadingId
 const ariaLabel = headingId ? undefined : introA11y.ariaLabel
 
-// The day heading sits under the intro heading (B4), or takes its level when
-// the agenda has none, so the outline never skips from the page's h1 to an h3.
-const DayHeadingTag = intro?.heading ? 'h3' : 'h2'
+// The day heading sits under the intro's heading or subheading (B4), or
+// takes its level when the agenda has neither, so the outline never skips
+// from the page's h1 to an h3 nor ranks a day above its own section title.
+const DayHeadingTag = intro?.heading || intro?.subheading ? 'h3' : 'h2'
 
 const renderedItems = await Promise.all(
   (items ?? []).map(async (item) => {
