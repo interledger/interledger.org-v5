@@ -282,26 +282,12 @@ export interface AgendaItem {
   additionalInfo?: string
 }
 
-/** blocks.agenda-day — one dated day of at least two scheduled items. */
-export interface AgendaDay {
-  /** `YYYY-MM-DD`. "Day N" comes from the position, so it is not stored. */
-  date: string
-  items: AgendaItem[]
-}
-
-/**
- * blocks.agenda — an optional intro, then its days. An agenda written before
- * `days` is one day: an optional `heading` and its `items`, until Phase 4
- * drops them.
- */
+/** blocks.agenda — an optional intro and day heading, then at least two items. */
 export interface AgendaBlock extends StrapiBlockBase {
   __component: 'blocks.agenda'
   intro?: SerializedBlockIntro
-  days?: AgendaDay[]
-  /** @deprecated Legacy single-day heading, used when `days` is absent. */
   heading?: string
-  /** @deprecated Legacy single-day items, used when `days` is absent. */
-  items?: AgendaItem[]
+  items: AgendaItem[]
 }
 
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */

@@ -1,17 +1,10 @@
 /**
- * <Agenda intro={{…}} days={[{ date: 'YYYY-MM-DD', items: [...] }, …]} />
+ * <Agenda intro={{…}} heading={…} items={[...]} />
  *
- * `intro` is optional. An agenda written before `days` is one day:
- * `heading={…} items={[...]}`, read as it was until Phase 4 removes it.
+ * `intro` and the day `heading` are optional; `items` needs at least two.
  */
-import type {
-  AgendaBlock,
-  AgendaDay,
-  AgendaItem,
-  ParsedBlock
-} from './types.blocks'
+import type { AgendaBlock, AgendaItem, ParsedBlock } from './types.blocks'
 import { getIntroAttr, getStaticLiteralAttr } from './jsxExtract'
-import { isCalendarDate } from '../../src/utils/calendarDate'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -43,17 +36,6 @@ function isAgendaItem(value: unknown): value is AgendaItem {
   )
 }
 
-function isAgendaDay(value: unknown): value is AgendaDay {
-  if (typeof value !== 'object' || value === null) return false
-  const day = value as Record<string, unknown>
-  return (
-    isCalendarDate(day.date) &&
-    Array.isArray(day.items) &&
-    day.items.length >= MIN_ITEMS &&
-    day.items.every(isAgendaItem)
-  )
-}
-
 function invalidProp(
   node: JsxBlockNode,
   prop: string,
@@ -79,22 +61,7 @@ function normalizeItem(item: AgendaItem): AgendaItem {
   }
 }
 
-function parseDays(node: JsxBlockNode, days: unknown): AgendaDay[] {
-  if (!Array.isArray(days) || days.length === 0 || !days.every(isAgendaDay)) {
-    throw invalidProp(
-      node,
-      'days',
-      `Prop "days" must be a non-empty array of { date: "YYYY-MM-DD", items } objects, each with at least ${MIN_ITEMS} items of { time, activity, additionalInfo? }.`
-    )
-  }
-  return days.map((day) => ({
-    date: day.date,
-    items: day.items.map(normalizeItem)
-  }))
-}
-
-/** The single-day shape every agenda had before `days`. */
-function parseLegacyDay(
+function parseSchedule(
   node: JsxBlockNode
 ): Pick<AgendaBlock, 'heading' | 'items'> {
   const heading = getStaticLiteralAttr(node, 'heading')
@@ -136,11 +103,7 @@ async function handleAgenda(
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
     const intro = getIntroAttr(node)
-    const days = getStaticLiteralAttr(node, 'days')
-    const schedule =
-      days === undefined
-        ? parseLegacyDay(node)
-        : { days: parseDays(node, days) }
+    const schedule = parseSchedule(node)
 
     const block: AgendaBlock = {
       __component: 'blocks.agenda',
