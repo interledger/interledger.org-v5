@@ -65,7 +65,7 @@ export function serialize(block: InternalAdvertBlock): string {
   const cta = block.cta
   const ctaText = cta?.text?.trim()
   // The admin's write path already reduces an absolute CMS upload URL to a
-  // path, because `link` is in relativeLinks' HREF_LIKE_FIELDS. Trim only.
+  // path, because `link` is in documentLinks' HREF_LIKE_FIELDS. Trim only.
   const ctaLink = cta?.link?.trim()
   const hasButton = Boolean(ctaText && ctaLink)
 

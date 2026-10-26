@@ -356,6 +356,7 @@ export {
   buildSectionNavLinkUmamiAttrs,
   escapeHtml,
   isSiteHostname,
+  stripKnownOrigin,
   umamiAttrsToHtml
 } from './main/umami'
 

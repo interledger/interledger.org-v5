@@ -1,80 +1,108 @@
 ---
-title: 'Herramientas y Recursos'
+title: 'Herramientas y recursos para el hackatón'
 pathSlug: '/open-payments/'
-description: 'Aprende la API de Open Payments y ve los recursos disponibles para ti, antes de participar en un hackatón de Interledger. Tenemos muchos recursos gratuitos para ayudarte.'
+description: 'Aprenda a usar la API de Open Payments y acceda a todas las herramientas que necesitará para participar en un hackatón de Interledger. Disponemos de numerosos recursos gratuitos para ayudarlo.'
 locale: 'es'
 localizes: '/open-payments/'
 ---
 
 <Paragraph>
 
-Todo lo que necesitas para llegar listo para el hackatón, en un solo lugar. Tu meta es sencilla: lograr que un pago funcione de principio a fin. Una vez que lo logras, todo lo demás se construye a partir de ahí.
+Todo lo que necesita para llegar preparado al hackatón, en un solo lugar. El objetivo es sencillo: lograr que un pago funcione de principio a fin. Una vez que lo logre, podrá desarrollar todo lo demás a partir de esa base.
 
-## Paso 1 - Aprende los conceptos
+## Paso 1 - Aprenda los conceptos
 
-Oriéntate antes de escribir código. Empieza aquí si Open Payments es nuevo para ti.
+Familiarícese con el tema antes de escribir código. Comience aquí si aún no conoce Open Payments.
 
 </Paragraph>
 
 <CardGrid ariaLabel="Recursos del paso 1" variant="Title" columns="Three">
-<TitleCard heading="Curso de Open Payments en Platzi" buttonUrl="https://platzi.com/cursos/interledger-openpayments/" buttonText="Empieza el curso" buttonExternal={true}>
+<TitleCard heading="Curso de Open Payments en Platzi" buttonUrl="https://platzi.com/cursos/interledger-openpayments/" buttonText="Comience el curso" buttonExternal={true}>
 
-Un curso introductorio gratuito que te guía por la tecnología para que llegues
-al hackatón ya sabiendo cómo funciona.
-
-</TitleCard>
-<TitleCard heading="Serie de videos introductorios" buttonUrl="https://www.youtube.com/watch?v=HeH1E7mmEh8&list=PLDHju0onYcAJakrsF-I7LK_0phEqurn46" buttonText="Ver los videos" buttonExternal={true}>
-
-Tutoriales cortos que cubren los conceptos básicos del Interledger Protocol y un recorrido a fondo por Open Payments. Sigue el ejemplo con el repositorio open-payments-node y los fragmentos de código de la documentación. (El recurso aún no está disponible en español.)
+Un curso gratuito para principiantes que explica la tecnología para que comience el
+hackatón con los conocimientos necesarios sobre su funcionamiento.
 
 </TitleCard>
-<TitleCard heading="Blog de ingeniería" buttonUrl="/es/blog/category/engineering/" buttonText="Leer el blog" buttonExternal={false}>
+<TitleCard heading="Serie de videos introductorios" buttonUrl="https://www.youtube.com/watch?v=HeH1E7mmEh8&list=PLDHju0onYcAJakrsF-I7LK_0phEqurn46" buttonText="Vea los videos" buttonExternal={true}>
 
-Publicaciones de nuestro equipo de ingeniería que presentan Open Payments,
-explican por qué elegimos GNAP para la autorización y cubren el Open Payments
-PHP SDK.
+Tutoriales breves sobre los conceptos básicos de Interledger Protocol y una
+explicación detallada de Open Payments. Siga las explicaciones con el
+repositorio open-payments-node y los fragmentos de código de la documentación.
+
+</TitleCard>
+<TitleCard heading="Blog de ingeniería" buttonUrl="/es/blog/category/engineering/" buttonText="Lea el blog" buttonExternal={false}>
+
+Publicaciones de nuestro equipo de ingeniería que presentan Open Payments, explican por qué
+elegimos GNAP para la autorización y abordan el SDK de Open Payments para PHP.
 
 </TitleCard>
 </CardGrid>
 
-<CardGrid intro={{"heading":"Paso 2 - Consulta el material de referencia","description":"A medida que empiezas a programar, ten estos recursos abiertos en otra pestaña."}} ariaLabel="Recursos del paso 2" variant="Title" columns="Three">
-<TitleCard heading="Documentación de Open Payments" buttonUrl="https://openpayments.dev/es" buttonText="Leer la documentación" buttonExternal={true}>
+<Paragraph>
 
-Explicaciones detalladas, fragmentos de código, guías de implementación y la
-especificación completa de la API.
+## Paso 2 - Consulte los materiales de referencia
+
+Cuando comience a programar, mantenga estos recursos abiertos en otra pestaña.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Recursos del paso 2" variant="Title" columns="Three">
+<TitleCard heading="Documentación de Open Payments" buttonUrl="https://openpayments.dev/es/" buttonText="Consulte la documentación" buttonExternal={true}>
+
+Explicaciones detalladas, fragmentos de código, guías de implementación y la especificación
+completa de la API.
 
 </TitleCard>
-<TitleCard heading="Open Payments SDK" buttonUrl="https://github.com/interledger/open-payments-node" buttonText="Instalar el SDK" buttonExternal={true}>
+<TitleCard heading="SDK de Open Payments" buttonUrl="https://github.com/interledger/open-payments-node" buttonText="Instale el SDK" buttonExternal={true}>
 
-Tipos de TypeScript generados directamente a partir de las especificaciones OpenAPI de Open Payments, más un cliente de Node.js que firma las solicitudes con tu clave y valida las respuestas contra las especificaciones. (Recurso aún no disponible en español.)
+Tipos de TypeScript generados de forma directa a partir de las especificaciones
+OpenAPI de Open Payments, además de un cliente Node.js que firma las solicitudes con su clave y
+valida las respuestas conforme a las especificaciones.
 
 </TitleCard>
 <TitleCard heading="Glosario de términos" buttonUrl="https://openpayments.dev/es/resources/glossary/" buttonText="Glosario" buttonExternal={true}>
 
-Nuestro glosario de términos puede servirte de guía de referencia mientras avanzas por los recursos y empiezas a construir. (El recurso aún no está disponible en español.)
+Nuestro Glosario de términos puede servirle como guía de consulta mientras revisa
+los recursos y comienza a desarrollar.
 
 </TitleCard>
 </CardGrid>
 
-<CardGrid intro={{"heading":"Paso 3 - Construye y prueba","description":"Herramientas prácticas para que un pago realmente suceda."}} ariaLabel="Recursos del paso 3" variant="Title" columns="Two">
-<TitleCard heading="Interledger Test Wallet" buttonUrl="https://wallet.interledger-test.dev" buttonText="Consigue una Test Wallet" buttonExternal={true}>
+<Paragraph>
 
-Simula un proveedor de servicios financieros con Interledger habilitado. Regístrate, completa un flujo de KYC y mantén un saldo de dinero de práctica para enviar y recibir pagos usando direcciones de wallet. También expone las APIs de Open Payments para que terceros puedan iniciar pagos. (La aplicación aún no está disponible en español.)
+## Paso 3 - Desarrolle y pruebe
+
+Herramientas prácticas para efectuar un pago.
+
+</Paragraph>
+
+<CardGrid ariaLabel="Recursos del paso 3" variant="Title" columns="Two">
+<TitleCard heading="Interledger Test Wallet" buttonUrl="https://wallet.interledger-test.dev" buttonText="Obtenga una billetera de prueba" buttonExternal={true}>
+
+Simula un proveedor de servicios financieros con Interledger habilitado. Regístrese, complete
+un proceso de verificación KYC y mantenga un saldo de dinero ficticio para enviar y recibir
+pagos mediante direcciones de billetera. También pone a disposición las API de Open Payments para que
+terceros puedan iniciar pagos.
 
 </TitleCard>
-<TitleCard heading="Repositorios de apoyo en GitHub" buttonUrl="https://github.com/interledger" buttonText="Ver nuestro GitHub" buttonExternal={true}>
+<TitleCard heading="Repositorios de apoyo en GitHub" buttonUrl="https://github.com/interledger" buttonText="Visite nuestro GitHub" buttonExternal={true}>
 
-Scripts de ejemplo para enviar pagos, una biblioteca de fragmentos de código listos para usar en Visual Studio Code y snippets del Node SDK que funcionan con la Interledger Test Wallet. Para PHP, también están los repositorios PHP Open Payments SDK y Open Payments PHP Snippets. En conjunto, facilitan probar, integrar y experimentar con Open Payments en tu proyecto. (El contenido solo está disponible en inglés.)
+Scripts de ejemplo para enviar pagos, una biblioteca de fragmentos de código ya escritos
+para Visual Studio Code y fragmentos del SDK de Node que funcionan con Interledger
+Test Wallet. Para PHP, también están disponibles los repositorios PHP Open Payments SDK y Open
+Payments PHP Snippets. En conjunto, facilitan las pruebas,
+la integración y la experimentación con Open Payments en su proyecto.
 
 </TitleCard>
-<TitleCard heading="Interledger Pay" buttonUrl="https://interledgerpay.com/" buttonText="Paga a alguien" buttonExternal={true}>
+<TitleCard heading="Interledger Pay" buttonUrl="https://interledgerpay.com/" buttonText="Realice un pago a otra persona" buttonExternal={true}>
 
-Una aplicación cliente de pagos peer-to-peer funcional. (La aplicación aún no está disponible en español.)
+Una aplicación cliente funcional para pagos entre pares.
 
 </TitleCard>
-<TitleCard heading="Interledger Boutique" buttonUrl="https://boutique.interledger-test.dev/" buttonText="Haz una compra" buttonExternal={true}>
+<TitleCard heading="Interledger Boutique" buttonUrl="https://boutique.interledger-test.dev/" buttonText="Realice una compra" buttonExternal={true}>
 
-Una app de comercio electrónico de ejemplo para probar un flujo de pago de Open Payments de principio a fin. (La aplicación aún no está disponible en español.)
+Una aplicación de ejemplo de comercio electrónico para probar un proceso de pago con Open Payments de principio a
+fin.
 
 </TitleCard>
 </CardGrid>

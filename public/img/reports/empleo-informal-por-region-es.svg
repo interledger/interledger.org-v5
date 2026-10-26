@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" role="img">
+  <title>Empleo informal como proporción del empleo total, por región</title>
+  <rect width="920" height="480" fill="#ffffff"/>
+  <g stroke="#ece8f4" stroke-width="1">
+    <line x1="250" y1="70" x2="250" y2="400"/>
+    <line x1="400" y1="70" x2="400" y2="400"/>
+    <line x1="550" y1="70" x2="550" y2="400"/>
+    <line x1="700" y1="70" x2="700" y2="400"/>
+    <line x1="850" y1="70" x2="850" y2="400"/>
+  </g>
+  <line x1="598" y1="36" x2="598" y2="400" stroke="#5c2d91" stroke-width="2" stroke-dasharray="5 5"/>
+  <text x="590" y="28" text-anchor="end" fill="#5c2d91" font-family="Georgia, serif" font-size="16" font-style="italic">Promedio mundial 58 %</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#222222">
+    <text x="230" y="118" text-anchor="end">África</text>
+    <text x="230" y="188" text-anchor="end">
+      <tspan x="230" dy="0">Asia y</tspan>
+      <tspan x="230" dy="22">el Pacífico</tspan>
+    </text>
+    <text x="230" y="278" text-anchor="end">América</text>
+    <text x="230" y="358" text-anchor="end">
+      <tspan x="230" dy="0">Europa y</tspan>
+      <tspan x="230" dy="22">Asia Central</tspan>
+    </text>
+  </g>
+  <g fill="#7a3a96">
+    <rect x="250" y="96" width="516" height="36" rx="2"/>
+    <rect x="250" y="176" width="408" height="36" rx="2"/>
+    <rect x="250" y="260" width="240" height="36" rx="2"/>
+    <rect x="250" y="346" width="150" height="36" rx="2"/>
+  </g>
+  <g fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700">
+    <text x="754" y="121" text-anchor="end">86 %</text>
+    <text x="646" y="201" text-anchor="end">68 %</text>
+    <text x="478" y="285" text-anchor="end">40 %</text>
+    <text x="388" y="371" text-anchor="end">25 %</text>
+  </g>
+  <g fill="#444444" font-family="Arial, Helvetica, sans-serif" font-size="14" text-anchor="middle">
+    <text x="250" y="428">0</text>
+    <text x="400" y="428">25</text>
+    <text x="550" y="428">50</text>
+    <text x="700" y="428">75</text>
+    <text x="850" y="428">100</text>
+  </g>
+</svg>

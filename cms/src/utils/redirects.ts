@@ -115,7 +115,12 @@ function redirectSourceVariants(source: string): string[] {
   return key === '/' ? [key] : [key, `${key}/`]
 }
 
-/** An on-site destination stored as `/path/`; an https URL is left alone. */
+/**
+ * An on-site destination stored as `/path/`; an external https URL is left
+ * alone. An own-site URL (any environment) is already a path here: the
+ * document middleware stores `destination` like any link field, before this
+ * runs.
+ */
 function normalizeRedirectDestination(destination: string): string {
   const trimmed = destination.trim()
   if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return trimmed

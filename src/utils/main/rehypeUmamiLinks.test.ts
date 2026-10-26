@@ -216,3 +216,13 @@ describe('rehypeUmamiLinks', () => {
     })
   })
 })
+
+describe('rehypeUmamiLinks own-site links', () => {
+  it('renders a link to another site environment relative, in the same tab', async () => {
+    const out = await run(
+      '<a href="https://playground--interledger-org-v5.netlify.app/x/">x</a>'
+    )
+    expect(out).toContain('href="/x/"')
+    expect(out).not.toContain('target=')
+  })
+})

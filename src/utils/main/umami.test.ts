@@ -1,9 +1,46 @@
 import { describe, expect, it } from 'vitest'
+import { SITE_HOSTS } from '../../../cms/src/utils/relativeLinks'
 import {
   buildDeferredUmamiAttrs,
   buildUmamiAttrs,
-  extractTitleLabel
+  extractTitleLabel,
+  SITE_HOSTNAMES,
+  stripKnownOrigin
 } from './umami'
+
+describe('SITE_HOSTNAMES', () => {
+  // The CMS strips these hosts on save; Astro must treat the same set as the
+  // site, or a link stripped in one place stays absolute in the other.
+  it('matches the CMS site hosts exactly', () => {
+    expect(SITE_HOSTNAMES).toEqual(new Set(SITE_HOSTS))
+  })
+})
+
+describe('stripKnownOrigin', () => {
+  it('reduces a site URL to its path, query and fragment', () => {
+    expect(
+      stripKnownOrigin('https://staging.interledger.org/about/?x=1#team')
+    ).toBe('/about/?x=1#team')
+  })
+
+  it('collapses a doubled slash after the host', () => {
+    expect(stripKnownOrigin('https://interledger.org//blog/x/')).toBe(
+      '/blog/x/'
+    )
+  })
+
+  it.each([
+    'https://community.interledger.org/x',
+    'https://example.com/x',
+    // Only http(s) with no port, as the CMS strips on save.
+    'http://interledger.org:8080/x',
+    'ftp://interledger.org/x',
+    '/about/',
+    'not a url'
+  ])('leaves %s unchanged', (href) => {
+    expect(stripKnownOrigin(href)).toBe(href)
+  })
+})
 
 describe('buildUmamiAttrs — preview/QA routes', () => {
   it('emits no attributes at all on a preview pathname', () => {
@@ -261,6 +298,20 @@ describe('buildUmamiAttrs — destination_path / destination_section', () => {
       })
     ).toMatchObject({
       'data-umami-event-destination-path': 'foundation_home',
+      'data-umami-event-destination-section': 'foundation'
+    })
+  })
+
+  it('groups a site link with a doubled slash after the host as internal', () => {
+    expect(
+      buildUmamiAttrs({
+        label: 'link',
+        baseComponent: 'inline_link',
+        pathname: '/',
+        href: 'https://interledger.org//blog/x/'
+      })
+    ).toMatchObject({
+      'data-umami-event-destination-path': 'blog',
       'data-umami-event-destination-section': 'foundation'
     })
   })
