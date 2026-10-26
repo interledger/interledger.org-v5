@@ -116,8 +116,8 @@
    * The block is the section's own, or the first in its prose; the intro is
    * the block's child, or one level down where the block puts it in a column
    * (SplitLayout). A block without an intro takes the --block-pb rule
-   * above; a legacy first block keeps the stack gap until the Paragraph
-   * spacing lands (Phase 3).
+   * above; a Paragraph block takes the rule below; a legacy first block
+   * keeps the stack gap.
    * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &
@@ -144,6 +144,22 @@
       [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
     ) {
     margin-block-start: 0;
+  }
+
+  /*
+   * The same when the section's prose opens with a Paragraph block: the
+   * first heading's "first" padding (A3) is the whole gap, so the stack
+   * gives none and the block reads --para-lead-pt.
+   */
+  &
+    > :first-child
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child),
+  &
+    > :first-child
+    + script
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child) {
+    margin-block-start: 0;
+    --para-lead-pt: var(--para-first-pt);
   }
 }
 

@@ -45,8 +45,12 @@ const blogPath = translatePath(
 )
 ---
 
+{/*
+  A Paragraph block after the header opens with its own top padding
+  (ADR-009, A3/A4), which is the whole gap, so the header drops its margin.
+*/}
 <div
-  class="flex flex-col gap-2xl mb-3xl tablet:mb-4xl desktop:mb-5xl desktop:gap-3xl"
+  class="flex flex-col gap-2xl mb-3xl tablet:mb-4xl desktop:mb-5xl desktop:gap-3xl [&:has(+[data-intro-variant=paragraph])]:mb-0 tablet:[&:has(+[data-intro-variant=paragraph])]:mb-0 desktop:[&:has(+[data-intro-variant=paragraph])]:mb-0"
 >
   <h1 itemprop="headline" class="text-neutral-900 break-words">
     {frontmatter.title}

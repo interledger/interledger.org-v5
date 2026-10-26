@@ -124,9 +124,10 @@ const breadcrumbs = showBreadcrumbs
     </HackathonHero>
     {/* No top padding when the prose opens with a block that owns its
       spacing and has an intro, its own child or one level down (SplitLayout):
-      the intro is the gap under the hero (ADR-009, A6). */}
+      the intro is the gap under the hero (ADR-009, A6). The same for a
+      Paragraph block, whose "first" padding is the gap (A3). */}
     <section
-      class="px-content py-4xl [&:has([data-prose]>[data-intro-variant]:first-child>[data-block-intro])]:pt-0 [&:has([data-prose]>[data-intro-variant]:first-child>*>[data-block-intro])]:pt-0"
+      class="px-content py-4xl [&:has([data-prose]>[data-intro-variant]:first-child>[data-block-intro])]:pt-0 [&:has([data-prose]>[data-intro-variant]:first-child>*>[data-block-intro])]:pt-0 [&:has([data-prose]>[data-intro-variant=paragraph]:first-child)]:pt-0 [&:has([data-prose]>[data-intro-variant=paragraph]:first-child)]:[--para-lead-pt:var(--para-first-pt)]"
     >
       <div class="content-column">
         <div data-prose>

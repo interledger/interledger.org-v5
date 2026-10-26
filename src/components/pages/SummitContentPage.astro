@@ -94,7 +94,11 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
         sectionStyle={heroSectionStyle}
       />
     )}
-    <section class="px-content py-4xl">
+    {/* A Paragraph block opening the prose brings its own "first" padding,
+      which is the gap under the page header (ADR-009, A3). */}
+    <section
+      class="px-content py-4xl [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:pt-0 [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:[--para-lead-pt:var(--para-first-pt)]"
+    >
       <!--
         Content-width shell (@container) with narrow prose inside. Full-width
         blocks (EventCard, CardGrid) break out to 100cqw so multi-column layouts
@@ -103,7 +107,7 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
       <div class="content-column @container">
         <div
           data-prose-summit
-          class="mx-auto max-w-narrow [&>h2]:mt-3xl [&>h2]:mb-xl [&>h2]:text-[1.75rem] [&>h2]:font-semibold [&>h3]:mt-2xl [&>h3]:mb-lg [&>h3]:text-[1.25rem] [&>h3]:font-semibold [&_p]:mb-xl [&_p]:leading-[1.6] [&>ul]:mb-xl [&>ul_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
+          class="mx-auto max-w-narrow [&>h2]:mt-3xl [&>h2]:mb-xl [&>h2]:text-[1.75rem] [&>h2]:font-semibold [&>h3]:mt-2xl [&>h3]:mb-lg [&>h3]:text-[1.25rem] [&>h3]:font-semibold [&_p:not([data-intro-variant=paragraph]>p)]:mb-xl [&_p]:leading-[1.6] [&>ul]:mb-xl [&>ul_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
         >
           <MdxContent
             components={{

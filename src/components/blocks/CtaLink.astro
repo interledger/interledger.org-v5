@@ -33,14 +33,15 @@ const {
 
 // Spacing (Radu, 2026-08-12): a CTA belongs to the paragraph above it, so that
 // gap is tight (24px, 32px from desktop) and the gap below is the standard
-// section gap. `Paragraph` tightens its own bottom margin when it sees
-// `.cta-link` next to it, and the gap below comes from here. Before this the
+// section gap. A Paragraph block above sets the tight gap as its bottom
+// padding when it sees `.cta-link` next to it
+// (prose/paragraph-block.css), and the gap below comes from here. Before this the
 // CTA had no margin at all, so the following heading sat flush against it
 // (INTORG-1045).
 //
 // The block owns its spacing, so prose/rhythm.css skips `.cta-link` rather
 // than giving it the section gap on both sides. `cta-link` is also the hook
-// `Paragraph` matches on. Keep all three in step.
+// paragraph-block.css matches on. Keep all three in step.
 //
 // Before a block that owns its spacing (`data-intro-variant`, INTORG-1154)
 // the CTA keeps only that block's padding-bottom, as prose/rhythm.css does
