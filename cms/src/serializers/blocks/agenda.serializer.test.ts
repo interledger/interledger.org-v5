@@ -123,76 +123,16 @@ describe('agenda serializer', () => {
     }
   })
 
-  it('serializes the intro and the days, numbered by order, not stored', () => {
+  it('serializes the intro before the day heading and items', () => {
     const result = serialize({
       intro: { heading: 'Timetable' },
-      days: [
-        { date: '2026-10-16', items: validItems },
-        { date: '2026-10-17', items: validItems }
-      ]
-    })
-
-    expect(result).toBe(
-      `<Agenda intro={{"heading":"Timetable"}} days={${JSON.stringify([
-        { date: '2026-10-16', items: validItems },
-        { date: '2026-10-17', items: validItems }
-      ])}} />`
-    )
-  })
-
-  it('ignores the legacy heading and items once there are days', () => {
-    const result = serialize({
       heading: 'Friday October 16',
-      items: validItems,
-      days: [{ date: '2026-10-16', items: validItems }]
+      items: validItems
     })
 
-    expect(result).not.toContain('heading=')
-    expect(result).not.toContain('items={[')
-    expect(result).toContain('days={')
-  })
-
-  it('keeps the legacy single-day shape when there are no days', () => {
-    const result = serialize({ heading: 'Friday', items: validItems, days: [] })
-
     expect(result).toBe(
-      `<Agenda heading={"Friday"} items={${JSON.stringify(validItems)}} />`
+      `<Agenda intro={{"heading":"Timetable"}} heading={"Friday October 16"} items={${JSON.stringify(validItems)}} />`
     )
-  })
-
-  it('asks for a day when the block has neither days nor legacy items', () => {
-    try {
-      serialize({ intro: { heading: 'Timetable' } })
-      expect.unreachable('Expected agenda serialization to fail')
-    } catch (error) {
-      expect(error).toBeInstanceOf(SerializerFieldError)
-      expect((error as SerializerFieldError).fieldErrors).toEqual([
-        { path: ['days'], message: 'Agenda block requires at least one day' }
-      ])
-    }
-  })
-
-  it('reports a missing or impossible date and short days with day paths', () => {
-    try {
-      serialize({
-        days: [
-          { date: null, items: validItems },
-          { date: '2026-02-30', items: [validItems[0]!] },
-          { date: '2026-10-18', items: [{ time: '9am' }, validItems[1]!] }
-        ]
-      })
-      expect.unreachable('Expected agenda serialization to fail')
-    } catch (error) {
-      expect(error).toBeInstanceOf(SerializerFieldError)
-      expect(
-        (error as SerializerFieldError).fieldErrors.map(({ path }) => path)
-      ).toEqual([
-        ['days', 0, 'date'],
-        ['days', 1, 'date'],
-        ['days', 1, 'items'],
-        ['days', 2, 'items', 0, 'activity']
-      ])
-    }
   })
 
   it('omits empty additional information', () => {
