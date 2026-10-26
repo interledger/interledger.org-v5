@@ -18,8 +18,12 @@ import {
  * image skipped the media library, the optimizer and the CDN.
  */
 
+// MIME parameters such as `;charset=utf-8` can come before `;base64`. SVG,
+// which is text, can also arrive percent-encoded instead of base64.
 const DATA_IMAGE_PATTERN =
-  /^data:(image\/[a-z0-9.+-]+);base64,([a-z0-9+/=\s]+)$/i
+  /^data:(image\/[a-z0-9.+-]+)((?:;[a-z0-9-]+=[^;,]*)*)(;base64)?,([\s\S]*)$/i
+const BASE64_PAYLOAD = /^[a-z0-9+/=\s]+$/i
+const TEXT_IMAGE_TYPE = 'image/svg+xml'
 const FALLBACK_FILE_STEM = 'pasted-image'
 const MAX_FILE_STEM_LENGTH = 60
 
@@ -28,8 +32,26 @@ const EXTENSION_BY_SUBTYPE: Record<string, string> = {
   'svg+xml': 'svg'
 }
 
+interface DataImage {
+  mimeType: string
+  payload: string
+  isBase64: boolean
+}
+
+function parseDataImage(src: string): DataImage | null {
+  const match = DATA_IMAGE_PATTERN.exec(src)
+  if (!match) return null
+
+  const mimeType = match[1]!.toLowerCase()
+  const isBase64 = match[3] !== undefined
+  const payload = match[4]!
+  if (isBase64 ? !BASE64_PAYLOAD.test(payload) : mimeType !== TEXT_IMAGE_TYPE)
+    return null
+  return { mimeType, payload, isBase64 }
+}
+
 export function isDataImageSrc(src: unknown): src is string {
-  return typeof src === 'string' && DATA_IMAGE_PATTERN.test(src)
+  return typeof src === 'string' && parseDataImage(src) !== null
 }
 
 /** A file name stem from the alt text, so the upload is findable in the media library. */
@@ -44,25 +66,29 @@ export function fileStemFromAlt(alt: string | undefined): string {
   return stem || FALLBACK_FILE_STEM
 }
 
-export function dataImageToFile(src: string, alt?: string): File | Error {
-  const match = DATA_IMAGE_PATTERN.exec(src)
-  if (!match) return new Error('Not a base64 data: image URI.')
-
-  const [, mimeType, base64] = match
-  let binary: string
+function decodePayload({ payload, isBase64 }: DataImage): Uint8Array | Error {
   try {
-    binary = atob(base64!.replace(/\s/g, ''))
+    if (!isBase64) return new TextEncoder().encode(decodeURIComponent(payload))
+    const binary = atob(payload.replace(/\s/g, ''))
+    return Uint8Array.from(binary, (char) => char.charCodeAt(0))
   } catch (error) {
-    return new Error('The data: image URI has invalid base64.', {
+    return new Error('The data: image URI has an invalid payload.', {
       cause: error
     })
   }
+}
 
-  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0))
-  const subtype = mimeType!.split('/')[1]!.toLowerCase()
+export function dataImageToFile(src: string, alt?: string): File | Error {
+  const image = parseDataImage(src)
+  if (!image) return new Error('Not a supported data: image URI.')
+
+  const bytes = decodePayload(image)
+  if (bytes instanceof Error) return bytes
+
+  const subtype = image.mimeType.split('/')[1]!
   const extension = EXTENSION_BY_SUBTYPE[subtype] ?? subtype
   return new File([bytes], `${fileStemFromAlt(alt)}.${extension}`, {
-    type: mimeType!.toLowerCase()
+    type: image.mimeType
   })
 }
 
@@ -119,6 +145,9 @@ export function uploadPastedDataImages(editor: Editor): void {
  * library's alternative text, or else to the file name. That replaces alt
  * text that came with the paste, so a diagram described in Google Docs
  * ended up with the alt "image.png". This puts the pasted alt back.
+ *
+ * An empty alt marks a decorative image, so it is kept too. Only an image
+ * pasted with no alt attribute at all keeps the Strapi alt.
  */
 export function keepPastedImageAlt(editor: Editor): void {
   if (!editor.plugins.has('ImageUploadEditing')) return
@@ -129,8 +158,7 @@ export function keepPastedImageAlt(editor: Editor): void {
     'uploadComplete',
     (_evt, { imageElement }) => {
       const alt = imageElement.getAttribute('alt')
-      if (typeof alt === 'string' && alt.trim())
-        altBeforeUpload.set(imageElement, alt)
+      if (typeof alt === 'string') altBeforeUpload.set(imageElement, alt)
     },
     { priority: 'highest' }
   )
