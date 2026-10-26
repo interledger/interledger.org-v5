@@ -150,7 +150,7 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 - **Podcast Title Cards:** `titleCards.intro` (schema, export, sync, content). The heading moved out of `textSection`, and `splitTrailingHeading` is gone (done here rather than in Phase 4).
 - **Page stack** (`utilities/spacing.css`): a section holding a self-spaced block, directly or as the first block of its prose, gets the same transitional maths as `rhythm.css`. The grant FAQ section dropped its `pb-0` and zeroed spacers. Its accordion column now offsets by the intro's top spacing on desktop, so the first question stays 16px below the heading text.
 - **Behaviour that follows the design (check at review):** the grant FAQ section sits 80 below the section above on desktop (was 120): the Split layout variant has no top spacer there (A1).
-- **Deploy:** run `sync:mdx` right after merging. Saving the podcast page in Strapi before that exports the pre-migration shape back over the MDX.
+- **Deploy:** run `sync:mdx` right after merging. Saving the podcast page or the holiday contest page in Strapi before that exports the pre-migration shape back over the MDX.
 - **Blind spot:** a section whose prose _ends_ on a self-spaced block still ends like a legacy one, because `rhythm.css` drops that block's padding at the end of the prose. That holds the 120 today; revisit when the transitional rules go.
 
 ### Phase 4: Cleanup
