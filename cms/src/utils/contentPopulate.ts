@@ -61,7 +61,7 @@ const GRANT_BLOCKS = {
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.agenda': {
-    populate: { intro: true, days: { populate: { items: true } }, items: true }
+    populate: { intro: true, items: true }
   },
   'blocks.split-layout': {
     populate: {
@@ -197,11 +197,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { intro: true, tiles: true }
     },
     'blocks.agenda': {
-      populate: {
-        intro: true,
-        days: { populate: { items: true } },
-        items: true
-      }
+      populate: { intro: true, items: true }
     },
     'blocks.split-layout': {
       populate: {
