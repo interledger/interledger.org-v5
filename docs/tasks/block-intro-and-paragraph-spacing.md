@@ -119,7 +119,7 @@ Same recipe as Phase 1. Blocks that are already built only gain the intro and th
 | CtaButtons                         | button-cta   | none                                            | [B2](../decisions/009-block-intro-and-block-owned-spacing.md#b2-cta-buttons-543261858-button-cta-intro): buttons stay as built; button group pt 24 / 24 / 32; replaces `OWNS_ITS_SPACING` and the three CTA-pair hacks                                                                                                                                                                               |
 | ProfileGrid                        | universal    | `heading`                                       | [B7](../decisions/009-block-intro-and-block-owned-spacing.md#b7-profile-grid-546465604): grid and cards stay as built; drop the tagline `mb-xl`                                                                                                                                                                                                                                                      |
 | SplitLayout                        | split-layout | none                                            | [B5](../decisions/009-block-intro-and-block-owned-spacing.md#b5-split-layout-544163402-split-layout-intro), [D7](../decisions/009-block-intro-and-block-owned-spacing.md#decision): columns 60 / 40 (flipped for FAQ accordions), gap 120; media 4:3, radius 24; intro → buttons → media; media padding only with a CTA; button group; new FAQ option in the second column; fix the preview prop gap |
-| Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): days model and migration; "Day N" + date heading; agenda styles stay as built                                                                                                                                                             |
+| Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): intro only; day heading and items unchanged; agenda styles stay as built                                                                                                                                                                  |
 | InfoCards (grant), GrantFaqSection | universal    | `heading`; `title` + `subtitle` + `description` | single fields                                                                                                                                                                                                                                                                                                                                                                                        |
 | Title Cards (podcast)              | universal    | trailing `## Heading` in `textSection`          | Give the podcast title card grid its own `intro` (schema, export, sync, migration out of `textSection`). Then `PodcastPage` reads it instead of `splitTrailingHeading`, which is transitional and goes in Phase 4.                                                                                                                                                                                   |
 
@@ -143,10 +143,20 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 9. Blog posts are in scope ([D3](../decisions/009-block-intro-and-block-owned-spacing.md#decision)): their Paragraph blocks get the same rules under `[data-prose-blog]`. Zero the `blog.css` margins inside the block the same way, and check a post on its narrow column.
 10. Update `src/styles/README.md` and the comment at the top of `rhythm.css`.
 
+**Phase 2c status (2026-10-22, Agenda revised 2026-10-26).** The Agenda intro, the grant InfoCards intro, the podcast Title Cards intro and page-stack self-spacing are done.
+
+- **Agenda:** an optional intro above the existing day heading and items (D5, revised 2026-10-26 after Anca's #812 review: the first version's dated `days` could not hold a range like "Nov 13–17"). The day heading is `h3` under an intro heading and `h2` without one, in the Figma day heading style. Consecutive Agenda blocks sit 60 apart as the days of one schedule. The holiday contest agenda got a real intro in place of its markdown heading.
+- **InfoCards:** its `heading` field becomes the intro heading in the component. No schema change, as there is nothing else to put in an intro.
+- **Podcast Title Cards:** `titleCards.intro` (schema, export, sync, content). The heading moved out of `textSection`, and `splitTrailingHeading` is gone (done here rather than in Phase 4).
+- **Page stack** (`utilities/spacing.css`): a section holding a self-spaced block, directly or as the first block of its prose, gets the same transitional maths as `rhythm.css`. The grant FAQ section dropped its `pb-0` and zeroed spacers. Its accordion column now offsets by the intro's top spacing on desktop, so the first question stays 16px below the heading text.
+- **Behaviour that follows the design (check at review):** the grant FAQ section sits 80 below the section above on desktop (was 120): the Split layout variant has no top spacer there (A1).
+- **Deploy:** run `sync:mdx` right after merging. Saving the podcast page or the holiday contest page in Strapi before that exports the pre-migration shape back over the MDX.
+- **Blind spot:** a section whose prose _ends_ on a self-spaced block still ends like a legacy one, because `rhythm.css` drops that block's padding at the end of the prose. That holds the 120 today; revisit when the transitional rules go.
+
 ### Phase 4: Cleanup
 
 - Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
-- Remove `splitTrailingHeading` and its tests (`src/utils/main/blockIntro.ts`) once podcast Title Cards read their own intro.
+- Remove the page-stack transitional rules in `utilities/spacing.css` with the `rhythm.css` ones.
 - Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
 - Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
 
@@ -159,7 +169,7 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 - **Content checks:**
   - `cd cms && pnpm run check:mdx-filenames`
   - migration `--dry-run` reports
-  - `sync:mdx` against a dev Strapi, then confirm the intro and days fields in the Content Manager
+  - `sync:mdx` against a dev Strapi, then confirm the intro fields in the Content Manager
 - **Build:** `IMAGE_CDN=on pnpm run build`, with no new image-audit or link-validator findings, and no duplicate `<h2>`.
 - **Visual:** `pnpm dev` at 375 / 810 / 1440. Measure the gaps against the ADR's [global](../decisions/009-block-intro-and-block-owned-spacing.md#a-global-spec) and [per-block](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec) specs on:
   - `/our-grantmaking` (fake intro)

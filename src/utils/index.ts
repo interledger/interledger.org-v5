@@ -258,7 +258,6 @@ export {
   type BlockIntroA11y,
   normalizeBlockIntro,
   resolveBlockIntro,
-  splitTrailingHeading,
   type NormalizedBlockIntro
 } from './main/blockIntro'
 export {

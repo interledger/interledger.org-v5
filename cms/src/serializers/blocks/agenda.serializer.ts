@@ -3,8 +3,10 @@ import {
   ckeditorFieldToParsedMarkdown,
   htmlToMarkdown,
   looksLikeHtmlField,
+  serializeIntroProp,
   INLINE_BREAK_TAG,
   SerializerFieldError,
+  type BlockIntroInput,
   type FieldError
 } from '../../utils'
 
@@ -17,9 +19,18 @@ interface AgendaItem {
 }
 
 interface AgendaBlock {
+  intro?: BlockIntroInput | null
   heading?: string
   items?: AgendaItem[]
 }
+
+interface SerializedAgendaItem {
+  time: string
+  activity: string
+  additionalInfo?: string
+}
+
+type FieldPath = FieldError['path']
 
 // heading and additionalInfo are CKEditor fields: a line break needs
 // promoting or it's lost or rendered as literal text. additionalInfo renders
@@ -48,30 +59,33 @@ function normalizePlainText(value: string | undefined): string {
   return (looksLikeHtmlField(value) ? htmlToMarkdown(value) : value).trim()
 }
 
-export function serialize(block: AgendaBlock): string {
-  const fieldErrors: FieldError[] = []
-
-  if (!block.items || block.items.length < MIN_ITEMS) {
+/** Normalizes the items, pushing an error for each missing field. */
+function serializeItems(
+  items: AgendaItem[] | undefined,
+  fieldErrors: FieldError[]
+): SerializedAgendaItem[] {
+  const path: FieldPath = ['items']
+  if (!items || items.length < MIN_ITEMS) {
     fieldErrors.push({
-      path: ['items'],
+      path,
       message: `Agenda block requires at least ${MIN_ITEMS} items`
     })
   }
 
-  const items = (block.items ?? []).map((item, index) => {
+  return (items ?? []).map((item, index) => {
     const time = normalizePlainText(item.time)
     const activity = normalizePlainText(item.activity)
     const additionalInfo = normalizeRichText(item.additionalInfo)
 
     if (!time) {
       fieldErrors.push({
-        path: ['items', index, 'time'],
+        path: [...path, index, 'time'],
         message: `Agenda item ${index + 1} is missing a time`
       })
     }
     if (!activity) {
       fieldErrors.push({
-        path: ['items', index, 'activity'],
+        path: [...path, index, 'activity'],
         message: `Agenda item ${index + 1} is missing an activity`
       })
     }
@@ -80,12 +94,15 @@ export function serialize(block: AgendaBlock): string {
       ? { time, activity, additionalInfo }
       : { time, activity }
   })
+}
 
+export function serialize(block: AgendaBlock): string {
+  const fieldErrors: FieldError[] = []
+  const items = serializeItems(block.items, fieldErrors)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
+  const introAttr = serializeIntroProp(block.intro)
   const heading = normalizeHeading(block.heading)
   const headingAttr = heading ? ` heading={${JSON.stringify(heading)}}` : ''
-  const itemsAttr = ` items={${JSON.stringify(items)}}`
-
-  return `<Agenda${headingAttr}${itemsAttr} />`
+  return `<Agenda${introAttr}${headingAttr} items={${JSON.stringify(items)}} />`
 }

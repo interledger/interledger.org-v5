@@ -4,8 +4,7 @@ import {
   blockIntroA11y,
   blockIntroLabel,
   normalizeBlockIntro,
-  resolveBlockIntro,
-  splitTrailingHeading
+  resolveBlockIntro
 } from './blockIntro'
 
 describe('normalizeBlockIntro', () => {
@@ -121,34 +120,6 @@ describe('blockIntroLabel', () => {
       blockIntroLabel(normalizeBlockIntro({ description: 'D' }))
     ).toBeNull()
     expect(blockIntroLabel(null)).toBeNull()
-  })
-})
-
-describe('splitTrailingHeading', () => {
-  it('splits a trailing h2 off the body', () => {
-    expect(
-      splitTrailingHeading('Intro text.\n\n\n\n## Explore our Series  \n')
-    ).toEqual({ body: 'Intro text.', heading: 'Explore our Series' })
-  })
-
-  it('drops closing hashes and handles a heading-only text', () => {
-    expect(splitTrailingHeading('## Series ##')).toEqual({
-      body: '',
-      heading: 'Series'
-    })
-  })
-
-  it('leaves markdown that does not end on an h2 alone', () => {
-    for (const markdown of [
-      'Text.\n\n## Heading\n\nMore.',
-      '### Small',
-      'Text'
-    ]) {
-      expect(splitTrailingHeading(markdown)).toEqual({
-        body: markdown,
-        heading: null
-      })
-    }
   })
 })
 

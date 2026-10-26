@@ -33,6 +33,7 @@ const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
  * `__component` here when it adopts the intro.
  */
 export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
+  'blocks.agenda',
   'blocks.blockquote',
   'blocks.card-grid',
   'blocks.carousel',

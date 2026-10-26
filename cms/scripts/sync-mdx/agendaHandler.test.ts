@@ -78,4 +78,22 @@ describe('Agenda handler', () => {
       }
     ])
   })
+
+  it('round-trips the intro beside the day heading and items', async () => {
+    const mdx = serialize({
+      intro: { heading: 'Timetable' },
+      heading: 'Friday October 16',
+      items
+    })
+    const blocks = await parseMdxToBlocks(mdx, { locale: 'en' })
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.agenda',
+        intro: { heading: 'Timetable' },
+        heading: 'Friday October 16',
+        items
+      }
+    ])
+  })
 })

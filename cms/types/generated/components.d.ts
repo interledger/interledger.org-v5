@@ -3,7 +3,7 @@ import type { Schema, Struct } from '@strapi/strapi'
 export interface BlocksAgenda extends Struct.ComponentSchema {
   collectionName: 'components_blocks_agendas'
   info: {
-    description: 'A schedule with an optional heading and at least two agenda items'
+    description: 'A schedule with an optional intro, an optional day heading and at least two agenda items'
     displayName: 'Agenda'
     icon: 'calendar'
   }
@@ -15,6 +15,12 @@ export interface BlocksAgenda extends Struct.ComponentSchema {
           preset: 'defaultMarkdown'
         }
       > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1503,6 +1509,7 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
     columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Three'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<

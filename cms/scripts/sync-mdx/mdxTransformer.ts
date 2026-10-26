@@ -880,6 +880,8 @@ export async function buildPodcastPagePayload(
     )
 
     const titleCards = {
+      // null clears an intro the MDX no longer has.
+      intro: parsed.titleCards.intro ?? null,
       columns: parsed.titleCards.columns,
       ariaLabel: parsed.titleCards.ariaLabel,
       titleCards: parsed.titleCards.cards

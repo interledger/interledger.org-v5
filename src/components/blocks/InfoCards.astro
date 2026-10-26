@@ -1,12 +1,14 @@
 ---
 /**
  * Grant-page info cards section (`blocks.info-cards` / grant frontmatter
- * `infoCards`) — fixed three-card row with optional section heading.
+ * `infoCards`) — fixed three-card row. The optional section heading is its
+ * intro heading (ADR-009), the field's only intro content.
  *
  * Not the removed `blocks.info-card-grid` dynamic-zone block. DZ / MDX grids
  * use `CardGrid` with `variant="Info"` instead.
  */
-import { parseMarkdown } from '@/utils'
+import { blockIntroA11y, resolveBlockIntro, parseMarkdown } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 
 interface InfoCardData {
@@ -23,6 +25,9 @@ interface Props {
 const { heading, cards, umamiContext } = Astro.props
 const { routeLocale } = Astro.locals
 
+const intro = resolveBlockIntro(null, heading)
+const { headingId } = blockIntroA11y(intro, 'info-cards')
+
 const htmlCards = await Promise.all(
   cards.map(async (card) => ({
     heading: card.heading,
@@ -35,11 +40,15 @@ const htmlCards = await Promise.all(
 )
 ---
 
-<div data-component="InfoCards" class="flex flex-col gap-block-heading">
-  {heading && <h2 class="m-0 text-neutral-900">{heading}</h2>}
+<section
+  data-component="InfoCards"
+  data-intro-variant="universal"
+  aria-labelledby={headingId}
+>
+  <BlockIntro intro={intro} headingId={headingId} umamiContext={umamiContext} />
   <div class="flex flex-col gap-xl desktop:flex-row desktop:gap-2xl">
     {htmlCards.map((card) => <InfoCard heading={card.heading}>
       <Fragment set:html={card.html} />
     </InfoCard>)}
   </div>
-</div>
+</section>
