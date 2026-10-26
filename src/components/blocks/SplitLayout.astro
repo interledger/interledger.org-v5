@@ -38,7 +38,7 @@ interface StrapiCta {
 }
 
 interface Props {
-  /** Block intro (ADR-009), at the top of the text column. */
+  /** Block intro (ADR-009), above the two columns like every block's. */
   intro?: BlockIntroData | null
   /** Button group under the text: one button, or primary + secondary. */
   buttons?: SplitLayoutButton[] | null
@@ -194,16 +194,7 @@ const contentColumnClass = `${columnClass} flex flex-col`
 // The text column always comes first in the DOM, so the reading and focus
 // order match the stacked layout (text, buttons, media). Media on the left
 // moves to the first grid column on desktop only.
-const mediaColumnClass = [
-  columnClass,
-  mediaFirst && 'desktop:order-first',
-  isDesignRatio && 'desktop:self-center',
-  // The design ratio pads the media like a paragraph image, only when there
-  // are buttons (ADR-009, B5).
-  isDesignRatio &&
-    hasButtons &&
-    'py-xl tablet:py-2xl desktop:pt-4xl desktop:pb-3xl-tight'
-]
+const mediaColumnClass = [columnClass, mediaFirst && 'desktop:order-first']
   .filter(Boolean)
   .join(' ')
 const imageClass = isDesignRatio
@@ -211,60 +202,67 @@ const imageClass = isDesignRatio
   : 'w-full h-auto rounded-3xl object-cover'
 ---
 
+{/*
+  The intro sits above the two columns, as on every other block (Anca,
+  #800 review, 2026-10-22). The columns are centred on each other on
+  desktop.
+*/}
 <section
   data-component="SplitLayout"
-  data-intro-variant={ownsSpacing ? 'split-layout' : undefined}
+  data-intro-variant={ownsSpacing ? 'universal' : undefined}
   aria-labelledby={headingId}
-  class:list={[
-    'flex flex-col desktop:grid desktop:gap-6xl',
-    // Stacked, the design ratio spaces its columns from inside them (the
-    // intro's spacers, the media padding); the older ratios keep a gap.
-    !isDesignRatio && 'gap-3xl',
-    isDesignRatio ? 'desktop:items-start' : 'desktop:items-center',
-    gridColsClass
-  ]}
 >
-  <div class={contentColumnClass}>
-    <BlockIntro intro={intro} headingId={headingId} />
-    {isQuoteLayout && quote ? (
-      <Blockquote quote={quote} source={quoteSource} />
-    ) : previewBodyHtml ? (
-      <div
-        class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-        set:html={previewBodyHtml}
-      />
-    ) : (
-      <div class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-        <slot />
-      </div>
-    )}
-    {hasButtons && <div class="pt-xl desktop:pt-2xl">
-      {/*
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[
+      'flex flex-col desktop:grid desktop:items-center desktop:gap-6xl',
+      // Stacked, the design ratio leaves the paragraph media gap between
+      // text and media; the older ratios keep theirs.
+      isDesignRatio ? 'gap-xl tablet:gap-2xl' : 'gap-3xl',
+      gridColsClass
+    ]}
+  >
+    <div class={contentColumnClass}>
+      {isQuoteLayout && quote ? (
+        <Blockquote quote={quote} source={quoteSource} />
+      ) : previewBodyHtml ? (
+        <div
+          class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+          set:html={previewBodyHtml}
+        />
+      ) : (
+        <div class="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+          <slot />
+        </div>
+      )}
+      {hasButtons && <div class="pt-xl desktop:pt-2xl">
+        {/*
             CtaButtons with `spacing="none"`: the group sits inside this
             column, not in the prose flow, so it takes none of its pairing
             margins. Its buttons use `mode="auto"`, which keeps the secondary
             readable on the dark microsites (INTORG-1072).
           */}
-      <CtaButtons buttons={buttons} spacing="none" />
+        <CtaButtons buttons={buttons} spacing="none" />
+      </div>}
+    </div>
+
+    {hasMedia && <div class={mediaColumnClass}>
+      {isVideoLayout && videoUrl ? (
+        <VideoEmbed
+          url={videoUrl}
+          title={imageAlt?.trim() || 'Video'}
+          poster={imageSrc}
+        />
+      ) : imageSrc ? (
+        <OptimizedImage
+          src={imageSrc}
+          alt={imageAlt ?? ''}
+          width={640}
+          height={480}
+          loading="lazy"
+          class={imageClass}
+        />
+      ) : null}
     </div>}
   </div>
-
-  {hasMedia && <div class={mediaColumnClass}>
-    {isVideoLayout && videoUrl ? (
-      <VideoEmbed
-        url={videoUrl}
-        title={imageAlt?.trim() || 'Video'}
-        poster={imageSrc}
-      />
-    ) : imageSrc ? (
-      <OptimizedImage
-        src={imageSrc}
-        alt={imageAlt ?? ''}
-        width={640}
-        height={480}
-        loading="lazy"
-        class={imageClass}
-      />
-    ) : null}
-  </div>}
 </section>
