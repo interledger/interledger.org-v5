@@ -1090,7 +1090,7 @@ describe('validateInternalLinks', () => {
 
   describe('slashless links', () => {
     it('fail the build without LINK_CHECK', async () => {
-      const { error } = await runCheck(
+      const { error, info } = await runCheck(
         {
           'index.html': '<a href="/about-us">about</a>',
           'about-us/index.html': '<a href="/">home</a>'
@@ -1100,6 +1100,7 @@ describe('validateInternalLinks', () => {
       )
       expect(error?.message).toContain('/about-us (no trailing slash')
       expect(error?.message).toContain('joinPagePath')
+      expect(info.join('\n')).not.toContain('all resolve')
     })
 
     it('count every slashless link to a target', async () => {

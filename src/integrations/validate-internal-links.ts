@@ -894,9 +894,9 @@ export function validateInternalLinks(): AstroIntegration {
               `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
               formatFindings(findings)
 
-        if (!findingsReport) {
+        if (!findingsReport && slashless.size === 0) {
           logger.info(`${scanned} — all resolve.${skipped}`)
-        } else if (!isStrict()) {
+        } else if (findingsReport && !isStrict()) {
           logger.warn(
             `${findingsReport}\nThese alone do not fail this build, but ` +
               `publishing to production will fail until they are fixed.`
