@@ -3,6 +3,7 @@ import path from 'node:path'
 import fs from 'fs/promises'
 import * as prettier from 'prettier'
 import type {
+  GrantReport,
   TableMeta,
   Table,
   TableRecord,
@@ -23,12 +24,22 @@ import {
   toGranteeRecord,
   warnOnMissingProjectNames
 } from '../src/utils/main/airtableRecords'
+import {
+  findHiddenReportFields,
+  reportFieldIdsToFetch,
+  toGrantReports
+} from '../src/utils/main/airtableReports'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
 const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Website field in Projects table
+const PUBLISHED_REPORTS_TABLE_ID = 'tblHfL0Eh1KOSX98h' // Published Reports
+const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
+
+const GRANTEE_JSON_FILE = 'grantee-data.json'
+const GRANT_REPORTS_JSON_FILE = 'grant-reports.json'
 
 // Every Projects column the sync can read, checked against the metadata. Which
 // grantee columns are fetched depends on the view (see
@@ -50,12 +61,15 @@ function findById<T extends { id: string }>(
   return found
 }
 
-async function writeAirtableJson(data: TableRecord[]) {
+async function writeAirtableJson(
+  data: TableRecord[] | GrantReport[],
+  fileName: string
+) {
   const basePath = path.resolve('./src/data/airtable')
   await fs.mkdir(basePath, { recursive: true })
-  const filePath = path.join(basePath, 'grantee-data.json')
+  const filePath = path.join(basePath, fileName)
 
-  // grantee-data.json is committed, and `pnpm run lint` runs `prettier --check` over it.
+  // Both files are committed, and `pnpm run lint` runs `prettier --check` over it.
   // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
   // stringify output would fail lint and bury every real change under thousands of lines
   // of formatting churn. Formatting here keeps a local run and the automated sync in
@@ -80,7 +94,10 @@ function throwUnexpectedShape(): never {
 }
 
 async function fetchAllRecords(
-  tableId: typeof CONTACTS_TABLE_ID | typeof PROJECTS_TABLE_ID,
+  tableId:
+    | typeof CONTACTS_TABLE_ID
+    | typeof PROJECTS_TABLE_ID
+    | typeof PUBLISHED_REPORTS_TABLE_ID,
   params: URLSearchParams,
   apiToken: string
 ): Promise<RawTableRecord[]> {
@@ -138,6 +155,50 @@ async function fetchGranteeRecords(
   params.append('fields[]', PUBLISHED_ON_WEBSITE_FIELD_ID)
 
   return fetchAllRecords(PROJECTS_TABLE_ID, params, apiToken)
+}
+
+async function fetchGrantReports(
+  meta: TableMeta,
+  apiToken: string
+): Promise<GrantReport[]> {
+  const reportsTable = findById(
+    meta.tables,
+    PUBLISHED_REPORTS_TABLE_ID,
+    'Published Reports table'
+  )
+  const reportsView = findById(
+    reportsTable.views,
+    REPORTS_VIEW_ID,
+    'Reports view'
+  )
+  for (const id of reportFieldIdsToFetch()) {
+    findById(reportsTable.fields, id, 'Published Reports field')
+  }
+  if (reportsView.visibleFieldIds === undefined) {
+    throw new Error(
+      `View '${REPORTS_VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
+    )
+  }
+  const hidden = findHiddenReportFields(reportsView.visibleFieldIds)
+  if (hidden.length > 0) {
+    throw new Error(
+      `Grant report fields hidden in the view: ${hidden.join(', ')}. The site needs them all.`
+    )
+  }
+
+  // view = the Live filter and the public columns. fields[] = the columns the
+  // sync reads, plus the status for its own Live check.
+  const params = new URLSearchParams({ view: REPORTS_VIEW_ID })
+  reportFieldIdsToFetch().forEach((id) => params.append('fields[]', id))
+  const records = await fetchAllRecords(
+    PUBLISHED_REPORTS_TABLE_ID,
+    params,
+    apiToken
+  )
+  const reports = toGrantReports(records)
+  if (reports instanceof Error) throw reports
+  console.log(`ℹ️  Live grant reports: ${reports.length}`)
+  return reports
 }
 
 async function importAirtableData() {
@@ -221,7 +282,11 @@ async function importAirtableData() {
   // Last, so a column emptied at any step above fails the sync.
   const missingFields = checkGranteeFieldsPresent(finalGranteeData, published)
   if (missingFields instanceof Error) throw missingFields
-  await writeAirtableJson(finalGranteeData)
+  const grantReports = await fetchGrantReports(meta, apiToken)
+  // Written only after both parts succeed, so a failed run leaves neither
+  // file half-updated.
+  await writeAirtableJson(finalGranteeData, GRANTEE_JSON_FILE)
+  await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
 }
 
 importAirtableData().catch((err) => {

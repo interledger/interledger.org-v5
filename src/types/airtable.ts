@@ -43,3 +43,26 @@ export interface TableRecord {
     [key: string]: AirtableFieldValue | undefined
   }
 }
+
+export type GrantReportType = 'Interim Report' | 'Final Report'
+
+// A grant report as written to grant-reports.json. The sync fails rather than
+// write a report with a required value missing, so no field is optional. The
+// five long-text fields are Markdown: Airtable returns rich text that way.
+export interface GrantReport {
+  id: string
+  projectName: string
+  reportType: GrantReportType
+  reportNumber: number
+  publishedDate: string
+  reportingPeriodStart: string
+  reportingPeriodEnd: string
+  summary: string
+  progressOnObjectives: string
+  whoBenefits: string
+  outputs: string
+  whatsNext: string
+  license: string
+  outputTypes: string[]
+  interledgerTechnologies: string[]
+}
