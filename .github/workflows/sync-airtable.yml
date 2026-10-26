@@ -1,4 +1,4 @@
-name: Sync Airtable Grantee Data
+name: Sync Airtable Data
 # Fetches the grantee directory data from Airtable. If the data changed, opens a pull request
 # against staging. It never commits to staging directly: the grantee directory is public-facing
 # data, so a person sees every change before it ships.
@@ -40,7 +40,8 @@ jobs:
     environment: staging
 
     env:
-      AIRTABLE_JSON: src/data/airtable/grantee-data.json
+      GRANTEE_JSON: src/data/airtable/grantee-data.json
+      REPORTS_JSON: src/data/airtable/grant-reports.json
       SYNC_BRANCH: chore/airtable-grantee-sync
       BASE_BRANCH: staging
 
@@ -77,7 +78,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Sync grantee data from Airtable
+      - name: Sync grantee and grant report data from Airtable
         id: sync
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
@@ -98,23 +99,25 @@ jobs:
           # The script Prettier-formats its own output (see writeAirtableJson), so this is a
           # tripwire rather than a fix-up. If that ever drifts from .prettierrc, fail here and
           # not as a red `pnpm run lint` on somebody else's PR days later.
-          pnpm exec prettier --check "$AIRTABLE_JSON"
+          pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON"
 
-          if git diff --quiet -- "$AIRTABLE_JSON"; then
+          if git diff --quiet -- "$GRANTEE_JSON" "$REPORTS_JSON"; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Grantee data is unchanged — no branch, no commit, no pull request."
-            echo "Grantee data unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
+            echo "Airtable data is unchanged — no branch, no commit, no pull request."
+            echo "Airtable data unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
 
           # Record counts give a reviewer a one-line sanity check on an otherwise opaque
-          # multi-thousand-line JSON diff. HEAD still holds the old file — nothing is committed
+          # multi-thousand-line JSON diff. HEAD still holds the old files — nothing is committed
           # yet. jq ships on ubuntu-latest.
           {
-            echo "before_count=$(git show "HEAD:$AIRTABLE_JSON" | jq length)"
-            echo "after_count=$(jq length < "$AIRTABLE_JSON")"
+            echo "before_count=$(git show "HEAD:$GRANTEE_JSON" | jq length)"
+            echo "after_count=$(jq length < "$GRANTEE_JSON")"
+            echo "reports_before_count=$(git show "HEAD:$REPORTS_JSON" | jq length)"
+            echo "reports_after_count=$(jq length < "$REPORTS_JSON")"
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit and push the sync branch
@@ -129,9 +132,9 @@ jobs:
           # exactly one commit and can never develop a merge conflict.
           git checkout -B "$SYNC_BRANCH"
 
-          # Commit this one path. Nothing else should be dirty on a fresh runner, but the
+          # Commit these paths only. Nothing else should be dirty on a fresh runner, but the
           # pathspec form makes that a guarantee rather than an assumption.
-          git commit -m 'chore(data): sync grantee data from Airtable' -- "$AIRTABLE_JSON"
+          git commit -m 'chore(data): sync Airtable data' -- "$GRANTEE_JSON" "$REPORTS_JSON"
 
           # --force, not --force-with-lease: a shallow checkout has no origin ref for the lease
           # to compare against. This workflow owns the branch and recreates it every run.
@@ -143,6 +146,8 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BEFORE_COUNT: ${{ steps.sync.outputs.before_count }}
           AFTER_COUNT: ${{ steps.sync.outputs.after_count }}
+          REPORTS_BEFORE_COUNT: ${{ steps.sync.outputs.reports_before_count }}
+          REPORTS_AFTER_COUNT: ${{ steps.sync.outputs.reports_after_count }}
         run: |
           set -euo pipefail
 
@@ -155,16 +160,21 @@ jobs:
             cat <<'EOF'
           ## Summary
 
-          Automated refresh of the grantee directory data from Airtable, opened by
+          Automated refresh of the grantee directory and grant report data from Airtable, opened by
           `.github/workflows/sync-airtable.yml`. No human wrote this diff — all of it is
           regenerated output from `pnpm run sync:airtable`.
 
           EOF
-            printf 'Records: **%s → %s**\n\n' "$BEFORE_COUNT" "$AFTER_COUNT"
+            printf 'Grantee records: **%s → %s**\n\n' "$BEFORE_COUNT" "$AFTER_COUNT"
+            printf 'Grant reports: **%s → %s**\n\n' "$REPORTS_BEFORE_COUNT" "$REPORTS_AFTER_COUNT"
             cat <<'EOF'
           A record enters the directory when an editor sets **Published on Website** in the
           Airtable Projects table, and leaves when that flag is cleared. A record can also change
           without entering or leaving — check the file diff for those.
+
+          A grant report enters when its **Publication Status** in the Airtable Published Reports
+          table is **Live**, and leaves when it changes. The sync fails, and opens no pull request,
+          if a Live report is missing a required field.
 
           ## Related Issue
 
@@ -183,13 +193,13 @@ jobs:
 
           ## Checks
 
-          - [x] `pnpm run sync:airtable` — generated the updated file
-          - [x] `pnpm exec prettier --check src/data/airtable/grantee-data.json` — passed before the PR was opened
+          - [x] `pnpm run sync:airtable` — generated the updated files
+          - [x] `pnpm exec prettier --check` on both files in `src/data/airtable/` — passed before the PR was opened
 
           ## PR Checklist
 
           - [x] PR title follows Conventional Commits
-          - [x] Scope is focused — exactly one file
+          - [x] Scope is focused — the two files in `src/data/airtable/` only
           - [ ] Linked issue included — N/A, scheduled automation
 
           ---
@@ -218,7 +228,7 @@ jobs:
             PR_URL="$(gh pr create \
               --base "$BASE_BRANCH" \
               --head "$SYNC_BRANCH" \
-              --title 'chore(data): sync grantee data from Airtable' \
+              --title 'chore(data): sync Airtable data' \
               --body-file "$BODY_FILE")"
             echo "Opened pull request: $PR_URL"
           fi
@@ -240,13 +250,13 @@ jobs:
           payload: |
             {
               "channel": "frontend-team",
-              "text": "❌ Airtable grantee sync failed in *${{ github.repository }}*",
+              "text": "❌ Airtable sync failed in *${{ github.repository }}*",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "❌ *Airtable Grantee Sync Failed*\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                    "text": "❌ *Airtable Sync Failed*\n*Repo:* ${{ github.repository }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
                   }
                 }
               ]

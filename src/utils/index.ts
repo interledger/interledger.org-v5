@@ -219,6 +219,16 @@ export {
   warnOnMissingProjectNames,
   type GranteeFieldName
 } from './main/airtableRecords'
+export {
+  LIVE_STATUS,
+  PUBLICATION_STATUS_FIELD_ID,
+  REPORT_FIELDS,
+  findHiddenReportFields,
+  isLiveReport,
+  reportFieldIdsToFetch,
+  toGrantReport,
+  toGrantReports
+} from './main/airtableReports'
 
 // Main site: Text
 export { generateSlug } from './main/slug'
