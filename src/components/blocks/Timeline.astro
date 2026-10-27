@@ -97,159 +97,200 @@ const skipIconFrameClass =
   data-timeline
   aria-label={t('timeline.block_label')}
   class="relative outline-none"
+  style={{
+    'timeline-scope': timelineScope.join(', '),
+    '--timeline-section-count': String(resolved.length)
+  }}
 >
-  <ol
-    role="list"
-    data-timeline-sections
-    class="m-0 flex list-none flex-col gap-section p-0 tablet:gap-0"
-    style={{
-      'timeline-scope': timelineScope.join(', '),
-      '--timeline-section-count': String(resolved.length)
-    }}
+  <div
+    data-timeline-layout
+    class="tablet:grid tablet:grid-cols-[1fr_2fr] tablet:gap-2xl desktop:gap-6xl"
   >
-    {resolved.map((section, index) => {
-      return <li
-        data-timeline-section
-        class="tablet:grid tablet:grid-cols-[1fr_2fr] tablet:items-start tablet:gap-2xl desktop:gap-6xl"
-        style={{
-          '--timeline-section': sectionTimelineName(index),
-          '--timeline-section-row': String(index + 1)
-        }}
+    {/* Tablet and desktop: one panel beside the events, sticky until the last
+        event's bottom meets the bottom of its links. First in the DOM, so
+        keyboard users meet Skip before the timeline. */}
+    <div data-timeline-panel class="hidden tablet:block">
+      <div
+        class="sticky top-[calc(var(--site-header-height)+var(--spacing-3xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
       >
-        <header
-          data-timeline-header
-          class="flex flex-col tablet:sticky tablet:top-[calc(var(--site-header-height)+var(--spacing-3xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
-        >
-          <div
-            data-timeline-label
-            class="sticky top-[calc(var(--site-header-height)+var(--spacing-xl))] flex flex-col gap-md tablet:top-[calc(var(--site-header-height)+var(--spacing-3xl))] desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-7xl))]"
+        {/* What a sighted reader sees: every section's text, stacked in one
+            grid cell so the panel is as tall as the tallest and the links
+            never move. A scroll timeline shows the active one. The real
+            headings sit with their events, so this copy stays out of the
+            accessibility tree. */}
+        <div aria-hidden="true" data-timeline-panel-labels class="grid">
+          {resolved.map((section, index) => <div
+            data-timeline-panel-label
+            class="col-start-1 row-start-1 flex flex-col gap-md"
+            style={{ '--timeline-section': sectionTimelineName(index) }}
           >
-            <h3 class="m-0 text-orchid-100 dark:text-orchid-50">
+            <p
+              class="m-0 text-h3 text-orchid-100 tablet:text-h3-md desktop:text-h3-lg dark:text-orchid-50"
+            >
               {section.heading}
-            </h3>
-            <p
-              class="m-0 hidden text-h4 text-neutral-900 tablet:block tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
-            >
-              {section.subheading}
             </p>
             <p
-              class="m-0 hidden text-neutral-100 tablet:block dark:text-neutral-50"
+              class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
             >
-              {section.description}
-            </p>
-
-            <nav
-              aria-label={t('timeline.section_nav')}
-              class="hidden tablet:mt-4xl tablet:flex tablet:flex-col tablet:items-start tablet:gap-xl desktop:mt-6xl"
-            >
-              {navLinks.map((link) => <a
-                href={link.href}
-                class:list={[skipLinkClass, 'flex']}
-                {...skipAttrs(link.shortLabel, link.href)}
-              >
-                <span class={skipIconFrameClass}>
-                  <Icon name="arrow-down-dotted" class={link.iconClass} />
-                </span>
-                {link.longLabel}
-              </a>)}
-            </nav>
-          </div>
-        </header>
-
-        <div data-timeline-main class="mt-2xl min-w-0 tablet:mt-0">
-          {/* The sticky phone label is only the heading. These two are required
-              fields, so they stay readable above this section's events. */}
-          <div class="mb-2xl flex flex-col gap-md tablet:hidden">
-            <p class="m-0 text-h4 text-neutral-900 dark:text-neutral-0">
               {section.subheading}
             </p>
             <p class="m-0 text-neutral-100 dark:text-neutral-50">
               {section.description}
             </p>
-          </div>
+          </div>)}
+        </div>
 
-          <ol
-            data-timeline-events
-            role="list"
-            aria-label={t('timeline.events_label', {
-              heading: section.heading
-            })}
-            class="m-0 flex list-none flex-col p-0"
+        <nav
+          aria-label={t('timeline.section_nav')}
+          class="mt-4xl flex flex-col items-start gap-xl desktop:mt-6xl"
+        >
+          {navLinks.map((link) => <a
+            href={link.href}
+            class:list={[skipLinkClass, 'flex']}
+            {...skipAttrs(link.shortLabel, link.href)}
           >
-            {section.events.map((event, eventIndex) => {
-              const absoluteIndex = eventOffsets[index] + eventIndex
+            <span class={skipIconFrameClass}>
+              <Icon name="arrow-down-dotted" class={link.iconClass} />
+            </span>
+            {link.longLabel}
+          </a>)}
+        </nav>
+      </div>
+    </div>
 
-              return <li
-                data-timeline-event
-                class:list={[
-                  'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg desktop:grid-cols-[8rem_var(--timeline-rail)_1fr] desktop:gap-x-xl',
-                  eventIndex === section.events.length - 1 &&
-                    index < lastIndex &&
-                    'timeline-section-end'
-                ]}
+    <ol
+      role="list"
+      data-timeline-sections
+      class="m-0 flex list-none flex-col gap-section p-0 tablet:gap-0"
+    >
+      {resolved.map((section, index) => {
+        return <li
+          data-timeline-section
+          style={{
+            '--timeline-section': sectionTimelineName(index),
+            '--timeline-section-row': String(index + 1)
+          }}
+        >
+          {/* The section's real headings. Phones show the heading as a sticky
+              label; from tablet up the panel shows them, so these are for
+              screen readers only. */}
+          <header data-timeline-header class="flex flex-col">
+            <div
+              data-timeline-label
+              class="sticky top-[calc(var(--site-header-height)+var(--spacing-xl))] flex flex-col gap-md"
+            >
+              <h3 class="m-0 text-orchid-100 dark:text-orchid-50">
+                {section.heading}
+              </h3>
+              <p
+                class="m-0 hidden text-h4 text-neutral-900 tablet:block tablet:text-h4-md desktop:text-h4-lg dark:text-neutral-0"
               >
-                <p
-                  class="col-start-2 m-0 text-h5 text-neutral-75 tablet:text-h5-md desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:h-(--timeline-rail) desktop:items-center desktop:justify-end desktop:text-right desktop:text-h4-lg dark:text-neutral-50"
-                >
-                  {event.date}
-                </p>
+                {section.subheading}
+              </p>
+              <p
+                class="m-0 hidden text-neutral-100 tablet:block dark:text-neutral-50"
+              >
+                {section.description}
+              </p>
+            </div>
+          </header>
 
-                <div
-                  aria-hidden="true"
-                  class="relative col-start-1 row-span-2 row-start-1 desktop:col-start-2 desktop:row-span-1"
-                >
-                  {absoluteIndex < lastEventIndex && <div
-                    data-timeline-segment
-                    class:list={[
-                      // From tablet up the next section's events sit directly
-                      // below; on a phone its header sits in between.
-                      eventIndex === section.events.length - 1 &&
-                        'timeline-section-bridge hidden tablet:block',
-                      'absolute top-[calc(var(--timeline-rail)/2)] left-1/2 h-full w-0.5 -translate-x-1/2'
-                    ]}
-                  >
-                    <div data-timeline-fill class="absolute inset-0" />
-                  </div>}
-                  <div
-                    data-timeline-dot-frame
-                    class="relative size-(--timeline-rail)"
-                  >
-                    <div
-                      data-timeline-dot
-                      class:list={[
-                        'size-full rounded-full',
-                        dotColorClass(absoluteIndex)
-                      ]}
-                    />
-                  </div>
-                </div>
+          <div data-timeline-main class="mt-2xl min-w-0 tablet:mt-0">
+            {/* The sticky phone label is only the heading. These two are required
+              fields, so they stay readable above this section's events. */}
+            <div class="mb-2xl flex flex-col gap-md tablet:hidden">
+              <p class="m-0 text-h4 text-neutral-900 dark:text-neutral-0">
+                {section.subheading}
+              </p>
+              <p class="m-0 text-neutral-100 dark:text-neutral-50">
+                {section.description}
+              </p>
+            </div>
 
-                <div
+            <ol
+              data-timeline-events
+              role="list"
+              aria-label={t('timeline.events_label', {
+                heading: section.heading
+              })}
+              class="m-0 flex list-none flex-col p-0"
+            >
+              {section.events.map((event, eventIndex) => {
+                const absoluteIndex = eventOffsets[index] + eventIndex
+
+                return <li
+                  data-timeline-event
                   class:list={[
-                    'col-start-2 flex flex-col items-start gap-lg pt-sm desktop:col-start-3 desktop:row-start-1',
-                    // The pad is the gap to the next dot. On the last item it
-                    // only lengthens the sticky label past the text.
-                    absoluteIndex < lastEventIndex && 'pb-(--timeline-item-pad)'
+                    'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg desktop:grid-cols-[8rem_var(--timeline-rail)_1fr] desktop:gap-x-xl',
+                    eventIndex === section.events.length - 1 &&
+                      index < lastIndex &&
+                      'timeline-section-end'
                   ]}
                 >
                   <p
-                    class="m-0 text-h5 text-neutral-900 tablet:text-h5-md desktop:text-h5-lg dark:text-neutral-0"
+                    class="col-start-2 m-0 text-h5 text-neutral-75 tablet:text-h5-md desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:h-(--timeline-rail) desktop:items-center desktop:justify-end desktop:text-right desktop:text-h4-lg dark:text-neutral-50"
                   >
-                    {event.description}
+                    {event.date}
                   </p>
-                  <p
-                    class="m-0 rounded-full border border-neutral-50 px-md py-xs text-body-sm-standard text-neutral-900 dark:border-neutral-75 dark:text-neutral-0"
+
+                  <div
+                    aria-hidden="true"
+                    class="relative col-start-1 row-span-2 row-start-1 desktop:col-start-2 desktop:row-span-1"
                   >
-                    {event.tag}
-                  </p>
-                </div>
-              </li>
-            })}
-          </ol>
-        </div>
-      </li>
-    })}
-  </ol>
+                    {absoluteIndex < lastEventIndex && <div
+                      data-timeline-segment
+                      class:list={[
+                        // From tablet up the next section's events sit directly
+                        // below; on a phone its header sits in between.
+                        eventIndex === section.events.length - 1 &&
+                          'timeline-section-bridge hidden tablet:block',
+                        'absolute top-[calc(var(--timeline-rail)/2)] left-1/2 h-full w-0.5 -translate-x-1/2'
+                      ]}
+                    >
+                      <div data-timeline-fill class="absolute inset-0" />
+                    </div>}
+                    <div
+                      data-timeline-dot-frame
+                      class="relative size-(--timeline-rail)"
+                    >
+                      <div
+                        data-timeline-dot
+                        class:list={[
+                          'size-full rounded-full',
+                          dotColorClass(absoluteIndex)
+                        ]}
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    class:list={[
+                      'col-start-2 flex flex-col items-start gap-lg pt-sm desktop:col-start-3 desktop:row-start-1',
+                      // The pad is the gap to the next dot. On the last item it
+                      // only lengthens the sticky label past the text.
+                      absoluteIndex < lastEventIndex &&
+                        'pb-(--timeline-item-pad)'
+                    ]}
+                  >
+                    <p
+                      class="m-0 text-h5 text-neutral-900 tablet:text-h5-md desktop:text-h5-lg dark:text-neutral-0"
+                    >
+                      {event.description}
+                    </p>
+                    <p
+                      class="m-0 rounded-full border border-neutral-50 px-md py-xs text-body-sm-standard text-neutral-900 dark:border-neutral-75 dark:text-neutral-0"
+                    >
+                      {event.tag}
+                    </p>
+                  </div>
+                </li>
+              })}
+            </ol>
+          </div>
+        </li>
+      })}
+    </ol>
+  </div>
 
   <div data-timeline-mobile-nav class="sticky bottom-0 z-10 tablet:hidden">
     <div
@@ -438,11 +479,18 @@ const skipIconFrameClass =
     }
   }
 
-  /* The narrow phone label column and the tablet/desktop panel below both
-     read this: it tracks which section's events are crossing the viewport's
-     middle, regardless of breakpoint. Not gated on reduced motion: the swap
-     is an instant change of text, not movement. Breakpoints match the
-     `tablet:` and `desktop:` tiers. */
+  /* Without timeline-scope nothing can say which section is active, so the
+     panel shows only its links and each section's own headings show above
+     its events. */
+  [data-timeline-panel-labels] {
+    display: none;
+  }
+
+  /* The phone label column and the tablet/desktop panel both read these
+     timelines: each tracks which section's events are crossing the
+     viewport's middle. Not gated on reduced motion: the swap is an instant
+     change of text, not movement. Breakpoints match the `tablet:` and
+     `desktop:` tiers. */
   @supports (timeline-scope: --timeline-section-1) {
     [data-timeline-main] {
       view-timeline-name: var(--timeline-section);
@@ -450,61 +498,10 @@ const skipIconFrameClass =
       view-timeline-inset: 50%;
     }
 
-    /* Every header spans all rows of the left column and stretches to that
-       area, so the label inside can stick for the whole timeline and release
-       when the last item's bottom reaches it. The links sit inside the label
-       box, so the panel lets go as the last item's bottom meets the links,
-       rather than running on below the end of the rail. pointer-events is not inherited, so
-       descendants opt in: otherwise a later section's links sit on top of the
-       visible ones and take the click. Inactive headings stay at opacity 0
-       rather than visibility: hidden, so a screen reader can still find them. */
-    [data-timeline-header] {
-      grid-column: 1;
-      grid-row: 1 / span var(--timeline-section-count);
-      align-self: stretch;
-      position: static;
-      opacity: 0;
-      pointer-events: none;
-      animation-name: timeline-header-active;
-      animation-duration: 1ms;
-      animation-timing-function: linear;
-      animation-range: cover;
-    }
-
-    /* Own rule: the minifier folds a same-rule animation-timeline into the
-       shorthand, which browsers reject. Lightning CSS currently leaves this
-       var()-timeline rule alone even combined, but don't rely on that. */
-    [data-timeline-section] [data-timeline-header] {
-      animation-timeline: var(--timeline-section);
-    }
-
-    [data-timeline-label] {
-      position: sticky;
-      top: calc(var(--site-header-height) + var(--spacing-xl));
-      z-index: 1;
-    }
-
-    [data-timeline-header] * {
-      pointer-events: inherit;
-    }
-
-    [data-timeline-section]:first-child [data-timeline-header] {
-      animation-fill-mode: backwards;
-    }
-
-    [data-timeline-section]:last-child [data-timeline-header] {
-      animation-fill-mode: forwards;
-    }
-
-    [data-timeline-section]:first-child:last-child [data-timeline-header] {
-      animation-fill-mode: both;
-    }
-
-    /* The scroll timeline chooses the visible header. Forcing the focused one
-       to stay up, and hiding the rest, leaves that section's text beside a
-       later section's events after the reader scrolls. */
-
-    /* Phone: the heading turns into a narrow vertical label beside the rail. */
+    /* Phone: the heading turns into a narrow vertical label beside the rail.
+       Every label spans all rows of its column and sticks for the whole
+       timeline; inactive ones stay at opacity 0 rather than visibility:
+       hidden, so a screen reader can still find them. */
     @media (width < 810px) {
       [data-timeline] {
         /* The vertical heading's line box. Wider than this clips the letters
@@ -531,6 +528,39 @@ const skipIconFrameClass =
         margin-top: 0;
       }
 
+      [data-timeline-header] {
+        grid-column: 1;
+        grid-row: 1 / span var(--timeline-section-count);
+        align-self: stretch;
+        opacity: 0;
+        animation-name: timeline-header-active;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
+        animation-range: cover;
+      }
+
+      /* Own rule: the minifier folds a same-rule animation-timeline into the
+         shorthand, which browsers reject. */
+      [data-timeline-section] [data-timeline-header] {
+        animation-timeline: var(--timeline-section);
+      }
+
+      [data-timeline-section]:first-child [data-timeline-header] {
+        animation-fill-mode: backwards;
+      }
+
+      [data-timeline-section]:last-child [data-timeline-header] {
+        animation-fill-mode: forwards;
+      }
+
+      [data-timeline-section]:first-child:last-child [data-timeline-header] {
+        animation-fill-mode: both;
+      }
+
+      [data-timeline-label] {
+        z-index: 1;
+      }
+
       [data-timeline-header] h3 {
         writing-mode: vertical-rl;
         transform: rotate(180deg);
@@ -548,49 +578,65 @@ const skipIconFrameClass =
       }
     }
 
-    /* Tablet and desktop: one fixed panel beside the events. */
+    /* Tablet and desktop: the panel shows the active section, so each
+       section's own headings are for screen readers only. */
     @media (width >= 810px) {
-      [data-timeline-label] {
-        top: calc(var(--site-header-height) + var(--spacing-3xl));
-      }
-
-      /* Space below the timeline. On the block, outside the grid, so it
-         doesn't lengthen the area the panel sticks within. */
-      [data-timeline] {
-        padding-bottom: var(--spacing-5xl);
-      }
-
-      [data-timeline-sections] {
+      [data-timeline-panel-labels] {
         display: grid;
-        grid-template-columns: 1fr 2fr;
-        column-gap: var(--spacing-2xl);
-        row-gap: 0;
       }
 
-      [data-timeline-section] {
-        display: contents;
+      [data-timeline-panel-label] {
+        opacity: 0;
+        animation-name: timeline-header-active;
+        animation-duration: 1ms;
+        animation-timing-function: linear;
+        animation-range: cover;
       }
 
-      [data-timeline-main] {
-        grid-column: 2;
-        grid-row: var(--timeline-section-row);
+      /* Own rule: the minifier folds a same-rule animation-timeline into the
+         shorthand, which browsers reject. */
+      [data-timeline-panel-labels] [data-timeline-panel-label] {
+        animation-timeline: var(--timeline-section);
+      }
+
+      [data-timeline-panel-label]:first-child {
+        animation-fill-mode: backwards;
+      }
+
+      [data-timeline-panel-label]:last-child {
+        animation-fill-mode: forwards;
+      }
+
+      [data-timeline-panel-label]:first-child:last-child {
+        animation-fill-mode: both;
+      }
+
+      [data-timeline-header] {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
     }
+  }
 
-    @media (width >= 1200px) {
-      [data-timeline-label] {
-        top: calc(var(--site-header-height-desktop) + var(--spacing-7xl));
-      }
+  /* Space below the timeline. On the block, outside the grid, so it doesn't
+     lengthen the area the panel sticks within. */
+  @media (width >= 810px) {
+    [data-timeline] {
+      padding-bottom: var(--spacing-5xl);
+    }
+  }
 
-      [data-timeline] {
-        padding-bottom: calc(
-          var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
-        );
-      }
-
-      [data-timeline-sections] {
-        column-gap: var(--spacing-6xl);
-      }
+  @media (width >= 1200px) {
+    [data-timeline] {
+      padding-bottom: calc(
+        var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
+      );
     }
   }
 </style>
