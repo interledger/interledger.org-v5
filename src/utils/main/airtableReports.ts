@@ -1,13 +1,15 @@
 import type {
-  GrantReport,
+  GrantReportContent,
   GrantReportType,
-  RawTableRecord
+  ParsedGrantReport,
+  RawTableRecord,
+  ReportImageSource
 } from '@/types/airtable'
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
 // Unlike the grantee directory, a gap is never warned about and skipped: a
-// report with a required value missing, or with more than one file in an image
-// field, fails the whole sync. Programs fix the record, and the next run picks
+// report with a required value missing, or with an image that breaks the rules
+// below, fails the whole sync. Programs fix the record, and the next run picks
 // it up. The site keeps the last good data in the meantime.
 
 // Only reports with this status reach the site. The view filters on it too,
@@ -71,10 +73,45 @@ export const REPORT_FIELDS = {
   },
   image1: { id: 'fldQY4Dses4064EI3', name: 'Public Image 1' },
   image2: { id: 'fld7WuZSUfppIE3Qs', name: 'Public Image 2' },
-  image3: { id: 'fld5bJMgKQXnQ91A4', name: 'Public Image 3' }
+  image3: { id: 'fld5bJMgKQXnQ91A4', name: 'Public Image 3' },
+  imageDescription1: {
+    id: 'fldxrUoNBNENy9IvG',
+    name: 'Public Image Description 1'
+  },
+  imageDescription2: {
+    id: 'fld5HLgJxoKiua1xW',
+    name: 'Public Image Description 2'
+  },
+  imageDescription3: {
+    id: 'fldpDA5UedHLxTVXP',
+    name: 'Public Image Description 3'
+  }
 } as const satisfies Record<string, { id: string; name: string }>
 
 type ReportFieldKey = keyof typeof REPORT_FIELDS
+
+// Each image field and the description that is its alt text, in page order.
+const IMAGE_SLOTS = [
+  { image: 'image1', description: 'imageDescription1' },
+  { image: 'image2', description: 'imageDescription2' },
+  { image: 'image3', description: 'imageDescription3' }
+] as const satisfies readonly {
+  image: ReportFieldKey
+  description: ReportFieldKey
+}[]
+
+// The file types the site accepts. Airtable does not limit them, so the sync
+// fails on any other type, for example HEIC from an iPhone or a PDF.
+export const ALLOWED_IMAGE_TYPES: readonly string[] = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif'
+]
+
+// Airtable does not limit file size either. The sync makes every image small,
+// but it refuses to download a file this large at all.
+export const MAX_SOURCE_IMAGE_BYTES = 50 * 1024 * 1024
 
 // Airtable writes a date-only field as YYYY-MM-DD.
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
@@ -100,6 +137,10 @@ function readOptions(value: unknown): string[] | undefined {
 // submission, so any other count means the link is broken.
 function readSingleLookup(value: unknown): unknown {
   return Array.isArray(value) && value.length === 1 ? value[0] : undefined
+}
+
+function isRecordLike(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }
 
 function describe(value: unknown): string {
@@ -149,16 +190,55 @@ function createFieldReader(fields: Record<string, unknown>) {
         ? value
         : fail(key, REPORT_TYPES.join(' or '), REPORT_TYPES[0])
     },
-    // Images are not written yet. The one-file rule is a data rule, so the
-    // sync applies it now.
-    attachments(key: ReportFieldKey): void {
+    // An empty description is allowed: the image then shows with alt="".
+    optionalText(key: ReportFieldKey): string {
+      return nonBlankString(raw(key)) ?? ''
+    },
+    // An image field is optional, but it holds at most one file, of an
+    // allowed type and size. The file itself is checked after download.
+    image(key: ReportFieldKey, alt: string): ReportImageSource | undefined {
       const value = raw(key)
-      const count = Array.isArray(value) ? value.length : 0
-      if (count > MAX_FILES_PER_IMAGE_FIELD) {
-        fail(key, `at most ${MAX_FILES_PER_IMAGE_FIELD} file`, undefined)
+      if (value === undefined) return undefined
+      if (!Array.isArray(value) || value.length > MAX_FILES_PER_IMAGE_FIELD) {
+        return fail(key, `at most ${MAX_FILES_PER_IMAGE_FIELD} file`, undefined)
       }
+      const [file] = value
+      if (file === undefined) return undefined
+      return readAttachment(file, alt, (expected) =>
+        fail(key, expected, undefined)
+      )
     }
   }
+}
+
+// Reads the Airtable attachment object: { id, url, size, type, ... }.
+function readAttachment(
+  file: unknown,
+  alt: string,
+  fail: (expected: string) => undefined
+): ReportImageSource | undefined {
+  if (
+    !isRecordLike(file) ||
+    typeof file.id !== 'string' ||
+    typeof file.url !== 'string' ||
+    typeof file.size !== 'number'
+  ) {
+    return fail('an attachment with an id, url and size')
+  }
+  if (
+    typeof file.type !== 'string' ||
+    !ALLOWED_IMAGE_TYPES.includes(file.type)
+  ) {
+    return fail(
+      `a file of type ${ALLOWED_IMAGE_TYPES.join(', ')} (got ${String(file.type)})`
+    )
+  }
+  if (file.size > MAX_SOURCE_IMAGE_BYTES) {
+    return fail(
+      `a file of at most ${MAX_SOURCE_IMAGE_BYTES / 1024 / 1024} MB (got ${(file.size / 1024 / 1024).toFixed(1)} MB)`
+    )
+  }
+  return { attachmentId: file.id, url: file.url, sizeBytes: file.size, alt }
 }
 
 function isReportType(value: unknown): value is GrantReportType {
@@ -181,9 +261,9 @@ export function isLiveReport(raw: RawTableRecord): boolean {
 }
 
 // Every problem in the record is listed, so programs can fix it in one pass.
-export function toGrantReport(raw: RawTableRecord): GrantReport | Error {
+export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
   const read = createFieldReader(raw.fields)
-  const report: GrantReport = {
+  const content: GrantReportContent = {
     id: raw.id,
     projectName: read.lookupText('projectName'),
     reportType: read.reportType('reportType'),
@@ -200,11 +280,12 @@ export function toGrantReport(raw: RawTableRecord): GrantReport | Error {
     outputTypes: read.options('outputTypes'),
     interledgerTechnologies: read.options('interledgerTechnologies')
   }
-  read.attachments('image1')
-  read.attachments('image2')
-  read.attachments('image3')
+  const imageSources = IMAGE_SLOTS.flatMap(
+    ({ image, description }) =>
+      read.image(image, read.optionalText(description)) ?? []
+  )
 
-  if (read.problems.length === 0) return report
+  if (read.problems.length === 0) return { content, imageSources }
   return new Error(
     `Report ${reportLabel(raw)}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
   )
@@ -212,7 +293,10 @@ export function toGrantReport(raw: RawTableRecord): GrantReport | Error {
 
 // Sorted by project, then report number, so a change to the view's sort in
 // Airtable does not reorder the committed file.
-function compareReports(a: GrantReport, b: GrantReport): number {
+function compareReports(
+  { content: a }: ParsedGrantReport,
+  { content: b }: ParsedGrantReport
+): number {
   return (
     a.projectName.localeCompare(b.projectName, 'en') ||
     a.reportNumber - b.reportNumber ||
@@ -224,8 +308,8 @@ function compareReports(a: GrantReport, b: GrantReport): number {
 // with every bad report listed. Zero reports is valid: none may be Live yet.
 export function toGrantReports(
   records: RawTableRecord[]
-): GrantReport[] | Error {
-  const reports: GrantReport[] = []
+): ParsedGrantReport[] | Error {
+  const reports: ParsedGrantReport[] = []
   const errors: Error[] = []
   for (const result of records.filter(isLiveReport).map(toGrantReport)) {
     if (result instanceof Error) errors.push(result)
