@@ -12,6 +12,7 @@ import Icon from '@/components/shared/Icon.astro'
 import {
   buildUmamiAttrs,
   resolveTimelineSections,
+  TIMELINE_DOT_CLASS,
   timelineAccentIndex,
   timelineEventOffsets,
   useTranslations
@@ -41,8 +42,6 @@ Astro.locals.timelineCount = timelineNumber
 const timelineId =
   timelineNumber === 1 ? 'timeline' : `timeline-${timelineNumber}`
 const timelineEndId = `${timelineId}-end`
-const sectionId = (index: number) => `${timelineId}-section-${index + 1}`
-const sectionEventsId = (index: number) => `${sectionId(index)}-events`
 const sectionTimelineName = (index: number) => `--timeline-section-${index + 1}`
 
 /** Every section's events timeline, lifted to the list so headers can read it. */
@@ -64,36 +63,13 @@ const navLinks = [
   }
 ]
 
-/**
- * One dot colour per event, cycling across the whole timeline after the
- * first. Written out in full so Tailwind can see every class at build time;
- * `TIMELINE_ACCENT_COUNT` must match its length.
- */
-const DOT_CLASS = [
-  'bg-orchid-100',
-  'bg-lagoon-100',
-  'bg-emerald-100',
-  'bg-coral-red-100',
-  'bg-deep-teal-100',
-  'bg-tangerine-100',
-  'bg-raspberry-100',
-  'bg-soft-indigo-100',
-  'bg-forest-green-100',
-  'bg-apricot-100',
-  'bg-flamingo-100',
-  'bg-lavender-100',
-  'bg-aqua-mint-100',
-  'bg-pistachio-100',
-  'bg-blush-100'
-] as const
-
-/** The very first event on the whole timeline is black, outside the cycle above. */
+/** The very first event on the whole timeline is black, outside the cycle. */
 const FIRST_EVENT_DOT_CLASS = 'bg-neutral-900 dark:bg-neutral-0'
 
 const dotColorClass = (absoluteEventIndex: number) =>
   absoluteEventIndex === 0
     ? FIRST_EVENT_DOT_CLASS
-    : DOT_CLASS[timelineAccentIndex(absoluteEventIndex - 1)]
+    : TIMELINE_DOT_CLASS[timelineAccentIndex(absoluteEventIndex - 1)]
 
 const skipAttrs = (linkText: string, href: string) =>
   buildUmamiAttrs({
@@ -115,11 +91,12 @@ const skipIconFrameClass =
 
 {resolved.length > 0 && <section
   id={timelineId}
+  tabindex="-1"
   data-component="Timeline"
   data-umami-component="timeline"
   data-timeline
   aria-label={t('timeline.block_label')}
-  class="relative"
+  class="relative outline-none"
 >
   <ol
     role="list"
@@ -132,10 +109,8 @@ const skipIconFrameClass =
   >
     {resolved.map((section, index) => {
       return <li
-        id={sectionId(index)}
-        tabindex="-1"
         data-timeline-section
-        class="scroll-mt-(--site-header-height) outline-none tablet:grid tablet:grid-cols-[1fr_2fr] tablet:items-start tablet:gap-2xl desktop:gap-6xl desktop:scroll-mt-(--site-header-height-desktop)"
+        class="tablet:grid tablet:grid-cols-[1fr_2fr] tablet:items-start tablet:gap-2xl desktop:gap-6xl"
         style={{
           '--timeline-section': sectionTimelineName(index),
           '--timeline-section-row': String(index + 1)
@@ -181,86 +156,97 @@ const skipIconFrameClass =
           </div>
         </header>
 
-        <ol
-          id={sectionEventsId(index)}
-          tabindex="-1"
-          data-timeline-events
-          role="list"
-          aria-label={t('timeline.events_label', {
-            heading: section.heading
-          })}
-          class="m-0 mt-2xl flex list-none flex-col p-0 outline-none tablet:mt-0 desktop:scroll-mt-(--site-header-height-desktop)"
-        >
-          {section.events.map((event, eventIndex) => {
-            const absoluteIndex = eventOffsets[index] + eventIndex
+        <div data-timeline-main class="mt-2xl min-w-0 tablet:mt-0">
+          {/* The sticky phone label is only the heading. These two are required
+              fields, so they stay readable above this section's events. */}
+          <div class="mb-2xl flex flex-col gap-md tablet:hidden">
+            <p class="m-0 text-h4 text-neutral-900 dark:text-neutral-0">
+              {section.subheading}
+            </p>
+            <p class="m-0 text-neutral-100 dark:text-neutral-50">
+              {section.description}
+            </p>
+          </div>
 
-            return <li
-              data-timeline-event
-              class:list={[
-                'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg desktop:grid-cols-[8rem_var(--timeline-rail)_1fr] desktop:gap-x-xl',
-                eventIndex === section.events.length - 1 &&
-                  index < lastIndex &&
-                  'timeline-section-end'
-              ]}
-            >
-              <p
-                class="col-start-2 m-0 text-h5 text-neutral-75 tablet:text-h5-md desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:h-(--timeline-rail) desktop:items-center desktop:justify-end desktop:text-right desktop:text-h4-lg dark:text-neutral-50"
-              >
-                {event.date}
-              </p>
+          <ol
+            data-timeline-events
+            role="list"
+            aria-label={t('timeline.events_label', {
+              heading: section.heading
+            })}
+            class="m-0 flex list-none flex-col p-0"
+          >
+            {section.events.map((event, eventIndex) => {
+              const absoluteIndex = eventOffsets[index] + eventIndex
 
-              <div
-                aria-hidden="true"
-                class="relative col-start-1 row-span-2 row-start-1 desktop:col-start-2 desktop:row-span-1"
-              >
-                {absoluteIndex < lastEventIndex && <div
-                  data-timeline-segment
-                  class:list={[
-                    // From tablet up the next section's events sit directly
-                    // below; on a phone its header sits in between.
-                    eventIndex === section.events.length - 1 &&
-                      'timeline-section-bridge hidden tablet:block',
-                    'absolute top-[calc(var(--timeline-rail)/2)] left-1/2 h-full w-0.5 -translate-x-1/2'
-                  ]}
-                >
-                  <div data-timeline-fill class="absolute inset-0" />
-                </div>}
-                <div
-                  data-timeline-dot-frame
-                  class="relative size-(--timeline-rail)"
-                >
-                  <div
-                    data-timeline-dot
-                    class:list={[
-                      'size-full rounded-full',
-                      dotColorClass(absoluteIndex)
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <div
+              return <li
+                data-timeline-event
                 class:list={[
-                  'col-start-2 flex flex-col items-start gap-lg pt-sm desktop:col-start-3 desktop:row-start-1',
-                  // The pad is the gap to the next dot. On the last item it
-                  // only lengthens the sticky label past the text.
-                  absoluteIndex < lastEventIndex && 'pb-(--timeline-item-pad)'
+                  'mb-0 grid grid-cols-[var(--timeline-rail)_1fr] gap-x-lg desktop:grid-cols-[8rem_var(--timeline-rail)_1fr] desktop:gap-x-xl',
+                  eventIndex === section.events.length - 1 &&
+                    index < lastIndex &&
+                    'timeline-section-end'
                 ]}
               >
                 <p
-                  class="m-0 text-h5 text-neutral-900 tablet:text-h5-md desktop:text-h5-lg dark:text-neutral-0"
+                  class="col-start-2 m-0 text-h5 text-neutral-75 tablet:text-h5-md desktop:col-start-1 desktop:row-start-1 desktop:flex desktop:h-(--timeline-rail) desktop:items-center desktop:justify-end desktop:text-right desktop:text-h4-lg dark:text-neutral-50"
                 >
-                  {event.description}
+                  {event.date}
                 </p>
-                <p
-                  class="m-0 rounded-full border border-neutral-50 px-md py-xs text-body-sm-standard text-neutral-900 dark:border-neutral-75 dark:text-neutral-0"
+
+                <div
+                  aria-hidden="true"
+                  class="relative col-start-1 row-span-2 row-start-1 desktop:col-start-2 desktop:row-span-1"
                 >
-                  {event.tag}
-                </p>
-              </div>
-            </li>
-          })}
-        </ol>
+                  {absoluteIndex < lastEventIndex && <div
+                    data-timeline-segment
+                    class:list={[
+                      // From tablet up the next section's events sit directly
+                      // below; on a phone its header sits in between.
+                      eventIndex === section.events.length - 1 &&
+                        'timeline-section-bridge hidden tablet:block',
+                      'absolute top-[calc(var(--timeline-rail)/2)] left-1/2 h-full w-0.5 -translate-x-1/2'
+                    ]}
+                  >
+                    <div data-timeline-fill class="absolute inset-0" />
+                  </div>}
+                  <div
+                    data-timeline-dot-frame
+                    class="relative size-(--timeline-rail)"
+                  >
+                    <div
+                      data-timeline-dot
+                      class:list={[
+                        'size-full rounded-full',
+                        dotColorClass(absoluteIndex)
+                      ]}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class:list={[
+                    'col-start-2 flex flex-col items-start gap-lg pt-sm desktop:col-start-3 desktop:row-start-1',
+                    // The pad is the gap to the next dot. On the last item it
+                    // only lengthens the sticky label past the text.
+                    absoluteIndex < lastEventIndex && 'pb-(--timeline-item-pad)'
+                  ]}
+                >
+                  <p
+                    class="m-0 text-h5 text-neutral-900 tablet:text-h5-md desktop:text-h5-lg dark:text-neutral-0"
+                  >
+                    {event.description}
+                  </p>
+                  <p
+                    class="m-0 rounded-full border border-neutral-50 px-md py-xs text-body-sm-standard text-neutral-900 dark:border-neutral-75 dark:text-neutral-0"
+                  >
+                    {event.tag}
+                  </p>
+                </div>
+              </li>
+            })}
+          </ol>
+        </div>
       </li>
     })}
   </ol>
@@ -296,25 +282,6 @@ const skipIconFrameClass =
 </section>}
 
 <style>
-  /* html scroll-padding-top (--scroll-padding-top) is more than the real
-     header. Cancel the surplus on Return's and Skip's targets so the block's
-     top or bottom edge meets the header instead of leaving a gap under it. */
-  [data-timeline],
-  [data-timeline-end] {
-    scroll-margin-top: calc(
-      var(--site-header-height) - var(--scroll-padding-top)
-    );
-  }
-
-  @media (width >= 1200px) {
-    [data-timeline],
-    [data-timeline-end] {
-      scroll-margin-top: calc(
-        var(--site-header-height-desktop) - var(--scroll-padding-top)
-      );
-    }
-  }
-
   /* Rail column width and the dot's full-size diameter.
      The event gap is padding inside each item: the rail segment is
      h-full, so a gap on the list would break the line between dots. */
@@ -425,23 +392,21 @@ const skipIconFrameClass =
       [data-timeline] {
         view-timeline-name: --timeline-whole;
         view-timeline-axis: block;
-        /* Cover would show the bar the instant the block touches the
-           screen. Insetting both edges shows it a little later and hides
-           it a little earlier. */
-        view-timeline-inset: 15%;
       }
 
+      /* Show the bar once the block has entered, and drop it when the
+         block's bottom edge reaches the bottom of the screen. Holding it
+         until the block leaves the top covers the next section. */
       [data-timeline-mobile-nav] {
         position: fixed;
         inset-inline: 0;
         bottom: 0;
         opacity: 0;
-        visibility: hidden;
         pointer-events: none;
         animation-name: timeline-header-active;
         animation-duration: 1ms;
         animation-timing-function: linear;
-        animation-range: cover;
+        animation-range: entry 15% exit 0%;
       }
 
       /* Own rule: the minifier folds a same-rule animation-timeline into the
@@ -454,12 +419,12 @@ const skipIconFrameClass =
         pointer-events: inherit;
       }
 
-      /* Keyboard focus wins over scroll position, or Return/Skip would be
-         invisible (and the focus ring clipped by opacity: 0). */
+      /* visibility: hidden would remove the links from tab order, so this
+         rule could never match and Shift+Tab after Skip could not return.
+         Opacity hides the bar; focus brings it back. */
       [data-timeline]:has([data-timeline-mobile-nav]:focus-within)
         [data-timeline-mobile-nav] {
         opacity: 1 !important;
-        visibility: visible !important;
         pointer-events: auto !important;
       }
     }
@@ -469,7 +434,6 @@ const skipIconFrameClass =
     from,
     to {
       opacity: 1;
-      visibility: visible;
       pointer-events: auto;
     }
   }
@@ -480,7 +444,7 @@ const skipIconFrameClass =
      is an instant change of text, not movement. Breakpoints match the
      `tablet:` and `desktop:` tiers. */
   @supports (timeline-scope: --timeline-section-1) {
-    [data-timeline-events] {
+    [data-timeline-main] {
       view-timeline-name: var(--timeline-section);
       view-timeline-axis: block;
       view-timeline-inset: 50%;
@@ -492,14 +456,14 @@ const skipIconFrameClass =
        box, so the panel lets go as the last item's bottom meets the links,
        rather than running on below the end of the rail. pointer-events is not inherited, so
        descendants opt in: otherwise a later section's links sit on top of the
-       visible ones and take the click. */
+       visible ones and take the click. Inactive headings stay at opacity 0
+       rather than visibility: hidden, so a screen reader can still find them. */
     [data-timeline-header] {
       grid-column: 1;
       grid-row: 1 / span var(--timeline-section-count);
       align-self: stretch;
       position: static;
       opacity: 0;
-      visibility: hidden;
       pointer-events: none;
       animation-name: timeline-header-active;
       animation-duration: 1ms;
@@ -536,18 +500,9 @@ const skipIconFrameClass =
       animation-fill-mode: both;
     }
 
-    [data-timeline-sections]:has([data-timeline-header]:focus-within)
-      [data-timeline-header]:not(:focus-within) {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-
-    [data-timeline-sections] [data-timeline-header]:focus-within {
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-    }
+    /* The scroll timeline chooses the visible header. Forcing the focused one
+       to stay up, and hiding the rest, leaves that section's text beside a
+       later section's events after the reader scrolls. */
 
     /* Phone: the heading turns into a narrow vertical label beside the rail. */
     @media (width < 810px) {
@@ -570,7 +525,7 @@ const skipIconFrameClass =
         display: contents;
       }
 
-      [data-timeline-events] {
+      [data-timeline-main] {
         grid-column: 2;
         grid-row: var(--timeline-section-row);
         margin-top: 0;
@@ -616,7 +571,7 @@ const skipIconFrameClass =
         display: contents;
       }
 
-      [data-timeline-events] {
+      [data-timeline-main] {
         grid-column: 2;
         grid-row: var(--timeline-section-row);
       }

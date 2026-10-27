@@ -1,13 +1,28 @@
 import type { TimelineEvent, TimelineSection } from '@/types/timeline'
 
 /**
- * Event dot colours cycle by position across the whole timeline: editors never
- * pick a colour. Must match the length of `DOT_CLASS` in `Timeline.astro`.
- * The very first event on the whole timeline is black instead (see
- * `Timeline.astro`), outside this cycle — every other event's accent is
- * `DOT_CLASS[timelineAccentIndex(absoluteIndex - 1)]`.
+ * Dot colours, in cycle order. Written out in full so Tailwind can see them.
+ * The first event on a timeline is black and is not in this list.
  */
-export const TIMELINE_ACCENT_COUNT = 15
+export const TIMELINE_DOT_CLASS = [
+  'bg-orchid-100',
+  'bg-lagoon-100',
+  'bg-emerald-100',
+  'bg-coral-red-100',
+  'bg-deep-teal-100',
+  'bg-tangerine-100',
+  'bg-raspberry-100',
+  'bg-soft-indigo-100',
+  'bg-forest-green-100',
+  'bg-apricot-100',
+  'bg-flamingo-100',
+  'bg-lavender-100',
+  'bg-aqua-mint-100',
+  'bg-pistachio-100',
+  'bg-blush-100'
+] as const
+
+export const TIMELINE_ACCENT_COUNT = TIMELINE_DOT_CLASS.length
 
 /** Which accent an event dot takes, so the sequence restarts after the last one. */
 export function timelineAccentIndex(eventIndex: number): number {

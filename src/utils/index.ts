@@ -267,6 +267,7 @@ export {
 } from './main/dynamicZoneSpacing'
 export {
   TIMELINE_ACCENT_COUNT,
+  TIMELINE_DOT_CLASS,
   timelineAccentIndex,
   timelineEventOffsets,
   resolveTimelineSections
