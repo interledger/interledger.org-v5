@@ -54,7 +54,8 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Admin website link
 
-The admin nav shows a link to this environment's website, below Settings. The URL
+The admin nav shows a link to this environment's website, below Settings on
+desktop (in the mobile menu, Strapi lists it above Settings). The URL
 and label come from `STRAPI_ADMIN_ENVIRONMENT_NAME` (map in
 `src/utils/websiteLink.ts`):
 

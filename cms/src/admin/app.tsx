@@ -251,8 +251,9 @@ let strapiApp: StrapiApp | null = null
 const adminEnv = typeof process !== 'undefined' ? process.env : undefined
 
 /**
- * Strapi's own Settings link sits at position 9, and the nav sorts by
+ * Strapi's own Settings link sits at position 9, and the desktop nav sorts by
  * position (`@strapi/admin` useMenu / LeftMenu), so 10 lands right below it.
+ * The mobile menu ignores position.
  */
 const BELOW_SETTINGS_MENU_POSITION = 10
 
