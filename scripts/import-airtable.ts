@@ -4,6 +4,9 @@ import fs from 'fs/promises'
 import * as prettier from 'prettier'
 import type {
   GrantReport,
+  GrantReportImage,
+  ParsedGrantReport,
+  ReportImageSource,
   TableMeta,
   Table,
   TableRecord,
@@ -25,10 +28,18 @@ import {
   warnOnMissingProjectNames
 } from '../src/utils/main/airtableRecords'
 import {
+  MAX_SOURCE_IMAGE_BYTES,
   findHiddenReportFields,
   reportFieldIdsToFetch,
   toGrantReports
 } from '../src/utils/main/airtableReports'
+import {
+  REPORT_IMAGES_DIR,
+  findOrphanImagePaths,
+  normalizeReportImage,
+  readStoredImageSize,
+  reportImagePath
+} from '../src/utils/main/reportImages'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
@@ -38,6 +49,7 @@ const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Websit
 const PUBLISHED_REPORTS_TABLE_ID = 'tblHfL0Eh1KOSX98h' // Published Reports
 const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
 
+const PUBLIC_DIR = path.resolve('./public')
 const GRANTEE_JSON_FILE = 'grantee-data.json'
 const GRANT_REPORTS_JSON_FILE = 'grant-reports.json'
 
@@ -160,7 +172,7 @@ async function fetchGranteeRecords(
 async function fetchGrantReports(
   meta: TableMeta,
   apiToken: string
-): Promise<GrantReport[]> {
+): Promise<ParsedGrantReport[]> {
   const reportsTable = findById(
     meta.tables,
     PUBLISHED_REPORTS_TABLE_ID,
@@ -199,6 +211,138 @@ async function fetchGrantReports(
   if (reports instanceof Error) throw reports
   console.log(`ℹ️  Live grant reports: ${reports.length}`)
   return reports
+}
+
+// A site path such as /img/grantee-reports/rec1/att1.webp, on disk.
+function toFilePath(sitePath: string): string {
+  return path.join(PUBLIC_DIR, sitePath)
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  return fs.access(filePath).then(
+    () => true,
+    () => false
+  )
+}
+
+async function downloadImage(url: string): Promise<Buffer | Error> {
+  const response = await fetch(url).catch((error: unknown) =>
+    error instanceof Error ? error : new Error(String(error))
+  )
+  if (response instanceof Error) return response
+  if (!response.ok) {
+    return new Error(
+      `download failed (${response.status} ${response.statusText})`
+    )
+  }
+  const data = Buffer.from(await response.arrayBuffer())
+  if (data.length > MAX_SOURCE_IMAGE_BYTES) {
+    return new Error(`download is ${data.length} bytes, over the source limit`)
+  }
+  return data
+}
+
+// Downloads and normalizes one image, or reuses the file from an earlier run.
+async function storeReportImage(
+  reportId: string,
+  source: ReportImageSource
+): Promise<GrantReportImage | Error> {
+  const sitePath = reportImagePath(reportId, source.attachmentId)
+  const filePath = toFilePath(sitePath)
+  if (await fileExists(filePath)) {
+    const size = await readStoredImageSize(filePath)
+    if (size instanceof Error) return size
+    return { path: sitePath, ...size, alt: source.alt }
+  }
+
+  const downloaded = await downloadImage(source.url)
+  if (downloaded instanceof Error) return downloaded
+  const image = await normalizeReportImage(downloaded)
+  if (image instanceof Error) return image
+  await fs.mkdir(path.dirname(filePath), { recursive: true })
+  await fs.writeFile(filePath, image.data)
+  return {
+    path: sitePath,
+    width: image.width,
+    height: image.height,
+    alt: source.alt
+  }
+}
+
+function reportName({ content }: ParsedGrantReport): string {
+  return `${content.projectName} ${content.reportType} ${content.reportNumber} (ID: ${content.id})`
+}
+
+// Every image of every report is tried, so one run lists all bad images.
+async function addReportImages(
+  parsedReports: ParsedGrantReport[]
+): Promise<GrantReport[]> {
+  const reports: GrantReport[] = []
+  const problems: string[] = []
+  for (const parsed of parsedReports) {
+    const images: GrantReportImage[] = []
+    for (const source of parsed.imageSources) {
+      const image = await storeReportImage(parsed.content.id, source)
+      if (image instanceof Error) {
+        problems.push(
+          `Report ${reportName(parsed)}, attachment ${source.attachmentId}: ${image.message}`
+        )
+      } else {
+        images.push(image)
+      }
+    }
+    reports.push({ ...parsed.content, images })
+  }
+  if (problems.length > 0) {
+    throw new Error(
+      `${problems.length} grant report image(s) cannot be published:\n${problems.map((p) => `  - ${p}`).join('\n')}`
+    )
+  }
+  return reports
+}
+
+async function listStoredReportImages(): Promise<string[]> {
+  const dir = toFilePath(REPORT_IMAGES_DIR)
+  if (!(await fileExists(dir))) return []
+  const entries = await fs.readdir(dir, {
+    recursive: true,
+    withFileTypes: true
+  })
+  return entries
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      path.posix.join(
+        REPORT_IMAGES_DIR,
+        path
+          .relative(dir, path.join(entry.parentPath, entry.name))
+          .split(path.sep)
+          .join('/')
+      )
+    )
+}
+
+// Runs after the JSON is written, so a failed run never deletes an image that
+// the committed JSON still points to.
+async function removeOrphanReportImages(reports: GrantReport[]): Promise<void> {
+  const used = new Set(
+    reports.flatMap(({ images }) => images.map((i) => i.path))
+  )
+  const orphans = findOrphanImagePaths(await listStoredReportImages(), used)
+  for (const orphan of orphans) {
+    await fs.rm(toFilePath(orphan))
+  }
+  // Empty report folders are left behind by the deletes above.
+  const dir = toFilePath(REPORT_IMAGES_DIR)
+  if (!(await fileExists(dir))) return
+  for (const folder of await fs.readdir(dir)) {
+    const folderPath = path.join(dir, folder)
+    if ((await fs.readdir(folderPath)).length === 0) await fs.rmdir(folderPath)
+  }
+  if (orphans.length > 0) {
+    console.log(
+      `ℹ️  Removed ${orphans.length} report image(s) no Live report uses`
+    )
+  }
 }
 
 async function importAirtableData() {
@@ -282,11 +426,14 @@ async function importAirtableData() {
   // Last, so a column emptied at any step above fails the sync.
   const missingFields = checkGranteeFieldsPresent(finalGranteeData, published)
   if (missingFields instanceof Error) throw missingFields
-  const grantReports = await fetchGrantReports(meta, apiToken)
+  const grantReports = await addReportImages(
+    await fetchGrantReports(meta, apiToken)
+  )
   // Written only after both parts succeed, so a failed run leaves neither
   // file half-updated.
   await writeAirtableJson(finalGranteeData, GRANTEE_JSON_FILE)
   await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
+  await removeOrphanReportImages(grantReports)
 }
 
 importAirtableData().catch((err) => {

@@ -42,6 +42,7 @@ jobs:
     env:
       GRANTEE_JSON: src/data/airtable/grantee-data.json
       REPORTS_JSON: src/data/airtable/grant-reports.json
+      REPORT_IMAGES: public/img/grantee-reports
       SYNC_BRANCH: chore/airtable-grantee-sync
       BASE_BRANCH: staging
 
@@ -101,7 +102,14 @@ jobs:
           # not as a red `pnpm run lint` on somebody else's PR days later.
           pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON"
 
-          if git diff --quiet -- "$GRANTEE_JSON" "$REPORTS_JSON"; then
+          # Staged so that new image files count: git diff ignores untracked files.
+          # The folder exists only after the first report with an image.
+          git add -A -- "$GRANTEE_JSON" "$REPORTS_JSON"
+          if [ -d "$REPORT_IMAGES" ] || git ls-files --error-unmatch "$REPORT_IMAGES" >/dev/null 2>&1; then
+            git add -A -- "$REPORT_IMAGES"
+          fi
+
+          if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Airtable data is unchanged — no branch, no commit, no pull request."
             echo "Airtable data unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
@@ -132,9 +140,9 @@ jobs:
           # exactly one commit and can never develop a merge conflict.
           git checkout -B "$SYNC_BRANCH"
 
-          # Commit these paths only. Nothing else should be dirty on a fresh runner, but the
-          # pathspec form makes that a guarantee rather than an assumption.
-          git commit -m 'chore(data): sync Airtable data' -- "$GRANTEE_JSON" "$REPORTS_JSON"
+          # The sync step staged the data files and report images only, so the commit
+          # carries exactly those. Nothing else is staged on a fresh runner.
+          git commit -m 'chore(data): sync Airtable data'
 
           # --force, not --force-with-lease: a shallow checkout has no origin ref for the lease
           # to compare against. This workflow owns the branch and recreates it every run.
@@ -199,7 +207,7 @@ jobs:
           ## PR Checklist
 
           - [x] PR title follows Conventional Commits
-          - [x] Scope is focused — the two files in `src/data/airtable/` only
+          - [x] Scope is focused — the two files in `src/data/airtable/` and the report images only
           - [ ] Linked issue included — N/A, scheduled automation
 
           ---

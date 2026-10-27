@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { GrantReport, RawTableRecord } from '@/types/airtable'
+import type { ParsedGrantReport, RawTableRecord } from '@/types/airtable'
 import {
+  ALLOWED_IMAGE_TYPES,
   LIVE_STATUS,
+  MAX_SOURCE_IMAGE_BYTES,
   PUBLICATION_STATUS_FIELD_ID,
   REPORT_FIELDS,
   findHiddenReportFields,
@@ -43,6 +45,28 @@ function liveReport(
   }
 }
 
+// An Airtable attachment object as the API returns it.
+function attachment(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'att1',
+    url: 'https://v5.airtableusercontent.com/att1',
+    filename: 'photo.jpg',
+    size: 1000,
+    type: 'image/jpeg',
+    ...overrides
+  }
+}
+
+function expectParsed(result: unknown): ParsedGrantReport {
+  expect(result).not.toBeInstanceOf(Error)
+  return result as ParsedGrantReport
+}
+
+function idsOf(result: unknown): string[] {
+  expect(result).not.toBeInstanceOf(Error)
+  return (result as ParsedGrantReport[]).map(({ content }) => content.id)
+}
+
 function expectError(result: unknown): Error {
   expect(result).toBeInstanceOf(Error)
   return result as Error
@@ -50,7 +74,7 @@ function expectError(result: unknown): Error {
 
 describe('toGrantReport', () => {
   it('maps a complete record to the report shape', () => {
-    expect(toGrantReport(liveReport())).toEqual({
+    expect(expectParsed(toGrantReport(liveReport())).content).toEqual({
       id: 'rec1',
       projectName: 'Gib',
       reportType: 'Interim Report',
@@ -69,11 +93,73 @@ describe('toGrantReport', () => {
     })
   })
 
-  it('accepts a report with no images and with one image per field', () => {
-    const oneImage = [{ id: 'att1' }]
-    expect(
-      toGrantReport(liveReport({ [F.image1.id]: oneImage }))
-    ).not.toBeInstanceOf(Error)
+  it('returns no image sources when no image field is set', () => {
+    expect(expectParsed(toGrantReport(liveReport())).imageSources).toEqual([])
+  })
+
+  it('returns one source per image, in slot order, with its description as alt', () => {
+    const parsed = expectParsed(
+      toGrantReport(
+        liveReport({
+          [F.image3.id]: [attachment({ id: 'att3' })],
+          [F.imageDescription3.id]: '  A chart  ',
+          [F.image1.id]: [attachment({ id: 'att1', size: 2048 })]
+        })
+      )
+    )
+    expect(parsed.imageSources).toEqual([
+      {
+        attachmentId: 'att1',
+        url: 'https://v5.airtableusercontent.com/att1',
+        sizeBytes: 2048,
+        alt: ''
+      },
+      {
+        attachmentId: 'att3',
+        url: 'https://v5.airtableusercontent.com/att1',
+        sizeBytes: 1000,
+        alt: 'A chart'
+      }
+    ])
+  })
+
+  it('accepts every allowed image type', () => {
+    for (const type of ALLOWED_IMAGE_TYPES) {
+      expectParsed(
+        toGrantReport(liveReport({ [F.image1.id]: [attachment({ type })] }))
+      )
+    }
+  })
+
+  it('fails on an image type the site does not accept', () => {
+    for (const type of ['image/heic', 'application/pdf', 'image/gif']) {
+      const error = expectError(
+        toGrantReport(liveReport({ [F.image2.id]: [attachment({ type })] }))
+      )
+      expect(error.message).toContain('"Public Image 2"')
+      expect(error.message).toContain(`(got ${type})`)
+    }
+  })
+
+  it('fails on a file over the source size limit', () => {
+    const error = expectError(
+      toGrantReport(
+        liveReport({
+          [F.image1.id]: [attachment({ size: MAX_SOURCE_IMAGE_BYTES + 1 })]
+        })
+      )
+    )
+    expect(error.message).toContain(
+      '"Public Image 1": expected a file of at most 50 MB'
+    )
+  })
+
+  it('fails on an attachment without a url', () => {
+    expectError(
+      toGrantReport(
+        liveReport({ [F.image1.id]: [attachment({ url: undefined })] })
+      )
+    )
   })
 
   it('lists every problem in one error, named by the Airtable field', () => {
@@ -98,7 +184,11 @@ describe('toGrantReport', () => {
 
   it('fails when an image field holds more than one file', () => {
     const error = expectError(
-      toGrantReport(liveReport({ [F.image2.id]: [{ id: 'a' }, { id: 'b' }] }))
+      toGrantReport(
+        liveReport({
+          [F.image2.id]: [attachment(), attachment({ id: 'att2' })]
+        })
+      )
     )
     expect(error.message).toContain('"Public Image 2": expected at most 1 file')
   })
@@ -163,8 +253,7 @@ describe('toGrantReports', () => {
       'rec4'
     )
     const result = toGrantReports([liveReport(), draft, withdrawn, noStatus])
-    expect(result).not.toBeInstanceOf(Error)
-    expect((result as GrantReport[]).map((r) => r.id)).toEqual(['rec1'])
+    expect(idsOf(result)).toEqual(['rec1'])
   })
 
   it('does not fail on a bad report that is not Live', () => {
@@ -197,11 +286,7 @@ describe('toGrantReports', () => {
       liveReport({ [F.reportNumber.id]: [2] }, 'recB'),
       liveReport({ [F.reportNumber.id]: [1] }, 'recA')
     ])
-    expect((result as GrantReport[]).map((r) => r.id)).toEqual([
-      'recA',
-      'recB',
-      'recZ'
-    ])
+    expect(idsOf(result)).toEqual(['recA', 'recB', 'recZ'])
   })
 })
 

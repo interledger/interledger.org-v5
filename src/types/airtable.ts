@@ -65,4 +65,32 @@ export interface GrantReport {
   license: string
   outputTypes: string[]
   interledgerTechnologies: string[]
+  images: GrantReportImage[]
+}
+
+// One report image as written to grant-reports.json. The file is the sync's
+// own copy under public/, never an Airtable URL. alt is '' when programs gave
+// no description.
+export interface GrantReportImage {
+  path: string
+  width: number
+  height: number
+  alt: string
+}
+
+// A report as read from Airtable, before the sync downloads its images.
+export type GrantReportContent = Omit<GrantReport, 'images'>
+
+// An image attachment to download. The URL expires about 2 hours after the
+// API returns it, so the sync downloads it in the same run.
+export interface ReportImageSource {
+  attachmentId: string
+  url: string
+  sizeBytes: number
+  alt: string
+}
+
+export interface ParsedGrantReport {
+  content: GrantReportContent
+  imageSources: ReportImageSource[]
 }

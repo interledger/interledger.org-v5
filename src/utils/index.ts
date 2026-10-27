@@ -220,7 +220,9 @@ export {
   type GranteeFieldName
 } from './main/airtableRecords'
 export {
+  ALLOWED_IMAGE_TYPES,
   LIVE_STATUS,
+  MAX_SOURCE_IMAGE_BYTES,
   PUBLICATION_STATUS_FIELD_ID,
   REPORT_FIELDS,
   findHiddenReportFields,
@@ -229,6 +231,10 @@ export {
   toGrantReport,
   toGrantReports
 } from './main/airtableReports'
+// Not exported: ./main/reportImages imports sharp, a native module that must
+// never reach the site bundle through this barrel. The sync script and the
+// tests import it directly. It holds normalizeReportImage, reportImagePath,
+// findOrphanImagePaths, readStoredImageSize and REPORT_IMAGES_DIR.
 
 // Main site: Text
 export { generateSlug } from './main/slug'
