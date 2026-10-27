@@ -1,0 +1,152 @@
+#!/bin/sh
+# Prepares the git checkout and the database folder before Strapi starts.
+#
+# Runs as the init container of the Strapi pod. Strapi is not running, so no git
+# process holds a lock, and every lock file in the checkout is stale.
+#
+# On an empty volume it clones the branch. On a used volume it:
+#   1. clears stale lock files, and aborts a half-finished rebase or merge;
+#   2. hard-resets to the remote branch, only when RESET_TOKEN is new;
+#   3. otherwise rebases local commits onto the remote branch, then pushes them.
+# It exits non-zero on a conflict. The pod then stays in Init:Error, and no commit
+# is discarded.
+#
+# Environment:
+#   GIT_REPO_URL             repository to clone
+#   GIT_BRANCH               branch the checkout follows
+#   GIT_REPO_PATH            folder of the checkout
+#   DATABASE_FILENAME        absolute path of the SQLite database
+#   DB_BOOTSTRAP             wait: wait until DATABASE_FILENAME exists. create: do not wait.
+#   STRAPI_DISABLE_GIT_SYNC  true: never push
+#   RESET_TOKEN              optional. A value that differs from the stored one resets.
+set -eu
+
+: "${GIT_REPO_URL:?}" "${GIT_BRANCH:?}" "${GIT_REPO_PATH:?}" "${DATABASE_FILENAME:?}"
+DB_BOOTSTRAP="${DB_BOOTSTRAP:-wait}"
+RESET_TOKEN="${RESET_TOKEN:-}"
+STRAPI_DISABLE_GIT_SYNC="${STRAPI_DISABLE_GIT_SYNC:-false}"
+
+# Seconds between checks for the database file, and between reminders in the log.
+DB_POLL_SECONDS="${DB_POLL_SECONDS:-5}"
+DB_REMINDER_SECONDS=60
+
+log() { echo "[cms-init-repo] $*"; }
+fail() { echo "[cms-init-repo] ERROR: $*" >&2; exit 1; }
+
+# Inside .git, so git never tracks it, and it lives as long as the checkout.
+reset_token_file() { echo "$GIT_REPO_PATH/.git/cms-reset-token"; }
+
+store_reset_token() {
+  printf '%s' "$RESET_TOKEN" > "$(reset_token_file)"
+}
+
+stored_reset_token() {
+  cat "$(reset_token_file)" 2>/dev/null || true
+}
+
+clone_checkout() {
+  if [ -d "$GIT_REPO_PATH" ] && [ -n "$(ls -A "$GIT_REPO_PATH")" ]; then
+    fail "$GIT_REPO_PATH is not empty and is not a git checkout. Empty the volume."
+  fi
+  log "Cloning $GIT_BRANCH from $GIT_REPO_URL into $GIT_REPO_PATH"
+  git clone --branch "$GIT_BRANCH" "$GIT_REPO_URL" "$GIT_REPO_PATH"
+  # A fresh clone already matches the remote. Storing the token stops the next start
+  # from resetting it again.
+  store_reset_token
+}
+
+clear_interrupted_state() {
+  find .git -name '*.lock' -type f -print -delete | sed 's/^/[cms-init-repo] Removed stale lock: /'
+  if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+    log "Aborting a half-finished rebase"
+    git rebase --abort
+  fi
+  if [ -f .git/MERGE_HEAD ]; then
+    log "Aborting a half-finished merge"
+    git merge --abort
+  fi
+}
+
+check_branch() {
+  current="$(git rev-parse --abbrev-ref HEAD)"
+  if [ "$current" != "$GIT_BRANCH" ]; then
+    fail "The checkout is on '$current', not '$GIT_BRANCH'. Empty the volume to change branch."
+  fi
+}
+
+reset_to_remote() {
+  log "New reset token. Discarding local commits: git reset --hard origin/$GIT_BRANCH"
+  git reset --hard "origin/$GIT_BRANCH"
+  store_reset_token
+}
+
+rebase_onto_remote() {
+  # --autostash keeps a file that Strapi wrote but did not commit before it stopped.
+  # The next save stages it.
+  if ! git rebase --autostash "origin/$GIT_BRANCH"; then
+    git rebase --abort || true
+    fail "Local commits conflict with origin/$GIT_BRANCH. Resolve by hand in the checkout. No commit was discarded."
+  fi
+  # A conflict while git restores the autostash still exits 0. It leaves conflict
+  # markers in the file, which the next save would commit. Git keeps the stash.
+  if [ -n "$(git diff --name-only --diff-filter=U)" ]; then
+    fail "Uncommitted files conflict with origin/$GIT_BRANCH. Git kept them in the stash (git stash list)."
+  fi
+}
+
+push_local_commits() {
+  ahead="$(git rev-list --count "origin/$GIT_BRANCH..HEAD")"
+  if [ "$ahead" -eq 0 ]; then
+    return
+  fi
+  if [ "$STRAPI_DISABLE_GIT_SYNC" = "true" ]; then
+    log "WARNING: $ahead local commit(s) are not pushed, because git sync is off"
+    return
+  fi
+  log "Pushing $ahead local commit(s) to origin/$GIT_BRANCH"
+  git push origin "HEAD:$GIT_BRANCH"
+}
+
+update_checkout() {
+  cd "$GIT_REPO_PATH"
+  clear_interrupted_state
+  check_branch
+  git remote set-url origin "$GIT_REPO_URL"
+  git fetch origin "$GIT_BRANCH"
+  if [ -n "$RESET_TOKEN" ] && [ "$RESET_TOKEN" != "$(stored_reset_token)" ]; then
+    reset_to_remote
+    return
+  fi
+  rebase_onto_remote
+  push_local_commits
+}
+
+wait_for_database() {
+  if [ "$DB_BOOTSTRAP" != "wait" ] || [ -f "$DATABASE_FILENAME" ]; then
+    return
+  fi
+  waited=0
+  while [ ! -f "$DATABASE_FILENAME" ]; do
+    if [ $((waited % DB_REMINDER_SECONDS)) -eq 0 ]; then
+      log "Waiting for $DATABASE_FILENAME. Copy it in, then rename it in place:"
+      log "  kubectl cp data.db <pod>:$DATABASE_FILENAME.incoming -c prepare-repo"
+      log "  kubectl exec <pod> -c prepare-repo -- mv $DATABASE_FILENAME.incoming $DATABASE_FILENAME"
+    fi
+    sleep "$DB_POLL_SECONDS"
+    waited=$((waited + DB_POLL_SECONDS))
+  done
+  log "Found $DATABASE_FILENAME"
+}
+
+main() {
+  mkdir -p "$(dirname "$DATABASE_FILENAME")"
+  if [ -d "$GIT_REPO_PATH/.git" ]; then
+    update_checkout
+  else
+    clone_checkout
+  fi
+  wait_for_database
+  log "Ready: $(git -C "$GIT_REPO_PATH" log -1 --format='%h %s')"
+}
+
+main

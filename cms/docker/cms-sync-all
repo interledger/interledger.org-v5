@@ -1,0 +1,64 @@
+#!/bin/sh
+# Runs `sync:all` against a running Strapi, from a fresh clone of the branch.
+#
+# Runs as the content-sync Job. The Job cannot mount the Strapi volume, so it clones
+# the branch into GIT_REPO_PATH, an emptyDir. The sync scripts then read the content
+# from that clone through STRAPI_PROJECT_ROOT, and run from the image's /app/cms.
+#
+# Environment:
+#   GIT_REPO_URL      repository to clone
+#   GIT_BRANCH        branch to sync from
+#   GIT_REPO_PATH     folder for the clone. Its contents are deleted first.
+#   STRAPI_URL        the Strapi to sync into
+#   STRAPI_API_TOKEN  a full-access API token of that Strapi
+#   SYNC_FORCE        true: pass --force, which skips the sync scripts' branch check
+set -eu
+
+: "${GIT_REPO_URL:?}" "${GIT_BRANCH:?}" "${GIT_REPO_PATH:?}" "${STRAPI_URL:?}" "${STRAPI_API_TOKEN:?}"
+SYNC_FORCE="${SYNC_FORCE:-false}"
+
+# Strapi can still be starting when the Job starts.
+HEALTH_ATTEMPTS=60
+HEALTH_INTERVAL_SECONDS=10
+
+CMS_DIR=/app/cms
+
+log() { echo "[cms-sync-all] $*"; }
+fail() { echo "[cms-sync-all] ERROR: $*" >&2; exit 1; }
+
+strapi_is_healthy() {
+  node -e "fetch(process.argv[1]).then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))" \
+    "$STRAPI_URL/_health"
+}
+
+wait_for_strapi() {
+  attempt=1
+  until strapi_is_healthy; do
+    if [ "$attempt" -ge "$HEALTH_ATTEMPTS" ]; then
+      fail "$STRAPI_URL did not become healthy"
+    fi
+    log "Waiting for $STRAPI_URL ($attempt/$HEALTH_ATTEMPTS)"
+    attempt=$((attempt + 1))
+    sleep "$HEALTH_INTERVAL_SECONDS"
+  done
+}
+
+clone_branch() {
+  rm -rf "${GIT_REPO_PATH:?}"
+  log "Cloning $GIT_BRANCH from $GIT_REPO_URL"
+  git clone --depth 1 --branch "$GIT_BRANCH" "$GIT_REPO_URL" "$GIT_REPO_PATH"
+  log "Syncing from $(git -C "$GIT_REPO_PATH" log -1 --format='%h %s')"
+}
+
+main() {
+  wait_for_strapi
+  clone_branch
+  export STRAPI_PROJECT_ROOT="$GIT_REPO_PATH"
+  cd "$CMS_DIR"
+  if [ "$SYNC_FORCE" = "true" ]; then
+    exec pnpm run sync:all --force
+  fi
+  exec pnpm run sync:all
+}
+
+main

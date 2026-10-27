@@ -6,13 +6,25 @@ function getCwd(): string {
 }
 
 /**
- * Project root (Astro site root). Works when run from cms/ or from project root.
+ * Project root (Astro site root): where `src/content`, `src/config` and `public` live.
+ * - STRAPI_PROJECT_ROOT, when set. The container image runs the CMS from /app/cms
+ *   while the repository checkout lives on a volume, so the parent of cwd is not it.
  * - From cms/: returns parent directory
  * - From project root: returns cwd
  */
 export function getProjectRoot(): string {
+  const configured = process.env.STRAPI_PROJECT_ROOT
+  if (configured) return path.resolve(configured)
   const cwd = getCwd()
   return path.basename(cwd) === 'cms' ? path.resolve(cwd, '..') : cwd
+}
+
+/**
+ * Absolute path of the SQLite database. config/database.ts and the startup
+ * permission check both read it, so they always agree on the file.
+ */
+export function getDatabaseFilePath(): string {
+  return path.resolve(getCwd(), process.env.DATABASE_FILENAME || PATHS.DB_FILE)
 }
 
 /** Exits if not run from cms directory. */
