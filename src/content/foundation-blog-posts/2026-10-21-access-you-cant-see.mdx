@@ -1,0 +1,72 @@
+---
+title: "The Access You Can't See: Why Interoperability Alone Won't Deliver Financial Inclusion"
+description: 'Interoperable payments can still exclude blind users. Dr. Muhammad Shabbir’s Pakistan study locates the barrier at the interface, not the rails.'
+date: 2026-10-21
+pathSlug: /access-you-cant-see/
+featured: false
+locale: en
+featureImage: '/uploads/img/original/Muhammed_2e075e939f.jpg'
+featureImageBlur: 'data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAAAwAwCdASoUAAoAPu1iqU2ppaQiMAgBMB2JYgC7AB7DQgegAP7o8PXsceuX9ie8RoTSWtqUbxb1uwGX7be/DzWB/rBRjkSkX2J2w8QAAAA='
+articleBios:
+  - author: 'Dr. Muhammad Shabbir'
+    link: 'https://www.mshabbir.pk/'
+    text: |
+      Dr. Muhammad Shabbir is a researcher, analyst and rights activist at the National Defence University, Islamabad, whose work covers international relations, digital accessibility and internet governance. He is a former member of the Internet Society Board of Trustees and was the founding President of the Internet Society Accessibility Special Interest Group. He is an Interledger Foundation Call for Papers grantee, and has [written about his research for the Internet Society](https://www.internetsociety.org/blog/2026/07/digital-coercion-how-inaccessible-design-strips-financial-privacy/). Read his paper, [_Banking on Rights: A Case Study of Digital Financial Inclusion for Blind Persons in Pakistan_](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6645999),
+    image: '/uploads/img/original/dr_muhammad_shabbir_9038755fee.webp'
+    imageAlt: 'Dr. Muhammad Shabbir'
+categories: []
+relatedArticles:
+  - '/https://interledger.org/grant/call-for-papers/'
+  - '/https://interledger.org/blog/call-papers-program/'
+  - '/interledger.org/blog/examining-how-money-can-move-us/'
+---
+
+<Paragraph>
+
+## Key points
+
+- Over fifteen years, account ownership and disability-access policy in Pakistan expanded, but only 17% of blind and low-vision respondents could use an ATM without help.
+- The barrier sits at the interface (apps, ATMs, authentication), which metrics such as account penetration and self-reported bank compliance do not capture.
+- The study recommends non-visual authentication before launch, testing every update with screen-reader users, and reporting adoption data by disability status.
+
+</Paragraph>
+
+<Paragraph>
+
+## **The Access You Can't See: Why Interoperability Alone Won't Deliver Financial Inclusion**
+
+Sardar Ahmed Pirzada opened his first bank account roughly forty years ago, at the National Bank of Pakistan. Staff reacted with open shock — disbelief that a person with blindness would want an account, followed by doubts about his signature. Decades later, now Pakistan's first journalist with blindness, he still cannot withdraw cash from most ATMs without help. He describes handing over his PIN the only way that fits: like “standing naked in front of someone else.”
+
+Set that beside a more recent data point from the same study. Among the 120 respondents surveyed, one is an 18-to-25-year-old woman with total blindness in rural Gilgit-Baltistan, with no formal education, who opened her account in 2023 — two years after Pakistan's most comprehensive [disability-inclusion policy ](https://www.sbp.org.pk/circulars/bc-cpd-circular-no-05-of-2021)took effect. Her bank reports, in its own compliance answers, full digital accessibility. She rates its mobile app as not accessible and has never once attempted to use it independently. She does not use ATMs at all, and had never heard of either the [2014 guidelines](https://www.sbp.org.pk/circulars/cpd-circular-no-6-of-2014) or the [2021 policy](https://www.sbp.org.pk/circulars/bc-cpd-circular-no-05-of-2021), though both were by then years old.
+
+Two respondents, four decades apart, the same underlying failure. Between them, Pakistan's banking sector modernised almost beyond recognition — ATMs proliferated, mobile wallets and apps arrived, and disability-access guidance expanded in 2009, 2014, and 2021. Yet the core problem, that persons with disabilities are routinely unable to manage their own money without someone else seeing it, survived every one of those advances largely intact.
+
+## **What moved, and what didn't**
+
+This is the central finding of [_Banking on Rights_](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6645999), a study I carried out with support from the Interledger Foundation, surveying 120 blind and low-vision banking customers in Pakistan with eighteen follow-up interviews. What moved was formal access: account ownership, debit card issuance, and policy recognition all expanded substantially over fifteen years. What didn't move, at anything like the same pace, was the ability of users with blindness to actually use these systems independently.
+
+The numbers make the gap concrete. Fifty-eight percent of respondents had been denied their initial request for accessible banking services on grounds of blindness. Forty-five percent had to escalate to senior officials just to obtain what policy already entitled them to. Only 17% could operate an ATM without assistance, and just a quarter rated their bank's app as fully accessible. This is not a legacy problem confined to accounts opened before reform: the Gilgit-Baltistan respondent's experience shows the same pattern recurring in 2023, inside a system her own bank describes as fully compliant.
+
+None of these are failures of settlement or rails. Every one of these transactions could clear instantly and cheaply across any modern payment network. The failure sits one layer up, at the interface: the login screen, the authentication step, the ATM menu, the compliance checkbox — the layer where a system decides, often by default, what kind of user it was built for.
+
+## **Why this layer is invisible to the metrics that matter most**
+
+Call this the access you can't see. It is invisible in a literal sense to the persons with disabilities it affects, but just as invisible to the dashboards the payments industry actually watches. Account penetration, transaction volumes, interoperability benchmarks, even a bank's own self-reported accessibility rating — none of these capture whether a user with blindness can operate the system without handing a PIN, a balance, or salary timing to whoever happens to be nearby.
+
+That last part is not a minor inconvenience. The study documents what happens once this dependence becomes routine: helpers who, having seen a balance once, begin asking for loans; one respondent whose ATM helper tried to install himself as a permanent intermediary for future withdrawals. Sardar Ahmed Pirzada's “standing naked” image describes a cost that interoperability does not touch — and the 2023 data point shows that cost is still being incurred by users opening accounts today, not just decades ago.
+
+## **What this means for anyone building the rails**
+
+The lesson for the Interledger ecosystem is not that interoperability doesn't matter — it does, enormously, for cost, speed, and reach. The lesson is that interoperability operates one layer below where most exclusion happens. A payment network can be maximally open and still deliver a functionally closed experience if the wallet, app, or terminal built on top of it was never tested by the persons with disabilities it excludes.
+
+This persists partly because it is structural. Banks face little commercial pressure to retrofit interfaces built around a majority-sighted user base, and hardware vendors rarely compete on ATM accessibility because no procurement standard makes it a condition of sale. Self-reported compliance, of the kind the Gilgit-Baltistan respondent's bank offered, costs a vendor nothing to claim and nothing to verify.
+
+Three steps follow. Every core authentication flow should include at least one non-visual path before launch, not retrofitted after complaints. No interface update should ship without testing by screen-reader users, since accessibility present today can vanish with the next redesign, silently. And adoption metrics should be disaggregated by disability status as a product-design matter, not a compliance one — a self-reported rating no user has verified will always overstate genuine inclusion.
+
+Sardar Ahmed Pirzada has been banking for forty years. The young woman in Gilgit-Baltistan opened her account after policy had, on paper, caught up with people like her. That distance should have closed by now. That it hasn't is the clearest evidence available that moving money faster and cheaper is not the same as making it usable — and that the next frontier of financial inclusion is not the rails, but what sits on top of them.
+
+---
+
+This post draws on the study _“_[_Banking on Rights: A Case Study of Digital Financial Inclusion for Blind Persons in Pakistan_](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6645999)_,”_ by Dr. Muhammad Shabbir, supported by the Interledger Foundation. Named individuals are quoted with their consent; survey findings are reported anonymously in accordance with the study's ethics protocol.
+
+</Paragraph>

@@ -17,11 +17,11 @@ localizes: '/tech/rafiki/'
 
 <SplitLayout displayRatio="1:1" imageSrc="/uploads/img/original/rafiki_stack.jpg" imageAlt="Imagen que muestra cómo Rafiki implementa las cuatro secciones superiores del conjunto de tecnologías de Interledger">
 
-Implementar un nuevo protocolo de pagos a partir de una especificación es complejo, requiere tiempo y resulta costoso. Muchos proveedores no disponen de la capacidad técnica para desarrollar una implementación completa con recursos propios, y quienes sí la tienen duplicarían un trabajo que ya existe en forma de software de código abierto probado y con mantenimiento.
+Implementar un nuevo protocolo de pagos a partir de una especificación es complejo, requiere mucho tiempo y resulta costoso. Muchos proveedores no cuentan con la capacidad técnica para desarrollar una implementación completa dentro de su organización, y quienes sí la tienen repetirían un trabajo que ya existe como software de código abierto, probado y con mantenimiento.
 
-Rafiki es la implementación de referencia de código abierto y lista para usar de Interledger Protocol y del estándar Open Payments.
+Rafiki es la implementación de referencia de código abierto de Interledger Protocol y del estándar Open Payments, lista para usar.
 
-Digital Public Goods Alliance reconoce a Rafiki como bien público digital y evalúa los proyectos de código abierto conforme al estándar DPG en materia de apertura, documentación, privacidad y diseño que no cause daño. [Consulte nuestra entrada en el Registro de Bienes Públicos Digitales](https://www.digitalpublicgoods.net/r/rafiki).
+Rafiki es reconocido como un Digital Public Good por la Digital Public Goods Alliance, que evalúa proyectos de código abierto conforme al Estándar DPG en materia de apertura, documentación, privacidad y diseño que no genera daño. [Consulta nuestra entrada en el Digital Public Goods Registry](https://www.digitalpublicgoods.net/r/rafiki).
 
 </SplitLayout>
 
@@ -31,7 +31,7 @@ Ofrece a los proveedores de servicios financieros, incluidos bancos, billeteras 
 
 </Paragraph>
 
-<CardGrid title="Qué puede hacer con Rafiki" ariaLabel="Funciones que ofrece Rafiki" variant="Info" columns="Two">
+<CardGrid intro={{"heading":"Qué puede hacer con Rafiki"}} ariaLabel="Funciones que ofrece Rafiki" variant="Info" columns="Two">
 <InfoCard heading="Habilite Open Payments desde el primer momento">
 
 Solicitudes de pago, cotizaciones, aprobaciones y transferencias, sin desarrollar esa infraestructura por su cuenta.
@@ -54,16 +54,8 @@ Tanto si tiene experiencia con el código abierto como si acaba de comenzar, hay
 </InfoCard>
 </CardGrid>
 
-<Paragraph>
-
-## Diseñado para instituciones financieras reguladas
-
-Rafiki está diseñado para proveedores de servicios financieros que operan conforme a la normativa financiera aplicable, no para desarrolladores individuales ni plataformas no reguladas. Las redes que utilizan Interledger y se desarrollan con Rafiki exigen que los participantes sean entidades autorizadas y que todos los proveedores que se conecten cumplan con las obligaciones de KYC y AML/CFT, verifiquen las listas de sanciones y prevengan el fraude. Estos requisitos permiten que la red opere con confianza entre entornos financieros regulados.
-
-</Paragraph>
-
-<CardGrid ariaLabel="Formas de comenzar a desarrollar con Rafiki" variant="Title" columns="Two">
-<TitleCard heading="Comience a desarrollar" buttonUrl="https://rafiki.dev/es" buttonText="Consulte la documentación" buttonExternal={true}>
+<CardGrid intro={{"heading":"Diseñado para instituciones financieras reguladas","description":"Rafiki está diseñado para proveedores de servicios financieros que operan conforme a la normativa financiera aplicable, no para desarrolladores individuales ni plataformas no reguladas. Las redes basadas en Interledger y desarrolladas con Rafiki exigen que los participantes sean entidades autorizadas, y se espera que cada proveedor que se conecte cumpla con las obligaciones de conocimiento del cliente (KYC) y de prevención del lavado de dinero y del financiamiento del terrorismo (AML/CFT), verifique las sanciones aplicables y prevenga el fraude. Estos requisitos permiten que la red opere con confianza entre entornos financieros regulados."}} ariaLabel="Formas de comenzar a desarrollar con Rafiki" variant="Title" columns="Two">
+<TitleCard heading="Comience a desarrollar" buttonUrl="https://rafiki.dev/es/" buttonText="Consulte la documentación" buttonExternal={true}>
 
 Rafiki cuenta con documentación completa y es de código abierto. Consulte la documentación, explore el código y realice pruebas en la red compartida antes de pasar a producción.
 

@@ -75,6 +75,7 @@ export default defineConfig({
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
+      favicon: '/favicon.ico',
       customCss: [
         './node_modules/@interledger/docs-design-system/src/styles/teal-theme.css',
         './node_modules/@interledger/docs-design-system/src/styles/ilf-docs.css',
@@ -88,6 +89,46 @@ export default defineConfig({
         })
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '32x32',
+            href: '/favicon-32x32.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '16x16',
+            href: '/favicon-16x16.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'apple-touch-icon',
+            sizes: '180x180',
+            href: '/apple-touch-icon.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'manifest',
+            href: '/site.webmanifest'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#ffffff'
+          }
+        },
         {
           tag: 'script',
           attrs: {

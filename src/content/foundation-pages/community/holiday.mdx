@@ -4,8 +4,8 @@ title: 'Holiday Design Contest'
 description: 'Celebrate the Holiday season with Interledger! As we wrap up another year of growing open financial systems, we want to celebrate the creativity of our global community.'
 locale: 'en'
 heroTitle: 'Holiday Design Contest'
-heroImage: '/uploads/img/original/54921262458_91791ac0ba_k_1e03f767cd.jpg'
-heroImageBlur: 'data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBACdASoUAAwAPu1iqU2ppaQiMAgBMB2JbACdMoAC+tK/xddb2EVgAAD+hoTB9CdIi5AsJl60F2erBi+XnctXwcj8Fjb2+Is/aFhYDKUmm7fJjqTmVCfvbrru/TEh5J17Sk/9mVtM+TgV/2H2eMeAAAA='
+heroImage: '/uploads/img/original/Hero_final_62381f376d.jpg'
+heroImageBlur: 'data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAADQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQBOmUABJG4aVgHv2RQAA/cK3v2JIjH5SU88PkC6Kc8wNDHSx+M7qf3sp0G4kjJwoSJwYQa3PNdSBeEsFwdFSg8Eh1u6kIpa/TJld8Y0jAXSRT/mKLfRsRqxdwofdC8RN6ykcu8ZUDP6AAAA='
 heroCtas:
   - text: 'Download Competition Guidelines'
     link: '/uploads/img/original/Interledger_s_Holiday_Contest_4d2a00629f.pdf'
@@ -42,7 +42,7 @@ To ensure inclusive holiday messaging across global cultures, all submissions mu
 
 </Paragraph>
 
-<CardGrid title="Categories & Design Specs" ariaLabel="categories" variant="Info" columns="Two">
+<CardGrid intro={{"heading":"Categories & Design Specs"}} ariaLabel="categories" variant="Info" columns="Two">
 <InfoCard heading="Holiday Card">
 
 - **Dimensions**: 4.25in × 5.5in (10.80 × 13.97 cm) - the front side of a folded greetings card
@@ -222,4 +222,7 @@ Submissions are limited to Members, and only registered Members are eligible to 
 
 </CtaStrip>
 
-<ProfileGrid heading="Need Help? Reach out!" pathSlugs={['/bibi/']} />
+<ProfileGrid
+  intro={{ heading: 'Need Help? Reach out!' }}
+  pathSlugs={['/bibi/']}
+/>

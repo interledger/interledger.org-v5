@@ -1,0 +1,105 @@
+---
+pathSlug: '/tech/rhyza/'
+draft: true
+title: 'Rhyza'
+description: 'Free, open source software that lets banks, wallets and other regulated providers run Interledger and Open Payments on their own infrastructure.'
+locale: 'en'
+---
+
+<Paragraph>
+
+**Status: Now in alpha for development and testing.**
+
+For financial service providers today, every new payment partner usually means another bespoke integration, with its own technical and operational arrangements to build and maintain. With Rhyza, your institution has one open source connection point instead. It runs inside your own infrastructure, alongside the ledger, accounts, and identity provider you already operate, and lets you do two things. 
+
+First, you can exchange payments directly with other institutions across currencies and borders, using Interledger. And second, you can let third-party apps, such as online stores, request payments from your customers’ accounts through Open Payments, with every request approved by the customer at your institution.
+
+<br /> 
+
+<br />
+
+</Paragraph>
+
+<CardGrid intro={{"heading":"What Rhyza Makes Possible"}} ariaLabel="rhyza features" variant="Info" columns="Two">
+<InfoCard heading="Open new payment corridors. ">
+
+Two institutions running Rhyza can peer with each other over Interledger and start moving money between their customers. A credit union in the United States could send dollars that arrive as Colombian pesos at a partner institution in Colombia. Settlement is not handled through Rhyza, meaning the institutions can settle with each other however suits their relationship.
+
+<br />
+
+</InfoCard>
+<InfoCard heading="Offer Open Payments to your customers. ">
+
+Open Payments gives third-party apps, such as online stores, a standard way to request payments from your customers' accounts. Rhyza runs the Open Payments APIs for you. When an app makes a request, your systems are notified and your customer approves it through your own identity provider, so the customer relationship stays with you.
+
+<br />
+
+</InfoCard>
+<InfoCard heading="Stay in control.">
+
+Rhyza is deployed and operated by your own team, inside your own environment. Your systems manage every resource in your instance through a REST Admin API, and webhooks report events as they happen so you can approve or cancel payment requests on your terms. The software is free, with no license fees, and the code is open for your team to audit.
+
+<br />
+
+</InfoCard>
+<InfoCard heading="Grow without rebuilding. ">
+
+Rhyza is built as separate services for Interledger, Open Payments, and administration, and each one scales on its own. As you add peers and more apps connect, you add capacity where the demand is, without reworking the whole system. Liquidity is tracked only for your peering relationships, which keeps day-to-day management simple.
+
+<br />
+
+</InfoCard>
+</CardGrid>
+
+<ImageBlock
+  src="/uploads/img/original/rhyza_1_3fc2b073e0.png"
+  alt="Rhyza architectural diagram"
+/>
+
+<Paragraph>
+
+## Built for regulated institutions
+
+Rhyza is designed for banks, credit unions, wallets, mobile money providers, and other financial service providers that operate under financial regulation. Interledger networks built on it expect every connected provider to be a licensed entity, with their own KYC and AML/CFT obligations, sanctions screening, and fraud prevention in place. Those shared standards let institutions connect with confidence across different regulatory environments.
+
+## How integration works
+
+Rhyza is designed to fit around the systems you already run. A typical integration has three steps.
+
+1. **Evaluate**. Run your Rhyza integration in a test environment, supported by the Interledger integrations team. 
+2. **Deploy**. Run the published Rhyza container images in your environment. A Kubernetes Operator handles rollout, scaling and reconciliation.
+3. **Connect your systems**. Integrate with the REST Admin API to manage your instance, and set up a webhook listener to respond to events from Rhyza.
+4. **Enable customer approvals**. Connect your identity and FX providers so your customers can approve payments requested by third-party apps.
+
+The full integration guide and API reference are at [rhyza.dev](rhyza.dev).
+
+## Start planning your integration
+
+Rhyza is in alpha now, ready for development and testing, which makes this the right time to start planning. Our integration team can walk you through the architecture, help you scope a deployment around your existing systems and work through settlement options for the corridors you want to open. Grant funding may also be available to support your implementation.
+
+<br />
+<br />
+
+</Paragraph>
+
+<CtaButtons
+  buttons={[
+    {
+      text: 'Arrange an Integration Call',
+      link: '/contact/',
+      style: 'primary'
+    },
+    {
+      text: 'Read the docs',
+      link: 'https://docs.rhyza.dev/',
+      style: 'secondary',
+      external: true
+    }
+  ]}
+/>
+
+<CtaStrip color="green" heading="The next generation of Rafiki" primaryButtonText="Learn more about Rafiki" primaryButtonLink="/tech/rafiki/">
+
+Rhyza is the next generation of Rafiki. It keeps Rafiki's purpose and is rebuilt around what its deployments taught us, with an architecture designed for larger networks and more connected apps. Rafiki was recognized as a Digital Public Good in 2026, and Rhyza carries the same commitment to open, freely available infrastructure.
+
+</CtaStrip>
