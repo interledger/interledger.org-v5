@@ -82,7 +82,13 @@ function runInit(overrides: Record<string, string> = {}) {
 }
 
 function originHead(): string {
-  return git(root, '--git-dir', path.join(root, 'origin.git'), 'rev-parse', BRANCH)
+  return git(
+    root,
+    '--git-dir',
+    path.join(root, 'origin.git'),
+    'rev-parse',
+    BRANCH
+  )
 }
 
 beforeEach(() => {
@@ -116,7 +122,10 @@ describe('cms-init-repo on an empty volume', () => {
     runInit({ RESET_TOKEN: 'run-1' })
     const localSha = commitFile(checkout, 'unpushed.md', 'local\n')
 
-    const { status } = runInit({ RESET_TOKEN: 'run-1', STRAPI_DISABLE_GIT_SYNC: 'true' })
+    const { status } = runInit({
+      RESET_TOKEN: 'run-1',
+      STRAPI_DISABLE_GIT_SYNC: 'true'
+    })
 
     expect(status).toBe(0)
     expect(git(checkout, 'rev-parse', 'HEAD')).toBe(localSha)
@@ -184,17 +193,22 @@ describe('cms-init-repo on a used volume', () => {
     expect(status).toBe(1)
     expect(output).toContain('Local commits conflict')
     expect(git(checkout, 'rev-parse', 'HEAD')).toBe(localSha)
-    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(false)
+    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(
+      false
+    )
   })
 
   it('keeps a file Strapi wrote but did not commit', () => {
     pushUpstream('page.md', 'from a developer\n')
-    fs.writeFileSync(path.join(checkout, 'uncommitted.md'), 'written before the pod stopped\n')
-
-    expect(runInit().status).toBe(0)
-    expect(fs.readFileSync(path.join(checkout, 'uncommitted.md'), 'utf-8')).toBe(
+    fs.writeFileSync(
+      path.join(checkout, 'uncommitted.md'),
       'written before the pod stopped\n'
     )
+
+    expect(runInit().status).toBe(0)
+    expect(
+      fs.readFileSync(path.join(checkout, 'uncommitted.md'), 'utf-8')
+    ).toBe('written before the pod stopped\n')
   })
 
   it('stops when an uncommitted change conflicts with the remote', () => {
@@ -223,13 +237,20 @@ describe('cms-init-repo on a used volume', () => {
     pushUpstream('README.md', 'remote change\n')
     const localSha = commitFile(checkout, 'README.md', 'local change\n')
     git(checkout, 'fetch', '-q', 'origin')
-    spawnSync('git', ['rebase', `origin/${BRANCH}`], { cwd: checkout, env: gitEnv() })
-    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(true)
+    spawnSync('git', ['rebase', `origin/${BRANCH}`], {
+      cwd: checkout,
+      env: gitEnv()
+    })
+    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(
+      true
+    )
 
     const { output } = runInit()
 
     expect(output).toContain('Aborting a half-finished rebase')
-    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(false)
+    expect(fs.existsSync(path.join(checkout, '.git', 'rebase-merge'))).toBe(
+      false
+    )
     expect(git(checkout, 'rev-parse', 'HEAD')).toBe(localSha)
   })
 
@@ -239,13 +260,18 @@ describe('cms-init-repo on a used volume', () => {
     const { status, output } = runInit()
 
     expect(status).toBe(1)
-    expect(output).toContain("The checkout is on 'cms-k8s-shadow', not 'staging'")
+    expect(output).toContain(
+      "The checkout is on 'cms-k8s-shadow', not 'staging'"
+    )
   })
 
   it('hard-resets to the remote branch on a new reset token', () => {
     commitFile(checkout, 'blog.md', 'discarded by a Force Reset\n')
 
-    const { status } = runInit({ RESET_TOKEN: 'force-reset-1', STRAPI_DISABLE_GIT_SYNC: 'true' })
+    const { status } = runInit({
+      RESET_TOKEN: 'force-reset-1',
+      STRAPI_DISABLE_GIT_SYNC: 'true'
+    })
 
     expect(status).toBe(0)
     expect(git(checkout, 'rev-parse', 'HEAD')).toBe(originHead())
@@ -268,7 +294,9 @@ describe('cms-init-repo database bootstrap', () => {
     })
     let output = ''
     child.stdout.on('data', (chunk) => (output += chunk))
-    const exited = new Promise<number | null>((resolve) => child.on('exit', resolve))
+    const exited = new Promise<number | null>((resolve) =>
+      child.on('exit', resolve)
+    )
 
     await new Promise((resolve) => setTimeout(resolve, 1500))
     expect(child.exitCode).toBeNull()
