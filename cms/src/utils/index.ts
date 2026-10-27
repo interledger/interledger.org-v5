@@ -366,6 +366,10 @@ export {
   decideAdminRouteWrap
 } from './adminRoutes'
 
+// Admin nav link to this environment's website (admin panel imports this
+// module directly)
+export { resolveWebsiteLink } from './websiteLink'
+
 // Server-status notice: browser-safe state machine (admin panel imports this
 // module directly) and the node-only endpoint half
 export {
