@@ -1026,7 +1026,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
-  // Every pathSlug hint reads: format, the type's own example, Spanish rule.
+  // Each pathSlug hint reads: format, the type's own example, Spanish rule.
+  // The podcast page has a fixed slug and its own hint.
   const PATH_SLUG_FORMAT_NOTE =
     'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
   // Spanish pages are served at /es/<english path slug> (ADR-004), so a
@@ -1496,6 +1497,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // Nothing adds /es/ to links on a Spanish page, so editors type it.
   const LINK_FIELD_DESCRIPTION =
     'For a page on this site, use its path, starting and ending with a slash (e.g. /about-us/). For another site, use a full URL (https://...). On the Spanish entry, add /es/ in front of a page path only (e.g. /es/about-us/). For a document, link its Spanish version if there is one.'
+  const EXTERNAL_FLAG_DESCRIPTION =
+    'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+  const DOCUMENT_FLAG_DESCRIPTION =
+    'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
 
   const componentDescriptions: Record<string, Record<string, string>> = {
     'shared.category': {
@@ -1609,19 +1614,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.secondary-cta-link': {
       link: LINK_FIELD_DESCRIPTION,
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external:
-        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.cta-button': {
       link: LINK_FIELD_DESCRIPTION,
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external:
-        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'blocks.cta-buttons': {
       intro: BLOCK_INTRO_DESCRIPTION,
@@ -1642,17 +1643,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.cta-link': {
       link: LINK_FIELD_DESCRIPTION,
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external:
-        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.primary-cta-link': {
       link: LINK_FIELD_DESCRIPTION,
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external:
-        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'navigation.menu-item': {
       href: LINK_FIELD_DESCRIPTION
@@ -1662,10 +1659,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.grant-faq-section': {
       ctaLink: LINK_FIELD_DESCRIPTION,
-      ctaExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      ctaDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.number-tiles': {
       intro: BLOCK_INTRO_DESCRIPTION,
@@ -1741,15 +1736,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink: LINK_FIELD_DESCRIPTION,
-      primaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      primaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
+      primaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      primaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION,
       secondaryButtonLink: LINK_FIELD_DESCRIPTION,
-      secondaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      secondaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      secondaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      secondaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.quote': {
       intro: BLOCK_INTRO_DESCRIPTION,
@@ -1779,7 +1770,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       seats:
         'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
       benefitsLabel: 'Optional. Defaults to "Benefits".',
-      ctaLink: `Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). ${LINK_FIELD_DESCRIPTION}`
+      ctaLink: `Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). ${LINK_FIELD_DESCRIPTION}`,
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.timeline': {
       sections:
