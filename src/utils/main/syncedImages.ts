@@ -3,21 +3,25 @@ import { tryCatchAsync } from '../shared/tryCatch'
 import { MAX_IMAGE_BYTES } from '../shared/uploadLimits'
 import { IMAGE_URL_PATHS } from './imagePaths'
 
-// Image helpers for the grant report sync in scripts/import-airtable.ts.
-// Grantees upload images with no limit on size, so the sync makes each one a
-// small, clean source file before it is committed. The build then makes the
-// responsive variants from it, like any other image under /img.
+// Image helpers for the Airtable sync in scripts/import-airtable.ts: report
+// images and grantee logos. Airtable has no limit on file size, so the sync
+// makes each image a small, clean source file before it is committed. The
+// build then makes the responsive variants from it, like any other image
+// under /img.
 
-// The longest side of a stored image. To confirm against the report design
-// (INTORG-1303): a report image is never wider than the content column.
+// The longest side of a stored image. Both to confirm against the designs:
+// a report image is never wider than the content column (INTORG-1303), and a
+// logo shows small on the profile (INTORG-1302).
 export const MAX_REPORT_IMAGE_EDGE = 2400
+export const MAX_LOGO_EDGE = 1024
 // Higher than the build's WEBP_QUALITY, because this file is the source that
 // the build encodes again.
-const REPORT_IMAGE_QUALITY = 90
-const REPORT_IMAGE_EXTENSION = '.webp'
+const SYNCED_IMAGE_QUALITY = 90
+const SYNCED_IMAGE_EXTENSION = '.webp'
 
-// Folder under public/ for report images, one subfolder per report.
+// Folders under public/, one subfolder per Airtable record.
 export const REPORT_IMAGES_DIR = `${IMAGE_URL_PATHS.publicSource}/grantee-reports`
+export const PROFILE_IMAGES_DIR = `${IMAGE_URL_PATHS.publicSource}/grantee-profiles`
 
 // What sharp reports for the allowed types. AVIF is a HEIF container, so
 // sharp says 'heif' for it, and HEIC (also HEIF, but HEVC) must stay out.
@@ -30,13 +34,14 @@ export interface NormalizedImage {
   height: number
 }
 
-// Site-relative path of a report image. The attachment ID does not change
+// Site-relative path of a synced image. The attachment ID does not change
 // while the file stays the same, so a second sync finds the file it wrote.
-export function reportImagePath(
-  reportId: string,
+export function syncedImagePath(
+  dir: string,
+  recordId: string,
   attachmentId: string
 ): string {
-  return `${REPORT_IMAGES_DIR}/${reportId}/${attachmentId}${REPORT_IMAGE_EXTENSION}`
+  return `${dir}/${recordId}/${attachmentId}${SYNCED_IMAGE_EXTENSION}`
 }
 
 function isAllowedFormat(metadata: Metadata): boolean {
@@ -51,8 +56,9 @@ function isAllowedFormat(metadata: Metadata): boolean {
 // Turns the image the correct way up, removes all metadata (phone photos can
 // carry GPS location), limits the longest side and encodes WebP. Fails on a
 // file that is not a readable image of an allowed type, whatever its name says.
-export async function normalizeReportImage(
-  input: Buffer
+export async function normalizeSyncedImage(
+  input: Buffer,
+  maxEdge: number
 ): Promise<NormalizedImage | Error> {
   const metadata = await tryCatchAsync(() => sharp(input).metadata())
   if (metadata instanceof Error) {
@@ -66,12 +72,12 @@ export async function normalizeReportImage(
     sharp(input, { failOn: 'error' })
       .rotate()
       .resize({
-        width: MAX_REPORT_IMAGE_EDGE,
-        height: MAX_REPORT_IMAGE_EDGE,
+        width: maxEdge,
+        height: maxEdge,
         fit: 'inside',
         withoutEnlargement: true
       })
-      .webp({ quality: REPORT_IMAGE_QUALITY })
+      .webp({ quality: SYNCED_IMAGE_QUALITY })
       .toBuffer({ resolveWithObject: true })
   )
   if (encoded instanceof Error) {
@@ -86,8 +92,8 @@ export async function normalizeReportImage(
   return { data, width: info.width, height: info.height }
 }
 
-// Files under REPORT_IMAGES_DIR that no Live report uses any more: the report
-// left Live, or programs replaced or removed the image.
+// Stored files that no record uses any more: a report left Live, a grantee
+// left the table, or programs replaced or removed the image.
 export function findOrphanImagePaths(
   existingPaths: string[],
   usedPaths: ReadonlySet<string>
