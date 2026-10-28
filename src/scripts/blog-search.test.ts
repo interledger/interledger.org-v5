@@ -68,6 +68,7 @@ describe('computeSearchViewState', () => {
       staticHidden: false,
       emptyHidden: true,
       resultsHidden: true,
+      skeletonHidden: true,
       countHidden: true,
       errorHidden: true,
       langNoticeHidden: false,
@@ -89,6 +90,33 @@ describe('computeSearchViewState', () => {
     expect(state.paginationHidden).toBe(true)
     expect(state.termFallbackHidden).toBe(true)
     expect(state.staticHidden).toBe(true)
+  })
+
+  it('shows placeholder rows only while the index is still downloading', () => {
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: true })
+        .skeletonHidden
+    ).toBe(false)
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: true })
+        .countHidden
+    ).toBe(false)
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: false })
+        .skeletonHidden
+    ).toBe(true)
+  })
+
+  it('hides the placeholders once results, an empty state or an error land', () => {
+    expect(
+      computeSearchViewState({ mode: 'results', resultCount: 3 }).skeletonHidden
+    ).toBe(true)
+    expect(
+      computeSearchViewState({ mode: 'results', resultCount: 0 }).skeletonHidden
+    ).toBe(true)
+    expect(
+      computeSearchViewState({ mode: 'error', ...BASELINE }).skeletonHidden
+    ).toBe(true)
   })
 
   it('only marks the region busy when a fetch is actually pending', () => {

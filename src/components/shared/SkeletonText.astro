@@ -1,0 +1,17 @@
+---
+// Pass the real text style in `class` so each line is 1lh of it.
+import Skeleton from './Skeleton.astro'
+
+interface Props {
+  widths: string[]
+  class?: string
+}
+
+const { widths, class: className } = Astro.props
+---
+
+<span class:list={['flex flex-col', className]}>
+  {widths.map((width) => <span class="flex h-[1lh] items-center">
+    <Skeleton class={`h-[0.6lh] rounded-sm ${width}`} />
+  </span>)}
+</span>
