@@ -1493,6 +1493,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   const LEGACY_HEADING_DESCRIPTION =
     'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
 
+  // Nothing adds /es/ to links on a Spanish page, so editors type it.
+  const LINK_FIELD_DESCRIPTION =
+    'For a page on this site, use its path, starting and ending with a slash (e.g. /about-us/). For another site, use a full URL (https://...). On the Spanish entry, add /es/ in front of a page path only (e.g. /es/about-us/). For a document, link its Spanish version if there is one.'
+
   const componentDescriptions: Record<string, Record<string, string>> = {
     'shared.category': {
       categoryValue:
@@ -1604,18 +1608,20 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      external:
+        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
     },
     'shared.cta-button': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      external:
+        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
     },
     'blocks.cta-buttons': {
       intro: BLOCK_INTRO_DESCRIPTION,
@@ -1635,26 +1641,27 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional. Short text under the heading; links and bold allowed.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      external:
+        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       document:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      external:
+        'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
     },
     'navigation.menu-item': {
-      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      href: LINK_FIELD_DESCRIPTION
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      href: LINK_FIELD_DESCRIPTION
     },
     'blocks.grant-faq-section': {
-      ctaLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
+      ctaLink: LINK_FIELD_DESCRIPTION,
       ctaExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       ctaDocument:
@@ -1733,14 +1740,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.cta-strip': {
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
-      primaryButtonLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
+      primaryButtonLink: LINK_FIELD_DESCRIPTION,
       primaryButtonExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       primaryButtonDocument:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      secondaryButtonLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
+      secondaryButtonLink: LINK_FIELD_DESCRIPTION,
       secondaryButtonExternal:
         'Opens in a new tab. Cannot be combined with Document Download.',
       secondaryButtonDocument:
@@ -1748,8 +1753,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.quote': {
       intro: BLOCK_INTRO_DESCRIPTION,
-      authorLink:
-        'Optional. For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      authorLink: `Optional. ${LINK_FIELD_DESCRIPTION}`
     },
     // Strapi renders a description for a scalar field only. `logo`,
     // `socialLinks` and `cta` are components, so a description on them never
@@ -1775,8 +1779,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       seats:
         'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
       benefitsLabel: 'Optional. Defaults to "Benefits".',
-      ctaLink:
-        'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      ctaLink: `Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). ${LINK_FIELD_DESCRIPTION}`
     },
     'blocks.timeline': {
       sections:
