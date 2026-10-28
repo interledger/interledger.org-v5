@@ -53,6 +53,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/cms /app/cms
+# The sync scripts import the site's frontmatter schemas through @site/* (../src/*).
+# Node resolves their zod import from /app/node_modules, so link it to the CMS's.
+COPY src/schemas/content.ts /app/src/schemas/content.ts
+RUN ln -s cms/node_modules /app/node_modules
 COPY --chmod=0755 cms/docker/cms-init-repo cms/docker/cms-sync-all /usr/local/bin/
 
 WORKDIR /app/cms
