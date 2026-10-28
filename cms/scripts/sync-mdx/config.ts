@@ -109,21 +109,6 @@ export interface ContentTypes {
   'podcast-pages': ContentTypeConfig
 }
 
-/**
- * Drop `draft` from a payload built for a content type whose Strapi schema
- * has no such attribute: the REST API rejects unknown keys, so the whole
- * create/update would fail.
- */
-async function withoutDraft(
-  payload: Promise<Record<string, unknown> | Error>
-): Promise<Record<string, unknown> | Error> {
-  const result = await payload
-  if (result instanceof Error) return result
-  const withoutDraftKey = { ...result }
-  delete withoutDraftKey.draft
-  return withoutDraftKey
-}
-
 /** Build a page payload with the MDX block parser wired in. */
 function buildParsedPagePayload(
   schema: FrontmatterSchema,
@@ -335,29 +320,26 @@ export function buildContentTypes(
         )
     },
     // Same frontmatter and blocks as a foundation page. The site, not the
-    // payload, is what loads Fundraise Up for this collection. Unlike a
-    // foundation page it has no draft checkbox, so `draft` is stripped.
+    // payload, is what loads Fundraise Up for this collection.
     'fundraising-pages': {
       dir: getContentPath(projectRoot, 'fundraisingPages'),
       apiId: 'fundraising-pages',
       schema: foundationPageFrontmatterSchema,
       buildPayload: (mdx, strapi, existing, dryRun) =>
-        withoutDraft(
-          buildParsedPagePayload(
-            foundationPageFrontmatterSchema,
-            mdx,
+        buildParsedPagePayload(
+          foundationPageFrontmatterSchema,
+          mdx,
+          strapi,
+          existing,
+          {
             strapi,
-            existing,
-            {
-              strapi,
-              STRAPI_URL: strapiUrl,
-              STRAPI_TOKEN: strapiToken,
-              dryRun,
-              profilePathSlugs
-            },
-            pageAltIds,
-            dryRun
-          )
+            STRAPI_URL: strapiUrl,
+            STRAPI_TOKEN: strapiToken,
+            dryRun,
+            profilePathSlugs
+          },
+          pageAltIds,
+          dryRun
         )
     },
     'summit-pages': {

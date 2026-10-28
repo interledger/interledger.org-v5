@@ -1,5 +1,6 @@
 ---
 import FaqPage from './FaqPage.astro'
+import FundraisingPage from './FundraisingPage.astro'
 import GrantOverviewPage from './GrantOverviewPage.astro'
 import GrantPage from './GrantPage.astro'
 import ProfileDetailPage from './ProfileDetailPage.astro'
@@ -23,6 +24,8 @@ const sectionEntryProps = { ...commonProps, section }
   <ProfileDetailPage {...sectionEntryProps} />
 ) : kind === 'faq' ? (
   <FaqPage {...sectionEntryProps} />
+) : kind === 'fundraising-page' ? (
+  <FundraisingPage {...commonProps} />
 ) : kind === 'report' ? (
   <ReportPage {...sectionEntryProps} />
 ) : kind === 'grant-page' ? (

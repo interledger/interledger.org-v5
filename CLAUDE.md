@@ -375,7 +375,8 @@ publish gates, and a gated entry is excluded from the collection entirely:
 
 - `date` on blog posts: a post dated later than today is hidden.
 - `draft: true` on every page collection except the podcast page (blog, grant,
-  grant overview, report, FAQ, profile, summit, hackathon, foundation). Editors
+  grant overview, report, FAQ, profile, summit, hackathon, foundation,
+  fundraising). Editors
   set it with the **Draft** checkbox in Strapi. The CMS writes the key only
   when it is checked, and the schema defaults a missing key to `false`.
 
