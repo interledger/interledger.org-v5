@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 import type { ParsedGrantReport, RawTableRecord } from '@/types/airtable'
 import {
   ALLOWED_IMAGE_TYPES,
+  MAX_SOURCE_IMAGE_BYTES
+} from './airtableFieldValues'
+import {
   LIVE_STATUS,
-  MAX_SOURCE_IMAGE_BYTES,
   PUBLICATION_STATUS_FIELD_ID,
   REPORT_FIELDS,
   findHiddenReportFields,

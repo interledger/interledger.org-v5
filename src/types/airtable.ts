@@ -65,13 +65,13 @@ export interface GrantReport {
   license: string
   outputTypes: string[]
   interledgerTechnologies: string[]
-  images: GrantReportImage[]
+  images: SyncedImage[]
 }
 
-// One report image as written to grant-reports.json. The file is the sync's
-// own copy under public/, never an Airtable URL. alt is '' when programs gave
-// no description.
-export interface GrantReportImage {
+// One image as written to the JSON files. The file is the sync's own copy
+// under public/, never an Airtable URL. alt is '' when programs gave no
+// description.
+export interface SyncedImage {
   path: string
   width: number
   height: number
@@ -83,7 +83,7 @@ export type GrantReportContent = Omit<GrantReport, 'images'>
 
 // An image attachment to download. The URL expires about 2 hours after the
 // API returns it, so the sync downloads it in the same run.
-export interface ReportImageSource {
+export interface SyncedImageSource {
   attachmentId: string
   url: string
   sizeBytes: number
@@ -92,5 +92,37 @@ export interface ReportImageSource {
 
 export interface ParsedGrantReport {
   content: GrantReportContent
-  imageSources: ReportImageSource[]
+  imageSources: SyncedImageSource[]
+}
+
+export type GranteeType = 'Organisation' | 'Individual'
+
+// A grantee profile as written to grantee-profiles.json. Optional Airtable
+// fields are null when programs left them empty.
+export interface GranteeProfile {
+  id: string
+  name: string
+  slug: string
+  granteeType: GranteeType
+  formerlyKnownAs: string | null
+  description: string | null
+  country: string | null
+  website: string | null
+  twitter: string | null
+  linkedIn: string | null
+  bluesky: string | null
+  // Projects record IDs: the same IDs as the records in grantee-data.json.
+  grantIds: string[]
+  grantCount: number
+  totalCommitted: number
+  publishedReportCount: number
+  thematicTags: string[]
+  logo: SyncedImage | null
+}
+
+export type GranteeProfileContent = Omit<GranteeProfile, 'logo'>
+
+export interface ParsedGranteeProfile {
+  content: GranteeProfileContent
+  logoSource: SyncedImageSource | null
 }
