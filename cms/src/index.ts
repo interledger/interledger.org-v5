@@ -1026,6 +1026,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
+  // Every pathSlug hint reads: format, the type's own example, Spanish rule.
+  const PATH_SLUG_FORMAT_NOTE =
+    'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
+  // Spanish pages are served at /es/<english path slug> (ADR-004), so a
+  // translated slug breaks every /es/ link that follows that rule.
+  const SPANISH_PATH_SLUG_NOTE =
+    'On the Spanish entry, use exactly the same path slug as the English one. Don’t translate it and don’t add /es/: that is added automatically.'
+
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
       tagline:
@@ -1034,8 +1042,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Past Fellows", "2025 Hackathon Judges").',
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash, e.g. /2025/judges/jane-doe/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. Example: /2025/judges/jane-doe/. ${SPANISH_PATH_SLUG_NOTE}`,
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
       section:
         'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
@@ -1045,15 +1052,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-page.foundation-page': {
       title:
         'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path of the page, starting and ending with a slash. Example: /about-us/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /about-us/. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::fundraising-page.fundraising-page': {
       title:
         'Enter only the page name, e.g. "Donate" — not "Interledger Foundation | Donate". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path of the page, starting and ending with a slash. Example: /get-involved/donate/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /get-involved/donate/. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       // A dynamic-zone hint stays hidden until a block is added, then Strapi
@@ -1063,30 +1068,26 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       title:
         'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /summit, starting and ending with a slash. Example: /faq/ → /summit/faq/. Do not include /summit. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /faq/ → /summit/faq/. Do not include /summit. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       title:
         'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /hackathon, starting and ending with a slash. Example: /overview/ → /hackathon/overview/. Do not include /hackathon. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /overview/ → /hackathon/overview/. Do not include /hackathon. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       title:
         'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /grant, starting and ending with a slash. Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
       title:
         'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /grant, starting and ending with a slash. Example: /education/ → /grant/education/. Must not clash with any Grant Page slug. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/ → /grant/education/. Do not include /grant. Must not clash with any Grant Page slug. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
@@ -1094,7 +1095,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
       pathSlug:
-        'Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team.',
+        'Path must be set to "/podcast/" on both the English and Spanish entries. We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team.',
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
@@ -1107,8 +1108,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /blog, starting and ending with a slash. Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title - use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -1125,8 +1125,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::faq.faq': {
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /grant/education/on-campus/faq/). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /grant/education/on-campus/faq/. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
       section:
         'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
       description:
@@ -1144,8 +1143,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::report.report': {
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /policy-and-advocacy/role-stablecoins-.../). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /policy-and-advocacy/role-stablecoins-.../. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
       section:
         'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
       description:
