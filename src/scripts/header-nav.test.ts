@@ -4,7 +4,8 @@ import {
   DEFAULT_NAV_BAR_QUERY,
   FOUNDATION_NAV_BAR_QUERY,
   panelMaxHeightSteps,
-  panelOverflowShift
+  panelOverflowShift,
+  shouldPinSubmenuOnClick
 } from './header-nav'
 
 const state = (overrides: Partial<Parameters<typeof panelMaxHeightSteps>[0]>) =>
@@ -65,6 +66,42 @@ describe('panelOverflowShift', () => {
 
   it('pins the left edge when the panel is wider than the space', () => {
     expect(panelOverflowShift(450, 1800, VIEWPORT)).toBe(GUTTER - 450)
+  })
+})
+
+describe('shouldPinSubmenuOnClick', () => {
+  const activation = (
+    overrides: Partial<Parameters<typeof shouldPinSubmenuOnClick>[0]>
+  ) =>
+    shouldPinSubmenuOnClick({
+      isWideNav: true,
+      clickDetail: 1,
+      pointerType: 'mouse',
+      ...overrides
+    })
+
+  it('does not pin a mouse click on the desktop bar', () => {
+    expect(activation({})).toBe(false)
+  })
+
+  it('does not pin an untyped click on the desktop bar', () => {
+    expect(activation({ pointerType: null })).toBe(false)
+  })
+
+  it('pins a keyboard activation on the desktop bar', () => {
+    expect(activation({ clickDetail: 0, pointerType: null })).toBe(true)
+  })
+
+  it('pins touch and pen taps on the desktop bar', () => {
+    expect(activation({ pointerType: 'touch' })).toBe(true)
+    expect(activation({ pointerType: 'pen' })).toBe(true)
+  })
+
+  it('pins every drawer click, including a mouse click', () => {
+    expect(activation({ isWideNav: false })).toBe(true)
+    expect(
+      activation({ isWideNav: false, clickDetail: 0, pointerType: null })
+    ).toBe(true)
   })
 })
 
