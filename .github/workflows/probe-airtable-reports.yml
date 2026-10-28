@@ -22,3 +22,33 @@ jobs:
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
         run: node scripts/probe-airtable-reports.mjs
+
+  # Runs the real sync from the INTORG-1307 branch on the runner. Nothing is
+  # committed or pushed. The sync writes public fields only.
+  dry-run-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/intorg-1307
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run the sync
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: |
+          pnpm run sync:airtable
+          echo "--- counts"
+          for f in grantee-data grant-reports grantee-profiles; do
+            echo "$f: $(jq length src/data/airtable/$f.json)"
+          done
+          echo "--- profiles with tags / website / logo"
+          jq '[.[] | select(.thematicTags | length > 0)] | length' src/data/airtable/grantee-profiles.json
+          jq '[.[] | select(.website != null)] | length' src/data/airtable/grantee-profiles.json
+          jq '[.[] | select(.logo != null)] | length' src/data/airtable/grantee-profiles.json
+          echo "--- prettier"
+          pnpm exec prettier --check src/data/airtable/*.json
