@@ -1027,7 +1027,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   }
 
   // Each pathSlug hint reads: format, the type's own example, Spanish rule.
-  // The podcast page has a fixed slug and its own hint.
+  // The podcast page's slug is fixed, so its hint skips the format note.
   const PATH_SLUG_FORMAT_NOTE =
     'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
   // Spanish pages are served at /es/<english path slug> (ADR-004), so a
@@ -1097,8 +1097,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::podcast-page.podcast-page': {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path must be set to "/podcast/" on both the English and Spanish entries. We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team.',
+      pathSlug: `Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
