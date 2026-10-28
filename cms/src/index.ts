@@ -1033,6 +1033,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // translated slug breaks every /es/ link that follows that rule.
   const SPANISH_PATH_SLUG_NOTE =
     'On the Spanish entry, use exactly the same path slug as the English one. Don’t translate it and don’t add /es/: that is added automatically.'
+  // `section` is not localized in the FAQ, Report and Profile schemas.
+  const SECTION_DESCRIPTION =
+    'Site section for routing and breadcrumbs. Use foundation for a page at the site root or under a full pathSlug; summit or hackathon for a page under that microsite prefix. Shared by both languages: changing it on one changes the other.'
 
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
@@ -1044,8 +1047,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
       pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. Example: /2025/judges/jane-doe/. ${SPANISH_PATH_SLUG_NOTE}`,
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
+      section: SECTION_DESCRIPTION,
       description:
         'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
@@ -1108,7 +1110,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title - use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -1126,8 +1128,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /grant/education/on-campus/faq/. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
@@ -1144,8 +1145,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
       pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /policy-and-advocacy/role-stablecoins-.../. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
@@ -1513,7 +1513,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileBio: 'We recommend a max of 255 characters'
     },
     'shared.related-article': {
-      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save.'
+      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save. On a Spanish post, keep the English slug, without /es/.'
     },
     'blocks.profile-grid': {
       intro: BLOCK_INTRO_DESCRIPTION,
