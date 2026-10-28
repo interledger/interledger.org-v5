@@ -16,8 +16,9 @@ export interface BlogSearchFilters {
  *
  * Structural rather than `Pick<BlogSearchEntry, …>` so any record carrying
  * these fields can be filtered. Both sides of the query comparison are folded
- * so a match holds regardless of case or accents (`politica` finds
- * `política`), even though the index builder already folds `searchText`.
+ * so a match holds regardless of case, accents, or the punctuation people
+ * paste (`politica` finds `política`, `whats` finds `What’s`), even though
+ * the index builder already folds `searchText`.
  *
  * Categories compare as raw terms: `BlogSearchEntry.categories` and the
  * `selectedTerm` the listing routes on are both raw `BlogCategory` strings,

@@ -35,7 +35,8 @@ export interface GranteeFilters {
  * Structural rather than `Pick<Grantee, …>` so any record carrying these three
  * fields can be filtered — the client-side search index ships a lighter entry
  * shape than `Grantee`. Fold both sides here so a query matches regardless of
- * case or accents, even if `searchText` was not folded when the index was built.
+ * case, accents, or pasted punctuation, even if `searchText` was not folded
+ * when the index was built.
  */
 export function matchesGranteeFilters(
   grantee: { year: string; tags: string[]; searchText: string },
