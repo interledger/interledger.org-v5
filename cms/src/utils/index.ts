@@ -124,6 +124,7 @@ export {
   validateHeroFields,
   validatePodcastPageFields,
   validateBlogFields,
+  relatedArticleSlugError,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
   toValidationError,
