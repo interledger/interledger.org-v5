@@ -17,6 +17,7 @@ import {
 import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
+import { bareSlug } from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -798,6 +799,26 @@ function validateBlogFeatureImage(post: BlogFeatureImageFields): FieldError[] {
   ]
 }
 
+/** One segment of the blog pathSlug uid regex. */
+const BLOG_SLUG_SEGMENT = /^[A-Za-z0-9._~-]+$/
+
+function suggestedBlogSlug(value: string): string {
+  const afterBlog = /(?:^|\/)blog\/([^/?#]+)/.exec(value)?.[1]
+  return afterBlog ? `/${afterBlog}/` : '/my-post/'
+}
+
+/**
+ * A related article is matched against the post's pathSlug, so a full URL or
+ * a /blog/ path saves fine but the card never shows. Used on publish and by
+ * the MDX sync.
+ */
+export function relatedArticleSlugError(slug: string): string | undefined {
+  const bare = bareSlug(slug)
+  if (!bare) return 'Related Articles: Slug is required'
+  if (BLOG_SLUG_SEGMENT.test(bare)) return undefined
+  return `Related Articles: Enter only the post's path after /blog, e.g. ${suggestedBlogSlug(slug)}, not "${slug}"`
+}
+
 /**
  * Validate a blog post's feature image and Related Articles component (Article
  * Bio itself is validated via {@link validateAuthorBio}). `relatedArticles` is
@@ -823,11 +844,9 @@ export function validateBlogFields(
     })
   } else {
     for (const [i, item] of related.entries()) {
-      if (!item.slug) {
-        fieldErrors.push({
-          message: 'Related Articles: Slug is required',
-          path: ['relatedArticles', i, 'slug']
-        })
+      const message = relatedArticleSlugError(item.slug ?? '')
+      if (message) {
+        fieldErrors.push({ message, path: ['relatedArticles', i, 'slug'] })
       }
     }
   }

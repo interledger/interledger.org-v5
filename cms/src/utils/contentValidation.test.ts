@@ -1121,6 +1121,73 @@ describe('validateBlogFields', () => {
     ])
   })
 
+  // INTORG-1346: saved as is, these related articles vanished from the page.
+  it.each([
+    [
+      '/https://interledger.org/blog/call-papers-program/',
+      '/call-papers-program/'
+    ],
+    [
+      'https://interledger.org/blog/call-papers-program/',
+      '/call-papers-program/'
+    ],
+    ['/blog/call-papers-program/', '/call-papers-program/'],
+    ['/es/blog/call-papers-program/', '/call-papers-program/'],
+    [
+      '/https://interledger.org/grant/eoi-call-for-papers-reviewer/',
+      '/my-post/'
+    ]
+  ])('rejects %s and suggests %s', (slug, suggestion) => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [{ slug: 'one' }, { slug }, { slug: 'three' }]
+    })
+    expect(err?.message).toBe(
+      `Related Articles: Enter only the post's path after /blog, e.g. ${suggestion}, not "${slug}"`
+    )
+    expect(err?.details.errors[0].path).toEqual([
+      'relatedArticles',
+      '1',
+      'slug'
+    ])
+  })
+
+  it('treats a whitespace-only slug as missing', () => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [{ slug: 'one' }, { slug: '  ' }, { slug: 'three' }]
+    })
+    expect(err?.message).toBe('Related Articles: Slug is required')
+  })
+
+  it('reports every bad slug', () => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug: 'two' },
+        { slug: '/grant/three/' }
+      ]
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['relatedArticles', '0', 'slug'],
+      ['relatedArticles', '2', 'slug']
+    ])
+  })
+
+  it('accepts a slug with or without its slashes', () => {
+    expect(
+      validateBlogFields({
+        featureMedia: { image: 12 },
+        relatedArticles: [
+          { slug: '/one/' },
+          { slug: 'two' },
+          { slug: '/what-is-web3.0/' }
+        ]
+      })
+    ).toBeUndefined()
+  })
+
   it('reports a missing bio author and a missing related-article slug together', () => {
     const err = validateBlogFields({
       featureMedia: { image: 12 },

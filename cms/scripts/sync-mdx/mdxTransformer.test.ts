@@ -3331,6 +3331,56 @@ describe('buildBlogPayload', () => {
   const createBlogUploadContext = (uploads: Record<string, number> = {}) =>
     createMockStrapiUploadContext({ [baseFeatureImage]: 1, ...uploads })
 
+  describe('relatedArticles', () => {
+    const payloadFor = (relatedArticles: string[]) =>
+      buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        createMdxFile({
+          pathSlug: 'test-post',
+          frontmatter: { ...baseBlogFrontmatter, relatedArticles }
+        }),
+        createBlogUploadContext().strapiUploadContext
+      )
+
+    it('stores slashed slugs bare', async () => {
+      const payload = await payloadFor(['/one/', 'two', '/what-is-web3.0/'])
+
+      expect((payload as Record<string, unknown>).relatedArticles).toEqual([
+        { slug: 'one' },
+        { slug: 'two' },
+        { slug: 'what-is-web3.0' }
+      ])
+    })
+
+    // INTORG-1346: these parse as slugs but match no post.
+    it('rejects a /blog/ path and a pasted URL, naming both', async () => {
+      const payload = await payloadFor([
+        '/blog/call-papers-program/',
+        'two',
+        '/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/'
+      ])
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toBe(
+        [
+          `Related Articles: Enter only the post's path after /blog, e.g. /call-papers-program/, not "blog/call-papers-program"`,
+          `Related Articles: Enter only the post's path after /blog, e.g. /taxes-on-digital-financial-services-in-africa/, not "https://interledger.org/blog/taxes-on-digital-financial-services-in-africa"`
+        ].join('; ')
+      )
+    })
+
+    // Same split as featureImage: the build skips the card, the sync rejects.
+    it('leaves a bad related slug parseable by the shared schema', () => {
+      expect(
+        foundationBlogFrontmatterSchema.safeParse({
+          ...baseBlogFrontmatter,
+          pathSlug: 'test-post',
+          relatedArticles: ['/blog/one/', 'two', 'three']
+        }).success
+      ).toBe(true)
+    })
+  })
+
   describe('featureMedia / thumbnailMedia', () => {
     it('resolves featureImage and featureImageAlt into featureMedia', async () => {
       const { strapiUploadContext } = createBlogUploadContext({

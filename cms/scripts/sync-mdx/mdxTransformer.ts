@@ -38,7 +38,8 @@ import {
   tryCatchAsync,
   getProjectRoot,
   validateLocalImageUrl,
-  ctaStripColorPayload
+  ctaStripColorPayload,
+  relatedArticleSlugError
 } from '@/utils'
 import {
   formatCardGridVariantList,
@@ -1147,6 +1148,13 @@ export async function buildBlogPayload(
         'featureImage is required (only legacy posts may omit it)'
       )
     }
+
+    // Same split as the feature image: the shared schema only strips slashes,
+    // so a bad related slug is rejected here rather than in the Astro build.
+    const slugErrors = parsed.relatedArticles
+      .map((slug) => relatedArticleSlugError(slug))
+      .filter((message) => message !== undefined)
+    if (slugErrors.length > 0) throw new Error(slugErrors.join('; '))
 
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
