@@ -299,9 +299,11 @@ export function shouldPinSubmenuOnClick(activation: {
   isWideNav: boolean
   clickDetail: number
   pointerType: string | null
+  canHover: boolean
 }): boolean {
   if (!activation.isWideNav) return true
   if (activation.clickDetail === 0) return true
+  if (!activation.canHover) return true
   return activation.pointerType === 'touch' || activation.pointerType === 'pen'
 }
 
@@ -427,7 +429,8 @@ function initSubmenuToggle(root: HTMLElement, navBarQuery: string) {
         !shouldPinSubmenuOnClick({
           isWideNav: wideNav.matches,
           clickDetail: event.detail,
-          pointerType: activationPointer
+          pointerType: activationPointer,
+          canHover: window.matchMedia('(hover: hover)').matches
         })
       ) {
         closeSubmenu(clickedButton)

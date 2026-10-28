@@ -77,11 +77,17 @@ describe('shouldPinSubmenuOnClick', () => {
       isWideNav: true,
       clickDetail: 1,
       pointerType: 'mouse',
+      canHover: true,
       ...overrides
     })
 
   it('does not pin a mouse click on the desktop bar', () => {
     expect(activation({})).toBe(false)
+  })
+
+  it('pins a mouse click when the device cannot hover', () => {
+    expect(activation({ canHover: false })).toBe(true)
+    expect(activation({ canHover: false, pointerType: null })).toBe(true)
   })
 
   it('does not pin an untyped click on the desktop bar', () => {
