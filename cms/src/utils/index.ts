@@ -53,6 +53,7 @@ export { generateBlurPlaceholder } from './imageBlurPlaceholder'
 // Paths & configuration
 export {
   getProjectRoot,
+  getDatabaseFilePath,
   assertRunFromCms,
   PATHS,
   getContentPath,

@@ -45,6 +45,7 @@ import {
   createServerStatusHandler,
   readAdminBuildId,
   resolveAdminIndexHtmlPath,
+  getDatabaseFilePath,
   type GetModel
 } from './utils'
 import {
@@ -2712,9 +2713,11 @@ export default {
       return next()
     })
 
-    // Ensure database directory exists with proper permissions
-    // Default database path is .tmp/data.db relative to process.cwd()
-    const dbDir = path.resolve(process.cwd(), '.tmp')
+    // Ensure the database directory exists with proper permissions. The path
+    // comes from DATABASE_FILENAME, as in config/database.ts. In the container
+    // image it is on a volume, and the cms folder itself is read-only.
+    const dbPath = getDatabaseFilePath()
+    const dbDir = path.dirname(dbPath)
     if (!fs.existsSync(dbDir)) {
       fs.mkdirSync(dbDir, { recursive: true, mode: 0o775 })
     } else {
@@ -2727,7 +2730,6 @@ export default {
     }
 
     // If database file exists, ensure it has write permissions
-    const dbPath = path.join(dbDir, 'data.db')
     if (fs.existsSync(dbPath)) {
       try {
         fs.chmodSync(dbPath, 0o664)
