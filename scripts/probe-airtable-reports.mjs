@@ -158,6 +158,70 @@ async function countView(table) {
   console.log(`\nRecords in view "${view.name}": HTTP ${status}, ${body?.records.length ?? 0} (first page)`)
 }
 
+function shapeOf(value) {
+  if (value === undefined) return 'missing'
+  if (value === null) return 'null'
+  if (Array.isArray(value)) {
+    const inner = [...new Set(value.map((v) => (typeof v === 'object' ? 'object' : typeof v)))]
+    return `array<${inner.join('|') || 'empty'}>`
+  }
+  if (typeof value === 'object') return `object{${Object.keys(value).join(',')}}`
+  return typeof value
+}
+
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function isHttpUrl(value) {
+  try {
+    return ['http:', 'https:'].includes(new URL(value).protocol)
+  } catch {
+    return false
+  }
+}
+
+// Counts only. The repo is public, so no value is printed.
+async function profileShapes(table) {
+  const records = []
+  let offset
+  do {
+    const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+    if (offset) params.set('offset', offset)
+    const { status, body } = await get(`/${BASE_ID}/${table.id}?${params}`)
+    if (!body) {
+      console.log(`Grantees read: HTTP ${status}`)
+      return
+    }
+    records.push(...body.records)
+    offset = body.offset
+  } while (offset)
+  console.log(`\n## Grantees value shapes (${records.length} records)`)
+  for (const field of table.fields) {
+    const counts = {}
+    for (const r of records) {
+      const shape = shapeOf(r.fields[field.id])
+      counts[shape] = (counts[shape] ?? 0) + 1
+    }
+    console.log(`  - ${field.name}: ${JSON.stringify(counts)}`)
+  }
+  const byName = Object.fromEntries(table.fields.map((f) => [f.name, f.id]))
+  const slugs = records.map((r) => r.fields[byName.Slug])
+  const badSlugs = slugs.filter((s) => typeof s !== 'string' || !SLUG_PATTERN.test(s)).length
+  const dupSlugs = slugs.length - new Set(slugs).size
+  console.log(`Slugs not matching ${SLUG_PATTERN}: ${badSlugs}. Duplicate slugs: ${dupSlugs}`)
+  for (const name of ['Website', 'X / Twitter', 'LinkedIn', 'Bluesky']) {
+    const values = records.map((r) => r.fields[byName[name]]).filter((v) => v !== undefined)
+    console.log(`${name}: ${values.length} set, ${values.filter((v) => !isHttpUrl(v)).length} not http(s)`)
+  }
+  const tags = records.map((r) => r.fields[byName['Thematic Tags']]).filter((v) => typeof v === 'string')
+  const withDupes = tags.filter((t) => {
+    const parts = t.split(',').map((p) => p.trim()).filter(Boolean)
+    return parts.length !== new Set(parts).size
+  }).length
+  console.log(`Thematic Tags strings: ${tags.length}, with duplicates: ${withDupes}`)
+  const names = records.map((r) => r.fields[byName.Name])
+  console.log(`Duplicate names: ${names.length - new Set(names).size}`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -180,7 +244,10 @@ async function main() {
   }
 
   const grantees = findTable(tables, TABLES.grantees)
-  if (grantees) await probeImages(grantees, 'Logo')
+  if (grantees) {
+    await probeImages(grantees, 'Logo')
+    await profileShapes(grantees)
+  }
 
   const published = findTable(tables, TABLES.published)
   if (!published) return
