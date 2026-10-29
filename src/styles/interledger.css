@@ -191,3 +191,9 @@ div.community.community p {
     height: initial;
   }
 }
+
+/* Anchor target scroll offset to prevent sticky header overlap */
+.sl-markdown-content :is(h2, h3, h4, h5, h6)[id],
+.sl-markdown-content :target {
+  scroll-margin-block-start: calc(var(--sl-nav-height) + var(--space-s));
+}
