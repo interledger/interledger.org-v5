@@ -34,6 +34,7 @@ const draftSchema = z.boolean().optional().default(false)
 // src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
 // lands, add the new values here and retire the legacy ones.
 const blogCategories = [
+  'Community',
   'Engineering',
   'Grantmaking',
   'Interledger Technology',
