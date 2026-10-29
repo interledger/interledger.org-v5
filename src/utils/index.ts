@@ -65,11 +65,13 @@ export {
   HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   GRANT_GRANTEE_DIRECTORY_SLUG,
+  GRANT_GRANTEES_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
+  grantGranteeProfilePath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'
