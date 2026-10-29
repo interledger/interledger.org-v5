@@ -221,8 +221,14 @@ export {
 } from './main/airtableRecords'
 export {
   ALLOWED_IMAGE_TYPES,
-  LIVE_STATUS,
   MAX_SOURCE_IMAGE_BYTES,
+  describeValue,
+  isRecordLike,
+  nonBlankString,
+  readImageField
+} from './main/airtableFieldValues'
+export {
+  LIVE_STATUS,
   PUBLICATION_STATUS_FIELD_ID,
   REPORT_FIELDS,
   findHiddenReportFields,
@@ -231,10 +237,19 @@ export {
   toGrantReport,
   toGrantReports
 } from './main/airtableReports'
-// Not exported: ./main/reportImages imports sharp, a native module that must
+export {
+  GRANTEE_TYPES,
+  PROFILE_FIELDS,
+  findHiddenProfileFields,
+  profileFieldIdsToFetch,
+  splitThematicTags,
+  toGranteeProfile,
+  toGranteeProfiles
+} from './main/airtableProfiles'
+// Not exported: ./main/syncedImages imports sharp, a native module that must
 // never reach the site bundle through this barrel. The sync script and the
-// tests import it directly. It holds normalizeReportImage, reportImagePath,
-// findOrphanImagePaths, readStoredImageSize and REPORT_IMAGES_DIR.
+// tests import it directly. It holds normalizeSyncedImage, syncedImagePath,
+// findOrphanImagePaths, readStoredImageSize and the image folder constants.
 
 // Main site: Text
 export { generateSlug } from './main/slug'

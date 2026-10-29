@@ -42,7 +42,9 @@ jobs:
     env:
       GRANTEE_JSON: src/data/airtable/grantee-data.json
       REPORTS_JSON: src/data/airtable/grant-reports.json
+      PROFILES_JSON: src/data/airtable/grantee-profiles.json
       REPORT_IMAGES: public/img/grantee-reports
+      PROFILE_IMAGES: public/img/grantee-profiles
       SYNC_BRANCH: chore/airtable-grantee-sync
       BASE_BRANCH: staging
 
@@ -79,7 +81,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Sync grantee and grant report data from Airtable
+      - name: Sync grantee, grant report and grantee profile data from Airtable
         id: sync
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
@@ -100,14 +102,16 @@ jobs:
           # The script Prettier-formats its own output (see writeAirtableJson), so this is a
           # tripwire rather than a fix-up. If that ever drifts from .prettierrc, fail here and
           # not as a red `pnpm run lint` on somebody else's PR days later.
-          pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON"
+          pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON"
 
           # Staged so that new image files count: git diff ignores untracked files.
           # The folder exists only after the first report with an image.
-          git add -A -- "$GRANTEE_JSON" "$REPORTS_JSON"
-          if [ -d "$REPORT_IMAGES" ] || git ls-files --error-unmatch "$REPORT_IMAGES" >/dev/null 2>&1; then
-            git add -A -- "$REPORT_IMAGES"
-          fi
+          git add -A -- "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON"
+          for images in "$REPORT_IMAGES" "$PROFILE_IMAGES"; do
+            if [ -d "$images" ] || git ls-files --error-unmatch "$images" >/dev/null 2>&1; then
+              git add -A -- "$images"
+            fi
+          done
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -126,6 +130,8 @@ jobs:
             echo "after_count=$(jq length < "$GRANTEE_JSON")"
             echo "reports_before_count=$(git show "HEAD:$REPORTS_JSON" | jq length)"
             echo "reports_after_count=$(jq length < "$REPORTS_JSON")"
+            echo "profiles_before_count=$(git show "HEAD:$PROFILES_JSON" | jq length)"
+            echo "profiles_after_count=$(jq length < "$PROFILES_JSON")"
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit and push the sync branch
@@ -156,6 +162,8 @@ jobs:
           AFTER_COUNT: ${{ steps.sync.outputs.after_count }}
           REPORTS_BEFORE_COUNT: ${{ steps.sync.outputs.reports_before_count }}
           REPORTS_AFTER_COUNT: ${{ steps.sync.outputs.reports_after_count }}
+          PROFILES_BEFORE_COUNT: ${{ steps.sync.outputs.profiles_before_count }}
+          PROFILES_AFTER_COUNT: ${{ steps.sync.outputs.profiles_after_count }}
         run: |
           set -euo pipefail
 
@@ -168,13 +176,14 @@ jobs:
             cat <<'EOF'
           ## Summary
 
-          Automated refresh of the grantee directory and grant report data from Airtable, opened by
+          Automated refresh of the grantee directory, grant report and grantee profile data from Airtable, opened by
           `.github/workflows/sync-airtable.yml`. No human wrote this diff — all of it is
           regenerated output from `pnpm run sync:airtable`.
 
           EOF
             printf 'Grantee records: **%s → %s**\n\n' "$BEFORE_COUNT" "$AFTER_COUNT"
             printf 'Grant reports: **%s → %s**\n\n' "$REPORTS_BEFORE_COUNT" "$REPORTS_AFTER_COUNT"
+            printf 'Grantee profiles: **%s → %s**\n\n' "$PROFILES_BEFORE_COUNT" "$PROFILES_AFTER_COUNT"
             cat <<'EOF'
           A record enters the directory when an editor sets **Published on Website** in the
           Airtable Projects table, and leaves when that flag is cleared. A record can also change
@@ -183,6 +192,9 @@ jobs:
           A grant report enters when its **Publication Status** in the Airtable Published Reports
           table is **Live**, and leaves when it changes. The sync fails, and opens no pull request,
           if a Live report is missing a required field.
+
+          Every grantee in the Airtable Grantees table has a profile. The sync fails if a grantee
+          has a bad slug, a duplicate slug, or a bad link or logo.
 
           ## Related Issue
 
@@ -202,12 +214,12 @@ jobs:
           ## Checks
 
           - [x] `pnpm run sync:airtable` — generated the updated files
-          - [x] `pnpm exec prettier --check` on both files in `src/data/airtable/` — passed before the PR was opened
+          - [x] `pnpm exec prettier --check` on the three files in `src/data/airtable/` — passed before the PR was opened
 
           ## PR Checklist
 
           - [x] PR title follows Conventional Commits
-          - [x] Scope is focused — the two files in `src/data/airtable/` and the report images only
+          - [x] Scope is focused — the three files in `src/data/airtable/` and the synced images only
           - [ ] Linked issue included — N/A, scheduled automation
 
           ---

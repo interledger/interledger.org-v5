@@ -3,8 +3,13 @@ import type {
   GrantReportType,
   ParsedGrantReport,
   RawTableRecord,
-  ReportImageSource
+  SyncedImageSource
 } from '@/types/airtable'
+import {
+  describeValue,
+  nonBlankString,
+  readImageField
+} from './airtableFieldValues'
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
 // Unlike the grantee directory, a gap is never warned about and skipped: a
@@ -100,27 +105,8 @@ const IMAGE_SLOTS = [
   description: ReportFieldKey
 }[]
 
-// The file types the site accepts. Airtable does not limit them, so the sync
-// fails on any other type, for example HEIC from an iPhone or a PDF.
-export const ALLOWED_IMAGE_TYPES: readonly string[] = [
-  'image/jpeg',
-  'image/png',
-  'image/webp',
-  'image/avif'
-]
-
-// Airtable does not limit file size either. The sync makes every image small,
-// but it refuses to download a file this large at all.
-export const MAX_SOURCE_IMAGE_BYTES = 50 * 1024 * 1024
-
 // Airtable writes a date-only field as YYYY-MM-DD.
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-const MAX_FILES_PER_IMAGE_FIELD = 1
-
-function nonBlankString(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined
-  return value.trim() === '' ? undefined : value.trim()
-}
 
 function readDate(value: unknown): string | undefined {
   return typeof value === 'string' && DATE_PATTERN.test(value)
@@ -139,16 +125,6 @@ function readSingleLookup(value: unknown): unknown {
   return Array.isArray(value) && value.length === 1 ? value[0] : undefined
 }
 
-function isRecordLike(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-function describe(value: unknown): string {
-  if (value === undefined) return 'missing'
-  if (Array.isArray(value)) return `${value.length} value(s)`
-  return JSON.stringify(value)
-}
-
 // Reads the fields of one record. A reader that fails records the problem and
 // returns a placeholder, which is safe because toGrantReport discards the
 // report when there is any problem.
@@ -157,7 +133,7 @@ function createFieldReader(fields: Record<string, unknown>) {
   const fail = <T>(key: ReportFieldKey, expected: string, placeholder: T) => {
     const { name, id } = REPORT_FIELDS[key]
     problems.push(
-      `"${name}": expected ${expected}, got ${describe(fields[id])}`
+      `"${name}": expected ${expected}, got ${describeValue(fields[id])}`
     )
     return placeholder
   }
@@ -194,51 +170,14 @@ function createFieldReader(fields: Record<string, unknown>) {
     optionalText(key: ReportFieldKey): string {
       return nonBlankString(raw(key)) ?? ''
     },
-    // An image field is optional, but it holds at most one file, of an
-    // allowed type and size. The file itself is checked after download.
-    image(key: ReportFieldKey, alt: string): ReportImageSource | undefined {
-      const value = raw(key)
-      if (value === undefined) return undefined
-      if (!Array.isArray(value) || value.length > MAX_FILES_PER_IMAGE_FIELD) {
-        return fail(key, `at most ${MAX_FILES_PER_IMAGE_FIELD} file`, undefined)
+    image(key: ReportFieldKey, alt: string): SyncedImageSource | undefined {
+      const result = readImageField(raw(key), alt)
+      if (result !== undefined && 'expected' in result) {
+        return fail(key, result.expected, undefined)
       }
-      const [file] = value
-      if (file === undefined) return undefined
-      return readAttachment(file, alt, (expected) =>
-        fail(key, expected, undefined)
-      )
+      return result
     }
   }
-}
-
-// Reads the Airtable attachment object: { id, url, size, type, ... }.
-function readAttachment(
-  file: unknown,
-  alt: string,
-  fail: (expected: string) => undefined
-): ReportImageSource | undefined {
-  if (
-    !isRecordLike(file) ||
-    typeof file.id !== 'string' ||
-    typeof file.url !== 'string' ||
-    typeof file.size !== 'number'
-  ) {
-    return fail('an attachment with an id, url and size')
-  }
-  if (
-    typeof file.type !== 'string' ||
-    !ALLOWED_IMAGE_TYPES.includes(file.type)
-  ) {
-    return fail(
-      `a file of type ${ALLOWED_IMAGE_TYPES.join(', ')} (got ${String(file.type)})`
-    )
-  }
-  if (file.size > MAX_SOURCE_IMAGE_BYTES) {
-    return fail(
-      `a file of at most ${MAX_SOURCE_IMAGE_BYTES / 1024 / 1024} MB (got ${(file.size / 1024 / 1024).toFixed(1)} MB)`
-    )
-  }
-  return { attachmentId: file.id, url: file.url, sizeBytes: file.size, alt }
 }
 
 function isReportType(value: unknown): value is GrantReportType {

@@ -4,9 +4,11 @@ import fs from 'fs/promises'
 import * as prettier from 'prettier'
 import type {
   GrantReport,
-  GrantReportImage,
+  GranteeProfile,
   ParsedGrantReport,
-  ReportImageSource,
+  ParsedGranteeProfile,
+  SyncedImage,
+  SyncedImageSource,
   TableMeta,
   Table,
   TableRecord,
@@ -27,19 +29,27 @@ import {
   toGranteeRecord,
   warnOnMissingProjectNames
 } from '../src/utils/main/airtableRecords'
+import { MAX_SOURCE_IMAGE_BYTES } from '../src/utils/main/airtableFieldValues'
 import {
-  MAX_SOURCE_IMAGE_BYTES,
+  findHiddenProfileFields,
+  profileFieldIdsToFetch,
+  toGranteeProfiles
+} from '../src/utils/main/airtableProfiles'
+import {
   findHiddenReportFields,
   reportFieldIdsToFetch,
   toGrantReports
 } from '../src/utils/main/airtableReports'
 import {
+  MAX_LOGO_EDGE,
+  MAX_REPORT_IMAGE_EDGE,
+  PROFILE_IMAGES_DIR,
   REPORT_IMAGES_DIR,
   findOrphanImagePaths,
-  normalizeReportImage,
+  normalizeSyncedImage,
   readStoredImageSize,
-  reportImagePath
-} from '../src/utils/main/reportImages'
+  syncedImagePath
+} from '../src/utils/main/syncedImages'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
@@ -48,10 +58,27 @@ const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Website field in Projects table
 const PUBLISHED_REPORTS_TABLE_ID = 'tblHfL0Eh1KOSX98h' // Published Reports
 const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
+const GRANTEES_TABLE_ID = 'tblfIGFjK88ZmLxNI' // Grantees
+const GRANTEES_VIEW_ID = 'viwE0ixrnaCsXt5X0' // Grid view: every field is public (PRO-371)
 
 const PUBLIC_DIR = path.resolve('./public')
 const GRANTEE_JSON_FILE = 'grantee-data.json'
 const GRANT_REPORTS_JSON_FILE = 'grant-reports.json'
+const GRANTEE_PROFILES_JSON_FILE = 'grantee-profiles.json'
+
+// Where each kind of synced image goes, and how large it may be.
+interface ImageTarget {
+  dir: string
+  maxEdge: number
+}
+const REPORT_IMAGES: ImageTarget = {
+  dir: REPORT_IMAGES_DIR,
+  maxEdge: MAX_REPORT_IMAGE_EDGE
+}
+const PROFILE_LOGOS: ImageTarget = {
+  dir: PROFILE_IMAGES_DIR,
+  maxEdge: MAX_LOGO_EDGE
+}
 
 // Every Projects column the sync can read, checked against the metadata. Which
 // grantee columns are fetched depends on the view (see
@@ -74,7 +101,7 @@ function findById<T extends { id: string }>(
 }
 
 async function writeAirtableJson(
-  data: TableRecord[] | GrantReport[],
+  data: TableRecord[] | GrantReport[] | GranteeProfile[],
   fileName: string
 ) {
   const basePath = path.resolve('./src/data/airtable')
@@ -109,7 +136,8 @@ async function fetchAllRecords(
   tableId:
     | typeof CONTACTS_TABLE_ID
     | typeof PROJECTS_TABLE_ID
-    | typeof PUBLISHED_REPORTS_TABLE_ID,
+    | typeof PUBLISHED_REPORTS_TABLE_ID
+    | typeof GRANTEES_TABLE_ID,
   params: URLSearchParams,
   apiToken: string
 ): Promise<RawTableRecord[]> {
@@ -213,6 +241,45 @@ async function fetchGrantReports(
   return reports
 }
 
+async function fetchGranteeProfiles(
+  meta: TableMeta,
+  apiToken: string
+): Promise<ParsedGranteeProfile[]> {
+  const granteesTable = findById(
+    meta.tables,
+    GRANTEES_TABLE_ID,
+    'Grantees table'
+  )
+  const granteesView = findById(
+    granteesTable.views,
+    GRANTEES_VIEW_ID,
+    'Grantees view'
+  )
+  for (const id of profileFieldIdsToFetch()) {
+    findById(granteesTable.fields, id, 'Grantees field')
+  }
+  if (granteesView.visibleFieldIds === undefined) {
+    throw new Error(
+      `View '${GRANTEES_VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
+    )
+  }
+  const hidden = findHiddenProfileFields(granteesView.visibleFieldIds)
+  if (hidden.length > 0) {
+    throw new Error(
+      `Grantee profile fields hidden in the view: ${hidden.join(', ')}. The site needs them all.`
+    )
+  }
+
+  // fields[] keeps any column programs add later out of the sync.
+  const params = new URLSearchParams({ view: GRANTEES_VIEW_ID })
+  profileFieldIdsToFetch().forEach((id) => params.append('fields[]', id))
+  const records = await fetchAllRecords(GRANTEES_TABLE_ID, params, apiToken)
+  const profiles = toGranteeProfiles(records)
+  if (profiles instanceof Error) throw profiles
+  console.log(`ℹ️  Grantee profiles: ${profiles.length}`)
+  return profiles
+}
+
 // A site path such as /img/grantee-reports/rec1/att1.webp, on disk.
 function toFilePath(sitePath: string): string {
   return path.join(PUBLIC_DIR, sitePath)
@@ -243,11 +310,12 @@ async function downloadImage(url: string): Promise<Buffer | Error> {
 }
 
 // Downloads and normalizes one image, or reuses the file from an earlier run.
-async function storeReportImage(
-  reportId: string,
-  source: ReportImageSource
-): Promise<GrantReportImage | Error> {
-  const sitePath = reportImagePath(reportId, source.attachmentId)
+async function storeSyncedImage(
+  target: ImageTarget,
+  recordId: string,
+  source: SyncedImageSource
+): Promise<SyncedImage | Error> {
+  const sitePath = syncedImagePath(target.dir, recordId, source.attachmentId)
   const filePath = toFilePath(sitePath)
   if (await fileExists(filePath)) {
     const size = await readStoredImageSize(filePath)
@@ -257,7 +325,7 @@ async function storeReportImage(
 
   const downloaded = await downloadImage(source.url)
   if (downloaded instanceof Error) return downloaded
-  const image = await normalizeReportImage(downloaded)
+  const image = await normalizeSyncedImage(downloaded, target.maxEdge)
   if (image instanceof Error) return image
   await fs.mkdir(path.dirname(filePath), { recursive: true })
   await fs.writeFile(filePath, image.data)
@@ -267,6 +335,13 @@ async function storeReportImage(
     height: image.height,
     alt: source.alt
   }
+}
+
+function throwOnImageProblems(problems: string[], what: string): void {
+  if (problems.length === 0) return
+  throw new Error(
+    `${problems.length} ${what} cannot be published:\n${problems.map((p) => `  - ${p}`).join('\n')}`
+  )
 }
 
 function reportName({ content }: ParsedGrantReport): string {
@@ -280,9 +355,13 @@ async function addReportImages(
   const reports: GrantReport[] = []
   const problems: string[] = []
   for (const parsed of parsedReports) {
-    const images: GrantReportImage[] = []
+    const images: SyncedImage[] = []
     for (const source of parsed.imageSources) {
-      const image = await storeReportImage(parsed.content.id, source)
+      const image = await storeSyncedImage(
+        REPORT_IMAGES,
+        parsed.content.id,
+        source
+      )
       if (image instanceof Error) {
         problems.push(
           `Report ${reportName(parsed)}, attachment ${source.attachmentId}: ${image.message}`
@@ -293,18 +372,37 @@ async function addReportImages(
     }
     reports.push({ ...parsed.content, images })
   }
-  if (problems.length > 0) {
-    throw new Error(
-      `${problems.length} grant report image(s) cannot be published:\n${problems.map((p) => `  - ${p}`).join('\n')}`
-    )
-  }
+  throwOnImageProblems(problems, 'grant report image(s)')
   return reports
 }
 
-async function listStoredReportImages(): Promise<string[]> {
-  const dir = toFilePath(REPORT_IMAGES_DIR)
-  if (!(await fileExists(dir))) return []
-  const entries = await fs.readdir(dir, {
+async function addProfileLogos(
+  parsedProfiles: ParsedGranteeProfile[]
+): Promise<GranteeProfile[]> {
+  const profiles: GranteeProfile[] = []
+  const problems: string[] = []
+  for (const { content, logoSource } of parsedProfiles) {
+    if (logoSource === null) {
+      profiles.push({ ...content, logo: null })
+      continue
+    }
+    const logo = await storeSyncedImage(PROFILE_LOGOS, content.id, logoSource)
+    if (logo instanceof Error) {
+      problems.push(
+        `Grantee ${content.name} (ID: ${content.id}), logo: ${logo.message}`
+      )
+      continue
+    }
+    profiles.push({ ...content, logo })
+  }
+  throwOnImageProblems(problems, 'grantee logo(s)')
+  return profiles
+}
+
+async function listStoredImages(dir: string): Promise<string[]> {
+  const dirPath = toFilePath(dir)
+  if (!(await fileExists(dirPath))) return []
+  const entries = await fs.readdir(dirPath, {
     recursive: true,
     withFileTypes: true
   })
@@ -312,9 +410,9 @@ async function listStoredReportImages(): Promise<string[]> {
     .filter((entry) => entry.isFile())
     .map((entry) =>
       path.posix.join(
-        REPORT_IMAGES_DIR,
+        dir,
         path
-          .relative(dir, path.join(entry.parentPath, entry.name))
+          .relative(dirPath, path.join(entry.parentPath, entry.name))
           .split(path.sep)
           .join('/')
       )
@@ -323,25 +421,23 @@ async function listStoredReportImages(): Promise<string[]> {
 
 // Runs after the JSON is written, so a failed run never deletes an image that
 // the committed JSON still points to.
-async function removeOrphanReportImages(reports: GrantReport[]): Promise<void> {
-  const used = new Set(
-    reports.flatMap(({ images }) => images.map((i) => i.path))
-  )
-  const orphans = findOrphanImagePaths(await listStoredReportImages(), used)
+async function removeOrphanImages(
+  dir: string,
+  usedPaths: ReadonlySet<string>
+): Promise<void> {
+  const orphans = findOrphanImagePaths(await listStoredImages(dir), usedPaths)
   for (const orphan of orphans) {
     await fs.rm(toFilePath(orphan))
   }
-  // Empty report folders are left behind by the deletes above.
-  const dir = toFilePath(REPORT_IMAGES_DIR)
-  if (!(await fileExists(dir))) return
-  for (const folder of await fs.readdir(dir)) {
-    const folderPath = path.join(dir, folder)
+  // Empty record folders are left behind by the deletes above.
+  const dirPath = toFilePath(dir)
+  if (!(await fileExists(dirPath))) return
+  for (const folder of await fs.readdir(dirPath)) {
+    const folderPath = path.join(dirPath, folder)
     if ((await fs.readdir(folderPath)).length === 0) await fs.rmdir(folderPath)
   }
   if (orphans.length > 0) {
-    console.log(
-      `ℹ️  Removed ${orphans.length} report image(s) no Live report uses`
-    )
+    console.log(`ℹ️  Removed ${orphans.length} unused image(s) from ${dir}`)
   }
 }
 
@@ -429,11 +525,22 @@ async function importAirtableData() {
   const grantReports = await addReportImages(
     await fetchGrantReports(meta, apiToken)
   )
-  // Written only after both parts succeed, so a failed run leaves neither
-  // file half-updated.
+  const granteeProfiles = await addProfileLogos(
+    await fetchGranteeProfiles(meta, apiToken)
+  )
+  // Written only after every part succeeds, so a failed run leaves no file
+  // half-updated.
   await writeAirtableJson(finalGranteeData, GRANTEE_JSON_FILE)
   await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
-  await removeOrphanReportImages(grantReports)
+  await writeAirtableJson(granteeProfiles, GRANTEE_PROFILES_JSON_FILE)
+  await removeOrphanImages(
+    REPORT_IMAGES_DIR,
+    new Set(grantReports.flatMap(({ images }) => images.map((i) => i.path)))
+  )
+  await removeOrphanImages(
+    PROFILE_IMAGES_DIR,
+    new Set(granteeProfiles.flatMap(({ logo }) => (logo ? [logo.path] : [])))
+  )
 }
 
 importAirtableData().catch((err) => {
