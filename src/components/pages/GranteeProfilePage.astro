@@ -1,0 +1,201 @@
+---
+import '@/styles/tailwind.css'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import TextParagraphs from '@/components/shared/TextParagraphs.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import GranteeCard from '@/components/grant/GranteeCard.astro'
+import type { GranteeProfile } from '@/types/airtable'
+import {
+  type Grantee,
+  type UiKey,
+  useTranslations,
+  buildHomeBreadcrumb,
+  buildUmamiAttrs,
+  defaultLocale,
+  formatBudgetAmount,
+  localizeRoute,
+  grantOverviewHubPath,
+  grantGranteeDirectoryPath,
+  grantGranteeProfilePath
+} from '@/utils'
+
+// Profile content comes from Airtable in English only (INTORG-1309). The ES
+// route shows it with the translation disclaimer; only the UI strings can be
+// translated, through src/data/ui.ts.
+
+interface Props {
+  profile: GranteeProfile
+  grants: Grantee[]
+}
+
+const { profile, grants } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const directoryHref = localizeRoute(grantGranteeDirectoryPath(), routeLocale)
+const breadcrumbs = [
+  buildHomeBreadcrumb(routeLocale, t),
+  {
+    name: t('nav.grants'),
+    href: localizeRoute(grantOverviewHubPath(), routeLocale)
+  },
+  { name: t('grantee.title'), href: directoryHref },
+  {
+    name: profile.name,
+    href: localizeRoute(grantGranteeProfilePath(profile.slug), routeLocale)
+  }
+]
+
+const GRANTEE_TYPE_KEYS: Record<GranteeProfile['granteeType'], UiKey> = {
+  Organisation: 'granteeProfile.type.organisation',
+  Individual: 'granteeProfile.type.individual'
+}
+
+const LINK_KEYS = [
+  ['website', 'granteeProfile.website'],
+  ['twitter', 'granteeProfile.twitter'],
+  ['linkedIn', 'granteeProfile.linkedin'],
+  ['bluesky', 'granteeProfile.bluesky']
+] as const satisfies readonly (readonly [keyof GranteeProfile, UiKey])[]
+
+const links = LINK_KEYS.flatMap(([field, labelKey]) => {
+  const href = profile[field]
+  if (href === null) return []
+  const label = t(labelKey)
+  const umami = buildUmamiAttrs({
+    pathname: Astro.url.pathname,
+    lang: routeLocale,
+    label: 'link',
+    baseComponent: 'grantee_profile_links',
+    linkText: label,
+    href
+  })
+  return [{ href, label, umami }]
+})
+
+const LOGO_DISPLAY_WIDTH = 160
+const logoHeight = profile.logo
+  ? Math.round((profile.logo.height / profile.logo.width) * LOGO_DISPLAY_WIDTH)
+  : 0
+---
+
+<FoundationPageLayout
+  title={profile.name}
+  description={t('granteeProfile.meta_description', { name: profile.name })}
+>
+  <main
+    data-grantee-profile
+    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
+  >
+    <div class="w-full max-w-content m-auto flex flex-col gap-2xl">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
+
+      <header class="flex flex-col gap-lg tablet:flex-row tablet:items-center">
+        {profile.logo && (
+          <OptimizedImage
+            src={profile.logo.path}
+            alt={profile.logo.alt}
+            width={LOGO_DISPLAY_WIDTH}
+            height={logoHeight}
+            sizes={`${LOGO_DISPLAY_WIDTH}px`}
+            loading="eager"
+          />
+        )}
+        <div class="flex flex-col gap-sm">
+          <h1 class="m-0">{profile.name}</h1>
+          {profile.formerlyKnownAs && <p class="m-0 text-neutral-75">
+            {t('granteeProfile.formerly_known_as', {
+              name: profile.formerlyKnownAs
+            })}
+          </p>}
+        </div>
+      </header>
+
+      <dl
+        aria-label={t('granteeProfile.facts')}
+        class="m-0 grid grid-cols-1 gap-lg tablet:grid-cols-2 desktop:grid-cols-4"
+      >
+        <div>
+          <dt class="text-neutral-75">{t('granteeProfile.type')}</dt>
+          <dd class="m-0">{t(GRANTEE_TYPE_KEYS[profile.granteeType])}</dd>
+        </div>
+        {profile.country && <div>
+          <dt class="text-neutral-75">{t('granteeProfile.country')}</dt>
+          <dd class="m-0">{profile.country}</dd>
+        </div>}
+        <div>
+          <dt class="text-neutral-75">{t('granteeProfile.grant_count')}</dt>
+          <dd class="m-0">{profile.grantCount}</dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">
+            {t('granteeProfile.total_committed')}
+          </dt>
+          <dd class="m-0">
+            {formatBudgetAmount(profile.totalCommitted)}
+            {t('grantee.currency')}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">
+            {t('granteeProfile.published_reports')}
+          </dt>
+          <dd class="m-0">{profile.publishedReportCount}</dd>
+        </div>
+      </dl>
+
+      {profile.thematicTags.length > 0 && <ul
+        aria-label={t('aria.grantee.tags')}
+        class="flex flex-wrap gap-xs list-none m-0 p-0"
+      >
+        {profile.thematicTags.map((tag) => <li
+          class="m-0 rounded-full border border-neutral-50 px-md py-xs"
+        >
+          #{tag}
+        </li>)}
+      </ul>}
+
+      {profile.description && <section aria-labelledby="grantee-profile-about">
+        <h2 id="grantee-profile-about">{t('granteeProfile.about')}</h2>
+        <TextParagraphs text={profile.description} />
+      </section>}
+
+      {links.length > 0 && <section aria-labelledby="grantee-profile-links">
+        <h2 id="grantee-profile-links">{t('granteeProfile.links')}</h2>
+        <ul class="list-none m-0 p-0 flex flex-col gap-sm">
+          {links.map((link) => <li class="m-0">
+            <a href={link.href} rel="noopener noreferrer" {...link.umami}>
+              {link.label}
+            </a>
+          </li>)}
+        </ul>
+      </section>}
+
+      <section aria-labelledby="grantee-profile-grants">
+        <h2 id="grantee-profile-grants">
+          {t('granteeProfile.grants_heading')}
+        </h2>
+        {grants.length > 0 ? (
+          <ol
+            class="list-none p-0 m-0 flex flex-col gap-2xl"
+            aria-label={t('aria.grantee.list')}
+          >
+            {grants.map((grant) => (
+              <GranteeCard grantee={grant} directoryPath={directoryHref} />
+            ))}
+          </ol>
+        ) : (
+          <p>{t('granteeProfile.no_published_grants')}</p>
+        )}
+      </section>
+    </div>
+  </main>
+</FoundationPageLayout>
+
+<script>
+  // The read-more toggle on each grant card, as on the directory.
+  import '@/scripts/grantee-description'
+</script>
