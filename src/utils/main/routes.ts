@@ -14,6 +14,12 @@ export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 export const GRANT_GRANTEE_DIRECTORY_SLUG = 'grantee-directory'
 
 /**
+ * Dedicated Astro route for grantee profile pages at `/grant/grantees/<slug>`.
+ * A separate path from the directory, whose segments are years and page numbers.
+ */
+export const GRANT_GRANTEES_SLUG = 'grantees'
+
+/**
  * pathSlug for the single podcast landing page at `/podcast`.
  * Only one podcast-pages entry is ever rendered, across its bare and
  * per-category paginated routes (see podcastPagination.ts).
@@ -56,6 +62,11 @@ export function grantOverviewHubPath(): string {
 /** URL path (no locale prefix) for the public grantee directory. */
 export function grantGranteeDirectoryPath(): string {
   return grantOverviewRouteParam(GRANT_GRANTEE_DIRECTORY_SLUG)
+}
+
+/** URL path (no locale prefix) for one grantee profile page. */
+export function grantGranteeProfilePath(slug: string): string {
+  return grantOverviewRouteParam(`${GRANT_GRANTEES_SLUG}/${slug}`)
 }
 
 /** Locale-prefixed page path, always slashed: `/`, `/es/`, `/es/blog/`. */

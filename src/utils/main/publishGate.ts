@@ -95,6 +95,27 @@ export function hideDrafts(): boolean {
 }
 
 /**
+ * Whether this build hides the grantee profile pages. Override:
+ * `GRANTEE_PROFILES_FILTER`.
+ *
+ * This is a feature gate, not a content gate: the pages stay out of production
+ * builds until the feature is complete and approved (INTORG-1309), then the
+ * gate is removed (INTORG-1312). Which grantees have a profile is a separate
+ * question that the Airtable sync answers.
+ */
+export function shouldHideGranteeProfiles(
+  env: BuildEnv = process.env
+): boolean {
+  return isGateOn('GRANTEE_PROFILES_FILTER', env)
+}
+
+export function hideGranteeProfiles(): boolean {
+  return typeof __HIDE_GRANTEE_PROFILES__ === 'boolean'
+    ? __HIDE_GRANTEE_PROFILES__
+    : shouldHideGranteeProfiles()
+}
+
+/**
  * Whether an entry's frontmatter marks it as a draft.
  *
  * Only a literal `true` counts. A missing or malformed value means published:
