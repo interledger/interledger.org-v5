@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   hideDrafts,
+  hideGranteeProfiles,
   hideFuturePosts,
   isProductionDeploy,
   isDraft,
@@ -8,6 +9,7 @@ import {
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
+  shouldHideGranteeProfiles,
   shouldHideFuturePosts
 } from './publishGate'
 
@@ -173,6 +175,46 @@ describe('hideDrafts', () => {
 
     process.env.DRAFT_FILTER = 'off'
     expect(hideDrafts()).toBe(false)
+  })
+})
+
+describe('shouldHideGranteeProfiles', () => {
+  it('is on for a Netlify production build only', () => {
+    expect(shouldHideGranteeProfiles({ CONTEXT: 'production' })).toBe(true)
+    expect(shouldHideGranteeProfiles({ CONTEXT: 'branch-deploy' })).toBe(false)
+    expect(shouldHideGranteeProfiles({})).toBe(false)
+  })
+
+  it('honours GRANTEE_PROFILES_FILTER over CONTEXT', () => {
+    expect(shouldHideGranteeProfiles({ GRANTEE_PROFILES_FILTER: 'on' })).toBe(
+      true
+    )
+    expect(
+      shouldHideGranteeProfiles({
+        CONTEXT: 'production',
+        GRANTEE_PROFILES_FILTER: 'off'
+      })
+    ).toBe(false)
+  })
+
+  it('is independent of DRAFT_FILTER', () => {
+    expect(shouldHideGranteeProfiles({ DRAFT_FILTER: 'on' })).toBe(false)
+  })
+})
+
+describe('hideGranteeProfiles', () => {
+  const originalFilter = process.env.GRANTEE_PROFILES_FILTER
+
+  afterEach(() => {
+    restoreEnv('GRANTEE_PROFILES_FILTER', originalFilter)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    process.env.GRANTEE_PROFILES_FILTER = 'on'
+    expect(hideGranteeProfiles()).toBe(true)
+
+    process.env.GRANTEE_PROFILES_FILTER = 'off'
+    expect(hideGranteeProfiles()).toBe(false)
   })
 })
 
