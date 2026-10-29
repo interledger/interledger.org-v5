@@ -295,6 +295,18 @@ function isClickOutside(
   return !Array.from(nodeList).some((element) => element.contains(eventTarget))
 }
 
+export function shouldPinSubmenuOnClick(activation: {
+  isWideNav: boolean
+  clickDetail: number
+  pointerType: string | null
+  canHover: boolean
+}): boolean {
+  if (!activation.isWideNav) return true
+  if (activation.clickDetail === 0) return true
+  if (!activation.canHover) return true
+  return activation.pointerType === 'touch' || activation.pointerType === 'pen'
+}
+
 /** Sets up submenu button toggling, Escape key, and click-outside closing. */
 function initSubmenuToggle(root: HTMLElement, navBarQuery: string) {
   const navList = root.querySelector<HTMLElement>('[data-nav-list]')
@@ -398,13 +410,32 @@ function initSubmenuToggle(root: HTMLElement, navBarQuery: string) {
     submenuButton.setAttribute('aria-expanded', 'false')
     submenuButton.setAttribute('data-open', 'false')
 
+    let pointerType: string | null = null
+    submenuButton.addEventListener('pointerdown', (event) => {
+      pointerType = event.pointerType
+    })
+
     submenuButton.addEventListener('click', function (event) {
       const clickedButton = event.currentTarget as HTMLElement
+      const activationPointer = pointerType
+      pointerType = null
       const otherButtons = Array.from(submenuButtons).filter(
         (btn) => btn !== clickedButton
       )
 
       otherButtons.forEach(closeSubmenu)
+
+      if (
+        !shouldPinSubmenuOnClick({
+          isWideNav: wideNav.matches,
+          clickDetail: event.detail,
+          pointerType: activationPointer,
+          canHover: window.matchMedia('(hover: hover)').matches
+        })
+      ) {
+        closeSubmenu(clickedButton)
+        return
+      }
 
       const wasOpen = clickedButton.getAttribute('aria-expanded') === 'true'
       clickedButton.setAttribute('aria-expanded', wasOpen ? 'false' : 'true')
@@ -419,7 +450,13 @@ function initSubmenuToggle(root: HTMLElement, navBarQuery: string) {
     if (!btn) return
 
     // Hover opens the panel in CSS, and `:hover` already applies here.
-    menuItem.addEventListener('mouseenter', () => keepPanelOnScreen(btn))
+    menuItem.addEventListener('mouseenter', () => {
+      keepPanelOnScreen(btn)
+      if (!wideNav.matches) return
+      submenuButtons.forEach((other) => {
+        if (other !== btn) closeSubmenu(other)
+      })
+    })
 
     // Close a submenu when focus leaves its menu group (Tab-out on desktop).
     menuItem.addEventListener('focusout', (event) => {
