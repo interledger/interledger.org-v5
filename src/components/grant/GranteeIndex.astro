@@ -12,6 +12,7 @@ import FilterDropdownOption from '@/components/shared/FilterDropdownOption.astro
 import PillLink from '@/components/shared/PillLink.astro'
 import GranteeCard from './GranteeCard.astro'
 import GranteeSearchResultTemplate from './GranteeSearchResultTemplate.astro'
+import GranteeSearchSkeleton from './GranteeSearchSkeleton.astro'
 
 interface Props {
   grantees: Grantee[]
@@ -237,6 +238,7 @@ const searchIndexUrl = `${localizeRoute('/', routeLocale)}grantee-search-index.j
   data-grantee-search-results
   hidden
 ></ol>
+<GranteeSearchSkeleton />
 
 <GranteeSearchResultTemplate />
 

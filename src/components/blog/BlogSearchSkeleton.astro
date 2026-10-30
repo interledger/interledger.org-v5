@@ -1,0 +1,39 @@
+---
+// Mirrors BlogSearchResultTemplate's rows. Shown while the index downloads.
+import Skeleton from '@/components/shared/Skeleton.astro'
+import SkeletonText from '@/components/shared/SkeletonText.astro'
+
+const PLACEHOLDER_ROW_COUNT = 3
+---
+
+<div
+  class="flex flex-col gap-2xl"
+  aria-hidden="true"
+  data-blog-search-skeleton
+  hidden
+>
+  {Array.from({ length: PLACEHOLDER_ROW_COUNT }, () => <div
+    class="flex flex-col-reverse gap-xl pb-2xl border-b border-neutral-25 desktop:flex-row desktop:justify-between desktop:gap-3xl"
+  >
+    <div class="flex w-full flex-col gap-lg desktop:basis-[70%]">
+      <SkeletonText
+        class="text-h3 tablet:text-h4-md desktop:text-h4-lg"
+        widths={['w-4/5', 'w-1/2']}
+      />
+      <SkeletonText
+        class="text-body-lg-standard"
+        widths={['w-full', 'w-full', 'w-2/3']}
+      />
+      <span class="flex gap-xs text-body-sm-standard">
+        <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-24 rounded-full" />
+        <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-20 rounded-full" />
+      </span>
+      <SkeletonText class="text-body-sm-standard" widths={['w-28']} />
+    </div>
+    <div class="w-full desktop:basis-[30%]">
+      <Skeleton
+        class="w-full aspect-240/140 max-h-[220px] rounded-3xl tablet:max-h-[400px] desktop:max-h-[220px]"
+      />
+    </div>
+  </div>)}
+</div>

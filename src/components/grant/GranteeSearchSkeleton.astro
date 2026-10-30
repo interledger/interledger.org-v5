@@ -1,0 +1,62 @@
+---
+// Mirrors GranteeSearchResultTemplate's cards. Shown while the index downloads.
+import Skeleton from '@/components/shared/Skeleton.astro'
+import SkeletonText from '@/components/shared/SkeletonText.astro'
+
+const PLACEHOLDER_CARD_COUNT = 3
+---
+
+<div
+  class="flex flex-col gap-2xl"
+  aria-hidden="true"
+  data-grantee-search-skeleton
+  hidden
+>
+  {Array.from({ length: PLACEHOLDER_CARD_COUNT }, () => <div
+    class="flex flex-col gap-lg rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl"
+  >
+    <div
+      class="flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl"
+    >
+      <div class="flex min-w-0 flex-1 flex-col gap-sm">
+        <SkeletonText
+          class="text-h3 tablet:text-h3-md desktop:text-h3-lg"
+          widths={['w-3/4']}
+        />
+        <SkeletonText
+          class="text-h5 tablet:text-h5-md desktop:text-h5-lg"
+          widths={['w-1/2']}
+        />
+      </div>
+      <div class="flex shrink-0 flex-col desktop:w-48 desktop:items-end">
+        <SkeletonText
+          class="w-40 text-h3 tablet:text-h3-md desktop:text-h3-lg"
+          widths={['w-full']}
+        />
+        <SkeletonText class="w-28 text-body-lg-standard" widths={['w-full']} />
+      </div>
+    </div>
+
+    <span class="flex flex-wrap gap-xs text-body-sm-standard">
+      <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-28 rounded-full" />
+      <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-24 rounded-full" />
+      <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-32 rounded-full" />
+    </span>
+
+    <span class="flex flex-col gap-sm">
+      <SkeletonText class="text-body-sm-standard" widths={['w-36']} />
+      <SkeletonText class="text-body-sm-standard" widths={['w-44']} />
+    </span>
+
+    <div class="flex flex-col gap-xl">
+      <div class="flex flex-col gap-lg rounded-2xl bg-ice-indigo-50 p-lg">
+        <SkeletonText class="text-body-sm-standard" widths={['w-48']} />
+        <SkeletonText
+          class="text-body-lg-standard"
+          widths={['w-full', 'w-5/6']}
+        />
+      </div>
+      <Skeleton class="h-11 w-52 rounded-lg" />
+    </div>
+  </div>)}
+</div>

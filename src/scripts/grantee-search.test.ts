@@ -43,6 +43,7 @@ describe('computeSearchViewState', () => {
       staticHidden: false,
       emptyHidden: true,
       resultsHidden: true,
+      skeletonHidden: true,
       paginationHidden: false,
       errorHidden: true,
       countHidden: false,
@@ -58,6 +59,7 @@ describe('computeSearchViewState', () => {
       staticHidden: true,
       emptyHidden: true,
       resultsHidden: false,
+      skeletonHidden: true,
       paginationHidden: true,
       errorHidden: true,
       countHidden: false,
@@ -73,6 +75,7 @@ describe('computeSearchViewState', () => {
       staticHidden: true,
       emptyHidden: false,
       resultsHidden: true,
+      skeletonHidden: true,
       paginationHidden: true,
       errorHidden: true,
       countHidden: false,
@@ -82,16 +85,30 @@ describe('computeSearchViewState', () => {
   })
 
   it('hides the static list and pagination while a search is in flight', () => {
-    expect(computeSearchViewState({ mode: 'searching' })).toEqual({
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: true })
+    ).toEqual({
       staticHidden: true,
       emptyHidden: true,
       resultsHidden: true,
+      skeletonHidden: false,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: true,
+      countHidden: false,
       searchingHidden: false,
       rootBusy: true
     })
+  })
+
+  it('shows placeholder cards only while the index is still downloading', () => {
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: true })
+        .skeletonHidden
+    ).toBe(false)
+    expect(
+      computeSearchViewState({ mode: 'searching', awaitingFetch: false })
+        .skeletonHidden
+    ).toBe(true)
   })
 
   it('keeps the server-rendered list and pager when the index fails, and shows the alert', () => {
@@ -105,6 +122,7 @@ describe('computeSearchViewState', () => {
       staticHidden: false,
       emptyHidden: true,
       resultsHidden: true,
+      skeletonHidden: true,
       paginationHidden: false,
       errorHidden: false,
       countHidden: false,
@@ -339,6 +357,25 @@ describe('createSearchController stale responses', () => {
       getInputValue
     })
   }
+
+  it('asks for placeholders only while the index is downloading', async () => {
+    const { url, resolveResponse } = deferredFetch(
+      '/grantee-search-index-placeholders.json'
+    )
+    const view = mockView()
+    const controller = controllerFor(url, view, () => 'alpha')
+
+    const first = controller.runSearch('alpha')
+    expect(view.enterSearchMode).toHaveBeenLastCalledWith(true)
+    resolveResponse({
+      ok: true,
+      json: () => Promise.resolve([sampleSearchEntry({ searchText: 'alpha' })])
+    })
+    await first
+
+    await controller.runSearch('alpha')
+    expect(view.enterSearchMode).toHaveBeenLastCalledWith(false)
+  })
 
   it('does not apply a success response after the input has changed', async () => {
     const { url, resolveResponse } = deferredFetch(
