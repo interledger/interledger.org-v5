@@ -1,13 +1,24 @@
-import type { BlogSearchThumbnail, BlogThumbnail } from '@/types/blog'
+import type {
+  BlogSearchAuthor,
+  BlogSearchThumbnail,
+  BlogThumbnail
+} from '@/types/blog'
+import type { AuthorBioType } from '@/schemas/content'
 import { foldSearchText } from '../shared/foldSearchText'
+import { safeAbsoluteHref } from '../shared/url'
 import { createExcerpt } from './create-excerpt'
 import { truncateText } from './text'
-import { getBlogThumbnail } from './blog'
+import { getBlogThumbnail, getReadingTime } from './blog'
 import { getBlogPosts } from './blogPosts'
 import { defaultLocale } from './i18'
 import { getBlogPostPath } from './translatePath'
-import { buildImageSrcset, getOptimizedImage } from './images'
 import {
+  buildImageSrcset,
+  getOptimizedImage,
+  type OptimizedImage
+} from './images'
+import {
+  AVATAR_CDN_WIDTHS,
   SEARCH_THUMBNAIL_CDN_WIDTHS,
   sanitizeBlurPlaceholder
 } from './imagePaths'
@@ -40,6 +51,8 @@ export interface BlogSearchEntry {
   date: string
   postPath: string
   thumbnail: BlogSearchThumbnail | null
+  author: BlogSearchAuthor | null
+  readingTime: number
   locale: Locale
   searchText: string
 }
@@ -49,20 +62,29 @@ function stripMarkdownSyntax(body: string): string {
 }
 
 /**
+ * The narrowest variant rather than `fullSrc`, because `fullSrc` means
+ * different things in the two image modes: the widest CDN rung with the CDN
+ * on, but the *original-dimension* `-full.webp` in build-encoder mode, which
+ * would put a full-size file in a small search-row slot on any non-CDN build.
+ * Falls back to `fullSrc`, then the raw path, only when there are no variants
+ * at all (an SVG, or a source missing from this deploy's catalog).
+ */
+function narrowestImageSrc(
+  { variants, fullSrc }: OptimizedImage,
+  rawSrc: string
+): string {
+  return variants[0]?.src ?? fullSrc ?? rawSrc
+}
+
+/**
  * Build the thumbnail a client-rendered search row gets.
  *
  * Rows are cloned from a `<template>` in the browser, so they never pass
  * through `OptimizedImage`'s build-time `<picture>`. The responsive data is
  * therefore precomputed here and shipped in the catalog: a `srcset` the row's
  * plain `<img>` can use, so the browser still picks per device rather than
- * being handed one fixed width.
- *
- * `src` is the narrowest variant rather than `fullSrc`, because `fullSrc`
- * means different things in the two image modes: the widest CDN rung with the
- * CDN on, but the *original-dimension* `-full.webp` in build-encoder mode,
- * which would put a full-size file in a ~420px row on any non-CDN build. It
- * only falls back to `fullSrc`, then the raw path, when there are no variants
- * at all (an SVG, or a source missing from this deploy's catalog).
+ * being handed one fixed width. `src` is the fallback for browsers that ignore
+ * it (see `narrowestImageSrc`).
  *
  * The LQIP rides along so rows blur up like the static BlogCard, sanitised
  * here rather than in the browser — it ends up inside a CSS `url()`, and the
@@ -73,19 +95,41 @@ function toSearchThumbnail(
 ): BlogSearchThumbnail | null {
   if (!thumbnail) return null
 
-  const { variants, fullSrc } = getOptimizedImage(
+  const optimized = getOptimizedImage(
     thumbnail.src,
     SEARCH_THUMBNAIL_CDN_WIDTHS
   )
-  const narrowest = variants[0]?.src
+  const { variants } = optimized
   const blur = sanitizeBlurPlaceholder(thumbnail.blur)
   const srcset = variants.length > 0 ? buildImageSrcset(variants) : undefined
 
   return {
-    src: narrowest ?? fullSrc ?? thumbnail.src,
+    src: narrowestImageSrc(optimized, thumbnail.src),
     alt: thumbnail.alt,
     ...(srcset ? { srcset } : {}),
     ...(blur ? { blur } : {})
+  }
+}
+
+/**
+ * The byline BlogCard renders, reduced to data a client-rendered row can use.
+ * The avatar is a single URL rather than a srcset: it only ever renders at
+ * 40px, so the narrowest avatar rung covers every DPR.
+ */
+function toSearchAuthor(
+  bio: AuthorBioType | undefined
+): BlogSearchAuthor | null {
+  if (!bio) return null
+
+  return {
+    name: bio.author,
+    href: safeAbsoluteHref(bio.link),
+    avatarSrc: bio.image
+      ? narrowestImageSrc(
+          getOptimizedImage(bio.image, AVATAR_CDN_WIDTHS),
+          bio.image
+        )
+      : null
   }
 }
 
@@ -126,6 +170,9 @@ export async function getBlogSearchIndex(): Promise<BlogSearchEntry[]> {
       date: date.toISOString(),
       postPath: getBlogPostPath(post),
       thumbnail: toSearchThumbnail(getBlogThumbnail(post)),
+      // First author only, as BlogCard shows.
+      author: toSearchAuthor(post.data.articleBios[0]),
+      readingTime: getReadingTime(post.body),
       locale,
       searchText
     }
