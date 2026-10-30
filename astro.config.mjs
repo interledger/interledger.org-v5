@@ -14,7 +14,7 @@ import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTab
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { validateInternalLinks } from './src/integrations/validate-internal-links.ts'
-import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
+import { isExcludedFromSitemap } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 import {
   isProductionDeploy,
@@ -203,12 +203,9 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      // Exclude previews and design/QA demo pages (demo / demo-* path segments)
-      filter: (url) => {
-        const pathname = new URL(url).pathname
-        if (pathname.includes('/preview')) return false
-        return !isDemoPathname(pathname)
-      }
+      // Exclude previews (incl. /page-preview/, /profile-preview/) and
+      // design/QA demo pages (demo / demo-* path segments)
+      filter: (url) => !isExcludedFromSitemap(new URL(url).pathname)
     }),
     // Must stay last. Integration hooks run in array order, and this one reads
     // the finished dist tree — including files other integrations write during

@@ -7,7 +7,7 @@
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import HackathonHero from '@/components/pages/HackathonHero.astro'
-import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+import { applyPreviewNoStore, fetchStrapi, logPreviewFetchError } from '@/utils'
 
 interface HeroCta {
   text?: string
@@ -44,7 +44,7 @@ applyPreviewNoStore(Astro.response.headers)
 
 const documentId = Astro.url.searchParams.get('documentId')
 if (!documentId) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 const populateParams = new URLSearchParams({
@@ -94,11 +94,16 @@ const response = await fetchStrapi<HackathonPagePreview>(
   `api/hackathon-pages/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
-  return Astro.redirect('/404')
+  logPreviewFetchError(
+    'hackathon-preview',
+    `hackathon page ${documentId}`,
+    response
+  )
+  return Astro.rewrite('/preview/not-found')
 }
 const page = response.data
 if (!page) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 function toSitePath(url?: string | null): string | undefined {

@@ -1,0 +1,24 @@
+---
+/**
+ * The 404 page for on-demand preview routes, reached with
+ * `Astro.rewrite('/preview/not-found')` when a preview has no document to show.
+ *
+ * Those routes used to redirect to `/404`, so the URL itself answered 302, not
+ * 404. They can't rewrite to `/404` either, because Astro does not let an
+ * on-demand route rewrite to a prerendered one. This route renders the same
+ * page on demand with a real 404 status, and the request keeps its own URL.
+ */
+import NotFoundPage from '@/components/pages/NotFoundPage.astro'
+import { applyPreviewNoStore, routeContextFromPathname } from '@/utils'
+
+export const prerender = false
+
+Astro.response.status = 404
+applyPreviewNoStore(Astro.response.headers)
+
+// Render with the 404 page's route context, so the language switcher points
+// to home as it does on /404, not to an ES twin of this URL that doesn't exist.
+Object.assign(Astro.locals, routeContextFromPathname('/404'))
+---
+
+<NotFoundPage />

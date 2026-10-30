@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { redirects } from '../redirects'
@@ -100,5 +100,60 @@ describe('hand-written redirect destinations', () => {
     ).map(({ to }) => to)
     expect(destinations.length).toBeGreaterThan(0)
     expect(destinations.filter(isMisSlashed)).toEqual([])
+  })
+})
+
+// An on-demand route that redirects to /404 answers 302, so the missing page
+// never returns a 404 status. It rewrites to /preview/not-found instead, which
+// renders the 404 page on demand with a 404 status. It can't rewrite to /404:
+// Astro does not let an on-demand route rewrite to a prerendered one.
+// Prerendered routes are not covered: there a redirect is a static page.
+describe('on-demand routes', () => {
+  const PAGES_DIR = 'src/pages'
+  const isOnDemand = (source: string) =>
+    /export\s+const\s+prerender\s*=\s*false\b/.test(source)
+  const redirectsToNotFound = (source: string) =>
+    /\.redirect\(\s*(['"`])\/404\/?\1/.test(source)
+
+  const onDemandRoutes = readdirSync(path.resolve(__dirname, '..', PAGES_DIR), {
+    recursive: true,
+    encoding: 'utf8'
+  })
+    .filter((file) => /\.(astro|ts)$/.test(file) && !file.includes('.test.'))
+    .map((file) => `${PAGES_DIR}/${file.replaceAll('\\', '/')}`)
+    .filter((file) => isOnDemand(readRepoFile(file)))
+
+  it.each<[string, boolean]>([
+    ["return Astro.redirect('/404')", true],
+    ['return Astro.redirect("/404/")', true],
+    ['return Astro.redirect(`/404`, 302)', true],
+    ["return Astro.rewrite('/preview/not-found')", false],
+    ["return Astro.redirect('/404-guide/')", false]
+  ])('flags %j as a redirect to /404: %j', (source, expected) => {
+    expect(redirectsToNotFound(source)).toBe(expected)
+  })
+
+  it('finds the preview routes', () => {
+    expect(onDemandRoutes).toEqual(
+      expect.arrayContaining([
+        'src/pages/page-preview.astro',
+        'src/pages/profile-preview.astro',
+        'src/pages/preview/page-preview.astro',
+        'src/pages/preview/hackathon-preview.astro',
+        'src/pages/preview/not-found.astro'
+      ])
+    )
+  })
+
+  it('never redirect to /404', () => {
+    expect(
+      onDemandRoutes.filter((file) => redirectsToNotFound(readRepoFile(file)))
+    ).toEqual([])
+  })
+
+  it('render the preview 404 page with a 404 status', () => {
+    expect(readRepoFile('src/pages/preview/not-found.astro')).toMatch(
+      /Astro\.response\.status\s*=\s*404\b/
+    )
   })
 })

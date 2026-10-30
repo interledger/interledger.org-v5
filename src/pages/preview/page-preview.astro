@@ -10,7 +10,7 @@ import FundraisingPagePreview from '@/components/pages/FundraisingPagePreview.as
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
-import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+import { applyPreviewNoStore, fetchStrapi, logPreviewFetchError } from '@/utils'
 
 interface HeroCta {
   text?: string
@@ -48,7 +48,7 @@ applyPreviewNoStore(Astro.response.headers)
 
 const documentId = Astro.url.searchParams.get('documentId')
 if (!documentId) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 // Build populate query for dynamic zone with nested relations
@@ -114,11 +114,16 @@ const response = await fetchStrapi<FoundationPagePreview>(
   `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
-  return Astro.redirect('/404')
+  logPreviewFetchError(
+    'preview/page-preview',
+    `page ${apiId}/${documentId}`,
+    response
+  )
+  return Astro.rewrite('/preview/not-found')
 }
 const page = response.data
 if (!page) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 const title = page.title || 'Preview'
