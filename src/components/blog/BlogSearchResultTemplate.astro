@@ -2,11 +2,16 @@
 /**
  * Markup source for client-side blog search rows. blog-search.ts clones this
  * template and fills [data-blog-search-*] slots — keep structure and Tailwind
- * classes aligned with BlogCard.astro (search rows use a plain <img>, since a
- * client-rendered row can't run Astro's build-time image pipeline, and static
- * category pills rather than ArticleCategories' filter links, since category
- * filtering doesn't apply during search).
+ * classes aligned with BlogCard.astro and BlogCardByline.astro (search rows
+ * use a plain <img>, since a client-rendered row can't run Astro's build-time
+ * image pipeline, and static category pills rather than ArticleCategories'
+ * filter links, since category filtering doesn't apply during search).
+ *
+ * The byline's author anchor holds both an avatar and the fallback icon; the
+ * populate script removes the one a row doesn't use, and the whole anchor
+ * when a post has no author.
  */
+import FallbackAuthorIcon from '@/components/shared/FallbackAuthorIcon.astro'
 ---
 
 <template id="blog-search-result-template">
@@ -30,10 +35,41 @@
         data-blog-search-categories
         hidden
       ></ul>
-      <time
-        class="text-body-sm-standard text-neutral-100"
-        data-blog-search-date
-      ></time>
+      <div
+        class="flex flex-col gap-md text-neutral-100 **:text-body-sm-standard tablet:flex-row tablet:flex-wrap tablet:gap-xl"
+      >
+        {/* Linked only when the author has a profile; the hover underline is
+        scoped to [href] so an unlinked name doesn't look clickable. */}
+        <a
+          class="group/author flex flex-nowrap items-center gap-sm text-neutral-100 no-underline"
+          target="_blank"
+          rel="author noopener noreferrer"
+          data-blog-search-author
+        >
+          <img
+            class="m-0 size-10 shrink-0 rounded-full object-cover"
+            width="40"
+            height="40"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            data-blog-search-author-avatar
+          />
+          <span class="shrink-0" data-blog-search-author-fallback>
+            <FallbackAuthorIcon
+              svgClasses="w-[40px] h-[40px] rounded-full shrink-0"
+            />
+          </span>
+          <span
+            class="underline decoration-transparent transition-all duration-200 hover-hover:group-[[href]:hover]/author:decoration-inherit"
+            data-blog-search-author-name
+          ></span>
+        </a>
+        <div class="flex gap-xl py-sm">
+          <time data-blog-search-date></time>
+          <span class="text-neutral-75" data-blog-search-reading-time></span>
+        </div>
+      </div>
     </div>
     <div
       class="w-full desktop:basis-[30%]"

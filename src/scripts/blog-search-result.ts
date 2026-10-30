@@ -33,6 +33,69 @@ export interface SearchResultContext {
   pathname: string
   lang: Locale
   categoryLabels: Record<string, string>
+  /** Localized "{readingTime} min read". */
+  readingTimeLabel: string
+  /** Localized "{author}'s profile (opens in a new tab)". */
+  authorProfileLabel: string
+}
+
+export interface SearchResultBylineLinkModel {
+  href: string
+  ariaLabel: string
+  umami: UmamiAttrs
+}
+
+/** Values `applyByline` writes into the template; `null` drops that part. */
+export interface SearchResultBylineModel {
+  author: {
+    name: string
+    avatarSrc: string | null
+    link: SearchResultBylineLinkModel | null
+  } | null
+  readingTimeLabel: string
+}
+
+/**
+ * Split/join rather than `replace(token, value)`: a string replacement expands
+ * `$&`, `$'` and friends, so an author name containing one would corrupt the
+ * label.
+ */
+function fillToken(label: string, token: string, value: string): string {
+  return label.split(`{${token}}`).join(value)
+}
+
+/** Pure byline payload, mirroring BlogCardByline. */
+export function searchResultBylineModel(
+  entry: BlogSearchEntry,
+  context: SearchResultContext
+): SearchResultBylineModel {
+  const readingTimeLabel = fillToken(
+    context.readingTimeLabel,
+    'readingTime',
+    String(entry.readingTime)
+  )
+  const { author } = entry
+  if (!author) return { author: null, readingTimeLabel }
+
+  const link = author.href
+    ? {
+        href: author.href,
+        ariaLabel: fillToken(context.authorProfileLabel, 'author', author.name),
+        umami: buildUmamiAttrs({
+          pathname: context.pathname,
+          lang: context.lang,
+          label: 'link',
+          baseComponent: 'blog',
+          href: author.href,
+          linkText: author.name
+        })
+      }
+    : null
+
+  return {
+    author: { name: author.name, avatarSrc: author.avatarSrc, link },
+    readingTimeLabel
+  }
 }
 
 function requireElement<T extends Element>(
@@ -112,6 +175,50 @@ function appendCategoryPill(
   list.append(fragment)
 }
 
+function applyByline(row: HTMLElement, model: SearchResultBylineModel): void {
+  requireElement(row, '[data-blog-search-reading-time]').textContent =
+    model.readingTimeLabel
+
+  const authorEl = requireElement<HTMLAnchorElement>(
+    row,
+    '[data-blog-search-author]'
+  )
+  const { author } = model
+  if (!author) {
+    authorEl.remove()
+    return
+  }
+
+  requireElement(authorEl, '[data-blog-search-author-name]').textContent =
+    author.name
+
+  // Removed, never hidden: BlogCardByline renders only one of the two, and
+  // every cloned fallback icon shares one clipPath id. `url(#id)` resolves to
+  // the first match in the document, so a hidden icon there breaks the clip on
+  // every visible one after it.
+  const avatar = requireElement<HTMLImageElement>(
+    authorEl,
+    '[data-blog-search-author-avatar]'
+  )
+  const fallback = requireElement(
+    authorEl,
+    '[data-blog-search-author-fallback]'
+  )
+  if (author.avatarSrc) {
+    avatar.src = author.avatarSrc
+    fallback.remove()
+  } else {
+    avatar.remove()
+  }
+
+  // Without an href the anchor is a placeholder link: not focusable and no
+  // link role, so it reads like BlogCardByline's unlinked <div>.
+  if (!author.link) return
+  authorEl.href = author.link.href
+  authorEl.setAttribute('aria-label', author.link.ariaLabel)
+  applyUmamiAttrs(authorEl, author.link.umami)
+}
+
 /**
  * Clone `#blog-search-result-template` and fill slots from a catalog entry.
  * Markup lives in BlogSearchResultTemplate.astro — not built here.
@@ -160,6 +267,7 @@ export function createSearchResultRow(
     new Date(entry.date),
     context.lang
   )
+  applyByline(row, searchResultBylineModel(entry, context))
 
   const thumbnailWrap = requireElement<HTMLElement>(
     row,

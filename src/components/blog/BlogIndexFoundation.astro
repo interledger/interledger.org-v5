@@ -79,6 +79,13 @@ const searchIndexUrl = '/blog-search-index.json'
   data-lang={routeLocale}
   data-category-labels={JSON.stringify(categoryLabels)}
   data-searching-label={t('blog.search.searching')}
+  data-reading-time-label={t('blog.reading_time', {
+    readingTime: '{readingTime}'
+  })}
+  data-author-profile-label={t('aria.author_profile', {
+    author: '{author}',
+    newTab: t('aria.opens_new_tab')
+  })}
   class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
 >
   <div

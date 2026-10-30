@@ -271,6 +271,8 @@ interface SearchViewConfig extends StaticViewBaseline {
   searchingMessage: string
   lang: Locale
   categoryLabels: Record<string, string>
+  readingTimeLabel: string
+  authorProfileLabel: string
 }
 
 interface SearchView {
@@ -336,7 +338,9 @@ function createSearchView(
     return {
       pathname: dom.root.dataset.pathname ?? window.location.pathname,
       lang: (dom.root.dataset.lang ?? config.lang) as Locale,
-      categoryLabels: config.categoryLabels
+      categoryLabels: config.categoryLabels,
+      readingTimeLabel: config.readingTimeLabel,
+      authorProfileLabel: config.authorProfileLabel
     }
   }
 
@@ -474,6 +478,8 @@ export function initBlogSearch(): void {
     emptyMessage: dom.emptyState.textContent?.trim() ?? '',
     errorMessage: dom.searchError?.textContent?.trim() ?? '',
     searchingMessage: root.dataset.searchingLabel ?? '',
+    readingTimeLabel: root.dataset.readingTimeLabel ?? '',
+    authorProfileLabel: root.dataset.authorProfileLabel ?? '',
     initialStaticHidden: dom.staticList.hidden,
     initialEmptyHidden: dom.emptyState.hidden,
     lang,
