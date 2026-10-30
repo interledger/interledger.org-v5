@@ -73,6 +73,25 @@ describe('matchesBlogSearch', () => {
     expect(matchesBlogSearch(entry, { q: 'REGULACION', lang: 'es' })).toBe(true)
   })
 
+  it('matches through apostrophes, dashes, and odd spaces', () => {
+    const entry = makeEntry({
+      searchText: 'What’s happened\u00A0— Kanzu Microloans – Real-Time'
+    })
+
+    expect(matchesBlogSearch(entry, { q: 'whats happened', lang: 'en' })).toBe(
+      true
+    )
+    expect(matchesBlogSearch(entry, { q: "what's happened", lang: 'en' })).toBe(
+      true
+    )
+    expect(
+      matchesBlogSearch(entry, { q: 'microloans real time', lang: 'en' })
+    ).toBe(true)
+    expect(
+      matchesBlogSearch(entry, { q: 'microloans-real-time', lang: 'en' })
+    ).toBe(true)
+  })
+
   it('narrows to the selected category when one is set', () => {
     const entry = makeEntry({ categories: ['Engineering', 'News'] })
 

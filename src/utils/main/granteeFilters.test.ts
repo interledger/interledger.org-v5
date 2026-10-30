@@ -43,6 +43,33 @@ describe('matchesGranteeFilters', () => {
     ).toBe(true)
   })
 
+  it('matches names through apostrophes, hyphens, and accents', () => {
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: 'The People’s Clearinghouse' },
+        { q: 'peoples clearinghouse', year: '', tag: '' }
+      )
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: "The People's Clearinghouse" },
+        { q: 'people’s', year: '', tag: '' }
+      )
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: 'Ambar Tenorio-Fornés' },
+        { q: 'tenorio fornes', year: '', tag: '' }
+      )
+    ).toBe(true)
+    expect(
+      matchesGranteeFilters(
+        { ...grantee, searchText: 'Côte d’Ivoire' },
+        { q: "cote d'ivoire", year: '', tag: '' }
+      )
+    ).toBe(true)
+  })
+
   it('filters by year and thematic tag', () => {
     expect(
       matchesGranteeFilters(grantee, {
