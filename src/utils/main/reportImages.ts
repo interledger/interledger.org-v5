@@ -1,7 +1,7 @@
 import sharp, { type Metadata } from 'sharp'
 import { tryCatchAsync } from '../shared/tryCatch'
 import { MAX_IMAGE_BYTES } from '../shared/uploadLimits'
-import { IMAGE_URL_PATHS } from './imagePaths'
+import { IMAGE_URL_PATHS, WEBP_QUALITY } from './imagePaths'
 
 // Image helpers for the grant report sync in scripts/import-airtable.ts.
 // Grantees upload images with no limit on size, so the sync makes each one a
@@ -10,10 +10,15 @@ import { IMAGE_URL_PATHS } from './imagePaths'
 
 // The longest side of a stored image. To confirm against the report design
 // (INTORG-1303): a report image is never wider than the content column.
+//
+// The sync encodes each image once. A later run reuses the file on disk (see
+// reportImagePath), so a change to MAX_REPORT_IMAGE_EDGE or REPORT_IMAGE_QUALITY
+// applies to new images only. To apply it to stored images, delete
+// public/img/grantee-reports/ and run the sync again.
 export const MAX_REPORT_IMAGE_EDGE = 2400
-// Higher than the build's WEBP_QUALITY, because this file is the source that
-// the build encodes again.
-const REPORT_IMAGE_QUALITY = 90
+// The same quality as the build's variants. This file is the source that the
+// build or the image CDN encodes again.
+const REPORT_IMAGE_QUALITY = WEBP_QUALITY
 const REPORT_IMAGE_EXTENSION = '.webp'
 
 // Folder under public/ for report images, one subfolder per report.

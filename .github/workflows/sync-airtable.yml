@@ -1,7 +1,7 @@
 name: Sync Airtable Data
-# Fetches the grantee directory data from Airtable. If the data changed, opens a pull request
-# against staging. It never commits to staging directly: the grantee directory is public-facing
-# data, so a person sees every change before it ships.
+# Fetches the grantee directory and grant report data from Airtable, including the report
+# images. If anything changed, opens one pull request against staging. It never commits to
+# staging directly: this is public-facing data, so a person sees every change before it ships.
 #
 # This runs on a hosted runner, not on strapi-vm. The git credential on that VM belongs to the
 # strapi service user and the Actions runner does not inherit it, so a push from there fails
