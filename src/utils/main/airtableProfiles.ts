@@ -7,6 +7,7 @@ import type {
 } from '@/types/airtable'
 import {
   describeValue,
+  isStringArray,
   nonBlankString,
   readImageField
 } from './airtableFieldValues'
@@ -68,7 +69,7 @@ export function splitThematicTags(value: unknown): string[] | undefined {
     : typeof value === 'string'
       ? value.split(',')
       : undefined
-  if (parts === undefined || !parts.every((p) => typeof p === 'string')) {
+  if (!isStringArray(parts)) {
     return undefined
   }
   const tags = parts.map((part) => part.trim()).filter((part) => part !== '')

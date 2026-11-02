@@ -1,6 +1,6 @@
 name: Sync Airtable Data
-# Fetches the grantee directory and grant report data from Airtable, including the report
-# images. If anything changed, opens one pull request against staging. It never commits to
+# Fetches the grantee directory, grant report and grantee profile data from Airtable,
+# including the report images and grantee logos. If anything changed, opens one pull request against staging. It never commits to
 # staging directly: this is public-facing data, so a person sees every change before it ships.
 #
 # This runs on a hosted runner, not on strapi-vm. The git credential on that VM belongs to the

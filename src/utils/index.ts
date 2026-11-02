@@ -225,6 +225,7 @@ export {
   MAX_SOURCE_IMAGE_BYTES,
   describeValue,
   isRecordLike,
+  isStringArray,
   nonBlankString,
   readImageField
 } from './main/airtableFieldValues'

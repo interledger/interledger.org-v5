@@ -7,6 +7,7 @@ import type {
 } from '@/types/airtable'
 import {
   describeValue,
+  isStringArray,
   nonBlankString,
   readImageField
 } from './airtableFieldValues'
@@ -115,8 +116,7 @@ function readDate(value: unknown): string | undefined {
 }
 
 function readOptions(value: unknown): string[] | undefined {
-  if (!Array.isArray(value) || value.length === 0) return undefined
-  return value.every((item) => typeof item === 'string') ? value : undefined
+  return isStringArray(value) && value.length > 0 ? value : undefined
 }
 
 // A lookup returns one value per linked record. A report links to exactly one

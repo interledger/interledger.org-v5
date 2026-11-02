@@ -24,6 +24,11 @@ export function isRecordLike(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
+export function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string')
+}
+
+// Trimmed text, or undefined for a non-string or a blank one.
 export function nonBlankString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   return value.trim() === '' ? undefined : value.trim()
