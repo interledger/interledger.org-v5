@@ -9,14 +9,24 @@ import { purgeCache } from '@netlify/functions'
 // since the build runtime doesn't always auto-inject one.
 export const onSuccess = async () => {
   const token = process.env.NETLIFY_API_TOKEN
+  // Netlify injects SITE_ID on every build; purgeCache needs it when called
+  // outside a deployed function (token alone → Purge API 404).
+  const siteID = process.env.SITE_ID
 
-  if (!token) {
+  if (!token || !siteID) {
     console.warn(
-      '[purge-roadmap] NETLIFY_API_TOKEN not set — skipping roadmap CDN cache purge (configure NETLIFY_API_TOKEN in Netlify site environment variables)'
+      '[purge-roadmap] skipping roadmap CDN cache purge — need NETLIFY_API_TOKEN (site env) and SITE_ID (injected on Netlify builds)'
     )
     return
   }
 
-  await purgeCache({ tags: ['roadmap'], token })
-  console.log('[purge-roadmap] purged roadmap CDN cache after deploy')
+  try {
+    await purgeCache({ tags: ['roadmap'], token, siteID })
+    console.log('[purge-roadmap] purged roadmap CDN cache after deploy')
+  } catch (err) {
+    console.warn(
+      '[purge-roadmap] roadmap CDN cache purge failed (deploy still succeeded)',
+      err
+    )
+  }
 }
