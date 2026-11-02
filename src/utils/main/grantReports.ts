@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { GrantReport } from '@/types/airtable'
 import { isRecordId } from './airtableFieldValues'
+import type { Locale } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 
 // Reads src/data/airtable/grant-reports.json for the report pages. The
@@ -45,4 +46,23 @@ export function parseGrantReports(data: unknown): GrantReport[] | Error {
     )
   }
   return result.data
+}
+
+const REPORT_DATE_LOCALES: Record<Locale, string> = {
+  en: 'en-US',
+  es: 'es-ES'
+}
+
+// A report date (YYYY-MM-DD) as the page shows it, for example "Nov 15, 2026".
+// Formatted in UTC: Airtable dates have no time, and in a zone west of UTC the
+// local date of UTC midnight is the day before.
+export function formatReportDate(isoDate: string, lang: Locale): string {
+  const date = new Date(`${isoDate}T00:00:00Z`)
+  if (Number.isNaN(date.getTime())) return isoDate
+  return date.toLocaleDateString(REPORT_DATE_LOCALES[lang], {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC'
+  })
 }

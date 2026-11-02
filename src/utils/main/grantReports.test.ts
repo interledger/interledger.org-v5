@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { GrantReport } from '@/types/airtable'
-import { parseGrantReports } from './grantReports'
+import { formatReportDate, parseGrantReports } from './grantReports'
 
 function report(overrides: Partial<GrantReport> = {}): GrantReport {
   return {
@@ -80,5 +80,20 @@ describe('parseGrantReports', () => {
 
   it('fails on a file that is not a list', () => {
     expect(parseGrantReports({})).toBeInstanceOf(Error)
+  })
+})
+
+describe('formatReportDate', () => {
+  it('formats in UTC, so the day never moves', () => {
+    expect(formatReportDate('2026-11-15', 'en')).toBe('Nov 15, 2026')
+    expect(formatReportDate('2026-01-01', 'en')).toBe('Jan 1, 2026')
+  })
+
+  it('formats for the route locale', () => {
+    expect(formatReportDate('2026-11-15', 'es')).toBe('15 nov 2026')
+  })
+
+  it('returns the value as is when it is not a date', () => {
+    expect(formatReportDate('soon', 'en')).toBe('soon')
   })
 })

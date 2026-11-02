@@ -1,0 +1,165 @@
+---
+import '@/styles/tailwind.css'
+import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
+import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import type { GrantReport, GrantReportType } from '@/types/airtable'
+import {
+  type UiKey,
+  useTranslations,
+  buildHomeBreadcrumb,
+  defaultLocale,
+  formatReportDate,
+  localizeRoute,
+  parseMarkdown,
+  grantOverviewHubPath,
+  grantGranteeDirectoryPath
+} from '@/utils'
+
+// Report content comes from Airtable in English only, like the grantee
+// profiles. The ES route shows it with the translation disclaimer; only the
+// UI strings can be translated, through src/data/ui.ts.
+//
+// The route passes reportPath, so this page does not decide the report URL.
+
+interface Props {
+  report: GrantReport
+  reportPath: string
+}
+
+const { report, reportPath } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const REPORT_TYPE_KEYS: Record<GrantReportType, UiKey> = {
+  'Interim Report': 'grantReport.type.interim',
+  'Final Report': 'grantReport.type.final'
+}
+const reportType = t(REPORT_TYPE_KEYS[report.reportType])
+
+const breadcrumbs = [
+  buildHomeBreadcrumb(routeLocale, t),
+  {
+    name: t('nav.grants'),
+    href: localizeRoute(grantOverviewHubPath(), routeLocale)
+  },
+  {
+    name: t('grantee.title'),
+    href: localizeRoute(grantGranteeDirectoryPath(), routeLocale)
+  },
+  { name: report.projectName, href: localizeRoute(reportPath, routeLocale) }
+]
+
+const markdownContext = {
+  page: 'grant_report',
+  pathname: Astro.url.pathname,
+  lang: routeLocale
+}
+
+const SECTIONS = [
+  ['summary', 'grantReport.summary'],
+  ['progressOnObjectives', 'grantReport.progress'],
+  ['whoBenefits', 'grantReport.who_benefits'],
+  ['outputs', 'grantReport.outputs'],
+  ['whatsNext', 'grantReport.whats_next']
+] as const satisfies readonly (readonly [keyof GrantReport, UiKey])[]
+
+const sections = await Promise.all(
+  SECTIONS.map(async ([field, headingKey]) => ({
+    id: `grant-report-${field}`,
+    heading: t(headingKey),
+    html: await parseMarkdown(report[field], markdownContext)
+  }))
+)
+
+// The images fill the content column, at most max-w-content (1440px).
+const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
+---
+
+<FoundationPageLayout
+  title={`${report.projectName}: ${reportType}`}
+  description={t('grantReport.meta_description', {
+    type: reportType,
+    project: report.projectName
+  })}
+>
+  <main
+    data-grant-report
+    class="flex flex-col px-content pb-section pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
+  >
+    <article class="w-full max-w-content m-auto flex flex-col gap-2xl">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
+      <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
+
+      <header class="flex flex-col gap-sm">
+        <h1 class="m-0">{report.projectName}</h1>
+        <p class="m-0 text-neutral-75">
+          {t('grantReport.subtitle', {
+            type: reportType,
+            number: report.reportNumber
+          })}
+        </p>
+      </header>
+
+      <dl
+        aria-label={t('grantReport.facts')}
+        class="m-0 grid grid-cols-1 gap-lg tablet:grid-cols-2 desktop:grid-cols-3"
+      >
+        <div>
+          <dt class="text-neutral-75">{t('grantReport.published')}</dt>
+          <dd class="m-0">
+            <time datetime={report.publishedDate}>
+              {formatReportDate(report.publishedDate, routeLocale)}
+            </time>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">{t('grantReport.reporting_period')}</dt>
+          <dd class="m-0">
+            {t('grantReport.period_range', {
+              start: formatReportDate(report.reportingPeriodStart, routeLocale),
+              end: formatReportDate(report.reportingPeriodEnd, routeLocale)
+            })}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">{t('grantReport.license')}</dt>
+          <dd class="m-0">{report.license}</dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">{t('grantReport.output_types')}</dt>
+          <dd class="m-0">{report.outputTypes.join(', ')}</dd>
+        </div>
+        <div>
+          <dt class="text-neutral-75">{t('grantReport.technologies')}</dt>
+          <dd class="m-0">{report.interledgerTechnologies.join(', ')}</dd>
+        </div>
+      </dl>
+
+      {sections.map((section) => <section aria-labelledby={section.id}>
+        <h2 id={section.id}>{section.heading}</h2>
+        <Fragment set:html={section.html} />
+      </section>)}
+
+      {report.images.length > 0 && <section
+        aria-labelledby="grant-report-images"
+      >
+        <h2 id="grant-report-images">{t('grantReport.images')}</h2>
+        <ul class="list-none m-0 p-0 flex flex-col gap-xl">
+          {report.images.map((image) => <li class="m-0">
+            <OptimizedImage
+              src={image.path}
+              alt={image.alt}
+              width={image.width}
+              height={image.height}
+              sizes={IMAGE_SIZES}
+              class="w-full h-auto"
+              loading="lazy"
+            />
+          </li>)}
+        </ul>
+      </section>}
+    </article>
+  </main>
+</FoundationPageLayout>
