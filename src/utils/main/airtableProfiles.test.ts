@@ -28,7 +28,7 @@ function grantee(
       [F.grants.id]: [GRANT_ID],
       [F.grantCount.id]: 2,
       [F.totalCommitted.id]: 50000,
-      [F.publishedReportCount.id]: 1,
+      [F.legacyReportCount.id]: 1,
       ...overrides
     }
   }
@@ -62,7 +62,7 @@ describe('toGranteeProfile', () => {
         grantIds: [GRANT_ID],
         grantCount: 2,
         totalCommitted: 50000,
-        publishedReportCount: 1,
+        legacyReportCount: 1,
         thematicTags: []
       },
       logoSource: null,

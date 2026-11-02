@@ -115,7 +115,9 @@ export interface GranteeProfile {
   grantIds: string[]
   grantCount: number
   totalCommitted: number
-  publishedReportCount: number
+  // Legacy reports (community forum posts linked from Submitted Reports), not
+  // the new reports in grant-reports.json, despite the Airtable field name.
+  legacyReportCount: number
   thematicTags: string[]
   logo: SyncedImage | null
 }

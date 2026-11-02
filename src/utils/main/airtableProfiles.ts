@@ -41,7 +41,8 @@ export const PROFILE_FIELDS = {
   logo: { id: 'fldbL8WbThpsKU9DB', name: 'Logo' },
   grantCount: { id: 'fld2R3A3WDskWJmXN', name: 'Grant Count' },
   totalCommitted: { id: 'fldsX9MyDsB37agxB', name: 'Total Committed' },
-  publishedReportCount: { id: 'fld2exqSN9ftx6mB4', name: 'Published Reports' },
+  // Counts legacy forum reports, not the Published Reports table (Ayden).
+  legacyReportCount: { id: 'fld2exqSN9ftx6mB4', name: 'Published Reports' },
   thematicTags: { id: 'fldXIj9KYq5l9Z3Qv', name: 'Thematic Tags' }
 } as const satisfies Record<string, { id: string; name: string }>
 
@@ -187,7 +188,7 @@ export function toGranteeProfile(
     grantIds: read.recordIds('grants'),
     grantCount: read.number('grantCount'),
     totalCommitted: read.number('totalCommitted'),
-    publishedReportCount: read.number('publishedReportCount'),
+    legacyReportCount: read.number('legacyReportCount'),
     thematicTags: read.tags('thematicTags')
   }
   const logoSource = read.logo('logo')
