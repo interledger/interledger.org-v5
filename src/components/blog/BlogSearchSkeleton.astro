@@ -28,7 +28,18 @@ const PLACEHOLDER_ROW_COUNT = 3
         <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-24 rounded-full" />
         <Skeleton class="h-[calc(1lh+var(--spacing-xs)*2)] w-20 rounded-full" />
       </span>
-      <SkeletonText class="text-body-sm-standard" widths={['w-28']} />
+      <div
+        class="flex flex-col gap-md tablet:flex-row tablet:flex-wrap tablet:gap-xl"
+      >
+        <div class="flex items-center gap-sm">
+          <Skeleton class="size-10 shrink-0 rounded-full" />
+          <SkeletonText class="text-body-sm-standard" widths={['w-32']} />
+        </div>
+        <div class="flex gap-xl py-sm">
+          <SkeletonText class="text-body-sm-standard" widths={['w-24']} />
+          <SkeletonText class="text-body-sm-standard" widths={['w-20']} />
+        </div>
+      </div>
     </div>
     <div class="w-full desktop:basis-[30%]">
       <Skeleton
