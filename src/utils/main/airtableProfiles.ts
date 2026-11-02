@@ -194,9 +194,9 @@ export function toGranteeProfile(
 
   const label = `Grantee ${profileLabel(raw)}`
   if (read.problems.length > 0) {
-    return new Error(
-      `${label}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
-    )
+    // The warnings go in too, so programs fix the record in one pass.
+    const lines = [...read.problems, ...read.warnings]
+    return new Error(`${label}:\n${lines.map((p) => `  - ${p}`).join('\n')}`)
   }
   const warnings = read.warnings.map((warning) => `${label}: ${warning}`)
   return { content, logoSource, warnings }
@@ -232,8 +232,13 @@ export function toGranteeProfiles(
   }
   problems.push(...findDuplicateSlugs(profiles))
   if (problems.length > 0) {
+    // A failed sync logs nothing else, so the warnings of the grantees that
+    // passed go in the error too.
+    const warnings = profiles.flatMap((profile) => profile.warnings)
+    const warningLines =
+      warnings.length > 0 ? `\nAlso left out:\n${warnings.join('\n')}` : ''
     return new Error(
-      `${problems.length} grantee profile problem(s):\n${problems.join('\n')}`
+      `${problems.length} grantee profile problem(s):\n${problems.join('\n')}${warningLines}`
     )
   }
   return profiles.sort((a, b) => a.content.slug.localeCompare(b.content.slug))

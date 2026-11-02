@@ -173,13 +173,15 @@ describe('toGranteeProfile', () => {
     expect(warnings).toHaveLength(2)
   })
 
-  it('still fails on a required problem when an optional value is skipped', () => {
+  it('fails on a required problem and lists the skipped value with it', () => {
     const error = expectError(
       toGranteeProfile(
         grantee({ [F.name.id]: undefined, [F.website.id]: 'gib.example' })
       )
     )
-    expect(error.message).not.toContain('Website')
+    expect(error.message).toContain(
+      '"Website": expected an http or https URL, got "gib.example", left out'
+    )
   })
 
   it('rejects grant links that are not record IDs', () => {
@@ -250,6 +252,25 @@ describe('toGranteeProfiles', () => {
     expect(error.message).toContain('2 grantee profile problem(s)')
     expect(error.message).toContain('recA')
     expect(error.message).toContain('recC')
+  })
+
+  it('keeps the warnings of the grantees that passed in the error', () => {
+    const error = expectError(
+      toGranteeProfiles([
+        grantee({ [F.name.id]: undefined }, 'recA'),
+        grantee({ [F.slug.id]: 'ok', [F.bluesky.id]: 'bsky' }, 'recB')
+      ])
+    )
+    expect(error.message).toContain(
+      'Also left out:\nGrantee Gib (ID: recB): "Bluesky"'
+    )
+  })
+
+  it('adds no warning section when there are no warnings', () => {
+    const error = expectError(
+      toGranteeProfiles([grantee({ [F.name.id]: undefined }, 'recA')])
+    )
+    expect(error.message).not.toContain('Also left out')
   })
 })
 
