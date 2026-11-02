@@ -23,20 +23,34 @@ jobs:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
         run: node scripts/probe-airtable-reports.mjs
 
-  # Runs the real sync from the INTORG-1307 branch on the runner. Nothing is
-  # committed or pushed. The sync writes public fields only.
+  # Runs the real sync from staging on the runner. Nothing is committed or
+  # pushed. The sync writes public fields only. Ayesha's image test reports stay
+  # Draft, so the Live filter is patched here (never in the repo) to also take
+  # Draft reports whose Public Summary starts with "TEST".
   dry-run-sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ravi/intorg-1307
+          ref: staging
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Also read Draft TEST reports
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "src/utils/main/airtableReports.ts";
+            const live = "return raw.fields[PUBLICATION_STATUS_FIELD_ID] === LIVE_STATUS";
+            const src = fs.readFileSync(file, "utf8");
+            if (!src.includes(live)) { console.error("Live check not found"); process.exit(1); }
+            const test = " || String(raw.fields[\"fld28HOMQQ4a1jiiP\"] ?? \"\").trimStart().startsWith(\"TEST\")";
+            fs.writeFileSync(file, src.replace(live, live + test));
+          '
+          grep -n 'startsWith("TEST")' src/utils/main/airtableReports.ts
       - name: Run the sync
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
@@ -46,9 +60,19 @@ jobs:
           for f in grantee-data grant-reports grantee-profiles; do
             echo "$f: $(jq length src/data/airtable/$f.json)"
           done
-          echo "--- profiles with tags / website / logo"
-          jq '[.[] | select(.thematicTags | length > 0)] | length' src/data/airtable/grantee-profiles.json
-          jq '[.[] | select(.website != null)] | length' src/data/airtable/grantee-profiles.json
-          jq '[.[] | select(.logo != null)] | length' src/data/airtable/grantee-profiles.json
+          echo "--- report images: alt set, alt empty"
+          jq '[.[].images[] | select(.alt != "")] | length' src/data/airtable/grant-reports.json
+          jq '[.[].images[] | select(.alt == "")] | length' src/data/airtable/grant-reports.json
+          echo "--- stored report image files (format, size, bytes, EXIF, GPS)"
+          node -e '
+            const sharp = require("sharp"); const fs = require("fs"); const path = require("path");
+            const dir = "public/img/grantee-reports";
+            const files = fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).filter((f) => f.endsWith(".webp")) : [];
+            if (files.length === 0) console.log("none");
+            (async () => { for (const f of files) {
+              const p = path.join(dir, f); const m = await sharp(p).metadata();
+              console.log(`${m.format} ${m.width}x${m.height} ${fs.statSync(p).size} bytes, exif: ${Boolean(m.exif)}, icc: ${Boolean(m.icc)}`);
+            } })();
+          '
           echo "--- prettier"
           pnpm exec prettier --check src/data/airtable/*.json

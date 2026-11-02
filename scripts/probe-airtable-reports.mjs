@@ -222,6 +222,38 @@ async function profileShapes(table) {
   console.log(`Duplicate names: ${names.length - new Set(names).size}`)
 }
 
+// The report -> grant link (Ayesha's "Grant Record" lookup). Shapes and
+// counts only: the sync needs exactly one Projects record ID (rec...) per report.
+const RECORD_ID = /^rec[A-Za-z0-9]{14}$/
+
+async function grantRecordShape(table) {
+  const field = table.fields.find((f) => f.name === 'Grant Record')
+  console.log('\n## Grant Record')
+  if (!field) {
+    console.log('No "Grant Record" field yet.')
+    return
+  }
+  console.log(`type: ${field.type}, result: ${field.options?.result?.type ?? 'n/a'}, id: ${field.id}`)
+  const view = table.views.find((v) => v.name.startsWith('PUBLIC'))
+  console.log(`visible in "${view?.name}": ${view?.visibleFieldIds?.includes(field.id) ?? false}`)
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': field.id })
+  if (view) params.set('view', view.id)
+  const { status, body } = await get(`/${BASE_ID}/${table.id}?${params}`)
+  if (!body) {
+    console.log(`read: HTTP ${status}`)
+    return
+  }
+  const counts = { oneRecordId: 0, empty: 0, several: 0, notRecordIds: 0 }
+  for (const record of body.records) {
+    const value = record.fields[field.id]
+    if (value === undefined || (Array.isArray(value) && value.length === 0)) counts.empty++
+    else if (!Array.isArray(value) || !value.every((v) => typeof v === 'string' && RECORD_ID.test(v))) counts.notRecordIds++
+    else if (value.length > 1) counts.several++
+    else counts.oneRecordId++
+  }
+  console.log(`records: ${body.records.length}, ${JSON.stringify(counts)}, shape: ${[...new Set(body.records.map((r) => shapeOf(r.fields[field.id])))].join(' | ')}`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -254,6 +286,7 @@ async function main() {
   await countLive(published)
   await countView(published)
   await probeImages(published)
+  await grantRecordShape(published)
 }
 
 main().catch((error) => {
