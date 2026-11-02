@@ -13,10 +13,11 @@ import {
 } from './airtableFieldValues'
 
 // Record-shaping helpers for the grantee profile part of
-// scripts/import-airtable.ts. Profiles follow the grant report rules: a
-// profile with a required value missing, or a value of the wrong shape, fails
-// the whole sync and names the grantee. Every grantee in the table is public
-// (PRO-371), so there is no publish filter.
+// scripts/import-airtable.ts. A profile with a required value missing, or a
+// value of the wrong shape, fails the whole sync and names the grantee. An
+// optional text or link that is not valid is only left out, with a warning:
+// the profile is still correct without it. Every grantee in the table is
+// public (PRO-371), so there is no publish filter.
 
 export const GRANTEE_TYPES: readonly GranteeType[] = [
   'Organisation',
@@ -77,20 +78,28 @@ export function splitThematicTags(value: unknown): string[] | undefined {
 }
 
 // Same placeholder approach as the report reader: a failed read records the
-// problem and returns a value that is never written.
+// problem and returns a value that is never written. A skipped read records a
+// warning and returns null, which is written.
 function createFieldReader(fields: Record<string, unknown>) {
   const problems: string[] = []
-  const fail = <T>(key: ProfileFieldKey, expected: string, placeholder: T) => {
+  const warnings: string[] = []
+  const describe = (key: ProfileFieldKey, expected: string) => {
     const { name, id } = PROFILE_FIELDS[key]
-    problems.push(
-      `"${name}": expected ${expected}, got ${describeValue(fields[id])}`
-    )
+    return `"${name}": expected ${expected}, got ${describeValue(fields[id])}`
+  }
+  const fail = <T>(key: ProfileFieldKey, expected: string, placeholder: T) => {
+    problems.push(describe(key, expected))
     return placeholder
+  }
+  const skip = (key: ProfileFieldKey, expected: string): null => {
+    warnings.push(`${describe(key, expected)}, left out`)
+    return null
   }
   const raw = (key: ProfileFieldKey) => fields[PROFILE_FIELDS[key].id]
 
   return {
     problems,
+    warnings,
     text(key: ProfileFieldKey): string {
       return nonBlankString(raw(key)) ?? fail(key, 'text', '')
     },
@@ -99,7 +108,7 @@ function createFieldReader(fields: Record<string, unknown>) {
       if (value === undefined) return null
       return typeof value === 'string'
         ? (nonBlankString(value) ?? null)
-        : fail(key, 'text', null)
+        : skip(key, 'text')
     },
     slug(key: ProfileFieldKey): string {
       const value = raw(key)
@@ -118,7 +127,7 @@ function createFieldReader(fields: Record<string, unknown>) {
       if (value === undefined) return null
       return typeof value === 'string' && isHttpUrl(value.trim())
         ? value.trim()
-        : fail(key, 'an http or https URL', null)
+        : skip(key, 'an http or https URL')
     },
     recordIds(key: ProfileFieldKey): string[] {
       const value = raw(key)
@@ -183,10 +192,14 @@ export function toGranteeProfile(
   }
   const logoSource = read.logo('logo')
 
-  if (read.problems.length === 0) return { content, logoSource }
-  return new Error(
-    `Grantee ${profileLabel(raw)}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
-  )
+  const label = `Grantee ${profileLabel(raw)}`
+  if (read.problems.length > 0) {
+    return new Error(
+      `${label}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
+    )
+  }
+  const warnings = read.warnings.map((warning) => `${label}: ${warning}`)
+  return { content, logoSource, warnings }
 }
 
 // Two grantees with one slug would build one page for both.

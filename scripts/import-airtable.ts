@@ -276,6 +276,9 @@ async function fetchGranteeProfiles(
   const records = await fetchAllRecords(GRANTEES_TABLE_ID, params, apiToken)
   const profiles = toGranteeProfiles(records)
   if (profiles instanceof Error) throw profiles
+  for (const warning of profiles.flatMap(({ warnings }) => warnings)) {
+    console.warn(`⚠️  ${warning}`)
+  }
   console.log(`ℹ️  Grantee profiles: ${profiles.length}`)
   return profiles
 }

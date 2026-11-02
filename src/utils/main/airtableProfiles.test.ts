@@ -65,7 +65,8 @@ describe('toGranteeProfile', () => {
         publishedReportCount: 1,
         thematicTags: []
       },
-      logoSource: null
+      logoSource: null,
+      warnings: []
     })
   })
 
@@ -119,7 +120,6 @@ describe('toGranteeProfile', () => {
         grantee({
           [F.slug.id]: 'Café-Gib',
           [F.granteeType.id]: 'Company',
-          [F.website.id]: 'gib.example',
           [F.totalCommitted.id]: { error: '#ERROR!' }
         })
       )
@@ -131,7 +131,6 @@ describe('toGranteeProfile', () => {
     expect(error.message).toContain(
       '"Grantee Type": expected Organisation or Individual'
     )
-    expect(error.message).toContain('"Website": expected an http or https URL')
     expect(error.message).toContain(
       '"Total Committed": expected a number of 0 or more, got {"error":"#ERROR!"}'
     )
@@ -151,10 +150,36 @@ describe('toGranteeProfile', () => {
     }
   })
 
-  it('rejects a URL that is not http or https', () => {
+  it('leaves out a URL that is not http or https, with a warning', () => {
     for (const url of ['javascript:alert(1)', 'ftp://gib.example', 'gib']) {
-      expectError(toGranteeProfile(grantee({ [F.linkedIn.id]: url })))
+      const { content, warnings } = expectParsed(
+        toGranteeProfile(grantee({ [F.linkedIn.id]: url }))
+      )
+      expect(content.linkedIn).toBeNull()
+      expect(warnings).toEqual([
+        `Grantee Gib (ID: recGrantee000001): "LinkedIn": expected an http or https URL, got ${JSON.stringify(url)}, left out`
+      ])
     }
+  })
+
+  it('leaves out optional text of another shape, with a warning', () => {
+    const { content, warnings } = expectParsed(
+      toGranteeProfile(
+        grantee({ [F.description.id]: 42, [F.formerlyKnownAs.id]: ['Old'] })
+      )
+    )
+    expect(content.description).toBeNull()
+    expect(content.formerlyKnownAs).toBeNull()
+    expect(warnings).toHaveLength(2)
+  })
+
+  it('still fails on a required problem when an optional value is skipped', () => {
+    const error = expectError(
+      toGranteeProfile(
+        grantee({ [F.name.id]: undefined, [F.website.id]: 'gib.example' })
+      )
+    )
+    expect(error.message).not.toContain('Website')
   })
 
   it('rejects grant links that are not record IDs', () => {

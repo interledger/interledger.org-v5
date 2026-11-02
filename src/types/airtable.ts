@@ -125,4 +125,6 @@ export type GranteeProfileContent = Omit<GranteeProfile, 'logo'>
 export interface ParsedGranteeProfile {
   content: GranteeProfileContent
   logoSource: SyncedImageSource | null
+  // Optional values the sync left out because they were not valid.
+  warnings: string[]
 }
