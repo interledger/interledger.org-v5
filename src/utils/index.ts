@@ -161,13 +161,15 @@ export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 export {
   hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
-  shouldHideFuturePosts
+  shouldHideFuturePosts,
+  shouldHideGrantReports
 } from './main/publishGate'
 
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
@@ -205,6 +207,7 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+export { parseGrantReports } from './main/grantReports'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
