@@ -23,7 +23,7 @@ function profile(overrides: Partial<GranteeProfile> = {}): GranteeProfile {
     grantIds: ['recUSF6jZiBVoqG01', 'recdUkEFGFR3970nG'],
     grantCount: 2,
     totalCommitted: 50000,
-    publishedReportCount: 0,
+    legacyReportCount: 0,
     thematicTags: ['Payments'],
     logo: null,
     ...overrides

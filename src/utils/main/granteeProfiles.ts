@@ -32,7 +32,7 @@ const granteeProfileSchema = z.object({
   grantIds: z.array(z.string().min(1)),
   grantCount: z.number().nonnegative(),
   totalCommitted: z.number().nonnegative(),
-  publishedReportCount: z.number().nonnegative(),
+  legacyReportCount: z.number().nonnegative(),
   thematicTags: z.array(z.string().min(1)),
   logo: syncedImageSchema.nullable()
 }) satisfies z.ZodType<GranteeProfile>
