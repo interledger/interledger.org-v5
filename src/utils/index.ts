@@ -207,7 +207,7 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
-export { parseGrantReports } from './main/grantReports'
+export { formatReportDate, parseGrantReports } from './main/grantReports'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
