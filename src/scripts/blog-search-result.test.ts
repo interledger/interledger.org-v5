@@ -43,6 +43,13 @@ const REQUIRED_ROW_ATTRS = [
   'data-blog-search-thumbnail'
 ] as const
 
+/** Slots `applyByline` looks up inside the author link, not the row. */
+const AUTHOR_LINK_SLOTS = [
+  'data-blog-search-author-avatar',
+  'data-blog-search-author-fallback',
+  'data-blog-search-author-name'
+] as const
+
 const CONTEXT: SearchResultContext = {
   pathname: '/blog/',
   lang: 'en',
@@ -103,13 +110,35 @@ describe('formatSearchResultDate', () => {
   })
 })
 
+/**
+ * `attr` as a whole attribute name. A plain substring check passes
+ * `data-blog-search-author` on `data-blog-search-author-name` alone.
+ */
+function wholeAttribute(attr: string): RegExp {
+  return new RegExp(`${attr}(?=[\\s=>/])`)
+}
+
 describe('BlogSearchResultTemplate', () => {
+  const source = readFileSync(SEARCH_RESULT_TEMPLATE_PATH, 'utf8')
+
   it('keeps every populate-script slot', () => {
-    const source = readFileSync(SEARCH_RESULT_TEMPLATE_PATH, 'utf8')
     expect(source).toContain('id="blog-search-result-template"')
     expect(source).toContain('data-blog-search-category-template')
     for (const attr of REQUIRED_ROW_ATTRS) {
-      expect(source, attr).toContain(attr)
+      expect(source, attr).toMatch(wholeAttribute(attr))
+    }
+  })
+
+  it('keeps the author slots inside the author link', () => {
+    // applyByline looks these up inside the link, so one moved outside it
+    // throws for every row and breaks the whole search.
+    const start = wholeAttribute('data-blog-search-author').exec(source)?.index
+    expect(start).toBeDefined()
+    const end = source.indexOf('</a>', start)
+    expect(end).toBeGreaterThan(start ?? 0)
+    const authorLink = source.slice(start, end)
+    for (const attr of AUTHOR_LINK_SLOTS) {
+      expect(authorLink, attr).toMatch(wholeAttribute(attr))
     }
   })
 })

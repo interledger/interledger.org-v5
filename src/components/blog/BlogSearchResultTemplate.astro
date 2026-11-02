@@ -1,11 +1,12 @@
 ---
 /**
- * Markup source for client-side blog search rows. blog-search.ts clones this
- * template and fills [data-blog-search-*] slots — keep structure and Tailwind
- * classes aligned with BlogCard.astro and BlogCardByline.astro (search rows
- * use a plain <img>, since a client-rendered row can't run Astro's build-time
- * image pipeline, and static category pills rather than ArticleCategories'
- * filter links, since category filtering doesn't apply during search).
+ * Markup source for client-side blog search rows. blog-search-result.ts
+ * clones this template and fills [data-blog-search-*] slots — keep structure
+ * and Tailwind classes aligned with BlogCard.astro and BlogCardByline.astro
+ * (search rows use a plain <img>, since a client-rendered row can't run
+ * Astro's build-time image pipeline, and static category pills rather than
+ * ArticleCategories' filter links, since category filtering doesn't apply
+ * during search).
  *
  * The byline's author anchor holds both an avatar and the fallback icon; the
  * populate script removes the one a row doesn't use, and the whole anchor

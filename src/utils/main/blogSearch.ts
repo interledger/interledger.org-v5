@@ -84,7 +84,7 @@ function narrowestImageSrc(
  * therefore precomputed here and shipped in the catalog: a `srcset` the row's
  * plain `<img>` can use, so the browser still picks per device rather than
  * being handed one fixed width. `src` is the fallback for browsers that ignore
- * it (see `narrowestImageSrc`).
+ * the `srcset` (see `narrowestImageSrc`).
  *
  * The LQIP rides along so rows blur up like the static BlogCard, sanitised
  * here rather than in the browser — it ends up inside a CSS `url()`, and the
@@ -114,7 +114,9 @@ function toSearchThumbnail(
 /**
  * The byline BlogCard renders, reduced to data a client-rendered row can use.
  * The avatar is a single URL rather than a srcset: it only ever renders at
- * 40px, so the narrowest avatar rung covers every DPR.
+ * 40px. With the CDN that URL is the 240px avatar rung; without it, the
+ * narrowest encoded file (the source's own width, at most 640px). Either is
+ * wide enough for DPR 3 (120px) unless the source itself is narrower.
  */
 function toSearchAuthor(
   bio: AuthorBioType | undefined

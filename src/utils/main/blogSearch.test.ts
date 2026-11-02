@@ -211,7 +211,7 @@ describe('getBlogSearchIndex', () => {
 
       const [entry] = await getBlogSearchIndex()
 
-      // No variant catalog in tests, so the avatar falls back to the raw path.
+      // `AVATAR` is in no variant catalog, so it falls back to the raw path.
       expect(entry.author).toEqual({
         name: 'Sabine Schaller',
         href: 'https://www.linkedin.com/in/sabine/',
