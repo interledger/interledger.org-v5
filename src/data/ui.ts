@@ -169,7 +169,6 @@ export const ui = {
     'granteeProfile.country': 'Country',
     'granteeProfile.grant_count': 'Grants',
     'granteeProfile.total_committed': 'Total amount committed',
-    'granteeProfile.published_reports': 'Published reports',
     'granteeProfile.about': 'About',
     'granteeProfile.links': 'Links',
     'granteeProfile.website': 'Website',
