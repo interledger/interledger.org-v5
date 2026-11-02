@@ -8,6 +8,7 @@ import {
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
+  shouldHideGrantReports,
   shouldHideFuturePosts
 } from './publishGate'
 
@@ -262,3 +263,27 @@ function restoreEnv(key: string, value: string | undefined): void {
   }
   process.env[key] = value
 }
+
+describe('shouldHideGrantReports', () => {
+  it('is on for a Netlify production build only', () => {
+    expect(shouldHideGrantReports({ CONTEXT: 'production' })).toBe(true)
+    expect(shouldHideGrantReports({ CONTEXT: 'branch-deploy' })).toBe(false)
+    expect(shouldHideGrantReports({})).toBe(false)
+  })
+
+  it('honours GRANT_REPORTS_FILTER over CONTEXT', () => {
+    expect(shouldHideGrantReports({ GRANT_REPORTS_FILTER: 'on' })).toBe(true)
+    expect(
+      shouldHideGrantReports({
+        CONTEXT: 'production',
+        GRANT_REPORTS_FILTER: 'off'
+      })
+    ).toBe(false)
+  })
+
+  it('is separate from the profile gate', () => {
+    expect(shouldHideGrantReports({ GRANTEE_PROFILES_FILTER: 'on' })).toBe(
+      false
+    )
+  })
+})
