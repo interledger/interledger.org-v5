@@ -1,6 +1,7 @@
 ---
 import {
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   translatePath,
   buildUmamiAttrs,
@@ -16,7 +17,7 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const breadcrumbs: BreadcrumbItem[] = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: t('subscribe.title'), href: localizeRoute('subscribe', routeLocale) }
 ]
 

@@ -14,7 +14,7 @@ import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTab
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { validateInternalLinks } from './src/integrations/validate-internal-links.ts'
-import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
+import { isExcludedFromSitemap } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
 import {
   isProductionDeploy,
@@ -75,6 +75,7 @@ export default defineConfig({
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
+      favicon: '/favicon.ico',
       customCss: [
         './node_modules/@interledger/docs-design-system/src/styles/teal-theme.css',
         './node_modules/@interledger/docs-design-system/src/styles/ilf-docs.css',
@@ -88,6 +89,46 @@ export default defineConfig({
         })
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '32x32',
+            href: '/favicon-32x32.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '16x16',
+            href: '/favicon-16x16.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'apple-touch-icon',
+            sizes: '180x180',
+            href: '/apple-touch-icon.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'manifest',
+            href: '/site.webmanifest'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#ffffff'
+          }
+        },
         {
           tag: 'script',
           attrs: {
@@ -126,11 +167,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Overview',
-          link: '/developers/get-started'
+          link: '/developers/get-started/'
         },
         {
           label: 'Get involved',
-          link: '/developers/get-involved'
+          link: '/developers/get-involved/'
         },
         {
           label: 'Specifications',
@@ -162,12 +203,9 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      // Exclude previews and design/QA demo pages (demo / demo-* path segments)
-      filter: (url) => {
-        const pathname = new URL(url).pathname
-        if (pathname.includes('/preview')) return false
-        return !isDemoPathname(pathname)
-      }
+      // Exclude previews (incl. /page-preview/, /profile-preview/) and
+      // design/QA demo pages (demo / demo-* path segments)
+      filter: (url) => !isExcludedFromSitemap(new URL(url).pathname)
     }),
     // Must stay last. Integration hooks run in array order, and this one reads
     // the finished dist tree — including files other integrations write during

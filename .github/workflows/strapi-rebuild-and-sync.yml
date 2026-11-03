@@ -149,7 +149,8 @@ jobs:
             NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
             cd "$DEPLOY_PATH/cms"
-            NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
+            # The admin's website link is baked in at build time; DEPLOY_BRANCH is validated above.
+            NODE_OPTIONS="--max-old-space-size=4096" STRAPI_ADMIN_ENVIRONMENT_NAME="$DEPLOY_BRANCH" pnpm run build
 
             cd "$DEPLOY_PATH"
             sudo systemctl start "$STRAPI_SERVICE_NAME"

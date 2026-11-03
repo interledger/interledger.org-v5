@@ -284,7 +284,7 @@ Pull requests must pass all checks before merging.
 
 Two build-time checks can fail the build on their own:
 
-- **Internal link validation** reports internal links and fragments this deploy does not serve, including `hreflang` and canonical tags. It runs on every build, local ones included, but only **warns** — editors commit content straight to `staging` with no PR (see [Content Synchronization](#content-synchronization)), and failing there would block staging on typos they usually fix themselves. A production publish via Force Reset sets `LINK_CHECK=strict`, so broken links fail the build that publishes to production, before the branch moves. Clear the warnings before publishing. Rolling back to a SHA from before this check existed publishes without validation — the check lives in the tree being built, so `LINK_CHECK=strict` has nothing to act on. The Force Reset run warns rather than fails: a rollback target's broken links are pre-existing. A permanently unresolvable target can be exempted in `src/integrations/internal-link-exceptions.ts`, with a comment saying why.
+- **Internal link validation** reports internal links and fragments this deploy does not serve, including `hreflang` and canonical tags. It runs on every build, local ones included, but only **warns** — editors commit content straight to `staging` with no PR (see [Content Synchronization](#content-synchronization)), and failing there would block staging on typos they usually fix themselves. A production publish via Force Reset sets `LINK_CHECK=strict`, so broken links fail the build that publishes to production, before the branch moves. Clear the warnings before publishing. Rolling back to a SHA from before this check existed publishes without validation — the check lives in the tree being built, so `LINK_CHECK=strict` has nothing to act on. The Force Reset run warns rather than fails: a rollback target's broken links are pre-existing. A permanently unresolvable target can be exempted in `src/integrations/internal-link-exceptions.ts`, with a comment saying why. One kind of finding **fails every build**: an internal page link without a trailing slash. Netlify serves every page at `/path/`, so a link to `/path` costs a redirect. Strapi adds the slash on save, so such a link can only come from code or a file edited in the repo; fix it there, as there is no exception list for it.
 - **Image optimization audit** fails when an image bypasses `OptimizedImage` and ships unoptimized. Only runs in Netlify Image CDN mode, so a plain local `pnpm build` skips it; CI sets `IMAGE_CDN=on`, and you can reproduce it with `IMAGE_CDN=on pnpm build`. Escape hatch for a deliberate raw image: `data-allow-unoptimized` on the tag.
 
 See `CLAUDE.md` for how each check works and what it deliberately does not cover.
@@ -424,6 +424,7 @@ Rule of thumb:
 
 - If you are working with folders or files on disk, use `src/utils/main/paths.ts`
 - If you are working with browser URLs or route generation, use `src/utils/main/routes.ts`
+- Internal page links end in `/`. Build them with `localizeRoute` or `translatePath`, and add path segments with `joinPagePath` rather than string concatenation. Route params and translation-map keys stay without the slash.
 
 In Astro `<script>` tags or hydrated browser components, use `@/utils/main/client`.
 In `src/content.config.ts`, import collection constants from
@@ -525,6 +526,8 @@ Docs live in `src/content/docs`.
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
 RFC pages under `src/content/docs/rfcs/` are a small exception. Those route files wrap the upstream markdown from the `interledger/rfcs` repository via `src/components/Rfc.astro`. Internal RFC-to-RFC links are rewritten in `src/utils/docs/rewriteRfcLinks.ts` so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
+
+Write internal links in docs markdown with a trailing slash (`[Get involved](/developers/get-involved/)`); a link without one fails the build. Strapi never sees these files, so nothing adds the slash for you.
 
 Static assets, like favicons or images, can be placed in the `public/` directory. When referencing these assets in your markdown, you do not have to include `public/` in the file path, so an image would have a path like:
 

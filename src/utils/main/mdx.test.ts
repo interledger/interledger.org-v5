@@ -194,3 +194,27 @@ describe('createMarked', () => {
     })
   })
 })
+
+describe('createMarked own-site links', () => {
+  const render = (markdown: string) =>
+    createMarked({ pathname: '/', lang: 'en' }).parseInline(markdown) as string
+
+  it('renders a bare staging URL relative, keeping the URL as its text', () => {
+    const html = render('Visit https://staging.interledger.org/blog/')
+    expect(html).toContain('href="/blog/"')
+    expect(html).toContain('>https://staging.interledger.org/blog/</a>')
+    expect(html).not.toContain('target="_blank"')
+  })
+
+  it('renders a bare scheme-less www. URL relative', () => {
+    expect(render('Visit www.interledger.org/es/blog/')).toContain(
+      'href="/es/blog/"'
+    )
+  })
+
+  it('collapses a doubled slash after the host', () => {
+    expect(render('[a](https://interledger.org//blog/x/)')).toContain(
+      'href="/blog/x/"'
+    )
+  })
+})

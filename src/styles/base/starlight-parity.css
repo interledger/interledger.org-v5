@@ -19,8 +19,10 @@
 @layer starlight.reset {
   html {
     accent-color: hsl(180 100% 23%);
-    /* 1.5rem plus the docs nav height (4.275rem). */
-    scroll-padding-top: 5.775rem;
+    /* No scroll-padding-top. The leaked value (the docs nav, 1.5rem +
+       4.275rem) stacked on reset.css's :target scroll-margin, which already
+       clears the header, so every anchor landed with a gap under it. Any
+       padding here doubles that clearance. */
   }
 
   body {

@@ -1,9 +1,15 @@
 import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
-import { localizeRoute, normalizeBasePath } from './routes'
+import {
+  HOME_CONTENT_SLUG,
+  NOT_FOUND_SLUG,
+  localizeRoute,
+  normalizeBasePath
+} from './routes'
 import { buildRoutePath } from './translatePath'
 import { CATEGORY_SEGMENT } from './tagFilter'
 import { hasStrippablePageNumber } from './paginatedRouteShape'
+import { joinPagePath } from '../shared/url'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
@@ -46,22 +52,26 @@ function buildBlogSwitchHref(
   const { term, contentLang } = parseBlogSlug(slug)
   const targetContentLang = contentLang ?? targetLocale
   const hasExplicitLang = contentLang !== undefined
-  let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
-  if (term) {
-    href += `/${CATEGORY_SEGMENT}/${term}`
-  }
-  if (hasExplicitLang) href += `/lang/${targetContentLang}`
-  return href
+  return joinPagePath(
+    localizeRoute(basePath, targetLocale),
+    term ? `${CATEGORY_SEGMENT}/${term}` : '',
+    hasExplicitLang ? `lang/${targetContentLang}` : ''
+  )
 }
 
 export function getLanguageSwitcherHrefs(
   currentSlug: string,
   currentBasePath: string
 ): Record<Locale, string> {
+  // The 404 page has no ES twin, so its switcher points to home.
+  const isNotFoundPage =
+    currentSlug === NOT_FOUND_SLUG && !normalizeBasePath(currentBasePath)
   // Switching locale always targets page 1 of the current section — a
   // paginated page number from one locale's listing has no guarantee of
   // existing (or meaning the same thing) in the other.
-  const slug = stripSlugPagination(currentBasePath, currentSlug)
+  const slug = isNotFoundPage
+    ? HOME_CONTENT_SLUG
+    : stripSlugPagination(currentBasePath, currentSlug)
   const fullSlug = normalizeBasePath(
     buildRoutePath(currentBasePath, slug)
   ).slice(1)

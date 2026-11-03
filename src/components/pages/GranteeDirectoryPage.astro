@@ -9,6 +9,7 @@ import {
   type Grantee,
   type GranteeFilterOption,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
@@ -30,7 +31,7 @@ const t = useTranslations(routeLocale)
 const pageHref = localizeRoute(grantGranteeDirectoryPath(), routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   {
     name: t('nav.grants'),
     href: localizeRoute(grantOverviewHubPath(), routeLocale)

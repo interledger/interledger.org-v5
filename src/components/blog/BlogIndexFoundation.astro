@@ -16,6 +16,7 @@ import ContentLangFilter from './ContentLangFilter.astro'
 import ContentLangNotice from './ContentLangNotice.astro'
 import BlogCard from './BlogCard.astro'
 import BlogSearchResultTemplate from './BlogSearchResultTemplate.astro'
+import BlogSearchSkeleton from './BlogSearchSkeleton.astro'
 
 interface Props {
   posts: CollectionEntry<'foundation-blog'>[]
@@ -186,6 +187,8 @@ from inside an aria-busy container are deferred. */}
       )
     })}
   </ol>
+
+  <BlogSearchSkeleton />
 
   <ol
     class="list-none p-0 m-0 flex flex-col gap-2xl"

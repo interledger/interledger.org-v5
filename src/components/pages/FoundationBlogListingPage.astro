@@ -10,7 +10,7 @@ import {
   getBlogPosts,
   getFeaturedPosts,
   useTranslations,
-  localizeRoute,
+  buildHomeBreadcrumb,
   CATEGORY_SEGMENT
 } from '@/utils'
 import type { Locale } from '@/utils'
@@ -52,7 +52,7 @@ const subscribePath = translatePath(
   'subscribe'
 )
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: t('blog.foundation.title'), href: blogPath }
 ]
 const translatedTerm = selectedTerm

@@ -28,10 +28,11 @@ jobs:
   # report separately: a cms serializer break shouldn't hide the state of the
   # Astro site's tests, or vice versa. They also run in parallel.
   #
-  # --ignore-scripts on both installs: the unit tests don't touch sharp,
-  # better-sqlite3, or @parcel/watcher, so skipping their native builds keeps
-  # these jobs fast. esbuild resolves its platform binary from the optional dep
-  # without its postinstall, so vitest still runs.
+  # --ignore-scripts on both installs: skipping the native builds of sharp,
+  # better-sqlite3 and @parcel/watcher keeps these jobs fast. The unit tests do
+  # use sharp (the Airtable image tests), and sharp still loads, because it
+  # ships prebuilt binaries as optional deps. esbuild does the same, so vitest
+  # still runs.
   test-src:
     name: Test src
     runs-on: ubuntu-latest

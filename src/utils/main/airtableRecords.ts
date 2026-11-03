@@ -4,6 +4,12 @@ import type {
   RawTableRecord,
   TableRecord
 } from '@/types/airtable'
+// nonBlankString is a name as the site sees it: grantee.ts trims, and drops a blank one.
+import {
+  isRecordLike,
+  isStringArray,
+  nonBlankString
+} from './airtableFieldValues'
 
 // Record-shaping helpers for scripts/import-airtable.ts. Airtable omits empty
 // cells, so a missing value is normal. A value of the wrong shape on one
@@ -40,14 +46,6 @@ const PROJECT_NAME: GranteeFieldName = 'Project Name'
 const PROJECT_LEADER: GranteeFieldName = 'Project Leader'
 const PUBLISHED_ON_WEBSITE_VALUE = 'Published on Website'
 
-function isRecordLike(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string')
-}
-
 // Checked by value rather than by the field's metadata type: a formula keeps
 // type `formula` while its result type changes.
 function matchesShape(
@@ -79,16 +77,9 @@ function airtableFormulaErrorReason(value: unknown): string | undefined {
   return undefined
 }
 
-// A name as the site sees it: grantee.ts trims, and drops a blank one.
-function asName(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined
-  const trimmed = value.trim()
-  return trimmed === '' ? undefined : trimmed
-}
-
 // Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
 function recordLabel(id: string, projectName: unknown): string {
-  const name = asName(projectName)
+  const name = nonBlankString(projectName)
   return name === undefined ? id : `${name} (ID: ${id})`
 }
 
@@ -157,7 +148,7 @@ export function buildContactNameMap(
 ): Map<string, string> {
   const contactsMap = new Map<string, string>()
   for (const record of contactRecords) {
-    const name = asName(record.fields[nameFieldId])
+    const name = nonBlankString(record.fields[nameFieldId])
     if (name === undefined) continue
     contactsMap.set(record.id, name)
   }
@@ -277,7 +268,7 @@ export function listUnrenderedViewFields(
 // while it can still be fixed in Airtable. The record is still written.
 export function warnOnMissingProjectNames(records: TableRecord[]): void {
   for (const record of records) {
-    if (asName(record.fields[PROJECT_NAME]) !== undefined) continue
+    if (nonBlankString(record.fields[PROJECT_NAME]) !== undefined) continue
     console.warn(
       `⚠️  Published record ${record.id} has no "${PROJECT_NAME}" — it will not appear in the grantee directory`
     )

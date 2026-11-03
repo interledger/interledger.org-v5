@@ -9,6 +9,8 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  isFilePath,
+  joinPagePath,
   trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
@@ -101,6 +103,7 @@ export { translationMap } from './main/translationMapData'
 export { getNavigation } from './main/navigation'
 export { fetchStrapi, type StrapiResponse } from './main/fetchStrapi'
 export { applyPreviewNoStore } from './main/cache'
+export { logPreviewFetchError } from './main/previewLog'
 
 // Main site: Static paths
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
@@ -114,6 +117,7 @@ export {
 } from './main/static-paths'
 export {
   type BreadcrumbItem,
+  buildHomeBreadcrumb,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
@@ -124,7 +128,6 @@ export {
   getTermSlug,
   getTermUrl,
   translateTerm,
-  buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm,
   ALL_TERM_SLUG,
@@ -217,6 +220,38 @@ export {
   warnOnMissingProjectNames,
   type GranteeFieldName
 } from './main/airtableRecords'
+export {
+  ALLOWED_IMAGE_TYPES,
+  MAX_SOURCE_IMAGE_BYTES,
+  describeValue,
+  isRecordLike,
+  isStringArray,
+  nonBlankString,
+  readImageField
+} from './main/airtableFieldValues'
+export {
+  LIVE_STATUS,
+  PUBLICATION_STATUS_FIELD_ID,
+  REPORT_FIELDS,
+  findHiddenReportFields,
+  isLiveReport,
+  reportFieldIdsToFetch,
+  toGrantReport,
+  toGrantReports
+} from './main/airtableReports'
+export {
+  GRANTEE_TYPES,
+  PROFILE_FIELDS,
+  findHiddenProfileFields,
+  profileFieldIdsToFetch,
+  splitThematicTags,
+  toGranteeProfile,
+  toGranteeProfiles
+} from './main/airtableProfiles'
+// Not exported: ./main/syncedImages imports sharp, a native module that must
+// never reach the site bundle through this barrel. The sync script and the
+// tests import it directly. It holds normalizeSyncedImage, syncedImagePath,
+// findOrphanImagePaths, readStoredImageSize and the image folder constants.
 
 // Main site: Text
 export { generateSlug } from './main/slug'
@@ -264,6 +299,13 @@ export {
   SELF_SPACED_BLOCKS,
   getPreviewBlockGapClass
 } from './main/dynamicZoneSpacing'
+export {
+  TIMELINE_ACCENT_COUNT,
+  TIMELINE_DOT_CLASS,
+  timelineAccentIndex,
+  timelineEventOffsets,
+  resolveTimelineSections
+} from './main/timeline'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'
@@ -353,6 +395,7 @@ export {
   buildSectionNavLinkUmamiAttrs,
   escapeHtml,
   isSiteHostname,
+  stripKnownOrigin,
   umamiAttrsToHtml
 } from './main/umami'
 
@@ -375,6 +418,7 @@ export {
 export {
   isDemoPathSlug,
   isDemoPathname,
+  isExcludedFromSitemap,
   isPreviewPathname
 } from './shared/demoPaths'
 
