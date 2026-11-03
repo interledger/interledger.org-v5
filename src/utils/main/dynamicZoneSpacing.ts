@@ -26,6 +26,9 @@ export const CONDITIONALLY_SELF_SPACED: ReadonlySet<string> = new Set([
  */
 const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
 
+const PARAGRAPH = 'blocks.paragraph'
+const CTA_LINK = 'shared.cta-link'
+
 /**
  * Blocks that render a `BlockIntro` and set `data-intro-variant` on their
  * root (INTORG-1154). They own their top (the intro) and bottom
@@ -75,6 +78,9 @@ export function getPreviewBlockGapClass(
 
   const isSelfSpaced = selfSpacedBlocks.has(uid)
   const prevIsSelfSpaced = selfSpacedBlocks.has(prevUid)
+  // A self-spaced Paragraph pads its bottom to the tight CTA gap itself
+  // (prose/paragraph-block.css), as on a live page.
+  if (uid === CTA_LINK && prevUid === PARAGRAPH && prevIsSelfSpaced) return null
   if (isSelfSpaced) return prevIsSelfSpaced ? null : BLOCK_PADDING_GAP
   return prevIsSelfSpaced ? SECTION_GAP_AFTER_SELF_SPACED : SECTION_GAP
 }

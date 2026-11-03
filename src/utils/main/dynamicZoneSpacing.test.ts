@@ -47,6 +47,24 @@ describe('getPreviewBlockGapClass', () => {
     ).toBe('mt-(--block-pb)')
   })
 
+  // Live, the Paragraph pads its bottom to the tight CTA gap; a wrapper gap
+  // on top of that would push the CTA a section away.
+  it('leaves the gap above a CtaLink to the Paragraph before it', () => {
+    expect(
+      getPreviewBlockGapClass('shared.cta-link', 'blocks.paragraph')
+    ).toBeNull()
+  })
+
+  it('separates a CtaLink from a legacy Paragraph by the section gap', () => {
+    expect(
+      getPreviewBlockGapClass(
+        'shared.cta-link',
+        'blocks.paragraph',
+        SELF_SPACED
+      )
+    ).toBe('mt-section')
+  })
+
   it('takes the self-spaced padding off the gap after one', () => {
     expect(
       getPreviewBlockGapClass('blocks.paragraph', 'blocks.faq', SELF_SPACED)
