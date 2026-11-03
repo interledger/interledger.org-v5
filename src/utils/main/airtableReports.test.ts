@@ -153,6 +153,21 @@ describe('toGrantReport', () => {
     }
   })
 
+  it('lists a bad description with a bad image in the same slot', () => {
+    const error = expectError(
+      toGrantReport(
+        liveReport({
+          [F.image1.id]: [attachment({ type: 'image/heic' })],
+          [F.imageDescription1.id]: 42
+        })
+      )
+    )
+    expect(error.message).toContain('"Public Image 1": expected a file of type')
+    expect(error.message).toContain(
+      '"Public Image Description 1": expected text, got 42'
+    )
+  })
+
   it('ignores the description of a slot with no image, which is never published', () => {
     const parsed = expectParsed(
       toGrantReport(liveReport({ [F.imageDescription2.id]: 42 }))

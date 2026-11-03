@@ -200,7 +200,8 @@ describe('parseGranteeRecords', () => {
 })
 
 // Airtable omits empty cells and the sync writes only the columns visible in
-// the view, so a record can arrive with only a name. Rendering relies on every Grantee field being an empty default.
+// the view, so a record can arrive with only a name. Rendering relies on every
+// Grantee field being an empty default.
 describe('sparse grantee records', () => {
   const emptyDefaults = {
     program: '',

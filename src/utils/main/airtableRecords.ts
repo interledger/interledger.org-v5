@@ -6,6 +6,7 @@ import type {
 } from '@/types/airtable'
 // nonBlankString is a name as the site sees it: grantee.ts trims, and drops a blank one.
 import {
+  formatProblems,
   isRecordLike,
   isStringArray,
   nonBlankString
@@ -185,9 +186,7 @@ export function toGranteeRecord(
     return { id: raw.id, createdTime: raw.createdTime, fields }
   }
   const label = recordLabel(raw.id, raw.fields[GRANTEE_FIELDS[PROJECT_NAME].id])
-  return new Error(
-    `Record ${label}:\n${problems.map((p) => `  - ${p}`).join('\n')}`
-  )
+  return new Error(formatProblems(`Record ${label}`, problems))
 }
 
 // Shapes every published record. One bad record fails the whole set, with
@@ -251,8 +250,8 @@ export function selectPublishedGranteeFields(visibleFieldIds: string[]):
 
 // One record without a value in an optional column is normal; every record
 // without one means the column was emptied or its formula broke, and writing
-// the file would empty that column on the site. No records at all (e.g. the view's filter changed) would
-// empty the directory.
+// the file would empty that column on the site. No records at all (e.g. the
+// view's filter changed) would empty the directory.
 export function checkGranteeFieldsPresent(
   records: TableRecord[],
   publishedFields: GranteeFieldName[]

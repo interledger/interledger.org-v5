@@ -224,6 +224,7 @@ export {
   MAX_SOURCE_IMAGE_BYTES,
   collectSyncResults,
   describeValue,
+  formatProblems,
   isRecordLike,
   isStringArray,
   nonBlankString,

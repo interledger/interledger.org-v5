@@ -7,6 +7,7 @@ import type {
 } from '@/types/airtable'
 import {
   describeValue,
+  formatProblems,
   isStringArray,
   nonBlankString,
   readImageField
@@ -189,7 +190,7 @@ export function toGranteeProfile(
 
   if (read.problems.length === 0) return { content, logoSource }
   return new Error(
-    `Grantee ${profileLabel(raw)}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
+    formatProblems(`Grantee ${profileLabel(raw)}`, read.problems)
   )
 }
 

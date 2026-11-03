@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { collectSyncResults } from './airtableFieldValues'
+import { collectSyncResults, formatProblems } from './airtableFieldValues'
+
+describe('formatProblems', () => {
+  it('puts each problem on its own line under the label', () => {
+    expect(
+      formatProblems('Record X', ['"Year": missing', '"Country": bad'])
+    ).toBe('Record X:\n  - "Year": missing\n  - "Country": bad')
+  })
+})
 
 describe('collectSyncResults', () => {
   it('returns every value, in order, when no part failed', () => {

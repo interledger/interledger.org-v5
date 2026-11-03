@@ -150,7 +150,7 @@ describe('toGranteeProfile', () => {
   })
 
   it('rejects a URL that is not http or https', () => {
-    for (const url of ['javascript:alert(1)', 'ftp://gib.example', 'gib']) {
+    for (const url of ['javascript:alert(1)', 'ftp://gib.example', 'gib', 42]) {
       const error = expectError(
         toGranteeProfile(grantee({ [F.linkedIn.id]: url }))
       )

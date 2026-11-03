@@ -484,7 +484,8 @@ is told only when it fails. Nobody reads the log of a run that passes.
   grant reports and the grantee profiles alike. An empty optional cell is not
   an error. Don't add a "warn and leave it out" path: the value then vanishes
   from the site with nobody told. This was decided with the PM after two such
-  paths shipped (#766, and the one in #833). Directory values are checked by
+  paths shipped (#766, and the one in #833). Beyond a non-blank Project Name
+  and a contact name for every Project Leader, directory values are checked by
   type only, a decision of the same review: free text in Project Links is
   allowed, and `grantee.ts` skips entries that are not URLs.
 - **One run lists every bad record.** Each record lists all of its problems,

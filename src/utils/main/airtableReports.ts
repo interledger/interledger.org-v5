@@ -7,6 +7,7 @@ import type {
 } from '@/types/airtable'
 import {
   describeValue,
+  formatProblems,
   isStringArray,
   nonBlankString,
   readImageField
@@ -14,9 +15,9 @@ import {
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
 // A report with a required value missing, a value of the wrong shape, or an
-// image that breaks the rules in airtableFieldValues.ts fails the whole sync. Programs fix the
-// record, and the next run picks it up. The site keeps the last good data in
-// the meantime.
+// image that breaks the rules in airtableFieldValues.ts fails the whole sync.
+// Programs fix the record, and the next run picks it up. The site keeps the
+// last good data in the meantime.
 
 // Only reports with this status reach the site. The view filters on it too,
 // but the sync checks again, so a change to the view cannot publish a draft.
@@ -224,17 +225,15 @@ export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
     interledgerTechnologies: read.options('interledgerTechnologies')
   }
   // A description is read only for a slot with an image: on its own it is
-  // never published, so it cannot fail the sync.
+  // never published, so it cannot fail the sync. It is read even when the
+  // image fails, so the record lists both problems in one run.
   const imageSources = IMAGE_SLOTS.flatMap(({ image, description }) => {
-    const source = read.image(image, '')
-    if (source === undefined) return []
-    return [{ ...source, alt: read.optionalText(description) }]
+    if (raw.fields[REPORT_FIELDS[image].id] === undefined) return []
+    return read.image(image, read.optionalText(description)) ?? []
   })
 
   if (read.problems.length === 0) return { content, imageSources }
-  return new Error(
-    `Report ${reportLabel(raw)}:\n${read.problems.map((p) => `  - ${p}`).join('\n')}`
-  )
+  return new Error(formatProblems(`Report ${reportLabel(raw)}`, read.problems))
 }
 
 // Sorted by project, then report number, so a change to the view's sort in

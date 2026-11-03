@@ -1,8 +1,8 @@
 import type { SyncedImageSource } from '@/types/airtable'
 
 // Helpers for scripts/import-airtable.ts: value readers shared by its report
-// and profile parts, and collectSyncResults, which joins the three parts'
-// results. A reader returns undefined, or an "expected ..." description, for a
+// and profile parts, formatProblems for their error messages, and
+// collectSyncResults, which joins the three parts' results. A reader returns undefined, or an "expected ..." description, for a
 // value it cannot use, so the caller can name the Airtable field in its error.
 
 // The file types the site accepts. Airtable does not limit them, so the sync
@@ -68,6 +68,11 @@ function readAttachment(
     }
   }
   return { attachmentId: file.id, url: file.url, sizeBytes: file.size, alt }
+}
+
+// One labelled block of an error message, a problem per line.
+export function formatProblems(label: string, problems: string[]): string {
+  return `${label}:\n${problems.map((problem) => `  - ${problem}`).join('\n')}`
 }
 
 // The results of the sync's parts: every value, in order, or one Error listing

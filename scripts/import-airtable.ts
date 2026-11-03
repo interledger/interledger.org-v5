@@ -29,7 +29,8 @@ import {
 } from '../src/utils/main/airtableRecords'
 import {
   MAX_SOURCE_IMAGE_BYTES,
-  collectSyncResults
+  collectSyncResults,
+  formatProblems
 } from '../src/utils/main/airtableFieldValues'
 import { tryCatchAsync } from '../src/utils/shared/tryCatch'
 import {
@@ -415,7 +416,7 @@ async function storeSyncedImage(
 function throwOnImageProblems(problems: string[], what: string): void {
   if (problems.length === 0) return
   throw new Error(
-    `${problems.length} ${what} cannot be published:\n${problems.map((p) => `  - ${p}`).join('\n')}`
+    formatProblems(`${problems.length} ${what} cannot be published`, problems)
   )
 }
 
