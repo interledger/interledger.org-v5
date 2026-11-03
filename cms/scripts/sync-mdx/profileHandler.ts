@@ -3,8 +3,11 @@
  *
  * Handles:
  * - <ProfileCard pathSlug="..." />
- * - <ProfileGrid heading="..." pathSlugs={["a","b"]} />
- * - <ProfileGrid heading="..." category="..." />
+ * - <ProfileGrid intro={{ heading: '...' }} pathSlugs={["a","b"]} />
+ * - <ProfileGrid intro={{ heading: '...' }} category="..." />
+ *
+ * A legacy ProfileGrid `heading` attribute is still read, as the intro
+ * heading.
  *
  * Both handlers resolve profile pathSlugs to Strapi document IDs
  * via the generic `resolveRelation` function on ParserContext.

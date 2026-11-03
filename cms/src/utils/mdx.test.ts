@@ -6,6 +6,7 @@ import {
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
   formatMdx,
+  hasMediaValue,
   looksLikeHtmlField,
   yamlSingleQuoteScalar
 } from './mdx'
@@ -267,5 +268,28 @@ describe('yamlSingleQuoteScalar', () => {
     [undefined, 'null']
   ])('serializes %j as %j', (value, expected) => {
     expect(yamlSingleQuoteScalar(value)).toBe(expected)
+  })
+})
+
+describe('hasMediaValue', () => {
+  // Every shape a media relation takes in a Strapi write (raw id, id-only
+  // reference, upload object) or after population on read.
+  it.each([
+    ['an upload id', 378],
+    ['a string id', '378'],
+    ['an id-only reference', { id: 378 }],
+    ['an upload object', { id: 378, url: '/uploads/feature.jpg' }],
+    ['a populated file without an id', { url: '/uploads/feature.jpg' }]
+  ])('is true for %s', (_case, media) => {
+    expect(hasMediaValue(media)).toBe(true)
+  })
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty object', {}],
+    ['an object with an empty url', { url: '' }]
+  ])('is false for %s', (_case, media) => {
+    expect(hasMediaValue(media)).toBe(false)
   })
 })

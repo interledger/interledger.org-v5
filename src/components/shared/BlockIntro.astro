@@ -36,6 +36,12 @@ const description = await parseMarkdown(normalized?.description, {
 })
 ---
 
+{/*
+  An empty intro still leaves the block's default top spacer (ADR-009, A1;
+  Figma's min height on the intro). components/block-intro.css sizes it, and
+  only inside a block that owns its spacing.
+*/}
+{!normalized && <div data-intro-spacer aria-hidden="true" />}
 {normalized && <header data-block-intro class="pt-(--intro-top)">
   {normalized.heading && <h2
     id={headingId}

@@ -1,6 +1,8 @@
 /**
  * LogoCarousel component handler for the MDX block parser. Handles:
- * <LogoCarousel heading="..." accessibilityLabel="..." logos={[{ name, src }, ...]} />
+ * <LogoCarousel intro={{ heading: '...' }} accessibilityLabel="..." logos={[{ name, src }, ...]} />
+ *
+ * A legacy `heading` attribute is still read, as the intro heading.
  *
  * `logos` isn't JSON — Prettier reformats it to JS object-literal syntax on write —
  * so it's extracted via getStaticLiteralAttr's ESTree evaluator, not JSON.parse.

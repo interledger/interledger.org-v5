@@ -14,7 +14,14 @@ import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 
 export type { Hero, HeroCta }
 
-type MediaLike = { url?: string; formats?: MediaFile['formats'] }
+type MediaLike = {
+  id?: number | string | null
+  url?: string
+  formats?: MediaFile['formats']
+}
+
+/** A media relation as a Strapi write or read can carry it. See {@link hasMediaValue}. */
+export type MediaValue = MediaLike | number | string | undefined | null
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
@@ -129,19 +136,18 @@ export function yamlLiteralBlockScalar(
 
 /**
  * True when a media relation field carries some value, whether or not it has
- * been populated yet. Strapi's document-service create/update payload (what
- * `registerDocumentValidation` middleware sees) only ever has the raw
- * uploaded file ID for a media relation — `getImageUrl`'s `.url` check would
- * always read as "missing" there, since population only happens on read.
+ * been populated yet. A document-service create/update payload (what
+ * `registerDocumentValidation` middleware sees) can hold the raw upload ID
+ * (the MDX sync sends one), an ID-only reference such as `{ id: 378 }` (a
+ * valid REST body) or the full upload object (the admin sends one), so the
+ * check can't rely on `.url`, which only a populated file is sure to have.
  * Use this for required-field validation; use `getImageUrl` once the
  * relation has actually been populated (e.g. MDX export via `findOne`).
  */
-export function hasMediaValue(
-  media: MediaLike | number | string | undefined | null
-): boolean {
+export function hasMediaValue(media: MediaValue): boolean {
   if (media == null) return false
   if (typeof media === 'number' || typeof media === 'string') return true
-  return Boolean(media.url)
+  return media.id != null || Boolean(media.url)
 }
 
 /**

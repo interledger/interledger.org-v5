@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -26,6 +26,12 @@ import {
   type ResolvedRouteInput,
   type TargetIndex
 } from './validate-internal-links'
+
+// A fixture list, not the real one: the real list can be empty, and these
+// tests exercise how the hook consults an entry, not which entries exist.
+vi.mock('./internal-link-exceptions', () => ({
+  INTERNAL_LINK_EXCEPTIONS: ['/known-broken']
+}))
 
 // A directory-index page: `blog/post/index.html`, which Netlify serves at
 // `/blog/post/`. `servedWithTrailingSlash` only changes relative resolution.
@@ -77,17 +83,20 @@ describe('classifyHref', () => {
     expect(classifyHref('https://interledger.org/es/blog', CTX)).toEqual({
       pathname: '/es/blog',
       fragment: null,
-      malformed: false
+      malformed: false,
+      slashless: true
     })
     expect(classifyHref('https://www.interledger.org/about-us/', CTX)).toEqual({
       pathname: '/about-us',
       fragment: null,
-      malformed: false
+      malformed: false,
+      slashless: false
     })
     expect(classifyHref('http://interledger.org/es/blog', CTX)).toEqual({
       pathname: '/es/blog',
       fragment: null,
-      malformed: false
+      malformed: false,
+      slashless: true
     })
   })
 
@@ -95,12 +104,14 @@ describe('classifyHref', () => {
     expect(classifyHref('/contact/?success=true', CTX)).toEqual({
       pathname: '/contact',
       fragment: null,
-      malformed: false
+      malformed: false,
+      slashless: false
     })
     expect(classifyHref('/a/?x=1#frag', CTX)).toEqual({
       pathname: '/a',
       fragment: 'frag',
-      malformed: false
+      malformed: false,
+      slashless: false
     })
   })
 
@@ -108,7 +119,8 @@ describe('classifyHref', () => {
     expect(classifyHref('#section', CTX)).toEqual({
       pathname: '/blog/post',
       fragment: 'section',
-      malformed: false
+      malformed: false,
+      slashless: false
     })
     expect(classifyHref('#', CTX)?.fragment).toBe('')
   })
@@ -152,23 +164,87 @@ describe('classifyHref', () => {
   it('keeps an undecodable fragment as written', () => {
     // The path decodes, so this is not `malformed`; the fragment just cannot be
     // decoded, and has to survive for the id comparison to stand a chance.
-    expect(classifyHref('/a#b%2', CTX)).toEqual({
+    expect(classifyHref('/a/#b%2', CTX)).toEqual({
       pathname: '/a',
       fragment: 'b%2',
-      malformed: false
+      malformed: false,
+      slashless: false
     })
   })
 
   it('decodes percent-encoded paths and fragments', () => {
-    expect(classifyHref('/es/blog/a%20b#secci%C3%B3n', CTX)).toEqual({
+    expect(classifyHref('/es/blog/a%20b/#secci%C3%B3n', CTX)).toEqual({
       pathname: '/es/blog/a b',
       fragment: 'sección',
-      malformed: false
+      malformed: false,
+      slashless: false
     })
   })
 
   it('preserves case', () => {
     expect(classifyHref('/Blog/Post', CTX)?.pathname).toBe('/Blog/Post')
+  })
+
+  describe('slashless', () => {
+    const slashless = (raw: string, ctx = CTX) =>
+      classifyHref(raw, ctx)?.slashless
+
+    it('flags a page link without a trailing slash', () => {
+      expect(slashless('/about-us/')).toBe(false)
+      expect(slashless('/about-us')).toBe(true)
+    })
+
+    it('reads the path before the query and fragment', () => {
+      expect(slashless('/contact/?success=true')).toBe(false)
+      expect(slashless('/a/#frag')).toBe(false)
+      expect(slashless('/a/?x=1#frag')).toBe(false)
+      expect(slashless('/contact?success=true')).toBe(true)
+      expect(slashless('/a#frag')).toBe(true)
+    })
+
+    it('never flags a bare fragment', () => {
+      // Its pathname is the page's own normalised path, slashless by design.
+      expect(slashless('#section')).toBe(false)
+    })
+
+    it('flags a self-origin absolute URL', () => {
+      expect(slashless('https://interledger.org/es/blog')).toBe(true)
+      expect(slashless('https://interledger.org/es/blog/')).toBe(false)
+      expect(slashless('https://interledger.org')).toBe(false)
+    })
+
+    it('exempts files', () => {
+      expect(slashless('/img/a.png')).toBe(false)
+      expect(slashless('/paper.pdf#page=2')).toBe(false)
+      expect(slashless('/es/grantee-search-index.json')).toBe(false)
+    })
+
+    it('treats a dot that is not a trailing extension as a page', () => {
+      // Same rule as the CMS's toSlashedPath, which slashes these on save.
+      expect(slashless('/blog/v2.0-release')).toBe(true)
+      expect(slashless('/blog/foo.')).toBe(true)
+    })
+
+    it('treats a trailing dot and digits as a page, not an extension', () => {
+      expect(slashless('/blog/what-is-web3.0')).toBe(true)
+      expect(slashless('/blog/what-is-web3.0/')).toBe(false)
+      expect(slashless('/release/1.2.3')).toBe(true)
+    })
+
+    it('still exempts an extension that has digits in it', () => {
+      expect(slashless('/audio/episode.mp3')).toBe(false)
+      expect(slashless('/archive.7z')).toBe(false)
+    })
+
+    it('exempts the root and the 404 page', () => {
+      expect(slashless('/')).toBe(false)
+      expect(slashless('/404')).toBe(false)
+    })
+
+    it('reads a relative link once it is resolved', () => {
+      expect(slashless('sibling')).toBe(true)
+      expect(slashless('sibling/')).toBe(false)
+    })
   })
 })
 
@@ -597,7 +673,7 @@ describe('findBrokenRedirects', () => {
   })
 
   it('normalises a trailing slash on the destination', () => {
-    // Five real destinations are written this way; the index has no slash.
+    // Real destinations are written slashed; the index keys have no slash.
     expect(
       findBrokenRedirects(index(new Map([['/a', '/tech/overview/']])))
     ).toEqual([])
@@ -615,13 +691,24 @@ describe('findBrokenRedirects', () => {
 
 describe('formatFindings', () => {
   it('truncates at 25 with an overflow note', () => {
-    const entries = Array.from({ length: 30 }, (_, i): [string, Finding] => [
-      `/x${i}`,
-      { reason: 'missing-page', file: 'a.html', count: 1 }
-    ])
-    const out = formatFindings(entries)
+    const findings = new Map(
+      Array.from({ length: 30 }, (_, i): [string, Finding] => [
+        `/x${i}`,
+        { reason: 'missing-page', file: 'a.html', count: 1 }
+      ])
+    )
+    const out = formatFindings(findings)
     expect(out).toContain('…and 5 more')
     expect(out.split('\n').filter((l) => l.startsWith('  - '))).toHaveLength(25)
+  })
+
+  it('lists the most-linked target first', () => {
+    const findings = new Map<string, Finding>([
+      ['/rare', { reason: 'missing-page', file: 'a.html', count: 1 }],
+      ['/common', { reason: 'missing-page', file: 'b.html', count: 9 }]
+    ])
+    const [first] = formatFindings(findings).split('\n')
+    expect(first).toContain('/common')
   })
 })
 
@@ -716,7 +803,7 @@ const catchAllRoute = (): ResolvedRouteInput => ({
 describe('validateInternalLinks', () => {
   it('passes a clean tree', async () => {
     const { error, info } = await runCheck({
-      'index.html': '<a href="/about-us">about</a>',
+      'index.html': '<a href="/about-us/">about</a>',
       'about-us/index.html': '<a href="/">home</a>'
     })
     expect(error).toBeNull()
@@ -725,9 +812,17 @@ describe('validateInternalLinks', () => {
 
   it('fails on a dead page link', async () => {
     const { error } = await runCheck({
-      'index.html': '<a href="/node/1365">drupal</a>'
+      'index.html': '<a href="/node/1365/">drupal</a>'
     })
     expect(error?.message).toContain('/node/1365')
+    expect(error?.message).toContain('no page, redirect, or SSR route')
+  })
+
+  it('reports a dead link to a dotted page slug as a missing page', async () => {
+    const { error } = await runCheck({
+      'index.html': '<a href="/blog/what-is-web3.0/">web3</a>'
+    })
+    expect(error?.message).toContain('/blog/what-is-web3.0')
     expect(error?.message).toContain('no page, redirect, or SSR route')
   })
 
@@ -736,7 +831,7 @@ describe('validateInternalLinks', () => {
     // every path; if the resolver ever consults route patterns, this passes and
     // the check is worthless from then on.
     const { error } = await runCheck(
-      { 'index.html': '<a href="/definitely-not-a-page">x</a>' },
+      { 'index.html': '<a href="/definitely-not-a-page/">x</a>' },
       [catchAllRoute()]
     )
     expect(error?.message).toContain('/definitely-not-a-page')
@@ -744,7 +839,7 @@ describe('validateInternalLinks', () => {
 
   it('accepts a link to an SSR route that emits no HTML', async () => {
     const { error } = await runCheck(
-      { 'index.html': '<a href="/tech/roadmap">roadmap</a>' },
+      { 'index.html': '<a href="/tech/roadmap/">roadmap</a>' },
       [ssrRoute('/tech/roadmap')]
     )
     expect(error).toBeNull()
@@ -752,7 +847,7 @@ describe('validateInternalLinks', () => {
 
   it('accepts a link that only a redirect resolves', async () => {
     const { error } = await runCheck(
-      { 'index.html': '<a href="/home">home</a>' },
+      { 'index.html': '<a href="/home/">home</a>' },
       [
         {
           pattern: '/home',
@@ -771,9 +866,9 @@ describe('validateInternalLinks', () => {
       '404.html': '',
       'new/a/index.html': '',
       'index.html': [
-        '<a href="/old/a">legacy, lands on a page</a>',
-        '<a href="/new/a">canonical, a real page wins over the 404 rule</a>',
-        '<a href="/new/gone">404 rule</a>'
+        '<a href="/old/a/">legacy, lands on a page</a>',
+        '<a href="/new/a/">canonical, a real page wins over the 404 rule</a>',
+        '<a href="/new/gone/">404 rule</a>'
       ].join('')
     })
     expect(error?.message).toContain('1 do not resolve')
@@ -784,7 +879,7 @@ describe('validateInternalLinks', () => {
     // classifyHref only flags it; without this, the whole malformed-url reason
     // could be deleted from the hook and every test would still pass.
     const { error } = await runCheck({
-      'index.html': '<a href="/a%2">x</a>'
+      'index.html': '<a href="/a%2/">x</a>'
     })
     expect(error?.message).toContain('/a%2')
     expect(error?.message).toContain('malformed URL')
@@ -796,7 +891,7 @@ describe('validateInternalLinks', () => {
     const { error } = await runCheck({
       'index.html':
         '<img src="/uploads/gone.png"><img src="/uploads/gone.png">',
-      'other/index.html': '<a href="/node/1">x</a>'
+      'other/index.html': '<a href="/node/1/">x</a>'
     })
     const lines = (error?.message ?? '')
       .split('\n')
@@ -819,7 +914,7 @@ describe('validateInternalLinks', () => {
 
   it('fails on a dangling fragment', async () => {
     const { error } = await runCheck({
-      'index.html': '<a href="/a#htlas-without-ledger-supoprt">x</a>',
+      'index.html': '<a href="/a/#htlas-without-ledger-supoprt">x</a>',
       'a/index.html': '<h2 id="htlas-without-ledger-support">ok</h2>'
     })
     expect(error?.message).toContain('#htlas-without-ledger-supoprt')
@@ -849,7 +944,7 @@ describe('validateInternalLinks', () => {
   it('accepts a fragment that exists, including #top and bare #', async () => {
     const { error } = await runCheck({
       'index.html':
-        '<a href="/a#real">x</a><a href="#top">t</a><a href="#">b</a>',
+        '<a href="/a/#real">x</a><a href="#top">t</a><a href="#">b</a>',
       'a/index.html': '<h2 id="real">ok</h2>'
     })
     expect(error).toBeNull()
@@ -867,7 +962,7 @@ describe('validateInternalLinks', () => {
 
   it('does not check fragments behind an SSR route', async () => {
     const { error, info } = await runCheck(
-      { 'index.html': '<a href="/tech/roadmap#phase-2">x</a>' },
+      { 'index.html': '<a href="/tech/roadmap/#phase-2">x</a>' },
       [ssrRoute('/tech/roadmap')]
     )
     expect(error).toBeNull()
@@ -877,7 +972,7 @@ describe('validateInternalLinks', () => {
   it('catches a broken self-origin absolute URL', async () => {
     const { error } = await runCheck({
       'index.html':
-        '<link rel="alternate" hreflang="es" href="https://interledger.org/es/blog/category/all/14">'
+        '<link rel="alternate" hreflang="es" href="https://interledger.org/es/blog/category/all/14/">'
     })
     expect(error?.message).toContain('/es/blog/category/all/14')
   })
@@ -887,7 +982,7 @@ describe('validateInternalLinks', () => {
     // is /blog/post/sibling. Resolving against /blog/post looked for
     // /blog/sibling and reported a working link as broken.
     const { error } = await runCheck({
-      'blog/post/index.html': '<a href="sibling">next</a>',
+      'blog/post/index.html': '<a href="sibling/">next</a>',
       'blog/post/sibling/index.html': '<p>here</p>'
     })
     expect(error).toBeNull()
@@ -912,10 +1007,9 @@ describe('validateInternalLinks', () => {
   })
 
   it('suppresses a target listed in INTERNAL_LINK_EXCEPTIONS', async () => {
-    // Exercises the real list rather than a fixture, so an entry that stops
-    // matching the audit's normalised form shows up here.
+    // Listed in its normalised form, so the slashed link must still match.
     const { error } = await runCheck({
-      'index.html': '<a href="/es/404">es</a>'
+      'index.html': '<a href="/known-broken/">x</a>'
     })
     expect(error).toBeNull()
   })
@@ -926,11 +1020,11 @@ describe('validateInternalLinks', () => {
     // target is still referenced, or it sits in the list ready to hide the
     // next real breakage on that path.
     const { warn, error } = await runCheck({
-      'index.html': '<a href="/es/404">es</a>',
-      'es/404/index.html': '<p>no encontrado</p>'
+      'index.html': '<a href="/known-broken/">x</a>',
+      'known-broken/index.html': '<p>fixed now</p>'
     })
     expect(error).toBeNull()
-    expect(warn.join('\n')).toContain('Stale link exception: /es/404')
+    expect(warn.join('\n')).toContain('Stale link exception: /known-broken')
   })
 
   it('throws when there is no HTML to scan', async () => {
@@ -959,20 +1053,19 @@ describe('validateInternalLinks', () => {
     })
 
     it('exempts one by source, and does not then call it stale', async () => {
-      // Nothing links to `/es/404`, so only the redirect sweep can mark it
-      // used — it therefore has to run before the staleness check. Move it
-      // after and this warns. Asserted per target: other entries in the real
-      // INTERNAL_LINK_EXCEPTIONS are legitimately stale in this fixture.
+      // Nothing links to `/known-broken`, so only the redirect sweep can mark
+      // it used — it therefore has to run before the staleness check. Move it
+      // after and this warns.
       const { error, warn } = await runCheck({ 'index.html': '<p>x</p>' }, [
-        redirectTo('/es/404', '/gone')
+        redirectTo('/known-broken', '/gone')
       ])
       expect(error).toBeNull()
-      expect(warn.join('\n')).not.toContain('Stale link exception: /es/404')
+      expect(warn.join('\n')).not.toContain('Stale link exception')
     })
   })
 
   describe('warn vs strict', () => {
-    const brokenLink = { 'index.html': '<a href="/node/1365">x</a>' }
+    const brokenLink = { 'index.html': '<a href="/node/1365/">x</a>' }
 
     it('warns without failing the build by default', async () => {
       const { error, warn } = await runCheck(brokenLink, [], { strict: false })
@@ -992,6 +1085,67 @@ describe('validateInternalLinks', () => {
         strict: false
       })
       expect(error?.message).toContain('no HTML to scan')
+    })
+  })
+
+  describe('slashless links', () => {
+    it('fail the build without LINK_CHECK', async () => {
+      const { error, info } = await runCheck(
+        {
+          'index.html': '<a href="/about-us">about</a>',
+          'about-us/index.html': '<a href="/">home</a>'
+        },
+        [],
+        { strict: false }
+      )
+      expect(error?.message).toContain('/about-us (no trailing slash')
+      expect(error?.message).toContain('joinPagePath')
+      expect(info.join('\n')).not.toContain('all resolve')
+    })
+
+    it('count every slashless link to a target', async () => {
+      const { error } = await runCheck(
+        {
+          'index.html':
+            '<a href="/about-us">a</a><a href="/about-us#team">b</a>',
+          'about-us/index.html': '<h2 id="team">team</h2>'
+        },
+        [],
+        { strict: false }
+      )
+      expect(error?.message).toContain('2 link(s)')
+    })
+
+    it('are not suppressed by INTERNAL_LINK_EXCEPTIONS', async () => {
+      const { error } = await runCheck(
+        { 'index.html': '<a href="/known-broken">x</a>' },
+        [],
+        { strict: false }
+      )
+      expect(error?.message).toContain('/known-broken (no trailing slash')
+    })
+
+    it('pass the root, the 404 page and files', async () => {
+      const { error } = await runCheck(
+        {
+          'index.html':
+            '<a href="/">home</a><a href="/404">404</a><img src="/a.png">',
+          '404.html': '',
+          'a.png': ''
+        },
+        [],
+        { strict: false }
+      )
+      expect(error).toBeNull()
+    })
+
+    it('share one error with the other findings under strict', async () => {
+      const { error } = await runCheck({
+        'index.html': '<a href="/about-us">a</a><a href="/node/1365/">b</a>',
+        'about-us/index.html': ''
+      })
+      expect(error?.message).toContain('/node/1365')
+      expect(error?.message).toContain('/about-us (no trailing slash')
     })
   })
 })

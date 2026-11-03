@@ -5,6 +5,7 @@ import {
   parseMarkdown,
   resolveCtaLink,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   grantOverviewHubPath,
   getGatedCollection
@@ -92,7 +93,7 @@ const t = useTranslations(routeLocale)
 const resolvedHeroTitle = heroTitle?.trim() || title
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   {
     name: t('nav.grants'),
     href: localizeRoute(grantOverviewHubPath(), routeLocale)

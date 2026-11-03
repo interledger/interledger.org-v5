@@ -219,7 +219,7 @@ describe('searchResultRowModel', () => {
       'Education'
     ])
     expect(model.tags[0].href).toBe(
-      '/grant/grantee-directory/2024/tag/open-payments?q=wallet'
+      '/grant/grantee-directory/2024/tag/open-payments/?q=wallet'
     )
     expect(model.tags[0].umami).toMatchObject({
       'data-track-event': 'button_ui',
@@ -231,7 +231,7 @@ describe('searchResultRowModel', () => {
     })
     expect(model.tags[0].umami).not.toHaveProperty('data-umami-event')
     expect(model.tags[1].href).toBe(
-      '/grant/grantee-directory/2024/tag/education?q=wallet'
+      '/grant/grantee-directory/2024/tag/education/?q=wallet'
     )
   })
 
@@ -289,6 +289,6 @@ describe('searchResultRowModel', () => {
     )
 
     expect(model.tags).toHaveLength(1)
-    expect(model.tags[0].href).toBe('/grant/grantee-directory/tag/privacy')
+    expect(model.tags[0].href).toBe('/grant/grantee-directory/tag/privacy/')
   })
 })

@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Agenda",
     "icon": "calendar",
-    "description": "A schedule of one or more days, each with its date and agenda items"
+    "description": "A schedule with an optional intro, an optional day heading and at least two agenda items"
   },
   "options": {},
   "attributes": {
@@ -11,16 +11,6 @@
       "type": "component",
       "repeatable": false,
       "component": "shared.block-intro",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "days": {
-      "type": "component",
-      "repeatable": true,
-      "component": "blocks.agenda-day",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -43,6 +33,8 @@
       "type": "component",
       "repeatable": true,
       "component": "blocks.agenda-item",
+      "required": true,
+      "min": 2,
       "pluginOptions": {
         "i18n": {
           "localized": true

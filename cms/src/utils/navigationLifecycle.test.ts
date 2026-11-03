@@ -58,6 +58,15 @@ describe('sanitizeMenuItem', () => {
     })
   })
 
+  it('stores an own-site href relative and slashed', () => {
+    expect(
+      sanitizeMenuItem({
+        label: 'About',
+        href: 'https://staging.interledger.org/about'
+      })
+    ).toEqual({ label: 'About', href: '/about/' })
+  })
+
   it('omits href when null', () => {
     expect(sanitizeMenuItem({ label: 'About', href: null })).toEqual({
       label: 'About'

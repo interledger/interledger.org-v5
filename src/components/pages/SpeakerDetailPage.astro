@@ -1,7 +1,8 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import {
-  defaultLocale,
+  localizeRoute,
+  joinPagePath,
   useTranslations,
   getTranslation,
   getTalks,
@@ -22,9 +23,11 @@ interface Props {
 const { entry, year, isFallback = false } = Astro.props
 const { routeLocale: lang, currentBasePath } = Astro.locals
 const t = useTranslations(lang)
-const langPrefix = lang === defaultLocale ? '' : `/${lang}`
-const baseHref = `${langPrefix}${currentBasePath}`
-const sessionBaseHref = `${baseHref}/${year}/talks`
+const sessionBaseHref = joinPagePath(
+  localizeRoute(currentBasePath, lang),
+  year,
+  'talks'
+)
 const sessions = await getTalks(year, entry.id)
 const translation = getTranslation(entry, lang)
 const bio = translation?.bio ?? entry.bio

@@ -128,6 +128,8 @@
      the element above it and disappears with it:
 
        --intro-top      above the intro, whenever it has content
+       --intro-empty    the whole intro when it has no content: the block's
+                        default top spacer (Figma's min height on the intro)
        --intro-h2-pt    above the heading text
        --intro-h2-h3    below the heading
        --intro-h3-pt    above the subheading text
@@ -146,6 +148,7 @@
   :root,
   [data-intro-variant] {
     --intro-top: var(--spacing-xl);
+    --intro-empty: calc(var(--spacing-lg) + var(--spacing-xs));
     --intro-h2-pt: var(--spacing-xl);
     --intro-h2-h3: var(--spacing-3xl-tight);
     --intro-h3-pt: var(--spacing-lg);
@@ -156,6 +159,8 @@
 
     @variant tablet {
       --intro-top: var(--spacing-2xl);
+      /* 30px, off the spacing scale: Figma's tablet intro min height. */
+      --intro-empty: 1.875rem;
       --intro-h2-pt: var(--spacing-2xl);
       --intro-h2-h3: var(--spacing-3xl);
       --intro-h3-pt: var(--spacing-xl);
@@ -167,6 +172,7 @@
 
     @variant desktop {
       --intro-top: var(--spacing-3xl-tight);
+      --intro-empty: var(--spacing-4xl);
       --intro-h2-pt: var(--spacing-3xl-tight);
       --intro-h2-h3: var(--spacing-4xl);
       --intro-h3-pt: var(--spacing-2xl);

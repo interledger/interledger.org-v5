@@ -81,12 +81,11 @@ const heroUmami = (href: string, linkText: string) =>
 
   <div
     class="hero-stefan-wrap pointer-events-none absolute inset-0 z-0 overflow-hidden tablet:bg-neutral-150"
-    aria-hidden="true"
   >
     <OptimizedImage
       src={primarySrc}
       alternateSources={alternateSources}
-      alt=""
+      alt={t('homepageHero.image_alt')}
       width={HERO_LCP_IMAGE_WIDTH}
       height={HERO_LCP_IMAGE_HEIGHT}
       loading="eager"

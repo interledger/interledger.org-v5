@@ -4,6 +4,7 @@ import {
   buildUmamiAttrs,
   escapeHtml,
   extractTitleLabel,
+  stripKnownOrigin,
   umamiAttrsToHtml,
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
@@ -27,8 +28,9 @@ function stripTags(html: string): string {
 const markedCache = new Map<string, Marked>()
 
 /**
- * Returns a Marked instance whose link renderer injects umami attributes,
- * opens off-site links in a new tab (see `getNewTabLinkAttrs`), and drops
+ * Returns a Marked instance whose link renderer makes own-site links relative
+ * (see `stripKnownOrigin`), injects umami attributes, opens off-site links
+ * in a new tab (see `getNewTabLinkAttrs`), and drops
  * any link whose href isn't a safe scheme (see `isSafeMarkdownHref`) rather
  * than rendering it. Images go through the image optimizer
  * (`renderOptimizedImageHtml`).
@@ -49,12 +51,15 @@ export function createMarked(context: UmamiContext = {}): Marked {
     html({ text }: Tokens.HTML | Tokens.Tag) {
       return escapeHtml(text)
     },
-    link({ href, title, tokens }: Tokens.Link) {
+    link({ href: rawHref, title, tokens }: Tokens.Link) {
+      // First, so the scheme check, umami and new-tab logic all see the href
+      // the page emits: an own-site URL as a relative path.
+      const href = stripKnownOrigin(rawHref)
       const innerHtml = this.parser.parseInline(tokens)
       // Marked only HTML-escapes href, it doesn't restrict schemes — drop
       // the link (keep the text) rather than emitting a javascript:/data:
       // href from editor-supplied markdown.
-      if (!isSafeMarkdownHref(href ?? '')) return innerHtml
+      if (!isSafeMarkdownHref(href)) return innerHtml
       const { label: baseComponentOverride, title: cleanedTitle } =
         extractTitleLabel(title)
       const attrs = buildUmamiAttrs({
@@ -71,7 +76,7 @@ export function createMarked(context: UmamiContext = {}): Marked {
         ? ` title="${escapeHtml(cleanedTitle)}"`
         : ''
       const newTab = buildNewTabLinkHtml(href, lang)
-      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
+      return `<a href="${escapeHtml(href)}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
     },
     image({ href, title, text, tokens }: Tokens.Image) {
       // Alt text as plain text, the way Marked's default renderer derives it.

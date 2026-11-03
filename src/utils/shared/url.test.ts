@@ -9,8 +9,44 @@ import {
   getHostname,
   getSocialIconName,
   getSocialPlatformName,
+  isFilePath,
+  joinPagePath,
   trimSlashes
 } from './url'
+
+describe('isFilePath', () => {
+  it.each(['/report.pdf', '/audio/episode.mp3', '/archive.7z', 'a.png'])(
+    'treats %s as a file',
+    (path) => expect(isFilePath(path)).toBe(true)
+  )
+
+  it.each([
+    '/',
+    '',
+    '/about',
+    '/about/',
+    '/blog/what-is-web3.0',
+    '/release/1.2.3',
+    '/blog/foo.',
+    '/v1.0/page'
+  ])('treats %s as a page', (path) => expect(isFilePath(path)).toBe(false))
+})
+
+describe('joinPagePath', () => {
+  it.each<[string, string[], string]>([
+    ['/blog/', ['category', 'news'], '/blog/category/news/'],
+    ['/blog', ['category', 'news'], '/blog/category/news/'],
+    ['/blog', [''], '/blog/'],
+    ['/blog/', [], '/blog/'],
+    ['/blog', ['', 'lang', '', 'es'], '/blog/lang/es/'],
+    ['/', [''], '/'],
+    ['/', ['blog'], '/blog/'],
+    ['/a', ['/b/', 'c/'], '/a/b/c/'],
+    ['/blog/', ['/', 'lang/es'], '/blog/lang/es/']
+  ])('joins %j with %j into %j', (base, segments, expected) => {
+    expect(joinPagePath(base, ...segments)).toBe(expected)
+  })
+})
 
 describe('trimSlashes', () => {
   it.each([

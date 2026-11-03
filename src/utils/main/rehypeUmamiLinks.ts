@@ -5,14 +5,16 @@ import { visit } from 'unist-util-visit'
 import {
   buildUmamiAttrs,
   extractTitleLabel,
+  stripKnownOrigin,
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
 import { LOCALE_CODES } from './localeCodes'
 import { getNewTabLinkAttrs, getOpensNewTabLabel } from './newTabLinks'
 
 /**
- * Adds umami event attributes to every `<a>` rendered from Markdown/MDX, and
- * opens off-site links in a new tab (see `getNewTabLinkAttrs`).
+ * Adds umami event attributes to every `<a>` rendered from Markdown/MDX,
+ * makes own-site links relative (see `stripKnownOrigin`), and opens off-site
+ * links in a new tab (see `getNewTabLinkAttrs`).
  *
  * `current_path` is derived from the source file's locale-aware path (or
  * `frontmatter.umamiContext` if set). Every link emits the flat `link` label
@@ -61,6 +63,7 @@ const rehypeUmamiLinks: Plugin<[], Root> = () => (tree, file: VFile) => {
 
   visit(tree, 'element', (node: Element) => {
     if (node.tagName !== 'a') return
+    relativizeSiteHref(node)
     addUmamiAttrs(node, umamiCtx)
     // After the umami pass, so the hint stays out of `link-text`.
     addNewTabAttrs(node, lang, {
@@ -85,6 +88,16 @@ function collectHeadingLinks(tree: Root): Set<Element> {
     })
   })
   return links
+}
+
+/**
+ * An own-site URL becomes a relative path, so the reader stays in the
+ * environment they are on. Runs first, so umami and the new-tab check see
+ * the href the page emits.
+ */
+function relativizeSiteHref(node: Element): void {
+  const href = node.properties?.href
+  if (typeof href === 'string') node.properties.href = stripKnownOrigin(href)
 }
 
 interface LinkUmamiContext {
