@@ -536,7 +536,12 @@ async function importAirtableData() {
   })
 
   // Each part throws when it fails. Catching each one here lets the others
-  // still run, so one failed run reports the problems of all three.
+  // still run, so one failed run reports the problems of all three. A part
+  // that passes has already stored its new images, so a failed run can leave
+  // image files that no JSON points to. In CI the runner discards them. After
+  // a failed local run they show as untracked under public/img; discard them,
+  // or keep them: the next passing run reuses them, or deletes those no
+  // record needs.
   const directoryResult = await tryCatchAsync(() =>
     fetchGranteeDirectory(meta, apiToken)
   )

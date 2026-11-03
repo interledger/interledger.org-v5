@@ -792,6 +792,8 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 
 An empty optional cell is not an error. One failure lists every bad record in all three tables, so programs can fix them in one pass. Two kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read, and images, like the directory's blank-column check, are checked only once every record passes. The site keeps the last good data until a run passes and its pull request is merged.
 
+A failed run can still store new images for the parts that passed. In CI they are discarded with the runner. After a failed local run they show as untracked files under `public/img/`; discard them, or keep them, since the next passing run reuses them or deletes those no record needs.
+
 **Requirements:**
 
 - `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
