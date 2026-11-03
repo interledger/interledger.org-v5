@@ -222,6 +222,7 @@ export {
 export {
   ALLOWED_IMAGE_TYPES,
   MAX_SOURCE_IMAGE_BYTES,
+  collectSyncResults,
   describeValue,
   isRecordLike,
   isStringArray,

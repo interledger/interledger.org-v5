@@ -27,7 +27,11 @@ import {
   selectPublishedGranteeFields,
   toGranteeRecords
 } from '../src/utils/main/airtableRecords'
-import { MAX_SOURCE_IMAGE_BYTES } from '../src/utils/main/airtableFieldValues'
+import {
+  MAX_SOURCE_IMAGE_BYTES,
+  collectSyncResults
+} from '../src/utils/main/airtableFieldValues'
+import { tryCatchAsync } from '../src/utils/shared/tryCatch'
 import {
   findHiddenProfileFields,
   profileFieldIdsToFetch,
@@ -193,6 +197,80 @@ async function fetchGranteeRecords(
   params.append('fields[]', PUBLISHED_ON_WEBSITE_FIELD_ID)
 
   return fetchAllRecords(PROJECTS_TABLE_ID, params, apiToken)
+}
+
+// The grantee columns to publish: the rendered ones visible in the view.
+function selectGranteeColumns(projectsTable: Table): GranteeFieldName[] {
+  const granteeView = findById(projectsTable.views, VIEW_ID, 'Grantee view')
+  // A deleted column fails here by name; a hidden one is only left unpublished.
+  for (const { name, id } of READ_FIELDS) {
+    findById(projectsTable.fields, id, `"${name}" field`)
+  }
+  for (const { name, airtableName } of findRenamedFields(
+    READ_FIELDS,
+    projectsTable.fields
+  )) {
+    console.warn(
+      `⚠️  Field "${name}" is named "${airtableName}" in Airtable — still synced by ID and written as "${name}"`
+    )
+  }
+  // Airtable lists visibleFieldIds for grid views only. Without this check a
+  // view of another type reads as one with every column hidden.
+  const visibleFieldIds = granteeView.visibleFieldIds
+  if (visibleFieldIds === undefined) {
+    throw new Error(
+      `View '${VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
+    )
+  }
+  const selection = selectPublishedGranteeFields(visibleFieldIds)
+  if (selection instanceof Error) throw selection
+  const { published, hidden } = selection
+  if (hidden.length > 0) {
+    console.log(
+      `ℹ️  Read by the site but hidden in the view, so not written: ${hidden.join(', ')}`
+    )
+  }
+  const unrenderedFields = listUnrenderedViewFields(
+    visibleFieldIds,
+    projectsTable.fields
+  )
+  if (unrenderedFields.length > 0) {
+    console.log(
+      `ℹ️  Visible in the view but not read by the site, so not written: ${unrenderedFields.join(', ')}`
+    )
+  }
+  return published
+}
+
+async function fetchGranteeDirectory(
+  meta: TableMeta,
+  apiToken: string
+): Promise<TableRecord[]> {
+  const contactsTable = findById(
+    meta.tables,
+    CONTACTS_TABLE_ID,
+    'Contacts table'
+  )
+  const projectsTable = findById(
+    meta.tables,
+    PROJECTS_TABLE_ID,
+    'Projects table'
+  )
+  const published = selectGranteeColumns(projectsTable)
+
+  const allGranteeData = await fetchGranteeRecords(published, apiToken)
+  const publishedRecords = filterPublishedRecords(
+    allGranteeData,
+    PUBLISHED_ON_WEBSITE_FIELD_ID
+  )
+  if (publishedRecords instanceof Error) throw publishedRecords
+  const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
+  const granteeData = toGranteeRecords(publishedRecords, contactsMap)
+  if (granteeData instanceof Error) throw granteeData
+  // Last, so a column emptied at any step above fails the sync.
+  const missingFields = checkGranteeFieldsPresent(granteeData, published)
+  if (missingFields instanceof Error) throw missingFields
+  return granteeData
 }
 
 async function fetchGrantReports(
@@ -458,76 +536,29 @@ async function importAirtableData() {
     return r.json()
   })
 
-  const contactsTable = findById(
-    meta.tables,
-    CONTACTS_TABLE_ID,
-    'Contacts table'
+  // The parts throw on the first problem they cannot list (see findById), so
+  // each is caught here: a broken part must not hide the problems of the
+  // others. They run one after another, as their image downloads always have.
+  const directoryResult = await tryCatchAsync(() =>
+    fetchGranteeDirectory(meta, apiToken)
   )
-  const projectsTable = findById(
-    meta.tables,
-    PROJECTS_TABLE_ID,
-    'Projects table'
+  const reportsResult = await tryCatchAsync(async () =>
+    addReportImages(await fetchGrantReports(meta, apiToken))
   )
-  const granteeView = findById(projectsTable.views, VIEW_ID, 'Grantee view')
-  // A deleted column fails here by name; a hidden one is only left unpublished.
-  for (const { name, id } of READ_FIELDS) {
-    findById(projectsTable.fields, id, `"${name}" field`)
-  }
-  for (const { name, airtableName } of findRenamedFields(
-    READ_FIELDS,
-    projectsTable.fields
-  )) {
-    console.warn(
-      `⚠️  Field "${name}" is named "${airtableName}" in Airtable — still synced by ID and written as "${name}"`
-    )
-  }
-  // Airtable lists visibleFieldIds for grid views only. Without this check a
-  // view of another type reads as one with every column hidden.
-  const visibleFieldIds = granteeView.visibleFieldIds
-  if (visibleFieldIds === undefined) {
-    throw new Error(
-      `View '${VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
-    )
-  }
-  const selection = selectPublishedGranteeFields(visibleFieldIds)
-  if (selection instanceof Error) throw selection
-  const { published, hidden } = selection
-  if (hidden.length > 0) {
-    console.log(
-      `ℹ️  Read by the site but hidden in the view, so not written: ${hidden.join(', ')}`
-    )
-  }
-  const unrenderedFields = listUnrenderedViewFields(
-    visibleFieldIds,
-    projectsTable.fields
+  const profilesResult = await tryCatchAsync(async () =>
+    addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
-  if (unrenderedFields.length > 0) {
-    console.log(
-      `ℹ️  Visible in the view but not read by the site, so not written: ${unrenderedFields.join(', ')}`
-    )
-  }
+  const results = collectSyncResults([
+    directoryResult,
+    reportsResult,
+    profilesResult
+  ])
+  if (results instanceof Error) throw results
+  const [granteeData, grantReports, granteeProfiles] = results
 
-  const allGranteeData = await fetchGranteeRecords(published, apiToken)
-  const publishedRecords = filterPublishedRecords(
-    allGranteeData,
-    PUBLISHED_ON_WEBSITE_FIELD_ID
-  )
-  if (publishedRecords instanceof Error) throw publishedRecords
-  const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  const finalGranteeData = toGranteeRecords(publishedRecords, contactsMap)
-  if (finalGranteeData instanceof Error) throw finalGranteeData
-  // Last, so a column emptied at any step above fails the sync.
-  const missingFields = checkGranteeFieldsPresent(finalGranteeData, published)
-  if (missingFields instanceof Error) throw missingFields
-  const grantReports = await addReportImages(
-    await fetchGrantReports(meta, apiToken)
-  )
-  const granteeProfiles = await addProfileLogos(
-    await fetchGranteeProfiles(meta, apiToken)
-  )
   // Written only after every part succeeds, so a failed run leaves no file
   // half-updated.
-  await writeAirtableJson(finalGranteeData, GRANTEE_JSON_FILE)
+  await writeAirtableJson(granteeData, GRANTEE_JSON_FILE)
   await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
   await writeAirtableJson(granteeProfiles, GRANTEE_PROFILES_JSON_FILE)
   await removeOrphanImages(

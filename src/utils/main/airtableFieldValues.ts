@@ -1,9 +1,8 @@
 import type { SyncedImageSource } from '@/types/airtable'
 
-// Value readers shared by the grant report and grantee profile parts of
-// scripts/import-airtable.ts. Each reader returns undefined, or a short
-// "expected ..." text, for a value it cannot use, so the caller can name the
-// Airtable field in its error.
+// Helpers shared by the parts of scripts/import-airtable.ts. Each value reader
+// returns undefined, or a short "expected ..." text, for a value it cannot
+// use, so the caller can name the Airtable field in its error.
 
 // The file types the site accepts. Airtable does not limit them, so the sync
 // fails on any other type, for example HEIC from an iPhone or a PDF.
@@ -68,6 +67,21 @@ function readAttachment(
     }
   }
   return { attachmentId: file.id, url: file.url, sizeBytes: file.size, alt }
+}
+
+// The results of the sync's parts: every value, in order, or one Error listing
+// every part that failed, so a single run reports every problem.
+export function collectSyncResults<
+  const T extends readonly unknown[]
+>(results: { readonly [K in keyof T]: T[K] | Error }): T | Error {
+  const errors = results.filter(
+    (result): result is Error => result instanceof Error
+  )
+  if (errors.length > 0) {
+    return new Error(errors.map((error) => error.message).join('\n\n'))
+  }
+  // No result is an Error, so each one is its part's value.
+  return results as unknown as T
 }
 
 // An image field is optional, but it holds at most one file, of an allowed
