@@ -153,6 +153,13 @@ describe('toGrantReport', () => {
     }
   })
 
+  it('ignores the description of a slot with no image, which is never published', () => {
+    const parsed = expectParsed(
+      toGrantReport(liveReport({ [F.imageDescription2.id]: 42 }))
+    )
+    expect(parsed.imageSources).toEqual([])
+  })
+
   it('accepts every allowed image type', () => {
     for (const type of ALLOWED_IMAGE_TYPES) {
       expectParsed(

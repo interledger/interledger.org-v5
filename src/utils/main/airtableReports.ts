@@ -223,10 +223,13 @@ export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
     outputTypes: read.options('outputTypes'),
     interledgerTechnologies: read.options('interledgerTechnologies')
   }
-  const imageSources = IMAGE_SLOTS.flatMap(
-    ({ image, description }) =>
-      read.image(image, read.optionalText(description)) ?? []
-  )
+  // A description is read only for a slot with an image: on its own it is
+  // never published, so it cannot fail the sync.
+  const imageSources = IMAGE_SLOTS.flatMap(({ image, description }) => {
+    const source = read.image(image, '')
+    if (source === undefined) return []
+    return [{ ...source, alt: read.optionalText(description) }]
+  })
 
   if (read.problems.length === 0) return { content, imageSources }
   return new Error(
