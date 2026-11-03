@@ -1,0 +1,16 @@
+# The build context is the repository root, for cms/Dockerfile. The image needs only
+# cms/, patches/ and the site schemas the sync scripts import. Everything else is
+# excluded, so a change to the Astro site does not invalidate the image cache.
+*
+!cms/
+!patches/
+!src/schemas/content.ts
+
+# Local build output, dependencies and state.
+cms/node_modules/
+cms/dist/
+cms/.tmp/
+cms/.strapi/
+cms/coverage/
+cms/.env
+cms/.ci-api-token
