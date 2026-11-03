@@ -4,6 +4,7 @@ import {
   type Locale,
   isDemoPathSlug,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   getGatedCollection
 } from '@/utils'
@@ -39,6 +40,7 @@ import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import ImageBlock from '@/components/blocks/ImageBlock.astro'
 import CodeBlock from '@/components/blocks/CodeBlock.astro'
+import Timeline from '@/components/blocks/Timeline.astro'
 
 interface Props {
   slug: string
@@ -81,7 +83,7 @@ const noindex = isDemoPathSlug(mdxPage.data.pathSlug)
 if (isNotFound) return Astro.redirect('/404')
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: heroTitle ?? title, href: localizeRoute(slug, routeLocale) }
 ]
 
@@ -163,7 +165,8 @@ const heroLcpPreload =
               EventApply,
               LogoCarousel,
               ImageBlock,
-              CodeBlock
+              CodeBlock,
+              Timeline
             }}
           />
         </div>

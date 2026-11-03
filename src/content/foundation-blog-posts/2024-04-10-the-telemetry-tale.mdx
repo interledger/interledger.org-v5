@@ -1,22 +1,26 @@
 ---
 title: 'The Telemetry Tale: A Journey into the Metrics of Interledger'
-description: When simple metrics are paired with complex cloud solutions and important privacy considerations, the implementation process becomes significantly more complicated.
+description: 'When simple metrics are paired with complex cloud solutions and important privacy considerations, the implementation process becomes significantly more complicated.'
 date: 2024-04-10
 pathSlug: /the-telemetry-tale/
 featured: false
 locale: en
+featureImage: '/img/tech-thumbnail.svg'
+featureImageBlur: 'data:image/webp;base64,UklGRn4AAABXRUJQVlA4WAoAAAAQAAAAEwAACgAAQUxQSBwAAAABD0CQbePPvO3XiIg4IMw2OoP50/Z9BhH9T9pDVlA4IDwAAAAQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQAALe4aYWUAA/ujDz5gY6w4dPJr2H+DLbYqP+Dcjb5DAAAA='
 articleBios:
-  - author: Sarah Jones
-    link: https://www.linkedin.com/in/sarah-jones-ba6bb6b9
+  - author: 'Sarah Jones'
+    link: 'https://www.linkedin.com/in/sarah-jones-ba6bb6b9'
 categories:
-  - Engineering
-  - Interledger Technology
+  - 'Engineering'
+  - 'Interledger Technology'
 relatedArticles:
-  - /interledger-how-to-interconnect-all-blockchains-and-value-networks/
-  - /rafiki-card-integration/
-  - /introducing-publisher-tools/
+  - '/interledger-how-to-interconnect-all-blockchains-and-value-networks/'
+  - '/rafiki-card-integration/'
+  - '/introducing-publisher-tools/'
 legacy: true
 ---
+
+<Paragraph>
 
 ## Charting the Course
 
@@ -118,7 +122,7 @@ This noise is derived from the Laplacian distribution which is generated based o
 
 Central to our privacy framework is empowering ASEs with the informed ability to opt-in or opt-out of the telemetry service. We also only collect data on outgoing payments, thus honoring the preferences of those who may choose to disable telemetry. In other words if one ASE enables telemetry and receives payments from an entity who has not enabled telemetry we won’t collect metrics on those incoming payments.
 
-For more information please have a look at our privacy [docs](https://github.com/interledger/rafiki/blob/main/packages/documentation/src/content/docs/telemetry/privacy.md) and our [implementation](https://github.com/interledger/rafiki/blob/main/packages/backend/src/telemetry/privacy.ts).
+For more information please have a look at our privacy [docs](https://rafiki.dev/overview/concepts/telemetry/#privacy-and-optionality) and our [implementation](https://github.com/interledger/rafiki/blob/main/packages/backend/src/telemetry/privacy.ts).
 
 ## Architecture and Instrumentation
 
@@ -145,7 +149,7 @@ In order for ASEs to build their own telemetry solution, Rafiki can send data to
 
 Thus ASEs can choose to opt-in and send telemetry metrics to us, optionally collect metrics for their own personal use, or opt-out of telemetry entirely.
 
-Please check out our telemetry [docs](https://github.com/interledger/rafiki/blob/main/packages/documentation/src/content/docs/telemetry/overview.md), [integration guide](https://github.com/interledger/rafiki/blob/main/packages/documentation/src/content/docs/telemetry/integrating.md), and our telemetry [code](https://github.com/interledger/rafiki/tree/main/packages/backend/src/telemetry) on GitHub.
+Please check out our telemetry [docs](https://github.com/interledger/rafiki/blob/main/packages/documentation/src/content/docs/overview/concepts/telemetry.mdx), [integration guide](https://github.com/interledger/rafiki/blob/main/packages/documentation/src/content/docs/telemetry/integrating.md), and our telemetry [code](https://github.com/interledger/rafiki/tree/main/packages/backend/src/telemetry) on GitHub.
 
 ### Reflecting on Our Journey
 
@@ -156,3 +160,5 @@ That said, we could have benefited from more time upfront for understanding and 
 We look forward to having a real handle on the pulse of the ILP network soon. Of course, this journey is far from its conclusion. Telemetry, by its nature, is an ever-evolving domain, requiring adaptation to meet the network's growing needs and challenges. Having laid a solid foundation, future developments should be smoother.
 
 As we reflect on our path thus far, the question is: "Given our current knowledge and experiences, would we approach this project differently?" In hindsight, we would have used self-hosted Prometheus and Grafana instances from the start and avoided many of the problems we faced. This is a goal which remains on our roadmap, in order to provide us with the flexibility we seek. Some of the back and forth on our decision-making would have been smoother had we spent some more time in discussions at the start about what privacy factors to keep in mind and how public our results were intended to be.
+
+</Paragraph>

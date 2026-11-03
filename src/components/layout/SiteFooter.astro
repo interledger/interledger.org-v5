@@ -5,6 +5,7 @@ import {
   buildUmamiAttrs,
   getNavigation,
   localizeRoute,
+  stripTrailingSlash,
   socialLinks,
   getFooterOnlyColumn,
   HACKATHON_HOME_SLUG,
@@ -73,9 +74,10 @@ const footerSocialLink = (href: string, ariaLabel?: string) =>
     ariaLabel
   })
 
-const currentPath = Astro.url.pathname.replace(/\/$/, '')
+const currentPath = stripTrailingSlash(Astro.url.pathname)
+// Footer hrefs are already localized
 const isActive = (href: string | null | undefined) =>
-  !!href && currentPath === localizeRoute(href, routeLocale).replace(/\/$/, '')
+  !!href && stripTrailingSlash(href) === currentPath
 const isHackathonSite = site === 'hackathon'
 
 // Inline rather than the button's inline-flex, so a wrapped label keeps the

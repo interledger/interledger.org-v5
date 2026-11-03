@@ -65,6 +65,10 @@ export function parseGranteeSearchIndex(
   return entries
 }
 
+export function isIndexCached(url: string): boolean {
+  return cachedIndexes.has(url)
+}
+
 export async function loadIndex(
   url: string
 ): Promise<GranteeSearchEntry[] | Error> {
@@ -126,6 +130,7 @@ export interface GranteeSearchViewState {
   staticHidden: boolean
   emptyHidden: boolean
   resultsHidden: boolean
+  skeletonHidden: boolean
   paginationHidden: boolean
   errorHidden: boolean
   countHidden: boolean
@@ -139,7 +144,7 @@ type GranteeSearchViewMode =
       initialStaticHidden: boolean
       initialEmptyHidden: boolean
     }
-  | { mode: 'searching' }
+  | { mode: 'searching'; awaitingFetch: boolean }
   | { mode: 'results'; resultsCount: number }
   | {
       mode: 'error'
@@ -163,6 +168,7 @@ export function computeSearchViewState(
       staticHidden: input.initialStaticHidden,
       emptyHidden: input.initialEmptyHidden,
       resultsHidden: true,
+      skeletonHidden: true,
       paginationHidden: false,
       errorHidden: true,
       countHidden: false,
@@ -176,9 +182,11 @@ export function computeSearchViewState(
       staticHidden: true,
       emptyHidden: true,
       resultsHidden: true,
+      skeletonHidden: !input.awaitingFetch,
       paginationHidden: true,
       errorHidden: true,
-      countHidden: true,
+      // Holds "Searching…" so results don't land a line lower
+      countHidden: !input.awaitingFetch,
       searchingHidden: false,
       rootBusy: true
     }
@@ -189,6 +197,7 @@ export function computeSearchViewState(
       staticHidden: input.initialStaticHidden,
       emptyHidden: input.initialEmptyHidden,
       resultsHidden: true,
+      skeletonHidden: true,
       paginationHidden: false,
       errorHidden: false,
       countHidden: false,
@@ -202,6 +211,7 @@ export function computeSearchViewState(
     staticHidden: true,
     emptyHidden: hasResults,
     resultsHidden: !hasResults,
+    skeletonHidden: true,
     paginationHidden: true,
     errorHidden: true,
     countHidden: false,
@@ -218,6 +228,7 @@ interface SearchDom {
   emptyState: HTMLElement
   searchError: HTMLElement
   searchingStatus: HTMLElement
+  skeleton: HTMLElement | null
   resultsCount: HTMLElement
   clearButton: HTMLButtonElement
   pagination: HTMLElement | null
@@ -280,6 +291,9 @@ function querySearchDom(): SearchDom | null {
     emptyState,
     searchError,
     searchingStatus,
+    skeleton: document.querySelector<HTMLElement>(
+      '[data-grantee-search-skeleton]'
+    ),
     clearButton,
     resultsCount,
     pagination,
@@ -300,11 +314,12 @@ interface SearchViewConfig {
   initialStaticHidden: boolean
   initialEmptyHidden: boolean
   initialResultsText: string
+  searchingText: string
 }
 
 interface SearchView {
   showStatic(): void
-  enterSearchMode(): void
+  enterSearchMode(awaitingFetch: boolean): void
   showSearchError(): void
   showSearchResults(
     entries: GranteeSearchEntry[],
@@ -324,6 +339,7 @@ function createSearchView(
     emptyState,
     searchError,
     searchingStatus,
+    skeleton,
     resultsCount,
     pagination,
     rowTemplate,
@@ -338,6 +354,7 @@ function createSearchView(
     staticList.hidden = state.staticHidden
     emptyState.hidden = state.emptyHidden
     searchResults.hidden = state.resultsHidden
+    if (skeleton) skeleton.hidden = state.skeletonHidden
     searchError.hidden = state.errorHidden
     searchingStatus.hidden = state.searchingHidden
     resultsCount.hidden = state.countHidden
@@ -357,8 +374,10 @@ function createSearchView(
     resultsCount.textContent = config.initialResultsText
   }
 
-  function enterSearchMode() {
-    applyViewState(computeSearchViewState({ mode: 'searching' }))
+  function enterSearchMode(awaitingFetch: boolean) {
+    applyViewState(computeSearchViewState({ mode: 'searching', awaitingFetch }))
+    // After aria-busy is set, or the count's live region announces it twice
+    if (awaitingFetch) resultsCount.textContent = config.searchingText
   }
 
   function showSearchError() {
@@ -431,7 +450,7 @@ export function createSearchController(
       return
     }
 
-    config.view.enterSearchMode()
+    config.view.enterSearchMode(!isIndexCached(config.indexUrl))
 
     const index = await loadIndex(config.indexUrl)
     if (isStale(myRequestId, trimmed)) return
@@ -506,7 +525,8 @@ function wireGranteeSearch(dom: SearchDom): void {
     resultsTemplate: searchRoot.dataset.resultsTemplate ?? '{count}',
     initialStaticHidden: dom.staticList.hidden,
     initialEmptyHidden: dom.emptyState.hidden,
-    initialResultsText: dom.resultsCount.textContent ?? ''
+    initialResultsText: dom.resultsCount.textContent ?? '',
+    searchingText: dom.searchingStatus.textContent?.trim() ?? ''
   })
 
   function buildContext(query: string): SearchResultContext {
@@ -561,7 +581,9 @@ function wireGranteeSearch(dom: SearchDom): void {
     // Hide the static list and pagination immediately. Search results are
     // not paged; leaving Prev/Next up during debounce would navigate without
     // `?q=`.
-    if (searchInput.value.trim()) view.enterSearchMode()
+    if (searchInput.value.trim()) {
+      view.enterSearchMode(!isIndexCached(dom.indexUrl))
+    }
     controller.scheduleSearch(searchInput.value)
     syncFilterHrefs()
     syncClearButton()

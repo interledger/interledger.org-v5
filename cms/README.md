@@ -42,14 +42,46 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                            |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                        |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
-| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                         |
+| Variable                        | Description                                                                                                                                                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                          | CMS runs on port 1337 (default)                                                                                                                                                                        |
+| `ASTRO_PREVIEW_URL`             | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                     |
+| `STRAPI_GIT_SYNC_REPO_PATH`     | Target git clone used for lifecycle hook commits (default: `~/interledger.org-v5-staging`)                                                                                                             |
+| `STRAPI_UPLOADS_BASE_URL`       | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`). |
+| `STRAPI_DISABLE_GIT_SYNC`       | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                            |
+| `SLACK_WEBHOOK_URL`             | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                         |
+| `STRAPI_ADMIN_ENVIRONMENT_NAME` | Build-time. Which website the admin's nav link opens: `local`, `staging` or `playground`. Leave it unset locally. See [Admin website link](#admin-website-link).                                       |
+
+#### Admin website link
+
+The admin nav shows a link to this environment's website, below Settings on
+desktop (in the mobile menu, Strapi lists it above Settings). The URL
+and label come from `STRAPI_ADMIN_ENVIRONMENT_NAME` (map in
+`src/utils/websiteLink.ts`):
+
+| Value        | Link                                                                      |
+| ------------ | ------------------------------------------------------------------------- |
+| `local`      | Local website, `http://localhost:1103/`                                   |
+| `staging`    | Staging website, `https://staging.interledger.org/`                       |
+| `playground` | Playground website, `https://playground--interledger-org-v5.netlify.app/` |
+
+- **It is baked in when the admin is built,** like every `STRAPI_ADMIN_*` variable.
+  Changing it needs a rebuild, not a restart.
+- **The VMs get it from the rebuild workflow,** not from `.env` or the systemd unit.
+  `strapi-rebuild-and-sync.yml` sets it from the deploy branch on the `cms/` build
+  command.
+- **Unset or unknown means `local`.** So `pnpm develop`, a local build and the CI
+  build need nothing.
+- **Known gap, accepted on purpose:** an admin built by hand on a VM
+  (`cd cms && pnpm run build` over SSH) gets no name and links to localhost. We
+  accepted this because it is **improbable** and **benign**:
+  - **Improbable:** VM builds go through the workflow, so a manual build is a
+    deliberate, unusual step.
+  - **Benign:** only this nav link is wrong, and visibly so.
+  - **Self-healing within 24 hours:** the daily scheduled rebuild (06:00 UTC, both
+    VMs) rebuilds with the name. Run **Build and Sync** to fix it sooner.
+
+  Build through the workflow, not by hand.
 
 ### Git Sync Failure Reporting
 

@@ -1,0 +1,160 @@
+---
+pathSlug: '/demo-timeline/'
+title: 'Timeline draft'
+description: 'Draft page for reviewing the timeline component. Not for publication.'
+locale: 'en'
+draft: true
+---
+
+<Timeline
+  sections={[
+    {
+      heading: 'Possibility',
+      subheading: 'Foundation',
+      description: 'The Protocol emerges',
+      events: [
+        {
+          date: 'Oct 2015',
+          description:
+            'Evan Schwartz and Stefan Thomas publish the Interledger whitepaper introducing a protocol to route payments across different ledgers, proposing that money could move like data.',
+          tag: 'Standards/ Protocol'
+        },
+        {
+          date: '2015',
+          description:
+            'A W3C Interledger community forms to shepherd the protocol as an open standard, ensuring interoperability is governed for the public good.',
+          tag: 'Standards/ Governance'
+        },
+        {
+          date: '2015-2017',
+          description:
+            'Engineers refine ILP into a packet-based model (prepare > fulfil> reject), creating a universal language that lets different ledgers speak to each other.',
+          tag: 'Standards/ Protocol'
+        },
+        {
+          date: 'Jul 2016',
+          description:
+            'First cross-ledger ILP payment is executed (Bitcoin to XRP), proving interoperability works in practice, not just a theory.',
+          tag: 'Protocol proof'
+        },
+        {
+          date: '2017',
+          description:
+            'The Bank of England runs an ILP trial between Real-Time Gross Settlement systems, proving that central banks are willing to explore new infrastructure for national payments.',
+          tag: 'Institutional validation'
+        }
+      ]
+    },
+    {
+      heading: 'Proof',
+      subheading: 'Experimentation',
+      description: 'From Protocol to use cases',
+      events: [
+        {
+          date: 'Oct 2017',
+          description:
+            'Bill & Melinda Gates Foundation releases Mojaloop v1.0, using the ILP to enable cross‑network, real‑time payments focused on financial inclusion.',
+          tag: 'Ecosystem/Infrastructure'
+        },
+        {
+          date: '2018-2020',
+          description:
+            'Coil launches Web Monetization using ILP to enable micropayment streaming for web content, tapping into a new economic model.',
+          tag: 'Product/ Use case'
+        },
+        {
+          date: 'Jun 2019',
+          description:
+            'Grant for the Web unveils a $100M fund to seed web payments and creator economy experiments.',
+          tag: 'Funding / Ecosystem'
+        },
+        {
+          date: 'Jun 2019',
+          description:
+            'The Interledger Summit launches in San Francisco, bringing together developers, researchers, and institutions to collaborate on open payments and financial inclusion.',
+          tag: 'Community / Ecosystem'
+        },
+        {
+          date: 'Apr 2021',
+          description:
+            'The Interledger Foundation incorporates as an independent nonprofit to steward the protocol’s growth and protect it from private capture.',
+          tag: 'Foundation / Governance'
+        }
+      ]
+    },
+    {
+      heading: 'Structure',
+      subheading: 'Institutionalisation',
+      description: 'Building the ecosystem',
+      events: [
+        {
+          date: 'Apr 2021',
+          description:
+            'The Interledger Foundation incorporates as an independent nonprofit to steward the protocol’s growth and protect it from private capture.',
+          tag: 'Foundation / Governance'
+        },
+        {
+          date: '2021',
+          description:
+            'Grant for the Web moves under the Foundation’s care, aligning funding with mission-driven stewardship and support for web payments.',
+          tag: 'Funding / Ecosystem'
+        },
+        {
+          date: 'May 2022',
+          description:
+            'The Foundation launches Financial Services grants to fund live ILP implementations, shifting the work from prototypes to usable payment products.',
+          tag: 'Grants / Deployment'
+        },
+        {
+          date: '2022-2023',
+          description:
+            'Foundation grants back projects across payments, wallets, and cross‑border pilots, producing the first ILP deployments in the real world.',
+          tag: 'Deployment / Ecosystem'
+        }
+      ]
+    },
+    {
+      heading: 'Impact',
+      subheading: 'Deployment',
+      description: 'Real-world integration',
+      events: [
+        {
+          date: '2023',
+          description:
+            'The Foundation prioritises Africa and Latin America, focusing on increasing access and economic opportunity.',
+          tag: 'Strategy / Ecosystem'
+        },
+        {
+          date: '2023 onward',
+          description:
+            'Partnerships and funded projects integrate ILP into fintech stacks, validating practical paths for banks and builders to adopt the protocol.',
+          tag: 'Standards / Adoption'
+        },
+        {
+          date: '2024',
+          description:
+            'Interledger Foundation expands Digital Financial Services grants to support hands‑on live testing and implementation.',
+          tag: 'Infrastructure / Tooling'
+        },
+        {
+          date: '2023-2025',
+          description:
+            'The Open Payments standard is introduced to simplify integration, lowering technical barriers so more teams can adopt Interledger.',
+          tag: 'Education / Ecosystem'
+        },
+        {
+          date: '2023-Present',
+          description:
+            'Reference stack Rafiki matures into a production-ready tool, turning protocol specs into plug‑and‑play infrastructure for institutions.',
+          tag: 'Education / Community'
+        },
+        {
+          date: '2025',
+          description:
+            'Interledger Foundation launches NextGen Higher Education program with university partners to build the talent pipeline that will sustain and grow the ecosystem.',
+          tag: 'Education / Adoption'
+        }
+      ]
+    }
+  ]}
+/>

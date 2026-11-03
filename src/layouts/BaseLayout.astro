@@ -16,7 +16,8 @@ interface Props {
   theme?: 'light' | 'dark'
   ogType?: string
   ogImageUrl?: string
-  canonicalURL?: string
+  /** See SeoHead. */
+  canonicalURL?: string | null
   bodyClass?: string
   bodyStyle?: string
   datePublished?: string

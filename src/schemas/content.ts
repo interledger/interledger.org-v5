@@ -63,8 +63,9 @@ export const foundationBlogFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   // Pins the post into the featured section at the top of the blog listing.
   featured: z.boolean().default(false),
-  // Desktop feature image. Kept optional in zod so mid-migration files don't break;
-  // Strapi enforces it as required for editors.
+  // Desktop feature image. Optional here so a file without one does not stop
+  // the Astro build; Strapi and the MDX sync (`buildBlogPayload`) reject a
+  // non-legacy post without one.
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
   // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent

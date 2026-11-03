@@ -44,7 +44,8 @@ import {
   DEV_BUILD_ID,
   createServerStatusHandler,
   readAdminBuildId,
-  resolveAdminIndexHtmlPath
+  resolveAdminIndexHtmlPath,
+  type GetModel
 } from './utils'
 import {
   validateContentBlocks,
@@ -385,6 +386,7 @@ interface StrapiInstance {
     use: (middleware: DocumentValidationMiddleware) => void
   }
   log: StrapiLogger
+  getModel: GetModel
   dirs: { static: { public: string } }
   db?: {
     lifecycles?: {
@@ -1024,6 +1026,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
+  // Each pathSlug hint reads: format, the type's own example, Spanish rule.
+  // The podcast page's slug is fixed, so its hint skips the format note.
+  const PATH_SLUG_FORMAT_NOTE =
+    'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
+  // Spanish pages are served at /es/<english path slug> (ADR-004), so a
+  // translated slug breaks every /es/ link that follows that rule.
+  const SPANISH_PATH_SLUG_NOTE =
+    'On the Spanish entry, use exactly the same path slug as the English one. Don’t translate it and don’t add /es/: that is added automatically.'
+  // `section` is not localized in the FAQ, Report and Profile schemas.
+  const SECTION_DESCRIPTION =
+    'Site section for routing and breadcrumbs. Use foundation for a page at the site root or under a full pathSlug; summit or hackathon for a page under that microsite prefix. Shared by both languages: changing it on one changes the other.'
+
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
       tagline:
@@ -1032,26 +1046,22 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Past Fellows", "2025 Hackathon Judges").',
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash, e.g. /2025/judges/jane-doe/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. Example: /2025/judges/jane-doe/. ${SPANISH_PATH_SLUG_NOTE}`,
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
+      section: SECTION_DESCRIPTION,
       description:
         'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
       title:
         'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path of the page, starting and ending with a slash. Example: /about-us/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /about-us/. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::fundraising-page.fundraising-page': {
       title:
         'Enter only the page name, e.g. "Donate" — not "Interledger Foundation | Donate". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path of the page, starting and ending with a slash. Example: /get-involved/donate/. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /get-involved/donate/. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       // A dynamic-zone hint stays hidden until a block is added, then Strapi
@@ -1061,38 +1071,33 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::summit-page.summit-page': {
       title:
         'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /summit, starting and ending with a slash. Example: /faq/ → /summit/faq/. Do not include /summit. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /faq/ → /summit/faq/. Do not include /summit. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       title:
         'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /hackathon, starting and ending with a slash. Example: /overview/ → /hackathon/overview/. Do not include /hackathon. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /overview/ → /hackathon/overview/. Do not include /hackathon. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       title:
         'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /grant, starting and ending with a slash. Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
       title:
         'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /grant, starting and ending with a slash. Example: /education/ → /grant/education/. Must not clash with any Grant Page slug. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/ → /grant/education/. Do not include /grant. Must not clash with any Grant Page slug. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::podcast-page.podcast-page': {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team.',
+      pathSlug: `Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
@@ -1105,8 +1110,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug:
-        'Path after /blog, starting and ending with a slash. Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -1123,10 +1127,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::faq.faq': {
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /grant/education/on-campus/faq/). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /grant/education/on-campus/faq/. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
@@ -1142,10 +1144,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::report.report': {
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, starting and ending with a slash. For section: foundation this is the full path from the site root (e.g. /policy-and-advocacy/role-stablecoins-.../). For summit or hackathon, leave off the /summit or /hackathon prefix. Missing slashes are added when you save. For the Spanish entry, do not prefix with /es/, it’s added automatically.',
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /policy-and-advocacy/role-stablecoins-.../. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
@@ -1472,15 +1472,41 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaLink: 'Button link',
       ctaExternal: 'Opens in a new tab',
       ctaDocument: 'Link is a document'
+    },
+    'blocks.timeline': {
+      sections: 'Sections'
+    },
+    'blocks.timeline-section': {
+      heading: 'Section heading',
+      subheading: 'Section subheading',
+      description: 'Section description',
+      events: 'Events'
+    },
+    'blocks.timeline-event': {
+      date: 'Date',
+      description: 'Description',
+      tag: 'Tag'
     }
   }
 
+  // Shared helper text for the block intro (ADR-009) and the legacy heading
+  // fields it replaces until they are removed (INTORG-1154, Phase 4).
+  const BLOCK_INTRO_DESCRIPTION =
+    'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.'
   // Helper text for the legacy heading fields the block intro (ADR-009)
   // replaces until they are removed (INTORG-1154, Phase 4). There is none for
   // `intro` itself, or any other component field (the Split layout `buttons`
   // and `cta`): Strapi shows a description for scalar fields only.
   const LEGACY_HEADING_DESCRIPTION =
     'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
+
+  // Nothing adds /es/ to links on a Spanish page, so editors type it.
+  const LINK_FIELD_DESCRIPTION =
+    'For a page on this site, use its path, starting and ending with a slash (e.g. /about-us/). For another site, use a full URL (https://...). On the Spanish entry, add /es/ in front of a page path only (e.g. /es/about-us/). For a document, link its Spanish version if there is one.'
+  const EXTERNAL_FLAG_DESCRIPTION =
+    'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+  const DOCUMENT_FLAG_DESCRIPTION =
+    'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
 
   const componentDescriptions: Record<string, Record<string, string>> = {
     'shared.category': {
@@ -1498,7 +1524,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileBio: 'We recommend a max of 255 characters'
     },
     'shared.related-article': {
-      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save.'
+      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save. On a Spanish post, keep the English slug, without /es/.'
     },
     'blocks.profile-grid': {
       heading: LEGACY_HEADING_DESCRIPTION,
@@ -1589,18 +1615,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.cta-button': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'blocks.cta-buttons': {
       buttons:
@@ -1613,30 +1637,25 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional. Short text under the heading; links and bold allowed.'
     },
     'shared.cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'navigation.menu-item': {
-      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      href: LINK_FIELD_DESCRIPTION
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      href: LINK_FIELD_DESCRIPTION
     },
     'blocks.grant-faq-section': {
-      ctaLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
-      ctaExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      ctaDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      ctaLink: LINK_FIELD_DESCRIPTION,
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.number-tiles': {
       title: LEGACY_HEADING_DESCRIPTION
@@ -1711,22 +1730,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. Shown inside the strip, above the description.',
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
-      primaryButtonLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
-      primaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      primaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      secondaryButtonLink:
-        'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).',
-      secondaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      secondaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      primaryButtonLink: LINK_FIELD_DESCRIPTION,
+      primaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      primaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION,
+      secondaryButtonLink: LINK_FIELD_DESCRIPTION,
+      secondaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      secondaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.quote': {
-      authorLink:
-        'Optional. For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      intro: BLOCK_INTRO_DESCRIPTION,
+      authorLink: `Optional. ${LINK_FIELD_DESCRIPTION}`
     },
     // Strapi renders a description for a scalar field only. `logo`,
     // `socialLinks` and `cta` are components, so a description on them never
@@ -1752,8 +1765,22 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       seats:
         'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
       benefitsLabel: 'Optional. Defaults to "Benefits".',
-      ctaLink:
-        'Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
+      ctaLink: `Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). ${LINK_FIELD_DESCRIPTION}`,
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
+    },
+    'blocks.timeline': {
+      sections:
+        'Required, at least one. Each section groups the events of one chapter. Its heading, subheading and description stay on screen while the reader scrolls through its events. Colours follow a fixed sequence and cannot be chosen.'
+    },
+    'blocks.timeline-section': {
+      events:
+        'Required, at least one. Listed in the order they appear; the timeline does not sort by date.'
+    },
+    'blocks.timeline-event': {
+      date: 'Required. Shown as typed, e.g. "Oct 2015", "2015-2017" or "today".',
+      description: 'Required. Explain what event took place.',
+      tag: 'Required. Just one or two words, e.g. "Standards / Protocol".'
     }
   }
 
@@ -2434,11 +2461,16 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Auto-correct relative-link slashes (href-like and path-segment
-        // fields are stored as /path/) and strip the CMS origin CKEditor
-        // prefixes onto upload URLs, before any validation below runs.
+        // Store every link in its relative form before any validation below
+        // runs: link and slug fields as /path/, our own site's origins
+        // (any environment) stripped, and the CMS origin CKEditor prefixes
+        // onto upload URLs stripped. See documentLinks.ts.
         if (!NAV_UIDS.has(ctx.uid)) {
-          normalizeRelativeLinksInDocumentData(ctx.params.data)
+          ctx.params.data = await normalizeRelativeLinksInDocumentData(
+            ctx.params.data,
+            strapi.getModel(ctx.uid),
+            (uid) => strapi.getModel(uid)
+          )
         }
 
         // Drop inactive card-grid variant arrays before schema/business

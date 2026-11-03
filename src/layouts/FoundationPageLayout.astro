@@ -23,7 +23,8 @@ interface Props {
   description?: string
   ogType?: string
   ogImageUrl?: string
-  canonicalURL?: string
+  /** See SeoHead. */
+  canonicalURL?: string | null
   datePublished?: string
   headerTheme?: 'light' | 'dark'
   bodyClass?: string

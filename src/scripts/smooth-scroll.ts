@@ -43,6 +43,30 @@ function stop(): void {
   window.__siteLenis = null
 }
 
+function isInPageAnchor(link: HTMLAnchorElement): boolean {
+  return (
+    link.hash !== '' &&
+    link.origin === location.origin &&
+    link.pathname === location.pathname
+  )
+}
+
+/**
+ * A same-page anchor click starts the browser's own scroll to the target, but
+ * Lenis is still easing toward its last wheel target for up to
+ * DURATION_SECONDS and writes that position every frame, so the jump is
+ * dragged back and only lands on a second click. Settle Lenis where it is
+ * first; the native jump then keeps scroll-margin and focus handling.
+ */
+function settleBeforeAnchorJump(event: MouseEvent): void {
+  if (!lenis || !(event.target instanceof Element)) return
+  const link = event.target.closest('a')
+  if (!link || !isInPageAnchor(link)) return
+  lenis.scrollTo(window.scrollY, { immediate: true, force: true })
+}
+
+document.addEventListener('click', settleBeforeAnchorJump, { capture: true })
+
 function init(): void {
   if (reducedMotion.matches || !tabletUp.matches) return
   start()

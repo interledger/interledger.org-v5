@@ -11,7 +11,8 @@ interface Props {
   ogImageAlt?: string
   ogSiteName?: string
   ogLocale?: string
-  canonicalURL?: string
+  /** `null` emits no canonical and no `og:url` (the 404 page). */
+  canonicalURL?: string | null
   jsonLdSiteName?: string
   twitterSite?: string
   datePublished?: string
@@ -40,9 +41,10 @@ const {
 } = Astro.props
 
 const site = Astro.site!
-const canonicalURL = canonicalOverride
-  ? new URL(canonicalOverride, site).href
-  : new URL(Astro.url.pathname, site).href
+const canonicalURL =
+  canonicalOverride === null
+    ? null
+    : new URL(canonicalOverride || Astro.url.pathname, site).href
 const ogImage = ogImageUrl
   ? new URL(ogImageUrl, site).href
   : new URL('/img/og-foundation.png', site).href
@@ -133,7 +135,7 @@ const jsonLd = JSON.stringify({
 <meta property="og:image:alt" content={resolvedOgImageAlt} />
 <meta property="og:site_name" content={resolvedOgSiteName} />
 <meta property="og:locale" content={resolvedOgLocale} />
-<meta property="og:url" content={canonicalURL} />
+{canonicalURL && <meta property="og:url" content={canonicalURL} />}
 <meta property="og:description" content={resolvedDescription} />
 
 <meta name="twitter:card" content="summary_large_image" />
@@ -143,9 +145,13 @@ const jsonLd = JSON.stringify({
 <meta name="twitter:description" content={resolvedDescription} />
 {twitterSite && <meta name="twitter:site" content={twitterSite} />}
 
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="canonical" href={canonicalURL} />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="#ffffff" />
+{canonicalURL && <link rel="canonical" href={canonicalURL} />}
 {hreflang?.map(({ locale, url }) => (
   <link rel="alternate" hreflang={locale} href={url} />
 ))}

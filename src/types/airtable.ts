@@ -43,3 +43,90 @@ export interface TableRecord {
     [key: string]: AirtableFieldValue | undefined
   }
 }
+
+export type GrantReportType = 'Interim Report' | 'Final Report'
+
+// A grant report as written to grant-reports.json. The sync fails rather than
+// write a report with a required value missing, so no field is optional. The
+// five long-text fields are Markdown: Airtable returns rich text that way.
+export interface GrantReport {
+  id: string
+  projectName: string
+  reportType: GrantReportType
+  reportNumber: number
+  publishedDate: string
+  reportingPeriodStart: string
+  reportingPeriodEnd: string
+  summary: string
+  progressOnObjectives: string
+  whoBenefits: string
+  outputs: string
+  whatsNext: string
+  license: string
+  outputTypes: string[]
+  interledgerTechnologies: string[]
+  images: SyncedImage[]
+}
+
+// One image as written to the JSON files. The file is the sync's own copy
+// under public/, never an Airtable URL. alt is '' when programs gave no
+// description.
+export interface SyncedImage {
+  path: string
+  width: number
+  height: number
+  alt: string
+}
+
+// A report as read from Airtable, before the sync downloads its images.
+export type GrantReportContent = Omit<GrantReport, 'images'>
+
+// An image attachment to download. The URL expires about 2 hours after the
+// API returns it, so the sync downloads it in the same run.
+export interface SyncedImageSource {
+  attachmentId: string
+  url: string
+  sizeBytes: number
+  alt: string
+}
+
+export interface ParsedGrantReport {
+  content: GrantReportContent
+  imageSources: SyncedImageSource[]
+}
+
+export type GranteeType = 'Organisation' | 'Individual'
+
+// A grantee profile as written to grantee-profiles.json. Optional Airtable
+// fields are null when programs left them empty.
+export interface GranteeProfile {
+  id: string
+  name: string
+  slug: string
+  granteeType: GranteeType
+  formerlyKnownAs: string | null
+  description: string | null
+  country: string | null
+  website: string | null
+  twitter: string | null
+  linkedIn: string | null
+  bluesky: string | null
+  // Projects record IDs: the same IDs as the records in grantee-data.json.
+  grantIds: string[]
+  grantCount: number
+  totalCommitted: number
+  // Legacy reports (community forum posts linked from Submitted Reports), not
+  // the new reports in grant-reports.json, despite the Airtable field name.
+  legacyReportCount: number
+  thematicTags: string[]
+  logo: SyncedImage | null
+}
+
+export type GranteeProfileContent = Omit<GranteeProfile, 'logo'>
+
+export interface ParsedGranteeProfile {
+  content: GranteeProfileContent
+  logoSource: SyncedImageSource | null
+  // Optional values the sync left out because they were not valid.
+  warnings: string[]
+}

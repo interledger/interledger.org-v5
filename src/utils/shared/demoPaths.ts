@@ -35,3 +35,17 @@ export function isPreviewPathname(pathname: string): boolean {
     .filter(Boolean)
     .some((segment) => segment === 'preview' || segment.endsWith('-preview'))
 }
+
+/**
+ * Pages the XML sitemap leaves out: preview routes and demo pages. Uses the
+ * same preview rule as analytics and hreflang, so `/page-preview/` and
+ * `/profile-preview/` are excluded along with everything under `/preview/`.
+ *
+ * Side effect: the rule matches any path segment ending in `-preview`, so a
+ * content page with such a slug (say `/grant/program-preview/`) is left out of
+ * the sitemap too, with no warning. No slug ends that way today. Give such a
+ * page another slug, or narrow this rule to the preview routes.
+ */
+export function isExcludedFromSitemap(pathname: string): boolean {
+  return isPreviewPathname(pathname) || isDemoPathname(pathname)
+}

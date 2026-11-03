@@ -36,8 +36,13 @@ import type { MDXFile } from './mdxTypes'
 // `draft: true` into the MDX only when checked, and sync must send an explicit
 // boolean so that removing the key from a file clears the box in Strapi.
 
+// A blog post needs a feature image, so the mock resolves this one.
+const blogFeatureImage = '/uploads/img/feature.jpg'
+
 const strapiClient = {
-  findUploadByUrl: vi.fn().mockResolvedValue(null),
+  findUploadByUrl: vi.fn((url: string) =>
+    Promise.resolve(url === blogFeatureImage ? 1 : null)
+  ),
   findUploadByName: vi.fn().mockResolvedValue(null),
   updateUploadAlt: vi.fn().mockResolvedValue(undefined)
 } as unknown as StrapiClient
@@ -106,6 +111,7 @@ const builders: [string, BuildPayload, Record<string, unknown>][] = [
     {
       ...page,
       date: '2026-06-10',
+      featureImage: blogFeatureImage,
       relatedArticles: ['one', 'two', 'three']
     }
   ]
@@ -198,6 +204,9 @@ describe('Strapi → MDX → Strapi — draft', () => {
           pathSlug: 'post',
           date: '2026-06-10',
           featured: false,
+          featureMedia: {
+            image: { name: 'feature.jpg', url: blogFeatureImage }
+          },
           content: 'Body.',
           createdAt: new Date('2026-06-10'),
           updatedAt: new Date('2026-06-10'),

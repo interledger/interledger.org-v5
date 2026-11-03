@@ -254,7 +254,7 @@ describe('getBlogSearchIndex', () => {
     expect(entry.descriptionSnippet).toBe('A short description')
     expect(entry.categories).toEqual(['News'])
     expect(entry.date).toBe(new Date('2026-03-04').toISOString())
-    expect(entry.postPath).toBe('/blog/mapped-post')
+    expect(entry.postPath).toBe('/blog/mapped-post/')
     expect(entry.locale).toBe('en')
     // No variant catalog in tests, so src falls back to the raw path — what
     // matters here is that alt and the LQIP survive into the catalog.

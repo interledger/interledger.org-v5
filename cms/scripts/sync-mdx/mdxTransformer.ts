@@ -1138,6 +1138,16 @@ export async function buildBlogPayload(
       pathSlug: mdx.pathSlug
     })
 
+    // Blog listings and cards need a feature image (#805). The shared schema
+    // keeps it optional so a file without one doesn't stop the Astro build,
+    // so the sync is where such a post is rejected. Whitespace counts as empty.
+    if (!parsed.legacy && !parsed.featureImage?.trim()) {
+      // No slug prefix: the sync already logs the entry it was processing.
+      throw new Error(
+        'featureImage is required (only legacy posts may omit it)'
+      )
+    }
+
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
       image:
@@ -1234,10 +1244,14 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
+      // featureMedia is required and Strapi rejects null. Every post reaching
+      // this line has a feature image (or the legacy fallback), so it is only
+      // null in a dry run whose image is on disk but not yet in Strapi:
+      // getImageFromStrapi returns null there instead of throwing. Leaving
+      // the key out keeps that dry run going.
       ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
-      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it —
-      // unlike featureMedia above, which is required and would be rejected as null.
+      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it.
       thumbnailMedia,
       articleBio,
       categories,

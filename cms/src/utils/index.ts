@@ -217,6 +217,15 @@ export {
   type CtaStripColor
 } from './ctaStrip'
 export {
+  MIN_TIMELINE_SECTIONS,
+  MIN_TIMELINE_EVENTS,
+  validateTimelineSections,
+  normalizeTimelineSections,
+  TimelineFieldError,
+  type TimelineEvent,
+  type TimelineSection
+} from './timeline'
+export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
@@ -366,6 +375,10 @@ export {
   decideAdminRouteWrap
 } from './adminRoutes'
 
+// Admin nav link to this environment's website (admin panel imports this
+// module directly)
+export { resolveWebsiteLink } from './websiteLink'
+
 // Server-status notice: browser-safe state machine (admin panel imports this
 // module directly) and the node-only endpoint half
 export {
@@ -398,8 +411,14 @@ export {
   toSlashedPath,
   toSlashedSlug,
   mapOutsideMarkdownCode,
-  normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
-  stripUploadOriginsInText
+  stripSiteOriginsInText,
+  stripUploadOriginsInText,
+  toStoredHref,
+  toStoredUrl
 } from './relativeLinks'
+export {
+  normalizeRelativeLinksInDocumentData,
+  type GetModel
+} from './documentLinks'

@@ -12,7 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
-- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` from the database on every save. The sync runs both ways, like the MDX content sync: `pnpm sync:redirects` (from `cms/`, also part of `sync:all`) mirrors the file into Strapi, creating, updating and **deleting** rows the file no longer has. A code edit to the file, a removal included, therefore reaches Strapi on the next sync — but until then the next editor save rewrites the file from the database and undoes it, so run the build-and-sync workflow right after merging one. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file but out of Astro. The server refuses every delete from an admin session; it accepts one only from an API-token request sending `x-skip-mdx-export` (`isCodeSyncRequest`). That header is caller-controlled, so any API token with Redirect delete permission can delete — not just the sync. Tokens are admin-issued. Root `redirects.ts` only loads and validates the file for `astro.config.mjs`. Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
+- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` from the database on every save. The sync runs both ways, like the MDX content sync: `pnpm sync:redirects` (from `cms/`, also part of `sync:all`) mirrors the file into Strapi, creating, updating and **deleting** rows the file no longer has. A code edit to the file, a removal included, therefore reaches Strapi on the next sync — but until then the next editor save rewrites the file from the database and undoes it, so run the build-and-sync workflow right after merging one. The `destination` is stored like any link field: an own-site URL from any environment (production, staging or playground) is saved relative and slashed, so `https://staging.interledger.org/blog` becomes `/blog/`. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file but out of Astro. The server refuses every delete from an admin session; it accepts one only from an API-token request sending `x-skip-mdx-export` (`isCodeSyncRequest`). That header is caller-controlled, so any API token with Redirect delete permission can delete — not just the sync. Tokens are admin-issued. Root `redirects.ts` only loads and validates the file for `astro.config.mjs`. Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this. Hand-written page destinations in `public/_redirects` and `netlify.toml` end in `/`, except a bare `:splat`: the `*` keeps the request's trailing slash, so `:splat/` would redirect `/all/x/2/` to `…/2//`. The same test enforces both. File destinations (`/404.html`) and external URLs keep their form.
 
 ## Code Style
 
@@ -224,7 +224,8 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
 `src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
 `astro:build:done` and reports internal links and fragments that this deploy
 does not serve — warning by default, failing the build under
-`LINK_CHECK=strict` (see below). It replaced `starlight-links-validator`, which
+`LINK_CHECK=strict` (see below). It also fails every build on an internal page
+link without a trailing slash (see [Trailing Slashes](#trailing-slashes)). It replaced `starlight-links-validator`, which
 only ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of
 the places real breakage lives.
 
@@ -259,7 +260,8 @@ the places real breakage lives.
   served at `/about-us/`, and against the slashless form `new URL` drops a
   segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
   dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
-- **Findings warn; only Force Reset fails.** Editors commit MDX straight to
+- **Findings warn; only Force Reset fails** — slashless links aside, which
+  fail every build (see [Trailing Slashes](#trailing-slashes)). Editors commit MDX straight to
   `staging` with no PR and fix most of their own broken links quickly, so
   failing every build would stop staging far more often than it would prevent
   anything reaching production — and a PR to `staging` is built merged with
@@ -289,7 +291,7 @@ the places real breakage lives.
 - **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
   globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is
-  reported as a warning, never a failure.
+  reported as a warning, never a failure. It never exempts a slashless link.
 - **Blind spots**, neither checked nor reported — a clean run is not a
   whole-site guarantee: `url()` in emitted CSS, `og:image` and `og:url`
   (`<meta content>` isn't scanned; `og:url` shares canonical's value, so it is
@@ -299,7 +301,70 @@ the places real breakage lives.
   without knowing which pages were built, so pages whose twin may not exist pass
   `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
   opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
-  not the translation of page 4 of the ES blog anyway.
+  not the translation of page 4 of the ES blog anyway. The 404 page opts out
+  too: it has no ES twin.
+
+## Trailing Slashes
+
+Netlify serves every page at `/path/`, so a link to `/path` costs a 301. Astro
+stays on `trailingSlash: 'ignore'`; the convention is kept in code and enforced
+at build time.
+
+- **Page hrefs end in `/`.** Build them with `localizeRoute` or `translatePath`,
+  which return `/`, `/es/`, `/es/blog/`. Append segments with
+  `joinPagePath(base, ...segments)` (`src/utils/shared/url.ts`): it drops empty
+  segments and slashes the result whether or not the base ends in `/`. Never
+  concatenate onto a built path.
+- **Stay slashless:** translation-map keys (`buildRoutePath`,
+  `normalizeBasePath`) and `getStaticPaths` params (`grantOverviewRouteParam`).
+  To compare an href with the current path, strip both with
+  `stripTrailingSlash`, as `Breadcrumbs` and `SiteFooter` do.
+- **A file is not a page.** Put a filename after `localizeRoute('/', locale)`,
+  as `GranteeIndex` does for its search index; `joinPagePath` would add a slash.
+- **The guard.** `validate-internal-links` flags a page link whose path, read
+  after the query and fragment are cut and before normalisation, doesn't end in
+  `/`. It fails every build, whatever `LINK_CHECK` is set to — the exception to
+  "findings warn". Fix it at its source; there is no exception list.
+  - Why a build check, not unit tests: tests cover the helpers, but many hrefs
+    never pass through one — markup, docs markdown, the Starlight sidebar,
+    canonical and `hreflang`. Only the rendered HTML shows every link, and this
+    validator already parses it.
+  - Why fail, not warn: Strapi slashes links on save (below), so a slashless
+    link can only come from Astro code or a file edited in the repo, such as the
+    Starlight docs markdown, which Strapi never sees. Failing stops the PR that
+    added it; warnings pile up unnoticed, which is how about half the site's
+    internal hrefs ended up slashless before this check.
+  - Scope: rendered HTML only, in the validator's carriers (`href`, `src`,
+    `srcset`, `action`, `poster`).
+  - Exempt: `/`; `/404`; files, i.e. a last segment ending in an extension
+    with at least one letter, `/\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$/`, so
+    `report.pdf` and `episode.mp3` are files but `what-is-web3.0` is a page
+    (`isFilePath` in `src/utils/shared/url.ts`, whose `FILE_EXTENSION` mirrors
+    `cms/src/utils/relativeLinks.ts` — change both together); and everything the
+    check already ignores (external URLs, `/.netlify/`, `/.well-known/`).
+- **Blind spots.** URLs built in client-side JS and the JSON search indexes
+  (`postPath` in the blog index, grantee tag links) are not checked. They are
+  slashed today because they come from `getBlogPostPath` and
+  `getGranteeFilterUrl`, but nothing enforces it. Nor are SSR-only routes or
+  `<meta content>` (`og:url`).
+- **Strapi slashes on save.** The document middleware in `cms/src/index.ts`
+  runs `normalizeRelativeLinksInDocumentData` on every create and update:
+  href-like fields go through `toSlashedPath`, `pathSlug`/`slug` through
+  `toSlashedSlug`, and every other string through `slashInternalMarkdownLinks`,
+  outside code. Navigation hrefs (`cms/src/utils/navigationLifecycle.ts`) and redirect
+  destinations (`cms/src/utils/redirects.ts`) use `toSlashedPath` too. Known
+  gaps: a link with a title, `[x](/foo "title")`, and a reference-style
+  definition, `[x]: /foo`, are not slashed. Neither appears in content today;
+  the build guard catches one that does.
+- **The 404 page.** `/404` is its address, with no slash. It is EN-only — there
+  is no ES 404 — and `noindex`, with no canonical, `og:url` or `hreflang`
+  (`canonicalURL={null}`, `localeAlternates={false}`). Its language switcher
+  points to home (`NOT_FOUND_SLUG` in `languageSwitcherHrefs.ts`). Netlify
+  serves a real file before any rule, so `/404` and `/404.html` would answer
+  200; the forced `404!` rules at the top of `public/_redirects` make them
+  answer 404.
+- **Redirect destinations** follow the rule in
+  [Astro Conventions](#astro-conventions).
 
 ## The Publish Gate (future-dated blog posts and drafts)
 

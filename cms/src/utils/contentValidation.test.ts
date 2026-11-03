@@ -1040,9 +1040,65 @@ describe('validateBlogFields', () => {
   it('returns undefined for exactly 3 related articles, all with slugs', () => {
     expect(
       validateBlogFields({
+        featureMedia: { image: 12 },
         relatedArticles: [{ slug: 'one' }, { slug: 'two' }, { slug: 'three' }]
       })
     ).toBeUndefined()
+  })
+
+  describe('feature image', () => {
+    const relatedArticles = [
+      { slug: 'one' },
+      { slug: 'two' },
+      { slug: 'three' }
+    ]
+
+    // The post from #805 was saved with no feature image at all.
+    it('flags a post with no feature image component', () => {
+      const err = validateBlogFields({ relatedArticles })
+      expect(err?.message).toBe('Feature Image (Desktop): Image is required')
+      expect(err?.details.errors[0].path).toEqual(['featureMedia'])
+    })
+
+    it('flags a feature image component with the image removed', () => {
+      const err = validateBlogFields({
+        featureMedia: { image: null, alternativeText: 'Alt' },
+        relatedArticles
+      })
+      expect(err?.message).toBe('Feature Image (Desktop): Image is required')
+      expect(err?.details.errors[0].path).toEqual(['featureMedia', 'image'])
+    })
+
+    it('accepts an upload ID (the sync sends one)', () => {
+      expect(
+        validateBlogFields({ featureMedia: { image: 7 }, relatedArticles })
+      ).toBeUndefined()
+    })
+
+    it('accepts an upload object (the admin sends one)', () => {
+      expect(
+        validateBlogFields({
+          featureMedia: { image: { id: 7, url: '/uploads/feature.jpg' } },
+          relatedArticles
+        })
+      ).toBeUndefined()
+    })
+
+    // Strapi also accepts a reference with only an id, e.g. in a PUT body.
+    it('accepts a reference with only an id', () => {
+      expect(
+        validateBlogFields({
+          featureMedia: { image: { id: 378 } },
+          relatedArticles
+        })
+      ).toBeUndefined()
+    })
+
+    it('does not require one on a legacy post', () => {
+      expect(
+        validateBlogFields({ legacy: true, relatedArticles })
+      ).toBeUndefined()
+    })
   })
 
   it('flags a bio missing an author with an index-aware path', () => {
@@ -1067,6 +1123,7 @@ describe('validateBlogFields', () => {
 
   it('reports a missing bio author and a missing related-article slug together', () => {
     const err = validateBlogFields({
+      featureMedia: { image: 12 },
       articleBio: [{ author: null }],
       relatedArticles: [{ slug: '' }, { slug: 'two' }, { slug: 'three' }]
     })

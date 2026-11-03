@@ -2,6 +2,7 @@
 import type { Page } from 'astro'
 import {
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   stripPagination,
   translateTerm,
@@ -78,7 +79,7 @@ const pageDescription = translatedTerm
   : description
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: heroTitle ?? title, href: podcastPath }
 ]
 

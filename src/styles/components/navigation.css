@@ -282,6 +282,19 @@
   border-color: var(--color-neutral-50);
 }
 
+/* Submenu chevrons in the drawer (in the bar they take the link colour) */
+:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-submenu-chevron {
+  @variant nav-drawer {
+    color: var(--color-neutral-50);
+  }
+}
+
+.foundation-header[data-theme='light'] .nav-submenu-chevron {
+  @variant nav-drawer {
+    color: var(--color-neutral-75);
+  }
+}
+
 /* Mobile drawer language label */
 :is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label {
   color: var(--color-neutral-50);

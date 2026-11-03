@@ -1,6 +1,7 @@
 ---
 import {
-  defaultLocale,
+  localizeRoute,
+  joinPagePath,
   useTranslations,
   currentSummitYear,
   getSpeakers,
@@ -26,13 +27,12 @@ const t = useTranslations(lang)
 const { entry, year, isFallback = false } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
-// the path for current summit is /summit, instead of /summit/{year}
-const langPrefix = lang === defaultLocale ? '' : `/${lang}`
-const baseHref = `${langPrefix}${currentBasePath}`
+// the path for current summit is /summit/, instead of /summit/{year}/
+const baseHref = localizeRoute(currentBasePath, lang)
 const isCurrentYear = currentSummitYear === year
-const summitHref = isCurrentYear ? baseHref : `${baseHref}/${year}`
-const sessionsHref = `${baseHref}/${year}/talks`
-const speakersBasePath = `${baseHref}/${year}/speakers`
+const summitHref = joinPagePath(baseHref, isCurrentYear ? '' : year)
+const sessionsHref = joinPagePath(baseHref, year, 'talks')
+const speakersBasePath = joinPagePath(baseHref, year, 'speakers')
 
 const translation = getTranslation(entry, lang)
 const title = translation?.title ?? entry.title

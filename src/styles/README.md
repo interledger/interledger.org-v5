@@ -613,7 +613,7 @@ The site has **two separate CSS systems** that never coexist in the same browser
 
 ### `base/starlight-parity.css`
 
-Until Astro 6.4, the docs CSS also loaded on every main-site page, and some of its rules won over ours. Production looks the way it does partly because of that. Astro 6.4 and later load the docs CSS on docs routes only, so `starlight-parity.css` restates, on the main site only, the rules that won: font smoothing, the anchor scroll offset, the corner radius and shadow on tables and code blocks (with the darker shadow on dark pages), word breaks in table code, and the footnote styles. It uses the same cascade position the leaked rules had, so it changes nothing visible. These are raw values. Moving them to design tokens is a follow-up.
+Until Astro 6.4, the docs CSS also loaded on every main-site page, and some of its rules won over ours. Production looks the way it does partly because of that. Astro 6.4 and later load the docs CSS on docs routes only, so `starlight-parity.css` restates, on the main site only, the rules that won: font smoothing, the anchor scroll offset, the corner radius and shadow on tables and code blocks (with the darker shadow on dark pages), word breaks in table code, and the footnote styles. It uses the same cascade position the leaked rules had. The scroll offset is the exception: the leaked value was the docs nav (`5.775rem`), which is taller than the main-site header, so it uses `--site-header-height` instead. The other values are raw. Moving them to design tokens is a follow-up.
 
 ### Rules to keep them isolated
 

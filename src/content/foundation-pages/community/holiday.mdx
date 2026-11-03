@@ -4,8 +4,8 @@ title: 'Holiday Design Contest'
 description: 'Celebrate the Holiday season with Interledger! As we wrap up another year of growing open financial systems, we want to celebrate the creativity of our global community.'
 locale: 'en'
 heroTitle: 'Holiday Design Contest'
-heroImage: '/uploads/img/original/54921262458_91791ac0ba_k_1e03f767cd.jpg'
-heroImageBlur: 'data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBACdASoUAAwAPu1iqU2ppaQiMAgBMB2JbACdMoAC+tK/xddb2EVgAAD+hoTB9CdIi5AsJl60F2erBi+XnctXwcj8Fjb2+Is/aFhYDKUmm7fJjqTmVCfvbrru/TEh5J17Sk/9mVtM+TgV/2H2eMeAAAA='
+heroImage: '/uploads/img/original/Hero_final_62381f376d.jpg'
+heroImageBlur: 'data:image/webp;base64,UklGRpAAAABXRUJQVlA4IIQAAADQAwCdASoUAAsAPu1iqU2ppaOiMAgBMB2JQBOmUABJG4aVgHv2RQAA/cK3v2JIjH5SU88PkC6Kc8wNDHSx+M7qf3sp0G4kjJwoSJwYQa3PNdSBeEsFwdFSg8Eh1u6kIpa/TJld8Y0jAXSRT/mKLfRsRqxdwofdC8RN6ykcu8ZUDP6AAAA='
 heroCtas:
   - text: 'Download Competition Guidelines'
     link: '/uploads/img/original/Interledger_s_Holiday_Contest_4d2a00629f.pdf'
@@ -20,7 +20,7 @@ We are calling on all artists, builders, and community members to design our off
 
 <CtaStrip heading="Submit your Design" primaryButtonText="Submit Your Design" primaryButtonLink="https://2fdb7i.share-eu1.hsforms.com/2uEFYp_IFTwurruITKVHPTA" primaryButtonExternal={true} secondaryButtonText="Apply to Become a Member" secondaryButtonLink="https://insights.interledger.org/interledger-membership?membership_signup_source=Holiday%20Contest%20%7C%202026&utm_source=holiday_contest&utm_medium=community#signup" secondaryButtonExternal={true}>
 
-Submissions are limited to Members, and only registered Members are eligible to receive the End-of-Year card and sticker mailing. Becoming a Member is free – sign up below.
+Submissions are open to anyone in the community however, only registered Members are eligible to vote and receive the physical sticker and card. Becoming a Member is free – sign up below.
 
 </CtaStrip>
 
@@ -42,7 +42,7 @@ To ensure inclusive holiday messaging across global cultures, all submissions mu
 
 </Paragraph>
 
-<CardGrid title="Categories & Design Specs" ariaLabel="categories" variant="Info" columns="Two">
+<CardGrid intro={{"heading":"Categories & Design Specs"}} ariaLabel="categories" variant="Info" columns="Two">
 <InfoCard heading="Holiday Card">
 
 - **Dimensions**: 4.25in × 5.5in (10.80 × 13.97 cm) - the front side of a folded greetings card
@@ -125,7 +125,7 @@ Need inspiration? Check out our Design Kit below, created by our team, featuring
 
 ### **Eligibility**
 
-The contest is open to Interledger Members. If you haven’t already joined the Membership, fill out this Membership sign-up form. Only registered Members who provide their address will receive the mailed sticker and card.
+The contest is open to anyone in the community however, only registered Members are eligible to vote and receive the physical sticker and card. If you haven’t already joined the Membership, fill out this Membership [sign-up form](https://insights.interledger.org/interledger-membership?membership_signup_source=Holiday%20Contest%20%7C%202026&utm_source=holiday_contest&utm_medium=community). Only registered Members who provide their address will receive the mailed sticker and card.
 
 ### **AI Usage Policy**
 
@@ -197,7 +197,7 @@ We will review all eligible entries and select 5-10 finalists per category based
 
 <Agenda
   heading={
-    '## Timeline  \nA judging panel from our team will select the top 5-10 finalists, followed by a public community vote to choose the final winning designs. Key campaign milestones include:'
+    'Timeline  \nA judging panel from our team will select the top 5-10 finalists, followed by a public community vote to choose the final winning designs. Key campaign milestones include:'
   }
   items={[
     { time: 'Oct 22', activity: 'Submissions open' },
@@ -218,8 +218,14 @@ We will review all eligible entries and select 5-10 finalists per category based
 
 <CtaStrip color="green" heading="Submit your design! " primaryButtonText="Submit your Design" primaryButtonLink="https://2fdb7i.share-eu1.hsforms.com/2uEFYp_IFTwurruITKVHPTA" primaryButtonExternal={true} secondaryButtonText="Become a Member" secondaryButtonLink="https://insights.interledger.org/interledger-membership?membership_signup_source=Holiday%20Contest%20%7C%202026&utm_source=holiday_contest&utm_medium=community#signup" secondaryButtonExternal={true}>
 
-Submissions are limited to Members, and only registered Members are eligible to receive the End-of-Year card and sticker mailing. Becoming a Member is free – sign up below.
+Submissions are open to anyone in the community; however, **only registered Members** are eligible to vote and receive the physical sticker and card.
 
 </CtaStrip>
 
-<ProfileGrid heading="Need Help? Reach out!" pathSlugs={['/bibi/']} />
+<ProfileGrid
+  intro={{
+    heading: 'Need Help? Reach out!',
+    description: 'bibiana\\@interledger.org'
+  }}
+  pathSlugs={['/bibi/']}
+/>
