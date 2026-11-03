@@ -31,7 +31,11 @@ import DonationCards from './DonationCards.astro'
 import Timeline from './Timeline.astro'
 import InternalAdvert from './InternalAdvert.astro'
 import HackathonAnimation from '@/components/hackathon/HackathonAnimation.astro'
-import { getPreviewBlockGapClass } from '@/utils'
+import {
+  getPreviewBlockGapClass,
+  SELF_SPACED_BLOCKS,
+  SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
+} from '@/utils'
 
 interface Block {
   __component: string
@@ -45,6 +49,9 @@ interface Props {
 }
 
 const { blocks, legacyParagraphSpacing = false } = Astro.props
+const selfSpacedBlocks = legacyParagraphSpacing
+  ? SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
+  : SELF_SPACED_BLOCKS
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, any> = {
@@ -100,7 +107,12 @@ const resolvedBlocks = blocks
 <div class="flex flex-col">
   {resolvedBlocks.map(({ Component, props, uid }, index) => {
     const prevUid = index > 0 ? resolvedBlocks[index - 1].uid : null
-    return <div class:list={['w-full', getPreviewBlockGapClass(uid, prevUid)]}>
+    return <div
+      class:list={[
+        'w-full',
+        getPreviewBlockGapClass(uid, prevUid, selfSpacedBlocks)
+      ]}
+    >
       <Component {...props} />
     </div>
   })}

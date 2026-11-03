@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { getPreviewBlockGapClass } from './dynamicZoneSpacing'
+import {
+  getPreviewBlockGapClass,
+  SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
+} from './dynamicZoneSpacing'
 
 const SELF_SPACED = new Set(['blocks.faq', 'blocks.card-grid'])
 
@@ -69,5 +72,28 @@ describe('getPreviewBlockGapClass', () => {
     expect(
       getPreviewBlockGapClass('blocks.paragraph', 'blocks.faq', SELF_SPACED)
     ).toBe('mt-[calc(var(--space-section)-var(--block-pb))]')
+  })
+
+  // Profile pages keep Paragraph on the prose rhythm (legacySpacing).
+  describe('with legacy Paragraph spacing', () => {
+    const legacy = SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
+
+    it('runs consecutive Paragraphs together', () => {
+      expect(
+        getPreviewBlockGapClass('blocks.paragraph', 'blocks.paragraph', legacy)
+      ).toBeNull()
+    })
+
+    it('stands in for the missing padding before a self-spaced block', () => {
+      expect(
+        getPreviewBlockGapClass('blocks.faq', 'blocks.paragraph', legacy)
+      ).toBe('mt-(--block-pb)')
+    })
+
+    it('separates a CtaLink from the Paragraph by the section gap', () => {
+      expect(
+        getPreviewBlockGapClass('shared.cta-link', 'blocks.paragraph', legacy)
+      ).toBe('mt-section')
+    })
   })
 })
