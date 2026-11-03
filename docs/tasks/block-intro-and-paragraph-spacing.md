@@ -62,7 +62,7 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 
 - **Done:** the Phase 0 follow-ups for the first block on the page, `aria-labelledby`, the sync handlers and the preview list.
   - The hero gap drops only when the first section's prose opens with an intro block that has content (`page-stack` in `utilities/spacing.css`, and `HackathonContentPage`).
-  - The hero-less H1 margin in `FoundationContentPage` is untouched. No page needs it yet, and a `:has()` can't reach it; handle it in Phase 3.
+  - The hero-less H1 margin in `FoundationContentPage` was left for Phase 3, which removed it.
   - The sync handlers leave `intro` out when it's empty, like other optional fields. The sync replaces the whole dynamic zone, so nothing stale survives.
   - Blocks label their `<section>` by the heading, or the subheading when there is no heading (`blockIntroLabel`).
 - **Run `pnpm sync:mdx` right after this merges.** Until it runs, Strapi still holds the unfolded Paragraphs and the legacy titles. An editor save on one of those pages would export the old shape and undo the migration.
@@ -164,7 +164,8 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
   - Between two Paragraph blocks: the last paragraph's 16 + block 40 + H2 80, as Figma draws it.
   - A Paragraph that opens on an H3 after another block sits 40 + 40 below it, H3's "not first".
   - Blog posts space their Paragraph blocks like pages; the narrow-page values are a follow-up (Figma, 2026-10-22).
-- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers. The top of the preview is still approximate: the preview pages keep their own top padding.
+- **Hero-less H1** (`FoundationContentPage`): no bottom margin. Beside a legacy first block it collapsed into the section gap anyway; beside a self-spaced one it stacked on the block's top.
+- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers, CtaLink after a Paragraph included. The profile preview spaces Paragraph as a legacy block, as the live profile does. The top of the preview is still approximate: the preview pages keep their own top padding.
 
 ### Phase 4: Cleanup
 
