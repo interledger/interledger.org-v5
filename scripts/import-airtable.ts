@@ -516,6 +516,18 @@ async function removeOrphanImages(
   }
 }
 
+// Names the part in its error: a request or metadata error, such as
+// "Failed to fetch Airtable data; Status: 403", does not say which table.
+async function runSyncPart<T>(
+  name: string,
+  part: () => Promise<T>
+): Promise<T | Error> {
+  const result = await tryCatchAsync(part)
+  return result instanceof Error
+    ? new Error(`${name}: ${result.message}`)
+    : result
+}
+
 async function importAirtableData() {
   const apiToken = process.env.AIRTABLE_API_TOKEN
   if (!apiToken) {
@@ -542,13 +554,13 @@ async function importAirtableData() {
   // a failed local run they show as untracked under public/img; discard them,
   // or keep them: the next passing run reuses them, or deletes those no
   // record needs.
-  const directoryResult = await tryCatchAsync(() =>
+  const directoryResult = await runSyncPart('Grantee directory', () =>
     fetchGranteeDirectory(meta, apiToken)
   )
-  const reportsResult = await tryCatchAsync(async () =>
+  const reportsResult = await runSyncPart('Grant reports', async () =>
     addReportImages(await fetchGrantReports(meta, apiToken))
   )
-  const profilesResult = await tryCatchAsync(async () =>
+  const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
   const results = collectSyncResults([
