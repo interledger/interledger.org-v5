@@ -128,8 +128,11 @@ const heroLcpPreload =
           {/* Same treatment PageHero gives its own h1, so a hero-less page
             still gets a real page title instead of relying on MdxContent's
             first heading (which may not exist, or may be an h2 section
-            heading rather than the page's own title). */}
-          <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
+            heading rather than the page's own title).
+            No bottom margin (ADR-009, A6): the page stack sets the gap to
+            the content, which a first block that owns its spacing supplies
+            itself. A margin here would only stack on that block's top. */}
+          <h1 class="text-neutral-900">{title}</h1>
         </div>
       </div>
     )}
