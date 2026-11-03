@@ -13,10 +13,10 @@ import {
 } from './airtableFieldValues'
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
-// Unlike the grantee directory, a gap is never warned about and skipped: a
-// report with a required value missing, or with an image that breaks the rules
-// below, fails the whole sync. Programs fix the record, and the next run picks
-// it up. The site keeps the last good data in the meantime.
+// A report with a required value missing, a value of the wrong shape, or an
+// image that breaks the rules below fails the whole sync. Programs fix the
+// record, and the next run picks it up. The site keeps the last good data in
+// the meantime.
 
 // Only reports with this status reach the site. The view filters on it too,
 // but the sync checks again, so a change to the view cannot publish a draft.

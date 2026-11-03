@@ -17,17 +17,19 @@ import {
   findRenamedFields,
   isRawTableRecord,
   listUnrenderedViewFields,
-  resolveProjectLeaders,
   selectPublishedGranteeFields,
   toGranteeRecord,
-  warnOnMissingProjectNames
+  toGranteeRecords
 } from './airtableRecords'
 
 const CREATED = '2020-01-01T00:00:00.000Z'
 const PUBLISHED_FIELD_ID = 'fldPublished'
 const PUBLISHED = 'Published on Website'
 const NAME_ID = GRANTEE_FIELDS['Project Name'].id
+const COUNTRY_ID = GRANTEE_FIELDS.Country.id
+const LEADER_ID = GRANTEE_FIELDS['Project Leader'].id
 const ALL_COLUMNS = Object.keys(GRANTEE_FIELDS) as GranteeFieldName[]
+const NO_CONTACTS = new Map<string, string>()
 
 function raw(fields: Record<string, unknown>, id = 'rec1'): RawTableRecord {
   return { id, createdTime: CREATED, fields }
@@ -65,20 +67,14 @@ function withoutColumns(
   return { ...source, fields }
 }
 
-// The record as Airtable returns it: keyed by field ID.
-function toRaw(source: TableRecord): RawTableRecord {
-  const fields = Object.fromEntries(
-    Object.entries(GRANTEE_FIELDS).map(([name, { id }]) => [
-      id,
-      source.fields[name]
-    ])
-  )
-  return raw(fields, source.id)
-}
-
 function errorMessage(result: unknown): string {
   expect(result).toBeInstanceOf(Error)
   return result instanceof Error ? result.message : ''
+}
+
+function expectRecord(result: TableRecord | Error): TableRecord {
+  expect(result).not.toBeInstanceOf(Error)
+  return result as TableRecord
 }
 
 let warn: MockInstance<typeof console.warn>
@@ -134,6 +130,11 @@ describe('filterPublishedRecords', () => {
 })
 
 describe('toGranteeRecord', () => {
+  const contacts = new Map([
+    ['recAda', 'Ada Lovelace'],
+    ['recGrace', 'Grace Hopper']
+  ])
+
   it('renames mapped field IDs to column names and drops unmapped columns', () => {
     const result = toGranteeRecord(
       raw({
@@ -142,7 +143,8 @@ describe('toGranteeRecord', () => {
         [GRANTEE_FIELDS['Thematic Tag'].id]: ['a', 'b'],
         [PUBLISHED_FIELD_ID]: PUBLISHED,
         fldUnmapped: 'hidden'
-      })
+      }),
+      NO_CONTACTS
     )
     expect(result).toEqual(
       record({
@@ -155,79 +157,151 @@ describe('toGranteeRecord', () => {
   })
 
   it('writes columns in map order, whatever order Airtable returns them in', () => {
-    const result = toGranteeRecord(
-      raw({ [GRANTEE_FIELDS.Country.id]: 'Kenya', [NAME_ID]: 'X' })
+    const { fields } = expectRecord(
+      toGranteeRecord(
+        raw({ [COUNTRY_ID]: 'Kenya', [NAME_ID]: 'X' }),
+        NO_CONTACTS
+      )
     )
-    expect(Object.keys(result.fields)).toEqual(['Project Name', 'Country'])
+    expect(Object.keys(fields)).toEqual(['Project Name', 'Country'])
+  })
+
+  it('writes a blank optional value as it is', () => {
+    const { fields } = expectRecord(
+      toGranteeRecord(raw({ [NAME_ID]: 'X', [COUNTRY_ID]: '  ' }), NO_CONTACTS)
+    )
+    expect(fields.Country).toBe('  ')
   })
 
   it.each([
-    ['Project Name', ['X'], 'expected string, got string[]'],
     ['Total budget approved', '100', 'expected number, got string'],
     ['Thematic Tag', 'Payments', 'expected string[], got string'],
     ['Project Links', ['a', 1], 'expected string[], got array'],
     ['Country', true, 'expected string, got boolean'],
     ['Country', null, 'expected string, got null'],
     ['Year', ['2024'], 'expected string | number, got string[]']
-  ] as const)(
-    'drops a wrong-shaped %s value with a warning',
-    (column, value, reason) => {
-      const result = toGranteeRecord(
-        raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS[column].id]: value })
+  ] as const)('fails on a wrong-shaped %s value', (column, value, reason) => {
+    const message = errorMessage(
+      toGranteeRecord(
+        raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS[column].id]: value }),
+        NO_CONTACTS
       )
-      expect(result.fields[column]).toBeUndefined()
-      expect(warn).toHaveBeenCalledOnce()
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining(`"${column}"`))
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining(reason))
+    )
+    expect(message).toContain(`"${column}": ${reason}`)
+  })
+
+  it.each(['2024', 2024])('keeps a Year of %j', (year) => {
+    const { fields } = expectRecord(
+      toGranteeRecord(
+        raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS.Year.id]: year }),
+        NO_CONTACTS
+      )
+    )
+    expect(fields.Year).toBe(year)
+  })
+
+  it('lists every problem of the record, labelled with its project name and ID', () => {
+    const message = errorMessage(
+      toGranteeRecord(
+        raw({
+          [NAME_ID]: 'X',
+          [GRANTEE_FIELDS.Year.id]: { error: '#ERROR!' },
+          [COUNTRY_ID]: 1,
+          [GRANTEE_FIELDS['Total budget approved'].id]: { specialValue: 'NaN' }
+        }),
+        NO_CONTACTS
+      )
+    )
+    expect(message).toBe(
+      [
+        'Record X (ID: rec1):',
+        '  - "Year": formula error (#ERROR!)',
+        '  - "Country": expected string, got number',
+        '  - "Total budget approved": formula error (NaN)'
+      ].join('\n')
+    )
+  })
+
+  it.each([
+    ['absent', {}],
+    ['undefined', { [NAME_ID]: undefined }],
+    ['blank', { [NAME_ID]: '   ' }]
+  ])(
+    'fails on a missing Project Name (%s), labelled by the record ID',
+    (_case, fields) => {
+      expect(errorMessage(toGranteeRecord(raw(fields), NO_CONTACTS))).toBe(
+        'Record rec1:\n  - "Project Name": missing'
+      )
     }
   )
 
-  it.each(['2024', 2024])('keeps a Year of %j without warning', (year) => {
-    const result = toGranteeRecord(
-      raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS.Year.id]: year })
-    )
-    expect(result.fields.Year).toBe(year)
-    expect(warn).not.toHaveBeenCalled()
+  it('reports a wrong-shaped Project Name once, not also as missing', () => {
+    expect(
+      errorMessage(toGranteeRecord(raw({ [NAME_ID]: ['X'] }), NO_CONTACTS))
+    ).toBe('Record rec1:\n  - "Project Name": expected string, got string[]')
   })
 
-  it('labels a warning with the project name and record ID', () => {
-    toGranteeRecord(raw({ [NAME_ID]: 'X', [GRANTEE_FIELDS.Country.id]: 1 }))
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('for record X (ID: rec1) ')
-    )
-  })
-
-  it('labels a warning with the bare record ID when the name is blank', () => {
-    toGranteeRecord(raw({ [NAME_ID]: '   ', [GRANTEE_FIELDS.Country.id]: 1 }))
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('for record rec1 — ')
-    )
-  })
-
-  it('warns with the reason on a formula error', () => {
-    const result = toGranteeRecord(
-      raw({
-        [NAME_ID]: 'X',
-        [GRANTEE_FIELDS.Year.id]: { error: '#ERROR!' },
-        [GRANTEE_FIELDS['Total budget approved'].id]: { specialValue: 'NaN' }
-      })
-    )
-    expect(result.fields).toEqual({ 'Project Name': 'X' })
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('Formula error (#ERROR!) in field "Year"')
-    )
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'Formula error (NaN) in field "Total budget approved"'
+  it('replaces leader IDs with contact names, in order', () => {
+    const { fields } = expectRecord(
+      toGranteeRecord(
+        raw({ [NAME_ID]: 'X', [LEADER_ID]: ['recGrace', 'recAda'] }),
+        contacts
       )
     )
+    expect(fields['Project Leader']).toEqual(['Grace Hopper', 'Ada Lovelace'])
   })
 
-  it('labels a warning with the record ID when there is no project name', () => {
-    toGranteeRecord(raw({ [GRANTEE_FIELDS.Country.id]: 1 }, 'recNoName'))
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('for record recNoName ')
+  it('fails on leaders with no named contact, with the record’s other problems', () => {
+    const message = errorMessage(
+      toGranteeRecord(
+        raw({
+          [NAME_ID]: 'X',
+          [COUNTRY_ID]: 1,
+          [LEADER_ID]: ['recAda', 'recMissing', 'recGone']
+        }),
+        contacts
+      )
     )
+    expect(message).toBe(
+      [
+        'Record X (ID: rec1):',
+        '  - "Country": expected string, got number',
+        '  - "Project Leader": no contact name for recMissing, recGone'
+      ].join('\n')
+    )
+  })
+})
+
+describe('toGranteeRecords', () => {
+  it('lists every bad record in one error', () => {
+    const message = errorMessage(
+      toGranteeRecords(
+        [
+          raw({}, 'recA'),
+          raw({ [NAME_ID]: 'B' }, 'recB'),
+          raw({ [NAME_ID]: 'C', [COUNTRY_ID]: 1 }, 'recC')
+        ],
+        NO_CONTACTS
+      )
+    )
+    expect(message).toMatch(
+      /^2 grantee directory record\(s\) cannot be published:\n/
+    )
+    expect(message).toContain('Record recA:')
+    expect(message).toContain('Record C (ID: recC):')
+    expect(message).not.toContain('recB')
+  })
+
+  it('returns the records when every one is valid', () => {
+    expect(
+      toGranteeRecords(
+        [raw({ [NAME_ID]: 'A' }, 'recA'), raw({ [NAME_ID]: 'B' }, 'recB')],
+        NO_CONTACTS
+      )
+    ).toEqual([
+      record({ 'Project Name': 'A' }, 'recA'),
+      record({ 'Project Name': 'B' }, 'recB')
+    ])
   })
 })
 
@@ -280,27 +354,6 @@ describe('checkGranteeFieldsPresent', () => {
       /No published records/
     )
   })
-
-  it('fails on a column whose type changed in every record', () => {
-    const records = ['recA', 'recB'].map((id) => {
-      const { fields } = toRaw(completeRecord(id))
-      return toGranteeRecord(raw({ ...fields, [NAME_ID]: ['X'] }, id))
-    })
-    expect(
-      errorMessage(checkGranteeFieldsPresent(records, ALL_COLUMNS))
-    ).toMatch(/"Project Name"/)
-  })
-
-  it('fails when no project leader resolves to a named contact', () => {
-    const unresolved = record({
-      ...completeRecord().fields,
-      'Project Leader': ['recUnnamed']
-    })
-    const records = resolveProjectLeaders([unresolved], new Map())
-    expect(
-      errorMessage(checkGranteeFieldsPresent(records, ALL_COLUMNS))
-    ).toMatch(/"Project Leader"/)
-  })
 })
 
 describe('buildContactNameMap', () => {
@@ -329,53 +382,6 @@ describe('buildContactNameMap', () => {
   it('returns an empty map rather than throwing when no contact is named', () => {
     const contacts = [raw({ fldName: ['Ada Lovelace'] }, 'recAda')]
     expect(buildContactNameMap(contacts, 'fldName').size).toBe(0)
-  })
-})
-
-describe('resolveProjectLeaders', () => {
-  const contacts = new Map([
-    ['recAda', 'Ada Lovelace'],
-    ['recGrace', 'Grace Hopper']
-  ])
-
-  it('leaves a record with no leader field unchanged', () => {
-    const input = record({ 'Project Name': 'X' })
-    expect(resolveProjectLeaders([input], contacts)).toEqual([input])
-    expect(warn).not.toHaveBeenCalled()
-  })
-
-  it('replaces leader IDs with contact names', () => {
-    const [result] = resolveProjectLeaders(
-      [record({ 'Project Leader': ['recAda', 'recGrace'] })],
-      contacts
-    )
-    expect(result?.fields['Project Leader']).toEqual([
-      'Ada Lovelace',
-      'Grace Hopper'
-    ])
-  })
-
-  it('drops leaders with no named contact rather than writing a placeholder', () => {
-    const [result] = resolveProjectLeaders(
-      [
-        record({
-          'Project Name': 'X',
-          'Project Leader': ['recAda', 'recMissing']
-        })
-      ],
-      contacts
-    )
-    expect(result?.fields['Project Leader']).toEqual(['Ada Lovelace'])
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('recMissing'))
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('X (ID: rec1)'))
-  })
-
-  it('removes the field when no leader resolves', () => {
-    const [result] = resolveProjectLeaders(
-      [record({ 'Project Name': 'X', 'Project Leader': ['recMissing'] })],
-      contacts
-    )
-    expect(result?.fields).toEqual({ 'Project Name': 'X' })
   })
 })
 
@@ -470,23 +476,5 @@ describe('findRenamedFields', () => {
       { id: NAME_ID, name: 'Project Name', type: 'singleLineText' }
     ]
     expect(findRenamedFields(expected, fields)).toEqual([])
-  })
-})
-
-describe('warnOnMissingProjectNames', () => {
-  it('warns once per record with a missing or blank name', () => {
-    warnOnMissingProjectNames([
-      record({ 'Project Name': 'A' }, 'recA'),
-      record({}, 'recMissing'),
-      record({ 'Project Name': '  ' }, 'recBlank')
-    ])
-    expect(warn).toHaveBeenCalledTimes(2)
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('recMissing'))
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('recBlank'))
-  })
-
-  it('stays quiet when every record has a name', () => {
-    warnOnMissingProjectNames([record({ 'Project Name': 'A' })])
-    expect(warn).not.toHaveBeenCalled()
   })
 })

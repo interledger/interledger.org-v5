@@ -12,23 +12,31 @@ import {
 } from './airtableFieldValues'
 
 // Record-shaping helpers for scripts/import-airtable.ts. Airtable omits empty
-// cells, so a missing value is normal. A value of the wrong shape on one
-// record is a data gap: warned about and left out of grantee-data.json. A
-// published column missing or blank on every published record means the
-// schema broke, and fails the sync, as does having no published records.
+// cells, so a missing value is normal, except for Project Name. A published
+// record with no Project Name, a value of the wrong shape, a formula error or
+// a leader with no contact name fails the sync, with every bad record listed.
+// A published column blank on every published record means the schema broke,
+// and fails the sync too, as does having no published records.
 
 type FieldShape = 'string' | 'number' | 'string | number' | 'string[]'
+
+interface GranteeFieldSpec {
+  id: string
+  shape: FieldShape
+  required?: true
+}
 
 // The Projects columns the site renders, by field ID so a rename in Airtable
 // leaves the output unchanged. Names are the keys written to grantee-data.json
 // and read by grantee.ts; shapes are the values the sync accepts. Year takes a
-// number too, since it is a formula and grantee.ts renders either.
+// number too, since it is a formula and grantee.ts renders either. Project
+// Name is the only required column: the site drops a grantee without one.
 //
 // A column listed here is written to grantee-data.json, which is committed,
 // whenever it is visible in the view. Never add `Project` (fldirPGzYo96I1Hsu):
 // it must never be published and must not reach git, visible or not.
 export const GRANTEE_FIELDS = {
-  'Project Name': { id: 'fldSwFK4pUppTuSRL', shape: 'string' },
+  'Project Name': { id: 'fldSwFK4pUppTuSRL', shape: 'string', required: true },
   'Secondary Grant Program Name': { id: 'fldH4NUS3BL5SV8rN', shape: 'string' },
   Year: { id: 'fldEZNEXAY5steLCx', shape: 'string | number' },
   'Start Month': { id: 'fldo7Z20rohFRZSP3', shape: 'string' },
@@ -38,7 +46,7 @@ export const GRANTEE_FIELDS = {
   'Project Description': { id: 'fld8Of70JLLlq4xzJ', shape: 'string' },
   'Total budget approved': { id: 'flds9Vz8WMbt4ALzR', shape: 'number' },
   'Project Links': { id: 'flducePQXMCeH9I3q', shape: 'string[]' }
-} as const satisfies Record<string, { id: string; shape: FieldShape }>
+} as const satisfies Record<string, GranteeFieldSpec>
 
 export type GranteeFieldName = keyof typeof GRANTEE_FIELDS
 
@@ -77,7 +85,7 @@ function airtableFormulaErrorReason(value: unknown): string | undefined {
   return undefined
 }
 
-// Use the project name in warnings so they're recognisable at a glance instead of a bare record ID.
+// Use the project name in errors so they're recognisable at a glance instead of a bare record ID.
 function recordLabel(id: string, projectName: unknown): string {
   const name = nonBlankString(projectName)
   return name === undefined ? id : `${name} (ID: ${id})`
@@ -114,34 +122,96 @@ export function filterPublishedRecords(
   return published
 }
 
-// Keeps only the GRANTEE_FIELDS columns, renamed from field ID to column name
-// and in map order. A value of the wrong shape is warned about and dropped.
-export function toGranteeRecord(raw: RawTableRecord): TableRecord {
-  const label = recordLabel(raw.id, raw.fields[GRANTEE_FIELDS[PROJECT_NAME].id])
-  const fields: TableRecord['fields'] = {}
+// Airtable returns linked records as IDs; the site shows the contacts' names.
+function nameProjectLeaders(
+  ids: string[],
+  contactNames: ReadonlyMap<string, string>
+): string[] | Error {
+  const unresolved = ids.filter((id) => !contactNames.has(id))
+  if (unresolved.length > 0) {
+    return new Error(`no contact name for ${unresolved.join(', ')}`)
+  }
+  return ids.flatMap((id) => contactNames.get(id) ?? [])
+}
 
-  for (const [name, { id, shape }] of Object.entries(GRANTEE_FIELDS)) {
-    if (!(id in raw.fields)) continue
-    const value = raw.fields[id]
-    if (matchesShape(value, shape)) {
-      fields[name] = value
-      continue
-    }
+// The value written for one column, undefined for an empty optional cell, or
+// the problem that keeps the record off the site.
+function readGranteeColumn(
+  name: string,
+  { shape, required }: GranteeFieldSpec,
+  value: unknown,
+  contactNames: ReadonlyMap<string, string>
+): AirtableFieldValue | undefined | Error {
+  if (value === undefined) return required ? new Error('missing') : undefined
+  if (!matchesShape(value, shape)) {
     const reason = airtableFormulaErrorReason(value)
-    const problem =
+    return new Error(
       reason === undefined
-        ? `Unexpected value (expected ${shape}, got ${describeShape(value)})`
-        : `Formula error (${reason})`
-    console.warn(
-      `⚠️  ${problem} in field "${name}" for record ${label} — field omitted`
+        ? `expected ${shape}, got ${describeShape(value)}`
+        : `formula error (${reason})`
     )
   }
+  if (required && isBlank(value)) return new Error('missing')
+  if (name === PROJECT_LEADER && Array.isArray(value)) {
+    return nameProjectLeaders(value, contactNames)
+  }
+  return value
+}
 
-  return { id: raw.id, createdTime: raw.createdTime, fields }
+// Keeps only the GRANTEE_FIELDS columns, renamed from field ID to column name
+// and in map order. Every problem in the record is listed, so programs can fix
+// it in one pass.
+export function toGranteeRecord(
+  raw: RawTableRecord,
+  contactNames: ReadonlyMap<string, string>
+): TableRecord | Error {
+  const fields: TableRecord['fields'] = {}
+  const problems: string[] = []
+  const columns: [string, GranteeFieldSpec][] = Object.entries(GRANTEE_FIELDS)
+
+  for (const [name, spec] of columns) {
+    const value = readGranteeColumn(
+      name,
+      spec,
+      raw.fields[spec.id],
+      contactNames
+    )
+    if (value instanceof Error) problems.push(`"${name}": ${value.message}`)
+    else if (value !== undefined) fields[name] = value
+  }
+
+  if (problems.length === 0) {
+    return { id: raw.id, createdTime: raw.createdTime, fields }
+  }
+  const label = recordLabel(raw.id, raw.fields[GRANTEE_FIELDS[PROJECT_NAME].id])
+  return new Error(
+    `Record ${label}:\n${problems.map((p) => `  - ${p}`).join('\n')}`
+  )
+}
+
+// Shapes every published record. One bad record fails the whole set, with
+// every bad record listed.
+export function toGranteeRecords(
+  records: RawTableRecord[],
+  contactNames: ReadonlyMap<string, string>
+): TableRecord[] | Error {
+  const granteeRecords: TableRecord[] = []
+  const errors: Error[] = []
+  for (const record of records) {
+    const result = toGranteeRecord(record, contactNames)
+    if (result instanceof Error) errors.push(result)
+    else granteeRecords.push(result)
+  }
+  if (errors.length > 0) {
+    return new Error(
+      `${errors.length} grantee directory record(s) cannot be published:\n${errors.map((e) => e.message).join('\n')}`
+    )
+  }
+  return granteeRecords
 }
 
 // Contacts with no name are skipped silently: most are never linked from a
-// published project, and resolveProjectLeaders warns about those that are.
+// published project, and toGranteeRecord fails on those that are.
 export function buildContactNameMap(
   contactRecords: RawTableRecord[],
   nameFieldId: string
@@ -153,41 +223,6 @@ export function buildContactNameMap(
     contactsMap.set(record.id, name)
   }
   return contactsMap
-}
-
-function withoutField(record: TableRecord, fieldName: string): TableRecord {
-  const fields = { ...record.fields }
-  delete fields[fieldName]
-  return { ...record, fields }
-}
-
-// Airtable returns linked records as IDs; replace Project Leader IDs with
-// contact names, dropping any ID that has no named contact.
-export function resolveProjectLeaders(
-  granteeData: TableRecord[],
-  contactsMap: Map<string, string>
-): TableRecord[] {
-  return granteeData.map((record) => {
-    const leaderIds = record.fields[PROJECT_LEADER]
-    // Not an array only when absent: toGranteeRecord keeps nothing but a string[] here.
-    if (!Array.isArray(leaderIds)) return record
-
-    const leaderNames = leaderIds.flatMap((id) => contactsMap.get(id) ?? [])
-    const unresolvedIds = leaderIds.filter((id) => !contactsMap.has(id))
-    if (unresolvedIds.length > 0) {
-      const label = recordLabel(record.id, record.fields[PROJECT_NAME])
-      console.warn(
-        `⚠️  No contact name for "${PROJECT_LEADER}" ${unresolvedIds.join(', ')} in record ${label} — leader omitted`
-      )
-    }
-    if (leaderNames.length === 0) {
-      return withoutField(record, PROJECT_LEADER)
-    }
-    return {
-      ...record,
-      fields: { ...record.fields, [PROJECT_LEADER]: leaderNames }
-    }
-  })
 }
 
 // A rendered column is published only while it is visible in the view, so
@@ -213,9 +248,10 @@ export function selectPublishedGranteeFields(visibleFieldIds: string[]):
   }
 }
 
-// One record missing a column is a data gap; every record missing it means
-// the schema broke, and writing the file would empty that column on the site.
-// No records at all (e.g. the view's filter changed) would empty the directory.
+// One record without a value in an optional column is normal; every record
+// without one means the schema broke, and writing the file would empty that
+// column on the site. No records at all (e.g. the view's filter changed) would
+// empty the directory.
 export function checkGranteeFieldsPresent(
   records: TableRecord[],
   publishedFields: GranteeFieldName[]
@@ -231,7 +267,7 @@ export function checkGranteeFieldsPresent(
   if (missing.length === 0) return undefined
   return new Error(
     `No published record has a value for ${missing.map((name) => `"${name}"`).join(', ')} — ` +
-      `the field's type may have changed, its formula may fail in every row, or no linked record resolved`
+      `the column may have been emptied, or its formula returns a blank value in every row`
   )
 }
 
@@ -262,15 +298,4 @@ export function listUnrenderedViewFields(
   return visibleFieldIds
     .filter((id) => !renderedFieldIds.includes(id))
     .map((id) => fields.find((field) => field.id === id)?.name ?? id)
-}
-
-// The site drops a grantee with no name, so flag published records missing one
-// while it can still be fixed in Airtable. The record is still written.
-export function warnOnMissingProjectNames(records: TableRecord[]): void {
-  for (const record of records) {
-    if (nonBlankString(record.fields[PROJECT_NAME]) !== undefined) continue
-    console.warn(
-      `⚠️  Published record ${record.id} has no "${PROJECT_NAME}" — it will not appear in the grantee directory`
-    )
-  }
 }

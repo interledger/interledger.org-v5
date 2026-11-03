@@ -214,10 +214,9 @@ export {
   findRenamedFields,
   isRawTableRecord,
   listUnrenderedViewFields,
-  resolveProjectLeaders,
   selectPublishedGranteeFields,
   toGranteeRecord,
-  warnOnMissingProjectNames,
+  toGranteeRecords,
   type GranteeFieldName
 } from './main/airtableRecords'
 export {

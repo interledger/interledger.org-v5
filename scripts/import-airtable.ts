@@ -24,10 +24,8 @@ import {
   findRenamedFields,
   isRawTableRecord,
   listUnrenderedViewFields,
-  resolveProjectLeaders,
   selectPublishedGranteeFields,
-  toGranteeRecord,
-  warnOnMissingProjectNames
+  toGranteeRecords
 } from '../src/utils/main/airtableRecords'
 import { MAX_SOURCE_IMAGE_BYTES } from '../src/utils/main/airtableFieldValues'
 import {
@@ -515,10 +513,9 @@ async function importAirtableData() {
     PUBLISHED_ON_WEBSITE_FIELD_ID
   )
   if (publishedRecords instanceof Error) throw publishedRecords
-  const granteeData = publishedRecords.map(toGranteeRecord)
-  warnOnMissingProjectNames(granteeData)
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
-  const finalGranteeData = resolveProjectLeaders(granteeData, contactsMap)
+  const finalGranteeData = toGranteeRecords(publishedRecords, contactsMap)
+  if (finalGranteeData instanceof Error) throw finalGranteeData
   // Last, so a column emptied at any step above fails the sync.
   const missingFields = checkGranteeFieldsPresent(finalGranteeData, published)
   if (missingFields instanceof Error) throw missingFields
