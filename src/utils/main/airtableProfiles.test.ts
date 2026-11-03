@@ -65,8 +65,7 @@ describe('toGranteeProfile', () => {
         legacyReportCount: 1,
         thematicTags: []
       },
-      logoSource: null,
-      warnings: []
+      logoSource: null
     })
   })
 
@@ -150,38 +149,49 @@ describe('toGranteeProfile', () => {
     }
   })
 
-  it('leaves out a URL that is not http or https, with a warning', () => {
+  it('rejects a URL that is not http or https', () => {
     for (const url of ['javascript:alert(1)', 'ftp://gib.example', 'gib']) {
-      const { content, warnings } = expectParsed(
+      const error = expectError(
         toGranteeProfile(grantee({ [F.linkedIn.id]: url }))
       )
-      expect(content.linkedIn).toBeNull()
-      expect(warnings).toEqual([
-        `Grantee Gib (ID: recGrantee000001): "LinkedIn": expected an http or https URL, got ${JSON.stringify(url)}, left out`
-      ])
+      expect(error.message).toContain(
+        `"LinkedIn": expected an http or https URL, got ${JSON.stringify(url)}`
+      )
     }
   })
 
-  it('leaves out optional text of another shape, with a warning', () => {
-    const { content, warnings } = expectParsed(
+  it('treats a blank link as empty', () => {
+    for (const website of ['', '   ']) {
+      const { content } = expectParsed(
+        toGranteeProfile(grantee({ [F.website.id]: website }))
+      )
+      expect(content.website).toBeNull()
+    }
+  })
+
+  it('rejects optional text of another shape', () => {
+    const error = expectError(
       toGranteeProfile(
         grantee({ [F.description.id]: 42, [F.formerlyKnownAs.id]: ['Old'] })
       )
     )
-    expect(content.description).toBeNull()
-    expect(content.formerlyKnownAs).toBeNull()
-    expect(warnings).toHaveLength(2)
+    expect(error.message).toContain('"Description": expected text, got 42')
+    expect(error.message).toContain(
+      '"Formerly Known As": expected text, got 1 value(s)'
+    )
   })
 
-  it('fails on a required problem and lists the skipped value with it', () => {
+  it('lists an invalid optional value with a missing required one', () => {
     const error = expectError(
       toGranteeProfile(
         grantee({ [F.name.id]: undefined, [F.website.id]: 'gib.example' })
       )
     )
+    expect(error.message).toContain('"Name": expected text, got missing')
     expect(error.message).toContain(
-      '"Website": expected an http or https URL, got "gib.example", left out'
+      '"Website": expected an http or https URL, got "gib.example"'
     )
+    expect(error.message).not.toContain('left out')
   })
 
   it('rejects grant links that are not record IDs', () => {
@@ -252,25 +262,6 @@ describe('toGranteeProfiles', () => {
     expect(error.message).toContain('2 grantee profile problem(s)')
     expect(error.message).toContain('recA')
     expect(error.message).toContain('recC')
-  })
-
-  it('keeps the warnings of the grantees that passed in the error', () => {
-    const error = expectError(
-      toGranteeProfiles([
-        grantee({ [F.name.id]: undefined }, 'recA'),
-        grantee({ [F.slug.id]: 'ok', [F.bluesky.id]: 'bsky' }, 'recB')
-      ])
-    )
-    expect(error.message).toContain(
-      'Also left out:\nGrantee Gib (ID: recB): "Bluesky"'
-    )
-  })
-
-  it('adds no warning section when there are no warnings', () => {
-    const error = expectError(
-      toGranteeProfiles([grantee({ [F.name.id]: undefined }, 'recA')])
-    )
-    expect(error.message).not.toContain('Also left out')
   })
 })
 
