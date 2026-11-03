@@ -14,7 +14,7 @@ import {
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
 // A report with a required value missing, a value of the wrong shape, or an
-// image that breaks the rules below fails the whole sync. Programs fix the
+// image that breaks the rules in airtableFieldValues.ts fails the whole sync. Programs fix the
 // record, and the next run picks it up. The site keeps the last good data in
 // the meantime.
 
@@ -166,8 +166,7 @@ function createFieldReader(fields: Record<string, unknown>) {
         ? value
         : fail(key, REPORT_TYPES.join(' or '), REPORT_TYPES[0])
     },
-    // An empty description is allowed: the image then shows with alt="". A
-    // value that is not text fails, like any other invalid value.
+    // An empty description is allowed: the image then shows with alt="".
     optionalText(key: ReportFieldKey): string {
       const value = raw(key)
       if (value === undefined) return ''

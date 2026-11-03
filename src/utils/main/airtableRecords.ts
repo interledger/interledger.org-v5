@@ -15,8 +15,9 @@ import {
 // cells, so a missing value is normal, except for Project Name. A published
 // record with no Project Name, a value of the wrong shape, a formula error or
 // a leader with no contact name fails the sync, with every bad record listed.
-// A published column blank on every published record means the schema broke,
-// and fails the sync too, as does having no published records.
+// A published column blank on every published record means the column was
+// emptied or its formula broke, and fails the sync too, as does having no
+// published records.
 
 type FieldShape = 'string' | 'number' | 'string | number' | 'string[]'
 
@@ -135,7 +136,7 @@ function nameProjectLeaders(
 }
 
 // The value written for one column, undefined for an empty optional cell, or
-// the problem that keeps the record off the site.
+// the problem that fails the sync.
 function readGranteeColumn(
   name: string,
   { shape, required }: GranteeFieldSpec,
@@ -249,8 +250,8 @@ export function selectPublishedGranteeFields(visibleFieldIds: string[]):
 }
 
 // One record without a value in an optional column is normal; every record
-// without one means the schema broke, and writing the file would empty that
-// column on the site. No records at all (e.g. the view's filter changed) would
+// without one means the column was emptied or its formula broke, and writing
+// the file would empty that column on the site. No records at all (e.g. the view's filter changed) would
 // empty the directory.
 export function checkGranteeFieldsPresent(
   records: TableRecord[],
@@ -273,7 +274,7 @@ export function checkGranteeFieldsPresent(
 
 // Columns are read by ID, so a rename in Airtable changes nothing in the
 // output. It does leave the name in code (and in grantee-data.json and the
-// sync's warnings) out of step with what editors see, so it is reported.
+// sync's error messages) out of step with what editors see, so it is reported.
 export function findRenamedFields(
   expected: { name: string; id: string }[],
   fields: Field[]

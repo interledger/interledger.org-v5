@@ -1,8 +1,9 @@
 import type { SyncedImageSource } from '@/types/airtable'
 
-// Helpers shared by the parts of scripts/import-airtable.ts. Each value reader
-// returns undefined, or a short "expected ..." text, for a value it cannot
-// use, so the caller can name the Airtable field in its error.
+// Helpers for scripts/import-airtable.ts: value readers shared by its report
+// and profile parts, and collectSyncResults, which joins the three parts'
+// results. A reader returns undefined, or an "expected ..." description, for a
+// value it cannot use, so the caller can name the Airtable field in its error.
 
 // The file types the site accepts. Airtable does not limit them, so the sync
 // fails on any other type, for example HEIC from an iPhone or a PDF.

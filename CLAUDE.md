@@ -474,6 +474,31 @@ content and drafts stay reviewable.
   page's `dist/<path>/index.html`, its sitemap entry and any listing or profile
   grid that shows it appear only in the second build.
 
+## Airtable Sync
+
+`scripts/import-airtable.ts` runs daily in CI (`sync-airtable.yml`), and Slack
+is told only when it fails. Nobody reads the log of a run that passes.
+
+- **Fail, never warn, on bad data.** A missing required value or an invalid
+  value, required or optional, fails the whole sync, in the directory, the
+  grant reports and the grantee profiles alike. An empty optional cell is not
+  an error. Don't add a "warn and leave it out" path: the value then vanishes
+  from the site with nobody told. This was decided with the PM after two such
+  paths shipped (#766, and the one in #833). Directory values are checked by
+  type only, a decision of the same review: free text in Project Links is
+  allowed, and `grantee.ts` skips entries that are not URLs.
+- **One run lists every bad record.** Each record lists all of its problems,
+  each part lists all of its bad records, and `collectSyncResults` joins the
+  three parts' failures into one error. A part still stops at its first
+  missing or hidden table, view or column, and checks images (and blank
+  directory columns) only once every record passes.
+- **The parts throw; the script catches each one.** An exception to "return
+  `T | Error`" (Errors as Values): the `fetch*` functions throw, and
+  `importAirtableData` wraps each part in `tryCatchAsync` so one failure
+  doesn't stop the others. Converting them is a separate task.
+- The site keeps the last good data until a run passes and its pull request is
+  merged: the JSON is written only after every part succeeds.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)

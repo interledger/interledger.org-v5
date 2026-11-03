@@ -267,7 +267,6 @@ async function fetchGranteeDirectory(
   const contactsMap = await mapContactIdsToNames(contactsTable, apiToken)
   const granteeData = toGranteeRecords(publishedRecords, contactsMap)
   if (granteeData instanceof Error) throw granteeData
-  // Last, so a column emptied at any step above fails the sync.
   const missingFields = checkGranteeFieldsPresent(granteeData, published)
   if (missingFields instanceof Error) throw missingFields
   return granteeData
@@ -536,9 +535,8 @@ async function importAirtableData() {
     return r.json()
   })
 
-  // The parts throw on the first problem they cannot list (see findById), so
-  // each is caught here: a broken part must not hide the problems of the
-  // others. They run one after another, as their image downloads always have.
+  // Each part throws when it fails. Catching each one here lets the others
+  // still run, so one failed run reports the problems of all three.
   const directoryResult = await tryCatchAsync(() =>
     fetchGranteeDirectory(meta, apiToken)
   )
