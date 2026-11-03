@@ -126,8 +126,8 @@ function readSingleLookup(value: unknown): unknown {
 }
 
 // Reads the fields of one record. A reader that fails records the problem and
-// returns a placeholder, which is safe because toGrantReport discards the
-// report when there is any problem.
+// returns a placeholder, which is safe because toGrantReport returns an Error
+// instead of the report when there is any problem.
 function createFieldReader(fields: Record<string, unknown>) {
   const problems: string[] = []
   const fail = <T>(key: ReportFieldKey, expected: string, placeholder: T) => {

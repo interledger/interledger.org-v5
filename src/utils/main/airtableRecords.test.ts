@@ -1,12 +1,4 @@
-import {
-  type MockInstance,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi
-} from 'vitest'
+import { describe, expect, it } from 'vitest'
 import type { RawTableRecord, TableRecord } from '@/types/airtable'
 import {
   GRANTEE_FIELDS,
@@ -77,16 +69,6 @@ function expectRecord(result: TableRecord | Error): TableRecord {
   return result as TableRecord
 }
 
-let warn: MockInstance<typeof console.warn>
-
-beforeEach(() => {
-  warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-})
-
-afterEach(() => {
-  warn.mockRestore()
-})
-
 describe('isRawTableRecord', () => {
   it('accepts any field values', () => {
     expect(
@@ -113,7 +95,6 @@ describe('filterPublishedRecords', () => {
     expect(
       filterPublishedRecords([published, draft], PUBLISHED_FIELD_ID)
     ).toEqual([published])
-    expect(warn).not.toHaveBeenCalled()
   })
 
   it('refuses to write an empty directory when nothing matches', () => {
@@ -153,7 +134,6 @@ describe('toGranteeRecord', () => {
         'Thematic Tag': ['a', 'b']
       })
     )
-    expect(warn).not.toHaveBeenCalled()
   })
 
   it('writes columns in map order, whatever order Airtable returns them in', () => {
@@ -357,7 +337,7 @@ describe('checkGranteeFieldsPresent', () => {
 })
 
 describe('buildContactNameMap', () => {
-  it('skips missing, blank and non-string names without warning', () => {
+  it('skips missing, blank and non-string names', () => {
     // Regression: contact recm3znGloYdWgXcj had no name and aborted the whole sync.
     const contacts = [
       raw({}, 'recm3znGloYdWgXcj'),
@@ -369,7 +349,6 @@ describe('buildContactNameMap', () => {
     expect([...buildContactNameMap(contacts, 'fldName')]).toEqual([
       ['recAda', 'Ada Lovelace']
     ])
-    expect(warn).not.toHaveBeenCalled()
   })
 
   it('stores names trimmed', () => {

@@ -110,7 +110,7 @@ async function writeAirtableJson(
   await fs.mkdir(basePath, { recursive: true })
   const filePath = path.join(basePath, fileName)
 
-  // Both files are committed, and `pnpm run lint` runs `prettier --check` over it.
+  // The three files are committed, and `pnpm run lint` runs `prettier --check` over them.
   // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
   // stringify output would fail lint and bury every real change under thousands of lines
   // of formatting churn. Formatting here keeps a local run and the automated sync in
@@ -571,7 +571,7 @@ async function importAirtableData() {
 
 importAirtableData().catch((err) => {
   console.error(
-    '❌ Error fetching Airtable data:',
+    '❌ Airtable sync failed:',
     err instanceof Error ? err.message : err
   )
   process.exit(1)
