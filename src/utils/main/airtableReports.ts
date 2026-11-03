@@ -166,9 +166,14 @@ function createFieldReader(fields: Record<string, unknown>) {
         ? value
         : fail(key, REPORT_TYPES.join(' or '), REPORT_TYPES[0])
     },
-    // An empty description is allowed: the image then shows with alt="".
+    // An empty description is allowed: the image then shows with alt="". A
+    // value that is not text fails, like any other invalid value.
     optionalText(key: ReportFieldKey): string {
-      return nonBlankString(raw(key)) ?? ''
+      const value = raw(key)
+      if (value === undefined) return ''
+      return typeof value === 'string'
+        ? (nonBlankString(value) ?? '')
+        : fail(key, 'text', '')
     },
     image(key: ReportFieldKey, alt: string): SyncedImageSource | undefined {
       const result = readImageField(raw(key), alt)

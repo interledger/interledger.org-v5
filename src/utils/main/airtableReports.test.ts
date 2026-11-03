@@ -125,6 +125,34 @@ describe('toGrantReport', () => {
     ])
   })
 
+  it('gives an image with a blank description empty alt text', () => {
+    const parsed = expectParsed(
+      toGrantReport(
+        liveReport({
+          [F.image1.id]: [attachment()],
+          [F.imageDescription1.id]: '   '
+        })
+      )
+    )
+    expect(parsed.imageSources[0]?.alt).toBe('')
+  })
+
+  it('fails on an image description that is not text', () => {
+    for (const description of [42, { error: '#ERROR!' }]) {
+      const error = expectError(
+        toGrantReport(
+          liveReport({
+            [F.image1.id]: [attachment()],
+            [F.imageDescription1.id]: description
+          })
+        )
+      )
+      expect(error.message).toContain(
+        `"Public Image Description 1": expected text, got ${JSON.stringify(description)}`
+      )
+    }
+  })
+
   it('accepts every allowed image type', () => {
     for (const type of ALLOWED_IMAGE_TYPES) {
       expectParsed(
