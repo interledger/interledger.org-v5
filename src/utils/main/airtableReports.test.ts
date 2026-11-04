@@ -327,9 +327,18 @@ describe('toGrantReports', () => {
       liveReport({ [F.license.id]: undefined }, 'rec3')
     ])
     const error = expectError(result)
-    expect(error.message).toContain('2 grant report(s) cannot be published')
+    expect(error.message).toMatch(/^2 report\(s\) cannot be published:\n/)
     expect(error.message).toContain('(ID: rec1)')
     expect(error.message).toContain('(ID: rec3)')
+  })
+
+  it('counts a report with several problems once, listing each problem', () => {
+    const result = toGrantReports([
+      liveReport({ [F.summary.id]: undefined, [F.license.id]: undefined })
+    ])
+    const error = expectError(result)
+    expect(error.message).toMatch(/^1 report\(s\) cannot be published:\n/)
+    expect(error.message.match(/^ {2}- /gm)).toHaveLength(2)
   })
 
   it('sorts by project name, then report number, independent of input order', () => {

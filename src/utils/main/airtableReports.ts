@@ -10,7 +10,9 @@ import {
   formatProblems,
   isStringArray,
   nonBlankString,
-  readImageField
+  partitionRecordResults,
+  readImageField,
+  recordProblemsError
 } from './airtableFieldValues'
 
 // Record-shaping helpers for the grant report part of scripts/import-airtable.ts.
@@ -254,18 +256,13 @@ function compareReports(
 export function toGrantReports(
   records: RawTableRecord[]
 ): ParsedGrantReport[] | Error {
-  const reports: ParsedGrantReport[] = []
-  const errors: Error[] = []
-  for (const result of records.filter(isLiveReport).map(toGrantReport)) {
-    if (result instanceof Error) errors.push(result)
-    else reports.push(result)
+  const { values, problems } = partitionRecordResults(
+    records.filter(isLiveReport).map(toGrantReport)
+  )
+  if (problems.length > 0) {
+    return recordProblemsError(problems, 'report(s) cannot be published')
   }
-  if (errors.length > 0) {
-    return new Error(
-      `${errors.length} grant report(s) cannot be published:\n${errors.map((e) => e.message).join('\n')}`
-    )
-  }
-  return reports.sort(compareReports)
+  return values.sort(compareReports)
 }
 
 // The view decides what is public. A report field hidden there is a field

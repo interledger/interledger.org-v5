@@ -259,9 +259,23 @@ describe('toGranteeProfiles', () => {
         grantee({ [F.slug.id]: 'Bad' }, 'recC')
       ])
     )
-    expect(error.message).toContain('2 grantee profile problem(s)')
+    expect(error.message).toMatch(/^2 bad profile\(s\) or shared slug\(s\):\n/)
     expect(error.message).toContain('recA')
     expect(error.message).toContain('recC')
+    expect(error.message).not.toContain('recB')
+  })
+
+  it('counts a bad grantee and a shared slug together', () => {
+    const error = expectError(
+      toGranteeProfiles([
+        grantee({ [F.name.id]: undefined }, 'recA'),
+        grantee({}, 'recB'),
+        grantee({}, 'recC')
+      ])
+    )
+    expect(error.message).toMatch(/^2 bad profile\(s\) or shared slug\(s\):\n/)
+    expect(error.message).toContain('recA')
+    expect(error.message).toContain('Slug "gib" is used by recB, recC')
   })
 })
 

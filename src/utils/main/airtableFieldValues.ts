@@ -1,8 +1,9 @@
 import type { SyncedImageSource } from '@/types/airtable'
 
-// Helpers for scripts/import-airtable.ts: value readers shared by its report
-// and profile parts, formatProblems for their error messages, and
-// collectSyncResults, which joins the three parts' results. A reader returns undefined, or an "expected ..." description, for a
+// Helpers for scripts/import-airtable.ts, shared by its three parts: value
+// readers, the error-message builders (formatProblems, partitionRecordResults,
+// recordProblemsError), and collectSyncResults, which joins the parts'
+// results. A reader returns undefined, or an "expected ..." description, for a
 // value it cannot use, so the caller can name the Airtable field in its error.
 
 // The file types the site accepts. Airtable does not limit them, so the sync
@@ -73,6 +74,27 @@ function readAttachment(
 // One labelled block of an error message, a problem per line.
 export function formatProblems(label: string, problems: string[]): string {
   return `${label}:\n${problems.map((problem) => `  - ${problem}`).join('\n')}`
+}
+
+// Splits per-record results into the values and each bad record's message, so
+// a part can fail once with every bad record listed.
+export function partitionRecordResults<T>(results: readonly (T | Error)[]): {
+  values: T[]
+  problems: string[]
+} {
+  const values: T[] = []
+  const problems: string[] = []
+  for (const result of results) {
+    if (result instanceof Error) problems.push(result.message)
+    else values.push(result)
+  }
+  return { values, problems }
+}
+
+// One error for a set that cannot be published. The label names what each
+// entry is, such as a bad record, which can itself list several problems.
+export function recordProblemsError(problems: string[], label: string): Error {
+  return new Error(`${problems.length} ${label}:\n${problems.join('\n')}`)
 }
 
 // The results of the sync's parts: every value, in order, or one Error listing

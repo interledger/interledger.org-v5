@@ -448,7 +448,7 @@ async function addReportImages(
     }
     reports.push({ ...parsed.content, images })
   }
-  throwOnImageProblems(problems, 'grant report image(s)')
+  throwOnImageProblems(problems, 'image(s)')
   return reports
 }
 
@@ -471,7 +471,7 @@ async function addProfileLogos(
     }
     profiles.push({ ...content, logo })
   }
-  throwOnImageProblems(problems, 'grantee logo(s)')
+  throwOnImageProblems(problems, 'logo(s)')
   return profiles
 }
 

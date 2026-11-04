@@ -9,7 +9,9 @@ import {
   formatProblems,
   isRecordLike,
   isStringArray,
-  nonBlankString
+  nonBlankString,
+  partitionRecordResults,
+  recordProblemsError
 } from './airtableFieldValues'
 
 // Record-shaping helpers for scripts/import-airtable.ts. Airtable omits empty
@@ -195,19 +197,13 @@ export function toGranteeRecords(
   records: RawTableRecord[],
   contactNames: ReadonlyMap<string, string>
 ): TableRecord[] | Error {
-  const granteeRecords: TableRecord[] = []
-  const errors: Error[] = []
-  for (const record of records) {
-    const result = toGranteeRecord(record, contactNames)
-    if (result instanceof Error) errors.push(result)
-    else granteeRecords.push(result)
+  const { values, problems } = partitionRecordResults(
+    records.map((record) => toGranteeRecord(record, contactNames))
+  )
+  if (problems.length > 0) {
+    return recordProblemsError(problems, 'record(s) cannot be published')
   }
-  if (errors.length > 0) {
-    return new Error(
-      `${errors.length} grantee directory record(s) cannot be published:\n${errors.map((e) => e.message).join('\n')}`
-    )
-  }
-  return granteeRecords
+  return values
 }
 
 // Contacts with no name are skipped silently: most are never linked from a

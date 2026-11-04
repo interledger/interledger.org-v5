@@ -228,7 +228,9 @@ export {
   isRecordLike,
   isStringArray,
   nonBlankString,
-  readImageField
+  partitionRecordResults,
+  readImageField,
+  recordProblemsError
 } from './main/airtableFieldValues'
 export {
   LIVE_STATUS,

@@ -10,7 +10,9 @@ import {
   formatProblems,
   isStringArray,
   nonBlankString,
-  readImageField
+  partitionRecordResults,
+  readImageField,
+  recordProblemsError
 } from './airtableFieldValues'
 
 // Record-shaping helpers for the grantee profile part of
@@ -216,17 +218,12 @@ export function toGranteeProfiles(
       'No grantees in the Grantees table — refusing to write empty profiles'
     )
   }
-  const profiles: ParsedGranteeProfile[] = []
-  const problems: string[] = []
-  for (const result of records.map(toGranteeProfile)) {
-    if (result instanceof Error) problems.push(result.message)
-    else profiles.push(result)
-  }
+  const { values: profiles, problems } = partitionRecordResults(
+    records.map(toGranteeProfile)
+  )
   problems.push(...findDuplicateSlugs(profiles))
   if (problems.length > 0) {
-    return new Error(
-      `${problems.length} grantee profile problem(s):\n${problems.join('\n')}`
-    )
+    return recordProblemsError(problems, 'bad profile(s) or shared slug(s)')
   }
   return profiles.sort((a, b) => a.content.slug.localeCompare(b.content.slug))
 }

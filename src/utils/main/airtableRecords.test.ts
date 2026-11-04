@@ -264,9 +264,7 @@ describe('toGranteeRecords', () => {
         NO_CONTACTS
       )
     )
-    expect(message).toMatch(
-      /^2 grantee directory record\(s\) cannot be published:\n/
-    )
+    expect(message).toMatch(/^2 record\(s\) cannot be published:\n/)
     expect(message).toContain('Record recA:')
     expect(message).toContain('Record C (ID: recC):')
     expect(message).not.toContain('recB')
