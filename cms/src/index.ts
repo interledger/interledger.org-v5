@@ -2242,8 +2242,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quote', size: 8 },
         { name: 'quoteSource', size: 4 }
       ],
-      [{ name: 'buttons', size: 12 }],
-      [{ name: 'cta', size: 12 }]
+      [{ name: 'buttons', size: 12 }]
     ],
     'blocks.title-card-grid': [
       [{ name: 'intro', size: 12 }],
