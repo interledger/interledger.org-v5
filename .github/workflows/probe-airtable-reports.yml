@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: staging
+          ref: ravi/report-grant-id
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -70,6 +70,9 @@ jobs:
           echo "--- report images: alt set, alt empty"
           jq '[.[].images[] | select(.alt != "")] | length' src/data/airtable/grant-reports.json
           jq '[.[].images[] | select(.alt == "")] | length' src/data/airtable/grant-reports.json
+          echo "--- grantId: reports, with a record ID, found in grantee-data.json"
+          jq -n --slurpfile r src/data/airtable/grant-reports.json --slurpfile d src/data/airtable/grantee-data.json \
+            '($d[0] | map(.id)) as $ids | [($r[0] | length), ($r[0] | map(select(.grantId | test("^rec"))) | length), ($r[0] | map(select(.grantId as $g | $ids | index($g))) | length)] | map(tostring) | join(" / ")'
           echo "--- stored report image files (format, size, bytes, EXIF, GPS)"
           node -e '
             const sharp = require("sharp"); const fs = require("fs"); const path = require("path");
