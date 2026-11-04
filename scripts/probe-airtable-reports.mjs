@@ -260,6 +260,23 @@ async function grantRecordShape(table, tables) {
       else counts.oneRecordId++
     }
     console.log(`${label} records: ${body.records.length}, ${JSON.stringify(counts)}, shape: ${[...new Set(body.records.map((r) => shapeOf(r.fields[field.id])))].join(' | ')}`)
+    if (label === 'test') await checkGrantTargets(body.records.map((r) => r.fields[field.id]?.[0]), target, tables)
+  }
+}
+
+// Does each grant ID point at a Projects record, and is that project in the
+// directory view? Counts and booleans only.
+async function checkGrantTargets(ids, target, tables) {
+  const linkedTable = tables.find((t) => t.id === target?.options?.linkedTableId)
+  console.log(`Grant Record target table: ${linkedTable?.name ?? 'unknown'} (${linkedTable?.id ?? 'n/a'})`)
+  if (!linkedTable) return
+  const published = linkedTable.fields.find((f) => f.name === 'Published on Website')
+  const directoryView = 'viwE6kqV1lvcIz2Ms'
+  for (const [index, id] of ids.entries()) {
+    const record = await get(`/${BASE_ID}/${linkedTable.id}/${id}?returnFieldsByFieldId=true`)
+    const inView = await get(`/${BASE_ID}/${linkedTable.id}?${new URLSearchParams({ view: directoryView, filterByFormula: `RECORD_ID() = '${id}'`, 'fields[]': published?.id ?? '' })}`)
+    const flag = published ? shapeOf(record.body?.fields?.[published.id]) + '=' + String(record.body?.fields?.[published.id] ?? 'missing') : 'no field'
+    console.log(`  test ${index + 1}: record HTTP ${record.status}, Published on Website ${flag}, in directory view: ${inView.body?.records?.length ?? 'HTTP ' + inView.status}`)
   }
 }
 
