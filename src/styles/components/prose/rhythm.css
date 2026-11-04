@@ -19,10 +19,9 @@
  *
  * A "block" is any child carrying `data-component`, except `Paragraph`.
  * A Paragraph block owns its spacing (`data-intro-variant="paragraph"`,
- * prose/paragraph-block.css). The Paragraph rules below only reach a
- * Paragraph without that marker, which profile pages still render (D3). Block
- * components set `data-component` on their root, so the rhythm reaches an
- * MDX page (direct child of the prose container) and a Strapi preview alike.
+ * prose/paragraph-block.css). Block components set `data-component` on their
+ * root, so the rhythm reaches an MDX page (direct child of the prose
+ * container) and a Strapi preview alike.
  *
  * All three prose variants share the rhythm. Each still keeps its own text
  * flow. Blog and summit set their own heading and paragraph margins with
@@ -54,65 +53,30 @@
       margin-block: var(--space-section);
     }
 
-    /* A markdown h2 opens a section: wide above, tight below.
-       Rendered markdown reaches the page two ways: as direct children of the
-       prose container, or wrapped in a `Paragraph` block. An h2 has to read
-       the same in both. A block's own heading is not in this flow. Those zero
-       their margins with a utility, which wins over this layer. */
-    > h2,
-    > [data-component='Paragraph']:not([data-intro-variant]) > h2 {
+    /* A markdown h2 directly in the prose opens a section: wide above, tight
+       below. A Paragraph block spaces its own headings, and a block's own
+       heading is not in this flow. Those zero their margins with a utility,
+       which wins over this layer. */
+    > h2 {
       margin-block-start: var(--space-section);
       margin-block-end: var(--space-block-heading);
     }
 
     /* The heading owns the gap down to its content. Without this the block's
        own top margin collapses in and wins, and the heading floats away from
-       what it titles.
+       what it titles. A Paragraph block that ends on a heading does the same
+       in prose/paragraph-block.css.
 
-       The second selector is the same case one level down: a `Paragraph` that
-       ends on a heading is a title for the block that follows it. Zeroing the
-       wrapper's bottom margin lets the heading's own margin collapse out and
-       decide the gap.
-
-       The repeated `:not()` on the first selector is for specificity, not
-       meaning. Without it this rule scores one selector below the block rule
-       above and never applies. */
+       The repeated `:not()` is for specificity, not meaning. Without it this
+       rule scores one selector below the block rule above and never applies. */
     > h2
       + [data-component]:not(
         [data-component='CtaButtons'],
         [data-component='Paragraph'],
         .cta-link,
         [data-intro-variant]
-      ),
-    > [data-component='Paragraph']:not([data-intro-variant]):has(
-        > h2:last-child
-      )
-      + [data-component]:not([data-intro-variant]) {
+      ) {
       margin-block-start: var(--space-block-heading);
-    }
-
-    > [data-component='Paragraph']:not([data-intro-variant]):has(
-        > h2:last-child
-      ) {
-      margin-block-end: 0;
-    }
-
-    /* Same idea for the CTA pair, one level up. prose/default.css already
-       zeroes the bottom margin of a bare `p` or heading that a `CtaButtons`
-       follows, but a `Paragraph` block wraps its markdown in a div, so that
-       rule cannot see it. Zero the wrapper and its last text child, and let
-       the CTA's own tight top margin decide the gap. */
-    > [data-component='Paragraph']:not([data-intro-variant]):has(
-        + [data-component='CtaButtons']
-      ) {
-      margin-block-end: 0;
-    }
-
-    > [data-component='Paragraph']:not([data-intro-variant]):has(
-        + [data-component='CtaButtons']
-      )
-      > :is(p, h2, h3, h4, h5, h6, ul, ol):last-child {
-      margin-block-end: 0;
     }
 
     /* Transitional (INTORG-1154): a page mixing blocks that own their
@@ -124,9 +88,7 @@
        - Before an intro block, the legacy element stands in for the
          padding-bottom it doesn't have yet.
        - After one, it takes --space-section less the padding the intro
-         block already put there. A Paragraph that opens on an h2 gets the
-         same on that h2, whose own section margin would otherwise collapse
-         through the wrapper and win.
+         block already put there.
 
        An intro block with an empty intro opens with the default block
        spacer (--intro-empty) instead, so a legacy element sits --block-pb
@@ -156,14 +118,7 @@
     }
 
     > [data-intro-variant] + :not([data-intro-variant], script),
-    > [data-intro-variant] + script + :not([data-intro-variant], script),
-    > [data-intro-variant]
-      + [data-component='Paragraph']:not([data-intro-variant])
-      > h2:first-child,
-    > [data-intro-variant]
-      + script
-      + [data-component='Paragraph']:not([data-intro-variant])
-      > h2:first-child {
+    > [data-intro-variant] + script + :not([data-intro-variant], script) {
       margin-block-start: calc(var(--space-section) - var(--block-pb));
     }
 
