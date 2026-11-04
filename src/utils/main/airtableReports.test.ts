@@ -17,6 +17,7 @@ import {
 
 const CREATED = '2026-11-15T00:00:00.000Z'
 const F = REPORT_FIELDS
+const GRANT_ID = 'recUSF6jZiBVoqG01'
 
 // A Live report with every field set, as the API returns it (keyed by field ID).
 function liveReport(
@@ -42,6 +43,7 @@ function liveReport(
       [F.projectName.id]: ['Gib'],
       [F.reportType.id]: ['Interim Report'],
       [F.reportNumber.id]: [1],
+      [F.grantRecord.id]: [GRANT_ID],
       ...overrides
     }
   }
@@ -78,6 +80,7 @@ describe('toGrantReport', () => {
   it('maps a complete record to the report shape', () => {
     expect(expectParsed(toGrantReport(liveReport())).content).toEqual({
       id: 'rec1',
+      grantId: GRANT_ID,
       projectName: 'Gib',
       reportType: 'Interim Report',
       reportNumber: 1,
@@ -258,6 +261,17 @@ describe('toGrantReport', () => {
     expect(two.message).toContain(
       '"Submitted Report Num": expected exactly one whole number, got 2 value(s)'
     )
+  })
+
+  it('fails on a grant link that is not exactly one record ID', () => {
+    for (const value of [[], [GRANT_ID, GRANT_ID], ['Gib 2022'], undefined]) {
+      const error = expectError(
+        toGrantReport(liveReport({ [F.grantRecord.id]: value }))
+      )
+      expect(error.message).toContain(
+        '"Grant Record": expected exactly one linked record'
+      )
+    }
   })
 
   it('fails on a report number that is not a positive whole number', () => {

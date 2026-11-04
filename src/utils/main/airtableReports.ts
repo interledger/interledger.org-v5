@@ -8,6 +8,7 @@ import type {
 import {
   describeValue,
   formatProblems,
+  isRecordId,
   isStringArray,
   nonBlankString,
   partitionRecordResults,
@@ -33,7 +34,7 @@ const REPORT_TYPES: readonly GrantReportType[] = [
 
 // The Published Reports columns the sync reads, by field ID so a rename in
 // Airtable changes nothing. Names are for error messages and match Airtable.
-// The three lookups come from Submitted Reports through Source Submission, so
+// The four lookups come from Submitted Reports through Source Submission, so
 // the sync never reads that table and its private fields.
 export const REPORT_FIELDS = {
   publishedDate: { id: 'fldoN3aDnVtZlXQ4A', name: 'Published Date' },
@@ -80,6 +81,10 @@ export const REPORT_FIELDS = {
     id: 'fld7cg0Ehni9NEVa8',
     name: 'Submitted Report Num'
   },
+  // A lookup of the submission's Projects link, so it holds the grant's
+  // record ID. A project name is not unique: one grantee can have two grants
+  // with the same name.
+  grantRecord: { id: 'fldahnD71g8colQsZ', name: 'Grant Record' },
   image1: { id: 'fldQY4Dses4064EI3', name: 'Public Image 1' },
   image2: { id: 'fld7WuZSUfppIE3Qs', name: 'Public Image 2' },
   image3: { id: 'fld5bJMgKQXnQ91A4', name: 'Public Image 3' },
@@ -157,6 +162,12 @@ function createFieldReader(fields: Record<string, unknown>) {
       const value = nonBlankString(readSingleLookup(raw(key)))
       return value ?? fail(key, 'exactly one text value', '')
     },
+    lookupRecordId(key: ReportFieldKey): string {
+      const value = readSingleLookup(raw(key))
+      return isRecordId(value)
+        ? value
+        : fail(key, 'exactly one linked record', '')
+    },
     lookupNumber(key: ReportFieldKey): number {
       const value = readSingleLookup(raw(key))
       return typeof value === 'number' && Number.isInteger(value) && value > 0
@@ -211,6 +222,7 @@ export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
   const read = createFieldReader(raw.fields)
   const content: GrantReportContent = {
     id: raw.id,
+    grantId: read.lookupRecordId('grantRecord'),
     projectName: read.lookupText('projectName'),
     reportType: read.reportType('reportType'),
     reportNumber: read.lookupNumber('reportNumber'),
