@@ -91,15 +91,10 @@
     }
   }
 
-  :is(.foundation-header[data-theme='dark'], .hackathon-header) .header-nav-wrapper--foundation {
+  :is(.foundation-header[data-theme='dark'], .hackathon-header)
+    .header-nav-wrapper--foundation {
     @variant nav-drawer {
       background-color: #0d0d0d;
-    }
-  }
-
-  .header-nav-wrapper--microsite {
-    @variant nav-drawer {
-      background: black;
     }
   }
 }
@@ -112,14 +107,13 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .foundation-header {
-    transition:
-      color 200ms cubic-bezier(0.4, 0, 0.2, 1)
+    transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .foundation-header[data-theme-animate] {
     transition:
       background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
-      color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -190,12 +184,14 @@
   }
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='HamburgerButton'] {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-component='HamburgerButton'] {
   color: var(--color-neutral-25);
 }
 
 /* HamburgerButton's outline defaults to --color-link. Foundation's dark header still wants orchid, so override it back here. */
-.foundation-header[data-theme='dark'] [data-component='HamburgerButton']:focus-visible {
+.foundation-header[data-theme='dark']
+  [data-component='HamburgerButton']:focus-visible {
   outline-color: var(--color-orchid-100);
 }
 
@@ -235,13 +231,29 @@
 }
 
 /* Nav button hover/focus backgrounds (desktop only) */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:hover, :focus-visible) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-submenu-button]:is(:hover, :focus-visible) {
   @variant nav-bar {
     background-color: var(--color-neutral-100);
   }
 }
 
-.foundation-header[data-theme='light'] [data-submenu-button]:is(:hover, :focus-visible) {
+.foundation-header[data-theme='light']
+  [data-submenu-button]:is(:hover, :focus-visible) {
+  @variant nav-bar {
+    background-color: var(--color-neutral-25);
+  }
+}
+
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-nav-top-link]:is(:hover, :focus-visible) {
+  @variant nav-bar {
+    background-color: var(--color-neutral-100);
+  }
+}
+
+.foundation-header[data-theme='light']
+  [data-nav-top-link]:is(:hover, :focus-visible) {
   @variant nav-bar {
     background-color: var(--color-neutral-25);
   }
@@ -272,7 +284,8 @@
 }
 
 /* Subgroup heading text and divider */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-subgroup-heading {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  .nav-subgroup-heading {
   color: var(--color-neutral-50);
   border-color: var(--color-neutral-75);
 }
@@ -283,7 +296,8 @@
 }
 
 /* Submenu chevrons in the drawer (in the bar they take the link colour) */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-submenu-chevron {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  .nav-submenu-chevron {
   @variant nav-drawer {
     color: var(--color-neutral-50);
   }
@@ -296,7 +310,8 @@
 }
 
 /* Mobile drawer language label */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  .foundation-drawer-language-label {
   color: var(--color-neutral-50);
 }
 
@@ -304,36 +319,45 @@
   color: black;
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .foundation-drawer-language-label:focus-visible {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  .foundation-drawer-language-label:focus-visible {
   color: var(--color-neutral-25);
 }
 
-.foundation-header[data-theme='light'] .foundation-drawer-language-label:focus-visible {
+.foundation-header[data-theme='light']
+  .foundation-drawer-language-label:focus-visible {
   color: var(--color-neutral-100);
 }
 
 /* Language switcher */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-component='LanguageSwitcher'] {
   background-color: var(--color-neutral-150);
   border-color: var(--color-neutral-100);
 }
 
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] [aria-current='page'] {
+.foundation-header[data-theme='dark']
+  [data-component='LanguageSwitcher']
+  [aria-current='page'] {
   background-color: var(--color-neutral-100);
   color: var(--color-orchid-50);
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher'] a:not([aria-current]) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-component='LanguageSwitcher']
+  a:not([aria-current]) {
   color: var(--color-neutral-50);
 }
 
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-component='LanguageSwitcher']:hover {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-component='LanguageSwitcher']:hover {
   @variant nav-bar {
     border-color: var(--color-neutral-75);
   }
 }
 
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher']:hover {
+.foundation-header[data-theme='light']
+  [data-component='LanguageSwitcher']:hover {
   @variant nav-bar {
     border-color: var(--color-neutral-100);
   }
@@ -344,34 +368,43 @@
   border-color: var(--color-neutral-25);
 }
 
-
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] [aria-current='page'] {
+.foundation-header[data-theme='light']
+  [data-component='LanguageSwitcher']
+  [aria-current='page'] {
   background-color: var(--color-neutral-25);
   color: var(--color-orchid-150);
 }
 
-.foundation-header[data-theme='light'] [data-component='LanguageSwitcher'] a:not([aria-current]) {
+.foundation-header[data-theme='light']
+  [data-component='LanguageSwitcher']
+  a:not([aria-current]) {
   color: var(--color-neutral-75);
 }
 
 /* LanguageSwitcher's outline defaults to --color-link, which now resolves to
    apricot on every dark header. Foundation's dark header still wants orchid,
    so override it back here. */
-.foundation-header[data-theme='dark'] [data-component='LanguageSwitcher'] a:focus-visible {
+.foundation-header[data-theme='dark']
+  [data-component='LanguageSwitcher']
+  a:focus-visible {
   outline-color: var(--color-orchid-100);
 }
 
 /* Mobile drawer: nav link and parent toggle focus/active — filled background */
-:is(.foundation-header[data-theme='dark'], .hackathon-header) .nav-link:is(:focus-visible, [data-active=true]),
-:is(.foundation-header[data-theme='dark'], .hackathon-header) [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  .nav-link:is(:focus-visible, [data-active='true']),
+:is(.foundation-header[data-theme='dark'], .hackathon-header)
+  [data-submenu-button]:is(:focus-visible, [data-active='true']) {
   @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-100);
   }
 }
 
-.foundation-header[data-theme='light'] .nav-link:is(:focus-visible, [data-active=true]),
-.foundation-header[data-theme='light'] [data-submenu-button]:is(:focus-visible, [data-active=true]) {
+.foundation-header[data-theme='light']
+  .nav-link:is(:focus-visible, [data-active='true']),
+.foundation-header[data-theme='light']
+  [data-submenu-button]:is(:focus-visible, [data-active='true']) {
   @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-25);

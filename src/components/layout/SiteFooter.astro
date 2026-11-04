@@ -9,6 +9,7 @@ import {
   socialLinks,
   getFooterOnlyColumn,
   HACKATHON_HOME_SLUG,
+  isDirectNavLink,
   twMerge
 } from '@/utils'
 import type { NavigationSite } from '@/types/navigation'
@@ -87,8 +88,11 @@ const footerLogoLinkClass =
   'inline-block rounded-sm text-neutral-100 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-4 focus-visible:outline-none'
 const navigationUlClass = twMerge(
   'm-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6',
-  isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : ''
+  isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : '',
+  site === 'summit' ? 'desktop:grid-cols-3' : ''
 )
+const footerDirectLinkClass =
+  'mb-0 text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900'
 ---
 
 <footer
@@ -199,66 +203,36 @@ const navigationUlClass = twMerge(
         {footerColumns.map((group, groupIndex) => {
           const groupHeadingId = `footer-nav-group-${groupIndex}`
           return <li class="min-w-0">
-            {/* Deliberate Figma-verified exception: h6 uses the h4 token
+            {isDirectNavLink(group) ? (
+              <LinkButton
+                variant="ghost"
+                href={group.href ?? '#'}
+                class={footerDirectLinkClass}
+                aria-current={isActive(group.href) ? 'page' : undefined}
+                {...footerLink(group.href ?? '#', undefined, group.label)}
+              >
+                {group.label}
+              </LinkButton>
+            ) : (
+              <>
+                {/* Deliberate Figma-verified exception: h6 uses the h4 token
                     at mobile, then drops to the body-lg-standard scale from
                     tablet on rather than a heading token. */}
-            <h6
-              id={groupHeadingId}
-              class="mb-xl text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900"
-            >
-              {group.label}
-            </h6>
-
-            {group.items && group.items.length > 0 && !group.subGroups && <ul
-              class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
-              role="list"
-              aria-labelledby={groupHeadingId}
-            >
-              {group.items.map((item) => <li>
-                <LinkButton
-                  variant="ghost"
-                  href={item.href ?? '#'}
-                  class={
-                    item.openInNewTab ? footerExternalLinkClass : undefined
-                  }
-                  aria-current={isActive(item.href) ? 'page' : undefined}
-                  external={item.openInNewTab}
-                  {...footerLink(item.href ?? '#', undefined, item.label)}
+                <h6
+                  id={groupHeadingId}
+                  class="mb-xl text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900"
                 >
-                  {item.openInNewTab ? (
-                    <LabelWithTrailingIcon
-                      label={item.label}
-                      icon="external-link"
-                    />
-                  ) : (
-                    item.label
-                  )}
-                </LinkButton>
-              </li>)}
-            </ul>}
+                  {group.label}
+                </h6>
 
-            {group.subGroups && group.subGroups.length > 0 && <div
-              class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col"
-            >
-              {group.subGroups.map((sub, subIndex) => {
-                const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
-                return <div class="flex flex-col gap-xl tablet:gap-md">
-                  <p
-                    id={subHeadingId}
-                    class="mb-0 text-caption uppercase text-neutral-100 tablet:text-neutral-900"
-                  >
-                    <span
-                      class="inline-block border-b border-neutral-100 pb-sm tablet:border-neutral-900"
-                    >
-                      {sub.label}
-                    </span>
-                  </p>
-                  <ul
+                {group.items &&
+                  group.items.length > 0 &&
+                  !group.subGroups && <ul
                     class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
                     role="list"
-                    aria-labelledby={subHeadingId}
+                    aria-labelledby={groupHeadingId}
                   >
-                    {sub.items.map((item) => <li>
+                    {group.items.map((item) => <li>
                       <LinkButton
                         variant="ghost"
                         href={item.href ?? '#'}
@@ -281,10 +255,64 @@ const navigationUlClass = twMerge(
                         )}
                       </LinkButton>
                     </li>)}
-                  </ul>
-                </div>
-              })}
-            </div>}
+                  </ul>}
+
+                {group.subGroups && group.subGroups.length > 0 && <div
+                  class="flex flex-col gap-xl tablet:flex-wrap desktop:flex-col"
+                >
+                  {group.subGroups.map((sub, subIndex) => {
+                    const subHeadingId = `${groupHeadingId}-sub-${subIndex}`
+                    return <div class="flex flex-col gap-xl tablet:gap-md">
+                      <p
+                        id={subHeadingId}
+                        class="mb-0 text-caption uppercase text-neutral-100 tablet:text-neutral-900"
+                      >
+                        <span
+                          class="inline-block border-b border-neutral-100 pb-sm tablet:border-neutral-900"
+                        >
+                          {sub.label}
+                        </span>
+                      </p>
+                      <ul
+                        class="m-0 flex list-none flex-col gap-xl tablet:gap-md p-0"
+                        role="list"
+                        aria-labelledby={subHeadingId}
+                      >
+                        {sub.items.map((item) => <li>
+                          <LinkButton
+                            variant="ghost"
+                            href={item.href ?? '#'}
+                            class={
+                              item.openInNewTab
+                                ? footerExternalLinkClass
+                                : undefined
+                            }
+                            aria-current={
+                              isActive(item.href) ? 'page' : undefined
+                            }
+                            external={item.openInNewTab}
+                            {...footerLink(
+                              item.href ?? '#',
+                              undefined,
+                              item.label
+                            )}
+                          >
+                            {item.openInNewTab ? (
+                              <LabelWithTrailingIcon
+                                label={item.label}
+                                icon="external-link"
+                              />
+                            ) : (
+                              item.label
+                            )}
+                          </LinkButton>
+                        </li>)}
+                      </ul>
+                    </div>
+                  })}
+                </div>}
+              </>
+            )}
           </li>
         })}
       </ul>

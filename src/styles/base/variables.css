@@ -258,9 +258,10 @@
      Same shape as the pillar hook above, keyed on the site instead of the
      section.
 
-     This has to be a site selector, not `dark:`. Both microsites set
-     data-theme="dark", so no dark variant can tell hackathon from summit, and
-     apricot is a hackathon colour. The prototype confirms the two are separate
+     This has to be a site selector, not `dark:`. Hackathon sets
+     data-theme="dark", and summit uses the foundation light page, so a dark
+     variant cannot mark the hackathon buttons. Apricot is a hackathon colour.
+     The prototype confirms the two are separate
      kinds rather than two themes of one: a single hackathon page carries both
      an apricot primary and an orchid one (INTORG-1083). */
   /* Values read from the `Hackathon primary CTA` component in Figma
