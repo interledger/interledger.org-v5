@@ -158,9 +158,12 @@
 
   /* At the end of the prose the page pads its own bottom, and rhythm.css
      drops the block's --block-pb; its last child's padding would still add
-     to the page's. */
+     to the page's. Footnotes after it don't count: they bring their own
+     top margin. */
   :is([data-prose], [data-prose-blog], [data-prose-summit])
-    > [data-intro-variant='paragraph']:not(:has(~ :not(script)))
+    > [data-intro-variant='paragraph']:not(
+      :has(~ :not(script, [data-footnotes]))
+    )
     > :last-child {
     padding-block-end: 0;
   }
