@@ -63,8 +63,8 @@
    *
    * - A section opening on such a block gets --block-pb above it, standing in
    *   for the padding-bottom the section above doesn't have; the block's
-   *   intro supplies the rest of the gap. A block with an empty intro has no
-   *   top, so it sits --block-pb below, the minimum A2 gives every block.
+   *   intro, or its default spacer when the intro is empty, supplies the
+   *   rest of the gap.
    * - A section that is such a block ends on its --block-pb, so the section
    *   after it takes --space-section less that padding, or nothing when it
    *   opens on an intro of its own.
@@ -111,37 +111,51 @@
 
   /*
    * Content starts right under the hero (ADR-009, A6): when the section after
-   * it opens with a block that owns its spacing and has an intro
-   * (`[data-block-intro]`, set by BlockIntro), that intro is the whole gap.
-   * The block is the section's own, or the first in its prose; the intro is
-   * the block's child, or one level down where the block puts it in a column
-   * (SplitLayout). A block without an intro takes the --block-pb rule
-   * above; a Paragraph block takes the rule below; a legacy first block
-   * keeps the stack gap.
+   * it opens with a block that owns its spacing, that block's intro
+   * (`[data-block-intro]`, set by BlockIntro) or, with the intro empty, its
+   * default spacer (`[data-intro-spacer]`) is the whole gap. The block is
+   * the section's own, or the first in its prose; the intro is the block's
+   * child, or one level down where the block puts it in a column
+   * (SplitLayout). A Paragraph block takes the rule below; a legacy first
+   * block keeps the stack gap.
    * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &
     > :first-child
     + :has(
-      .content-column > [data-intro-variant]:first-child > [data-block-intro],
+      .content-column
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
       .content-column
         > [data-intro-variant]:first-child
         > *
-        > [data-block-intro],
-      [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
-      [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer])
     ),
   &
     > :first-child
     + script
     + :has(
-      .content-column > [data-intro-variant]:first-child > [data-block-intro],
+      .content-column
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
       .content-column
         > [data-intro-variant]:first-child
         > *
-        > [data-block-intro],
-      [data-prose] > [data-intro-variant]:first-child > [data-block-intro],
-      [data-prose] > [data-intro-variant]:first-child > * > [data-block-intro]
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer])
     ) {
     margin-block-start: 0;
   }

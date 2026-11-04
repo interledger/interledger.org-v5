@@ -61,7 +61,7 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 **Phase 1 status (2026-10-19).**
 
 - **Done:** the Phase 0 follow-ups for the first block on the page, `aria-labelledby`, the sync handlers and the preview list.
-  - The hero gap drops only when the first section's prose opens with an intro block that has content (`page-stack` in `utilities/spacing.css`, and `HackathonContentPage`).
+  - The hero gap drops when the first section's prose opens with an intro block (`page-stack` in `utilities/spacing.css`, and `HackathonContentPage`). Its intro, or its default spacer when the intro is empty, is the whole gap.
   - The hero-less H1 margin in `FoundationContentPage` was left for Phase 3, which removed it.
   - The sync handlers leave `intro` out when it's empty, like other optional fields. The sync replaces the whole dynamic zone, so nothing stale survives.
   - Blocks label their `<section>` by the heading, or the subheading when there is no heading (`blockIntroLabel`).
