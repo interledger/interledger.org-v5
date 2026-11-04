@@ -157,15 +157,19 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 
 - **How:** `Paragraph.astro` sets `data-intro-variant="paragraph"`, so the block gets `--block-pb` and the transitional rules treat it as self-spaced. `prose/paragraph-block.css` zeroes the prose margins inside it and pads headings, paragraphs and media with the `--para-*` tokens.
 - **"First" top (A3):** only where content starts under the hero, through `--para-lead-pt`: page-stack templates (`utilities/spacing.css`), hackathon and summit content sections, and the first block after a blog post header. Anywhere else a Paragraph opening on a heading takes "not first" and the block above supplies the rest.
-- **Profiles keep the old rhythm** (D3): `legacySpacing` on Paragraph, through `ProfileParagraph` in the MDX map and `legacyParagraphSpacing` on DynamicZone in the profile preview. The Paragraph rules in `rhythm.css` now reach only these.
+- **Profiles follow the blog rules** (D3, revised 2026-11-04; the first pass kept them on the old rhythm). Both are narrow pages ([Narrow pages](../decisions/009-block-intro-and-block-owned-spacing.md#narrow-pages-blog-posts-and-profiles)).
+  - Every Paragraph renders with the marker, so the `legacySpacing` path is gone, and with it the `rhythm.css` rules for an unmarked Paragraph.
+  - `ProfileDetailPage`: a biography right after the header takes the "first" top, and the header drops its margin. The description stays in the header, 24 below the role. A `---` inside a Paragraph sits like Figma's divider between blocks.
+  - A biography written as plain Markdown (13 of 30 profiles) keeps the profile's own heading and divider margins.
 - **Kept, transitional:** the CTA pairing (CtaButtons without an intro, CtaLink) and the fake-intro rule for a Paragraph that ends on a heading before a legacy block (two blog posts with a CodeBlock; `events.mdx` before its CardGrid).
 - **Behaviour that follows the design (check at review):**
   - p → p is 48 on desktop (was 32), H2 → p 64, and a list or table after a sentence sits 60 below it (A5).
   - Between two Paragraph blocks: the last paragraph's 16 + block 40 + H2 80, as Figma draws it.
   - A Paragraph that opens on an H3 after another block sits 40 + 40 below it, H3's "not first".
-  - Blog posts space their Paragraph blocks like pages; the narrow-page values are a follow-up (Figma, 2026-10-22).
+  - Blog posts and profiles space their Paragraph blocks like pages; the narrow-page values are a follow-up ([E-Q20](../decisions/009-block-intro-and-block-owned-spacing.md#still-open)).
+  - On a profile, a biography opening on a paragraph sits that paragraph's lead top below the divider: 92 on desktop, was 32.
 - **Hero-less H1** (`FoundationContentPage`): no bottom margin. Beside a legacy first block it collapsed into the section gap anyway; beside a self-spaced one it stacked on the block's top.
-- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers, CtaLink after a Paragraph included. The profile preview spaces Paragraph as a legacy block, as the live profile does. The top of the preview is still approximate: the preview pages keep their own top padding.
+- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers, CtaLink after a Paragraph included. The top of the preview is still approximate: the preview pages keep their own top padding.
 
 ### Phase 4: Cleanup
 
