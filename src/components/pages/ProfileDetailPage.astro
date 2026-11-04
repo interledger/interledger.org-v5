@@ -9,7 +9,6 @@ import ProfileHeroBand from '@/components/shared/ProfileHeroBand.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
-import ProfileParagraph from '@/components/profile/ProfileParagraph.astro'
 import {
   getProfileHeroColorClass,
   getProfileAvatarColorClass
@@ -119,18 +118,23 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
             </div>
           )}
         </div>
+        {/* The profile header works like a blog post's (ADR-009, D3): a
+          biography right after it opens with its Paragraph block's own top
+          padding, the "first" one (A3), which is the whole gap. */}
         <div
-          class="mt-3xl-tight flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight tablet:mt-3xl"
+          class="mt-3xl-tight flex flex-col gap-0 [&_h1]:mb-md [&_h1]:leading-tight tablet:mt-3xl [&:has(+[data-profile-body]>[data-intro-variant=paragraph]:first-child)>:last-child]:mb-0"
         >
           <h1 class={nameClass}>{name}</h1>
           {displayRole && <p class={roleClass}>{displayRole}</p>}
         </div>
+        {/* The description belongs to the header (Figma 5554:63023): it
+          sits the role's margin below it, without a paragraph's lead top. */}
         {description && <section
           data-prose
           aria-label={t('profile.description')}
-          class="mb-2xl"
+          class="mb-2xl [--para-p-lead-pt:0px]"
         >
-          <Paragraph content={description} legacySpacing />
+          <Paragraph content={description} />
         </section>}
         {hasCta && <div class="mb-2xl">
           <LinkButton
@@ -152,17 +156,21 @@ const roleClass = `inline-block border-b-4 border-link pb-sm text-h4 font-normal
           </LinkButton>
         </div>}
         {hasIntro && hasBody && <hr class={dividerClass} />}
+        {/* A biography in Paragraph blocks is spaced like a blog post's
+          (ADR-009, D3); the direct-child rules are for one written as plain
+          Markdown. A divider inside a Paragraph sits like Figma's divider
+          between blocks (5554:63037): the block's bottom padding above it,
+          the next heading's own padding below. */}
         {hasBody && <section
           data-prose
+          data-profile-body
           aria-label={t('profile.biography')}
-          class="mb-2xl [&_h2:not(:first-of-type)]:mt-4xl desktop:[&_h2:not(:first-of-type)]:mt-5xl [&_h2]:mb-2xl [&_hr]:my-4xl desktop:[&_hr]:my-5xl [&_p:has(>a):has(+p:has(>a))]:mb-sm"
+          class:list={[
+            'mb-2xl [&>h2:not(:first-of-type)]:mt-4xl desktop:[&>h2:not(:first-of-type)]:mt-5xl [&>h2]:mb-2xl [&>hr]:my-4xl desktop:[&>hr]:my-5xl [&>p:has(>a):has(+p:has(>a))]:mb-sm [&>[data-intro-variant=paragraph]>hr]:mt-(--block-pb) [&>[data-intro-variant=paragraph]>hr]:mb-0',
+            !hasIntro && '[--para-lead-pt:var(--para-first-pt)]'
+          ]}
         >
-          <MdxContent
-            components={{
-              ...RICH_TEXT_MDX_COMPONENTS,
-              Paragraph: ProfileParagraph
-            }}
-          />
+          <MdxContent components={{ ...RICH_TEXT_MDX_COMPONENTS, Paragraph }} />
         </section>}
       </div>
     </div>

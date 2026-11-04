@@ -297,7 +297,6 @@ export {
 } from './main/blockIntro'
 export {
   SELF_SPACED_BLOCKS,
-  SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH,
   getPreviewBlockGapClass
 } from './main/dynamicZoneSpacing'
 export {

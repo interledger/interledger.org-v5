@@ -18,9 +18,9 @@
  * - An image, table or list pads its top by --media-pt and has no bottom
  *   (A5): what follows supplies the gap. The media themselves stay as built.
  *
- * Blockquotes, rules and anything else keep their own margins. Profile pages
- * render Paragraph without the marker (`legacySpacing`), so they keep the
- * prose rhythm (D3). Values live in base/variables.css.
+ * Blockquotes, rules and anything else keep their own margins. Every
+ * template uses these rules, the narrow ones (blog posts, profiles) included,
+ * until those get their own values (D3). Values live in base/variables.css.
  */
 
 @layer components {

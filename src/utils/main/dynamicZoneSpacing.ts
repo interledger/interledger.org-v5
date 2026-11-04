@@ -52,12 +52,6 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.video-embed'
 ])
 
-/** The same set for a preview whose Paragraph blocks keep the prose rhythm
- * (profile pages, `legacySpacing`). */
-export const SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH: ReadonlySet<string> = new Set(
-  [...SELF_SPACED_BLOCKS].filter((uid) => uid !== PARAGRAPH)
-)
-
 const SECTION_GAP = 'mt-section'
 // A legacy block before a self-spaced one stands in for the padding-bottom
 // it doesn't have yet.
@@ -81,8 +75,6 @@ export function getPreviewBlockGapClass(
 ): string | null {
   if (prevUid === null) return null
   if (OWNS_ITS_SPACING.has(uid)) return null
-  // Consecutive Paragraphs are running text, whichever spacing they use.
-  if (uid === PARAGRAPH && prevUid === PARAGRAPH) return null
 
   const isSelfSpaced = selfSpacedBlocks.has(uid)
   const prevIsSelfSpaced = selfSpacedBlocks.has(prevUid)

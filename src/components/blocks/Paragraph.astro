@@ -1,24 +1,13 @@
 ---
-import type { BlockIntroVariant } from '@/types/blockIntro'
 import { parseMarkdown } from '@/utils'
 
 interface Props {
   content?: string
   alignment?: 'left' | 'center' | 'right'
   umamiContext?: string
-  /**
-   * Keep the prose rhythm instead of the Paragraph block spacing (ADR-009,
-   * D3). Profile pages only, until their narrow-page spacing is designed.
-   */
-  legacySpacing?: boolean
 }
 
-const {
-  content,
-  alignment = 'left',
-  umamiContext,
-  legacySpacing = false
-} = Astro.props
+const { content, alignment = 'left', umamiContext } = Astro.props
 const { routeLocale } = Astro.locals
 
 const alignmentClass =
@@ -27,12 +16,6 @@ const alignmentClass =
     : alignment === 'right'
       ? 'text-right'
       : undefined
-
-// The block owns its spacing (components/prose/paragraph-block.css), the CTA
-// that follows it included.
-const introVariant: BlockIntroVariant | undefined = legacySpacing
-  ? undefined
-  : 'paragraph'
 
 const hasContent = content != null && content !== ''
 const htmlContent = hasContent
@@ -44,17 +27,19 @@ const htmlContent = hasContent
   : null
 ---
 
+{/* The block owns its spacing (components/prose/paragraph-block.css), the
+  CTA that follows it included, on every template (ADR-009, D3). */}
 {hasContent ? (
   <div
     data-component="Paragraph"
-    data-intro-variant={introVariant}
+    data-intro-variant="paragraph"
     class={alignmentClass}
     set:html={htmlContent}
   />
 ) : (
   <div
     data-component="Paragraph"
-    data-intro-variant={introVariant}
+    data-intro-variant="paragraph"
     class={alignmentClass}
   >
     <slot />

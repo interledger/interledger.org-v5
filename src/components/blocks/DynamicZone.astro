@@ -31,11 +31,7 @@ import DonationCards from './DonationCards.astro'
 import Timeline from './Timeline.astro'
 import InternalAdvert from './InternalAdvert.astro'
 import HackathonAnimation from '@/components/hackathon/HackathonAnimation.astro'
-import {
-  getPreviewBlockGapClass,
-  SELF_SPACED_BLOCKS,
-  SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
-} from '@/utils'
+import { getPreviewBlockGapClass } from '@/utils'
 
 interface Block {
   __component: string
@@ -44,14 +40,9 @@ interface Block {
 
 interface Props {
   blocks: Block[]
-  /** Paragraphs keep the prose rhythm (Paragraph `legacySpacing`): profiles. */
-  legacyParagraphSpacing?: boolean
 }
 
-const { blocks, legacyParagraphSpacing = false } = Astro.props
-const selfSpacedBlocks = legacyParagraphSpacing
-  ? SELF_SPACED_BLOCKS_LEGACY_PARAGRAPH
-  : SELF_SPACED_BLOCKS
+const { blocks } = Astro.props
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, any> = {
@@ -89,11 +80,7 @@ const resolvedBlocks = blocks
       console.warn(`Unknown component type: ${block.__component}`)
       return null
     }
-    const props =
-      legacyParagraphSpacing && block.__component === 'blocks.paragraph'
-        ? { ...block, legacySpacing: true }
-        : block
-    return { Component, props, uid: block.__component }
+    return { Component, props: block, uid: block.__component }
   })
   .filter((item): item is NonNullable<typeof item> => item !== null)
 
@@ -107,12 +94,7 @@ const resolvedBlocks = blocks
 <div class="flex flex-col">
   {resolvedBlocks.map(({ Component, props, uid }, index) => {
     const prevUid = index > 0 ? resolvedBlocks[index - 1].uid : null
-    return <div
-      class:list={[
-        'w-full',
-        getPreviewBlockGapClass(uid, prevUid, selfSpacedBlocks)
-      ]}
-    >
+    return <div class:list={['w-full', getPreviewBlockGapClass(uid, prevUid)]}>
       <Component {...props} />
     </div>
   })}
