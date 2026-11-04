@@ -179,6 +179,8 @@ El encabezado `content-digest` es `sha-512=:<base64>:` del cuerpo JSON. Es fáci
 
 El servidor de autorización debe encontrar la clave del dispositivo en el `jwks.json` de la billetera. Open Payments no tiene una API para registrar claves, así que cada billetera lo hace a su manera. En la Test Wallet puede pegar la clave en la página **Developer Keys**. Eso funciona, pero queríamos evitar copiar y pegar.
 
+**Lo que viene: identidad dirigida.** Open Payments tiene una segunda forma para que un cliente se identifique, llamada [identidad dirigida](https://openpayments.dev/identity/client-keys/#client-requests) (_directed identity_). En lugar de indicar una dirección de billetera cuyo `jwks.json` lista sus claves, el cliente envía su clave pública (`client: { jwk }`) dentro de la solicitud de grant. Luego el servidor de autorización verifica las firmas con esa clave. Hoy esto funciona solo para grants no interactivos, como pagos entrantes y cotizaciones. El soporte para grants interactivos está planeado. Cuando llegue, una app móvil quizás ya no necesite agregar su clave a la billetera, y el Paso 1 ya no necesitaría el backend.
+
 La extensión de Web Monetization resuelve esto con un script que corre dentro de la página de la billetera, con la sesión ya iniciada. Un WebView nos permite hacer lo mismo. La app abre la página Developer Keys e inyecta un script pequeño. El usuario ya inició sesión en el Paso 1, así que esto ocurre sin que tenga que hacer nada.
 
 <CodeBlock

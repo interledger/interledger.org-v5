@@ -178,6 +178,8 @@ The `content-digest` header is `sha-512=:<base64>:` of the JSON body. Signatures
 
 The auth server must find the device key in the wallet's `jwks.json`. Open Payments has no API to register a key, so each wallet does it in its own way. On the Test Wallet you can paste the key on the **Developer Keys** page. That works, but we wanted to skip the copy and paste.
 
+**What's coming: directed identity.** Open Payments has a second way for a client to identify itself, called [directed identity](https://openpayments.dev/identity/client-keys/#client-requests). Instead of pointing to a wallet address whose `jwks.json` lists its keys, the client sends its public key (`client: { jwk }`) inside the grant request. The auth server then checks the signatures against that key. Today this works only for non-interactive grants, such as incoming payments and quotes. Support for interactive grants is planned. Once it lands, a mobile app may not need to add its key to the wallet at all, and Step 1 would no longer need the backend.
+
 The Web Monetization extension solves this with a content script that runs inside the logged-in wallet page. A WebView lets us do the same thing. The app opens the Developer Keys page and injects a small script. The user is already signed in from Step 1, so this happens without any input.
 
 <CodeBlock
