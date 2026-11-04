@@ -17,9 +17,6 @@
         }
       }
     },
-    "heading": {
-      "type": "string"
-    },
     "profiles": {
       "type": "relation",
       "relation": "oneToMany",

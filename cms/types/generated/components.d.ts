@@ -149,12 +149,6 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
       }>
     navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
     resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
-    title: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true>
     variant: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -178,12 +172,6 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
   attributes: {
     accessibilityLabel: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    heading: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -531,12 +519,6 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     when: Schema.Attribute.Component<'blocks.event-card-when', false> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -657,12 +639,6 @@ export interface BlocksFaq extends Struct.ComponentSchema {
     icon: 'question'
   }
   attributes: {
-    heading: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
     intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1116,12 +1092,6 @@ export interface BlocksNumberTiles extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    title: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
   }
 }
 
@@ -1244,7 +1214,6 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
   }
   attributes: {
     category: Schema.Attribute.String
-    heading: Schema.Attribute.String
     intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1402,12 +1371,6 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           preset: 'defaultMarkdown'
         }
       > &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    cta: Schema.Attribute.Component<'shared.cta-link', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

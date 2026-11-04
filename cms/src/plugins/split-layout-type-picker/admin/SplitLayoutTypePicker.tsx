@@ -13,16 +13,14 @@ interface InputProps {
   hint?: string
 }
 
-type FieldKey =
-  'imagePosition' | 'image' | 'videoUrl' | 'quote' | 'quoteSource' | 'cta'
+type FieldKey = 'imagePosition' | 'image' | 'videoUrl' | 'quote' | 'quoteSource'
 
 const FIELD_KEYS: FieldKey[] = [
   'imagePosition',
   'image',
   'videoUrl',
   'quote',
-  'quoteSource',
-  'cta'
+  'quoteSource'
 ]
 
 function normalizeFieldText(value: string): string {
@@ -53,9 +51,7 @@ function hasImageLabel(root: ParentNode): boolean {
   )
 }
 
-/** cta.text/cta.link/cta.style/cta.external render as separate rows — any one counts as "the cta field present". */
 function fieldQuerySelector(prefix: string, key: FieldKey): string | null {
-  if (key === 'cta') return `[name^="${prefix}.cta"]`
   if (key === 'image') return null
   return `[name="${prefix}.${key}"]`
 }
@@ -88,7 +84,7 @@ function countFieldsWithin(prefix: string, ancestor: HTMLElement): number {
 /**
  * Walk up from a field's anchor only as far as the ancestor still contains
  * exactly this one tracked field. The moment going up one more level would
- * also sweep in a *different* field (imagePosition, quote, cta, etc.), stop
+ * also sweep in a *different* field (imagePosition, quote, etc.), stop
  * and return the current node. This self-corrects for uneven internal
  * wrapper nesting between field types (e.g. "Image" renders two extra
  * wrapper divs that "Video URL" doesn't) and for DOM shape changes between
@@ -202,7 +198,6 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
   setFieldVisibility(prefix, 'videoUrl', showVideo)
   setFieldVisibility(prefix, 'quote', showQuote)
   setFieldVisibility(prefix, 'quoteSource', showQuote)
-  setFieldVisibility(prefix, 'cta', showText)
 
   // content is only rendered by SplitLayout.astro in the non-quote branch.
   // CKEditor's field has no [name] attribute, but the plugin renders its
@@ -237,7 +232,6 @@ function clearIrrelevantFields(
   if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
   if (!showText) {
     setFieldValue(`${prefix}.content`, null)
-    setFieldValue(`${prefix}.cta`, null)
     setFieldValue(`${prefix}.buttons`, [])
   }
   if (!showQuote) {

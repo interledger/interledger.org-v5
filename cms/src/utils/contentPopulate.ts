@@ -19,8 +19,7 @@ const GRANT_BLOCKS = {
     populate: {
       intro: true,
       media: { populate: { image: true } },
-      buttons: true,
-      cta: true
+      buttons: true
     }
   },
   'blocks.blockquote': { populate: { intro: true } },
@@ -67,8 +66,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: {
       intro: true,
       media: { populate: { image: true } },
-      buttons: true,
-      cta: true
+      buttons: true
     }
   },
   'blocks.profile': {
@@ -206,8 +204,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: {
         intro: true,
         media: { populate: { image: true } },
-        buttons: true,
-        cta: true
+        buttons: true
       }
     },
     'blocks.profile-grid': {

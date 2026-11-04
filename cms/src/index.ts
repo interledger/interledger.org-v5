@@ -1185,7 +1185,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.profile-grid': {
       intro: 'Intro',
-      heading: 'Heading (deprecated)',
       category: 'Category',
       profiles: 'Profiles'
     },
@@ -1250,7 +1249,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.card-grid': {
       intro: 'Intro',
-      title: 'Title (deprecated)',
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
@@ -1303,7 +1301,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.faq': {
       intro: 'Intro',
-      heading: 'Heading (deprecated)',
       items: 'Questions'
     },
     'blocks.faq-item': {
@@ -1324,7 +1321,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.carousel': {
       intro: 'Intro',
-      heading: 'Section heading (deprecated)',
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
@@ -1334,7 +1330,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.number-tiles': {
       intro: 'Intro',
-      title: 'Title (deprecated)',
       tiles: 'Tiles'
     },
     'blocks.number-tile': {
@@ -1355,7 +1350,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.event-card': {
       intro: 'Intro',
-      title: 'Title (deprecated)',
       when: 'When',
       where: 'Where',
       apply: 'Apply'
@@ -1442,8 +1436,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       videoUrl: 'Video URL',
       content: 'Content',
       quote: 'Quote',
-      quoteSource: 'Quote Attribution',
-      cta: 'Call-to-action Button (deprecated)'
+      quoteSource: 'Quote Attribution'
     },
     'blocks.title-card-grid': {
       intro: 'Intro',
@@ -1496,17 +1489,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
-  // Shared helper text for the block intro (ADR-009) and the legacy heading
-  // fields it replaces until they are removed (INTORG-1154, Phase 4).
+  // Shared helper text for the block intro (ADR-009).
   const BLOCK_INTRO_DESCRIPTION =
     'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.'
-  // Helper text for the legacy heading fields the block intro (ADR-009)
-  // replaces until they are removed (INTORG-1154, Phase 4). There is none for
-  // `intro` itself, or any other component field (the Split layout `buttons`
-  // and `cta`): Strapi shows a description for scalar fields only.
-  const LEGACY_HEADING_DESCRIPTION =
-    'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
-
   // Nothing adds /es/ to links on a Spanish page, so editors type it.
   const LINK_FIELD_DESCRIPTION =
     'For a page on this site, use its path, starting and ending with a slash (e.g. /about-us/). For another site, use a full URL (https://...). On the Spanish entry, add /es/ in front of a page path only (e.g. /es/about-us/). For a document, link its Spanish version if there is one.'
@@ -1534,7 +1519,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save. On a Spanish post, keep the English slug, without /es/.'
     },
     'blocks.profile-grid': {
-      heading: LEGACY_HEADING_DESCRIPTION,
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
     },
@@ -1590,9 +1574,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.faq-section': {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
-    },
-    'blocks.faq': {
-      heading: LEGACY_HEADING_DESCRIPTION
     },
     'blocks.faq-item': {
       question: 'Required.',
@@ -1666,11 +1647,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
       ctaDocument: DOCUMENT_FLAG_DESCRIPTION
     },
-    'blocks.number-tiles': {
-      title: LEGACY_HEADING_DESCRIPTION
-    },
     'blocks.card-grid': {
-      title: LEGACY_HEADING_DESCRIPTION,
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -1688,7 +1665,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
-      heading: LEGACY_HEADING_DESCRIPTION,
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
       logos: 'Add one entry per logo. Recommended image size: 240×80.'
@@ -1709,7 +1685,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
-      title: LEGACY_HEADING_DESCRIPTION,
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
       apply:
@@ -2060,7 +2035,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'shared.related-article': [[{ name: 'slug', size: 8 }]],
     'blocks.profile-grid': [
       [{ name: 'intro', size: 12 }],
-      [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
     ],
@@ -2074,7 +2048,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.carousel': [
       [{ name: 'intro', size: 12 }],
-      [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
     ],
@@ -2084,12 +2057,10 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.faq': [
       [{ name: 'intro', size: 12 }],
-      [{ name: 'heading', size: 12 }],
       [{ name: 'items', size: 12 }]
     ],
     'blocks.number-tiles': [
       [{ name: 'intro', size: 12 }],
-      [{ name: 'title', size: 12 }],
       [{ name: 'tiles', size: 12 }]
     ],
     'blocks.number-tile': [
@@ -2114,7 +2085,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.event-card': [
       [{ name: 'intro', size: 12 }],
-      [{ name: 'title', size: 12 }],
       [{ name: 'when', size: 12 }],
       [{ name: 'where', size: 12 }],
       [{ name: 'apply', size: 12 }]
@@ -2301,7 +2271,6 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],
       [{ name: 'intro', size: 12 }],
-      [{ name: 'title', size: 12 }],
       [
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }

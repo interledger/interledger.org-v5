@@ -17,14 +17,6 @@
         }
       }
     },
-    "heading": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "accessibilityLabel": {
       "type": "string",
       "required": true,

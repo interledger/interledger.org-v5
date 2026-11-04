@@ -114,16 +114,6 @@
           "localized": true
         }
       }
-    },
-    "cta": {
-      "type": "component",
-      "repeatable": false,
-      "component": "shared.cta-link",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
     }
   }
 }
