@@ -489,7 +489,7 @@ is told only when it fails. Nobody reads the log of a run that passes.
   type only, a decision of the same review: free text in Project Links is
   allowed, and `grantee.ts` skips entries that are not URLs.
 - **One run lists every bad record.** Each record lists all of its problems,
-  each part lists all of its bad records, and `collectSyncResults` joins the
+  each part lists all of its bad records, and `collectResults` joins the
   three parts' failures into one error. A part still stops at its first
   missing or hidden table, view or column, and checks images (and blank
   directory columns) only once every record passes.

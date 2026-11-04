@@ -29,9 +29,9 @@ import {
 } from '../src/utils/main/airtableRecords'
 import {
   MAX_SOURCE_IMAGE_BYTES,
-  collectSyncResults,
   formatProblems
 } from '../src/utils/main/airtableFieldValues'
+import { collectResults } from '../src/utils/shared/collectResults'
 import { tryCatchAsync } from '../src/utils/shared/tryCatch'
 import {
   findHiddenProfileFields,
@@ -564,7 +564,7 @@ async function importAirtableData() {
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
-  const results = collectSyncResults([
+  const results = collectResults([
     directoryResult,
     reportsResult,
     profilesResult

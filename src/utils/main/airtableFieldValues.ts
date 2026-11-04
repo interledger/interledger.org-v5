@@ -1,10 +1,9 @@
 import type { SyncedImageSource } from '@/types/airtable'
 
-// Helpers for scripts/import-airtable.ts, shared by its three parts: value
-// readers, the error-message builders (formatProblems, partitionRecordResults,
-// recordProblemsError), and collectSyncResults, which joins the parts'
-// results. A reader returns undefined, or an "expected ..." description, for a
-// value it cannot use, so the caller can name the Airtable field in its error.
+// Helpers shared by the three parts of scripts/import-airtable.ts: value
+// readers and error-message builders. A reader returns undefined, or an
+// "expected ..." description, for a value it cannot use, so the caller can
+// name the Airtable field in its error.
 
 // The file types the site accepts. Airtable does not limit them, so the sync
 // fails on any other type, for example HEIC from an iPhone or a PDF.
@@ -95,21 +94,6 @@ export function partitionRecordResults<T>(results: readonly (T | Error)[]): {
 // entry is, such as a bad record, which can itself list several problems.
 export function recordProblemsError(problems: string[], label: string): Error {
   return new Error(`${problems.length} ${label}:\n${problems.join('\n')}`)
-}
-
-// The results of the sync's parts: every value, in order, or one Error listing
-// every part that failed, so a single run reports every problem.
-export function collectSyncResults<
-  const T extends readonly unknown[]
->(results: { readonly [K in keyof T]: T[K] | Error }): T | Error {
-  const errors = results.filter(
-    (result): result is Error => result instanceof Error
-  )
-  if (errors.length > 0) {
-    return new Error(errors.map((error) => error.message).join('\n\n'))
-  }
-  // No result is an Error, so each one is its part's value.
-  return results as unknown as T
 }
 
 // An image field is optional, but it holds at most one file, of an allowed

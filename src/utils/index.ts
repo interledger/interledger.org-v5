@@ -25,6 +25,7 @@ export {
   type SocialIconName
 } from './shared/url'
 export { tryCatchAsync } from './shared/tryCatch'
+export { collectResults } from './shared/collectResults'
 export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
@@ -222,7 +223,6 @@ export {
 export {
   ALLOWED_IMAGE_TYPES,
   MAX_SOURCE_IMAGE_BYTES,
-  collectSyncResults,
   describeValue,
   formatProblems,
   isRecordLike,
