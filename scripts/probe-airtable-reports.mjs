@@ -226,7 +226,7 @@ async function profileShapes(table) {
 // counts only: the sync needs exactly one Projects record ID (rec...) per report.
 const RECORD_ID = /^rec[A-Za-z0-9]{14}$/
 
-async function grantRecordShape(table) {
+async function grantRecordShape(table, tables) {
   const field = table.fields.find((f) => f.name === 'Grant Record')
   console.log('\n## Grant Record')
   if (!field) {
@@ -234,24 +234,33 @@ async function grantRecordShape(table) {
     return
   }
   console.log(`type: ${field.type}, result: ${field.options?.result?.type ?? 'n/a'}, id: ${field.id}`)
+  // Which link it goes through, and which field it looks up on the other side.
+  const link = table.fields.find((f) => f.id === field.options?.recordLinkFieldId)
+  const linkedTable = tables.find((t) => t.id === link?.options?.linkedTableId)
+  const target = linkedTable?.fields.find((f) => f.id === field.options?.fieldIdInLinkedTable)
+  console.log(`through: ${link?.name ?? 'unknown'} -> ${linkedTable?.name ?? 'unknown'}, looks up: ${target?.name ?? 'unknown'} [${target?.type ?? 'n/a'}]`)
   const view = table.views.find((v) => v.name.startsWith('PUBLIC'))
   console.log(`visible in "${view?.name}": ${view?.visibleFieldIds?.includes(field.id) ?? false}`)
-  const params = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': field.id })
-  if (view) params.set('view', view.id)
-  const { status, body } = await get(`/${BASE_ID}/${table.id}?${params}`)
-  if (!body) {
-    console.log(`read: HTTP ${status}`)
-    return
+  // No view: the PUBLIC view returns only Live records, and the test rows are Draft.
+  const scopes = { all: undefined, test: "LEFT({Public Summary}, 4) = 'TEST'" }
+  for (const [label, formula] of Object.entries(scopes)) {
+    const params = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': field.id })
+    if (formula) params.set('filterByFormula', formula)
+    const { status, body } = await get(`/${BASE_ID}/${table.id}?${params}`)
+    if (!body) {
+      console.log(`${label}: HTTP ${status}`)
+      continue
+    }
+    const counts = { oneRecordId: 0, empty: 0, several: 0, notRecordIds: 0 }
+    for (const record of body.records) {
+      const value = record.fields[field.id]
+      if (value === undefined || (Array.isArray(value) && value.length === 0)) counts.empty++
+      else if (!Array.isArray(value) || !value.every((v) => typeof v === 'string' && RECORD_ID.test(v))) counts.notRecordIds++
+      else if (value.length > 1) counts.several++
+      else counts.oneRecordId++
+    }
+    console.log(`${label} records: ${body.records.length}, ${JSON.stringify(counts)}, shape: ${[...new Set(body.records.map((r) => shapeOf(r.fields[field.id])))].join(' | ')}`)
   }
-  const counts = { oneRecordId: 0, empty: 0, several: 0, notRecordIds: 0 }
-  for (const record of body.records) {
-    const value = record.fields[field.id]
-    if (value === undefined || (Array.isArray(value) && value.length === 0)) counts.empty++
-    else if (!Array.isArray(value) || !value.every((v) => typeof v === 'string' && RECORD_ID.test(v))) counts.notRecordIds++
-    else if (value.length > 1) counts.several++
-    else counts.oneRecordId++
-  }
-  console.log(`records: ${body.records.length}, ${JSON.stringify(counts)}, shape: ${[...new Set(body.records.map((r) => shapeOf(r.fields[field.id])))].join(' | ')}`)
 }
 
 async function main() {
@@ -286,7 +295,7 @@ async function main() {
   await countLive(published)
   await countView(published)
   await probeImages(published)
-  await grantRecordShape(published)
+  await grantRecordShape(published, tables)
 }
 
 main().catch((error) => {
