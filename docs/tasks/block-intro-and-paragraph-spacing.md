@@ -178,6 +178,20 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 - Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
 - Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
 
+### Phase 5: Figma improvements (after Phase 4)
+
+Design updates found on the Spacing Consistency board ([`5474:74250`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-74250)) after the ADR was written. They change values, not structure, so they wait until the cleanup is done. Update the ADR together with each one.
+
+- **Narrow pages** ([E-Q20](../decisions/009-block-intro-and-block-owned-spacing.md#still-open)): blog posts and profiles get their own Paragraph values. Desktop is drawn: heading 80 / 16, text 24 below a heading and 16 below itself, image 60 below a heading, block bottom padding 40. Tablet and mobile are not drawn yet. Scope it to `.max-w-narrow` (the heading sizes there are already one size down, in `reset.css`).
+- **H2 / H3 values (A3):** H2 40 / 60 / 80 at the top of the content and 32 / 40 / 60 elsewhere; H3 40 / 60 / 80 at the top. This replaces `--para-first-pt` (60 / 80 / 120) and the current H2 values.
+- **FAQ split (B5):** the columns stay 40 / 60. The accordion gets a top padding of 40 and gaps of 24 / 16 / 16, and its first question lines up with the top of the section instead of 16 below the heading text (`GrantFaqSection.astro`).
+- **Profile divider:** Figma has no divider between the description and button and the biography (`ProfileDetailPage.astro`).
+- **Ask design first:**
+  - Narrow-page values for tablet and mobile.
+  - A Paragraph at the top of the content: 60 / 80 / 120 or 20 / 40 / 60?
+  - Does the blog title take the "first" top?
+  - The accordion's top padding when the FAQ split is stacked (tablet and mobile).
+
 ---
 
 ## Verification
