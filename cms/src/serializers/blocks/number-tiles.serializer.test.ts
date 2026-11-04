@@ -48,22 +48,9 @@ describe('number-tiles serializer', () => {
     )
   })
 
-  it('exports a legacy title as the intro heading', () => {
+  it('omits an intro with a blank heading', () => {
     const result = serialize({
-      title: 'Overview',
-      tiles: [
-        { number: '150', suffix: '+', description: 'Builders' },
-        { number: '24', suffix: 'H', description: 'Code Rush' }
-      ]
-    })
-
-    expect(result).toContain('intro={{"heading":"Overview"}}')
-    expect(result).not.toContain('title=')
-  })
-
-  it('omits a blank title', () => {
-    const result = serialize({
-      title: '  ',
+      intro: { heading: '  ' },
       tiles: [
         { number: '150', description: 'Builders' },
         { number: '24', description: 'Code Rush' }

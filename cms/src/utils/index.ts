@@ -231,11 +231,7 @@ export {
 } from './localeMdxUtils'
 
 // Block intro (serializers, sync handlers)
-export {
-  introWithLegacyHeading,
-  normalizeBlockIntroForMdx,
-  serializeIntroProp
-} from './blockIntro'
+export { normalizeBlockIntroForMdx, serializeIntroProp } from './blockIntro'
 
 // Report text types (serializers, sync handlers)
 export {

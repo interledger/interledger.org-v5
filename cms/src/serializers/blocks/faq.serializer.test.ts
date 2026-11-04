@@ -25,13 +25,6 @@ describe('faq serializer', () => {
     expect(result).toContain('</Faq>')
   })
 
-  it('exports a legacy heading as the intro heading', () => {
-    const result = serialize({ heading: 'About us', items: [validItem] })
-
-    expect(result).toContain('<Faq intro={{"heading":"About us"}}>')
-    expect(result).not.toContain('heading="')
-  })
-
   it('omits the heading attribute when the heading is absent', () => {
     const result = serialize({ items: [validItem] })
 
@@ -39,8 +32,8 @@ describe('faq serializer', () => {
     expect(result).not.toMatch(/heading=|intro=/)
   })
 
-  it('omits the heading attribute when the heading is only whitespace', () => {
-    const result = serialize({ heading: '   ', items: [validItem] })
+  it('omits the intro when its heading is only whitespace', () => {
+    const result = serialize({ intro: { heading: '   ' }, items: [validItem] })
 
     expect(result).toContain('<Faq>')
     expect(result).not.toMatch(/heading=|intro=/)
@@ -59,7 +52,7 @@ describe('faq serializer', () => {
 
   it('escapes only the quote that would break a JSX attribute', () => {
     const result = serialize({
-      heading: 'A & B',
+      intro: { heading: 'A & B' },
       items: [{ ...validItem, question: 'Is it "free" & <open>?' }]
     })
 
@@ -85,9 +78,9 @@ describe('faq serializer', () => {
   })
 
   it('throws when there are no questions', () => {
-    expect(() => serialize({ heading: 'About us', items: [] })).toThrow(
-      SerializerFieldError
-    )
+    expect(() =>
+      serialize({ intro: { heading: 'About us' }, items: [] })
+    ).toThrow(SerializerFieldError)
     expect(() => serialize({ heading: 'About us' })).toThrow(
       SerializerFieldError
     )

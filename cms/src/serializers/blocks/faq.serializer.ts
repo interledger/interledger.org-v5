@@ -2,7 +2,6 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
   ckeditorFieldToCompiledMarkdown,
-  introWithLegacyHeading,
   serializeIntroProp,
   type BlockIntroInput,
   type FieldError
@@ -15,8 +14,6 @@ interface FaqItem {
 
 interface FaqBlock {
   intro?: BlockIntroInput | null
-  /** @deprecated Legacy heading; exported as `intro.heading` until removed. */
-  heading?: string
   items?: FaqItem[]
 }
 
@@ -66,9 +63,7 @@ export function serialize(block: FaqBlock): string {
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
   // Validation above guarantees items and their fields are present from here on.
-  const introAttr = serializeIntroProp(
-    introWithLegacyHeading(block.intro, block.heading)
-  )
+  const introAttr = serializeIntroProp(block.intro)
 
   const items = block.items.map((item) => {
     // `answer` is a CKEditor field: usually already markdown, but convert

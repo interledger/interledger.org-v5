@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { serialize } from './carousel.serializer'
 
 describe('carousel serializer', () => {
-  it('serializes heading, accessibilityLabel, and logos', () => {
+  it('serializes the intro, accessibilityLabel, and logos', () => {
     const result = serialize({
-      heading: 'In partnership with',
+      intro: { heading: 'In partnership with' },
       accessibilityLabel: 'Our Partners',
       logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
@@ -95,7 +95,7 @@ describe('carousel serializer', () => {
   it('throws when logos is missing', () => {
     expect(() =>
       serialize({
-        heading: 'In partnership with',
+        intro: { heading: 'In partnership with' },
         accessibilityLabel: 'Our Partners'
       })
     ).toThrow('Carousel block is missing logos')

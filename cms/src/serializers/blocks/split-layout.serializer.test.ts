@@ -161,87 +161,29 @@ describe('split-layout serializer', () => {
     expect(result).not.toContain('Stale text body.')
   })
 
-  it('ignores a stale CTA left over from a text layout when switched to quote', () => {
+  it('ignores stale buttons left over from a text layout when switched to quote', () => {
     const result = serialize({
       layoutType: 'image-quote',
       media: { image: { url: '/uploads/education_grant.jpg' } },
       quote: 'Quoted body.',
-      cta: { text: 'Stale CTA', link: 'https://example.com' }
+      buttons: [{ text: 'Stale CTA', link: 'https://example.com' }]
     })
 
     expect(result).toContain('quote="Quoted body."')
-    expect(result).not.toContain('ctaText=')
-    expect(result).not.toContain('ctaLink=')
+    expect(result).not.toContain('buttons=')
   })
 
-  it('serializes CTA for text layouts', () => {
+  it('serializes a single button for text layouts', () => {
     const result = serialize({
       layoutType: 'image-text',
       media: { image: { url: '/uploads/education_grant.jpg' } },
       content: 'Text body.',
-      cta: { text: 'Apply now', link: 'https://example.com' }
+      buttons: [{ text: 'Apply now', link: 'https://example.com' }]
     })
 
     expect(result).toContain(
       'buttons={[{"text":"Apply now","link":"https://example.com","style":"primary"}]}'
     )
-    expect(result).not.toContain('ctaText=')
-  })
-
-  it('serializes the CTA external flag', () => {
-    const result = serialize({
-      layoutType: 'image-text',
-      media: { image: { url: '/uploads/education_grant.jpg' } },
-      content: 'Text body.',
-      cta: { text: 'Partner site', link: 'https://example.com', external: true }
-    })
-
-    expect(result).toContain('"external":true')
-    expect(result).not.toContain('"document"')
-  })
-
-  it('serializes the CTA document flag', () => {
-    const result = serialize({
-      layoutType: 'image-text',
-      media: { image: { url: '/uploads/education_grant.jpg' } },
-      content: 'Text body.',
-      cta: {
-        text: 'Application pack',
-        link: '/uploads/pack.pdf',
-        document: true
-      }
-    })
-
-    expect(result).toContain('"document":true')
-    expect(result).not.toContain('"external"')
-  })
-
-  it('throws when the CTA is both external and a document', () => {
-    expect(() =>
-      serialize({
-        layoutType: 'image-text',
-        media: { image: { url: '/uploads/education_grant.jpg' } },
-        content: 'Text body.',
-        cta: {
-          text: 'Application pack',
-          link: '/uploads/pack.pdf',
-          external: true,
-          document: true
-        }
-      })
-    ).toThrow('cannot be both external and document')
-  })
-
-  it('omits the CTA external and document flags when they are unset', () => {
-    const result = serialize({
-      layoutType: 'image-text',
-      media: { image: { url: '/uploads/education_grant.jpg' } },
-      content: 'Text body.',
-      cta: { text: 'Apply now', link: '/apply' }
-    })
-
-    expect(result).not.toContain('ctaExternal=')
-    expect(result).not.toContain('ctaDocument=')
   })
 
   it('throws when an image layout has no image at all', () => {
@@ -292,18 +234,6 @@ describe('split-layout serializer', () => {
     )
     // An intro alone is enough for a text layout.
     expect(result).toMatch(/\/>$/)
-  })
-
-  it('prefers the button group over a legacy cta', () => {
-    const result = serialize({
-      layoutType: 'image-text',
-      media: { image: { url: '/img/a.png' } },
-      content: 'Body.',
-      buttons: [{ text: 'New', link: '/new/', style: 'primary' }],
-      cta: { text: 'Old', link: '/old/' }
-    })
-    expect(result).toContain('"text":"New"')
-    expect(result).not.toContain('Old')
   })
 
   it('still requires content or an intro for text layouts', () => {

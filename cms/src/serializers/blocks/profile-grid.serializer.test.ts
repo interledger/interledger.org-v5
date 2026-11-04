@@ -7,9 +7,9 @@ describe('profile-grid serializer', () => {
     expect(result).toBe('<ProfileGrid category="2025 Hackathon Judges" />')
   })
 
-  it('includes the heading attribute when provided', () => {
+  it('includes the intro when provided', () => {
     const result = serialize({
-      heading: 'Meet the judges',
+      intro: { heading: 'Meet the judges' },
       category: '2025 Hackathon Judges'
     })
     expect(result).toBe(
@@ -18,7 +18,7 @@ describe('profile-grid serializer', () => {
   })
 
   it('leaves an ampersand and an angle bracket literal in an attribute value', () => {
-    const result = serialize({ heading: 'A & B', category: 'C > D' })
+    const result = serialize({ intro: { heading: 'A & B' }, category: 'C > D' })
     expect(result).toContain('intro={{"heading":"A & B"}}')
     expect(result).toContain('category="C > D"')
   })
@@ -35,7 +35,7 @@ describe('profile-grid serializer', () => {
 
   it('omits category when manual profiles are selected', () => {
     const result = serialize({
-      heading: 'Team',
+      intro: { heading: 'Team' },
       category: 'ambassador1',
       profiles: [{ name: 'Alice', pathSlug: 'alice' }]
     })
@@ -55,7 +55,7 @@ describe('profile-grid serializer', () => {
   })
 
   it('renders with neither category nor profiles', () => {
-    const result = serialize({ heading: 'Empty' })
+    const result = serialize({ intro: { heading: 'Empty' } })
     expect(result).toBe('<ProfileGrid intro={{"heading":"Empty"}} />')
   })
 })

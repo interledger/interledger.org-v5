@@ -134,43 +134,6 @@ describe('card-grid serializer', () => {
     )
   })
 
-  it('prefers the intro over the legacy title', () => {
-    const result = serialize({
-      intro: { heading: 'New' },
-      title: 'Old',
-      ariaLabel: 'Info',
-      variant: 'Info',
-      columns: 'Three',
-      cards: [infoCard]
-    })
-    expect(result).toContain('intro={{"heading":"New"}}')
-    expect(result).not.toContain('Old')
-  })
-
-  it('exports a legacy title as the intro heading and omits it when blank', () => {
-    expect(
-      serialize({
-        title: 'Why Participate?',
-        ariaLabel: 'Reasons to participate',
-        variant: 'Info',
-        columns: 'Three',
-        cards: [infoCard]
-      })
-    ).toContain(
-      '<CardGrid intro={{"heading":"Why Participate?"}} ariaLabel="Reasons to participate"'
-    )
-
-    expect(
-      serialize({
-        title: '   ',
-        ariaLabel: 'Info',
-        variant: 'Info',
-        columns: 'Three',
-        cards: [infoCard]
-      })
-    ).not.toMatch(/title=|intro=/)
-  })
-
   it('serializes Resource cards with document flag', () => {
     const result = serialize({
       ariaLabel: 'Resources',

@@ -53,17 +53,3 @@ export function serializeIntroProp(
   // normalizeBlockIntroForMdx adds the keys in BLOCK_INTRO_FIELDS order.
   return ` intro={${JSON.stringify(normalized)}}`
 }
-
-/**
- * The intro a block exports while its legacy `title`/`heading` field still
- * exists (until Phase 4 of INTORG-1154): the intro when it has content,
- * otherwise the legacy value as the intro heading. Editors who only filled
- * the old field keep their heading.
- */
-export function introWithLegacyHeading(
-  intro: BlockIntroInput | null | undefined,
-  legacyHeading: string | null | undefined
-): BlockIntroInput | null {
-  if (normalizeBlockIntroForMdx(intro)) return intro ?? null
-  return legacyHeading?.trim() ? { heading: legacyHeading } : null
-}

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  introWithLegacyHeading,
-  normalizeBlockIntroForMdx,
-  serializeIntroProp
-} from './blockIntro'
+import { normalizeBlockIntroForMdx, serializeIntroProp } from './blockIntro'
 
 describe('normalizeBlockIntroForMdx', () => {
   it('returns null for a missing intro', () => {
@@ -83,24 +79,5 @@ describe('serializeIntroProp', () => {
     expect(serializeIntroProp({ heading: 'a } b {' })).toBe(
       ' intro={{"heading":"a } b {"}}'
     )
-  })
-})
-
-describe('introWithLegacyHeading', () => {
-  it('prefers an intro with content over the legacy heading', () => {
-    const intro = { heading: 'New', subheading: 'Sub' }
-    expect(introWithLegacyHeading(intro, 'Old')).toBe(intro)
-  })
-
-  it('falls back to the legacy heading when the intro is empty', () => {
-    expect(introWithLegacyHeading({ heading: ' ' }, 'Old')).toEqual({
-      heading: 'Old'
-    })
-    expect(introWithLegacyHeading(null, 'Old')).toEqual({ heading: 'Old' })
-  })
-
-  it('returns null when neither has content', () => {
-    expect(introWithLegacyHeading(undefined, '  ')).toBeNull()
-    expect(introWithLegacyHeading(null, null)).toBeNull()
   })
 })

@@ -45,7 +45,7 @@ describe('event-card.serializer', () => {
 
   it('includes optional text as children', () => {
     const mdx = serialize({
-      title: 'Upcoming',
+      intro: { heading: 'Upcoming' },
       when: { ...when, text: 'Doors open early for speakers.' },
       where,
       apply: { ...apply, text: 'A 24h hackathon for students.' }
