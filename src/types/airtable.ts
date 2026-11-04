@@ -108,6 +108,7 @@ export interface GranteeProfile {
   description: string | null
   country: string | null
   website: string | null
+  socialWeb: string | null
   twitter: string | null
   linkedIn: string | null
   bluesky: string | null
