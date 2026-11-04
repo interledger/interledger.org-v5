@@ -8,25 +8,12 @@
           "href": "/summit/"
         },
         {
-          "label": "Sessions",
+          "label": "2025 Sessions",
           "href": "/summit/2025/talks/"
         },
         {
-          "label": "Speakers",
+          "label": "2025 Speakers",
           "href": "/summit/2025/speakers/"
-        }
-      ]
-    },
-    {
-      "label": "Hackathon",
-      "items": [
-        {
-          "label": "Overview",
-          "href": "/summit/hackathon/"
-        },
-        {
-          "label": "Participation requirements",
-          "href": "/summit/hackathon/participation-requirements/"
         }
       ]
     },

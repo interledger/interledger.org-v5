@@ -16,7 +16,7 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { getNavigation } = await import('./navigation')
+const { getNavigation, isDirectNavLink } = await import('./navigation')
 
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
@@ -42,6 +42,23 @@ describe('getNavigation', () => {
       (g) => g.label
     )
     expect(summit).not.toEqual(hackathon)
+  })
+
+  it('treats a childless href as a direct link', () => {
+    expect(
+      isDirectNavLink({
+        label: 'Code of conduct',
+        href: '/summit/code-conduct/'
+      })
+    ).toBe(true)
+    expect(
+      isDirectNavLink({
+        label: 'Summit',
+        href: '/summit/',
+        items: [{ label: 'Overview', href: '/summit/' }]
+      })
+    ).toBe(false)
+    expect(isDirectNavLink({ label: 'Summit', items: [] })).toBe(false)
   })
 
   it('falls back to the default locale when a site has no config for it', () => {

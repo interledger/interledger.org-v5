@@ -46,11 +46,9 @@ export const socialLinks: SocialLink[] = [
 
 /**
  * The footer's extra nav column — items shown in the footer only, on top of
- * `mainMenu` (shared with the header via `getNavigation`, from
- * `foundation-navigation`/`hackathon-navigation`). Hackathon has no such
- * column for now. Every other site (SiteFooter is currently only
- * rendered for 'foundation' or 'hackathon' — 'summit' uses MicrositeFooter
- * instead) gets the Foundation-only column (terms, privacy, press, FAQ).
+ * `mainMenu` (shared with the header via `getNavigation`). Hackathon and
+ * summit build the footer from their own nav, so they get no extra column.
+ * Foundation adds terms, privacy, press, and FAQ.
  */
 export function getFooterOnlyColumn(
   site: NavigationSite,
@@ -58,7 +56,7 @@ export function getFooterOnlyColumn(
 ): MenuGroup | null {
   const t = useTranslations(lang)
 
-  if (site === 'hackathon') {
+  if (site === 'hackathon' || site === 'summit') {
     return null
   }
 
