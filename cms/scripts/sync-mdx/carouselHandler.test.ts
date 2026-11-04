@@ -42,7 +42,7 @@ describe('LogoCarousel handler', () => {
   it('parses a single logo with heading and accessibilityLabel', async () => {
     const ctx = ctxWith({ '/img/plata.png': 12 })
     const blocks = await parseMdxToBlocks(
-      `<LogoCarousel heading="In partnership with" accessibilityLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`,
+      `<LogoCarousel intro={{"heading":"In partnership with"}} accessibilityLabel="Our Partners" logos={[{ name: 'Plata', src: '/img/plata.png' }]} />`,
       ctx
     )
 
@@ -153,7 +153,7 @@ describe('LogoCarousel handler', () => {
 describe('LogoCarousel handler — errors', () => {
   it('returns MISSING_REQUIRED_PROP when logos is missing', async () => {
     const result = await parseMdxToBlocks(
-      '<LogoCarousel heading="Partners" accessibilityLabel="Our Partners" />',
+      '<LogoCarousel intro={{"heading":"Partners"}} accessibilityLabel="Our Partners" />',
       ctxWith()
     )
     expect(result).toBeInstanceOf(MdxParserError)

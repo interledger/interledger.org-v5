@@ -246,16 +246,8 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
   content?: string
   quote?: string
   quoteSource?: string
-  /** The button group; a legacy `cta` is read into it. */
+  /** The button group. */
   buttons?: CtaButton[]
-  /** @deprecated Legacy single CTA, replaced by `buttons`. */
-  cta?: {
-    text: string
-    link: string
-    style?: string
-    external?: boolean
-    document?: boolean
-  }
 }
 
 /**

@@ -7,8 +7,6 @@
  *     imageSrc="..."
  *     videoUrl="..." quote="..." quoteSource="..."
  *     buttons={[{ text, link, style?, external?, document? }]}>
- *   A legacy single CTA (ctaText="..." ctaLink="..." ctaStyle="..."
- *   ctaExternal={true} ctaDocument={true}) is read into `buttons`.
  *   children (markdown body for the content column)
  *   </SplitLayout>
  *
@@ -18,9 +16,9 @@
  * so alt text can be set per locale.
  */
 
-import type { CtaButton, ParsedBlock, SplitLayoutBlock } from './types.blocks'
+import type { ParsedBlock, SplitLayoutBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr, getIntroAttr } from './jsxExtract'
+import { getStringAttr, getIntroAttr } from './jsxExtract'
 import { getCtaButtonsAttr } from './ctaButtonsProp'
 import {
   registerComponentHandler,
@@ -80,38 +78,6 @@ async function handleSplitLayout(
     const videoUrl = getStringAttr(node, 'videoUrl')
     const quote = getStringAttr(node, 'quote')
     const quoteSource = getStringAttr(node, 'quoteSource')
-    const ctaText = getStringAttr(node, 'ctaText')
-    const ctaLink = getStringAttr(node, 'ctaLink')
-    const ctaStyle = getStringAttr(node, 'ctaStyle')
-    const ctaExternal = getBooleanAttr(node, 'ctaExternal')
-    const ctaDocument = getBooleanAttr(node, 'ctaDocument')
-
-    if (ctaExternal && ctaDocument) {
-      throw new MdxParserError({
-        code: ParserErrorCode.INVALID_PROP_VALUE,
-        message:
-          'SplitLayout cannot set both ctaExternal and ctaDocument. Pick one: external opens a new tab, document downloads a file.',
-        component: 'SplitLayout',
-        prop: 'ctaDocument',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
-
-    /** A legacy single CTA (ctaText, ctaLink, …) as a one-button group. */
-    function legacyCtaButtons(): CtaButton[] {
-      if (!ctaText || !ctaLink) return []
-      return [
-        {
-          text: ctaText.trim(),
-          link: ctaLink.trim(),
-          style: ctaStyle === 'secondary' ? 'secondary' : 'primary',
-          ...(ctaExternal ? { external: true } : {}),
-          ...(ctaDocument ? { document: true } : {})
-        }
-      ]
-    }
-
     const content =
       node.children.length > 0 ? childrenToMarkdown(node.children) : undefined
 
@@ -159,7 +125,7 @@ async function handleSplitLayout(
     const isQuoteLayout = layoutType.endsWith('-quote')
 
     const intro = getIntroAttr(node)
-    const buttons = getCtaButtonsAttr(node) ?? legacyCtaButtons()
+    const buttons = getCtaButtonsAttr(node) ?? []
     const block: SplitLayoutBlock = {
       __component: 'blocks.split-layout',
       ...(intro ? { intro } : {}),

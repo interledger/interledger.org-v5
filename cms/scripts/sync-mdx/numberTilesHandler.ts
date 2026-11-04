@@ -2,15 +2,13 @@
  * NumberTiles component handler for the MDX block parser. Handles:
  * <NumberTiles intro={{"heading":"Overview"}} tiles={[{ number, prefix, suffix, description }, ...]} />
  *
- * A legacy `title="…"` is read as the intro heading.
- *
  * `tiles` isn't JSON — Prettier reformats it to JS object-literal syntax on
  * write — so it's extracted via getStaticLiteralAttr's ESTree evaluator, not
  * JSON.parse. No media resolution needed: every field is plain text.
  */
 
 import type { ParsedBlock, NumberTilesBlock } from './types.blocks'
-import { getIntroWithLegacyHeading, getStaticLiteralAttr } from './jsxExtract'
+import { getIntroAttr, getStaticLiteralAttr } from './jsxExtract'
 import { registerComponentHandler } from './mdxBlockParser'
 import type { JsxBlockNode, ParserContext } from './mdxBlockParser'
 import {
@@ -80,7 +78,7 @@ async function handleNumberTiles(
       })
     }
 
-    const intro = getIntroWithLegacyHeading(node, 'title')
+    const intro = getIntroAttr(node)
     const block: NumberTilesBlock = {
       __component: 'blocks.number-tiles',
       ...(intro ? { intro } : {}),

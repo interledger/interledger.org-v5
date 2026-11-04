@@ -1097,7 +1097,7 @@ describe('buildGrantPagePayload', () => {
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com"}]}>\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantPagePayload(
@@ -2013,7 +2013,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com"}]}>\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantOverviewPagePayload(

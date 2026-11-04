@@ -67,19 +67,6 @@ describe('Faq round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.faq', ...original }])
   })
 
-  it('exports a legacy heading as the intro heading', async () => {
-    const blocks = await parseMdxToBlocks(
-      serialize({
-        heading: 'Attending',
-        items: [{ question: 'Is it recorded?', answer: 'Yes.' }]
-      }),
-      enCtx
-    )
-
-    expect(blocks[0]).toMatchObject({ intro: { heading: 'Attending' } })
-    expect(blocks[0]).not.toHaveProperty('heading')
-  })
-
   it('round-trips multiple questions, preserving order', async () => {
     const original = {
       intro: { heading: 'Attending' },

@@ -10,17 +10,12 @@
  *   </Faq>
  *
  * Maps to Strapi blocks.faq.
- * Each <FaqItem> becomes one `items` entry. `intro` is optional; a legacy
- * `heading="…"` is read as the intro heading.
+ * Each <FaqItem> becomes one `items` entry. `intro` is optional.
  */
 
 import type { ParsedBlock, FaqItem, FaqBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import {
-  getStringAttr,
-  getChildElements,
-  getIntroWithLegacyHeading
-} from './jsxExtract'
+import { getStringAttr, getChildElements, getIntroAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -57,7 +52,7 @@ async function handleFaq(
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
-    const intro = getIntroWithLegacyHeading(node, 'heading')
+    const intro = getIntroAttr(node)
 
     const itemNodes = getChildElements(node, 'FaqItem')
     if (itemNodes.length === 0) {

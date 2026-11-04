@@ -103,21 +103,6 @@ describe('block intro round-trip on intro-only blocks', () => {
       expect(blocks[0]).toMatchObject({ intro, accessibilityLabel: 'Partners' })
       expect(blocks[0]).not.toHaveProperty('heading')
     })
-
-    it('exports a legacy heading as the intro heading', async () => {
-      const blocks = await parseMdxToBlocks(
-        serializeCarousel({
-          heading: 'In partnership with',
-          accessibilityLabel: 'Partners',
-          logos
-        }),
-        ctx
-      )
-      expect(blocks[0]).toMatchObject({
-        intro: { heading: 'In partnership with' }
-      })
-      expect(blocks[0]).not.toHaveProperty('heading')
-    })
   })
 
   describe('SplitLayout', () => {
@@ -138,24 +123,6 @@ describe('block intro round-trip on intro-only blocks', () => {
         ctx
       )
       expect(blocks[0]).toMatchObject({ intro, displayRatio: '3:2', buttons })
-    })
-
-    it('exports a legacy cta as a one-button group', async () => {
-      const blocks = await parseMdxToBlocks(
-        serializeSplitLayout({
-          layoutType: 'image-text',
-          media: { image: { url: '/img/a.png' } },
-          content: 'Body.',
-          cta: { text: 'Apply', link: '/apply/', external: true }
-        }),
-        ctx
-      )
-      expect(blocks[0]).toMatchObject({
-        buttons: [
-          { text: 'Apply', link: '/apply/', style: 'primary', external: true }
-        ]
-      })
-      expect(blocks[0]).not.toHaveProperty('cta')
     })
   })
 })

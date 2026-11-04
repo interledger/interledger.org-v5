@@ -749,29 +749,6 @@ export function getIntroAttr(
   return Object.keys(intro).length > 0 ? intro : null
 }
 
-/**
- * The intro of a block that still accepts its legacy heading attribute
- * (`title=` or `heading=`, until Phase 4 of INTORG-1154). An `intro` prop
- * wins; without one, a non-blank legacy value becomes the intro heading.
- * Returns `null` when there is no intro; the handler then leaves the field
- * out, like any other empty optional field.
- *
- * @example
- * ```ts
- * // <NumberTiles title="Overview" tiles={…} />
- * getIntroWithLegacyHeading(node, 'title')  // → { heading: 'Overview' }
- * ```
- */
-export function getIntroWithLegacyHeading(
-  node: JsxBlockNode,
-  legacyAttr: string
-): SerializedBlockIntro | null {
-  const intro = getIntroAttr(node)
-  if (intro !== undefined) return intro
-  const legacyHeading = getStringAttr(node, legacyAttr)?.trim()
-  return legacyHeading ? { heading: legacyHeading } : null
-}
-
 // ---------------------------------------------------------------------------
 // Child elements
 // ---------------------------------------------------------------------------

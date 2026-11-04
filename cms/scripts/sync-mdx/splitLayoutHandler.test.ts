@@ -41,7 +41,7 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com","external":true}]}>`,
       '',
       'Some **body** copy.',
       '',
@@ -73,32 +73,6 @@ describe('SplitLayout handler', () => {
         ]
       }
     ])
-  })
-
-  it('parses ctaDocument into the CTA document flag', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Application pack" ctaLink="/uploads/pack.pdf" ctaDocument={true}>Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      buttons: [
-        { text: 'Application pack', link: '/uploads/pack.pdf', document: true }
-      ]
-    })
-    expect(blocks[0]).not.toHaveProperty('cta')
-  })
-
-  it('omits the CTA document flag when ctaDocument is absent', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Apply" ctaLink="/apply">Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      buttons: [{ text: 'Apply', link: '/apply' }]
-    })
-    expect(blocks[0].buttons?.[0]).not.toHaveProperty('document')
   })
 
   it('parses imageAlt into media.alternativeText', async () => {
@@ -193,17 +167,6 @@ describe('SplitLayout handler', () => {
         content: 'Body.'
       }
     ])
-  })
-
-  it('parses CTA style when provided', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      buttons: [{ text: 'Learn', link: '/learn', style: 'secondary' }]
-    })
   })
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
@@ -305,26 +268,6 @@ describe('SplitLayout handler — errors', () => {
     expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('returns DYNAMIC_EXPRESSION when ctaExternal is dynamic', async () => {
-    const result = await parseMdxToBlocks(
-      '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaExternal={isExternal}>Body.</SplitLayout>',
-      { locale: 'en' }
-    )
-
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
-  })
-
-  it('returns DYNAMIC_EXPRESSION when ctaDocument is dynamic', async () => {
-    const result = await parseMdxToBlocks(
-      '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaDocument={isDocument}>Body.</SplitLayout>',
-      { locale: 'en' }
-    )
-
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
-  })
-
   it('returns MISSING_REQUIRED_PROP when imageSrc needs a media resolver', async () => {
     const result = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
@@ -398,17 +341,6 @@ describe('SplitLayout handler: intro and button group', () => {
       ]
     })
     expect(blocks[0]).not.toHaveProperty('content')
-  })
-
-  it('prefers the button group over legacy cta attributes', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"New","link":"/new/"}]} ctaText="Old" ctaLink="/old/">Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      buttons: [{ text: 'New', link: '/new/', style: 'primary' }]
-    })
   })
 
   it('rejects an invalid button group', async () => {

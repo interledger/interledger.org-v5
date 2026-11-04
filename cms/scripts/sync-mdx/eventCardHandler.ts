@@ -11,8 +11,7 @@
  *
  * Maps to Strapi blocks.event-card. When and Where are required; Apply is
  * optional. Optional body text is JSX children on When, Where, and Apply.
- * The intro and EventApply `title` are optional. A legacy EventCard `title`
- * is still read, as the intro heading.
+ * The intro and EventApply `title` are optional.
  */
 
 import type {
@@ -27,7 +26,7 @@ import {
   getStringAttr,
   getBooleanAttr,
   getChildElements,
-  getIntroWithLegacyHeading
+  getIntroAttr
 } from './jsxExtract'
 import { hasConflictingCtaFlags } from './types.blocks'
 import {
@@ -153,7 +152,7 @@ async function handleEventCard(
       })
     }
 
-    const intro = getIntroWithLegacyHeading(node, 'title')
+    const intro = getIntroAttr(node)
     const block: EventCardBlock = {
       __component: 'blocks.event-card',
       ...(intro ? { intro } : {}),

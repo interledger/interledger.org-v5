@@ -327,7 +327,7 @@ describe('ProfileCard handler', () => {
 describe('ProfileGrid handler', () => {
   it('parses <ProfileGrid> with heading and pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Our Team" pathSlugs={["alice","bob"]} />',
+      '<ProfileGrid intro={{"heading":"Our Team"}} pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' })
     )
 
@@ -366,7 +366,7 @@ describe('ProfileGrid handler', () => {
 
   it('returns MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
     const result = await parseMdxToBlocks(
-      '<ProfileGrid heading="Team" />',
+      '<ProfileGrid intro={{"heading":"Team"}} />',
       ctxWith({})
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -377,7 +377,7 @@ describe('ProfileGrid handler', () => {
 
   it('parses <ProfileGrid> with category instead of pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Past Fellows" category="Past Fellows" />',
+      '<ProfileGrid intro={{"heading":"Past Fellows"}} category="Past Fellows" />',
       ctxWith({})
     )
 
@@ -436,7 +436,7 @@ describe('ProfileCard handler (locale import)', () => {
 
   it('resolves ProfileGrid pathSlugs in es locale', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Equipo" pathSlugs={["alice","bob"]} />',
+      '<ProfileGrid intro={{"heading":"Equipo"}} pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' }, 'es')
     )
 

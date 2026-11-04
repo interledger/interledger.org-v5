@@ -28,21 +28,6 @@ describe('Faq handler', () => {
     })
   })
 
-  it('reads a legacy heading as the intro heading', async () => {
-    const blocks = await parseMdxToBlocks(
-      faq([item('What is it?')], ' heading="About us"'),
-      ctx
-    )
-
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.faq',
-        intro: { heading: 'About us' },
-        items: [{ question: 'What is it?', answer: 'An answer.' }]
-      }
-    ])
-  })
-
   it('omits the intro when there is none', async () => {
     const blocks = await parseMdxToBlocks(faq([item('What is it?')]), ctx)
 
@@ -96,7 +81,10 @@ describe('Faq handler', () => {
   })
 
   it('errors when the block has no FaqItem children', async () => {
-    const result = await parseMdxToBlocks('<Faq heading="About us" />', ctx)
+    const result = await parseMdxToBlocks(
+      '<Faq intro={{"heading":"About us"}} />',
+      ctx
+    )
 
     expect(result).toBeInstanceOf(MdxParserError)
     expect((result as MdxParserError).code).toBe(

@@ -67,7 +67,7 @@ describe('EventCard handler', () => {
 
   it('captures optional column text from children', async () => {
     const mdx = `
-<EventCard title="Upcoming">
+<EventCard intro={{"heading":"Upcoming"}}>
   <EventWhen title="When?" date="Nov 8">
 Early arrival for speakers.
   </EventWhen>

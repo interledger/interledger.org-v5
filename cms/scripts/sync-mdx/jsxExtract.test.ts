@@ -12,8 +12,7 @@ import {
   getChildElements,
   getMismatchedChildElements,
   getLooseChildText,
-  getIntroAttr,
-  getIntroWithLegacyHeading
+  getIntroAttr
 } from './jsxExtract'
 import { serializeIntroProp } from '../../src/utils/blockIntro'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
@@ -438,31 +437,5 @@ describe('getIntroAttr', () => {
       heading: 'Questions',
       description: 'Ask us.'
     })
-  })
-})
-
-describe('getIntroWithLegacyHeading', () => {
-  it('returns the intro prop when present', () => {
-    const node = parseJsx('<Faq intro={{"heading":"New"}} heading="Old" />')
-    expect(getIntroWithLegacyHeading(node, 'heading')).toEqual({
-      heading: 'New'
-    })
-  })
-
-  it('reads the legacy attribute as the intro heading', () => {
-    const node = parseJsx('<CardGrid title=" Old " />')
-    expect(getIntroWithLegacyHeading(node, 'title')).toEqual({ heading: 'Old' })
-  })
-
-  it('returns null for a cleared intro, ignoring the legacy attribute', () => {
-    const node = parseJsx('<Faq intro={{}} heading="Old" />')
-    expect(getIntroWithLegacyHeading(node, 'heading')).toBeNull()
-  })
-
-  it('returns null with neither the prop nor a non-blank legacy value', () => {
-    expect(getIntroWithLegacyHeading(parseJsx('<Faq />'), 'heading')).toBeNull()
-    expect(
-      getIntroWithLegacyHeading(parseJsx('<Faq heading="  " />'), 'heading')
-    ).toBeNull()
   })
 })

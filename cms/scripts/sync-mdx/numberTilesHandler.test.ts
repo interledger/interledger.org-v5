@@ -78,24 +78,6 @@ describe('NumberTiles handler', () => {
     ])
   })
 
-  it('reads a legacy title as the intro heading', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<NumberTiles title="Overview" tiles={[{ number: '150', suffix: '+', description: 'Builders' }, { number: '24', suffix: 'H', description: 'Code Rush' }]} />`,
-      { locale: 'en' }
-    )
-
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.number-tiles',
-        intro: { heading: 'Overview' },
-        tiles: [
-          { number: '150', suffix: '+', description: 'Builders' },
-          { number: '24', suffix: 'H', description: 'Code Rush' }
-        ]
-      }
-    ])
-  })
-
   it('omits the intro when there is none', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
@@ -179,15 +161,6 @@ describe('NumberTiles handler — errors', () => {
     )
     expect(result).toBeInstanceOf(MdxParserError)
     expect(result).toMatchObject({ code: ParserErrorCode.INVALID_PROP_VALUE })
-  })
-
-  it('ignores a blank legacy title, like the other intro blocks', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<NumberTiles title="  " tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
-      { locale: 'en' }
-    )
-    if (blocks instanceof MdxParserError) throw blocks
-    expect(blocks[0]).not.toHaveProperty('intro')
   })
 
   it('returns INVALID_PROP_VALUE when fewer than 2 tiles are provided', async () => {

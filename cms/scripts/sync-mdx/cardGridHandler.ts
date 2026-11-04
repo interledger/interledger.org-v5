@@ -28,7 +28,7 @@ import { childrenToMarkdown } from './mdastSerialize'
 import {
   getStringAttr,
   getBooleanAttr,
-  getIntroWithLegacyHeading,
+  getIntroAttr,
   getChildElements,
   getMismatchedChildElements,
   getLooseChildText
@@ -258,7 +258,7 @@ async function handleCardGrid(
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
     const ariaLabel = getStringAttr(node, 'ariaLabel', { required: true })
-    const intro = getIntroWithLegacyHeading(node, 'title')
+    const intro = getIntroAttr(node)
     const variantAttr = getStringAttr(node, 'variant', { required: true })
     const columns = getStringAttr(node, 'columns', { required: true })
 
