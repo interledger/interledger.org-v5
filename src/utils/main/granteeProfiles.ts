@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { GranteeProfile } from '@/types/airtable'
+import { SLUG_PATTERN, isHttpUrl } from './airtableProfiles'
 import type { Grantee } from './grantee'
 
 // Reads src/data/airtable/grantee-profiles.json for the profile pages. The
@@ -17,18 +18,25 @@ const syncedImageSchema = z.object({
 
 const nullableText = z.string().min(1).nullable()
 
+// The sync's own rules, so the page check and the sync cannot drift apart.
+// An href must never take a javascript: URL from a hand-edited file.
+const nullableHttpUrl = z
+  .string()
+  .refine(isHttpUrl, 'expected an http or https URL')
+  .nullable()
+
 const granteeProfileSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  slug: z.string().regex(SLUG_PATTERN),
   granteeType: z.enum(['Organisation', 'Individual']),
   formerlyKnownAs: nullableText,
   description: nullableText,
   country: nullableText,
-  website: z.url().nullable(),
-  twitter: z.url().nullable(),
-  linkedIn: z.url().nullable(),
-  bluesky: z.url().nullable(),
+  website: nullableHttpUrl,
+  twitter: nullableHttpUrl,
+  linkedIn: nullableHttpUrl,
+  bluesky: nullableHttpUrl,
   grantIds: z.array(z.string().min(1)),
   grantCount: z.number().nonnegative(),
   totalCommitted: z.number().nonnegative(),

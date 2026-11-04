@@ -57,6 +57,14 @@ describe('parseGranteeProfiles', () => {
     expect((result as Error).message).toContain('at 0.slug')
   })
 
+  it('rejects a link that is not http or https', () => {
+    for (const url of ['javascript:alert(1)', 'ftp://gib.example', 'gib']) {
+      const result = parseGranteeProfiles([profile({ website: url })])
+      expect(result).toBeInstanceOf(Error)
+      expect((result as Error).message).toContain('at 0.website')
+    }
+  })
+
   it('rejects data that is not a list', () => {
     expect(parseGranteeProfiles({})).toBeInstanceOf(Error)
   })

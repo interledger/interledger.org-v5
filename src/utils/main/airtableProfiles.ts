@@ -50,11 +50,11 @@ type ProfileFieldKey = keyof typeof PROFILE_FIELDS
 
 // The slug becomes a URL segment, so only lowercase ASCII words joined by
 // single hyphens. Ayden noted that some slugs may still carry accents.
-const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const RECORD_ID_PATTERN = /^rec[A-Za-z0-9]{14}$/
 const URL_PROTOCOLS = new Set(['http:', 'https:'])
 
-function isHttpUrl(value: string): boolean {
+export function isHttpUrl(value: string): boolean {
   return URL.canParse(value) && URL_PROTOCOLS.has(new URL(value).protocol)
 }
 

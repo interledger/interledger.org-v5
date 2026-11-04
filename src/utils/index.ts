@@ -252,7 +252,9 @@ export {
 export {
   GRANTEE_TYPES,
   PROFILE_FIELDS,
+  SLUG_PATTERN,
   findHiddenProfileFields,
+  isHttpUrl,
   profileFieldIdsToFetch,
   splitThematicTags,
   toGranteeProfile,
