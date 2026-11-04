@@ -76,7 +76,7 @@ function printFields(table) {
   const nameById = new Map(table.fields.map((f) => [f.id, f.name]))
   for (const view of table.views) {
     console.log(`  - ${view.name} [${view.type}] ${view.id}`)
-    if (!/public/i.test(view.name) || !view.visibleFieldIds) continue
+    if (!(showAll || /public/i.test(view.name)) || !view.visibleFieldIds) continue
     for (const id of view.visibleFieldIds) {
       console.log(`      visible: ${nameById.get(id) ?? '?'} ${id}`)
     }
