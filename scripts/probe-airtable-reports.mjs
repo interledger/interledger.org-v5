@@ -380,6 +380,24 @@ async function reportTypeCoverage(tables) {
     repeated[type] = (repeated[type] ?? 0) + 1
   }
   console.log(`projects with 2+ reports of one type: ${JSON.stringify(repeated)}`)
+  // Is the report number unique within a project? Then <year>-<number> works.
+  const byNumber = new Map()
+  for (const record of records) {
+    const project = record.fields[projectsField.id]?.[0]
+    const number = numberField ? record.fields[numberField.id] : undefined
+    if (!project || number === undefined) continue
+    const key = `${project}|${number}`
+    byNumber.set(key, (byNumber.get(key) ?? 0) + 1)
+  }
+  const statusCounts = {}
+  for (const record of records) {
+    const status = statusField ? record.fields[statusField.id] : undefined
+    const name = (typeof status === 'object' && status !== null ? status.name : status) ?? 'none'
+    statusCounts[name] = (statusCounts[name] ?? 0) + 1
+  }
+  console.log(`project + number pairs: ${byNumber.size}, used 2+ times: ${[...byNumber.values()].filter((c) => c > 1).length}`)
+  console.log(`review status counts: ${JSON.stringify(statusCounts)}`)
+  console.log(`records with no project: ${records.filter((r) => !r.fields[projectsField.id]?.length).length}, with 2+ projects: ${records.filter((r) => (r.fields[projectsField.id]?.length ?? 0) > 1).length}`)
 }
 
 async function main() {
