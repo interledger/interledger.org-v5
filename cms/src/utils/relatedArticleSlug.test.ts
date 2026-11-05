@@ -25,7 +25,7 @@ describe('relatedArticleSlugError', () => {
     expect(
       relatedArticleSlugError('/grant/eoi-call-for-papers-reviewer/')
     ).toBe(
-      'Related Articles: "/grant/eoi-call-for-papers-reviewer/" must be a blog post path, like /blog/my-post/.'
+      'This value should be a blog path, like /blog/my-post/.'
     )
   })
 
@@ -35,7 +35,7 @@ describe('relatedArticleSlugError', () => {
         'https://interledger.org/blog/call-papers-program/'
       )
     ).toBe(
-      'Related Articles: "https://interledger.org/blog/call-papers-program/" must be a blog post path, like /blog/call-papers-program/.'
+      'This value should be a blog path, like /blog/call-papers-program/.'
     )
   })
 
@@ -56,7 +56,7 @@ describe('visibleRelatedArticleSlugError', () => {
     expect(
       visibleRelatedArticleSlugError('/grant/foo/', GENERIC_REGEX_ERROR, true)
     ).toBe(
-      'Related Articles: "/grant/foo/" must be a blog post path, like /blog/my-post/.'
+      'This value should be a blog path, like /blog/my-post/.'
     )
   })
 
@@ -65,7 +65,7 @@ describe('visibleRelatedArticleSlugError', () => {
       visibleRelatedArticleSlugError('two', undefined, false)
     ).toBeUndefined()
     expect(visibleRelatedArticleSlugError('two', 'saved', false)).toBe(
-      'Related Articles: "two" must be a blog post path, like /blog/my-post/.'
+      'This value should be a blog path, like /blog/my-post/.'
     )
   })
 
