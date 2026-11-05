@@ -510,9 +510,11 @@ Every content block owns its heading area and its vertical spacing (ADR-009,
   `src/components/shared/BlockIntro.astro`. Don't add a per-block `title` or
   `heading` field for the block's title, and don't render its own `<h2>` for
   it. Normalize with `normalizeBlockIntro`, and name the `<section>` with
-  `blockIntroA11y`. Intended exceptions: the CTA strip title (inside the
-  strip, ADR D6), the Agenda day heading, the grant InfoCards `heading`, and
-  the homepage's standalone LogoCarousel.
+  `blockIntroA11y`. Some headings are not a block intro and stay, for
+  example the CTA strip title (inside the strip, ADR D6), the Agenda day
+  heading, the InternalAdvert headline and the homepage's standalone
+  LogoCarousel. The grant InfoCards `heading` and GrantFaqSection
+  `title`/`subtitle` are their own fields, mapped into the intro.
 - **The marker.** A block that renders an intro sets `data-intro-variant` on
   its root. It then owns its top (the intro, or the empty-intro spacer) and its
   bottom (`--block-pb`), and sits out the prose rhythm. Every `Paragraph` sets
@@ -526,8 +528,10 @@ Every content block owns its heading area and its vertical spacing (ADR-009,
   `utilities/spacing.css` (`page-stack`) keep 120 on desktop between the two
   kinds. They are permanent, not a migration leftover.
 - **Adding the intro to a block** touches the schema (`intro`), every
-  `on['blocks.x']` populate in `cms/src/utils/contentPopulate.ts` (without it
-  the intro silently drops out of the export), the serializer
+  `on['blocks.x']` populate in `cms/src/utils/contentPopulate.ts` and in the
+  Strapi preview queries (`src/pages/page-preview.astro`,
+  `src/pages/preview/*.astro`) (without them the intro silently drops out of
+  the export or the preview), the serializer
   (`serializeIntroProp`), the sync handler (`getIntroAttr`), the component,
   and `SELF_SPACED_BLOCKS` in `src/utils/main/dynamicZoneSpacing.ts`, the
   preview's copy of the marker. `selfSpacedBlocks.test.ts` fails when that
