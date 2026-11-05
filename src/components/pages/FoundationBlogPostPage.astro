@@ -44,12 +44,12 @@ if (!mdxPost) return Astro.redirect('/404')
 const { Content: MdxContent } = await render(mdxPost)
 const mdxData = mdxPost.data
 
-// Resolve related-article slugs to posts, falling back to the EN post when no
-// translation exists in the current locale (see resolveRelatedPosts).
+// Resolve in the route locale, not the content locale. On an EN fallback page
+// the content locale is EN, but a related post can still have a translation.
 const relatedPosts = resolveRelatedPosts(
   posts,
   mdxData.relatedArticles,
-  contentLocale,
+  routeLocale,
   defaultLocale
 )
 ---
