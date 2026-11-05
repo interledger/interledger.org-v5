@@ -1156,7 +1156,7 @@ describe('validateBlogFields', () => {
       ]
     })
     expect(err?.message).toBe(
-      `Related Articles: Enter the blog post path as /blog/{slug}/, e.g. ${suggestion}, not "${slug}"`
+      `Related Articles: "${slug}" must be a blog post path, like ${suggestion}.`
     )
     expect(err?.details.errors[0].path).toEqual([
       'relatedArticles',

@@ -6,9 +6,9 @@
   "options": {},
   "attributes": {
     "slug": {
-      "type": "string",
+      "type": "customField",
+      "customField": "global::related-article-slug",
       "required": true,
-      "regex": "^/blog/[A-Za-z0-9._~-]+/?$",
       "description": "The blog post path, starting with /blog/ and ending with a slash (e.g. /blog/my-post/). A path from another section (e.g. /grant/...) or a slug with no /blog/ prefix is rejected."
     }
   },

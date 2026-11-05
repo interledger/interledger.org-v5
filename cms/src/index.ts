@@ -29,6 +29,7 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
+  RELATED_ARTICLE_SLUG_FIELD_NAME,
   validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
@@ -2381,9 +2382,23 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi } */) {
+  register({
+    strapi
+  }: {
+    strapi: {
+      customFields: {
+        register: (field: { name: string; type: 'string' }) => void
+      }
+    }
+  }) {
     // Copy schema JSON files after TypeScript compilation
     copySchemas()
+    // Before Strapi swaps custom fields for their stored type. The admin
+    // input then explains a bad value instead of the shared regex error.
+    strapi.customFields.register({
+      name: RELATED_ARTICLE_SLUG_FIELD_NAME,
+      type: 'string'
+    })
   },
 
   /**
