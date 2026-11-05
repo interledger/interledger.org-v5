@@ -2,6 +2,8 @@
 /**
  * Summit pages use the foundation page chrome, with the summit nav and
  * `Interledger Summit` in the document title.
+ *
+ * The page is light, like foundation. Hackathon is the dark site.
  */
 import { useTranslations } from '@/utils'
 import BaseLayout from './BaseLayout.astro'
@@ -47,14 +49,14 @@ Astro.locals.site = 'summit'
   description={description}
   ogImageUrl={ogImageUrl}
   canonicalURL={canonicalURL}
-  theme="dark"
+  theme="light"
   bodyClass="flex flex-col min-h-full min-w-[360px] overflow-x-clip"
   noindex={noindex}
 >
   <Fragment slot="head">
     {heroLcpPreload && <HeroImagePreload config={heroLcpPreload} />}
   </Fragment>
-  <FoundationHeader slot="header" site="summit" theme="dark" />
+  <FoundationHeader slot="header" site="summit" theme="light" />
   <TableScrollSupport />
   <slot />
   <SiteFooter site="summit" slot="footer" />
