@@ -51,6 +51,8 @@ export type GrantReportType = 'Interim Report' | 'Final Report'
 // five long-text fields are Markdown: Airtable returns rich text that way.
 export interface GrantReport {
   id: string
+  // Projects record ID: the same ID as the grant's record in grantee-data.json.
+  grantId: string
   projectName: string
   reportType: GrantReportType
   reportNumber: number

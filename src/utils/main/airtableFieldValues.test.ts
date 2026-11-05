@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatProblems,
+  isRecordId,
   partitionRecordResults,
   recordProblemsError
 } from './airtableFieldValues'
@@ -33,5 +34,24 @@ describe('recordProblemsError', () => {
     ).toBe(
       '2 record(s) cannot be published:\nRecord A:\n  - x\n  - y\nRecord B:\n  - z'
     )
+  })
+})
+
+describe('isRecordId', () => {
+  it('accepts an Airtable record ID', () => {
+    expect(isRecordId('recUSF6jZiBVoqG01')).toBe(true)
+  })
+
+  it('rejects other values', () => {
+    for (const value of [
+      'Gib',
+      'rec123',
+      'recUSF6jZiBVoqG01x',
+      'fldUSF6jZiBVoqG01',
+      1,
+      null
+    ]) {
+      expect(isRecordId(value)).toBe(false)
+    }
   })
 })

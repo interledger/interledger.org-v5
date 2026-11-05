@@ -28,6 +28,13 @@ export function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((item) => typeof item === 'string')
 }
 
+const RECORD_ID_PATTERN = /^rec[A-Za-z0-9]{14}$/
+
+// An Airtable record ID, as a link or a lookup of a link returns it.
+export function isRecordId(value: unknown): value is string {
+  return typeof value === 'string' && RECORD_ID_PATTERN.test(value)
+}
+
 // Trimmed text, or undefined for a non-string or a blank one.
 export function nonBlankString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined

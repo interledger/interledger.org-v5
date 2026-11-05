@@ -8,6 +8,7 @@ import type {
 import {
   describeValue,
   formatProblems,
+  isRecordId,
   isStringArray,
   nonBlankString,
   partitionRecordResults,
@@ -53,7 +54,6 @@ type ProfileFieldKey = keyof typeof PROFILE_FIELDS
 // The slug becomes a URL segment, so only lowercase ASCII words joined by
 // single hyphens. Ayden noted that some slugs may still carry accents.
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-const RECORD_ID_PATTERN = /^rec[A-Za-z0-9]{14}$/
 const URL_PROTOCOLS = new Set(['http:', 'https:'])
 
 function isHttpUrl(value: string): boolean {
@@ -130,10 +130,7 @@ function createFieldReader(fields: Record<string, unknown>) {
     recordIds(key: ProfileFieldKey): string[] {
       const value = raw(key)
       if (value === undefined) return []
-      return Array.isArray(value) &&
-        value.every(
-          (id) => typeof id === 'string' && RECORD_ID_PATTERN.test(id)
-        )
+      return Array.isArray(value) && value.every(isRecordId)
         ? value
         : fail(key, 'linked record IDs', [])
     },
