@@ -27,7 +27,7 @@ import {
   toProfileData,
   getGatedCollection,
   blockIntroA11y,
-  resolveBlockIntro
+  normalizeBlockIntro
 } from '@/utils'
 import { resolveKnownProfilePathSlug } from '@/utils/main/profileGridColors'
 
@@ -43,8 +43,6 @@ interface Props {
   intro?: BlockIntroData | null
   profiles?: ProfileData[]
   pathSlugs?: string[]
-  /** @deprecated Legacy heading, rendered as the intro heading. */
-  heading?: string
   category?: string
 }
 
@@ -52,10 +50,9 @@ const {
   intro: introProp,
   profiles: propProfiles,
   pathSlugs,
-  heading,
   category
 } = Astro.props
-const intro = resolveBlockIntro(introProp, heading)
+const intro = normalizeBlockIntro(introProp)
 const { routeLocale, profileEntries: preloadedProfileEntries } = Astro.locals
 const t = useTranslations(routeLocale)
 const { headingId, ariaLabel } = blockIntroA11y(

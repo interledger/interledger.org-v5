@@ -3,8 +3,7 @@ import type { BlockIntroData } from '../../types/blockIntro'
 import {
   blockIntroA11y,
   blockIntroLabel,
-  normalizeBlockIntro,
-  resolveBlockIntro
+  normalizeBlockIntro
 } from './blockIntro'
 
 describe('normalizeBlockIntro', () => {
@@ -80,30 +79,6 @@ describe('normalizeBlockIntro', () => {
     expect(
       normalizeBlockIntro('Heading' as unknown as BlockIntroData)
     ).toBeNull()
-  })
-})
-
-describe('resolveBlockIntro', () => {
-  it('prefers an intro with content over the legacy heading', () => {
-    expect(resolveBlockIntro({ subheading: 'Sub' }, 'Old')).toEqual({
-      heading: null,
-      subheading: 'Sub',
-      description: null
-    })
-  })
-
-  it('falls back to the legacy heading', () => {
-    expect(resolveBlockIntro({ heading: ' ' }, ' Old ')).toEqual({
-      heading: 'Old',
-      subheading: null,
-      description: null
-    })
-    expect(resolveBlockIntro(undefined, 'Old')?.heading).toBe('Old')
-  })
-
-  it('returns null when neither has content', () => {
-    expect(resolveBlockIntro(null, '')).toBeNull()
-    expect(resolveBlockIntro(undefined, undefined)).toBeNull()
   })
 })
 

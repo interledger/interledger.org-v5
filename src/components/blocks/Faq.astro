@@ -8,7 +8,7 @@
 import {
   blockIntroA11y,
   parseMarkdown,
-  resolveBlockIntro,
+  normalizeBlockIntro,
   useTranslations
 } from '@/utils'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
@@ -24,13 +24,11 @@ interface StrapiFaqItem {
 
 interface Props {
   intro?: BlockIntroData | null
-  /** @deprecated Legacy heading, rendered as the intro heading. */
-  heading?: string
   items?: StrapiFaqItem[]
 }
 
 const { items } = Astro.props
-const intro = resolveBlockIntro(Astro.props.intro, Astro.props.heading)
+const intro = normalizeBlockIntro(Astro.props.intro)
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const { headingId, ariaLabel } = blockIntroA11y(

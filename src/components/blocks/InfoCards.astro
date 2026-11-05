@@ -7,7 +7,7 @@
  * Not the removed `blocks.info-card-grid` dynamic-zone block. DZ / MDX grids
  * use `CardGrid` with `variant="Info"` instead.
  */
-import { blockIntroA11y, resolveBlockIntro, parseMarkdown } from '@/utils'
+import { blockIntroA11y, normalizeBlockIntro, parseMarkdown } from '@/utils'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
 
@@ -25,7 +25,7 @@ interface Props {
 const { heading, cards, umamiContext } = Astro.props
 const { routeLocale } = Astro.locals
 
-const intro = resolveBlockIntro(null, heading)
+const intro = normalizeBlockIntro({ heading })
 const { headingId } = blockIntroA11y(intro, 'info-cards')
 
 const htmlCards = await Promise.all(

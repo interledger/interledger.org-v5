@@ -295,7 +295,6 @@ export {
   blockIntroLabel,
   type BlockIntroA11y,
   normalizeBlockIntro,
-  resolveBlockIntro,
   type NormalizedBlockIntro
 } from './main/blockIntro'
 export {
