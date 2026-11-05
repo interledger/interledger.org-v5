@@ -81,7 +81,7 @@ describe('faq serializer', () => {
     expect(() =>
       serialize({ intro: { heading: 'About us' }, items: [] })
     ).toThrow(SerializerFieldError)
-    expect(() => serialize({ heading: 'About us' })).toThrow(
+    expect(() => serialize({ intro: { heading: 'About us' } })).toThrow(
       SerializerFieldError
     )
   })
