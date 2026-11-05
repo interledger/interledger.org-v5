@@ -4,6 +4,7 @@ import {
   isSameSlug,
   slugVariants,
   toSlashedPath,
+  isRelatedArticleSlug,
   toSlashedSlug,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
@@ -131,6 +132,27 @@ describe('toSlashedSlug', () => {
   // An empty slug is the `required` validator's to report, not `//`.
   it.each(['', '/', '  '])('leaves %j empty', (value) => {
     expect(toSlashedSlug(value)).toBe('')
+  })
+})
+
+describe('isRelatedArticleSlug', () => {
+  it.each(['/blog/my-post/', '/blog/my-post', '/blog/what-is-web3.0/'])(
+    'accepts %j',
+    (value) => {
+      expect(isRelatedArticleSlug(value)).toBe(true)
+    }
+  )
+
+  it.each([
+    'my-post',
+    '/my-post/',
+    '/grant-slug',
+    '/grant/grant-slug/',
+    '/es/blog/my-post/',
+    'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
+    ''
+  ])('rejects %j', (value) => {
+    expect(isRelatedArticleSlug(value)).toBe(false)
   })
 })
 

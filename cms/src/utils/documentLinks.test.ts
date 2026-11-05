@@ -168,13 +168,23 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     })
   })
 
-  // A related-article `slug` is a path segment like `pathSlug`.
+  // `slug` is slashed like pathSlug. The blog validator then requires /blog/.
   it('stores a related-article slug with both slashes', async () => {
     expect(
       await normalize('api::foundation-blog-post.foundation-blog-post', {
         relatedArticles: [{ slug: 'my-post' }, { slug: '/x/' }]
       })
     ).toEqual({ relatedArticles: [{ slug: '/my-post/' }, { slug: '/x/' }] })
+  })
+
+  it('keeps the /blog/ prefix on a related-article slug', async () => {
+    expect(
+      await normalize('api::foundation-blog-post.foundation-blog-post', {
+        relatedArticles: [{ slug: '/blog/my-post' }, { slug: 'blog/other/' }]
+      })
+    ).toEqual({
+      relatedArticles: [{ slug: '/blog/my-post/' }, { slug: '/blog/other/' }]
+    })
   })
 
   it('leaves unrelated fields and non-string values untouched', async () => {

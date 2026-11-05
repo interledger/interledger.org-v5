@@ -112,7 +112,7 @@ const builders: [string, BuildPayload, Record<string, unknown>][] = [
       ...page,
       date: '2026-06-10',
       featureImage: blogFeatureImage,
-      relatedArticles: ['one', 'two', 'three']
+      relatedArticles: ['/blog/one/', '/blog/two/', '/blog/three/']
     }
   ]
 ]
@@ -213,9 +213,9 @@ describe('Strapi → MDX → Strapi — draft', () => {
           locale: 'en',
           categories: [],
           relatedArticles: [
-            { slug: 'one' },
-            { slug: 'two' },
-            { slug: 'three' }
+            { slug: '/blog/one/' },
+            { slug: '/blog/two/' },
+            { slug: '/blog/three/' }
           ],
           localizations: [],
           draft

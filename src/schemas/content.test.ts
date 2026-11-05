@@ -38,7 +38,7 @@ describe('foundationBlogFrontmatterSchema', () => {
       ...base,
       pathSlug: '/a-post/',
       localizes: '/the-original/',
-      relatedArticles: ['/one/', 'two', '/three']
+      relatedArticles: ['/blog/one/', '/two/', 'three']
     })
 
     expect(parsed.pathSlug).toBe('a-post')

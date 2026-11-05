@@ -39,7 +39,8 @@ import {
   getProjectRoot,
   validateLocalImageUrl,
   ctaStripColorPayload,
-  relatedArticleSlugError
+  relatedArticleSlugError,
+  toSlashedSlug
 } from '@/utils'
 import {
   formatCardGridVariantList,
@@ -1151,9 +1152,13 @@ export async function buildBlogPayload(
       )
     }
 
-    // Same split as the feature image: the shared schema only strips slashes,
-    // so a bad related slug is rejected here rather than in the Astro build.
-    const slugErrors = parsed.relatedArticles
+    // The shared schema still parses a bad value so one post cannot fail the
+    // Astro build. Reject it here, against the frontmatter as written, and
+    // store the slashed /blog/{slug}/ form the field requires.
+    const rawRelated = Array.isArray(mdx.frontmatter.relatedArticles)
+      ? mdx.frontmatter.relatedArticles.map((slug) => String(slug))
+      : []
+    const slugErrors = rawRelated
       .map((slug) => relatedArticleSlugError(slug))
       .filter((message) => message !== undefined)
     if (slugErrors.length > 0) throw new Error(slugErrors.join('; '))
@@ -1187,8 +1192,8 @@ export async function buildBlogPayload(
       categoryValue: category
     }))
 
-    const relatedArticles = (parsed.relatedArticles ?? []).map((slug) => ({
-      slug
+    const relatedArticles = rawRelated.map((slug) => ({
+      slug: toSlashedSlug(slug)
     }))
 
     const articleBio = await buildAuthorBiosPayload(

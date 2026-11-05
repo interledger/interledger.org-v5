@@ -82,8 +82,20 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
-  relatedArticles: z.array(bareSlugSchema).length(3),
+  // Exactly 3 related posts. The CMS field stores `/blog/{slug}/` and
+  // rejects anything else (INTORG-1346). This reduces that form to the
+  // pathSlug the page matches, and still accepts a legacy bare slug so one
+  // bad file does not fail the build. Keep the segment in step with
+  // RELATED_ARTICLE_PATH in cms/src/utils/relativeLinks.ts.
+  relatedArticles: z
+    .array(
+      z.string().transform((value) => {
+        const blogPath = /^\/blog\/([A-Za-z0-9._~-]+)\/?$/.exec(value.trim())
+        if (blogPath) return blogPath[1]
+        return value.trim().replace(/^\/+|\/+$/g, '')
+      })
+    )
+    .length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),
