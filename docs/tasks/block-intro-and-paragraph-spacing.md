@@ -173,10 +173,16 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 
 ### Phase 4: Cleanup
 
-- Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
-- Remove the page-stack transitional rules in `utilities/spacing.css` with the `rhythm.css` ones.
-- Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
-- Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
+Scope decision (2026-11-04): remove the legacy fields and their fallbacks, but keep the spacing rules that join self-spaced blocks to everything else. Plain Markdown and some blocks (CodeBlock, Timeline, DonationCards, a Split layout or CTA buttons without an intro) don't own their spacing, so those rules are a permanent bridge, not a transition ([ADR-009](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
+
+**Phase 4 status (2026-11-05).** Done, in two PRs.
+
+- **CMS and sync** (#854): removed card grid, number tiles and event card `title`, faq, carousel and profile grid `heading`, and the split layout `cta`, with their serializer and sync-handler fallbacks, admin labels and layout rows, and the preview populate keys. The Split layout picker hides the button group outside text layouts. Agenda keeps its `heading`: it is the day heading, not a legacy field.
+- **Astro:** the components drop the legacy props and `resolveBlockIntro`. InfoCards normalizes its own `heading` field, and the homepage LogoCarousel keeps its standalone `heading`.
+- **Tokens:** `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`.
+- **Bridge rules:** the comments in `prose/rhythm.css`, `utilities/spacing.css` and `prose/paragraph-block.css` now describe them as permanent. ADR-009 moves to Accepted.
+- **`CLAUDE.md`:** new "Block Intro and Spacing" section.
+- **Kept:** `cms/scripts/migrate-block-intro.ts` stays, so content brought in from an old branch or a hand edit can still be rewritten. The sync no longer reads the legacy attributes, so it ignores them rather than failing.
 
 ### Phase 5: Figma improvements (after Phase 4)
 
