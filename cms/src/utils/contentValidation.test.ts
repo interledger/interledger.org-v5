@@ -1041,16 +1041,20 @@ describe('validateBlogFields', () => {
     expect(
       validateBlogFields({
         featureMedia: { image: 12 },
-        relatedArticles: [{ slug: 'one' }, { slug: 'two' }, { slug: 'three' }]
+        relatedArticles: [
+          { slug: '/blog/one/' },
+          { slug: '/blog/two/' },
+          { slug: '/blog/three/' }
+        ]
       })
     ).toBeUndefined()
   })
 
   describe('feature image', () => {
     const relatedArticles = [
-      { slug: 'one' },
-      { slug: 'two' },
-      { slug: 'three' }
+      { slug: '/blog/one/' },
+      { slug: '/blog/two/' },
+      { slug: '/blog/three/' }
     ]
 
     // The post from #805 was saved with no feature image at all.
@@ -1111,7 +1115,11 @@ describe('validateBlogFields', () => {
 
   it('flags a related article missing a slug with an index-aware path', () => {
     const err = validateBlogFields({
-      relatedArticles: [{ slug: 'valid' }, { slug: '' }, { slug: 'valid-2' }]
+      relatedArticles: [
+        { slug: '/blog/valid/' },
+        { slug: '' },
+        { slug: '/blog/valid-2/' }
+      ]
     })
     expect(err?.message).toBe('Related Articles: Slug is required')
     expect(err?.details.errors[0].path).toEqual([
@@ -1125,25 +1133,30 @@ describe('validateBlogFields', () => {
   it.each([
     [
       '/https://interledger.org/blog/call-papers-program/',
-      '/call-papers-program/'
+      '/blog/call-papers-program/'
     ],
     [
       'https://interledger.org/blog/call-papers-program/',
-      '/call-papers-program/'
+      '/blog/call-papers-program/'
     ],
-    ['/blog/call-papers-program/', '/call-papers-program/'],
-    ['/es/blog/call-papers-program/', '/call-papers-program/'],
+    ['/es/blog/call-papers-program/', '/blog/call-papers-program/'],
+    ['/grant/eoi-call-for-papers-reviewer/', '/blog/my-post/'],
+    ['/eoi-call-for-papers-reviewer/', '/blog/my-post/'],
     [
-      '/https://interledger.org/grant/eoi-call-for-papers-reviewer/',
-      '/my-post/'
+      'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
+      '/blog/my-post/'
     ]
   ])('rejects %s and suggests %s', (slug, suggestion) => {
     const err = validateBlogFields({
       featureMedia: { image: 12 },
-      relatedArticles: [{ slug: 'one' }, { slug }, { slug: 'three' }]
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug },
+        { slug: '/blog/three/' }
+      ]
     })
     expect(err?.message).toBe(
-      `Related Articles: Enter only the post's path after /blog, e.g. ${suggestion}, not "${slug}"`
+      `Related Articles: Enter the blog post path as /blog/{slug}/, e.g. ${suggestion}, not "${slug}"`
     )
     expect(err?.details.errors[0].path).toEqual([
       'relatedArticles',
@@ -1155,7 +1168,11 @@ describe('validateBlogFields', () => {
   it('treats a whitespace-only slug as missing', () => {
     const err = validateBlogFields({
       featureMedia: { image: 12 },
-      relatedArticles: [{ slug: 'one' }, { slug: '  ' }, { slug: 'three' }]
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug: '  ' },
+        { slug: '/blog/three/' }
+      ]
     })
     expect(err?.message).toBe('Related Articles: Slug is required')
   })
@@ -1170,19 +1187,19 @@ describe('validateBlogFields', () => {
       ]
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
-      ['relatedArticles', '0', 'slug'],
+      ['relatedArticles', '1', 'slug'],
       ['relatedArticles', '2', 'slug']
     ])
   })
 
-  it('accepts a slug with or without its slashes', () => {
+  it('accepts a /blog/{slug}/ path with or without its trailing slash', () => {
     expect(
       validateBlogFields({
         featureMedia: { image: 12 },
         relatedArticles: [
-          { slug: '/one/' },
-          { slug: 'two' },
-          { slug: '/what-is-web3.0/' }
+          { slug: '/blog/one/' },
+          { slug: '/blog/two' },
+          { slug: '/blog/what-is-web3.0/' }
         ]
       })
     ).toBeUndefined()
@@ -1192,7 +1209,11 @@ describe('validateBlogFields', () => {
     const err = validateBlogFields({
       featureMedia: { image: 12 },
       articleBio: [{ author: null }],
-      relatedArticles: [{ slug: '' }, { slug: 'two' }, { slug: 'three' }]
+      relatedArticles: [
+        { slug: '' },
+        { slug: '/blog/two/' },
+        { slug: '/blog/three/' }
+      ]
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
       ['articleBio', '0', 'author'],

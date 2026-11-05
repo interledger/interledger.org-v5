@@ -17,7 +17,7 @@ import {
 import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
-import { bareSlug } from './relativeLinks'
+import { isRelatedArticleSlug, toSlashedSlug } from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -799,24 +799,21 @@ function validateBlogFeatureImage(post: BlogFeatureImageFields): FieldError[] {
   ]
 }
 
-/** One segment of the blog pathSlug uid regex. */
-const BLOG_SLUG_SEGMENT = /^[A-Za-z0-9._~-]+$/
-
-function suggestedBlogSlug(value: string): string {
-  const afterBlog = /(?:^|\/)blog\/([^/?#]+)/.exec(value)?.[1]
-  return afterBlog ? `/${afterBlog}/` : '/my-post/'
+function suggestedBlogPath(value: string): string {
+  const afterBlog = /(?:^|\/)blog\/([A-Za-z0-9._~-]+)/.exec(value)?.[1]
+  return afterBlog ? `/blog/${afterBlog}/` : '/blog/my-post/'
 }
 
 /**
- * A related article is matched against the post's pathSlug, so a full URL or
- * a /blog/ path saves fine but the card never shows. Used on publish and by
- * the MDX sync.
+ * A related article must be `/blog/{slug}/`, the post's public path. A bare
+ * slug, a `/grant/...` path, or a pasted URL used to save and then match no
+ * post, so the card never showed (INTORG-1346). Used on publish and by the
+ * MDX sync. The save hook adds a missing trailing slash before this runs.
  */
 export function relatedArticleSlugError(slug: string): string | undefined {
-  const bare = bareSlug(slug)
-  if (!bare) return 'Related Articles: Slug is required'
-  if (BLOG_SLUG_SEGMENT.test(bare)) return undefined
-  return `Related Articles: Enter only the post's path after /blog, e.g. ${suggestedBlogSlug(slug)}, not "${slug}"`
+  if (!toSlashedSlug(slug)) return 'Related Articles: Slug is required'
+  if (isRelatedArticleSlug(slug)) return undefined
+  return `Related Articles: Enter the blog post path as /blog/{slug}/, e.g. ${suggestedBlogPath(slug)}, not "${slug.trim()}"`
 }
 
 /**

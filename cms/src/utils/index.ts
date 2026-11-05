@@ -407,6 +407,8 @@ export {
   slugVariants,
   toSlashedPath,
   toSlashedSlug,
+  RELATED_ARTICLE_PATH,
+  isRelatedArticleSlug,
   mapOutsideMarkdownCode,
   slashInternalMarkdownLinks,
   stripUploadOrigin,

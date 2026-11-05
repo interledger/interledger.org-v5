@@ -91,6 +91,16 @@ export function getBlogThumbnail(
 }
 
 /**
+ * The pathSlug a related-article value points at. `/blog/my-post/` and a
+ * legacy bare `my-post` both match the post stored as `my-post`.
+ */
+function relatedArticleKey(slug: string): string {
+  const bare = slug.trim().replace(/^\/+|\/+$/g, '')
+  const prefixed = /^blog\/([A-Za-z0-9._~-]+)$/.exec(bare)
+  return prefixed?.[1] ?? bare
+}
+
+/**
  * Resolves related-article slugs to posts for display.
  *
  * Prefers the post in `contentLocale`, then falls back to `fallbackLocale`
@@ -108,10 +118,12 @@ export function resolveRelatedPosts(
   contentLocale: Locale,
   fallbackLocale: Locale
 ): FoundationBlogEntry[] {
-  const findBySlug = (slug: string, locale: Locale) =>
-    posts.find(
-      (post) => post.data.pathSlug === slug && post.data.locale === locale
+  const findBySlug = (slug: string, locale: Locale) => {
+    const key = relatedArticleKey(slug)
+    return posts.find(
+      (post) => post.data.pathSlug === key && post.data.locale === locale
     )
+  }
 
   return (slugs ?? [])
     .map(

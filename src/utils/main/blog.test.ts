@@ -212,6 +212,21 @@ describe('resolveRelatedPosts', () => {
     expect(result.map((p) => p.data.pathSlug)).toEqual(['real'])
   })
 
+  it('matches a /blog/{slug}/ value to the post pathSlug', () => {
+    const posts = [
+      makePost({ slug: 'my-post', date: '2025-01-01', locale: 'en' })
+    ]
+
+    const result = resolveRelatedPosts(
+      posts,
+      ['/blog/my-post/', 'my-post'],
+      'en',
+      'en'
+    )
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['my-post', 'my-post'])
+  })
+
   it('preserves the order of the requested slugs', () => {
     const posts = [
       makePost({ slug: 'a', date: '2025-01-01', locale: 'en' }),

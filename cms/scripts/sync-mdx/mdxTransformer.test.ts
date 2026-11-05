@@ -3358,7 +3358,7 @@ describe('buildBlogPayload', () => {
     date: '2026-06-10',
     locale: 'en',
     featureImage: baseFeatureImage,
-    relatedArticles: ['one', 'two', 'three']
+    relatedArticles: ['/blog/one/', '/blog/two/', '/blog/three/']
   }
   const blogFrontmatterWithoutFeatureImage: Record<string, unknown> = {
     ...baseBlogFrontmatter
@@ -3381,20 +3381,24 @@ describe('buildBlogPayload', () => {
         createBlogUploadContext().strapiUploadContext
       )
 
-    it('stores slashed slugs bare', async () => {
-      const payload = await payloadFor(['/one/', 'two', '/what-is-web3.0/'])
+    it('stores the /blog/{slug}/ path, adding a missing trailing slash', async () => {
+      const payload = await payloadFor([
+        '/blog/one/',
+        '/blog/two',
+        '/blog/what-is-web3.0/'
+      ])
 
       expect((payload as Record<string, unknown>).relatedArticles).toEqual([
-        { slug: 'one' },
-        { slug: 'two' },
-        { slug: 'what-is-web3.0' }
+        { slug: '/blog/one/' },
+        { slug: '/blog/two/' },
+        { slug: '/blog/what-is-web3.0/' }
       ])
     })
 
-    // INTORG-1346: these parse as slugs but match no post.
-    it('rejects a /blog/ path and a pasted URL, naming both', async () => {
+    // INTORG-1346: a bare slug or another section saves and then matches no post.
+    it('rejects a bare slug, a grant path, and a pasted URL', async () => {
       const payload = await payloadFor([
-        '/blog/call-papers-program/',
+        '/grant/eoi-call-for-papers-reviewer/',
         'two',
         '/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/'
       ])
@@ -3402,21 +3406,33 @@ describe('buildBlogPayload', () => {
       expect(payload).toBeInstanceOf(Error)
       expect((payload as Error).message).toBe(
         [
-          `Related Articles: Enter only the post's path after /blog, e.g. /call-papers-program/, not "blog/call-papers-program"`,
-          `Related Articles: Enter only the post's path after /blog, e.g. /taxes-on-digital-financial-services-in-africa/, not "https://interledger.org/blog/taxes-on-digital-financial-services-in-africa"`
+          'Related Articles: Enter the blog post path as /blog/{slug}/, e.g. /blog/my-post/, not "/grant/eoi-call-for-papers-reviewer/"',
+          'Related Articles: Enter the blog post path as /blog/{slug}/, e.g. /blog/my-post/, not "two"',
+          'Related Articles: Enter the blog post path as /blog/{slug}/, e.g. /blog/taxes-on-digital-financial-services-in-africa/, not "/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/"'
         ].join('; ')
       )
     })
 
     // Same split as featureImage: the build skips the card, the sync rejects.
     it('leaves a bad related slug parseable by the shared schema', () => {
-      expect(
-        foundationBlogFrontmatterSchema.safeParse({
-          ...baseBlogFrontmatter,
-          pathSlug: 'test-post',
-          relatedArticles: ['/blog/one/', 'two', 'three']
-        }).success
-      ).toBe(true)
+      const parsed = foundationBlogFrontmatterSchema.safeParse({
+        ...baseBlogFrontmatter,
+        pathSlug: 'test-post',
+        relatedArticles: [
+          '/grant/eoi-call-for-papers-reviewer/',
+          '/grant-slug',
+          '/blog/one/'
+        ]
+      })
+
+      expect(parsed.success).toBe(true)
+      if (parsed.success) {
+        expect(parsed.data.relatedArticles).toEqual([
+          'grant/eoi-call-for-papers-reviewer',
+          'grant-slug',
+          'one'
+        ])
+      }
     })
   })
 
