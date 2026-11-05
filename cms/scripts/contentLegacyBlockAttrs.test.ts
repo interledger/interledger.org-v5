@@ -5,6 +5,12 @@ import { findLegacyBlockAttrs } from './migrateBlockIntro'
 
 const CONTENT_DIR = path.resolve(__dirname, '../../src/content')
 
+/**
+ * Parsing every MDX file takes about 3s locally with coverage on and 11s on a
+ * CI runner, past vitest's 5s default.
+ */
+const SCAN_TIMEOUT_MS = 60_000
+
 /** Starlight docs and UI strings hold no Strapi blocks. */
 const SKIPPED_COLLECTIONS = new Set(['docs', 'i18n'])
 
@@ -37,7 +43,11 @@ describe('content legacy block attributes', () => {
     expect(listMdxFiles().length).toBeGreaterThan(0)
   })
 
-  it('leaves no legacy heading or split layout cta attribute', () => {
-    expect(listMdxFiles().flatMap(describeLegacyBlockAttrs)).toEqual([])
-  })
+  it(
+    'leaves no legacy heading or split layout cta attribute',
+    () => {
+      expect(listMdxFiles().flatMap(describeLegacyBlockAttrs)).toEqual([])
+    },
+    SCAN_TIMEOUT_MS
+  )
 })
