@@ -347,13 +347,14 @@ async function reportTypeCoverage(tables) {
   if (!submitted) return
   const field = (name) => submitted.fields.find((f) => f.name === name)
   const projectsField = field('Projects')
-  const typeField = field('Report Type')
-  const numberField = field('Report Number')
-  console.log(`Report Type: ${typeField?.type ?? 'missing'}, choices: ${typeField?.options?.choices?.map((c) => c.name).join(', ') ?? 'n/a'}`)
-  console.log(`Report Number: ${numberField?.type ?? 'missing'}`)
+  const typeField = field('Report type')
+  const statusField = field('Review Status')
+  const numberField = field('Report Num')
+  console.log(`Report type: ${typeField?.type ?? 'missing'}, choices: ${typeField?.options?.choices?.map((c) => c.name).join(', ') ?? 'n/a'}`)
+  console.log(`Report Num: ${numberField?.type ?? 'missing'}`)
   if (!projectsField || !typeField) return
   const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
-  for (const f of [projectsField, typeField, numberField].filter(Boolean)) params.append('fields[]', f.id)
+  for (const f of [projectsField, typeField, numberField, statusField].filter(Boolean)) params.append('fields[]', f.id)
   const records = await fetchAll(submitted.id, params)
   const pairs = new Map()
   const numbers = {}
@@ -365,7 +366,9 @@ async function reportTypeCoverage(tables) {
     const key = `${typeName ?? 'none'} #${number ?? 'none'}`
     numbers[key] = (numbers[key] ?? 0) + 1
     if (!project || !typeName) continue
-    const pair = `${project}|${typeName}`
+    const status = statusField ? record.fields[statusField.id] : undefined
+    const statusName = typeof status === 'object' && status !== null ? status.name : status
+    const pair = `${project}|${typeName}|${statusName === 'Legacy Report' ? 'legacy' : 'new'}`
     pairs.set(pair, (pairs.get(pair) ?? 0) + 1)
   }
   console.log(`records: ${records.length}`)
@@ -373,7 +376,7 @@ async function reportTypeCoverage(tables) {
   const repeated = {}
   for (const [pair, count] of pairs) {
     if (count < 2) continue
-    const type = pair.split('|')[1]
+    const type = pair.split('|').slice(1).join(' ')
     repeated[type] = (repeated[type] ?? 0) + 1
   }
   console.log(`projects with 2+ reports of one type: ${JSON.stringify(repeated)}`)
