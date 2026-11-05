@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useForm } from '@strapi/admin/strapi-admin'
 import type { LayoutType } from './layoutTypeLabels'
 import { LAYOUTS } from './layoutIcons'
@@ -181,12 +181,50 @@ function layoutVisibility(layoutType: string) {
   }
 }
 
+/**
+ * `buttons` is a repeatable component: with no entries it renders no named
+ * input, so it is found by its label, "Buttons (n)" (the label set for
+ * blocks.split-layout in cms/src/index.ts, plus Strapi's entry count). Walking
+ * up from the picker, the first ancestor holding such a label is this block,
+ * so a second Split layout or a CTA buttons block on the page is never matched.
+ */
+const BUTTONS_LABEL = /^Buttons \(\d+\)/
+
+function findButtonsLabel(root: HTMLElement): HTMLElement | null {
+  return (
+    Array.from(root.querySelectorAll<HTMLElement>('label')).find((label) =>
+      BUTTONS_LABEL.test(normalizeFieldText(label.textContent ?? ''))
+    ) ?? null
+  )
+}
+
+/** The buttons field's row: its highest ancestor that does not hold the picker. */
+function findButtonsContainer(picker: HTMLElement): HTMLElement | null {
+  let scope: HTMLElement | null = picker.parentElement
+  let label: HTMLElement | null = null
+  while (scope && !label) {
+    label = findButtonsLabel(scope)
+    if (!label) scope = scope.parentElement
+  }
+  if (!label) return null
+
+  let node: HTMLElement = label
+  while (node.parentElement && !node.parentElement.contains(picker)) {
+    node = node.parentElement
+  }
+  return node
+}
+
 function setFieldVisibility(prefix: string, key: FieldKey, visible: boolean) {
   const item = findFieldContainer(prefix, key)
   if (item) item.style.display = visible ? '' : 'none'
 }
 
-function applyFieldVisibility(prefix: string, layoutType: string) {
+function applyFieldVisibility(
+  prefix: string,
+  layoutType: string,
+  picker: HTMLElement | null
+) {
   const { showImage, showVideo, showText, showQuote } =
     layoutVisibility(layoutType)
 
@@ -209,6 +247,10 @@ function applyFieldVisibility(prefix: string, layoutType: string) {
   )
   const contentRow = contentHint?.parentElement as HTMLElement | undefined
   if (contentRow) contentRow.style.display = showText ? '' : 'none'
+
+  // Buttons, like content, only render in text layouts (SplitLayout.astro).
+  const buttonsRow = picker ? findButtonsContainer(picker) : null
+  if (buttonsRow) buttonsRow.style.display = showText ? '' : 'none'
 }
 
 // The picker only hides fields for the non-selected variant — it never clears
@@ -248,6 +290,7 @@ export default function SplitLayoutTypePicker({
   hint
 }: InputProps) {
   const prefix = name.replace(/\.layoutType$/, '')
+  const pickerRef = useRef<HTMLDivElement>(null)
   const setFieldValue = useForm(
     'SplitLayoutTypePicker',
     (form) => form.onChange
@@ -257,19 +300,27 @@ export default function SplitLayoutTypePicker({
     onChange({ target: { name, value: newValue, type: 'string' } })
     clearIrrelevantFields(prefix, newValue, setFieldValue)
     // Defer one frame so Strapi's re-render finishes before we query the DOM
-    requestAnimationFrame(() => applyFieldVisibility(prefix, newValue))
+    requestAnimationFrame(() =>
+      applyFieldVisibility(prefix, newValue, pickerRef.current)
+    )
   }
 
   // Re-apply whenever the value changes (including initial load of saved content)
   useEffect(() => {
     if (!value) return
     // Small delay for Strapi's form to finish rendering on load
-    const id = setTimeout(() => applyFieldVisibility(prefix, value), 80)
+    const id = setTimeout(
+      () => applyFieldVisibility(prefix, value, pickerRef.current),
+      80
+    )
     return () => clearTimeout(id)
   }, [value, prefix])
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <div
+      ref={pickerRef}
+      style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+    >
       <div
         style={{
           display: 'grid',
