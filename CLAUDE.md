@@ -500,6 +500,35 @@ is told only when it fails. Nobody reads the log of a run that passes.
 - The site keeps the last good data until a run passes and its pull request is
   merged: the JSON is written only after every part succeeds.
 
+## Block Intro and Spacing
+
+Every content block owns its heading area and its vertical spacing (ADR-009,
+`docs/decisions/009-block-intro-and-block-owned-spacing.md`).
+
+- **One intro per block.** A block's heading, subheading and description come
+  from its `intro` field (`shared.block-intro`), rendered by
+  `src/components/shared/BlockIntro.astro`. Don't add a per-block `title` or
+  `heading` field, and don't render a block's own `<h2>`. Normalize with
+  `normalizeBlockIntro`, and name the `<section>` with `blockIntroA11y`.
+- **The marker.** A block that renders an intro sets `data-intro-variant` on
+  its root. It then owns its top (the intro, or the empty-intro spacer) and its
+  bottom (`--block-pb`), and sits out the prose rhythm. Every `Paragraph` sets
+  it too (`"paragraph"`). Spacing inside the block is padding, never margin,
+  so it never collapses. The tokens (`--intro-*`, `--block-pb`, `--para-*`,
+  `--media-pt`) live in `src/styles/base/variables.css`.
+- **The bridge stays.** Plain Markdown and some blocks (CodeBlock, Timeline,
+  DonationCards, a Split layout or CTA buttons without an intro) don't own
+  their spacing. The bridge rules in `prose/rhythm.css` and
+  `utilities/spacing.css` (`page-stack`) keep 120 on desktop between the two
+  kinds. They are permanent, not a migration leftover.
+- **Adding the intro to a block** touches the schema (`intro`), every
+  `on['blocks.x']` populate in `cms/src/utils/contentPopulate.ts` (without it
+  the intro silently drops out of the export), the serializer
+  (`serializeIntroProp`), the sync handler (`getIntroAttr`), the component,
+  and `SELF_SPACED_BLOCKS` in `src/utils/main/dynamicZoneSpacing.ts`, the
+  preview's copy of the marker. `selfSpacedBlocks.test.ts` fails when that
+  set and the components drift.
+
 ## Git
 
 - Use Conventional Commits: `type(scope): description` (e.g., `feat(blog): add search filtering to index`, `fix(api): handle empty Strapi response`)
