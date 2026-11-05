@@ -618,8 +618,9 @@ function evaluateStaticLiteral(
 }
 
 /**
- * Extract a prop whose value is a static JS literal expression — strings,
- * numbers, booleans, null, and arrays/objects nesting those.
+ * Extract a prop whose value is a static literal. A quoted attribute
+ * (`heading="Wednesday"`) is a string. An expression (`heading={"Wednesday"}`,
+ * `items={[...]}`) may be a string, number, boolean, null, array, or object.
  *
  * @example
  * ```ts
@@ -651,6 +652,10 @@ export function getStaticLiteralAttr(
     }
     return undefined
   }
+
+  // <Agenda heading="Wednesday, November 5" /> — a quoted attribute is a
+  // static string, the same value as heading={"Wednesday, November 5"}.
+  if (typeof attr.value === 'string') return attr.value
 
   if (
     !attr.value ||

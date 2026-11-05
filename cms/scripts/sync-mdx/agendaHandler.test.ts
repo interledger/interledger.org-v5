@@ -31,6 +31,21 @@ describe('Agenda handler', () => {
     ])
   })
 
+  it('accepts a quoted heading as a static string', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<Agenda heading="Wednesday, November 5" items={${JSON.stringify(items)}} />`,
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.agenda',
+        heading: 'Wednesday, November 5',
+        items
+      }
+    ])
+  })
+
   it('supports an agenda without a heading', async () => {
     const blocks = await parseMdxToBlocks(serialize({ items }), {
       locale: 'en'
