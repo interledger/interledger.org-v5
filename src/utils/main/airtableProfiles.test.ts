@@ -56,6 +56,7 @@ describe('toGranteeProfile', () => {
         description: null,
         country: null,
         website: null,
+        socialWeb: null,
         twitter: null,
         linkedIn: null,
         bluesky: null,
@@ -76,6 +77,7 @@ describe('toGranteeProfile', () => {
           [F.formerlyKnownAs.id]: 'Old Name\n',
           [F.country.id]: 'Kenya',
           [F.website.id]: ' https://gib.example ',
+          [F.socialWeb.id]: 'https://mastodon.social/@gib',
           [F.bluesky.id]: 'https://bsky.app/profile/gib',
           [F.thematicTags.id]: 'Women-led, Payments, Women-led'
         })
@@ -84,6 +86,7 @@ describe('toGranteeProfile', () => {
     expect(content.formerlyKnownAs).toBe('Old Name')
     expect(content.country).toBe('Kenya')
     expect(content.website).toBe('https://gib.example')
+    expect(content.socialWeb).toBe('https://mastodon.social/@gib')
     expect(content.bluesky).toBe('https://bsky.app/profile/gib')
     expect(content.thematicTags).toEqual(['Payments', 'Women-led'])
   })
