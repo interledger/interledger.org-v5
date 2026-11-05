@@ -508,6 +508,7 @@ Please **only use the existing, approved categories** unless you have aligned wi
 
 **Current categories:**
 
+- Community
 - Engineering
 - Grantmaking
 - Interledger Technology

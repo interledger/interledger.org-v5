@@ -1767,6 +1767,7 @@ export interface SharedCategory extends Struct.ComponentSchema {
   attributes: {
     categoryValue: Schema.Attribute.Enumeration<
       [
+        'Community',
         'Engineering',
         'Grantmaking',
         'Interledger Technology',
