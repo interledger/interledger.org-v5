@@ -9,7 +9,7 @@ describe('getPreviewBlockGapClass', () => {
     expect(getPreviewBlockGapClass('blocks.code-block', null)).toBeNull()
   })
 
-  it('separates two legacy blocks by the section gap', () => {
+  it('separates two blocks that do not own their spacing by the section gap', () => {
     expect(
       getPreviewBlockGapClass('blocks.code-block', 'blocks.callout-text')
     ).toBe('mt-section')
@@ -41,7 +41,7 @@ describe('getPreviewBlockGapClass', () => {
 
   // In the preview a CTA is the last child of its wrapper, so its own
   // `[&:last-child]:mb-0` already drops its bottom margin.
-  it('treats a CTA before a self-spaced block like any legacy block', () => {
+  it('treats a CTA before a self-spaced block like any other block', () => {
     expect(
       getPreviewBlockGapClass('blocks.faq', 'blocks.cta-buttons', SELF_SPACED)
     ).toBe('mt-(--block-pb)')
