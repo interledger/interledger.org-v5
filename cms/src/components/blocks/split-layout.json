@@ -73,6 +73,15 @@
         }
       }
     },
+    "videoTitle": {
+      "type": "string",
+      "description": "Accessible name for the video player. Independent of the poster image alt, so a video with no poster still has a title.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "content": {
       "type": "customField",
       "customField": "plugin::ckeditor5.CKEditor",

@@ -107,6 +107,75 @@ describe('split-layout serializer', () => {
     expect(result).toContain('videoUrl="https://www.youtube.com/watch?v=abc"')
     expect(result).toContain('imageSrc="/uploads/talk_poster.jpg"')
     expect(result).toContain('imageAlt="Talk still"')
+    expect(result).not.toContain('videoTitle=')
+  })
+
+  it('serializes a posterless video title without an image alt', () => {
+    const result = serialize({
+      layoutType: 'video-text',
+      displayRatio: '1:1',
+      videoUrl: 'https://youtu.be/G0GSrKTekdA',
+      videoTitle: 'Thank you for being part of Summit 2023',
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain(
+      'videoTitle="Thank you for being part of Summit 2023"'
+    )
+    expect(result).toContain('videoUrl="https://youtu.be/G0GSrKTekdA"')
+    expect(result).not.toContain('imageAlt=')
+    expect(result).not.toContain('imageSrc=')
+  })
+
+  it('keeps a video title distinct from the poster alt', () => {
+    const result = serialize({
+      layoutType: 'video-text',
+      videoUrl: 'https://youtu.be/4UVw1gQNGp0',
+      videoTitle: 'Future | Money Arts & Culture Grant',
+      media: {
+        image: { url: '/uploads/talk_poster.jpg' },
+        alternativeText: 'Talk still'
+      },
+      content: 'Some body copy.'
+    })
+
+    expect(result).toContain('videoTitle="Future | Money Arts & Culture Grant"')
+    expect(result).toContain('imageAlt="Talk still"')
+    expect(result).toContain('imageSrc="/uploads/talk_poster.jpg"')
+  })
+
+  it('preserves an accented video title', () => {
+    const result = serialize({
+      layoutType: 'video-text',
+      videoUrl: 'https://youtu.be/abc',
+      videoTitle: 'Ponte al día con las charlas 2023',
+      content: 'Body.'
+    })
+
+    expect(result).toContain('videoTitle="Ponte al día con las charlas 2023"')
+  })
+
+  it('omits a blank video title', () => {
+    const result = serialize({
+      layoutType: 'video-text',
+      videoUrl: 'https://youtu.be/abc',
+      videoTitle: '   ',
+      content: 'Body.'
+    })
+
+    expect(result).not.toContain('videoTitle=')
+  })
+
+  it('does not emit a stale video title on an image layout', () => {
+    const result = serialize({
+      layoutType: 'image-text',
+      media: { image: { url: '/uploads/education_grant.jpg' } },
+      videoTitle: 'Stale title',
+      content: 'Some body copy.'
+    })
+
+    expect(result).not.toContain('videoTitle=')
+    expect(result).not.toContain('Stale title')
   })
 
   it('serializes non-default displayRatio so Strapi publishes update MDX', () => {

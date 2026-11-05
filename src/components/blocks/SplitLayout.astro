@@ -55,6 +55,8 @@ interface Props {
   /** Sourced from the SplitLayout block’s per-locale media component (`shared.localized-media.alternativeText`) */
   imageAlt?: string
   videoUrl?: string
+  /** Accessible player name. Independent of the poster alt in `imageAlt`. */
+  videoTitle?: string
   quote?: string
   quoteSource?: string
   ctaText?: string
@@ -109,6 +111,7 @@ const {
   imageSrc: imageSrcProp,
   imageAlt: imageAltProp,
   videoUrl,
+  videoTitle: videoTitleProp,
   quote,
   quoteSource,
   ctaText,
@@ -129,6 +132,9 @@ const imageAlt =
   media?.alternativeText ??
   media?.image?.alternativeText ??
   undefined
+// A posterless video has no media alt. Prefer the stored title, then a
+// poster alt, then the generic label.
+const videoLabel = videoTitleProp?.trim() || imageAlt?.trim() || 'Video'
 const previewBodyHtml =
   !Astro.slots.has('default') && content
     ? await parseMarkdown(content, {
@@ -248,11 +254,7 @@ const imageClass = isDesignRatio
 
     {hasMedia && <div class={mediaColumnClass}>
       {isVideoLayout && videoUrl ? (
-        <VideoEmbed
-          url={videoUrl}
-          title={imageAlt?.trim() || 'Video'}
-          poster={imageSrc}
-        />
+        <VideoEmbed url={videoUrl} title={videoLabel} poster={imageSrc} />
       ) : imageSrc ? (
         <OptimizedImage
           src={imageSrc}
