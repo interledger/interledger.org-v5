@@ -108,9 +108,12 @@ export function resolveRelatedPosts(
   contentLocale: Locale,
   fallbackLocale: Locale
 ): FoundationBlogEntry[] {
+  // Editors enter the EN slug, so a translation also matches on `localizes`.
   const findBySlug = (slug: string, locale: Locale) =>
     posts.find(
-      (post) => post.data.pathSlug === slug && post.data.locale === locale
+      (post) =>
+        post.data.locale === locale &&
+        (post.data.pathSlug === slug || post.data.localizes === slug)
     )
 
   return (slugs ?? [])

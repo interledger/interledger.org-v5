@@ -21,6 +21,7 @@ interface FakePost {
   featureImageBlur?: string
   legacy?: boolean
   locale?: string
+  localizes?: string
 }
 
 // Minimal stand-in for a content collection entry; only the fields the helpers
@@ -38,7 +39,8 @@ function makePost(post: FakePost): Entry {
       featureImageAlt: post.featureImageAlt,
       featureImageBlur: post.featureImageBlur,
       legacy: post.legacy ?? false,
-      locale: post.locale ?? 'en'
+      locale: post.locale ?? 'en',
+      localizes: post.localizes
     }
   } as unknown as Entry
 }
@@ -202,6 +204,22 @@ describe('resolveRelatedPosts', () => {
 
     expect(result).toHaveLength(1)
     expect(result[0].data.locale).toBe('en')
+  })
+
+  it('finds a translation with its own slug by the EN slug it localizes', () => {
+    const posts = [
+      makePost({ slug: 'en-slug', date: '2025-01-01', locale: 'en' }),
+      makePost({
+        slug: 'es-slug',
+        date: '2025-01-01',
+        locale: 'es',
+        localizes: 'en-slug'
+      })
+    ]
+
+    const result = resolveRelatedPosts(posts, ['en-slug'], 'es', 'en')
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['es-slug'])
   })
 
   it('skips slugs that resolve to no post in any locale', () => {
