@@ -123,7 +123,6 @@ export {
   validateHeroFields,
   validatePodcastPageFields,
   validateBlogFields,
-  relatedArticleSlugError,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
   toValidationError,
@@ -131,6 +130,13 @@ export {
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
+export {
+  relatedArticleSlugError,
+  relatedArticleFieldError,
+  visibleRelatedArticleSlugError,
+  RELATED_ARTICLE_SLUG_FIELD_NAME,
+  RELATED_ARTICLE_SLUG_CUSTOM_FIELD
+} from './relatedArticleSlug'
 
 // Section-relative pathSlug uniqueness (cross-section content types)
 export {

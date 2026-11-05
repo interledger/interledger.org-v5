@@ -17,6 +17,7 @@ import {
 import { formatSplitLayoutPanelTitle } from '../plugins/split-layout-type-picker/admin/layoutTypeLabels'
 import { areAdminNoticesDisabled } from '../utils/adminNotice'
 import { NOTICES_ROUTE_ID, decideAdminRouteWrap } from '../utils/adminRoutes'
+import { RELATED_ARTICLE_SLUG_FIELD_NAME } from '../utils/relatedArticleSlug'
 import { resolveWebsiteLink } from '../utils/websiteLink'
 import { AdminNoticesLayout } from './notices/AdminNoticesLayout'
 import { DraftCheckbox } from './DraftCheckbox'
@@ -301,6 +302,23 @@ function wrapRoutesWithNotices(app: StrapiApp): void {
 export default {
   register(app: StrapiApp) {
     strapiApp = app
+    // A string `regex` can only show "The value does not match the regex."
+    // This field tells the editor the value has to be a /blog/ path.
+    app.customFields.register({
+      name: RELATED_ARTICLE_SLUG_FIELD_NAME,
+      type: 'string',
+      intlLabel: {
+        id: 'related-article-slug.label',
+        defaultMessage: 'Related post slug'
+      },
+      intlDescription: {
+        id: 'related-article-slug.description',
+        defaultMessage: 'A blog post path, like /blog/my-post/.'
+      },
+      components: {
+        Input: async () => import('./RelatedArticleSlugInput')
+      }
+    })
     setPluginConfig(myPluginConfig)
 
     const websiteLink = resolveWebsiteLink(adminEnv)
