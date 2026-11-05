@@ -78,7 +78,7 @@ export const buttonVariants = cva(
       // (e.g. HomepageHero's dark band on an otherwise light page, or the
       // side-by-side swatches in the UI preview). `auto` is for components
       // that can't know, such as dynamic-zone blocks rendered on foundation
-      // (light) as well as summit and hackathon (permanently dark). It layers
+      // and summit (light) as well as hackathon (permanently dark). It layers
       // `dark:`-prefixed styles on top of the light ones, following
       // `data-theme` on <html> via the `darkMode` selector in
       // tailwind.config.mjs.
