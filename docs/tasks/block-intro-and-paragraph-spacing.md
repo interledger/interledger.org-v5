@@ -13,7 +13,7 @@ Each phase is one PR into `staging`.
    - `src/types/`: `BlockIntro` and `BlockIntroVariant = 'universal' | 'button-cta' | 'profile-grid' | 'split-layout'`.
    - CMS: a matching input type.
 3. **Tokens** in `src/styles/base/variables.css`, following the `--space-section` `@variant` pattern:
-   - `--intro-top`, `--intro-h2-pt`, `--intro-h3-pt`, `--intro-h2-h3`, `--intro-h3-desc`, `--intro-desc`
+   - `--intro-top`, `--intro-h2-pt`, `--intro-h3-pt`, `--intro-h2-pb`, `--intro-h3-pb`, `--intro-desc-pb`
    - `--block-pb`
    - `--media-pt` ([A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list))
    - variant overrides for Split layout (desktop) and Button CTA, via `[data-intro-variant=…]`
