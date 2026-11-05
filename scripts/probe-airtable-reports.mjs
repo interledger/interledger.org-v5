@@ -280,6 +280,105 @@ async function checkGrantTargets(ids, target, tables) {
   }
 }
 
+async function fetchAll(tableId, params) {
+  const records = []
+  let offset
+  do {
+    if (offset) params.set('offset', offset)
+    const { status, body } = await get(`/${BASE_ID}/${tableId}?${params}`)
+    if (!body) throw new Error(`HTTP ${status} reading ${tableId}`)
+    records.push(...body.records)
+    offset = body.offset
+  } while (offset)
+  return records
+}
+
+// Can the sync stamp a grant year on a report whose project is unpublished?
+// Counts only.
+async function yearCoverage(tables) {
+  const projects = tables.find((t) => t.id === 'tbliw87UgsAYRAexr')
+  const view = projects?.views.find((v) => v.id === 'viwE6kqV1lvcIz2Ms')
+  const yearId = 'fldEZNEXAY5steLCx'
+  const publishedId = 'fldI1myVN2uQs6Lqz'
+  console.log('\n## Year coverage in the directory view')
+  console.log(`Year field: ${projects?.fields.find((f) => f.id === yearId)?.type ?? 'missing'}, visible in view: ${view?.visibleFieldIds?.includes(yearId) ?? 'unknown'}`)
+  const params = new URLSearchParams({ view: 'viwE6kqV1lvcIz2Ms', returnFieldsByFieldId: 'true' })
+  params.append('fields[]', yearId)
+  params.append('fields[]', publishedId)
+  const records = await fetchAll('tbliw87UgsAYRAexr', params)
+  const groups = {}
+  for (const record of records) {
+    const group = record.fields[publishedId] === 'Published on Website' ? 'published' : 'unpublished'
+    const year = record.fields[yearId]
+    groups[group] ??= { rows: 0, withYear: 0, shapes: new Set() }
+    groups[group].rows++
+    if (year !== undefined && year !== '') groups[group].withYear++
+    groups[group].shapes.add(shapeOf(year))
+  }
+  for (const [group, g] of Object.entries(groups)) {
+    console.log(`${group}: ${g.rows} rows, ${g.withYear} with a Year, shapes: ${[...g.shapes].join(' | ')}`)
+  }
+  // Two grants of one grantee in the same year would collide in
+  // /grant/grantees/<slug>/reports/<year>-<type>.
+  const yearOf = new Map(records.map((r) => [r.id, r.fields[yearId]]))
+  const grantees = findTable(tables, TABLES.grantees)
+  if (!grantees) return
+  const grantsParams = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': 'fldc9Wi0mZwZXFeXA' })
+  const granteeRecords = await fetchAll(grantees.id, grantsParams)
+  let collisions = 0
+  let collisionsPublishedOnly = 0
+  let grantsNotInView = 0
+  const publishedIds = new Set(records.filter((r) => r.fields[publishedId] === 'Published on Website').map((r) => r.id))
+  for (const grantee of granteeRecords) {
+    const ids = grantee.fields.fldc9Wi0mZwZXFeXA ?? []
+    grantsNotInView += ids.filter((id) => !yearOf.has(id)).length
+    const years = ids.map((id) => yearOf.get(id)).filter((y) => y !== undefined)
+    if (new Set(years).size < years.length) collisions++
+    const publishedYears = ids.filter((id) => publishedIds.has(id)).map((id) => yearOf.get(id))
+    if (new Set(publishedYears).size < publishedYears.length) collisionsPublishedOnly++
+  }
+  console.log(`grantees: ${granteeRecords.length}, with 2+ grants in one year: ${collisions} (published grants only: ${collisionsPublishedOnly}), grant links not in the view: ${grantsNotInView}`)
+}
+
+// Can one project have two reports of the same type? Counts only.
+async function reportTypeCoverage(tables) {
+  const submitted = findTable(tables, TABLES.submitted)
+  console.log('\n## Report types per project (Submitted Reports)')
+  if (!submitted) return
+  const field = (name) => submitted.fields.find((f) => f.name === name)
+  const projectsField = field('Projects')
+  const typeField = field('Report Type')
+  const numberField = field('Report Number')
+  console.log(`Report Type: ${typeField?.type ?? 'missing'}, choices: ${typeField?.options?.choices?.map((c) => c.name).join(', ') ?? 'n/a'}`)
+  console.log(`Report Number: ${numberField?.type ?? 'missing'}`)
+  if (!projectsField || !typeField) return
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of [projectsField, typeField, numberField].filter(Boolean)) params.append('fields[]', f.id)
+  const records = await fetchAll(submitted.id, params)
+  const pairs = new Map()
+  const numbers = {}
+  for (const record of records) {
+    const project = record.fields[projectsField.id]?.[0]
+    const type = record.fields[typeField.id]
+    const typeName = typeof type === 'object' && type !== null ? type.name : type
+    const number = numberField ? record.fields[numberField.id] : undefined
+    const key = `${typeName ?? 'none'} #${number ?? 'none'}`
+    numbers[key] = (numbers[key] ?? 0) + 1
+    if (!project || !typeName) continue
+    const pair = `${project}|${typeName}`
+    pairs.set(pair, (pairs.get(pair) ?? 0) + 1)
+  }
+  console.log(`records: ${records.length}`)
+  console.log(`type + number counts: ${JSON.stringify(numbers)}`)
+  const repeated = {}
+  for (const [pair, count] of pairs) {
+    if (count < 2) continue
+    const type = pair.split('|')[1]
+    repeated[type] = (repeated[type] ?? 0) + 1
+  }
+  console.log(`projects with 2+ reports of one type: ${JSON.stringify(repeated)}`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -313,6 +412,8 @@ async function main() {
   await countView(published)
   await probeImages(published)
   await grantRecordShape(published, tables)
+  await yearCoverage(tables)
+  await reportTypeCoverage(tables)
 }
 
 main().catch((error) => {
