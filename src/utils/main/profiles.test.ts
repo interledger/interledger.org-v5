@@ -7,7 +7,7 @@ import {
 describe('extractProfileGridPathSlugsFromMdx', () => {
   it('parses multiline pathSlugs arrays', () => {
     const body = `<ProfileGrid
-  heading="Ambassadors"
+  intro={{"heading":"Ambassadors"}}
   pathSlugs={[
     'ambassador1',
     'Tailer',
