@@ -32,8 +32,7 @@ function suggestedBlogPath(value: string): string {
 export function relatedArticleSlugError(slug: string): string | undefined {
   if (!toSlashedSlug(slug)) return 'Related Articles: Slug is required'
   if (isRelatedArticleSlug(slug)) return undefined
-  const entered = slug.trim()
-  return `Related Articles: "${entered}" must be a blog post path, like ${suggestedBlogPath(slug)}.`
+  return `This value should be a blog path, like ${suggestedBlogPath(slug)}.`
 }
 
 /**

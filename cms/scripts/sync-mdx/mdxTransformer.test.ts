@@ -3406,9 +3406,9 @@ describe('buildBlogPayload', () => {
       expect(payload).toBeInstanceOf(Error)
       expect((payload as Error).message).toBe(
         [
-          'Related Articles: "/grant/eoi-call-for-papers-reviewer/" must be a blog post path, like /blog/my-post/.',
-          'Related Articles: "two" must be a blog post path, like /blog/my-post/.',
-          'Related Articles: "/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/" must be a blog post path, like /blog/taxes-on-digital-financial-services-in-africa/.'
+          'This value should be a blog path, like /blog/my-post/.',
+          'This value should be a blog path, like /blog/my-post/.',
+          'This value should be a blog path, like /blog/taxes-on-digital-financial-services-in-africa/.'
         ].join('; ')
       )
     })
