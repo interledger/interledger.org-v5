@@ -1,0 +1,34 @@
+---
+import type { GetStaticPaths } from 'astro'
+import rawGranteeProfiles from '@/data/airtable/grantee-profiles.json'
+import rawGranteeData from '@/data/airtable/grantee-data.json'
+import GranteeProfilePage from '@/components/pages/GranteeProfilePage.astro'
+import type { GranteeProfile } from '@/types/airtable'
+import {
+  getGranteeListingData,
+  getGranteeProfilePaths,
+  getProfileGrants,
+  hideGranteeProfiles
+} from '@/utils'
+
+interface Props {
+  profile: GranteeProfile
+}
+
+// No paths in production until the feature is released (INTORG-1312).
+export const getStaticPaths = (() => {
+  const paths = getGranteeProfilePaths(
+    rawGranteeProfiles,
+    hideGranteeProfiles()
+  )
+  if (paths instanceof Error) throw paths
+  return paths
+}) satisfies GetStaticPaths
+
+const { profile } = Astro.props
+const listing = getGranteeListingData(rawGranteeData, 'en')
+if (listing instanceof Error) throw listing
+const grants = getProfileGrants(profile, listing.grantees)
+---
+
+<GranteeProfilePage profile={profile} grants={grants} />

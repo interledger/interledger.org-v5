@@ -66,11 +66,13 @@ export {
   HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   GRANT_GRANTEE_DIRECTORY_SLUG,
+  GRANT_GRANTEES_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
+  grantGranteeProfilePath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'
@@ -157,17 +159,19 @@ export {
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 
-// Main site: Publish gate (future-dated and draft content is hidden on production only)
+// Main site: Publish gate (future-dated and draft content, and unreleased features, are hidden on production only)
 export {
   hideDrafts,
   hideFuturePosts,
+  hideGranteeProfiles,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
-  shouldHideFuturePosts
+  shouldHideFuturePosts,
+  shouldHideGranteeProfiles
 } from './main/publishGate'
 
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
@@ -205,6 +209,12 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+export {
+  getGranteeProfilePaths,
+  getProfileGrants,
+  parseGranteeProfiles,
+  type GranteeProfilePath
+} from './main/granteeProfiles'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
@@ -245,7 +255,9 @@ export {
 export {
   GRANTEE_TYPES,
   PROFILE_FIELDS,
+  SLUG_PATTERN,
   findHiddenProfileFields,
+  isHttpUrl,
   profileFieldIdsToFetch,
   splitThematicTags,
   toGranteeProfile,
