@@ -508,17 +508,21 @@ Every content block owns its heading area and its vertical spacing (ADR-009,
 - **One intro per block.** A block's heading, subheading and description come
   from its `intro` field (`shared.block-intro`), rendered by
   `src/components/shared/BlockIntro.astro`. Don't add a per-block `title` or
-  `heading` field, and don't render a block's own `<h2>`. Normalize with
-  `normalizeBlockIntro`, and name the `<section>` with `blockIntroA11y`.
+  `heading` field for the block's title, and don't render its own `<h2>` for
+  it. Normalize with `normalizeBlockIntro`, and name the `<section>` with
+  `blockIntroA11y`. Intended exceptions: the CTA strip title (inside the
+  strip, ADR D6), the Agenda day heading, the grant InfoCards `heading`, and
+  the homepage's standalone LogoCarousel.
 - **The marker.** A block that renders an intro sets `data-intro-variant` on
   its root. It then owns its top (the intro, or the empty-intro spacer) and its
   bottom (`--block-pb`), and sits out the prose rhythm. Every `Paragraph` sets
   it too (`"paragraph"`). Spacing inside the block is padding, never margin,
   so it never collapses. The tokens (`--intro-*`, `--block-pb`, `--para-*`,
   `--media-pt`) live in `src/styles/base/variables.css`.
-- **The bridge stays.** Plain Markdown and some blocks (CodeBlock, Timeline,
-  DonationCards, a Split layout or CTA buttons without an intro) don't own
-  their spacing. The bridge rules in `prose/rhythm.css` and
+- **The bridge stays.** Plain Markdown and the blocks without the marker
+  (such as CodeBlock, CalloutText, Timeline, DonationCards, CTA buttons
+  without an intro, or a Split layout in an older ratio without one) don't
+  own their spacing. The bridge rules in `prose/rhythm.css` and
   `utilities/spacing.css` (`page-stack`) keep 120 on desktop between the two
   kinds. They are permanent, not a migration leftover.
 - **Adding the intro to a block** touches the schema (`intro`), every

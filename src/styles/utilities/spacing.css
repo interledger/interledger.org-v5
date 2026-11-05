@@ -116,8 +116,8 @@
    * default spacer (`[data-intro-spacer]`) is the whole gap. The block is
    * the section's own, or the first in its prose; the intro is the block's
    * child, or one level down where the block puts it in a column
-   * (SplitLayout). A Paragraph block takes the rule below; a legacy first
-   * block keeps the stack gap.
+   * (GrantFaqSection). A Paragraph block takes the rule below; a first block
+   * that doesn't own its spacing keeps the stack gap.
    * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &

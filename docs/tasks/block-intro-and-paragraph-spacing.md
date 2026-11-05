@@ -173,7 +173,7 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 
 ### Phase 4: Cleanup
 
-Scope decision (2026-11-04): remove the legacy fields and their fallbacks, but keep the spacing rules that join self-spaced blocks to everything else. Plain Markdown and some blocks (CodeBlock, Timeline, DonationCards, a Split layout or CTA buttons without an intro) don't own their spacing, so those rules are a permanent bridge, not a transition ([ADR-009](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
+Scope decision (2026-11-04): remove the legacy fields and their fallbacks, but keep the spacing rules that join self-spaced blocks to everything else. Plain Markdown and the blocks without the marker (such as CodeBlock, CalloutText, Timeline, DonationCards, CTA buttons without an intro, or a Split layout in an older ratio without one) don't own their spacing, so those rules are a permanent bridge, not a transition ([ADR-009](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
 
 **Phase 4 status (2026-11-05).** Done, in two PRs.
 
