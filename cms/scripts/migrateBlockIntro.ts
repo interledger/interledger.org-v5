@@ -131,7 +131,7 @@ function afterTagName(node: MdxJsxFlowElement): number | null {
  */
 function isStandaloneCarousel(node: MdxJsxFlowElement): boolean {
   return (
-    node.name === 'LogoCarousel' && findAttr(node, 'standalone') !== undefined
+    node.name === 'LogoCarousel' && isTrueAttr(findAttr(node, 'standalone'))
   )
 }
 

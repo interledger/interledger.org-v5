@@ -247,6 +247,15 @@ describe('migrateBlockIntro: fake intros', () => {
 })
 
 describe('migrateBlockIntro: standalone carousel', () => {
+  it('migrates the heading of a carousel set to standalone={false}', () => {
+    const source =
+      '<LogoCarousel standalone={false} heading="Partners" logos={[]} />\n'
+    expect(migrate(source).source).toContain('intro={{"heading":"Partners"}}')
+    expect(legacyAttrs(source)).toEqual([
+      { line: 1, block: 'LogoCarousel', attr: 'heading' }
+    ])
+  })
+
   it('keeps the heading of a standalone LogoCarousel', () => {
     const source = '<LogoCarousel standalone heading="Partners" logos={[]} />\n'
     expect(migrate(source).source).toBeNull()
