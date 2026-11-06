@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { relatedArticlePathSlug } from '../utils/shared/relatedArticlePathSlug'
+import { relatedArticlePathSlug } from './relatedArticlePathSlug'
 
 const heroCtaSchema = z.object({
   text: z.string(),

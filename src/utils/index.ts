@@ -24,7 +24,6 @@ export {
   FALLBACK_SOCIAL_ICON,
   type SocialIconName
 } from './shared/url'
-export { relatedArticlePathSlug } from './shared/relatedArticlePathSlug'
 export { tryCatchAsync } from './shared/tryCatch'
 export { collectResults } from './shared/collectResults'
 export { foldSearchText } from './shared/foldSearchText'
