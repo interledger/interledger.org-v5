@@ -135,7 +135,7 @@ describe('toSlashedSlug', () => {
   })
 })
 
-// Same inputs as src/utils/shared/relatedArticlePathSlug.test.ts.
+// Same inputs as src/schemas/relatedArticlePathSlug.test.ts.
 // This side only says whether the value is a /blog/{slug}/ path.
 describe('related article segment', () => {
   it.each([

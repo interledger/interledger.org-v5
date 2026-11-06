@@ -1,6 +1,6 @@
 import type { CollectionEntry } from 'astro:content'
 import type { BlogThumbnail } from '@/types/blog'
-import { relatedArticlePathSlug } from '../shared/relatedArticlePathSlug'
+import { relatedArticlePathSlug } from '../../schemas/relatedArticlePathSlug'
 import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
