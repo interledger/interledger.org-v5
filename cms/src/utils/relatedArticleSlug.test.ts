@@ -24,9 +24,7 @@ describe('relatedArticleSlugError', () => {
   it('names the blog path a grant URL has to match', () => {
     expect(
       relatedArticleSlugError('/grant/eoi-call-for-papers-reviewer/')
-    ).toBe(
-      'This value should be a blog path, like /blog/my-post/.'
-    )
+    ).toBe('This value should be a blog path, like /blog/my-post/.')
   })
 
   it('keeps the slug from a pasted blog URL', () => {
@@ -34,9 +32,7 @@ describe('relatedArticleSlugError', () => {
       relatedArticleSlugError(
         'https://interledger.org/blog/call-papers-program/'
       )
-    ).toBe(
-      'This value should be a blog path, like /blog/call-papers-program/.'
-    )
+    ).toBe('This value should be a blog path, like /blog/call-papers-program/.')
   })
 
   it('accepts a /blog/ path with or without its trailing slash', () => {
@@ -55,9 +51,7 @@ describe('visibleRelatedArticleSlugError', () => {
   it('replaces the shared regex error once the field has been left', () => {
     expect(
       visibleRelatedArticleSlugError('/grant/foo/', GENERIC_REGEX_ERROR, true)
-    ).toBe(
-      'This value should be a blog path, like /blog/my-post/.'
-    )
+    ).toBe('This value should be a blog path, like /blog/my-post/.')
   })
 
   it('shows the blog-path message after a failed save', () => {
