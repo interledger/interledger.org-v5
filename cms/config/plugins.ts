@@ -16,6 +16,10 @@ export default () => ({
     enabled: true,
     resolve: './src/plugins/card-variant-picker'
   },
+  'related-article-slug': {
+    enabled: true,
+    resolve: './src/plugins/related-article-slug'
+  },
   'record-locking': {
     enabled: true,
     config: {

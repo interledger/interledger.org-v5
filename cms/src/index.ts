@@ -1122,7 +1122,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
       thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
       relatedArticles:
-        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path after /blog (e.g. /my-related-post/), not the full URL.'
+        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path as /blog/{slug}/ (e.g. /blog/my-related-post/). A path from another section or a full URL is rejected. A slug already stored as /my-post/ still saves until sync:mdx rewrites it.'
     },
     'api::faq.faq': {
       title:
@@ -1516,7 +1516,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileBio: 'We recommend a max of 255 characters'
     },
     'shared.related-article': {
-      slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save. On a Spanish post, keep the English slug, without /es/.'
+      slug: 'Add exactly 3. Enter the blog post path, starting with /blog/ and ending with a slash (e.g. /blog/my-related-post/). A full URL, a path from another section (e.g. /grant/...), or a slug without /blog/ is rejected. A missing trailing slash is added when you save. On a Spanish post, use the English slug, without /es/.'
     },
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
@@ -2376,7 +2376,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi } */) {
+  register() {
     // Copy schema JSON files after TypeScript compilation
     copySchemas()
   },

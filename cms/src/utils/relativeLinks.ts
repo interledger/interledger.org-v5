@@ -417,6 +417,21 @@ export function toSlashedSlug(value: string): string {
   return bare ? `/${bare}/` : ''
 }
 
+/** One blog pathSlug segment, the same set the blog uid regex allows. */
+const BLOG_SLUG_SEGMENT = '[A-Za-z0-9._~-]+'
+
+/**
+ * `/blog/{slug}/`, the form a related article is stored as. A missing
+ * trailing slash is filled in, matching {@link toSlashedSlug}. Save
+ * lowercases the value. A bare `/my-post/` is not this pattern; document
+ * validation still accepts it until `sync:mdx` (INTORG-1346).
+ */
+const RELATED_ARTICLE_PATH = new RegExp(`^/blog/${BLOG_SLUG_SEGMENT}/$`)
+
+export function isRelatedArticleSlug(value: string): boolean {
+  return RELATED_ARTICLE_PATH.test(toSlashedSlug(value))
+}
+
 /** The query or fragment that follows a path: `?tab=1`, `#team`. */
 const PATH_SUFFIX = /[?#]/
 

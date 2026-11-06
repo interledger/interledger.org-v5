@@ -1,5 +1,6 @@
 import type { CollectionEntry } from 'astro:content'
 import type { BlogThumbnail } from '@/types/blog'
+import { relatedArticlePathSlug } from '../../schemas/relatedArticlePathSlug'
 import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
@@ -108,10 +109,12 @@ export function resolveRelatedPosts(
   contentLocale: Locale,
   fallbackLocale: Locale
 ): FoundationBlogEntry[] {
-  const findBySlug = (slug: string, locale: Locale) =>
-    posts.find(
-      (post) => post.data.pathSlug === slug && post.data.locale === locale
+  const findBySlug = (slug: string, locale: Locale) => {
+    const key = relatedArticlePathSlug(slug)
+    return posts.find(
+      (post) => post.data.pathSlug === key && post.data.locale === locale
     )
+  }
 
   return (slugs ?? [])
     .map(

@@ -6,9 +6,10 @@
   "options": {},
   "attributes": {
     "slug": {
-      "type": "string",
+      "type": "customField",
+      "customField": "plugin::related-article-slug.related-article-slug",
       "required": true,
-      "description": "Path of a related blog post after /blog, starting and ending with a slash (e.g. /my-post/)."
+      "description": "The blog post path, like /blog/my-post/. A path from another section or a full URL is rejected. A slug already stored as /my-post/ still saves until sync:mdx rewrites it."
     }
   },
   "config": {}

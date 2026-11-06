@@ -4,6 +4,7 @@ import {
   isSameSlug,
   slugVariants,
   toSlashedPath,
+  isRelatedArticleSlug,
   toSlashedSlug,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
@@ -131,6 +132,46 @@ describe('toSlashedSlug', () => {
   // An empty slug is the `required` validator's to report, not `//`.
   it.each(['', '/', '  '])('leaves %j empty', (value) => {
     expect(toSlashedSlug(value)).toBe('')
+  })
+})
+
+// Same inputs as src/schemas/relatedArticlePathSlug.test.ts.
+// This side only says whether the value is a /blog/{slug}/ path.
+describe('related article segment', () => {
+  it.each([
+    ['/blog/my-post/', true],
+    ['/blog/Interledger-Universe/', true],
+    ['Interledger-Universe', false],
+    ['/blog/my-post', true],
+    ['/blog/what-is-web3.0/', true],
+    ['/blog/a_b~c.d-e1/', true],
+    ['my-post', false],
+    ['/grant/foo/', false],
+    ['/blog/my post/', false],
+    ['/blog/café/', false]
+  ] as const)('treats %j as a blog path: %s', (value, isBlogPath) => {
+    expect(isRelatedArticleSlug(value)).toBe(isBlogPath)
+  })
+})
+
+describe('isRelatedArticleSlug', () => {
+  it.each(['/blog/my-post/', '/blog/my-post', '/blog/what-is-web3.0/'])(
+    'accepts %j',
+    (value) => {
+      expect(isRelatedArticleSlug(value)).toBe(true)
+    }
+  )
+
+  it.each([
+    'my-post',
+    '/my-post/',
+    '/grant-slug',
+    '/grant/grant-slug/',
+    '/es/blog/my-post/',
+    'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
+    ''
+  ])('rejects %j', (value) => {
+    expect(isRelatedArticleSlug(value)).toBe(false)
   })
 })
 

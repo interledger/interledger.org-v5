@@ -17,6 +17,7 @@ import {
 import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
+import { relatedArticleSlugError } from './relatedArticleSlug'
 
 export interface FieldError {
   path: Array<string | number>
@@ -823,11 +824,11 @@ export function validateBlogFields(
     })
   } else {
     for (const [i, item] of related.entries()) {
-      if (!item.slug) {
-        fieldErrors.push({
-          message: 'Related Articles: Slug is required',
-          path: ['relatedArticles', i, 'slug']
-        })
+      const message = relatedArticleSlugError(item.slug ?? '', {
+        allowStoredSlug: true
+      })
+      if (message) {
+        fieldErrors.push({ message, path: ['relatedArticles', i, 'slug'] })
       }
     }
   }

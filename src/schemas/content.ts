@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { relatedArticlePathSlug } from './relatedArticlePathSlug'
 
 const heroCtaSchema = z.object({
   text: z.string(),
@@ -81,8 +82,13 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
-  relatedArticles: z.array(bareSlugSchema).length(3),
+  // Exactly 3 related posts. The CMS stores `/blog/{slug}/` and rejects a
+  // URL or another section (INTORG-1346). Until sync:mdx, a slug already
+  // stored as `/my-post/` still saves. This reduces either form to the
+  // pathSlug the page matches. A bad file still parses.
+  relatedArticles: z
+    .array(z.string().transform(relatedArticlePathSlug))
+    .length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),

@@ -38,7 +38,9 @@ import {
   tryCatchAsync,
   getProjectRoot,
   validateLocalImageUrl,
-  ctaStripColorPayload
+  ctaStripColorPayload,
+  relatedArticleSlugError,
+  toSlashedSlug
 } from '@/utils'
 import {
   formatCardGridVariantList,
@@ -1150,6 +1152,20 @@ export async function buildBlogPayload(
       )
     }
 
+    // The shared schema still parses a bad value so one post cannot fail the
+    // Astro build. Reject it here, against the frontmatter as written, and
+    // store the slashed /blog/{slug}/ form the field requires.
+    const rawRelated = Array.isArray(mdx.frontmatter.relatedArticles)
+      ? mdx.frontmatter.relatedArticles.map((slug) => String(slug))
+      : []
+    const slugErrors = rawRelated.flatMap((slug, index) => {
+      const message = relatedArticleSlugError(slug)
+      if (!message) return []
+      const reason = message.replace(/^Related Articles: /, '')
+      return [`relatedArticles[${index}] ${JSON.stringify(slug)}: ${reason}`]
+    })
+    if (slugErrors.length > 0) throw new Error(slugErrors.join('; '))
+
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
       image:
@@ -1179,8 +1195,8 @@ export async function buildBlogPayload(
       categoryValue: category
     }))
 
-    const relatedArticles = (parsed.relatedArticles ?? []).map((slug) => ({
-      slug
+    const relatedArticles = rawRelated.map((slug) => ({
+      slug: toSlashedSlug(slug).toLowerCase()
     }))
 
     const articleBio = await buildAuthorBiosPayload(
