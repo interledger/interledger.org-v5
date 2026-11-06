@@ -43,22 +43,6 @@ export function normalizeBlockIntro(
 }
 
 /**
- * The intro a block renders while its legacy `title`/`heading` prop still
- * exists (until Phase 4 of INTORG-1154): the intro when it has content,
- * otherwise the legacy value as the heading. Content not yet migrated keeps
- * its heading.
- */
-export function resolveBlockIntro(
-  intro: BlockIntroData | null | undefined,
-  legacyHeading: string | null | undefined
-): NormalizedBlockIntro | null {
-  return (
-    normalizeBlockIntro(intro) ??
-    normalizeBlockIntro({ heading: legacyHeading })
-  )
-}
-
-/**
  * The text that names a block for screen readers: its intro heading, or the
  * subheading when there is none. `null` when the intro has neither, so the
  * block falls back to its own `aria-label`.

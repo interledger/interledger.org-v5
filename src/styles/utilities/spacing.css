@@ -56,10 +56,10 @@
   }
 
   /*
-   * Transitional (INTORG-1154): sections whose block owns its spacing, the
-   * same maths as the block rhythm in prose/rhythm.css, one level up. A
-   * template section holds its block in `.content-column`, either directly
-   * (a grant's InfoCards or FAQ) or as the first block of its prose.
+   * The bridge for sections whose block owns its spacing: the same maths as
+   * the block rhythm in prose/rhythm.css, one level up. A template section
+   * holds its block in `.content-column`, either directly (a grant's
+   * InfoCards or FAQ) or as the first block of its prose.
    *
    * - A section opening on such a block gets --block-pb above it, standing in
    *   for the padding-bottom the section above doesn't have; the block's
@@ -71,8 +71,8 @@
    *
    * A section's prose ending on such a block is not covered: rhythm.css
    * drops the padding of the last block in the prose, so it ends like any
-   * other section. A CTA section keeps its tight gap. Delete these with the
-   * prose rules, once every block owns its spacing.
+   * other section. A CTA section keeps its tight gap. Like the prose rules,
+   * these stay (ADR-009).
    */
   &
     > *
@@ -116,8 +116,8 @@
    * default spacer (`[data-intro-spacer]`) is the whole gap. The block is
    * the section's own, or the first in its prose; the intro is the block's
    * child, or one level down where the block puts it in a column
-   * (SplitLayout). A Paragraph block takes the rule below; a legacy first
-   * block keeps the stack gap.
+   * (GrantFaqSection). A Paragraph block takes the rule below; a first block
+   * that doesn't own its spacing keeps the stack gap.
    * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &

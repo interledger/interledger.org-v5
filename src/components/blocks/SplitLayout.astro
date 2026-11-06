@@ -29,14 +29,6 @@ interface StrapiMedia {
   alternativeText?: string | null
 }
 
-interface StrapiCta {
-  text?: string
-  link?: string
-  style?: string
-  external?: boolean
-  document?: boolean
-}
-
 interface Props {
   /** Block intro (ADR-009), above the two columns like every block's. */
   intro?: BlockIntroData | null
@@ -57,17 +49,10 @@ interface Props {
   videoUrl?: string
   quote?: string
   quoteSource?: string
-  ctaText?: string
-  ctaLink?: string
-  ctaStyle?: string
-  ctaExternal?: boolean
-  ctaDocument?: boolean
   /** Preview only: the Strapi media component (MDX passes imageSrc). */
   media?: StrapiMedia | null
   /** Preview only: the Strapi rich text (MDX passes it as children). */
   content?: string | null
-  /** Preview only: the legacy Strapi CTA component (MDX passes ctaText…). */
-  cta?: StrapiCta | null
 }
 
 const DISPLAY_RATIOS = ['3:2', '2:1', '1:1', '1:2'] as const
@@ -111,18 +96,12 @@ const {
   videoUrl,
   quote,
   quoteSource,
-  ctaText,
-  ctaLink,
-  ctaStyle,
-  ctaExternal,
-  ctaDocument,
   media,
-  content,
-  cta
+  content
 } = Astro.props
 
 // MDX passes flat props and children; the Strapi draft preview passes the raw
-// block (DynamicZone spreads it), so read its media, rich text and CTA too.
+// block (DynamicZone spreads it), so read its media and rich text too.
 const imageSrc = imageSrcProp ?? media?.image?.url ?? undefined
 const imageAlt =
   imageAltProp ??
@@ -140,27 +119,7 @@ const previewBodyHtml =
 const intro = normalizeBlockIntro(introProp)
 const { headingId } = blockIntroA11y(intro, 'split-layout')
 
-// The button group, or a legacy single CTA as a one-button group.
-const legacyCta: StrapiCta = cta ?? {
-  text: ctaText,
-  link: ctaLink,
-  style: ctaStyle,
-  external: ctaExternal,
-  document: ctaDocument
-}
-const legacyCtaButtons: SplitLayoutButton[] =
-  legacyCta.text && legacyCta.link
-    ? [
-        {
-          text: legacyCta.text,
-          link: legacyCta.link,
-          style: legacyCta.style === 'secondary' ? 'secondary' : 'primary',
-          external: legacyCta.external,
-          document: legacyCta.document
-        }
-      ]
-    : []
-const buttons = buttonsProp?.length ? buttonsProp : legacyCtaButtons
+const buttons = buttonsProp ?? []
 
 // Unknown ratios fall back to 2:1 here; sync handler/serializer hard-fail instead.
 const displayRatio: SplitLayoutDisplayRatio =

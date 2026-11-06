@@ -6,9 +6,10 @@
 
 /**
  * Blocks that own their spacing only in some cases, so neither
- * OWNS_ITS_SPACING nor SELF_SPACED_BLOCKS describes them: CtaButtons with an intro, and SplitLayout with an
- * intro or the 3:2 design ratio. The preview treats them as legacy blocks,
- * which is exact for most of them and approximate for the rest.
+ * OWNS_ITS_SPACING nor SELF_SPACED_BLOCKS describes them: CtaButtons with an
+ * intro, and SplitLayout with an intro or the 3:2 design ratio. The preview
+ * treats them as blocks that don't own their spacing, which is exact for most
+ * of them and approximate for the rest.
  */
 export const CONDITIONALLY_SELF_SPACED: ReadonlySet<string> = new Set([
   'blocks.cta-buttons',
@@ -53,8 +54,8 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
 ])
 
 const SECTION_GAP = 'mt-section'
-// A legacy block before a self-spaced one stands in for the padding-bottom
-// it doesn't have yet.
+// A block that doesn't own its spacing, before a self-spaced one, stands in
+// for the padding-bottom it doesn't have.
 const BLOCK_PADDING_GAP = 'mt-(--block-pb)'
 // After a self-spaced block, the section gap less the padding it already has.
 const SECTION_GAP_AFTER_SELF_SPACED =

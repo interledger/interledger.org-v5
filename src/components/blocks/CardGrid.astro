@@ -10,7 +10,7 @@ import InfoCard from '@/components/shared/InfoCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
-import { blockIntroA11y, parseMarkdown, resolveBlockIntro } from '@/utils'
+import { blockIntroA11y, normalizeBlockIntro, parseMarkdown } from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
@@ -46,8 +46,6 @@ type CardWithSecondaryCta = StrapiCard & { secondaryCta: SecondaryCta }
 
 interface Props {
   intro?: BlockIntroData | null
-  /** @deprecated Legacy heading, rendered as the intro heading. */
-  title?: string
   ariaLabel: string
   variant: string
   columns: keyof typeof GRID_COLUMNS_CLASS
@@ -59,7 +57,6 @@ interface Props {
 
 const {
   intro: introProp,
-  title,
   ariaLabel,
   variant,
   columns,
@@ -136,7 +133,7 @@ function warnMissingSecondaryCta(
   )
 }
 
-const intro = resolveBlockIntro(introProp, title)
+const intro = normalizeBlockIntro(introProp)
 const { headingId, ariaLabel: sectionAriaLabel } = blockIntroA11y(
   intro,
   'card-grid',

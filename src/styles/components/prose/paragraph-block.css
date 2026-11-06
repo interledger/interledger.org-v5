@@ -177,10 +177,10 @@
     --para-lead-pt: var(--para-first-pt);
   }
 
-  /* A Paragraph that ends on a heading titles the legacy block after it (a
-     "fake intro"). The pair keeps the heading gap it has today rather than
-     a block break. A block with an intro of its own is spaced normally.
-     Transitional: goes with the legacy blocks. */
+  /* A Paragraph that ends on a heading titles the block after it when that
+     block doesn't own its spacing (a "fake intro"). The pair keeps the
+     heading gap rather than a block break. A block with the marker is spaced
+     normally, even with an empty intro. */
   :is([data-prose], [data-prose-blog], [data-prose-summit])
     > [data-intro-variant='paragraph']:has(
       > :is(h2, h3, h4, h5, h6):last-child

@@ -15,12 +15,11 @@ import type {
 
 interface Props {
   intro?: BlockIntroData | null
-  heading?: string
   profiles?: StrapiProfile[]
   category?: string
 }
 
-const { intro, heading, profiles: strapiProfiles, category } = Astro.props
+const { intro, profiles: strapiProfiles, category } = Astro.props
 
 // Transform Strapi profile data to the format expected by ProfileGrid.
 // Manually picked relations take priority; ProfileGrid falls back to its own
@@ -30,9 +29,4 @@ const profiles: ProfileData[] | undefined = strapiProfiles?.length
   : undefined
 ---
 
-<ProfileGrid
-  intro={intro}
-  profiles={profiles}
-  heading={heading}
-  category={category}
-/>
+<ProfileGrid intro={intro} profiles={profiles} category={category} />

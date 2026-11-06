@@ -32,9 +32,9 @@
  * meets a real block still gets the full section gap.
  *
  * A block with `data-intro-variant` owns its spacing instead
- * (components/block-intro.css) and sits out this rhythm. While pages mix
- * those blocks with legacy ones, the transitional rules below keep the gap
- * between the two kinds at --space-section.
+ * (components/block-intro.css) and sits out this rhythm. Pages mix those
+ * blocks with elements that don't own their spacing, so the bridge rules
+ * below keep the gap between the two kinds at --space-section.
  */
 
 @layer components {
@@ -79,26 +79,30 @@
       margin-block-start: var(--space-block-heading);
     }
 
-    /* Transitional (INTORG-1154): a page mixing blocks that own their
-       spacing with legacy ones. An intro block opens with its intro
+    /* The bridge between a block that owns its spacing (an intro block) and
+       an element that doesn't: plain Markdown, or a block without the
+       marker, such as CodeBlock, CalloutText, Timeline, DonationCards, CTA
+       buttons without an intro, or a Split layout in an older ratio without
+       one. An intro block opens with its intro
        (--intro-top plus the heading's padding) and closes with
        --block-pb; on desktop the two add up to --space-section when the
-       intro has a heading. These rules give a legacy neighbour the same:
+       intro has a heading. These rules give the other element the same:
 
-       - Before an intro block, the legacy element stands in for the
-         padding-bottom it doesn't have yet.
+       - Before an intro block, the other element stands in for the
+         padding-bottom it doesn't have.
        - After one, it takes --space-section less the padding the intro
          block already put there.
 
        An intro block with an empty intro opens with the default block
-       spacer (--intro-empty) instead, so a legacy element sits --block-pb
-       plus that spacer above it (A1). Astro emits a component's <script> as its next sibling, so
-       each rule also reaches across one script. CtaButtons and CtaLink set
+       spacer (--intro-empty) instead, so the other element sits --block-pb
+       plus that spacer above it (A1). Astro emits a component's <script> as
+       its next sibling, so each rule also reaches across one script. CtaButtons and CtaLink set
        their bottom margin with a utility, which this layer cannot beat;
        they handle the intro block themselves.
 
        Each selector matches the block rule's specificity or beats it, and
-       comes after it. Delete once every block owns its spacing. */
+       comes after it. These rules stay: plain Markdown and the blocks
+       above don't own their spacing (ADR-009). */
     > :not([data-intro-variant], script):has(
         + [data-intro-variant],
         + script + [data-intro-variant]

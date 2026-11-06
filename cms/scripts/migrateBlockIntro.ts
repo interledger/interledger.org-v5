@@ -125,9 +125,20 @@ function afterTagName(node: MdxJsxFlowElement): number | null {
 }
 
 /** Rewrites `title="…"` / `heading="…"` on one block into `intro={…}`. */
+/**
+ * A standalone LogoCarousel (the homepage's) keeps `heading` as its centred
+ * title and has no intro, so its `heading` is not a legacy attribute.
+ */
+function isStandaloneCarousel(node: MdxJsxFlowElement): boolean {
+  return (
+    node.name === 'LogoCarousel' && isTrueAttr(findAttr(node, 'standalone'))
+  )
+}
+
 function legacyHeadingEdit(node: MdxJsxFlowElement): Edit | null {
   const legacyName = node.name ? INTRO_BLOCK_LEGACY_ATTRS[node.name] : undefined
-  if (!legacyName || findAttr(node, 'intro')) return null
+  if (!legacyName || findAttr(node, 'intro') || isStandaloneCarousel(node))
+    return null
 
   const legacy = findAttr(node, legacyName)
   const offsets = legacy && offsetsOf(legacy)
@@ -340,6 +351,50 @@ function flowElements(node: Root | RootContent): MdxJsxFlowElement[] {
     : []
   const children = 'children' in node ? (node.children as RootContent[]) : []
   return [...own, ...children.flatMap(flowElements)]
+}
+
+export interface LegacyBlockAttr {
+  line: number
+  block: string
+  attr: string
+}
+
+/**
+ * Every legacy attribute still on a block, in any form: a string or an
+ * expression value, beside an `intro`, or a Split layout CTA without its
+ * link. The migration rewrites only the clean cases; this reports them all,
+ * because Strapi, the sync and the components ignore every one of them.
+ */
+export function findLegacyBlockAttrs(
+  source: string
+): LegacyBlockAttr[] | Error {
+  let root: Root
+  try {
+    root = unified()
+      .use(remarkParse)
+      .use(remarkMdx)
+      .parse(blankFrontmatter(source)) as Root
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error))
+  }
+
+  return flowElements(root).flatMap((node) => {
+    const legacyHeading = node.name
+      ? INTRO_BLOCK_LEGACY_ATTRS[node.name]
+      : undefined
+    const legacyNames: readonly string[] =
+      node.name === SPLIT_LAYOUT
+        ? SPLIT_LAYOUT_CTA_ATTRS
+        : legacyHeading && !isStandaloneCarousel(node)
+          ? [legacyHeading]
+          : []
+    return legacyNames.flatMap((name) => {
+      const attr = findAttr(node, name)
+      if (!attr || !node.name) return []
+      const line = attr.position?.start.line ?? node.position?.start.line ?? 0
+      return [{ line, block: node.name, attr: name }]
+    })
+  })
 }
 
 /** Every intro block in the tree, nested ones included. */

@@ -131,10 +131,10 @@
        --intro-empty    the whole intro when it has no content: the block's
                         default top spacer (Figma's min height on the intro)
        --intro-h2-pt    above the heading text
-       --intro-h2-h3    below the heading
+       --intro-h2-pb    below the heading
        --intro-h3-pt    above the subheading text
-       --intro-h3-desc  below the subheading
-       --intro-desc     below the description
+       --intro-h3-pb    below the subheading
+       --intro-desc-pb  below the description
 
      Two blocks therefore sit pb + top + h2-pt = 72/96/120 apart, heading
      to content, and the desktop value equals --space-section.
@@ -150,10 +150,10 @@
     --intro-top: var(--spacing-xl);
     --intro-empty: calc(var(--spacing-lg) + var(--spacing-xs));
     --intro-h2-pt: var(--spacing-xl);
-    --intro-h2-h3: var(--spacing-3xl-tight);
+    --intro-h2-pb: var(--spacing-3xl-tight);
     --intro-h3-pt: var(--spacing-lg);
-    --intro-h3-desc: var(--spacing-xl);
-    --intro-desc: var(--spacing-xl);
+    --intro-h3-pb: var(--spacing-xl);
+    --intro-desc-pb: var(--spacing-xl);
     --block-pb: var(--spacing-xl);
     --media-pt: var(--spacing-xl);
 
@@ -162,10 +162,10 @@
       /* 30px, off the spacing scale: Figma's tablet intro min height. */
       --intro-empty: 1.875rem;
       --intro-h2-pt: var(--spacing-2xl);
-      --intro-h2-h3: var(--spacing-3xl);
+      --intro-h2-pb: var(--spacing-3xl);
       --intro-h3-pt: var(--spacing-xl);
-      --intro-h3-desc: var(--spacing-2xl);
-      --intro-desc: var(--spacing-2xl);
+      --intro-h3-pb: var(--spacing-2xl);
+      --intro-desc-pb: var(--spacing-2xl);
       --block-pb: var(--spacing-2xl);
       --media-pt: var(--spacing-2xl);
     }
@@ -174,10 +174,10 @@
       --intro-top: var(--spacing-3xl-tight);
       --intro-empty: var(--spacing-4xl);
       --intro-h2-pt: var(--spacing-3xl-tight);
-      --intro-h2-h3: var(--spacing-4xl);
+      --intro-h2-pb: var(--spacing-4xl);
       --intro-h3-pt: var(--spacing-2xl);
-      --intro-h3-desc: var(--spacing-3xl-tight);
-      --intro-desc: var(--spacing-4xl);
+      --intro-h3-pb: var(--spacing-3xl-tight);
+      --intro-desc-pb: var(--spacing-4xl);
       --block-pb: var(--spacing-3xl-tight);
       --media-pt: var(--spacing-4xl);
     }
@@ -243,14 +243,14 @@
   /* Block intro variants: only the spacers that differ from Universal.
      `0px`, not `0`: a unitless zero is invalid inside calc(). */
   [data-intro-variant='button-cta'] {
-    --intro-desc: 0px;
+    --intro-desc-pb: 0px;
   }
 
   [data-intro-variant='split-layout'] {
     @variant desktop {
       --intro-top: 0px;
-      --intro-h2-h3: var(--spacing-3xl-tight);
-      --intro-desc: 0px;
+      --intro-h2-pb: var(--spacing-3xl-tight);
+      --intro-desc-pb: 0px;
     }
   }
 

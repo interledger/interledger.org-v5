@@ -15,7 +15,7 @@ import EventWhere from '@/components/shared/EventWhere.astro'
 import EventApply from '@/components/shared/EventApply.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
-import { blockIntroA11y, resolveBlockIntro, useTranslations } from '@/utils'
+import { blockIntroA11y, normalizeBlockIntro, useTranslations } from '@/utils'
 
 interface EventWhenData {
   title: string
@@ -43,20 +43,18 @@ interface EventApplyData {
 
 interface Props {
   intro?: BlockIntroData | null
-  /** @deprecated Legacy heading, rendered as the intro heading. */
-  title?: string
   when?: EventWhenData
   where?: EventWhereData
   apply?: EventApplyData | null
 }
 
-const { intro: introProp, title, when, where, apply } = Astro.props
+const { intro: introProp, when, where, apply } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const fromStrapi = Boolean(when && where)
 const hasApply = Boolean(apply?.primaryCta?.text && apply?.primaryCta?.link)
-const intro = resolveBlockIntro(introProp, title)
+const intro = normalizeBlockIntro(introProp)
 const { headingId, ariaLabel } = blockIntroA11y(
   intro,
   'event-card',

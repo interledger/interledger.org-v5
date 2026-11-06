@@ -45,19 +45,19 @@ const description = await parseMarkdown(normalized?.description, {
 {normalized && <header data-block-intro class="pt-(--intro-top)">
   {normalized.heading && <h2
     id={headingId}
-    class="m-0 pt-(--intro-h2-pt) pb-(--intro-h2-h3) text-neutral-900 dark:text-neutral-0"
+    class="m-0 pt-(--intro-h2-pt) pb-(--intro-h2-pb) text-neutral-900 dark:text-neutral-0"
   >
     {normalized.heading}
   </h2>}
   {normalized.subheading && <h3
     id={normalized.heading ? undefined : headingId}
-    class="m-0 pt-(--intro-h3-pt) pb-(--intro-h3-desc) font-semibold text-neutral-900 dark:text-neutral-0"
+    class="m-0 pt-(--intro-h3-pt) pb-(--intro-h3-pb) font-semibold text-neutral-900 dark:text-neutral-0"
   >
     {normalized.subheading}
   </h3>}
   {description && (
     <div
-      class="pb-(--intro-desc) [&>:first-child]:mt-0 [&>:last-child]:mb-0 [&_:is(h1,h2,h3,h4,h5,h6)]:font-semibold"
+      class="pb-(--intro-desc-pb) [&>:first-child]:mt-0 [&>:last-child]:mb-0 [&_:is(h1,h2,h3,h4,h5,h6)]:font-semibold"
       set:html={description}
     />
   )}
