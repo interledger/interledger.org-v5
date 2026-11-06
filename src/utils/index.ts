@@ -275,7 +275,11 @@ export {
 // Main site: Text
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'
-export { parseMarkdown, parseMarkdownInline } from './main/mdx'
+export {
+  parseMarkdown,
+  parseMarkdownBelowHeading,
+  parseMarkdownInline
+} from './main/mdx'
 export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
 export {
   TABLE_SCROLL_CLASS,

@@ -12,7 +12,7 @@ import {
   defaultLocale,
   formatReportDate,
   localizeRoute,
-  parseMarkdown,
+  parseMarkdownBelowHeading,
   grantOverviewHubPath,
   grantGranteeDirectoryPath
 } from '@/utils'
@@ -65,13 +65,19 @@ const SECTIONS = [
   ['whatsNext', 'grantReport.whats_next']
 ] as const satisfies readonly (readonly [keyof GrantReport, UiKey])[]
 
-const sections = await Promise.all(
-  SECTIONS.map(async ([field, headingKey]) => ({
-    id: `grant-report-${field}`,
-    heading: t(headingKey),
-    html: await parseMarkdown(report[field], markdownContext)
-  }))
-)
+// Each section has an h2, so a heading that a grantee typed in the text
+// starts at h3 (INTORG-1310, comment 8e7b1dce).
+const SECTION_TEXT_MIN_HEADING = 3
+
+const sections = SECTIONS.map(([field, headingKey]) => ({
+  id: `grant-report-${field}`,
+  heading: t(headingKey),
+  html: parseMarkdownBelowHeading(
+    report[field],
+    SECTION_TEXT_MIN_HEADING,
+    markdownContext
+  )
+}))
 
 // The images fill the content column, at most max-w-content (1440px).
 const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
