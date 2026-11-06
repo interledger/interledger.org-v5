@@ -421,11 +421,12 @@ export function toSlashedSlug(value: string): string {
 const BLOG_SLUG_SEGMENT = '[A-Za-z0-9._~-]+'
 
 /**
- * Stored Related Post Slug. Editors must type `/blog/{slug}/` so a grant path
- * or a bare slug cannot be saved (INTORG-1346). A missing trailing slash is
- * filled in, matching {@link toSlashedSlug}.
+ * `/blog/{slug}/`, the form a related article is stored as. A missing
+ * trailing slash is filled in, matching {@link toSlashedSlug}. Save
+ * lowercases the value. A bare `/my-post/` is not this pattern; document
+ * validation still accepts it until `sync:mdx` (INTORG-1346).
  */
-export const RELATED_ARTICLE_PATH = new RegExp(`^/blog/${BLOG_SLUG_SEGMENT}/$`)
+const RELATED_ARTICLE_PATH = new RegExp(`^/blog/${BLOG_SLUG_SEGMENT}/$`)
 
 export function isRelatedArticleSlug(value: string): boolean {
   return RELATED_ARTICLE_PATH.test(toSlashedSlug(value))

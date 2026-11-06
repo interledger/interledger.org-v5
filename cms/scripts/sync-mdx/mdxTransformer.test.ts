@@ -3385,13 +3385,13 @@ describe('buildBlogPayload', () => {
       const payload = await payloadFor([
         '/blog/one/',
         '/blog/two',
-        '/blog/what-is-web3.0/'
+        '/blog/Interledger-Universe/'
       ])
 
       expect((payload as Record<string, unknown>).relatedArticles).toEqual([
         { slug: '/blog/one/' },
         { slug: '/blog/two/' },
-        { slug: '/blog/what-is-web3.0/' }
+        { slug: '/blog/interledger-universe/' }
       ])
     })
 
@@ -3406,9 +3406,9 @@ describe('buildBlogPayload', () => {
       expect(payload).toBeInstanceOf(Error)
       expect((payload as Error).message).toBe(
         [
-          'This value should be a blog path, like /blog/my-post/.',
-          'This value should be a blog path, like /blog/my-post/.',
-          'This value should be a blog path, like /blog/taxes-on-digital-financial-services-in-africa/.'
+          'relatedArticles[0] "/grant/eoi-call-for-papers-reviewer/": should be a blog path, like /blog/my-post/.',
+          'relatedArticles[1] "two": should be a blog path, like /blog/two/.',
+          'relatedArticles[2] "/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/": should be a blog path, like /blog/taxes-on-digital-financial-services-in-africa/.'
         ].join('; ')
       )
     })

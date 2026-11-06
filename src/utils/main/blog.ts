@@ -1,5 +1,6 @@
 import type { CollectionEntry } from 'astro:content'
 import type { BlogThumbnail } from '@/types/blog'
+import { relatedArticlePathSlug } from '../shared/relatedArticlePathSlug'
 import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
@@ -91,16 +92,6 @@ export function getBlogThumbnail(
 }
 
 /**
- * The pathSlug a related-article value points at. `/blog/my-post/` and a
- * legacy bare `my-post` both match the post stored as `my-post`.
- */
-function relatedArticleKey(slug: string): string {
-  const bare = slug.trim().replace(/^\/+|\/+$/g, '')
-  const prefixed = /^blog\/([A-Za-z0-9._~-]+)$/.exec(bare)
-  return prefixed?.[1] ?? bare
-}
-
-/**
  * Resolves related-article slugs to posts for display.
  *
  * Prefers the post in `preferredLocale` (callers pass the route locale), then
@@ -122,7 +113,7 @@ export function resolveRelatedPosts(
   // post, so also match on `localizes`. An own-slug match wins, so the result
   // does not depend on the order of `posts`.
   const findBySlug = (slug: string, locale: Locale) => {
-    const key = relatedArticleKey(slug)
+    const key = relatedArticlePathSlug(slug)
     const inLocale = posts.filter((post) => post.data.locale === locale)
     return (
       inLocale.find((post) => post.data.pathSlug === key) ??

@@ -135,6 +135,25 @@ describe('toSlashedSlug', () => {
   })
 })
 
+// Same inputs as src/utils/shared/relatedArticlePathSlug.test.ts.
+// This side only says whether the value is a /blog/{slug}/ path.
+describe('related article segment', () => {
+  it.each([
+    ['/blog/my-post/', true],
+    ['/blog/Interledger-Universe/', true],
+    ['Interledger-Universe', false],
+    ['/blog/my-post', true],
+    ['/blog/what-is-web3.0/', true],
+    ['/blog/a_b~c.d-e1/', true],
+    ['my-post', false],
+    ['/grant/foo/', false],
+    ['/blog/my post/', false],
+    ['/blog/café/', false]
+  ] as const)('treats %j as a blog path: %s', (value, isBlogPath) => {
+    expect(isRelatedArticleSlug(value)).toBe(isBlogPath)
+  })
+})
+
 describe('isRelatedArticleSlug', () => {
   it.each(['/blog/my-post/', '/blog/my-post', '/blog/what-is-web3.0/'])(
     'accepts %j',

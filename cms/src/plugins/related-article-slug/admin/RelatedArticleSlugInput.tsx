@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FocusEventHandler, ReactNode } from 'react'
 import { useFocusInputField } from '@strapi/admin/strapi-admin'
 import { Field, TextInput } from '@strapi/design-system'
-import { visibleRelatedArticleSlugError } from '../utils/relatedArticleSlug'
+import { visibleRelatedArticleSlugError } from '../../../utils/relatedArticleSlug'
 
 interface RelatedArticleSlugInputProps {
   name: string
@@ -22,9 +22,8 @@ interface RelatedArticleSlugInputProps {
 }
 
 /**
- * Related Post Slug. A string field with `regex` can only show Strapi's
- * shared "The value does not match the regex." This input explains that the
- * value has to be a `/blog/` path.
+ * Related Post Slug. A custom input, so we can show our own message when
+ * the value is not a `/blog/` path.
  */
 export default function RelatedArticleSlugInput({
   name,

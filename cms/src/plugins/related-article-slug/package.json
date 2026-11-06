@@ -1,0 +1,15 @@
+{
+  "name": "strapi-plugin-related-article-slug",
+  "version": "1.0.0",
+  "exports": {
+    "./strapi-admin": {
+      "import": "./strapi-admin.ts"
+    }
+  },
+  "strapi": {
+    "name": "related-article-slug",
+    "kind": "plugin",
+    "displayName": "Related Article Slug",
+    "description": "Blog-path input for a related article"
+  }
+}

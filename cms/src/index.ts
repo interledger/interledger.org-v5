@@ -29,7 +29,6 @@ import {
   validateProfileCta,
   validateCtaStrip,
   validateBlogFields,
-  RELATED_ARTICLE_SLUG_FIELD_NAME,
   validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
@@ -1124,7 +1123,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
       thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
       relatedArticles:
-        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path as /blog/{slug}/ (e.g. /blog/my-related-post/). A path from another section or a slug without /blog/ is rejected.'
+        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path as /blog/{slug}/ (e.g. /blog/my-related-post/). A path from another section or a full URL is rejected. A slug already stored as /my-post/ still saves until sync:mdx rewrites it.'
     },
     'api::faq.faq': {
       title:
@@ -2382,23 +2381,9 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register({
-    strapi
-  }: {
-    strapi: {
-      customFields: {
-        register: (field: { name: string; type: 'string' }) => void
-      }
-    }
-  }) {
+  register() {
     // Copy schema JSON files after TypeScript compilation
     copySchemas()
-    // Before Strapi swaps custom fields for their stored type. The admin
-    // input then explains a bad value instead of the shared regex error.
-    strapi.customFields.register({
-      name: RELATED_ARTICLE_SLUG_FIELD_NAME,
-      type: 'string'
-    })
   },
 
   /**

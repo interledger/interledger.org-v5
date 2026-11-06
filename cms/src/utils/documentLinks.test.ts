@@ -177,6 +177,16 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     ).toEqual({ relatedArticles: [{ slug: '/my-post/' }, { slug: '/x/' }] })
   })
 
+  it('lowercases a related-article slug so it matches the post pathSlug', async () => {
+    expect(
+      await normalize('api::foundation-blog-post.foundation-blog-post', {
+        relatedArticles: [{ slug: '/blog/Interledger-Universe' }]
+      })
+    ).toEqual({
+      relatedArticles: [{ slug: '/blog/interledger-universe/' }]
+    })
+  })
+
   it('keeps the /blog/ prefix on a related-article slug', async () => {
     expect(
       await normalize('api::foundation-blog-post.foundation-blog-post', {

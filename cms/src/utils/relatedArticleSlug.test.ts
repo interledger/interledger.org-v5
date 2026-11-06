@@ -7,8 +7,6 @@ import {
   visibleRelatedArticleSlugError
 } from './relatedArticleSlug'
 
-const GENERIC_REGEX_ERROR = 'The value does not match the regex.'
-
 describe('related article slug field', () => {
   it('is a custom field, so the admin can explain a /blog/ path', () => {
     expect(schema.attributes.slug).toMatchObject({
@@ -24,7 +22,33 @@ describe('relatedArticleSlugError', () => {
   it('names the blog path a grant URL has to match', () => {
     expect(
       relatedArticleSlugError('/grant/eoi-call-for-papers-reviewer/')
-    ).toBe('This value should be a blog path, like /blog/my-post/.')
+    ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
+  })
+
+  it.each(['interledger-universe', '/interledger-universe/'])(
+    'turns a single segment (%s) into a blog path',
+    (slug) => {
+      expect(relatedArticleSlugError(slug)).toBe(
+        'Related Articles: should be a blog path, like /blog/interledger-universe/.'
+      )
+    }
+  )
+
+  it('accepts the stored /slug/ form when a save asks for it', () => {
+    expect(
+      relatedArticleSlugError('/my-post/', { allowStoredSlug: true })
+    ).toBeUndefined()
+    expect(
+      relatedArticleSlugError('my-post', { allowStoredSlug: true })
+    ).toBeUndefined()
+  })
+
+  it('still rejects another section when the stored form is allowed', () => {
+    expect(
+      relatedArticleSlugError('/grant/eoi-call-for-papers-reviewer/', {
+        allowStoredSlug: true
+      })
+    ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
   })
 
   it('keeps the slug from a pasted blog URL', () => {
@@ -32,7 +56,9 @@ describe('relatedArticleSlugError', () => {
       relatedArticleSlugError(
         'https://interledger.org/blog/call-papers-program/'
       )
-    ).toBe('This value should be a blog path, like /blog/call-papers-program/.')
+    ).toBe(
+      'Related Articles: should be a blog path, like /blog/call-papers-program/.'
+    )
   })
 
   it('accepts a /blog/ path with or without its trailing slash', () => {
@@ -48,19 +74,28 @@ describe('visibleRelatedArticleSlugError', () => {
     ).toBeUndefined()
   })
 
-  it('replaces the shared regex error once the field has been left', () => {
+  it('explains a bad path once the field has been left', () => {
     expect(
-      visibleRelatedArticleSlugError('/grant/foo/', GENERIC_REGEX_ERROR, true)
-    ).toBe('This value should be a blog path, like /blog/my-post/.')
+      visibleRelatedArticleSlugError('/grant/foo/', undefined, true)
+    ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
   })
 
   it('shows the blog-path message after a failed save', () => {
+    const serverError =
+      'Related Articles: should be a blog path, like /blog/my-post/.'
     expect(
-      visibleRelatedArticleSlugError('two', undefined, false)
+      visibleRelatedArticleSlugError('/grant/foo/', undefined, false)
     ).toBeUndefined()
-    expect(visibleRelatedArticleSlugError('two', 'saved', false)).toBe(
-      'This value should be a blog path, like /blog/my-post/.'
-    )
+    expect(
+      visibleRelatedArticleSlugError('/grant/foo/', serverError, false)
+    ).toBe(serverError)
+  })
+
+  it('lets a stored single-segment slug through after a save', () => {
+    const serverError = 'Related Articles: Slug is required'
+    expect(
+      visibleRelatedArticleSlugError('/my-post/', serverError, false)
+    ).toBeUndefined()
   })
 
   it('leaves an empty field to the required error', () => {
