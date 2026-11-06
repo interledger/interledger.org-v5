@@ -75,9 +75,9 @@ describe('visibleRelatedArticleSlugError', () => {
   })
 
   it('explains a bad path once the field has been left', () => {
-    expect(
-      visibleRelatedArticleSlugError('/grant/foo/', undefined, true)
-    ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
+    expect(visibleRelatedArticleSlugError('/grant/foo/', undefined, true)).toBe(
+      'Related Articles: should be a blog path, like /blog/my-post/.'
+    )
   })
 
   it('shows the blog-path message after a failed save', () => {
