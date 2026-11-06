@@ -328,4 +328,23 @@ describe('generateMDX — draft', () => {
 
     expect(result).not.toContain('draft')
   })
+
+  it.each([undefined, null])(
+    'keeps a file draft when Strapi draft is %s',
+    async (draft) => {
+      const result = await generateMDX(
+        testConfig,
+        { ...page, draft },
+        { draft: true }
+      )
+
+      expect(result).toMatch(/^draft: true$/m)
+    }
+  )
+
+  it('omits draft when Strapi has no value and the file has none', async () => {
+    const result = await generateMDX(testConfig, { ...page, draft: null })
+
+    expect(result).not.toContain('draft')
+  })
 })
