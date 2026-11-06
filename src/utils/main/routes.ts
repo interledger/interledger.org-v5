@@ -22,6 +22,7 @@ export const PODCAST_PAGE_SLUG = 'podcast'
 
 export const ROUTE_BASES = {
   'foundation-pages': '',
+  'fundraising-pages': '',
   'foundation-blog': '/blog',
   'summit-pages': '/summit',
   'hackathon-pages': '/hackathon',

@@ -92,27 +92,31 @@ describe('buildContentTypes carousel logo payload', () => {
 })
 
 describe('buildContentTypes draft payload', () => {
-  // Fundraising pages reuse the foundation-page builder, but their Strapi
-  // schema has no `draft` attribute and the REST API rejects unknown keys.
-  it.each([true, undefined])(
-    'omits draft for fundraising pages (frontmatter draft: %s)',
-    async (draft) => {
+  // Removing `draft: true` at launch must send draft: false, or Strapi keeps
+  // the page a draft.
+  it.each([
+    ['fundraising-pages', true, true],
+    ['fundraising-pages', undefined, false],
+    ['foundation-pages', undefined, false]
+  ] as const)(
+    '%s with draft %s sends draft %s',
+    async (type, draft, expected) => {
       const contentTypes = buildContentTypes(
         '/nonexistent-project-root',
         'http://localhost:1337',
         'token'
       )
       const mdx = createMdxFile({
-        pathSlug: 'support-us',
+        pathSlug: 'some-page',
         frontmatter: {
-          title: 'Support us',
-          pathSlug: 'support-us',
-          description: 'Support page',
+          title: 'Some page',
+          pathSlug: 'some-page',
+          description: 'A page',
           ...(draft === undefined ? {} : { draft })
         }
       })
 
-      const payload = await contentTypes['fundraising-pages'].buildPayload(
+      const payload = await contentTypes[type].buildPayload(
         mdx,
         stubStrapi(),
         null,
@@ -120,28 +124,7 @@ describe('buildContentTypes draft payload', () => {
       )
 
       expect(payload).not.toBeInstanceOf(Error)
-      expect(payload).not.toHaveProperty('draft')
+      expect(payload).toHaveProperty('draft', expected)
     }
   )
-
-  it('keeps draft for foundation pages, which share the builder', async () => {
-    const contentTypes = buildContentTypes(
-      '/nonexistent-project-root',
-      'http://localhost:1337',
-      'token'
-    )
-    const mdx = createMdxFile({
-      pathSlug: 'about',
-      frontmatter: { title: 'About', pathSlug: 'about', description: 'About' }
-    })
-
-    const payload = await contentTypes['foundation-pages'].buildPayload(
-      mdx,
-      stubStrapi(),
-      null,
-      false
-    )
-
-    expect(payload).toHaveProperty('draft', false)
-  })
 })

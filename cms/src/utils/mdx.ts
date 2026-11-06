@@ -251,6 +251,22 @@ export function draftFrontmatter(draft: boolean | null | undefined): {
 }
 
 /**
+ * Value to pass to {@link draftFrontmatter}.
+ *
+ * `true` and `false` are the checkbox. `null` and `undefined` mean the field
+ * is not on this Strapi yet, or the sync has not written it. That is not an
+ * uncheck: a `draft: true` already in the file stays, so a save cannot
+ * publish a page the repo still marks as a draft (INTORG-1290).
+ */
+export function resolveDraft(
+  stored: boolean | null | undefined,
+  preserved: unknown
+): boolean | null | undefined {
+  if (typeof stored === 'boolean') return stored
+  return preserved === true ? true : stored
+}
+
+/**
  * Read all existing frontmatter fields from an MDX file.
  * Strapi-managed fields will overwrite these when generating MDX.
  */

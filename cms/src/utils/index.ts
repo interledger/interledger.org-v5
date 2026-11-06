@@ -96,6 +96,7 @@ export {
   heroFrontmatter,
   getPreservedFields,
   draftFrontmatter,
+  resolveDraft,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
