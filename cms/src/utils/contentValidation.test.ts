@@ -1141,7 +1141,6 @@ describe('validateBlogFields', () => {
     ],
     ['/es/blog/call-papers-program/', '/blog/call-papers-program/'],
     ['/grant/eoi-call-for-papers-reviewer/', '/blog/my-post/'],
-    ['/eoi-call-for-papers-reviewer/', '/blog/my-post/'],
     [
       'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
       '/blog/my-post/'
@@ -1156,7 +1155,7 @@ describe('validateBlogFields', () => {
       ]
     })
     expect(err?.message).toBe(
-      `This value should be a blog path, like ${suggestion}.`
+      `Related Articles: should be a blog path, like ${suggestion}.`
     )
     expect(err?.details.errors[0].path).toEqual([
       'relatedArticles',
@@ -1182,7 +1181,7 @@ describe('validateBlogFields', () => {
       featureMedia: { image: 12 },
       relatedArticles: [
         { slug: '/blog/one/' },
-        { slug: 'two' },
+        { slug: 'https://interledger.org/blog/two/' },
         { slug: '/grant/three/' }
       ]
     })
@@ -1190,6 +1189,19 @@ describe('validateBlogFields', () => {
       ['relatedArticles', '1', 'slug'],
       ['relatedArticles', '2', 'slug']
     ])
+  })
+
+  it('accepts the stored /slug/ form beside a /blog/ path', () => {
+    expect(
+      validateBlogFields({
+        featureMedia: { image: 12 },
+        relatedArticles: [
+          { slug: '/my-post/' },
+          { slug: 'two' },
+          { slug: '/blog/three/' }
+        ]
+      })
+    ).toBeUndefined()
   })
 
   it('accepts a /blog/{slug}/ path with or without its trailing slash', () => {

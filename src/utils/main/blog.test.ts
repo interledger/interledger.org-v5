@@ -227,6 +227,25 @@ describe('resolveRelatedPosts', () => {
     expect(result.map((p) => p.data.pathSlug)).toEqual(['my-post', 'my-post'])
   })
 
+  it('matches a mixed-case /blog/ path to the lowercase pathSlug', () => {
+    const posts = [
+      makePost({
+        slug: 'interledger-universe',
+        date: '2025-01-01',
+        locale: 'en'
+      })
+    ]
+
+    const result = resolveRelatedPosts(
+      posts,
+      ['/blog/Interledger-Universe/'],
+      'en',
+      'en'
+    )
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['interledger-universe'])
+  })
+
   it('preserves the order of the requested slugs', () => {
     const posts = [
       makePost({ slug: 'a', date: '2025-01-01', locale: 'en' }),

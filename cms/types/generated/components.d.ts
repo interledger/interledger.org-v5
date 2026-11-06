@@ -2006,7 +2006,7 @@ export interface SharedRelatedArticle extends Struct.ComponentSchema {
   attributes: {
     slug: Schema.Attribute.String &
       Schema.Attribute.Required &
-      Schema.Attribute.CustomField<'global::related-article-slug'>
+      Schema.Attribute.CustomField<'plugin::related-article-slug.related-article-slug'>
   }
 }
 

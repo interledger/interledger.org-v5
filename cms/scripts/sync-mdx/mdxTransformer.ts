@@ -1158,9 +1158,12 @@ export async function buildBlogPayload(
     const rawRelated = Array.isArray(mdx.frontmatter.relatedArticles)
       ? mdx.frontmatter.relatedArticles.map((slug) => String(slug))
       : []
-    const slugErrors = rawRelated
-      .map((slug) => relatedArticleSlugError(slug))
-      .filter((message) => message !== undefined)
+    const slugErrors = rawRelated.flatMap((slug, index) => {
+      const message = relatedArticleSlugError(slug)
+      if (!message) return []
+      const reason = message.replace(/^Related Articles: /, '')
+      return [`relatedArticles[${index}] ${JSON.stringify(slug)}: ${reason}`]
+    })
     if (slugErrors.length > 0) throw new Error(slugErrors.join('; '))
 
     const date = new Date(parsed.date || Date.now())
@@ -1193,7 +1196,7 @@ export async function buildBlogPayload(
     }))
 
     const relatedArticles = rawRelated.map((slug) => ({
-      slug: toSlashedSlug(slug)
+      slug: toSlashedSlug(slug).toLowerCase()
     }))
 
     const articleBio = await buildAuthorBiosPayload(
