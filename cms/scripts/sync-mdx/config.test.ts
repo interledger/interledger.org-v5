@@ -92,51 +92,39 @@ describe('buildContentTypes carousel logo payload', () => {
 })
 
 describe('buildContentTypes draft payload', () => {
-  it('keeps draft for fundraising pages', async () => {
-    const contentTypes = buildContentTypes(
-      '/nonexistent-project-root',
-      'http://localhost:1337',
-      'token'
-    )
-    const mdx = createMdxFile({
-      pathSlug: 'support-us',
-      frontmatter: {
-        title: 'Support us',
-        pathSlug: 'support-us',
-        description: 'Support page',
-        draft: true
-      }
-    })
+  // Removing `draft: true` at launch must send draft: false, or Strapi keeps
+  // the page a draft.
+  it.each([
+    ['fundraising-pages', true, true],
+    ['fundraising-pages', undefined, false],
+    ['foundation-pages', undefined, false]
+  ] as const)(
+    '%s with draft %s sends draft %s',
+    async (type, draft, expected) => {
+      const contentTypes = buildContentTypes(
+        '/nonexistent-project-root',
+        'http://localhost:1337',
+        'token'
+      )
+      const mdx = createMdxFile({
+        pathSlug: 'some-page',
+        frontmatter: {
+          title: 'Some page',
+          pathSlug: 'some-page',
+          description: 'A page',
+          ...(draft === undefined ? {} : { draft })
+        }
+      })
 
-    const payload = await contentTypes['fundraising-pages'].buildPayload(
-      mdx,
-      stubStrapi(),
-      null,
-      false
-    )
+      const payload = await contentTypes[type].buildPayload(
+        mdx,
+        stubStrapi(),
+        null,
+        false
+      )
 
-    expect(payload).not.toBeInstanceOf(Error)
-    expect(payload).toHaveProperty('draft', true)
-  })
-
-  it('keeps draft for foundation pages, which share the builder', async () => {
-    const contentTypes = buildContentTypes(
-      '/nonexistent-project-root',
-      'http://localhost:1337',
-      'token'
-    )
-    const mdx = createMdxFile({
-      pathSlug: 'about',
-      frontmatter: { title: 'About', pathSlug: 'about', description: 'About' }
-    })
-
-    const payload = await contentTypes['foundation-pages'].buildPayload(
-      mdx,
-      stubStrapi(),
-      null,
-      false
-    )
-
-    expect(payload).toHaveProperty('draft', false)
-  })
+      expect(payload).not.toBeInstanceOf(Error)
+      expect(payload).toHaveProperty('draft', expected)
+    }
+  )
 })
