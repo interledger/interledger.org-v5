@@ -98,9 +98,9 @@ Runtime tokens in `base/variables.css`:
 | `--color-bg`      | (unset)          | neutral-150 |
 
 Prose (`components/prose/default.css`) reads `--color-heading` and
-`--color-prose` under `@variant dark`, so summit and hackathon pick up
-white headings and muted body copy without page-level colour overrides.
-`--color-text` stays white for chrome (e.g. microsite footer).
+`--color-prose` under `@variant dark`, so hackathon picks up white headings
+and muted body copy without page-level colour overrides. Summit uses the
+light foundation page, so it keeps the light prose colours.
 
 ## Pillar Theming System
 

@@ -14,7 +14,7 @@ export type BreadcrumbItem = {
 /**
  * Path prefixes that carry no page of their own, mapped to the landing page a
  * breadcrumb must link to instead. `/hackathon` has no page at its route base
- * (see MicrositeHeader), and `/grant` is a route prefix whose hub page lives
+ * (the overview lives at `/hackathon/overview`), and `/grant` is a route prefix whose hub page lives
  * at `/grant/our-grantmaking`.
  */
 const ROOT_LANDING_PATHS: Record<string, string> = {

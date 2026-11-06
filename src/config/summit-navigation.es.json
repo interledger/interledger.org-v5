@@ -1,40 +1,27 @@
 {
   "mainMenu": [
     {
-      "label": "Summit",
+      "label": "Cumbre",
       "items": [
         {
-          "label": "Overview",
-          "href": "/summit/"
+          "label": "Resumen",
+          "href": "/es/summit/"
         },
         {
-          "label": "Sessions",
+          "label": "Sesiones",
           "href": "/es/summit/2025/talks/"
         },
         {
-          "label": "Speakers",
+          "label": "Oradores",
           "href": "/es/summit/2025/speakers/"
         }
       ]
     },
     {
-      "label": "Hackathon",
+      "label": "Cumbres anteriores",
       "items": [
         {
-          "label": "Overview",
-          "href": "/summit/hackathon/"
-        },
-        {
-          "label": "Participation requirements",
-          "href": "/summit/hackathon/participation-requirements/"
-        }
-      ]
-    },
-    {
-      "label": "Past Summits",
-      "items": [
-        {
-          "label": "2024 Cape Town",
+          "label": "2024 Ciudad del Cabo",
           "href": "/summit/2024/"
         },
         {
@@ -42,18 +29,18 @@
           "href": "/summit/2023/"
         },
         {
-          "label": "2022 New Orleans",
+          "label": "2022 Nueva Orleans",
           "href": "/summit/2022/"
         }
       ]
     },
     {
-      "label": "Code of conduct",
-      "href": "/summit/code-of-conduct/"
+      "label": "Código de conducta",
+      "href": "/es/summit/codigo-de-conducta/"
     }
   ],
   "ctaButton": {
     "label": "Interledger Foundation",
-    "href": "/"
+    "href": "/es/"
   }
 }

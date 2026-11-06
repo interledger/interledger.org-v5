@@ -6,7 +6,11 @@ import summitEn from '@/config/summit-navigation.json'
 import summitEs from '@/config/summit-navigation.es.json'
 import hackathonEn from '@/config/hackathon-navigation.json'
 import hackathonEs from '@/config/hackathon-navigation.es.json'
-import type { NavigationData, NavigationSite } from '@/types/navigation'
+import type {
+  MenuGroup,
+  NavigationData,
+  NavigationSite
+} from '@/types/navigation'
 
 const navigationMap: Record<NavigationSite, Record<string, NavigationData>> = {
   foundation: {
@@ -29,4 +33,11 @@ export function getNavigation(
 ): NavigationData {
   const siteMap = navigationMap[site]
   return siteMap[locale] ?? siteMap[defaultLocale]
+}
+
+/** A top-level nav entry that is itself the link, such as Summit's Code of conduct. */
+export function isDirectNavLink(group: MenuGroup): boolean {
+  const hasChildren =
+    (group.items?.length ?? 0) > 0 || (group.subGroups?.length ?? 0) > 0
+  return Boolean(group.href) && !hasChildren
 }

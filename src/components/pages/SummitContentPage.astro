@@ -2,9 +2,11 @@
 import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
-  getHeroSectionStyle,
+  HOME_CONTENT_SLUG,
+  buildSectionEntryBreadcrumbs,
   isDemoPathSlug,
-  getGatedCollection
+  getGatedCollection,
+  useTranslations
 } from '@/utils'
 import { render } from 'astro:content'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
@@ -22,7 +24,8 @@ import InfoCard from '@/components/shared/InfoCard.astro'
 import NumberTiles from '@/components/blocks/NumberTiles.astro'
 import LogoCarousel from '@/components/blocks/LogoCarousel.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import HeroSection from '@/components/shared/HeroSection.astro'
+import PageHero from '@/components/shared/PageHero.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TitleCard from '@/components/shared/TitleCard.astro'
 import CardGrid from '@/components/blocks/CardGrid.astro'
 import ResourceCard from '@/components/shared/ResourceCard.astro'
@@ -54,61 +57,74 @@ const mdxPage = pages.find(
 if (!mdxPage) return Astro.redirect('/404')
 
 Astro.locals.profileEntries = await getGatedCollection('profiles')
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
 
 const { Content: MdxContent } = await render(mdxPage)
-const mdxData = mdxPage.data
+const {
+  title,
+  description,
+  heroTitle,
+  heroDescription,
+  heroImage,
+  heroImageBlur,
+  heroCtas
+} = mdxPage.data
 
-const title = mdxData?.title
-const description = mdxData?.description || undefined
-const mdxHeroTitle = mdxData?.heroTitle || mdxData?.title || ''
-const mdxHeroDescription = mdxData?.heroDescription || ''
-const heroSectionStyle = getHeroSectionStyle(
-  mdxData?.heroImage,
-  mdxData?.heroImageBlur
-)
-const heroCtas = mdxData?.heroCtas ?? []
-const gradient =
-  (mdxData as { gradient?: string } | undefined)?.gradient || 'option1'
-const noindex = isDemoPathSlug(mdxData?.pathSlug)
+const noindex = isDemoPathSlug(mdxPage.data.pathSlug)
+const showBreadcrumbs = slug !== HOME_CONTENT_SLUG
+const breadcrumbs = showBreadcrumbs
+  ? buildSectionEntryBreadcrumbs(
+      slug,
+      'summit',
+      heroTitle || title,
+      routeLocale,
+      t
+    )
+  : undefined
+
+const heroLcpPreload = heroTitle && heroImage ? { image: heroImage } : undefined
 ---
 
 <SummitPageLayout
   title={title}
   description={description}
-  gradient={gradient}
   noindex={noindex}
+  heroLcpPreload={heroLcpPreload}
 >
-  <main
-    class="summit-content relative z-0 pb-3xl text-neutral-0 before:content-[''] before:fixed before:inset-0 before:-z-10 before:bg-[url('/img/bg-swirl.svg')] before:bg-repeat before:bg-[length:100%] before:opacity-25 before:blur-[150px] before:transform before:translate-x-0 before:translate-y-0"
-  >
-    {isFallback && <div class="px-content pt-xl">
+  <main class="page-stack pb-section" data-pillar="mission">
+    {isFallback && !breadcrumbs && <div class="px-content pt-page-offset">
       <div class="content-column flex justify-end">
-        <TranslationDisclaimer isVisible={isFallback} style="summit" />
+        <TranslationDisclaimer isVisible={isFallback} />
       </div>
     </div>}
-    {mdxHeroTitle && (
-      <HeroSection
-        title={mdxHeroTitle}
-        description={mdxHeroDescription}
-        ctas={heroCtas}
-        sectionStyle={heroSectionStyle}
-      />
+    {heroTitle ? (
+      <PageHero
+        title={heroTitle}
+        description={heroDescription ?? description}
+        image={heroImage}
+        imageBlur={heroImageBlur}
+        cta={heroCtas?.[0]}
+        breadcrumbs={breadcrumbs}
+      >
+        <TranslationDisclaimer
+          slot="after-breadcrumbs"
+          isVisible={isFallback}
+        />
+      </PageHero>
+    ) : (
+      <div class="px-content pt-page-offset">
+        <div class="content-column">
+          {breadcrumbs && <Breadcrumbs breadcrumbs={breadcrumbs}>
+            <TranslationDisclaimer isVisible={isFallback} />
+          </Breadcrumbs>}
+          <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">{title}</h1>
+        </div>
+      </div>
     )}
-    {/* A Paragraph block opening the prose brings its own "first" padding,
-      which is the gap under the page header (ADR-009, A3). */}
-    <section
-      class="px-content py-4xl [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:pt-0 [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:[--para-lead-pt:var(--para-first-pt)]"
-    >
-      <!--
-        Content-width shell (@container) with narrow prose inside. Full-width
-        blocks (EventCard, CardGrid) break out to 100cqw so multi-column layouts
-        aren't squeezed into max-w-narrow (720px).
-      -->
-      <div class="content-column @container">
-        <div
-          data-prose-summit
-          class="mx-auto max-w-narrow [&>h2]:mt-3xl [&>h2]:mb-xl [&>h2]:text-[1.75rem] [&>h2]:font-semibold [&>h3]:mt-2xl [&>h3]:mb-lg [&>h3]:text-[1.25rem] [&>h3]:font-semibold [&_p:not([data-intro-variant=paragraph]>p)]:mb-xl [&_p]:leading-[1.6] [&>ul]:mb-xl [&>ul_li]:mb-lg [&_a]:underline [&_a:hover]:no-underline"
-        >
+    <section class="px-content">
+      <div class="content-column">
+        <div data-prose class="mx-auto max-w-content">
           <MdxContent
             components={{
               ...RICH_TEXT_MDX_COMPONENTS,
@@ -146,33 +162,3 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
     </section>
   </main>
 </SummitPageLayout>
-
-<style>
-  .summit-content {
-    color: var(--color-neutral-0);
-  }
-
-  /* Light body text for summit chrome; dark-on-white blocks opt out. */
-  .summit-content
-    :where(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6):not(
-      [data-component='EventCard'] *
-    ):not([data-component='CardGrid'] *):not([data-component='CtaStrip'] *):not(
-      [data-component='LogoCarousel'] *
-    ):not([data-component='NumberTiles'] *) {
-    color: var(--color-neutral-0);
-  }
-
-  /*
-   * Expand full-width blocks to the content shell; prose stays max-w-narrow.
-   * :global — child components' roots are not stamped with this page's Astro
-   * scope attribute, so unscoped selectors never match.
-   */
-  [data-prose-summit] :global([data-component='EventCard']),
-  [data-prose-summit] :global([data-component='CardGrid']) {
-    width: 100cqw;
-    max-width: 100cqw;
-    position: relative;
-    left: 50%;
-    translate: -50% 0;
-  }
-</style>

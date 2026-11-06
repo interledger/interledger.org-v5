@@ -331,8 +331,7 @@ export function buildSessionCardUmamiAttrs(
 /**
  * Shared Umami attrs for a top-level site-nav link (logo, menu item,
  * language toggle, submenu item) — used by `FoundationHeader.astro`,
- * `MicrositeHeader.astro`, `HackathonHeader.astro`, `MicrositeNavMenu.astro`,
- * and `NavMenuLink.astro` (which `FoundationNavMenu.astro` renders through).
+ * `HackathonHeader.astro`, `FoundationNavMenu.astro`, and `NavMenuLink.astro`.
  * Kept in one place so a header can't drift onto a made-up field name
  * instead of `label`/`baseComponent`.
  */
@@ -356,8 +355,8 @@ export function buildNavLinkUmamiAttrs(
 
 /**
  * Shared Umami attrs for a header/nav's CTA button — used by
- * `FoundationHeader.astro`, `MicrositeHeader.astro`, `HackathonHeader.astro`,
- * `FoundationNavActions.astro`, and `MicrositeNavActions.astro`. Kept
+ * `FoundationHeader.astro`, `HackathonHeader.astro`, and
+ * `FoundationNavActions.astro`. Kept
  * separate from `buildNavLinkUmamiAttrs` so a header's plain nav links and
  * its CTA are never tracked under the same bucket by accident.
  */

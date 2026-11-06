@@ -7,6 +7,9 @@
  * (e.g. the homepage). It renders a solid dark bar, light text, and dark
  * dropdown panels. Default `"light"` is the white-bar treatment used on
  * inner pages after scrolling past the hero.
+ *
+ * `site="summit"` keeps this chrome and loads the summit nav, with the logo
+ * pointing at the summit home.
  */
 import FoundationNavMenu from '@/components/layout/FoundationNavMenu.astro'
 import FoundationNavActions from '@/components/layout/FoundationNavActions.astro'
@@ -30,9 +33,11 @@ import {
 
 interface Props {
   theme?: 'light' | 'dark'
+  site?: 'foundation' | 'summit'
 }
 
-const { theme = 'dark' } = Astro.props
+const { theme = 'dark', site = 'foundation' } = Astro.props
+const isSummit = site === 'summit'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
@@ -45,14 +50,17 @@ const alternateLocaleHref = getAlternateLocaleHref(
 )
 const alternateLocaleLabel = alternateLocale?.toUpperCase() ?? ''
 
-const { mainMenu, ctaButton } = getNavigation('foundation', routeLocale)
+const { mainMenu, ctaButton } = getNavigation(
+  isSummit ? 'summit' : 'foundation',
+  routeLocale
+)
 const homeHref = translatePath(
-  'foundation-pages',
+  isSummit ? 'summit-pages' : 'foundation-pages',
   routeLocale,
   HOME_CONTENT_SLUG
 )
-const navLabel = t('nav.main')
-const logoLabel = t('aria.logo.foundation')
+const navLabel = t(isSummit ? 'nav.summit' : 'nav.main')
+const logoLabel = t(isSummit ? 'aria.logo.summit' : 'aria.logo.foundation')
 
 const navLink = (href: string, linkText?: string, ariaLabel?: string) =>
   buildNavLinkUmamiAttrs(

@@ -41,13 +41,8 @@ describe('getFooterOnlyColumn', () => {
     })
   })
 
-  it('falls back to the Foundation-only column for any other non-hackathon site', () => {
-    // SiteFooter only ever renders 'foundation' or 'hackathon' (summit uses
-    // MicrositeFooter instead), but the function itself branches on
-    // 'hackathon' alone, so any other NavigationSite takes this path too.
-    expect(getFooterOnlyColumn('summit', 'en')).toEqual(
-      getFooterOnlyColumn('foundation', 'en')
-    )
+  it('returns null for the summit site, whose footer links all live in summit-navigation', () => {
+    expect(getFooterOnlyColumn('summit', 'en')).toBeNull()
   })
 
   it('localizes hrefs and labels for a non-default locale', () => {

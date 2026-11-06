@@ -24,5 +24,5 @@ export interface NavigationData {
 /** Sites with their own navigation config, one JSON file per site per locale. */
 export type NavigationSite = 'foundation' | 'summit' | 'hackathon'
 
-/** Summit uses the microsite chrome (dark header/footer over BaseLayout). */
+/** Sites that set `Astro.locals.site`. Summit uses foundation chrome; the flag stays so blocks can tell the page from foundation. */
 export type MicrositeSite = Extract<NavigationSite, 'summit'>
