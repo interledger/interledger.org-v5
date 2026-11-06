@@ -2135,6 +2135,11 @@
       "status": 301
     },
     {
+      "source": "/es/summit/programa-del-interledger-summit-2025/",
+      "destination": "/es/summit/2025/talks/",
+      "status": 301
+    },
+    {
       "source": "/hackathon/",
       "destination": "/hackathon/overview/",
       "status": 301

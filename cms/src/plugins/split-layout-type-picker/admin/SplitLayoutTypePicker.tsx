@@ -13,12 +13,19 @@ interface InputProps {
   hint?: string
 }
 
-type FieldKey = 'imagePosition' | 'image' | 'videoUrl' | 'quote' | 'quoteSource'
+type FieldKey =
+  | 'imagePosition'
+  | 'image'
+  | 'videoUrl'
+  | 'videoTitle'
+  | 'quote'
+  | 'quoteSource'
 
 const FIELD_KEYS: FieldKey[] = [
   'imagePosition',
   'image',
   'videoUrl',
+  'videoTitle',
   'quote',
   'quoteSource'
 ]
@@ -234,6 +241,7 @@ function applyFieldVisibility(
 
   setFieldVisibility(prefix, 'image', showImage)
   setFieldVisibility(prefix, 'videoUrl', showVideo)
+  setFieldVisibility(prefix, 'videoTitle', showVideo)
   setFieldVisibility(prefix, 'quote', showQuote)
   setFieldVisibility(prefix, 'quoteSource', showQuote)
 
@@ -271,7 +279,10 @@ function clearIrrelevantFields(
     // stale alt text survives a layout switch either.
     setFieldValue(`${prefix}.media`, null)
   }
-  if (!showVideo) setFieldValue(`${prefix}.videoUrl`, null)
+  if (!showVideo) {
+    setFieldValue(`${prefix}.videoUrl`, null)
+    setFieldValue(`${prefix}.videoTitle`, null)
+  }
   if (!showText) {
     setFieldValue(`${prefix}.content`, null)
     setFieldValue(`${prefix}.buttons`, [])

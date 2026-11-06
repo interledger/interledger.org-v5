@@ -243,6 +243,8 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
     alternativeText: string | null
   }
   videoUrl?: string
+  /** Accessible player name. Not the poster alt. */
+  videoTitle?: string
   content?: string
   quote?: string
   quoteSource?: string

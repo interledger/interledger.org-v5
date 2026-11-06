@@ -5,7 +5,7 @@
  * - <SplitLayout intro={{…}} imagePosition="left|right"
  *     displayRatio="3:2|2:1|1:1|1:2"
  *     imageSrc="..."
- *     videoUrl="..." quote="..." quoteSource="..."
+ *     videoUrl="..." videoTitle="..." quote="..." quoteSource="..."
  *     buttons={[{ text, link, style?, external?, document? }]}>
  *   children (markdown body for the content column)
  *   </SplitLayout>
@@ -76,6 +76,7 @@ async function handleSplitLayout(
     const imageSrc = getStringAttr(node, 'imageSrc')
     const imageAlt = getStringAttr(node, 'imageAlt')
     const videoUrl = getStringAttr(node, 'videoUrl')
+    const videoTitleAttr = getStringAttr(node, 'videoTitle')
     const quote = getStringAttr(node, 'quote')
     const quoteSource = getStringAttr(node, 'quoteSource')
     const content =
@@ -141,6 +142,15 @@ async function handleSplitLayout(
       block.media = { image: imageId, alternativeText: imageAlt ?? null }
     }
     if (isVideoLayout && videoUrl) block.videoUrl = videoUrl
+    if (isVideoLayout) {
+      // imageAlt is the poster alt, and it is only stored with the image.
+      // A video with no poster would otherwise lose its player name and
+      // export as "Video". An explicit videoTitle wins; imageAlt fills in
+      // only when there is no poster to hang it on.
+      const videoTitle =
+        videoTitleAttr?.trim() || (!imageId ? imageAlt?.trim() : '')
+      if (videoTitle) block.videoTitle = videoTitle
+    }
     if (isTextLayout && content) block.content = content
     if (isQuoteLayout && quote) block.quote = quote
     if (isQuoteLayout && quoteSource) block.quoteSource = quoteSource

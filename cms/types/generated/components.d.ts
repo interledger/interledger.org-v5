@@ -1425,6 +1425,12 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    videoTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     videoUrl: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

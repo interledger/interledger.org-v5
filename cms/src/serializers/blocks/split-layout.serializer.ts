@@ -34,6 +34,7 @@ export function serialize(block: {
     alternativeText?: string | null
   } | null
   videoUrl?: string | null
+  videoTitle?: string | null
   content?: string | null
   quote?: string | null
   quoteSource?: string | null
@@ -88,6 +89,11 @@ export function serialize(block: {
 
   if (isVideoLayout && block.videoUrl) {
     attrs.push(`videoUrl="${esc(block.videoUrl)}"`)
+  }
+
+  const videoTitle = block.videoTitle?.trim()
+  if (isVideoLayout && videoTitle) {
+    attrs.push(`videoTitle="${esc(videoTitle)}"`)
   }
 
   if (isQuoteLayout && block.quote) {

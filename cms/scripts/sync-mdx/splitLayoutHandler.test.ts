@@ -167,6 +167,75 @@ describe('SplitLayout handler', () => {
         content: 'Body.'
       }
     ])
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
+  })
+
+  it('keeps a posterless imageAlt as the video title', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<SplitLayout layoutType="video-text" displayRatio="1:1" videoUrl="https://youtu.be/G0GSrKTekdA" imageAlt="Thank you for being part of Summit 2023">Body.</SplitLayout>',
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.split-layout',
+        layoutType: 'video-text',
+        imagePosition: 'right',
+        displayRatio: '1:1',
+        videoUrl: 'https://youtu.be/G0GSrKTekdA',
+        videoTitle: 'Thank you for being part of Summit 2023',
+        content: 'Body.'
+      }
+    ])
+    expect(blocks[0]).not.toHaveProperty('media')
+  })
+
+  it('stores an explicit video title apart from the poster alt', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/4UVw1gQNGp0" videoTitle="Future | Money Arts & Culture Grant" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Talk still">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      videoTitle: 'Future | Money Arts & Culture Grant',
+      media: {
+        image: STRAPI_UPLOAD_ID.primaryImage,
+        alternativeText: 'Talk still'
+      }
+    })
+  })
+
+  it('trims a video title and keeps an accented one', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/abc" videoTitle="  Ponte al día con las charlas 2023  " />',
+      { locale: 'es' }
+    )
+
+    expect(blocks[0]).toMatchObject({
+      videoTitle: 'Ponte al día con las charlas 2023'
+    })
+    expect(blocks[0]).not.toHaveProperty('media')
+  })
+
+  it('drops a blank video title and does not copy a poster alt into it', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/abc" videoTitle="   " imageSrc="${TEST_IMAGE_SRC}" imageAlt="Talk still">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
+    expect(blocks[0]).toMatchObject({
+      media: { alternativeText: 'Talk still' }
+    })
+  })
+
+  it('does not treat imageAlt as a video title on an image layout', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
   })
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
