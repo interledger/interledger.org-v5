@@ -54,6 +54,11 @@ export interface GrantReport {
   // Projects record ID. It matches a record in grantee-data.json only when
   // the grant is published in the directory.
   grantId: string
+  // The grantee that owns the grant, and the grant's year. The report URL
+  // needs both. The sync reads them from Grantees and Projects, because
+  // grantee-data.json holds published grants only.
+  granteeSlug: string
+  grantYear: string
   projectName: string
   reportType: GrantReportType
   reportNumber: number
@@ -81,8 +86,11 @@ export interface SyncedImage {
   alt: string
 }
 
+// A report before the sync joins it to its grantee and grant year.
+export type UnlinkedGrantReport = Omit<GrantReport, 'granteeSlug' | 'grantYear'>
+
 // A report as read from Airtable, before the sync downloads its images.
-export type GrantReportContent = Omit<GrantReport, 'images'>
+export type GrantReportContent = Omit<UnlinkedGrantReport, 'images'>
 
 // An image attachment to download. The URL expires about 2 hours after the
 // API returns it, so the sync downloads it in the same run.

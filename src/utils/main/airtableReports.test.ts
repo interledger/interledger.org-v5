@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { ParsedGrantReport, RawTableRecord } from '@/types/airtable'
+import type {
+  ParsedGrantReport,
+  RawTableRecord,
+  UnlinkedGrantReport
+} from '@/types/airtable'
 import {
   ALLOWED_IMAGE_TYPES,
   MAX_SOURCE_IMAGE_BYTES
@@ -10,6 +14,8 @@ import {
   REPORT_FIELDS,
   findHiddenReportFields,
   isLiveReport,
+  linkReportsToGrantees,
+  readGrantYear,
   reportFieldIdsToFetch,
   toGrantReport,
   toGrantReports
@@ -416,5 +422,143 @@ describe('reportFieldIdsToFetch', () => {
     const ids = reportFieldIdsToFetch()
     expect(ids).toContain(PUBLICATION_STATUS_FIELD_ID)
     expect(ids).toHaveLength(Object.keys(REPORT_FIELDS).length + 1)
+  })
+})
+
+describe('readGrantYear', () => {
+  it('reads the text the Year formula returns', () => {
+    expect(readGrantYear('2022')).toBe('2022')
+    expect(readGrantYear(' 2022 ')).toBe('2022')
+  })
+
+  it('accepts a number', () => {
+    expect(readGrantYear(2022)).toBe('2022')
+  })
+
+  it('rejects anything that is not a four-digit year', () => {
+    expect(readGrantYear(undefined)).toBeUndefined()
+    expect(readGrantYear('')).toBeUndefined()
+    expect(readGrantYear('22')).toBeUndefined()
+    expect(readGrantYear('2022-23')).toBeUndefined()
+    expect(readGrantYear(['2022'])).toBeUndefined()
+  })
+})
+
+describe('linkReportsToGrantees', () => {
+  const OTHER_GRANT_ID = 'recdUkEFGFR3970nG'
+
+  function unlinked(
+    overrides: Partial<UnlinkedGrantReport> = {}
+  ): UnlinkedGrantReport {
+    return {
+      id: 'recReport0000001',
+      grantId: GRANT_ID,
+      projectName: 'Gib',
+      reportType: 'Interim Report',
+      reportNumber: 1,
+      publishedDate: '2026-11-15',
+      reportingPeriodStart: '2026-05-01',
+      reportingPeriodEnd: '2026-10-31',
+      summary: 'Summary',
+      progressOnObjectives: 'Progress',
+      whoBenefits: 'Merchants',
+      outputs: 'A library',
+      whatsNext: 'The final report',
+      license: 'Apache-2.0',
+      outputTypes: ['Software or code'],
+      interledgerTechnologies: ['Open Payments'],
+      images: [],
+      ...overrides
+    }
+  }
+
+  const context = {
+    grantYears: new Map<string, unknown>([
+      [GRANT_ID, '2022'],
+      [OTHER_GRANT_ID, '2020']
+    ]),
+    grantees: [
+      { slug: 'gib', grantIds: [OTHER_GRANT_ID, GRANT_ID] },
+      { slug: 'chimoney', grantIds: [] }
+    ]
+  }
+
+  it('adds the grantee slug and the grant year', () => {
+    expect(linkReportsToGrantees([unlinked()], context)).toEqual([
+      { ...unlinked(), granteeSlug: 'gib', grantYear: '2022' }
+    ])
+  })
+
+  it('passes with no reports', () => {
+    expect(
+      linkReportsToGrantees([], { grantYears: new Map(), grantees: [] })
+    ).toEqual([])
+  })
+
+  it('fails when no grantee owns the grant', () => {
+    const result = linkReportsToGrantees([unlinked()], {
+      ...context,
+      grantees: [{ slug: 'chimoney', grantIds: [] }]
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain(
+      `grant ${GRANT_ID}: expected exactly one grantee in Grantees, found 0`
+    )
+  })
+
+  it('fails when two grantees list the same grant', () => {
+    const result = linkReportsToGrantees([unlinked()], {
+      ...context,
+      grantees: [
+        { slug: 'gib', grantIds: [GRANT_ID] },
+        { slug: 'chimoney', grantIds: [GRANT_ID] }
+      ]
+    })
+    expect((result as Error).message).toContain('found 2')
+  })
+
+  it('fails when the grant has no usable year, and names the report', () => {
+    const result = linkReportsToGrantees([unlinked()], {
+      ...context,
+      grantYears: new Map()
+    })
+    expect((result as Error).message).toContain(
+      'Report Gib Interim Report 1 (ID: recReport0000001)'
+    )
+    expect((result as Error).message).toContain(
+      'expected a four-digit Year in Projects'
+    )
+  })
+
+  it('lists every report that cannot be placed', () => {
+    const result = linkReportsToGrantees(
+      [
+        unlinked(),
+        unlinked({ id: 'recReport0000002', grantId: 'recNoGrant0000000' })
+      ],
+      { ...context, grantYears: new Map() }
+    )
+    expect((result as Error).message).toMatch(/^2 report\(s\) cannot be placed/)
+  })
+
+  it('fails when two reports would share a URL, naming both', () => {
+    const result = linkReportsToGrantees(
+      [unlinked(), unlinked({ id: 'recReport0000002' })],
+      context
+    )
+    expect((result as Error).message).toContain(
+      'grantee gib, year 2022, report 1 is used by recReport0000001, recReport0000002'
+    )
+  })
+
+  it('places reports of two grants with different years apart', () => {
+    const result = linkReportsToGrantees(
+      [
+        unlinked(),
+        unlinked({ id: 'recReport0000002', grantId: OTHER_GRANT_ID })
+      ],
+      context
+    )
+    expect(result).not.toBeInstanceOf(Error)
   })
 })

@@ -1,9 +1,12 @@
 import type {
+  GrantReport,
   GrantReportContent,
   GrantReportType,
+  GranteeProfileContent,
   ParsedGrantReport,
   RawTableRecord,
-  SyncedImageSource
+  SyncedImageSource,
+  UnlinkedGrantReport
 } from '@/types/airtable'
 import {
   describeValue,
@@ -293,4 +296,81 @@ export function reportFieldIdsToFetch(): string[] {
     ...Object.values(REPORT_FIELDS).map(({ id }) => id),
     PUBLICATION_STATUS_FIELD_ID
   ]
+}
+
+// Projects' Year is a formula. It returns text such as "2022", and a number
+// is accepted too, as the directory sync does.
+const GRANT_YEAR_PATTERN = /^\d{4}$/
+
+export function readGrantYear(value: unknown): string | undefined {
+  const text = typeof value === 'number' ? String(value) : value
+  if (typeof text !== 'string') return undefined
+  const year = text.trim()
+  return GRANT_YEAR_PATTERN.test(year) ? year : undefined
+}
+
+export interface GrantContext {
+  // The raw Year value of each Projects record, by record ID. It covers
+  // unpublished grants too: a report on one still goes live (INTORG-1373).
+  grantYears: ReadonlyMap<string, unknown>
+  grantees: readonly Pick<GranteeProfileContent, 'slug' | 'grantIds'>[]
+}
+
+function linkReport(
+  report: UnlinkedGrantReport,
+  { grantYears, grantees }: GrantContext
+): GrantReport | Error {
+  const problems: string[] = []
+  const owners = grantees.filter(({ grantIds }) =>
+    grantIds.includes(report.grantId)
+  )
+  if (owners.length !== 1) {
+    problems.push(
+      `grant ${report.grantId}: expected exactly one grantee in Grantees, found ${owners.length}`
+    )
+  }
+  const grantYear = readGrantYear(grantYears.get(report.grantId))
+  if (grantYear === undefined) {
+    problems.push(
+      `grant ${report.grantId}: expected a four-digit Year in Projects, got ${describeValue(grantYears.get(report.grantId))}`
+    )
+  }
+  const [owner] = owners
+  if (problems.length > 0 || owner === undefined || grantYear === undefined) {
+    const label = `${report.projectName} ${report.reportType} ${report.reportNumber} (ID: ${report.id})`
+    return new Error(formatProblems(`Report ${label}`, problems))
+  }
+  return { ...report, granteeSlug: owner.slug, grantYear }
+}
+
+// The report URL is built from these three, so two reports that share them
+// would share a URL. That happens when one grantee has two grants in one year.
+function findSharedReportKeys(reports: readonly GrantReport[]): string[] {
+  const idsByKey = new Map<string, string[]>()
+  for (const { granteeSlug, grantYear, reportNumber, id } of reports) {
+    const key = `grantee ${granteeSlug}, year ${grantYear}, report ${reportNumber}`
+    idsByKey.set(key, [...(idsByKey.get(key) ?? []), id])
+  }
+  return [...idsByKey]
+    .filter(([, ids]) => ids.length > 1)
+    .map(([key, ids]) => `${key} is used by ${ids.join(', ')}`)
+}
+
+// Adds the grantee slug and the grant year that the report URL needs. One
+// report that cannot be placed fails the whole set, with every one listed.
+export function linkReportsToGrantees(
+  reports: readonly UnlinkedGrantReport[],
+  context: GrantContext
+): GrantReport[] | Error {
+  const { values, problems } = partitionRecordResults(
+    reports.map((report) => linkReport(report, context))
+  )
+  if (problems.length > 0) {
+    return recordProblemsError(problems, 'report(s) cannot be placed')
+  }
+  const shared = findSharedReportKeys(values)
+  if (shared.length > 0) {
+    return recordProblemsError(shared, 'report URL(s) used twice')
+  }
+  return values
 }

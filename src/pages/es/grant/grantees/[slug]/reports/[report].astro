@@ -1,0 +1,20 @@
+---
+import type { GetStaticPaths } from 'astro'
+import rawGrantReports from '@/data/airtable/grant-reports.json'
+import GrantReportPage from '@/components/pages/GrantReportPage.astro'
+import { getGrantReportRoutes, hideGrantReports } from '@/utils'
+import type { GrantReportRoute } from '@/utils'
+
+type Props = GrantReportRoute['props']
+
+// No paths in production until the feature is released (INTORG-1313).
+export const getStaticPaths = (() => {
+  const routes = getGrantReportRoutes(rawGrantReports, hideGrantReports())
+  if (routes instanceof Error) throw routes
+  return routes
+}) satisfies GetStaticPaths
+
+const { report, reportPath } = Astro.props
+---
+
+<GrantReportPage report={report} reportPath={reportPath} />

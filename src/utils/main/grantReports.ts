@@ -1,8 +1,10 @@
 import { z } from 'zod'
 import type { GrantReport } from '@/types/airtable'
 import { isRecordId } from './airtableFieldValues'
+import { SLUG_PATTERN } from './airtableProfiles'
 import type { Locale } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
+import { granteeBasePath } from './routes'
 
 // Reads src/data/airtable/grant-reports.json for the report pages. The
 // Airtable sync validates every report before it writes the file, so a
@@ -18,6 +20,8 @@ const options = z.array(z.string().min(1)).min(1)
 const grantReportSchema = z.object({
   id: z.string().min(1),
   grantId: z.string().refine(isRecordId, 'expected an Airtable record ID'),
+  granteeSlug: z.string().regex(SLUG_PATTERN),
+  grantYear: z.string().regex(/^\d{4}$/),
   projectName: z.string().min(1),
   reportType: z.enum(['Interim Report', 'Final Report']),
   reportNumber: z.number().int().positive(),
@@ -46,6 +50,60 @@ export function parseGrantReports(data: unknown): GrantReport[] | Error {
     )
   }
   return result.data
+}
+
+// <grant year>-<report number>, for example 2022-1. Report numbers restart
+// for each grant, and one grantee can have grants in several years.
+export function grantReportSegment({
+  grantYear,
+  reportNumber
+}: Pick<GrantReport, 'grantYear' | 'reportNumber'>): string {
+  return `${grantYear}-${reportNumber}`
+}
+
+// The report URL without the locale prefix. Reports sit under their grantee,
+// where the profile pages will live, so the URL does not change when the
+// profiles ship (Sarah, INTORG-1310).
+export function grantReportPath(
+  report: Pick<GrantReport, 'granteeSlug' | 'grantYear' | 'reportNumber'>
+): string {
+  return `${granteeBasePath(report.granteeSlug)}/reports/${grantReportSegment(report)}`
+}
+
+export interface GrantReportRoute {
+  params: { slug: string; report: string }
+  props: { report: GrantReport; reportPath: string }
+}
+
+function findSharedReportPaths(reports: readonly GrantReport[]): string[] {
+  const idsByPath = new Map<string, string[]>()
+  for (const report of reports) {
+    const reportPath = grantReportPath(report)
+    idsByPath.set(reportPath, [...(idsByPath.get(reportPath) ?? []), report.id])
+  }
+  return [...idsByPath]
+    .filter(([, ids]) => ids.length > 1)
+    .map(([reportPath, ids]) => `${reportPath} is used by ${ids.join(', ')}`)
+}
+
+// One static path per report, or none while the feature gate is on. The
+// caller passes the gate in, so this stays a pure function of its input. Two
+// reports with one URL fail the build: one of them would never be built.
+export function getGrantReportRoutes(
+  data: unknown,
+  hideReports: boolean
+): GrantReportRoute[] | Error {
+  if (hideReports) return []
+  const reports = parseGrantReports(data)
+  if (reports instanceof Error) return reports
+  const shared = findSharedReportPaths(reports)
+  if (shared.length > 0) {
+    return new Error(`Grant report URLs must be unique:\n${shared.join('\n')}`)
+  }
+  return reports.map((report) => ({
+    params: { slug: report.granteeSlug, report: grantReportSegment(report) },
+    props: { report, reportPath: grantReportPath(report) }
+  }))
 }
 
 const REPORT_DATE_LOCALES: Record<Locale, string> = {

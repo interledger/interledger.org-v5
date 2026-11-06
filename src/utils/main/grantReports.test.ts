@@ -1,11 +1,33 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { GrantReport } from '@/types/airtable'
-import { formatReportDate, parseGrantReports } from './grantReports'
+
+// `./routes` -> `./locales` reaches Astro's virtual modules for i18n config.
+// Only path building runs here, so minimal mocks are enough (as routes.test.ts).
+vi.mock('astro:config/client', () => ({
+  i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
+}))
+vi.mock('astro:i18n', () => ({
+  toCodes: (locales: string[]) => locales
+}))
+vi.mock('astro:content', async () => {
+  const { z } = await import('zod')
+  return { z, getCollection: vi.fn().mockResolvedValue([]) }
+})
+
+const {
+  formatReportDate,
+  getGrantReportRoutes,
+  grantReportPath,
+  grantReportSegment,
+  parseGrantReports
+} = await import('./grantReports')
 
 function report(overrides: Partial<GrantReport> = {}): GrantReport {
   return {
     id: 'recReport0000001',
     grantId: 'recUSF6jZiBVoqG01',
+    granteeSlug: 'gib',
+    grantYear: '2022',
     projectName: 'Gib',
     reportType: 'Interim Report',
     reportNumber: 1,
@@ -59,6 +81,16 @@ describe('parseGrantReports', () => {
     expect((result as Error).message).toContain('0.grantId')
   })
 
+  it('fails on a grantee slug that cannot be a URL segment', () => {
+    const result = parseGrantReports([report({ granteeSlug: 'Café-Gib' })])
+    expect((result as Error).message).toContain('0.granteeSlug')
+  })
+
+  it('fails on a grant year that is not four digits', () => {
+    const result = parseGrantReports([report({ grantYear: '22' })])
+    expect((result as Error).message).toContain('0.grantYear')
+  })
+
   it('fails on an empty section or option list', () => {
     expect(parseGrantReports([report({ summary: '' })])).toBeInstanceOf(Error)
     expect(parseGrantReports([report({ outputTypes: [] })])).toBeInstanceOf(
@@ -95,5 +127,55 @@ describe('formatReportDate', () => {
 
   it('returns the value as is when it is not a date', () => {
     expect(formatReportDate('soon', 'en')).toBe('soon')
+  })
+})
+
+describe('grantReportPath', () => {
+  it('puts the report under its grantee, keyed by grant year and number', () => {
+    expect(grantReportSegment(report())).toBe('2022-1')
+    expect(grantReportPath(report())).toBe('grant/grantees/gib/reports/2022-1')
+  })
+
+  it('tells apart two grants of one grantee by their year', () => {
+    const older = report({ grantYear: '2020' })
+    expect(grantReportPath(older)).not.toBe(grantReportPath(report()))
+  })
+})
+
+describe('getGrantReportRoutes', () => {
+  it('returns no routes while the gate hides reports', () => {
+    expect(getGrantReportRoutes([report()], true)).toEqual([])
+  })
+
+  it('does not read the data while the gate hides reports', () => {
+    expect(getGrantReportRoutes({}, true)).toEqual([])
+  })
+
+  it('builds one route per report, with the path the page links to', () => {
+    const routes = getGrantReportRoutes([report()], false)
+    expect(routes).toEqual([
+      {
+        params: { slug: 'gib', report: '2022-1' },
+        props: {
+          report: report(),
+          reportPath: 'grant/grantees/gib/reports/2022-1'
+        }
+      }
+    ])
+  })
+
+  it('fails when two reports would share a URL, naming both', () => {
+    const result = getGrantReportRoutes(
+      [report(), report({ id: 'recReport0000002' })],
+      false
+    )
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain(
+      'grant/grantees/gib/reports/2022-1 is used by recReport0000001, recReport0000002'
+    )
+  })
+
+  it('returns the parse error for a bad file', () => {
+    expect(getGrantReportRoutes({}, false)).toBeInstanceOf(Error)
   })
 })
