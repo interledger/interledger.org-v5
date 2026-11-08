@@ -300,13 +300,25 @@ describe('findLegacyBlockAttrs', () => {
     ])
   })
 
-  it('accepts intro, buttons and a standalone carousel heading', () => {
+  it('finds a block written inline in a line of text', () => {
+    expect(legacyAttrs('See below <Faq heading="About" />\n')).toEqual([
+      { line: 1, block: 'Faq', attr: 'heading' }
+    ])
+  })
+
+  // The sync has no `standalone` field, so it rejects this heading too.
+  it('finds the heading of a standalone carousel', () => {
+    const source = '<LogoCarousel standalone heading="Partners" logos={[]} />\n'
+    expect(legacyAttrs(source)).toEqual([
+      { line: 1, block: 'LogoCarousel', attr: 'heading' }
+    ])
+  })
+
+  it('accepts intro and buttons', () => {
     const source = [
       '<Faq intro={{"heading":"A"}} />',
       '',
       '<SplitLayout buttons={[{"text":"Go","link":"/go/"}]} />',
-      '',
-      '<LogoCarousel standalone heading="Partners" logos={[]} />',
       ''
     ].join('\n')
     expect(legacyAttrs(source)).toEqual([])

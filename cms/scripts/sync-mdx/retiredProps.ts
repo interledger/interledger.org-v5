@@ -10,28 +10,41 @@ import { MdxParserError, ParserErrorCode } from './parserErrors'
 const INTRO_HINT = 'Move it into intro={{"heading":"…"}}.'
 const BUTTONS_HINT = 'Move it into buttons={[{"text":"…","link":"…"}]}.'
 
-interface RetiredProps {
-  names: readonly string[]
-  hint: string
+/** Each block that takes an intro, and the heading prop the intro replaced. */
+export const RETIRED_HEADING_PROPS: Readonly<Record<string, string>> = {
+  CardGrid: 'title',
+  EventCard: 'title',
+  Faq: 'heading',
+  LogoCarousel: 'heading',
+  NumberTiles: 'title',
+  ProfileGrid: 'heading'
 }
 
-/** Each block and the props it no longer takes. */
-export const RETIRED_BLOCK_PROPS: Readonly<Record<string, RetiredProps>> = {
-  CardGrid: { names: ['title'], hint: INTRO_HINT },
-  EventCard: { names: ['title'], hint: INTRO_HINT },
-  Faq: { names: ['heading'], hint: INTRO_HINT },
-  LogoCarousel: { names: ['heading'], hint: INTRO_HINT },
-  NumberTiles: { names: ['title'], hint: INTRO_HINT },
-  ProfileGrid: { names: ['heading'], hint: INTRO_HINT },
-  SplitLayout: {
-    names: ['ctaText', 'ctaLink', 'ctaStyle', 'ctaExternal', 'ctaDocument'],
-    hint: BUTTONS_HINT
+export const SPLIT_LAYOUT = 'SplitLayout'
+
+/** The single Split layout CTA that the `buttons` group replaced. */
+export const RETIRED_SPLIT_LAYOUT_CTA_PROPS = [
+  'ctaText',
+  'ctaLink',
+  'ctaStyle',
+  'ctaExternal',
+  'ctaDocument'
+] as const
+
+/** The retired props on a block named `name`, with how to fix them. */
+export function retiredPropsOf(
+  name: string | null
+): { names: readonly string[]; hint: string } | null {
+  if (name === SPLIT_LAYOUT) {
+    return { names: RETIRED_SPLIT_LAYOUT_CTA_PROPS, hint: BUTTONS_HINT }
   }
+  const heading = name ? RETIRED_HEADING_PROPS[name] : undefined
+  return heading ? { names: [heading], hint: INTRO_HINT } : null
 }
 
 /** The first retired prop on a block, as a parser error, or `null`. */
 export function findRetiredProp(node: JsxBlockNode): MdxParserError | null {
-  const retired = node.name ? RETIRED_BLOCK_PROPS[node.name] : undefined
+  const retired = retiredPropsOf(node.name)
   if (!retired) return null
 
   const attr = node.attributes.find(

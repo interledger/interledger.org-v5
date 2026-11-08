@@ -19,18 +19,21 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkMdx from 'remark-mdx'
 import type { Root, RootContent } from 'mdast'
-import type { MdxJsxAttribute, MdxJsxFlowElement } from 'mdast-util-mdx-jsx'
+import type {
+  MdxJsxAttribute,
+  MdxJsxFlowElement,
+  MdxJsxTextElement
+} from 'mdast-util-mdx-jsx'
 import type { SerializedBlockIntro } from '../src/utils/contentTypes'
+import {
+  RETIRED_HEADING_PROPS,
+  RETIRED_SPLIT_LAYOUT_CTA_PROPS,
+  SPLIT_LAYOUT,
+  retiredPropsOf
+} from './sync-mdx/retiredProps'
 
-/** Blocks that take an intro, and the legacy attribute each one replaces. */
-export const INTRO_BLOCK_LEGACY_ATTRS: Readonly<Record<string, string>> = {
-  CardGrid: 'title',
-  EventCard: 'title',
-  Faq: 'heading',
-  LogoCarousel: 'heading',
-  NumberTiles: 'title',
-  ProfileGrid: 'heading'
-}
+/** A JSX element on its own lines (flow) or inside a line of text. */
+type JsxElement = MdxJsxFlowElement | MdxJsxTextElement
 
 const FAKE_INTRO_WRAPPER = 'Paragraph'
 
@@ -45,6 +48,18 @@ function blankFrontmatter(source: string): string {
   return source.replace(FRONTMATTER, (frontmatter) =>
     frontmatter.replace(/[^\r\n]/g, ' ')
   )
+}
+
+/** Parses MDX source with its frontmatter blanked, or returns the error. */
+function parseMdxSource(source: string): Root | Error {
+  try {
+    return unified()
+      .use(remarkParse)
+      .use(remarkMdx)
+      .parse(blankFrontmatter(source)) as Root
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error))
+  }
 }
 
 /** Inline content a description may hold and still fold cleanly. */
@@ -100,14 +115,11 @@ function isIntroBlock(
   return (
     isFlowElement(node) &&
     node.name !== null &&
-    node.name in INTRO_BLOCK_LEGACY_ATTRS
+    node.name in RETIRED_HEADING_PROPS
   )
 }
 
-function findAttr(
-  node: MdxJsxFlowElement,
-  name: string
-): MdxJsxAttribute | undefined {
+function findAttr(node: JsxElement, name: string): MdxJsxAttribute | undefined {
   return node.attributes.find(
     (attr): attr is MdxJsxAttribute =>
       attr.type === 'mdxJsxAttribute' && attr.name === name
@@ -124,10 +136,11 @@ function afterTagName(node: MdxJsxFlowElement): number | null {
   return offsets && node.name ? offsets.start + 1 + node.name.length : null
 }
 
-/** Rewrites `title="…"` / `heading="…"` on one block into `intro={…}`. */
 /**
- * A standalone LogoCarousel (the homepage's) keeps `heading` as its centred
- * title and has no intro, so its `heading` is not a legacy attribute.
+ * A standalone LogoCarousel renders `heading` as its centred title and no
+ * intro, so moving the heading into an intro would hide it. The migration
+ * leaves it alone; `findLegacyBlockAttrs` still reports it, because the sync
+ * has no `standalone` field and rejects the `heading`.
  */
 function isStandaloneCarousel(node: MdxJsxFlowElement): boolean {
   return (
@@ -135,8 +148,9 @@ function isStandaloneCarousel(node: MdxJsxFlowElement): boolean {
   )
 }
 
+/** Rewrites `title="…"` / `heading="…"` on one block into `intro={…}`. */
 function legacyHeadingEdit(node: MdxJsxFlowElement): Edit | null {
-  const legacyName = node.name ? INTRO_BLOCK_LEGACY_ATTRS[node.name] : undefined
+  const legacyName = node.name ? RETIRED_HEADING_PROPS[node.name] : undefined
   if (!legacyName || findAttr(node, 'intro') || isStandaloneCarousel(node))
     return null
 
@@ -152,7 +166,7 @@ function legacyHeadingEdit(node: MdxJsxFlowElement): Edit | null {
 }
 
 function hasHeading(node: MdxJsxFlowElement): boolean {
-  const legacyName = node.name ? INTRO_BLOCK_LEGACY_ATTRS[node.name] : ''
+  const legacyName = node.name ? RETIRED_HEADING_PROPS[node.name] : ''
   const legacy = legacyName ? findAttr(node, legacyName) : undefined
   return (
     findAttr(node, 'intro') !== undefined ||
@@ -276,15 +290,6 @@ function foldPass(root: Root, source: string, fold: boolean): FoldPass {
   return pass
 }
 
-const SPLIT_LAYOUT = 'SplitLayout'
-const SPLIT_LAYOUT_CTA_ATTRS = [
-  'ctaText',
-  'ctaLink',
-  'ctaStyle',
-  'ctaExternal',
-  'ctaDocument'
-] as const
-
 /**
  * A JSX attribute set to true: valueless, `{true}` or `"true"`, the same
  * forms `getBooleanAttr` accepts in the sync.
@@ -319,7 +324,9 @@ function splitLayoutCtaEdits(node: MdxJsxFlowElement, source: string): Edit[] {
     ...(isTrueAttr(findAttr(node, 'ctaExternal')) ? { external: true } : {}),
     ...(isTrueAttr(findAttr(node, 'ctaDocument')) ? { document: true } : {})
   }
-  const ranges = SPLIT_LAYOUT_CTA_ATTRS.map((name) => findAttr(node, name))
+  const ranges = RETIRED_SPLIT_LAYOUT_CTA_PROPS.map((name) =>
+    findAttr(node, name)
+  )
     .map((attr) => (attr ? offsetsOf(attr) : null))
     .filter((offsets): offsets is Offsets => offsets !== null)
     .sort((a, b) => a.start - b.start)
@@ -346,11 +353,17 @@ function startOfLeadingSpace(source: string, offset: number): number {
 
 /** Every flow element in the tree, nested ones included. */
 function flowElements(node: Root | RootContent): MdxJsxFlowElement[] {
-  const own = isFlowElement(node as RootContent)
-    ? [node as MdxJsxFlowElement]
-    : []
+  return jsxElements(node).filter(isFlowElement)
+}
+
+/** Every JSX element in the tree, flow or inline, nested ones included. */
+function jsxElements(node: Root | RootContent): JsxElement[] {
+  const own =
+    node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
+      ? [node]
+      : []
   const children = 'children' in node ? (node.children as RootContent[]) : []
-  return [...own, ...children.flatMap(flowElements)]
+  return [...own, ...children.flatMap(jsxElements)]
 }
 
 export interface LegacyBlockAttr {
@@ -361,38 +374,25 @@ export interface LegacyBlockAttr {
 
 /**
  * Every legacy attribute still on a block, in any form: a string or an
- * expression value, beside an `intro`, or a Split layout CTA without its
- * link. The migration rewrites only the clean cases; this reports them all,
- * because Strapi, the sync and the components ignore every one of them.
+ * expression value, beside an `intro`, on an inline or standalone block, or
+ * a Split layout CTA without its link. The migration rewrites only the clean
+ * cases; this reports every one the sync would reject.
  */
 export function findLegacyBlockAttrs(
   source: string
 ): LegacyBlockAttr[] | Error {
-  let root: Root
-  try {
-    root = unified()
-      .use(remarkParse)
-      .use(remarkMdx)
-      .parse(blankFrontmatter(source)) as Root
-  } catch (error) {
-    return error instanceof Error ? error : new Error(String(error))
-  }
+  const root = parseMdxSource(source)
+  if (root instanceof Error) return root
 
-  return flowElements(root).flatMap((node) => {
-    const legacyHeading = node.name
-      ? INTRO_BLOCK_LEGACY_ATTRS[node.name]
-      : undefined
-    const legacyNames: readonly string[] =
-      node.name === SPLIT_LAYOUT
-        ? SPLIT_LAYOUT_CTA_ATTRS
-        : legacyHeading && !isStandaloneCarousel(node)
-          ? [legacyHeading]
-          : []
-    return legacyNames.flatMap((name) => {
+  return jsxElements(root).flatMap((node) => {
+    const retired = retiredPropsOf(node.name)
+    if (!retired || !node.name) return []
+    const block = node.name
+    return retired.names.flatMap((name) => {
       const attr = findAttr(node, name)
-      if (!attr || !node.name) return []
+      if (!attr) return []
       const line = attr.position?.start.line ?? node.position?.start.line ?? 0
-      return [{ line, block: node.name, attr: name }]
+      return [{ line, block, attr: name }]
     })
   })
 }
@@ -424,15 +424,8 @@ export function migrateBlockIntro(
   source: string,
   { fold = false }: { fold?: boolean } = {}
 ): BlockIntroMigration | Error {
-  let root: Root
-  try {
-    root = unified()
-      .use(remarkParse)
-      .use(remarkMdx)
-      .parse(blankFrontmatter(source)) as Root
-  } catch (error) {
-    return error instanceof Error ? error : new Error(String(error))
-  }
+  const root = parseMdxSource(source)
+  if (root instanceof Error) return root
 
   const pass = foldPass(root, source, fold)
   const legacyEdits = introBlocks(root)
