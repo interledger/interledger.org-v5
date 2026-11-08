@@ -824,9 +824,7 @@ export function validateBlogFields(
     })
   } else {
     for (const [i, item] of related.entries()) {
-      const message = relatedArticleSlugError(item.slug ?? '', {
-        allowStoredSlug: true
-      })
+      const message = relatedArticleSlugError(item.slug ?? '')
       if (message) {
         fieldErrors.push({ message, path: ['relatedArticles', i, 'slug'] })
       }

@@ -25,30 +25,18 @@ describe('relatedArticleSlugError', () => {
     ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
   })
 
-  it.each(['interledger-universe', '/interledger-universe/'])(
-    'turns a single segment (%s) into a blog path',
-    (slug) => {
-      expect(relatedArticleSlugError(slug)).toBe(
-        'Related Articles: should be a blog path, like /blog/interledger-universe/.'
-      )
-    }
-  )
-
-  it('accepts the stored /slug/ form when a save asks for it', () => {
-    expect(
-      relatedArticleSlugError('/my-post/', { allowStoredSlug: true })
-    ).toBeUndefined()
-    expect(
-      relatedArticleSlugError('my-post', { allowStoredSlug: true })
-    ).toBeUndefined()
-  })
-
-  it('still rejects another section when the stored form is allowed', () => {
-    expect(
-      relatedArticleSlugError('/grant/eoi-call-for-papers-reviewer/', {
-        allowStoredSlug: true
-      })
-    ).toBe('Related Articles: should be a blog path, like /blog/my-post/.')
+  it.each([
+    ['interledger-universe', '/blog/interledger-universe/'],
+    ['/interledger-universe/', '/blog/interledger-universe/'],
+    ['/my-post/', '/blog/my-post/'],
+    // A grant slug is one segment too. The old stored form is the same shape,
+    // so a save cannot tell a new value from a row sync has not rewritten.
+    ['/eoi-call-for-papers-reviewer/', '/blog/eoi-call-for-papers-reviewer/'],
+    ['/grant-slug', '/blog/grant-slug/']
+  ])('rejects a single segment (%s)', (slug, suggestion) => {
+    expect(relatedArticleSlugError(slug)).toBe(
+      `Related Articles: should be a blog path, like ${suggestion}.`
+    )
   })
 
   it('keeps the slug from a pasted blog URL', () => {
@@ -91,12 +79,19 @@ describe('visibleRelatedArticleSlugError', () => {
     ).toBe(serverError)
   })
 
-  it('lets a stored single-segment slug through after a save', () => {
-    const serverError = 'Related Articles: Slug is required'
-    expect(
-      visibleRelatedArticleSlugError('/my-post/', serverError, false)
-    ).toBeUndefined()
-  })
+  it.each(['/my-post/', '/eoi-call-for-papers-reviewer/', '/grant-slug'])(
+    'rejects %s in the admin field after a save',
+    (slug) => {
+      const segment = slug.replace(/^\/|\/$/g, '')
+      expect(
+        visibleRelatedArticleSlugError(
+          slug,
+          'Related Articles: Slug is required',
+          false
+        )
+      ).toBe(`Related Articles: should be a blog path, like /blog/${segment}/.`)
+    }
+  )
 
   it('leaves an empty field to the required error', () => {
     expect(

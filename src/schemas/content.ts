@@ -83,9 +83,9 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 related posts. The CMS stores `/blog/{slug}/` and rejects a
-  // URL or another section (INTORG-1346). Until sync:mdx, a slug already
-  // stored as `/my-post/` still saves. This reduces either form to the
+  // Exactly 3 related posts. The CMS requires `/blog/{slug}/` and rejects a
+  // bare slug, a URL, or another section (INTORG-1346). This reduces a
+  // `/blog/{slug}/` path, and a legacy bare slug still in a file, to the
   // pathSlug the page matches. A bad file still parses.
   relatedArticles: z
     .array(z.string().transform(relatedArticlePathSlug))

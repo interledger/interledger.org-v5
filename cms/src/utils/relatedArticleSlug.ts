@@ -31,36 +31,19 @@ function suggestedBlogPath(value: string): string {
 }
 
 /**
- * One segment, the form already stored on a post (`my-post` or `/my-post/`).
- * `/blog/my-post/` has two segments, so it is not this form.
- */
-const STORED_RELATED_ARTICLE_SLUG = /^\/[A-Za-z0-9._~-]+\/$/
-
-function isStoredRelatedArticleSlug(value: string): boolean {
-  return STORED_RELATED_ARTICLE_SLUG.test(toSlashedSlug(value))
-}
-
-/**
- * A related article must be `/blog/{slug}/`, the post's public path. A
- * `/grant/...` path or a pasted URL used to save and then match no post, so
- * the card never showed (INTORG-1346).
+ * A related article must be `/blog/{slug}/`, the post's public path. A bare
+ * slug, a `/grant/...` path, or a pasted URL used to save and then match no
+ * post, so the card never showed (INTORG-1346).
  *
- * Document validation runs on every create and update, not only publish.
- * Until `sync:mdx` rewrites each row, Strapi still holds `/my-post/`. Pass
- * `allowStoredSlug` on that save so an editor can fix a typo without retyping
- * all three related posts. The MDX sync stays strict. Drop the allowance once
- * every row stores `/blog/{slug}/`. The save hook adds a missing trailing
- * slash before this runs.
+ * Save and MDX sync call this the same way. One segment is both the old
+ * `/my-post/` form and a new grant slug such as
+ * `/eoi-call-for-papers-reviewer/` or `/grant-slug`, so every value of that
+ * shape is rejected. The save hook adds a missing trailing slash and
+ * lowercases the value before this runs.
  */
-export function relatedArticleSlugError(
-  slug: string,
-  options?: { allowStoredSlug?: boolean }
-): string | undefined {
+export function relatedArticleSlugError(slug: string): string | undefined {
   if (!toSlashedSlug(slug)) return 'Related Articles: Slug is required'
   if (isRelatedArticleSlug(slug)) return undefined
-  if (options?.allowStoredSlug && isStoredRelatedArticleSlug(slug)) {
-    return undefined
-  }
   return `Related Articles: should be a blog path, like ${suggestedBlogPath(slug)}.`
 }
 
@@ -73,7 +56,7 @@ export function relatedArticleFieldError(
   formError?: string
 ): string | undefined {
   if (typeof value !== 'string' || !toSlashedSlug(value)) return formError
-  return relatedArticleSlugError(value, { allowStoredSlug: true })
+  return relatedArticleSlugError(value)
 }
 
 /**

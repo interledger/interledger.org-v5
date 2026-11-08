@@ -9,7 +9,7 @@
       "type": "customField",
       "customField": "plugin::related-article-slug.related-article-slug",
       "required": true,
-      "description": "The blog post path, like /blog/my-post/. A path from another section or a full URL is rejected. A slug already stored as /my-post/ still saves until sync:mdx rewrites it."
+      "description": "The blog post path, like /blog/my-post/. A bare slug, a path from another section, or a full URL is rejected."
     }
   },
   "config": {}

@@ -3395,7 +3395,7 @@ describe('buildBlogPayload', () => {
       ])
     })
 
-    // INTORG-1346: a bare slug or another section saves and then matches no post.
+    // INTORG-1346: a bare slug or another section matches no post.
     it('rejects a bare slug, a grant path, and a pasted URL', async () => {
       const payload = await payloadFor([
         '/grant/eoi-call-for-papers-reviewer/',
@@ -3409,6 +3409,22 @@ describe('buildBlogPayload', () => {
           'relatedArticles[0] "/grant/eoi-call-for-papers-reviewer/": should be a blog path, like /blog/my-post/.',
           'relatedArticles[1] "two": should be a blog path, like /blog/two/.',
           'relatedArticles[2] "/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/": should be a blog path, like /blog/taxes-on-digital-financial-services-in-africa/.'
+        ].join('; ')
+      )
+    })
+
+    it('rejects a one-segment grant slug', async () => {
+      const payload = await payloadFor([
+        '/eoi-call-for-papers-reviewer/',
+        '/grant-slug',
+        '/blog/one/'
+      ])
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toBe(
+        [
+          'relatedArticles[0] "/eoi-call-for-papers-reviewer/": should be a blog path, like /blog/eoi-call-for-papers-reviewer/.',
+          'relatedArticles[1] "/grant-slug": should be a blog path, like /blog/grant-slug/.'
         ].join('; ')
       )
     })

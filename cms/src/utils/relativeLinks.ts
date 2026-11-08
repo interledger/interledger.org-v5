@@ -423,8 +423,8 @@ const BLOG_SLUG_SEGMENT = '[A-Za-z0-9._~-]+'
 /**
  * `/blog/{slug}/`, the form a related article is stored as. A missing
  * trailing slash is filled in, matching {@link toSlashedSlug}. Save
- * lowercases the value. A bare `/my-post/` is not this pattern; document
- * validation still accepts it until `sync:mdx` (INTORG-1346).
+ * lowercases the value. A bare `/my-post/` is not this pattern, and
+ * document validation rejects it (INTORG-1346).
  */
 const RELATED_ARTICLE_PATH = new RegExp(`^/blog/${BLOG_SLUG_SEGMENT}/$`)
 

@@ -1144,7 +1144,11 @@ describe('validateBlogFields', () => {
     [
       'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
       '/blog/my-post/'
-    ]
+    ],
+    ['/eoi-call-for-papers-reviewer/', '/blog/eoi-call-for-papers-reviewer/'],
+    ['/grant-slug', '/blog/grant-slug/'],
+    ['/my-post/', '/blog/my-post/'],
+    ['two', '/blog/two/']
   ])('rejects %s and suggests %s', (slug, suggestion) => {
     const err = validateBlogFields({
       featureMedia: { image: 12 },
@@ -1189,19 +1193,6 @@ describe('validateBlogFields', () => {
       ['relatedArticles', '1', 'slug'],
       ['relatedArticles', '2', 'slug']
     ])
-  })
-
-  it('accepts the stored /slug/ form beside a /blog/ path', () => {
-    expect(
-      validateBlogFields({
-        featureMedia: { image: 12 },
-        relatedArticles: [
-          { slug: '/my-post/' },
-          { slug: 'two' },
-          { slug: '/blog/three/' }
-        ]
-      })
-    ).toBeUndefined()
   })
 
   it('accepts a /blog/{slug}/ path with or without its trailing slash', () => {
