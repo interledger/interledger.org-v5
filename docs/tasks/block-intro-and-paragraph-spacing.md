@@ -182,7 +182,7 @@ Scope decision (2026-11-04): remove the legacy fields and their fallbacks, but k
 - **Tokens:** `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`.
 - **Bridge rules:** the comments in `prose/rhythm.css`, `utilities/spacing.css` and `prose/paragraph-block.css` now describe them as permanent. ADR-009 moves to Accepted.
 - **`CLAUDE.md`:** new "Block Intro and Spacing" section.
-- **Kept:** `cms/scripts/migrate-block-intro.ts` stays, so content brought in from an old branch or a hand edit can still be rewritten. The sync no longer reads the legacy attributes and ignores them, so `cms/scripts/contentLegacyBlockAttrs.test.ts` fails on any legacy attribute left in MDX (`findLegacyBlockAttrs`), including the cases the script leaves for a hand fix. A standalone LogoCarousel keeps its `heading`.
+- **Kept:** `cms/scripts/migrate-block-intro.ts` stays, so content brought in from an old branch or a hand edit can still be rewritten. The sync rejects a legacy attribute (`cms/scripts/sync-mdx/retiredProps.ts`) rather than dropping it, and `cms/scripts/contentLegacyBlockAttrs.test.ts` catches one on the PR that adds it (`findLegacyBlockAttrs`), inline and nested blocks included, along with the cases the script leaves for a hand fix. The script leaves a standalone LogoCarousel's `heading` alone, because moving it into an intro would hide it, but the check still reports it: the sync has no `standalone` field.
 
 ### Phase 5: Figma improvements (after Phase 4)
 
