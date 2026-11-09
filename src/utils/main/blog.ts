@@ -93,8 +93,8 @@ export function getBlogThumbnail(
 /**
  * Resolves related-article slugs to posts for display.
  *
- * Prefers the post in `contentLocale`, then falls back to `fallbackLocale`
- * when no translation exists. Callers pass the site's default locale (EN),
+ * Prefers the post in `preferredLocale` (callers pass the route locale), then
+ * falls back to `fallbackLocale` when no translation exists. Callers pass the site's default locale (EN),
  * matching the site's EN-fallback rule so an untranslated related post still
  * shows (in EN) instead of the whole section silently vanishing. Slugs that
  * resolve to nothing (e.g. a stale slug) are skipped so the build never breaks.
@@ -105,21 +105,24 @@ export function getBlogThumbnail(
 export function resolveRelatedPosts(
   posts: FoundationBlogEntry[],
   slugs: readonly string[] | undefined,
-  contentLocale: Locale,
+  preferredLocale: Locale,
   fallbackLocale: Locale
 ): FoundationBlogEntry[] {
-  // Editors enter the EN slug, so a translation also matches on `localizes`.
-  const findBySlug = (slug: string, locale: Locale) =>
-    posts.find(
-      (post) =>
-        post.data.locale === locale &&
-        (post.data.pathSlug === slug || post.data.localizes === slug)
+  // A translation can have its own slug, and a related slug can name the EN
+  // post, so also match on `localizes`. An own-slug match wins, so the result
+  // does not depend on the order of `posts`.
+  const findBySlug = (slug: string, locale: Locale) => {
+    const inLocale = posts.filter((post) => post.data.locale === locale)
+    return (
+      inLocale.find((post) => post.data.pathSlug === slug) ??
+      inLocale.find((post) => post.data.localizes === slug)
     )
+  }
 
   return (slugs ?? [])
     .map(
       (slug) =>
-        findBySlug(slug, contentLocale) ?? findBySlug(slug, fallbackLocale)
+        findBySlug(slug, preferredLocale) ?? findBySlug(slug, fallbackLocale)
     )
     .filter((post): post is FoundationBlogEntry => Boolean(post))
 }

@@ -222,6 +222,25 @@ describe('resolveRelatedPosts', () => {
     expect(result.map((p) => p.data.pathSlug)).toEqual(['es-slug'])
   })
 
+  it('prefers an own-slug match over a translation of another post', () => {
+    const translationOfA = makePost({
+      slug: 'b',
+      date: '2025-01-01',
+      locale: 'es',
+      localizes: 'a'
+    })
+    const postA = makePost({ slug: 'a', date: '2025-01-01', locale: 'es' })
+
+    for (const posts of [
+      [translationOfA, postA],
+      [postA, translationOfA]
+    ]) {
+      const result = resolveRelatedPosts(posts, ['a'], 'es', 'en')
+
+      expect(result).toEqual([postA])
+    }
+  })
+
   it('skips slugs that resolve to no post in any locale', () => {
     const posts = [makePost({ slug: 'real', date: '2025-01-01', locale: 'en' })]
 
