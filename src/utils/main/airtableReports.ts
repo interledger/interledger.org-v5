@@ -258,6 +258,7 @@ function compareReports(
 ): number {
   return (
     a.projectName.localeCompare(b.projectName, 'en') ||
+    a.grantId.localeCompare(b.grantId) ||
     a.reportNumber - b.reportNumber ||
     a.id.localeCompare(b.id)
   )

@@ -264,7 +264,14 @@ describe('toGrantReport', () => {
   })
 
   it('fails on a grant link that is not exactly one record ID', () => {
-    for (const value of [[], [GRANT_ID, GRANT_ID], ['Gib 2022'], undefined]) {
+    for (const value of [
+      [],
+      [GRANT_ID, GRANT_ID],
+      ['Gib 2022'],
+      GRANT_ID,
+      [[GRANT_ID]],
+      undefined
+    ]) {
       const error = expectError(
         toGrantReport(liveReport({ [F.grantRecord.id]: value }))
       )
@@ -362,6 +369,23 @@ describe('toGrantReports', () => {
       liveReport({ [F.reportNumber.id]: [1] }, 'recA')
     ])
     expect(idsOf(result)).toEqual(['recA', 'recB', 'recZ'])
+  })
+
+  it('keeps the reports of two grants with the same name apart', () => {
+    const otherGrant = 'recUSF6jZiBVoqG00'
+    const result = toGrantReports([
+      liveReport({ [F.reportNumber.id]: [1] }, 'recA1'),
+      liveReport(
+        { [F.grantRecord.id]: [otherGrant], [F.reportNumber.id]: [2] },
+        'recB2'
+      ),
+      liveReport({ [F.reportNumber.id]: [2] }, 'recA2'),
+      liveReport(
+        { [F.grantRecord.id]: [otherGrant], [F.reportNumber.id]: [1] },
+        'recB1'
+      )
+    ])
+    expect(idsOf(result)).toEqual(['recB1', 'recB2', 'recA1', 'recA2'])
   })
 })
 

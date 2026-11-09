@@ -48,6 +48,9 @@ describe('isRecordId', () => {
       'rec123',
       'recUSF6jZiBVoqG01x',
       'fldUSF6jZiBVoqG01',
+      'RECUSF6jZiBVoqG01',
+      'recUSF6jZiBVoqG0-',
+      'recUSF6jZiBVoqG0',
       1,
       null
     ]) {
