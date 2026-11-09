@@ -613,7 +613,7 @@ export const ui = {
     'internalAdvert.block_label': '',
     'internalAdvert.social_link': '',
     'internalAdvert.social_link_generic': '',
-    'splitLayout.video_label': 'Vídeo',
+    'splitLayout.video_label': '',
     'aria.logo.foundation': 'Interledger Foundation',
     'aria.logo.summit': '',
     'aria.logo.hackathon': 'Interledger Hackathon',
