@@ -3,8 +3,8 @@
  * Single info card — used by grant `InfoCards` and CardGrid `variant="Info"`.
  * Optional `imageSrc` turns the cell into a full-bleed cover photo
  * (`object-cover`, no stretch). Mobile is 3:2; tablet+ defaults to 4:3.
- * Multi-column CardGrid drops the aspect ratio on tablet+ so row-height
- * fill cannot overflow the column.
+ * In a multi-column CardGrid that also has text cards, the image fills the
+ * row height instead (see CardGrid).
  */
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 
