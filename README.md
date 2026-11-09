@@ -774,7 +774,7 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 
 - Every grantee in the **Grantees** table gets a profile, and every field in its view is public
 - Required: **Name**, **Slug** (lowercase letters, numbers and single hyphens, since it becomes a URL segment), **Grantee Type** (Organisation or Individual), and the numbers **Grant Count**, **Total Committed** and **Published Reports** (0 or more)
-- Optional: **Formerly Known As**, **Description**, **Country**, **Website**, **X / Twitter**, **LinkedIn** and **Bluesky** (links must be `http` or `https` URLs), **Grants**, **Thematic Tags** and **Logo**
+- Optional: **Formerly Known As**, **Description**, **Country**, **Website**, **X / Twitter**, **LinkedIn**, **Bluesky** and **Social Web** (links must be `http` or `https` URLs, so a fediverse handle such as `@name@example.social` fails the sync), **Grants**, **Thematic Tags** and **Logo**
 - The logo has no alt text: the grantee's name shows next to it
 
 **Images** (report images and logos): each image field holds at most one file, of type JPEG, PNG, WebP or AVIF and at most 50 MB. The sync removes its metadata, limits its longest side (2,400 px for a report image, 1,024 px for a logo), encodes it as WebP and stores it under one folder per record. A later run reuses the stored file.
