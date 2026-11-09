@@ -120,10 +120,12 @@ La app abre `grant.interact.redirect` en el WebView dentro de la app. Esta es la
 
 Como el backend corre en Node.js, usa el SDK oficial [`@interledger/open-payments`](https://github.com/interledger/open-payments).
 
+De izquierda a derecha: el usuario escribe su dirección y toca **Connect**, y luego inicia sesión en la billetera. Es lo único que hace. Después la billetera confirma la propiedad sola y lo devuelve a la app:
+
 <ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-form-and-login.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-form-and-login-mobile.png"
-  alt="Izquierda: la pestaña Wallet con el formulario Connect your wallet y una dirección de billetera. Derecha: la página de inicio de sesión de la Test Wallet dentro del WebView de la app, con el título Sign in to your wallet"
+  src="/img/foundation-blog/2026-10-15/connect-ownership-check.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connect-ownership-check-mobile.png"
+  alt="Tres pantallas de izquierda a derecha: la pestaña Wallet con el formulario Connect your wallet y una dirección de billetera; la página de inicio de sesión de la Test Wallet dentro del WebView de la app, con el título Sign in to your wallet; y la página de la Test Wallet que confirma la propiedad de la dirección y vuelve a la app"
   needsFullView={true}
 />
 
@@ -206,12 +208,12 @@ La app nunca ve la contraseña ni la cookie. Cuando el script informa que todo s
 
 Una nota para productos reales: este truco depende de la API privada de la billetera. Funciona con la Test Wallet, pero no es un estándar.
 
-A la izquierda, la billetera confirma la propiedad (Paso 1). A la derecha, la pestaña Wallet muestra los tres pasos de conexión completados:
+De vuelta en la app, la pestaña Wallet muestra los tres pasos de conexión completados:
 
 <ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-ownership.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-ownership-mobile.png"
-  alt="Izquierda: la página de la Test Wallet que confirma la propiedad de la dirección y vuelve a la app. Derecha: la pestaña Wallet con la propiedad confirmada, la clave del dispositivo creada y agregada a la billetera, todo completado"
+  src="/img/foundation-blog/2026-10-15/connected.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connected-mobile.png"
+  alt="La pestaña Wallet con la propiedad confirmada, la clave del dispositivo creada y agregada a la billetera, todo completado"
   needsFullView={true}
 />
 

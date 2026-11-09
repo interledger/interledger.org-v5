@@ -119,10 +119,12 @@ The app opens `grant.interact.redirect` in the in-app WebView. This is the only 
 
 Since the backend runs on Node.js, it uses the official [`@interledger/open-payments`](https://github.com/interledger/open-payments) SDK.
 
+From left to right: the user types their address and taps **Connect**, then signs in to the wallet. That is the only thing they do. The wallet then confirms ownership by itself and sends them back to the app:
+
 <ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-form-and-login.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-form-and-login-mobile.png"
-  alt="Left: the Wallet tab with the Connect your wallet form and a wallet address. Right: the Test Wallet login page inside the app WebView, titled Sign in to your wallet"
+  src="/img/foundation-blog/2026-10-15/connect-ownership-check.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connect-ownership-check-mobile.png"
+  alt="Three screens from left to right: the Wallet tab with the Connect your wallet form and a wallet address; the Test Wallet login page inside the app WebView, titled Sign in to your wallet; and the Test Wallet page confirming ownership of the wallet address and redirecting back to the app"
   needsFullView={true}
 />
 
@@ -205,12 +207,12 @@ The app never sees the password or the cookie. When the script reports success, 
 
 A note for real products: this trick depends on the wallet's private API. It works for the Test Wallet, but it is not a standard.
 
-On the left, the wallet confirms ownership (Step 1). On the right, the Wallet tab shows all three connect steps as done:
+Back in the app, the Wallet tab shows all three connect steps as done:
 
 <ImageBlock
-  src="/img/foundation-blog/2026-10-15/connect-ownership.png"
-  mobileSrc="/img/foundation-blog/2026-10-15/connect-ownership-mobile.png"
-  alt="Left: the Test Wallet page confirming ownership of the wallet address and redirecting back to the app. Right: the Wallet tab with ownership confirmed, device key created and key added to the wallet, all marked as done"
+  src="/img/foundation-blog/2026-10-15/connected.png"
+  mobileSrc="/img/foundation-blog/2026-10-15/connected-mobile.png"
+  alt="The Wallet tab with ownership confirmed, device key created and key added to the wallet, all marked as done"
   needsFullView={true}
 />
 
