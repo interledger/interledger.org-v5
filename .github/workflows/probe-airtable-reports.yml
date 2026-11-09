@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ravi/report-grant-id
+          ref: staging
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
