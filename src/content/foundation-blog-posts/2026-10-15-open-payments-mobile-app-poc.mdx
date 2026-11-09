@@ -39,7 +39,7 @@ The app has four tabs:
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/send-flow.png"
   mobileSrc="/img/foundation-blog/2026-10-15/send-flow-mobile.png"
-  alt="Three phone screens: the contacts list, the amount form with a Proceed button, and the Test Wallet consent screen asking to approve 1 dollar"
+  alt="Three phone screens: the contacts list, the amount form with a Proceed button, and the Test Wallet consent screen asking to approve 5 euros"
   needsFullView={true}
 />
 
@@ -350,7 +350,7 @@ The detail page also completes the incoming payment if it is still open, for exa
 - **Only `redirect` is supported.** Both for starting the interaction and for finishing it. You can check it on any auth server at `/discovery`.
 - **Start and finish in the same browser.** Rafiki checks a session cookie at `/interact/.../finish` that it set at the start. If the consent page moves to another browser or app in the middle, the grant fails with `invalid session`.
 - **A WebView keeps the login, the system browser does not let you script.** `ASWebAuthenticationSession` (iOS) and Custom Tabs (Android) share cookies with Safari or Chrome, and they are the recommended option for real login. But you can't inject a script into them, so automatic key upload is not possible there.
-- **The consent screen shows the client's name.** When you connect, the client is the app's backend, so the wallet shows the app's wallet name: pick a clear one. For payments, the client is the user's own wallet address, so the screen says, for example, "just dollars is requesting access to $1.00". The Test Wallet shows the amount, but not the receiver.
+- **The consent screen shows the client's name.** When you connect, the client is the app's backend, so the wallet shows the app's wallet name: pick a clear one. For payments, the client is the user's own wallet address, so the screen says, for example, "cont de euro is requesting access to €5.00". The Test Wallet shows the amount, but not the receiver.
 - **Complete the incoming payment.** If there is no `incomingAmount`, nobody else will.
 - **Check delivery on the receiver side.** `sentAmount` uses the sender's currency.
 - **Directed identity doesn't replace key upload, yet.** The newer `client: { jwk }` option sends the public key in the request body instead of looking it up in `jwks.json`. Today Rafiki only accepts it for non-interactive grants (incoming payments and quotes), so outgoing payments still need a key in `jwks.json`. Support for interactive grants is planned. Once it lands, the phone could do the ownership check itself, without the backend.

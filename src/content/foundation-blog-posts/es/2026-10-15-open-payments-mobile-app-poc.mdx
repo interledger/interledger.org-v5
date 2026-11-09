@@ -40,7 +40,7 @@ La app tiene cuatro pestañas:
 <ImageBlock
   src="/img/foundation-blog/2026-10-15/send-flow.png"
   mobileSrc="/img/foundation-blog/2026-10-15/send-flow-mobile.png"
-  alt="Tres pantallas del teléfono: la lista de contactos, el formulario del monto con el botón Proceed y la pantalla de consentimiento de la Test Wallet pidiendo aprobar 1 dólar"
+  alt="Tres pantallas del teléfono: la lista de contactos, el formulario del monto con el botón Proceed y la pantalla de consentimiento de la Test Wallet pidiendo aprobar 5 euros"
   needsFullView={true}
 />
 
@@ -351,7 +351,7 @@ La página de detalle también completa el pago entrante si sigue abierto, por e
 - **Solo se admite `redirect`.** Tanto para iniciar la interacción como para terminarla. Puede comprobarlo en cualquier servidor de autorización en `/discovery`.
 - **Empezar y terminar en el mismo navegador.** Rafiki revisa en `/interact/.../finish` una cookie de sesión que creó al inicio. Si la página de consentimiento pasa a otro navegador o a otra app en el medio, el grant falla con `invalid session`.
 - **Un WebView conserva la sesión, el navegador del sistema no permite scripts.** `ASWebAuthenticationSession` (iOS) y Custom Tabs (Android) comparten cookies con Safari o Chrome, y son la opción recomendada para un inicio de sesión real. Pero no se puede inyectar un script en ellos, así que ahí no es posible subir la clave automáticamente.
-- **La pantalla de consentimiento muestra el nombre del cliente.** Al conectar, el cliente es el backend de la app, así que la billetera muestra el nombre de la billetera de la app: elija uno claro. En los pagos, el cliente es la propia dirección de billetera del usuario, así que la pantalla dice, por ejemplo, "just dollars is requesting access to $1.00". La Test Wallet muestra el monto, pero no el receptor.
+- **La pantalla de consentimiento muestra el nombre del cliente.** Al conectar, el cliente es el backend de la app, así que la billetera muestra el nombre de la billetera de la app: elija uno claro. En los pagos, el cliente es la propia dirección de billetera del usuario, así que la pantalla dice, por ejemplo, "cont de euro is requesting access to €5.00". La Test Wallet muestra el monto, pero no el receptor.
 - **Complete el pago entrante.** Si no hay `incomingAmount`, nadie más lo hará.
 - **Revise la entrega del lado del receptor.** `sentAmount` usa la moneda de quien envía.
 - **La identidad dirigida todavía no reemplaza la carga de la clave.** La opción más nueva `client: { jwk }` envía la clave pública en el cuerpo de la solicitud, en lugar de buscarla en `jwks.json`. Hoy Rafiki solo la acepta para grants no interactivos (pagos entrantes y cotizaciones), así que los pagos salientes todavía necesitan una clave en `jwks.json`. El soporte para grants interactivos está planeado. Cuando llegue, el teléfono podría hacer la verificación de propiedad por sí mismo, sin el backend.
