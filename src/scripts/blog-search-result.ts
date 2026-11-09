@@ -2,6 +2,7 @@ import type { BlogSearchEntry } from '@/utils/main/blogSearch'
 import type { BlogSearchThumbnail } from '@/types/blog'
 import type { Locale } from '@/utils/main/locales'
 import { buildUmamiAttrs, type UmamiAttrs } from '@/utils/main/umami'
+import { contentLangAttr } from '@/utils/shared/contentLang'
 
 // Not @/utils/main/time's formatDate: it pulls in defaultLocale from
 // main/locales.ts, which imports `z` from `astro:content` at module scope —
@@ -231,10 +232,13 @@ export function createSearchResultRow(
 ): HTMLLIElement {
   const fragment = rowTemplate.content.cloneNode(true) as DocumentFragment
   const row = requireElement<HTMLLIElement>(fragment, 'li')
+  // Same split as BlogCard: title, snippet and image alt in the post's language.
+  const postLang = contentLangAttr(entry.locale, context.lang)
 
   const link = requireElement<HTMLAnchorElement>(row, '[data-blog-search-link]')
   link.href = entry.postPath
   link.textContent = entry.title
+  if (postLang) link.lang = postLang
   applyUmamiAttrs(
     link,
     buildUmamiAttrs({
@@ -247,8 +251,9 @@ export function createSearchResultRow(
     })
   )
 
-  requireElement(row, '[data-blog-search-snippet]').textContent =
-    entry.descriptionSnippet
+  const snippet = requireElement(row, '[data-blog-search-snippet]')
+  snippet.textContent = entry.descriptionSnippet
+  if (postLang) snippet.lang = postLang
 
   const categoriesWrap = requireElement<HTMLElement>(
     row,
@@ -279,6 +284,7 @@ export function createSearchResultRow(
       '[data-blog-search-thumbnail]'
     )
     applyThumbnail(img, entry.thumbnail)
+    if (postLang) thumbnailWrap.lang = postLang
     thumbnailWrap.hidden = false
   }
 

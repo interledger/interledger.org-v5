@@ -29,6 +29,7 @@ export { collectResults } from './shared/collectResults'
 export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
+export { contentLangAttr } from './shared/contentLang'
 export { getVisiblePages } from './shared/pagination'
 export {
   parseRedirectConfig,

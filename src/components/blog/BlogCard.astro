@@ -5,6 +5,8 @@ import {
   type UmamiAttrs,
   translatePath,
   COLLECTION_INDEX_SLUG,
+  contentLangAttr,
+  defaultLocale,
   twMerge
 } from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
@@ -31,6 +33,10 @@ const {
   featured = false
 } = Astro.props
 const { routeLocale } = Astro.locals
+// The title, excerpt and image alt are in the post's language, which can differ
+// from the page's (an EN-only post on an /es/ page). Categories, date and
+// reading time are in the page's language.
+const postLang = contentLangAttr(blogData.locale ?? defaultLocale, routeLocale)
 const blogPath = translatePath(
   'foundation-blog',
   routeLocale,
@@ -65,7 +71,7 @@ const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
 
 <li class={cardClasses}>
   <div class={cardBodyClasses}>
-    <h3 class="m-0">
+    <h3 class="m-0" lang={postLang}>
       <a
         href={postPath}
         class={cardHeaderClasses}
@@ -74,7 +80,7 @@ const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
         {blogData.title}
       </a>
     </h3>
-    <p class="m-0 text-body-lg-standard text-neutral-75">
+    <p class="m-0 text-body-lg-standard text-neutral-75" lang={postLang}>
       {blogData.description ? blogData.description : excerpt}
     </p>
     {blogData.categories.length > 0 && <div class="card-nested">
@@ -89,7 +95,7 @@ const cardMediaClasses = twMerge('w-full', !featured && 'desktop:basis-[30%]')
     />
   </div>
   <div class={cardMediaClasses}>
-    {thumbnail && <div class="relative">
+    {thumbnail && <div class="relative" lang={postLang}>
       <OptimizedImage
         loading={featured ? 'eager' : 'lazy'}
         fetchpriority={featured ? 'high' : 'auto'}
