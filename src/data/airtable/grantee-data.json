@@ -2998,7 +2998,10 @@
       "Project Leader": ["Maria Gorrettie Namuddu"],
       "Thematic Tag": ["Financial Services", "Prototype", "Women-Led"],
       "Project Description": "This project develops an ILP-enabled instant microloans infrastructure within Kanzu Banking to empower SACCOs, VSLAs, and microfinance institutions in Uganda with fast, accessible digital lending capabilities. By integrating interoperable payment systems, automated credit scoring, and mobile wallet connectivity, the initiative expands financial inclusion and enables underserved communities to access affordable credit and grow their economic opportunities.\n",
-      "Total budget approved": 248006
+      "Total budget approved": 248006,
+      "Project Links": [
+        "https://community.interledger.org/kanzufinance/kanzu-microloans-ilf-grant-final-report-4jj4"
+      ]
     }
   },
   {
