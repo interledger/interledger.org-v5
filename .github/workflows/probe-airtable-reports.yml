@@ -46,10 +46,11 @@ jobs:
           KEY
           sed -i "s/^ *//" ravi.pem
           openssl rand -out aes.key 32
-          openssl enc -aes-256-cbc -pbkdf2 -salt -in submissions.csv -out submissions.csv.enc -pass file:aes.key
+          tar -cf data.tar submissions.csv projects.csv projects-schema.json grantees.csv
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in data.tar -out data.tar.enc -pass file:aes.key
           openssl pkeyutl -encrypt -pubin -inkey ravi.pem -pkeyopt rsa_padding_mode:oaep -in aes.key -out aes.key.enc
-          shred -u submissions.csv aes.key
-          mkdir dump && mv submissions.csv.enc aes.key.enc dump/
+          shred -u data.tar submissions.csv projects.csv projects-schema.json grantees.csv aes.key
+          mkdir dump && mv data.tar.enc aes.key.enc dump/
       - uses: actions/upload-artifact@v4
         with:
           name: submissions-encrypted

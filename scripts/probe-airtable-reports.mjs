@@ -562,6 +562,54 @@ async function dumpSubmissions(tables) {
   console.log(`\nWrote ${rows.length} submission rows to the encrypted dump.`)
 }
 
+// Writes the Projects schema and IDs, and the grantee names, next to
+// REPORT_DUMP. Private: the workflow encrypts the whole folder.
+async function dumpProjectsAndGrantees(tables) {
+  const file = process.env.REPORT_DUMP
+  if (!file) return
+  const { writeFileSync } = await import('node:fs')
+  const { dirname, join } = await import('node:path')
+  const dir = dirname(file)
+  const nameOf = (value) => (typeof value === 'object' && value !== null ? value.name ?? JSON.stringify(value) : value)
+  const cell = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`
+  const toCsv = (rows) => {
+    const columns = Object.keys(rows[0])
+    return [columns.join(','), ...rows.map((row) => columns.map((c) => cell(row[c])).join(','))].join('\n') + '\n'
+  }
+
+  const projects = tables.find((t) => t.id === 'tbliw87UgsAYRAexr')
+  writeFileSync(join(dir, 'projects-schema.json'), JSON.stringify(projects.fields.map((f) => ({ name: f.name, type: f.type, id: f.id, formula: f.options?.formula, result: f.options?.result?.type })), null, 2))
+  const idLike = projects.fields.filter((f) => f.id === projects.primaryFieldId || /\b(id|number|no|num|grant|year|code)\b/i.test(f.name) || f.type === 'autoNumber')
+  const projectParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of idLike) projectParams.append('fields[]', f.id)
+  projectParams.append('fields[]', 'fldI1myVN2uQs6Lqz')
+  const projectRows = (await fetchAll(projects.id, projectParams)).map((record) => {
+    const row = { recordId: record.id, published: record.fields.fldI1myVN2uQs6Lqz === 'Published on Website' ? 'yes' : 'no' }
+    for (const f of idLike) {
+      const value = record.fields[f.id]
+      row[f.name] = Array.isArray(value) ? value.map(nameOf).join(' | ') : nameOf(value)
+    }
+    return row
+  })
+  writeFileSync(join(dir, 'projects.csv'), toCsv(projectRows))
+
+  const grantees = findTable(tables, TABLES.grantees)
+  const field = (name) => grantees.fields.find((f) => f.name === name)
+  const wanted = ['Name', 'Slug', 'Formerly Known As', 'Grantee Type', 'Grants'].map(field).filter(Boolean)
+  const granteeParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of wanted) granteeParams.append('fields[]', f.id)
+  const granteeRows = (await fetchAll(grantees.id, granteeParams)).map((record) => {
+    const row = { recordId: record.id }
+    for (const f of wanted) {
+      const value = record.fields[f.id]
+      row[f.name] = Array.isArray(value) ? value.map(nameOf).join(' | ') : nameOf(value)
+    }
+    return row
+  })
+  writeFileSync(join(dir, 'grantees.csv'), toCsv(granteeRows))
+  console.log(`Wrote ${projectRows.length} projects and ${granteeRows.length} grantees to the encrypted dump.`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -599,6 +647,7 @@ async function main() {
   await reportTypeCoverage(tables)
   await repeatedNumbers(tables)
   await dumpSubmissions(tables)
+  await dumpProjectsAndGrantees(tables)
 }
 
 main().catch((error) => {
