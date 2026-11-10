@@ -502,6 +502,50 @@ function deleteMdxIfExists(
 /**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
+/**
+ * Remove the MDX files a pathSlug rename leaves behind.
+ *
+ * Every locale's file is named after the English slug, so an English rename
+ * renames them all, and the old ones must all go. A translation's rename
+ * changes no filename, unless the document has no published English version,
+ * in which case the file carries the translation's own slug.
+ */
+async function deleteRenamedMdxFiles<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
+  rename: { documentId: string; oldPathSlug: string; locale: string }
+): Promise<void> {
+  const { documentId, oldPathSlug, locale } = rename
+  const outputDir = getOutputDir(config)
+  const label = uidToLogLabel(config.contentTypeUid)
+  const oldPage = { pathSlug: oldPathSlug }
+
+  if (locale === defaultLang) {
+    for (const fileLocale of LOCALES) {
+      const filepath = resolvePageFilepath(
+        outputDir,
+        oldPage,
+        fileLocale,
+        oldPathSlug
+      )
+      deleteMdxIfExists(filepath, fileLocale, label)
+    }
+    return
+  }
+
+  const englishPage = await fetchPublished(config, documentId, defaultLang)
+  if (englishPage instanceof Error) {
+    console.error(`⚠️  ${englishPage.message}`)
+    return
+  }
+  if (englishPage) return
+
+  deleteMdxIfExists(
+    resolvePageFilepath(outputDir, oldPage, locale),
+    locale,
+    label
+  )
+}
+
 export function createPageLifecycle<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>
 ) {
@@ -567,15 +611,15 @@ export function createPageLifecycle<T extends UID.ContentType>(
       const locale = result.locale ?? defaultLang
       const { oldPathSlug } = event.state
 
-      // If this locale's pathSlug changed, remove only that locale's old file
       if (oldPathSlug && !isSameSlug(oldPathSlug, result.pathSlug)) {
         console.log(
-          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
+          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX files`
         )
-        const outputDir = getOutputDir(config)
-        const oldPage = { pathSlug: oldPathSlug }
-        const oldFilepath = resolvePageFilepath(outputDir, oldPage, locale)
-        deleteMdxIfExists(oldFilepath, locale, label)
+        await deleteRenamedMdxFiles(config, {
+          documentId: result.documentId,
+          oldPathSlug,
+          locale
+        })
       }
 
       console.log(
