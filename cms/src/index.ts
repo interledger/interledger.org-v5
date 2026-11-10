@@ -17,6 +17,7 @@ import {
   validateFaqSections,
   validateSectionScopedSlug,
   validateUniqueSlug,
+  validateSlugFreeInOtherCollection,
   type SectionScopedSlugFinder,
   patchUidServiceForSlashedSlugs,
   type UidDocuments,
@@ -237,6 +238,20 @@ const UNIQUE_SLUG_UIDS = [
   'api::grant-overview-page.grant-overview-page',
   'api::podcast-page.podcast-page',
   'api::foundation-blog-post.foundation-blog-post'
+] as const
+
+/** Content types that share the /grant/ URL tree: [uid, other uid, other label]. */
+const GRANT_SLUG_SIBLINGS = [
+  [
+    'api::grant-page.grant-page',
+    'api::grant-overview-page.grant-overview-page',
+    'Grant Overview Page'
+  ],
+  [
+    'api::grant-overview-page.grant-overview-page',
+    'api::grant-page.grant-page',
+    'Grant Page'
+  ]
 ] as const
 
 // Strapi instance type for lifecycle functions
@@ -2552,6 +2567,20 @@ export default {
             uid
           ) as unknown as SectionScopedSlugFinder,
           ...args
+        })
+      )
+    }
+    // Grant pages and grant overview pages share the /grant/ URL tree, so a
+    // slug must be free in the other collection too.
+    for (const [uid, otherUid, otherLabel] of GRANT_SLUG_SIBLINGS) {
+      registerAsyncDocumentValidation(strapi, uid, ({ data, locale }) =>
+        validateSlugFreeInOtherCollection({
+          otherDocuments: strapi.documents(
+            otherUid
+          ) as unknown as SectionScopedSlugFinder,
+          otherLabel,
+          data,
+          locale
         })
       )
     }

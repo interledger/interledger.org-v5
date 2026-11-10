@@ -139,3 +139,41 @@ export async function validateUniqueSlug(
     errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
   })
 }
+
+export interface CrossCollectionSlugCheck {
+  /** Document service of the *other* collection that shares the URL tree. */
+  otherDocuments: Pick<SectionScopedSlugFinder, 'findMany'>
+  /** Shown in the error, e.g. "Grant Page". */
+  otherLabel: string
+  /** Raw `ctx.params.data` from the document-service middleware. */
+  data: Record<string, unknown>
+  /** Locale being written. Defaults to the caller's default locale. */
+  locale?: string
+}
+
+/**
+ * Reject a write whose pathSlug an entry of a *different* content type already
+ * holds in this locale, when both types route under the same prefix (grant
+ * pages and grant overview pages both live under /grant/). Being a different
+ * collection, no row can be this entry, so no documentId is needed.
+ */
+export async function validateSlugFreeInOtherCollection(
+  check: CrossCollectionSlugCheck
+): Promise<errors.ValidationError | undefined> {
+  const pathSlug = asString(check.data.pathSlug)
+  // Absent on a partial update that leaves the slug alone, so nothing moved.
+  if (!pathSlug) return undefined
+
+  const conflicts = await check.otherDocuments.findMany({
+    filters: { pathSlug: { $in: slugVariants(pathSlug) } },
+    locale: check.locale,
+    fields: ['pathSlug'],
+    limit: 1
+  })
+  if (conflicts.length === 0) return undefined
+
+  const message = `Path Slug "${pathSlug}" is already used by a ${check.otherLabel}. Slugs must be unique across both collections.`
+  return new errors.ValidationError(message, {
+    errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
+  })
+}

@@ -137,8 +137,10 @@ export { relatedArticleSlugError } from './relatedArticleSlug'
 export {
   validateSectionScopedSlug,
   validateUniqueSlug,
+  validateSlugFreeInOtherCollection,
   type SectionScopedSlugFinder,
-  type SectionScopedSlugCheck
+  type SectionScopedSlugCheck,
+  type CrossCollectionSlugCheck
 } from './sectionScopedSlug'
 
 // Admin UID helpers for slugs stored as /slug/

@@ -1,9 +1,6 @@
 import matter from 'gray-matter'
-import { errors } from '@strapi/utils'
-import type { Core } from '@strapi/strapi'
 import {
   createPageLifecycle,
-  shouldSkipMdxExport,
   type PageData,
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
@@ -11,12 +8,9 @@ import {
   draftFrontmatter,
   ckeditorFieldToParsedMarkdown,
   GRANT_OVERVIEW_PAGE_CONTENT_POPULATE,
-  ctaStripColorMdxFields,
-  slugVariants
+  ctaStripColorMdxFields
 } from '../../../../utils'
 import { serializeContent } from '../../../../serializers/blocks'
-
-declare const strapi: Core.Strapi
 
 interface CtaStrip {
   heading?: string
@@ -134,32 +128,6 @@ export async function generateGrantOverviewPageMDX(
   )
 }
 
-async function assertUniqueGrantPathSlug(
-  pathSlug: string,
-  currentDocumentId: string | null
-): Promise<void> {
-  const overviewMatches = await strapi
-    .documents('api::grant-overview-page.grant-overview-page')
-    .findMany({ filters: { pathSlug: { $in: slugVariants(pathSlug) } } })
-  const overviewConflict = (
-    overviewMatches as Array<{ documentId: string }>
-  ).filter((e) => e.documentId !== currentDocumentId)
-  if (overviewConflict.length > 0) {
-    throw new errors.ValidationError(
-      `Path slug "${pathSlug}" is already used by another Grant Overview Page`
-    )
-  }
-
-  const grantMatches = await strapi
-    .documents('api::grant-page.grant-page')
-    .findMany({ filters: { pathSlug: { $in: slugVariants(pathSlug) } } })
-  if ((grantMatches as unknown[]).length > 0) {
-    throw new errors.ValidationError(
-      `Path slug "${pathSlug}" is already used by a Grant Page. Slugs must be unique across both collections.`
-    )
-  }
-}
-
 const lifecycle = createPageLifecycle({
   contentTypeUid: 'api::grant-overview-page.grant-overview-page',
   outputDir: `${PATHS.CONTENT_ROOT}/${PATHS.CONTENT.grantOverviewPages}`,
@@ -169,24 +137,4 @@ const lifecycle = createPageLifecycle({
   generateMDX: generateGrantOverviewPageMDX
 })
 
-export default {
-  ...lifecycle,
-  async beforeCreate(event: { params: { data: Record<string, unknown> } }) {
-    if (shouldSkipMdxExport()) return
-    const pathSlug = event.params.data.pathSlug as string | undefined
-    const documentId =
-      (event.params.data.documentId as string | undefined) ?? null
-    if (pathSlug) await assertUniqueGrantPathSlug(pathSlug, documentId)
-  },
-  async beforeUpdate(event: Parameters<typeof lifecycle.beforeUpdate>[0]) {
-    if (!shouldSkipMdxExport()) {
-      const pathSlug = event.params?.data?.pathSlug as string | undefined
-      if (pathSlug) {
-        const documentId =
-          event.params?.documentId ?? event.params?.data?.documentId ?? null
-        await assertUniqueGrantPathSlug(pathSlug, documentId)
-      }
-    }
-    await lifecycle.beforeUpdate(event)
-  }
-}
+export default lifecycle
