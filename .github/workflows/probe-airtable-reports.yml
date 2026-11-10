@@ -21,7 +21,40 @@ jobs:
       - name: Probe report tables
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+          REPORT_DUMP: ${{ runner.temp }}/submissions.csv
         run: node scripts/probe-airtable-reports.mjs
+      # The data is private and this repo is public. Encrypt it for Ravi's key
+      # only (AES key wrapped with RSA), and never upload the plain file.
+      - name: Encrypt the submission dump
+        run: |
+          cd "$RUNNER_TEMP"
+          cat > ravi.pem <<'KEY'
+            -----BEGIN PUBLIC KEY-----
+            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAvIvHgmAJEyyl3UAkcVx9
+            cNQKGSGEqU7f+yNjbkPuoaTxtwxae0vGFUH/tZ4RUCXAEDvV7LRUmFpckAUHxfky
+            Rj91Wzk7Yl9RbJM94u8UNZ4VLrGS0K6y+vi8p1eBVd1mwYY9hEyEfIvrbrdalT2Z
+            s97cwjHxZ/5jCY2ij3U8nBsZJFzfCXs0YIwDfbwLfRB99VRmmH2Z4VR3FfO+lnK1
+            cWKvFjV+uO/yAz37tybD9+q8yFiQ1m6ziASFlQxCs9t8GVZxMXxK81C9ZSQQzwor
+            WtAzGoEnCF9XYjHCV55njlTsXCdp2xRrqfONBhZAlx1sjjgKy9a9jv9ssEgifPBQ
+            wdp3/YXgxg2lfuQBZR9FAf5KZwNalNHc6VHFlCphzJWCgXFgKVGLKRMmDtUA1ZNj
+            z7nNZDNlX6za76fxQzvzvstYuhASIJnExvkFa0a2JYp6WUe5xHpJlqc+LP4wHsN9
+            tWQgDmLyRAqyT9GK9jJSG9Nz3euMYF+zYed7PvjWVbu9WCAubLDpfAq9WMFiDele
+            uZiMgtizzoYK5Amz1MG0dYTaaQ32gqy1mt3sa4PsZ1nlYDZOJ1Ji3IFuuMMAD1xj
+            Bt3fHsFMdli1OZt5dcRhJ7t0ENTpOo1Ibe6ifobme4P7QDUITSLFuIIxpAz4Xy9O
+            2cx5KY17nFv8TCh3a9oV2LsCAwEAAQ==
+            -----END PUBLIC KEY-----
+          KEY
+          sed -i "s/^ *//" ravi.pem
+          openssl rand -out aes.key 32
+          openssl enc -aes-256-cbc -pbkdf2 -salt -in submissions.csv -out submissions.csv.enc -pass file:aes.key
+          openssl pkeyutl -encrypt -pubin -inkey ravi.pem -pkeyopt rsa_padding_mode:oaep -in aes.key -out aes.key.enc
+          shred -u submissions.csv aes.key
+          mkdir dump && mv submissions.csv.enc aes.key.enc dump/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: submissions-encrypted
+          path: ${{ runner.temp }}/dump
+          retention-days: 1
 
   # Runs the real sync from staging on the runner. Nothing is committed or
   # pushed. The sync writes public fields only. Ayesha's image test reports stay

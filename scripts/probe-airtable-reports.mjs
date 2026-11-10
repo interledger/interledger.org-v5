@@ -491,6 +491,77 @@ async function repeatedNumbers(tables) {
   }
 }
 
+// Writes every submission to REPORT_DUMP as CSV. Never printed: the workflow
+// encrypts the file before upload, because the run log and artifacts are public.
+async function dumpSubmissions(tables) {
+  const file = process.env.REPORT_DUMP
+  if (!file) return
+  const submitted = findTable(tables, TABLES.submitted)
+  const published = findTable(tables, TABLES.published)
+  const projects = tables.find((t) => t.id === 'tbliw87UgsAYRAexr')
+  const field = (table, name) => table.fields.find((f) => f.name === name)
+  const nameOf = (value) => (typeof value === 'object' && value !== null ? value.name : value)
+  const projectsField = field(submitted, 'Projects')
+  const typeField = field(submitted, 'Report type')
+  const numberField = field(submitted, 'Report Num')
+  const statusField = field(submitted, 'Review Status')
+  const sourceField = field(published, 'Source Submission')
+  const publicationField = field(published, 'Publication Status')
+
+  const projectParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const id of [projects.primaryFieldId, 'fldEZNEXAY5steLCx', 'fldI1myVN2uQs6Lqz']) projectParams.append('fields[]', id)
+  const projectById = new Map()
+  for (const record of await fetchAll(projects.id, projectParams)) {
+    projectById.set(record.id, {
+      name: nameOf(record.fields[projects.primaryFieldId]) ?? '',
+      year: record.fields.fldEZNEXAY5steLCx ?? '',
+      published: record.fields.fldI1myVN2uQs6Lqz === 'Published on Website'
+    })
+  }
+
+  const publishedParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  publishedParams.append('fields[]', sourceField.id)
+  publishedParams.append('fields[]', publicationField.id)
+  const publicationBySubmission = new Map()
+  for (const record of await fetchAll(published.id, publishedParams)) {
+    for (const id of record.fields[sourceField.id] ?? []) {
+      publicationBySubmission.set(id, nameOf(record.fields[publicationField.id]) ?? 'none')
+    }
+  }
+
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of [projectsField, typeField, numberField, statusField]) params.append('fields[]', f.id)
+  const records = await fetchAll(submitted.id, params)
+  const groupSize = new Map()
+  const keyOf = (record) => `${record.fields[projectsField.id]?.[0] ?? 'none'}|${record.fields[numberField.id] ?? 'none'}`
+  for (const record of records) groupSize.set(keyOf(record), (groupSize.get(keyOf(record)) ?? 0) + 1)
+
+  const rows = records.map((record) => {
+    const ids = record.fields[projectsField.id] ?? []
+    const linked = ids.map((id) => projectById.get(id))
+    return {
+      projectName: linked.map((p) => p?.name ?? '?').join(' + '),
+      projectYear: linked.map((p) => p?.year ?? '?').join(' + '),
+      projectPublished: linked.map((p) => (p ? (p.published ? 'yes' : 'no') : '?')).join(' + '),
+      reportType: nameOf(record.fields[typeField.id]) ?? '',
+      reportNum: record.fields[numberField.id] ?? '',
+      reviewStatus: nameOf(record.fields[statusField.id]) ?? '',
+      repeatedNumber: groupSize.get(keyOf(record)) > 1 ? 'yes' : 'no',
+      publication: publicationBySubmission.get(record.id) ?? '',
+      created: record.createdTime,
+      submissionId: record.id,
+      projectIds: ids.join(' + ')
+    }
+  })
+  rows.sort((a, b) => a.projectName.localeCompare(b.projectName) || a.projectIds.localeCompare(b.projectIds) || String(a.reportNum).localeCompare(String(b.reportNum)) || a.created.localeCompare(b.created))
+  const columns = Object.keys(rows[0])
+  const cell = (value) => `"${String(value).replaceAll('"', '""')}"`
+  const csv = [columns.join(','), ...rows.map((row) => columns.map((c) => cell(row[c])).join(','))].join('\n')
+  const { writeFileSync } = await import('node:fs')
+  writeFileSync(file, csv + '\n')
+  console.log(`\nWrote ${rows.length} submission rows to the encrypted dump.`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -527,6 +598,7 @@ async function main() {
   await yearCoverage(tables)
   await reportTypeCoverage(tables)
   await repeatedNumbers(tables)
+  await dumpSubmissions(tables)
 }
 
 main().catch((error) => {
