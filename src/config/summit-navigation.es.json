@@ -1,41 +1,41 @@
 {
   "mainMenu": [
     {
-      "label": "Cumbre",
+      "label": "Summit",
       "items": [
         {
-          "label": "Resumen",
+          "label": "Overview",
           "href": "/es/summit/"
         },
         {
-          "label": "Sesiones",
+          "label": "2025 Sessions",
           "href": "/es/summit/2025/talks/"
         },
         {
-          "label": "Oradores",
+          "label": "2025 Speakers",
           "href": "/es/summit/2025/speakers/"
         }
       ]
     },
     {
-      "label": "Cumbres anteriores",
+      "label": "Past Summits",
       "items": [
         {
-          "label": "2024 Ciudad del Cabo",
-          "href": "/summit/2024/"
+          "label": "2024 Cape Town",
+          "href": "/es/summit/2024/"
         },
         {
           "label": "2023 Costa Rica",
-          "href": "/summit/2023/"
+          "href": "/es/summit/2023/"
         },
         {
-          "label": "2022 Nueva Orleans",
-          "href": "/summit/2022/"
+          "label": "2022 New Orleans",
+          "href": "/es/summit/2022/"
         }
       ]
     },
     {
-      "label": "Código de conducta",
+      "label": "Code of conduct",
       "href": "/es/summit/codigo-de-conducta/"
     }
   ],

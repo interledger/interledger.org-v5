@@ -230,30 +230,17 @@
   }
 }
 
-/* Nav button hover/focus backgrounds (desktop only) */
+/* Submenu toggle and top-level link share one hover/focus fill (desktop
+   only). A second copy is how the link can lose a state the button still has. */
 :is(.foundation-header[data-theme='dark'], .hackathon-header)
-  [data-submenu-button]:is(:hover, :focus-visible) {
+  :is([data-submenu-button], [data-nav-top-link]):is(:hover, :focus-visible) {
   @variant nav-bar {
     background-color: var(--color-neutral-100);
   }
 }
 
 .foundation-header[data-theme='light']
-  [data-submenu-button]:is(:hover, :focus-visible) {
-  @variant nav-bar {
-    background-color: var(--color-neutral-25);
-  }
-}
-
-:is(.foundation-header[data-theme='dark'], .hackathon-header)
-  [data-nav-top-link]:is(:hover, :focus-visible) {
-  @variant nav-bar {
-    background-color: var(--color-neutral-100);
-  }
-}
-
-.foundation-header[data-theme='light']
-  [data-nav-top-link]:is(:hover, :focus-visible) {
+  :is([data-submenu-button], [data-nav-top-link]):is(:hover, :focus-visible) {
   @variant nav-bar {
     background-color: var(--color-neutral-25);
   }
@@ -390,11 +377,14 @@
   outline-color: var(--color-orchid-100);
 }
 
-/* Mobile drawer: nav link and parent toggle focus/active — filled background */
+/* Mobile drawer: submenu link, top-level link, and parent toggle
+   focus/active — one filled background. A top-level link is not a .nav-link,
+   and both it and the toggle remove the outline. */
 :is(.foundation-header[data-theme='dark'], .hackathon-header)
-  .nav-link:is(:focus-visible, [data-active='true']),
-:is(.foundation-header[data-theme='dark'], .hackathon-header)
-  [data-submenu-button]:is(:focus-visible, [data-active='true']) {
+  :is(.nav-link, [data-nav-top-link], [data-submenu-button]):is(
+    :focus-visible,
+    [data-active='true']
+  ) {
   @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-100);
@@ -402,9 +392,10 @@
 }
 
 .foundation-header[data-theme='light']
-  .nav-link:is(:focus-visible, [data-active='true']),
-.foundation-header[data-theme='light']
-  [data-submenu-button]:is(:focus-visible, [data-active='true']) {
+  :is(.nav-link, [data-nav-top-link], [data-submenu-button]):is(
+    :focus-visible,
+    [data-active='true']
+  ) {
   @variant nav-drawer {
     outline: none;
     background-color: var(--color-neutral-25);

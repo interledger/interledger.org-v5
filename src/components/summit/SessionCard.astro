@@ -28,7 +28,7 @@ const title = translation?.title ?? talkPreview.title
 const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
-<li class="flex flex-col gap-2xl mb-6 md:flex-row">
+<li class="flex flex-col gap-xl tablet:flex-row">
   <OptimizedImage
     class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
     pictureClass="shrink-0"
@@ -41,8 +41,14 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
     loading="lazy"
   />
   <div class="[&_p]:text-body-sm-standard">
-    <h2 class="text-link">
-      <a href={href} {...attrs}>{title}</a>
+    <h2 class="mb-sm">
+      <a
+        href={href}
+        class="text-h3 text-neutral-900 no-underline tablet:text-h3-md desktop:text-h3-lg hover:text-link"
+        {...attrs}
+      >
+        {title}
+      </a>
     </h2>
     <SessionSubheader
       talk={talkPreview}

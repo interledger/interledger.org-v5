@@ -41,8 +41,20 @@ describe('getFooterOnlyColumn', () => {
     })
   })
 
-  it('returns null for the summit site, whose footer links all live in summit-navigation', () => {
-    expect(getFooterOnlyColumn('summit', 'en')).toBeNull()
+  it('keeps terms and privacy on the summit footer, and not press or FAQ', () => {
+    expect(getFooterOnlyColumn('summit', 'en')).toEqual({
+      label: 'en:footer.resources',
+      items: [
+        {
+          label: 'en:footer.terms_service',
+          href: '/en/foundation-pages/terms-of-service'
+        },
+        {
+          label: 'en:footer.privacy_policy',
+          href: '/en/foundation-pages/privacy-policy'
+        }
+      ]
+    })
   })
 
   it('localizes hrefs and labels for a non-default locale', () => {

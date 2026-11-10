@@ -21,23 +21,25 @@ const label = t('summit.speakers_pagination', { year })
 ---
 
 <SummitPageLayout title={title}>
-  <main class="p-4 max-w-275 m-auto">
-    <!-- Speaker list pages intentionally do not show the translation disclaimer.
-         Names/affiliations are still usable in Spanish, while untranslated bios are only shown on speaker detail pages. -->
-    <h1>{title}</h1>
-    <section aria-label={t('summit.speakers')}>
-      <SpeakersList speakers={speakers} basePath={basePath} year={year} />
-    </section>
+  <main class="px-content pt-page-offset pb-4xl">
+    <div class="content-column">
+      <!-- Speaker list pages intentionally do not show the translation disclaimer.
+           Names/affiliations are still usable in Spanish, while untranslated bios are only shown on speaker detail pages. -->
+      <h1 class="mb-2xl text-neutral-900">{title}</h1>
+      <section aria-label={t('summit.speakers')}>
+        <SpeakersList speakers={speakers} basePath={basePath} year={year} />
+      </section>
 
-    {page.lastPage && page.lastPage > 1 && (
-      <Pagination
-        baseUrl={basePath}
-        length={page.lastPage}
-        currentPage={page.currentPage}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        label={label}
-      />
-    )}
+      {page.lastPage && page.lastPage > 1 && (
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          label={label}
+        />
+      )}
+    </div>
   </main>
 </SummitPageLayout>

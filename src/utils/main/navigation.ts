@@ -8,6 +8,7 @@ import hackathonEn from '@/config/hackathon-navigation.json'
 import hackathonEs from '@/config/hackathon-navigation.es.json'
 import type {
   MenuGroup,
+  MenuLinkGroup,
   NavigationData,
   NavigationSite
 } from '@/types/navigation'
@@ -35,8 +36,11 @@ export function getNavigation(
   return siteMap[locale] ?? siteMap[defaultLocale]
 }
 
-/** A top-level nav entry that is itself the link, such as Summit's Code of conduct. */
-export function isDirectNavLink(group: MenuGroup): boolean {
+/**
+ * A top-level entry that is itself the link, such as Summit's Code of conduct.
+ * Children make it a button. Href and children together are not a MenuGroup.
+ */
+export function isDirectNavLink(group: MenuGroup): group is MenuLinkGroup {
   const hasChildren =
     (group.items?.length ?? 0) > 0 || (group.subGroups?.length ?? 0) > 0
   return Boolean(group.href) && !hasChildren

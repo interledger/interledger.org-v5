@@ -35,42 +35,55 @@ const bio = translation?.bio ?? entry.bio
 
 <SummitPageLayout title={entry.name}>
   <main>
-    {isFallback && <div class="flex justify-end">
-      <TranslationDisclaimer isVisible={isFallback} style="summit" />
-    </div>}
-    <header class="bg-black/20">
-      <div class="max-w-250 m-auto flex justify-between mb-4 items-end">
-        <div>
-          <h1>{entry.name}</h1>
-          <p class="mb-6">{entry.tagLine}</p>
+    <header class="bg-ice-indigo-50">
+      <div class="px-content pt-page-offset pb-2xl">
+        <div class="content-column">
+          {isFallback && <div class="mb-lg flex justify-end">
+            <TranslationDisclaimer isVisible={isFallback} style="summit" />
+          </div>}
+          <div
+            class="flex flex-col items-start gap-xl tablet:flex-row tablet:items-end tablet:justify-between"
+          >
+            <div>
+              <h1 class="mb-md text-neutral-900">{entry.name}</h1>
+              {entry.tagLine && <p
+                class="mb-0 text-body-lg-standard text-neutral-100"
+              >
+                {entry.tagLine}
+              </p>}
+            </div>
+            <OptimizedImage
+              class="rounded-full"
+              src={entry.profilePicture}
+              alt={t('summit.profile_image', { name: entry.name })}
+              width={240}
+              height={240}
+              sizes="240px"
+              widths={AVATAR_CDN_WIDTHS}
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
         </div>
-        <OptimizedImage
-          src={entry.profilePicture}
-          alt={t('summit.profile_image', { name: entry.name })}
-          width={400}
-          height={400}
-          sizes="400px"
-          widths={AVATAR_CDN_WIDTHS}
-          loading="eager"
-          fetchpriority="high"
-        />
       </div>
     </header>
-    <div class="max-w-250 m-auto my-4">
-      <section aria-label={t('profile.biography')} class="my-8">
-        <TextParagraphs text={bio} />
-      </section>
-      {sessions.length > 0 && <section
-        aria-label={t('summit.sessions')}
-        class="border border-teal-300 p-8"
-      >
-        <SessionsList
-          sessions={sessions}
-          sessionBaseHref={sessionBaseHref}
-          lang={lang}
-          year={year}
-        />
-      </section>}
+    <div class="px-content py-3xl">
+      <div class="content-column">
+        <section aria-label={t('profile.biography')} class="mb-2xl">
+          <TextParagraphs text={bio} />
+        </section>
+        {sessions.length > 0 && <section
+          aria-label={t('summit.sessions')}
+          class="rounded-2xl border border-neutral-50 p-xl tablet:p-2xl"
+        >
+          <SessionsList
+            sessions={sessions}
+            sessionBaseHref={sessionBaseHref}
+            lang={lang}
+            year={year}
+          />
+        </section>}
+      </div>
     </div>
   </main>
 </SummitPageLayout>

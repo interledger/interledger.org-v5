@@ -89,7 +89,8 @@ const footerLogoLinkClass =
 const navigationUlClass = twMerge(
   'm-0 grid list-none grid-cols-1 gap-3xl p-0 tablet:grid-cols-3 desktop:grid-cols-6',
   isHackathonSite ? 'tablet:grid-cols-2 desktop:grid-cols-3' : '',
-  site === 'summit' ? 'desktop:grid-cols-3' : ''
+  // Three summit nav groups, plus the terms and privacy column.
+  site === 'summit' ? 'tablet:grid-cols-2 desktop:grid-cols-4' : ''
 )
 const footerDirectLinkClass =
   'mb-0 text-h4 tablet:text-body-lg-standard font-normal uppercase tracking-wide text-neutral-900'
@@ -206,10 +207,10 @@ const footerDirectLinkClass =
             {isDirectNavLink(group) ? (
               <LinkButton
                 variant="ghost"
-                href={group.href ?? '#'}
+                href={group.href}
                 class={footerDirectLinkClass}
                 aria-current={isActive(group.href) ? 'page' : undefined}
-                {...footerLink(group.href ?? '#', undefined, group.label)}
+                {...footerLink(group.href, undefined, group.label)}
               >
                 {group.label}
               </LinkButton>

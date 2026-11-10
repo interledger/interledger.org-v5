@@ -38,9 +38,14 @@ const toSlug = (value: string) =>
 const submenuToggleAttrs = (groupLabel: string) =>
   buildSubmenuToggleUmamiAttrs(Astro.url.pathname, routeLocale, groupLabel)
 
-const navButtonClass = `peer inline-flex items-center text-current whitespace-nowrap nav-bar:rounded-lg border-none bg-transparent transition-colors duration-200 group/submenu nav-bar:data-[active=true]:underline nav-bar:data-[active=true]:decoration-current nav-bar:data-[active=true]:decoration-2 nav-bar:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full justify-between py-lg px-lg text-h4-md nav-bar:w-auto nav-bar:justify-start nav-bar:py-sm nav-bar:pl-lg nav-bar:pr-xs nav-bar:text-base`
+// Shared by the submenu toggle and a top-level link. navigation.css styles
+// both with one selector (`[data-submenu-button], [data-nav-top-link]`), so a
+// focus or hover rule cannot land on only one of them.
+const navItemClass = `inline-flex items-center text-current whitespace-nowrap nav-bar:rounded-lg bg-transparent transition-colors duration-200 nav-bar:data-[active=true]:underline nav-bar:data-[active=true]:decoration-current nav-bar:data-[active=true]:decoration-2 nav-bar:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full py-lg px-lg text-h4-md nav-bar:w-auto nav-bar:py-sm nav-bar:text-base`
 
-const topLevelLinkClass = `inline-flex items-center text-current whitespace-nowrap no-underline nav-bar:rounded-lg bg-transparent transition-colors duration-200 nav-bar:data-[active=true]:underline nav-bar:data-[active=true]:decoration-current nav-bar:data-[active=true]:decoration-2 nav-bar:data-[active=true]:underline-offset-8 focus-visible:outline-none w-full py-lg px-lg text-h4-md nav-bar:w-auto nav-bar:py-sm nav-bar:px-lg nav-bar:text-base`
+const navButtonClass = `peer ${navItemClass} border-none group/submenu justify-between nav-bar:justify-start nav-bar:pl-lg nav-bar:pr-xs`
+
+const topLevelLinkClass = `${navItemClass} no-underline nav-bar:px-lg`
 
 // The drawer colour follows the header's data-theme, which changes on scroll,
 // so it lives in navigation.css (`.nav-submenu-chevron`). In the bar the
@@ -100,7 +105,7 @@ const subGroupHeadingClass =
     const buttonId = `nav-menu-${groupSlug}-button`
     const panelId = `nav-menu-${groupSlug}-panel`
 
-    if (isDirectNavLink(group) && group.href) {
+    if (isDirectNavLink(group)) {
       return <li class="nav-bar:relative" data-menu-level="1">
         <a
           href={group.href}

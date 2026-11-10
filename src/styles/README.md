@@ -70,7 +70,7 @@ page renders in is fixed by its layout:
 | ---------------------- | ------------ |
 | `FoundationPageLayout` | always light |
 | `HackathonPageLayout`  | always dark  |
-| `SummitPageLayout`     | always dark  |
+| `SummitPageLayout`     | always light |
 
 The foundation site is light only. Do not add a `dark` page theme to it, and do
 not add `dark:` utilities to a component that renders only on foundation pages

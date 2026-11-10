@@ -18,7 +18,7 @@ const t = useTranslations(lang)
 ---
 
 <>
-  <p class="mb-4">
+  <p class="mb-md text-body-lg-standard text-neutral-100">
     <time datetime={talk.startsAt}>{formatDateTime(talk.startsAt, lang)} </time>
     - {getDurationInMinutes(talk.startsAt, talk.endsAt)} min
     {talk.recordingUrl && showRecordingLabel && <span
@@ -27,7 +27,7 @@ const t = useTranslations(lang)
   </p>
   {talk.translations.length > 0 && <ul
     aria-label={t('summit.available_translations')}
-    class="flex flex-row gap-2 mb-3 [&_li]:bg-white/20 [&_li]:py-0.5 [&_li]:px-1 [&_li]:rounded-sm [&_li]:text-caption [&_li]:font-semibold"
+    class="m-0 mb-md flex list-none flex-row flex-wrap gap-sm p-0 [&_li]:rounded-sm [&_li]:bg-ice-indigo-100 [&_li]:px-sm [&_li]:py-xs [&_li]:text-caption [&_li]:font-semibold [&_li]:text-neutral-900"
   >
     {talk.translations.map((language) => <li>{language}</li>)}
   </ul>}
