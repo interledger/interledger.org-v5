@@ -400,6 +400,97 @@ async function reportTypeCoverage(tables) {
   console.log(`records with no project: ${records.filter((r) => !r.fields[projectsField.id]?.length).length}, with 2+ projects: ${records.filter((r) => (r.fields[projectsField.id]?.length ?? 0) > 1).length}`)
 }
 
+// Why do project + number pairs repeat? Counts only, no record values.
+async function repeatedNumbers(tables) {
+  const submitted = findTable(tables, TABLES.submitted)
+  const published = findTable(tables, TABLES.published)
+  console.log('\n## Repeated report numbers (Submitted Reports)')
+  if (!submitted || !published) return
+  const field = (table, name) => table.fields.find((f) => f.name === name)
+  const projectsField = field(submitted, 'Projects')
+  const typeField = field(submitted, 'Report type')
+  const numberField = field(submitted, 'Report Num')
+  const statusField = field(submitted, 'Review Status')
+  const sourceField = field(published, 'Source Submission')
+  const publicationField = field(published, 'Publication Status')
+  if (!projectsField || !numberField || !sourceField || !publicationField) {
+    console.log('missing a field')
+    return
+  }
+  const nameOf = (value) => (typeof value === 'object' && value !== null ? value.name : value)
+
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of [projectsField, typeField, numberField, statusField].filter(Boolean)) params.append('fields[]', f.id)
+  const records = await fetchAll(submitted.id, params)
+
+  // Which submissions reach Published Reports, and which of those are Live.
+  const publishedParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  publishedParams.append('fields[]', sourceField.id)
+  publishedParams.append('fields[]', publicationField.id)
+  const publishedRecords = await fetchAll(published.id, publishedParams)
+  const publishedIds = new Set()
+  const liveIds = new Set()
+  for (const record of publishedRecords) {
+    for (const id of record.fields[sourceField.id] ?? []) {
+      publishedIds.add(id)
+      if (nameOf(record.fields[publicationField.id]) === 'Live') liveIds.add(id)
+    }
+  }
+  console.log(`published report rows: ${publishedRecords.length}, distinct source submissions: ${publishedIds.size}, live: ${liveIds.size}`)
+
+  const groups = new Map()
+  for (const record of records) {
+    const project = record.fields[projectsField.id]?.[0]
+    const number = record.fields[numberField.id]
+    if (!project || number === undefined) continue
+    const key = `${project}|${number}`
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key).push(record)
+  }
+  const repeated = [...groups.entries()].filter(([, rows]) => rows.length > 1)
+  const projects = new Set(repeated.map(([key]) => key.split('|')[0]))
+  const sizes = {}
+  const kinds = { sameType: 0, mixedTypes: 0, typeMissing: 0 }
+  const typeCombos = {}
+  const statusCombos = {}
+  const publishedPerGroup = {}
+  for (const [, rows] of repeated) {
+    sizes[rows.length] = (sizes[rows.length] ?? 0) + 1
+    const types = rows.map((r) => nameOf(r.fields[typeField?.id]) ?? 'none')
+    if (types.includes('none')) kinds.typeMissing++
+    else if (new Set(types).size === 1) kinds.sameType++
+    else kinds.mixedTypes++
+    const typeCombo = [...types].sort().join(' + ')
+    typeCombos[typeCombo] = (typeCombos[typeCombo] ?? 0) + 1
+    const statusCombo = rows.map((r) => nameOf(r.fields[statusField?.id]) ?? 'none').sort().join(' + ')
+    statusCombos[statusCombo] = (statusCombos[statusCombo] ?? 0) + 1
+    const inPublished = rows.filter((r) => publishedIds.has(r.id)).length
+    const live = rows.filter((r) => liveIds.has(r.id)).length
+    const label = `${inPublished} in Published Reports, ${live} live`
+    publishedPerGroup[label] = (publishedPerGroup[label] ?? 0) + 1
+  }
+  console.log(`repeated pairs: ${repeated.length}, distinct projects: ${projects.size}, rows per pair: ${JSON.stringify(sizes)}`)
+  console.log(`report types inside a pair: ${JSON.stringify(kinds)}`)
+  console.log(`type combinations: ${JSON.stringify(typeCombos)}`)
+  console.log(`review status combinations: ${JSON.stringify(statusCombos)}`)
+  console.log(`published rows per pair: ${JSON.stringify(publishedPerGroup)}`)
+
+  // A URL collision needs two published rows in one pair. Check across Published Reports only.
+  const publishedPairs = new Map()
+  for (const record of records) {
+    if (!publishedIds.has(record.id)) continue
+    const key = `${record.fields[projectsField.id]?.[0] ?? 'none'}|${record.fields[numberField.id] ?? 'none'}`
+    publishedPairs.set(key, (publishedPairs.get(key) ?? 0) + 1)
+  }
+  console.log(`published submissions: pairs ${publishedPairs.size}, used 2+ times: ${[...publishedPairs.values()].filter((c) => c > 1).length}`)
+
+  const multi = records.filter((r) => (r.fields[projectsField.id]?.length ?? 0) > 1)
+  console.log(`submissions with 2+ projects: ${multi.length}`)
+  for (const record of multi) {
+    console.log(`  projects: ${record.fields[projectsField.id].length}, type: ${nameOf(record.fields[typeField?.id]) ?? 'none'}, number set: ${record.fields[numberField.id] !== undefined}, review status: ${nameOf(record.fields[statusField?.id]) ?? 'none'}, in Published Reports: ${publishedIds.has(record.id)}, live: ${liveIds.has(record.id)}`)
+  }
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -435,6 +526,7 @@ async function main() {
   await grantRecordShape(published, tables)
   await yearCoverage(tables)
   await reportTypeCoverage(tables)
+  await repeatedNumbers(tables)
 }
 
 main().catch((error) => {
