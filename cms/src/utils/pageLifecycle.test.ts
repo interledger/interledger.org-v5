@@ -1,11 +1,13 @@
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  createPageLifecycle,
   defaultLang,
   generateMDX,
   isCodeSyncRequest,
   readLocaleFromUpdateEvent,
-  resolvePageFilepath
+  resolvePageFilepath,
+  resolveUpdateTarget
 } from '@/utils'
 
 const testConfig = {
@@ -294,5 +296,121 @@ describe('isCodeSyncRequest', () => {
       }
     })
     expect(isCodeSyncRequest()).toBe(false)
+  })
+})
+
+// Strapi 5.57 strips `documentId` from `data` before the DB update, so a
+// lifecycle event carries only `where: { id }` (INTORG-1422).
+describe('resolveUpdateTarget', () => {
+  const uid = 'api::foundation-page.foundation-page' as const
+
+  function stubRowLookup(
+    findOne: (args: { where: { id: unknown } }) => Promise<unknown>
+  ) {
+    const query = vi.fn(() => ({ findOne: vi.fn(findOne) }))
+    vi.stubGlobal('strapi', { db: { query } })
+    return query
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('uses the documentId the event names, without a lookup', async () => {
+    const query = stubRowLookup(async () => null)
+
+    const target = await resolveUpdateTarget(
+      { params: { documentId: 'doc-1', locale: 'es' } },
+      uid
+    )
+
+    expect(target).toEqual({ documentId: 'doc-1', locale: 'es' })
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('reads documentId and locale off the row when only where.id is set', async () => {
+    stubRowLookup(async ({ where }) =>
+      where.id === 7 ? { documentId: 'doc-1', locale: 'es' } : null
+    )
+
+    const target = await resolveUpdateTarget(
+      { params: { where: { id: 7 }, data: {} } },
+      uid
+    )
+
+    expect(target).toEqual({ documentId: 'doc-1', locale: 'es' })
+  })
+
+  it('falls back to the default locale when the row has none', async () => {
+    stubRowLookup(async () => ({ documentId: 'doc-1', locale: null }))
+
+    const target = await resolveUpdateTarget(
+      { params: { where: { id: 7 } } },
+      uid
+    )
+
+    expect(target).toEqual({ documentId: 'doc-1', locale: defaultLang })
+  })
+
+  it('returns null when the row is gone', async () => {
+    stubRowLookup(async () => null)
+
+    expect(
+      await resolveUpdateTarget({ params: { where: { id: 7 } } }, uid)
+    ).toBeNull()
+  })
+
+  it('returns null when the event identifies no row at all', async () => {
+    const query = stubRowLookup(async () => null)
+
+    expect(await resolveUpdateTarget({ params: { data: {} } }, uid)).toBeNull()
+    expect(query).not.toHaveBeenCalled()
+  })
+
+  it('returns the lookup failure as an Error', async () => {
+    stubRowLookup(async () => {
+      throw new Error('db down')
+    })
+
+    const target = await resolveUpdateTarget(
+      { params: { where: { id: 7 } } },
+      uid
+    )
+
+    expect(target).toBeInstanceOf(Error)
+    expect((target as Error).message).toContain('db down')
+  })
+})
+
+describe('createPageLifecycle beforeUpdate', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  // Without the stashed slug, a rename leaves the old MDX file behind as a
+  // duplicate of the new one.
+  it('stashes the published slug when the event carries only where.id', async () => {
+    const findPublished = vi.fn(async () => ({ pathSlug: '/old-slug/' }))
+    vi.stubGlobal('strapi', {
+      requestContext: { get: () => ({ request: { headers: {} } }) },
+      db: {
+        query: () => ({
+          findOne: async () => ({ documentId: 'doc-1', locale: 'es' })
+        })
+      },
+      documents: () => ({ findOne: findPublished })
+    })
+    const lifecycle = createPageLifecycle(testConfig)
+    const event = {
+      params: { where: { id: 7 }, data: { pathSlug: '/new-slug/' } },
+      state: {} as { oldPathSlug?: string; locale?: string }
+    }
+
+    await lifecycle.beforeUpdate(event)
+
+    expect(findPublished).toHaveBeenCalledWith(
+      expect.objectContaining({ documentId: 'doc-1', locale: 'es' })
+    )
+    expect(event.state).toEqual({ oldPathSlug: '/old-slug/', locale: 'es' })
   })
 })
