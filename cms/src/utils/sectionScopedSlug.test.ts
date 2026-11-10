@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   validateSectionScopedSlug,
+  validateSlugFreeInOtherCollection,
   validateUniqueSlug
 } from './sectionScopedSlug'
 
@@ -220,5 +221,77 @@ describe('validateUniqueSlug', () => {
 
     expect(error).toBeUndefined()
     expect(documents.findMany).not.toHaveBeenCalled()
+  })
+})
+
+describe('validateSlugFreeInOtherCollection', () => {
+  function createOtherDocuments(stored: Array<{ pathSlug: string }> = []) {
+    return {
+      findMany: vi.fn(async (options: Record<string, unknown>) => {
+        const filters = options.filters as { pathSlug: { $in: string[] } }
+        return stored.filter((e) => filters.pathSlug.$in.includes(e.pathSlug))
+      })
+    }
+  }
+
+  it('allows a slug the other collection does not hold', async () => {
+    const otherDocuments = createOtherDocuments([{ pathSlug: '/education/' }])
+
+    const error = await validateSlugFreeInOtherCollection({
+      otherDocuments,
+      otherLabel: 'Grant Page',
+      data: { pathSlug: '/our-grantmaking/' }
+    })
+
+    expect(error).toBeUndefined()
+  })
+
+  it.each([
+    ['bare', 'education'],
+    ['slashed', '/education/']
+  ])(
+    'rejects a slug the other collection holds in %s form',
+    async (_form, stored) => {
+      const otherDocuments = createOtherDocuments([{ pathSlug: stored }])
+
+      const error = await validateSlugFreeInOtherCollection({
+        otherDocuments,
+        otherLabel: 'Grant Page',
+        data: { pathSlug: '/education/' }
+      })
+
+      expect(error?.message).toContain('already used by a Grant Page')
+      expect(error?.details).toEqual({
+        errors: [expect.objectContaining({ path: ['pathSlug'] })]
+      })
+    }
+  )
+
+  it('skips the lookup when the update leaves pathSlug alone', async () => {
+    const otherDocuments = createOtherDocuments([{ pathSlug: '/education/' }])
+
+    const error = await validateSlugFreeInOtherCollection({
+      otherDocuments,
+      otherLabel: 'Grant Page',
+      data: { title: 'Education' }
+    })
+
+    expect(error).toBeUndefined()
+    expect(otherDocuments.findMany).not.toHaveBeenCalled()
+  })
+
+  it('searches only the locale being written', async () => {
+    const otherDocuments = createOtherDocuments()
+
+    await validateSlugFreeInOtherCollection({
+      otherDocuments,
+      otherLabel: 'Grant Page',
+      data: { pathSlug: '/education/' },
+      locale: 'es'
+    })
+
+    expect(otherDocuments.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: 'es' })
+    )
   })
 })
