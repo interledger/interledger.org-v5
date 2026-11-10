@@ -637,6 +637,41 @@ async function projectIdLookup(published, tables) {
   if (fields.length === 0) console.log('no field named like "Project id"')
 }
 
+// Does the text Project id on each submission match the Project id formula of
+// its linked project? Counts only.
+async function projectIdConsistency(tables) {
+  console.log('\n## Submitted Reports Project id vs Projects Project id')
+  const submitted = findTable(tables, TABLES.submitted)
+  const projects = tables.find((t) => t.id === 'tbliw87UgsAYRAexr')
+  const textField = submitted.fields.find((f) => f.name === 'Project id')
+  const linkField = submitted.fields.find((f) => f.name === 'Projects')
+  const formulaField = projects.fields.find((f) => f.name === 'Project id')
+  console.log(`submission field: ${textField?.type}, description set: ${Boolean(textField?.description)}`)
+  const projectParams = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': formulaField.id })
+  const idByProject = new Map((await fetchAll(projects.id, projectParams)).map((r) => [r.id, r.fields[formulaField.id]]))
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  params.append('fields[]', textField.id)
+  params.append('fields[]', linkField.id)
+  const params2 = params
+  const records = await fetchAll(submitted.id, params2)
+  const counts = { match: 0, mismatch: 0, textEmpty: 0, noProject: 0, projectIdEmpty: 0 }
+  const recent = { match: 0, mismatch: 0, textEmpty: 0 }
+  for (const record of records) {
+    const text = String(record.fields[textField.id] ?? '').trim()
+    const project = record.fields[linkField.id]?.[0]
+    const isRecent = record.createdTime >= '2026-01-01'
+    let key
+    if (!project) key = 'noProject'
+    else if (!idByProject.get(project)) key = 'projectIdEmpty'
+    else if (!text) key = 'textEmpty'
+    else key = text === String(idByProject.get(project)) ? 'match' : 'mismatch'
+    counts[key]++
+    if (isRecent && key in recent) recent[key]++
+  }
+  console.log(`all ${records.length}: ${JSON.stringify(counts)}`)
+  console.log(`created in 2026: ${JSON.stringify(recent)}`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -671,6 +706,7 @@ async function main() {
   await probeImages(published)
   await grantRecordShape(published, tables)
   await projectIdLookup(published, tables)
+  await projectIdConsistency(tables)
   await yearCoverage(tables)
   await reportTypeCoverage(tables)
   await repeatedNumbers(tables)
