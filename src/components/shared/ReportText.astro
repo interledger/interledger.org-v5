@@ -33,7 +33,12 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
 const props = Astro.props
-// Body-copy utilities stay off this wrapper so References keeps the footnote size.
+// List margins live on the Paragraph and Disclaimer wrappers (blockSpacingClasses
+// and `[data-prose-report]`), not here. Here they would beat footnotes.css's
+// own list/counter layout (Tailwind's utilities layer always wins over
+// footnotes.css's `@layer components` rules regardless of source order) for
+// the References branch, which relies on footnotes.css alone to look like a
+// real footnote list.
 const sharedClasses = `px-lg [&_*:last-child]:mb-0 tablet:px-0`
 const copyClasses = `text-body-lg-standard [&_:is(p,a,li):not(:where(th,td)_*)]:text-body-lg-standard`
 // Table and list styles come from `[data-prose-report]` (prose/report.css),

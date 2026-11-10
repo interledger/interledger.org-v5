@@ -10,7 +10,6 @@
  * in-text `[^n]` marker to link back to — same numbered-list look, deliberately
  * without the `a[data-footnote-ref]` marker or `.data-footnote-backref` rules
  * below, since there's nothing to reference or link back from.
- * Rendered size, rule and inset come from starlight-parity.css.
  */
 
 @layer components {
@@ -42,7 +41,9 @@
        sr-only utility hides it for sighted users — no duplicate rules here. */
 
     /* References is hand-authored as a markdown bullet list (`<ul>`), not
-       GFM's own `<ol>` — targeting both keeps one set of rules for either. */
+       GFM's own `<ol>` — targeting both keeps one set of rules for either.
+       A `ul` inside `.footnotes` is a bullet list in the note, not the
+       note list, so only the `ol` is restyled. */
     .footnotes ol,
     [data-footnotes] ol,
     [data-report-text='references'] :is(ol, ul) {
@@ -77,8 +78,9 @@
       margin-block-end: 0;
     }
 
-    /* List markers — 13px link-colored superscripts.
-       Clear the disc bullet's box, or a references `<ul>` draws a 5px circle. */
+    /* List markers — 13px link-colored superscripts. The references `<ul>`
+       is kept out of the disc rule in default.css, so this marker does not
+       have to paint over that circle. */
     .footnotes li::before,
     [data-footnotes] li::before,
     [data-report-text='references'] li::before {
@@ -86,12 +88,6 @@
       position: absolute;
       inset-inline-start: 0;
       top: 0;
-      width: auto;
-      height: auto;
-      border-radius: 0;
-      background-color: transparent;
-      mask: none;
-      -webkit-mask: none;
       color: var(--color-link);
       font-size: var(--text-caption);
       font-weight: var(--text-caption--font-weight);

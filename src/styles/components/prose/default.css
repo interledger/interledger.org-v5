@@ -108,7 +108,8 @@
 
     /* 5px black circle on unordered content lists. Layout lists opt out
        with `list-none`. Triangle bullets in foundation.css override
-       `ul > li::before` for Paragraph. */
+       `ul > li::before` for Paragraph. Reference lists number themselves
+       (footnotes.css); `:where` keeps them out without raising specificity. */
     ul:not(.list-none) {
       list-style: none;
       margin: var(--spacing-lg) 0;
@@ -118,7 +119,8 @@
       position: relative;
       padding-inline-start: var(--spacing-xl);
     }
-    ul:not(.list-none) > li::before {
+    ul:not(.list-none):where(:not([data-report-text='references'] ul))
+      > li::before {
       content: '';
       position: absolute;
       left: 6px;
@@ -129,7 +131,8 @@
       background-color: var(--color-neutral-900);
     }
     @variant dark {
-      ul:not(.list-none) > li::before {
+      ul:not(.list-none):where(:not([data-report-text='references'] ul))
+        > li::before {
         background-color: var(--color-neutral-0);
       }
     }

@@ -79,23 +79,3 @@ html[data-theme='dark'] :is(table, pre:not(.mermaid)) {
 table code {
   word-break: break-all;
 }
-
-/* Report bibliographies share the footnote rule and type size. */
-.footnotes.footnotes.footnotes,
-[data-report-text='references'] {
-  margin-block-start: 2.25rem;
-}
-
-.footnotes,
-[data-report-text='references'] {
-  border-block-start: 1px dashed hsl(224 20% 94%);
-
-  & :is(ol, ul) {
-    padding-inline-start: 1.2rem;
-    font-size: clamp(0.9rem, calc(1.03rem - 0.15vw), 1rem);
-  }
-}
-
-html[data-theme='dark'] :is(.footnotes, [data-report-text='references']) {
-  border-block-start-color: hsl(224 14% 16%);
-}
