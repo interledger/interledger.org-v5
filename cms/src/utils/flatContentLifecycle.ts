@@ -8,7 +8,11 @@
 
 import fs from 'fs'
 import path from 'path'
-import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
+import {
+  shouldSkipMdxExport,
+  getAdminAuthor,
+  resolveUpdateTarget
+} from './pageLifecycle'
 import { LOCALES, defaultLang, formatMdx } from './mdx'
 import { mdxSubpath, type MdxNamingRule } from './mdxFilenames'
 import { isSameSlug } from './relativeLinks'
@@ -226,9 +230,13 @@ export function createFlatLocaleMdxLifecycle<
       state: { oldPathSlug?: string; oldSection?: string | null }
     }) {
       if (shouldSkipMdxExport()) return
-      const documentId =
-        event.params?.documentId ?? event.params?.data?.documentId
-      if (!documentId) return
+      const target = await resolveUpdateTarget(event, contentTypeUid)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        return
+      }
+      if (!target) return
+      const { documentId } = target
 
       // Stash the EN slug and section: both feed the locale filenames.
       const enEntry = await fetchPublished(documentId, defaultLang)

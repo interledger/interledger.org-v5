@@ -296,7 +296,9 @@ export {
   resolvePageFilepath,
   generateMDX,
   createPageLifecycle,
-  readLocaleFromUpdateEvent
+  readLocaleFromUpdateEvent,
+  resolveUpdateTarget,
+  type UpdateTarget
 } from './pageLifecycle'
 export {
   createBlogLifecycle,

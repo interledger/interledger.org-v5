@@ -1,6 +1,10 @@
 import fs from 'fs'
 import path from 'path'
-import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
+import {
+  shouldSkipMdxExport,
+  getAdminAuthor,
+  resolveUpdateTarget
+} from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
@@ -470,13 +474,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         locale?: string
         documentId?: string
         data?: { documentId?: string; locale?: string }
+        where?: Record<string, unknown>
       }
       state: { oldPathSlug?: string; oldDate?: string }
     }) {
       if (shouldSkipMdxExport()) return
-      const documentId =
-        event.params?.documentId ?? event.params?.data?.documentId
-      if (!documentId) return
+      const target = await resolveUpdateTarget(event, BLOG_UID)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        return
+      }
+      if (!target) return
+      const { documentId } = target
 
       // Always stash the EN slug/date — all locale filenames depend on it
       const enPost = await fetchBlogPost(documentId, defaultLang)
