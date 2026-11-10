@@ -13,6 +13,7 @@
 
 import { errors } from '@strapi/utils'
 import { slugVariants } from './relativeLinks'
+import { defaultLang } from './locales'
 
 /** The slice of the Strapi document service this check needs. */
 export interface SectionScopedSlugFinder {
@@ -142,19 +143,19 @@ export async function validateUniqueSlug(
 
 export interface CrossCollectionSlugCheck {
   /** Document service of the *other* collection that shares the URL tree. */
-  otherDocuments: Pick<SectionScopedSlugFinder, 'findMany'>
+  otherDocuments: SectionScopedSlugFinder
   /** Shown in the error, e.g. "Grant Page". */
   otherLabel: string
   /** Raw `ctx.params.data` from the document-service middleware. */
   data: Record<string, unknown>
-  /** Locale being written. Defaults to the caller's default locale. */
+  /** Locale being written. Defaults to the default locale. */
   locale?: string
 }
 
 /**
  * Reject a write whose pathSlug an entry of a *different* content type already
- * holds in this locale, when both types route under the same prefix (grant
- * pages and grant overview pages both live under /grant/). Being a different
+ * routes to in this locale, when both types share a URL prefix (grant pages
+ * and grant overview pages both live under /grant/). Being a different
  * collection, no row can be this entry, so no documentId is needed.
  */
 export async function validateSlugFreeInOtherCollection(
@@ -164,15 +165,60 @@ export async function validateSlugFreeInOtherCollection(
   // Absent on a partial update that leaves the slug alone, so nothing moved.
   if (!pathSlug) return undefined
 
-  const conflicts = await check.otherDocuments.findMany({
-    filters: { pathSlug: { $in: slugVariants(pathSlug) } },
-    locale: check.locale,
+  const locale = check.locale ?? defaultLang
+  const filters = { pathSlug: { $in: slugVariants(pathSlug) } }
+
+  const sameLocale = await check.otherDocuments.findMany({
+    filters,
+    locale,
     fields: ['pathSlug'],
     limit: 1
   })
-  if (conflicts.length === 0) return undefined
+  if (sameLocale.length > 0) {
+    return crossCollectionSlugError(
+      `Path Slug "${pathSlug}" is already used by a ${check.otherLabel}. Slugs must be unique across both collections.`
+    )
+  }
 
-  const message = `Path Slug "${pathSlug}" is already used by a ${check.otherLabel}. Slugs must be unique across both collections.`
+  if (locale === defaultLang) return undefined
+  if (!(await isEnglishFallbackRoute(check.otherDocuments, filters, locale))) {
+    return undefined
+  }
+  return crossCollectionSlugError(
+    `Path Slug "${pathSlug}" is already used by an English ${check.otherLabel} with no ${locale} version. The site shows that page at the ${locale} URL too, so the two would share one address.`
+  )
+}
+
+/**
+ * True when an English entry holds the slug and has no row in `locale`. The
+ * site builds a localized route for such an entry from its English slug
+ * (`getLocalizedPaths`), so the slug is taken in `locale` as well.
+ */
+async function isEnglishFallbackRoute(
+  documents: SectionScopedSlugFinder,
+  filters: Record<string, unknown>,
+  locale: string
+): Promise<boolean> {
+  const englishMatches = (await documents.findMany({
+    filters,
+    locale: defaultLang,
+    fields: ['pathSlug']
+  })) as Array<{ documentId?: unknown }>
+
+  for (const entry of englishMatches) {
+    const documentId = asString(entry.documentId)
+    if (!documentId) continue
+    const translation = await documents.findOne({
+      documentId,
+      locale,
+      fields: ['pathSlug']
+    })
+    if (!translation) return true
+  }
+  return false
+}
+
+function crossCollectionSlugError(message: string): errors.ValidationError {
   return new errors.ValidationError(message, {
     errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
   })
