@@ -610,6 +610,33 @@ async function dumpProjectsAndGrantees(tables) {
   console.log(`Wrote ${projectRows.length} projects and ${granteeRows.length} grantees to the encrypted dump.`)
 }
 
+// Is the new Project id lookup in the public view, and what shape are its
+// values? Counts only.
+async function projectIdLookup(published, tables) {
+  console.log('\n## Project id lookup (Published Reports)')
+  const fields = published.fields.filter((f) => /project\s*id/i.test(f.name))
+  const view = published.views.find((v) => v.name.startsWith('PUBLIC'))
+  for (const field of fields) {
+    const link = published.fields.find((f) => f.id === field.options?.recordLinkFieldId)
+    const linkedTable = tables.find((t) => t.id === link?.options?.linkedTableId)
+    const target = linkedTable?.fields.find((f) => f.id === field.options?.fieldIdInLinkedTable)
+    console.log(`${field.name} [${field.type}, result ${field.options?.result?.type ?? 'n/a'}] ${field.id}, through: ${link?.name ?? 'n/a'} -> ${linkedTable?.name ?? 'n/a'}, looks up: ${target?.name ?? 'n/a'}, in public view: ${view?.visibleFieldIds?.includes(field.id) ?? false}`)
+    const params = new URLSearchParams({ returnFieldsByFieldId: 'true', 'fields[]': field.id })
+    const records = await fetchAll(published.id, params)
+    const counts = { eightDigits: 0, empty: 0, several: 0, other: 0 }
+    for (const record of records) {
+      const value = record.fields[field.id]
+      const list = Array.isArray(value) ? value : value === undefined ? [] : [value]
+      if (list.length === 0) counts.empty++
+      else if (list.length > 1) counts.several++
+      else if (/^\d{8}$/.test(String(list[0]))) counts.eightDigits++
+      else counts.other++
+    }
+    console.log(`  records: ${records.length}, ${JSON.stringify(counts)}`)
+  }
+  if (fields.length === 0) console.log('no field named like "Project id"')
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -643,6 +670,7 @@ async function main() {
   await countView(published)
   await probeImages(published)
   await grantRecordShape(published, tables)
+  await projectIdLookup(published, tables)
   await yearCoverage(tables)
   await reportTypeCoverage(tables)
   await repeatedNumbers(tables)
