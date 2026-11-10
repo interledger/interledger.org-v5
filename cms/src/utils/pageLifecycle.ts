@@ -30,6 +30,7 @@ import {
 } from './localeMdxUtils'
 import { toValidationError } from './contentValidation'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
+import { tryCatchAsync } from './tryCatch'
 
 export interface PageData {
   id: number
@@ -419,6 +420,57 @@ export function readLocaleFromUpdateEvent(event: {
   return resolved
 }
 
+/** The document and locale a DB-level update is about to change. */
+export interface UpdateTarget {
+  documentId: string
+  locale: string
+}
+
+interface UpdateEventParams {
+  locale?: string
+  documentId?: string
+  data?: { documentId?: string; locale?: string }
+  where?: StrapiDocumentServiceUpdateWhere
+}
+
+/**
+ * Identify the document and locale a `beforeUpdate` event is about to change.
+ *
+ * Since Strapi 5.57 the document service strips `documentId` from `data`
+ * before the DB update, and `where` holds only the row `id`. Read that row
+ * when the event does not name the document: it also holds the real locale,
+ * which the event no longer carries. Returns null when the row is gone.
+ */
+export async function resolveUpdateTarget(
+  event: { params?: UpdateEventParams },
+  uid: UID.ContentType
+): Promise<UpdateTarget | null | Error> {
+  const params = event.params
+  const documentId = params?.documentId ?? params?.data?.documentId
+  if (documentId) {
+    return { documentId, locale: readLocaleFromUpdateEvent(event) }
+  }
+
+  const id = params?.where?.id
+  if (typeof id !== 'number' && typeof id !== 'string') return null
+
+  const row = await tryCatchAsync(
+    () =>
+      strapi.db.query(uid).findOne({
+        where: { id },
+        select: ['documentId', 'locale']
+      }) as Promise<{ documentId?: string; locale?: string | null } | null>
+  )
+  if (row instanceof Error) {
+    return new Error(
+      `Failed to read ${uidToLogLabel(uid)} row ${id}: ${row.message}`,
+      { cause: row }
+    )
+  }
+  if (!row?.documentId) return null
+  return { documentId: row.documentId, locale: row.locale || defaultLang }
+}
+
 function deleteMdxIfExists(
   filepath: string,
   locale: string,
@@ -472,12 +524,13 @@ export function createPageLifecycle<T extends UID.ContentType>(
       state: { oldPathSlug?: string; locale?: string }
     }) {
       if (shouldSkipMdxExport()) return
-      // Strapi v5: documentId is in params.data.documentId
-      const documentId =
-        event.params?.documentId ?? event.params?.data?.documentId
-      if (!documentId) return
-
-      const locale = readLocaleFromUpdateEvent(event)
+      const target = await resolveUpdateTarget(event, config.contentTypeUid)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        return
+      }
+      if (!target) return
+      const { documentId, locale } = target
 
       // Runs on every save (draft or publish). We only stash a prior slug when this
       // locale has a published version — export writes MDX from published data, so
