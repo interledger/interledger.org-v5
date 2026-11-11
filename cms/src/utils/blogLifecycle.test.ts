@@ -397,10 +397,19 @@ describe('createBlogLifecycle — slug and date changes', () => {
     return filepath
   }
 
-  // What the post reads as after the save, per locale: `unread-once` makes
-  // the first fetch throw and later ones succeed, `fallback` answers with the
-  // EN document.
-  let afterSave: Record<string, 'unread-once' | 'fallback'> = {}
+  /** Every MDX file under the blog folder, so a test can assert none moved. */
+  function listFiles(): string[] {
+    const root = path.join(repoRoot, outputDir)
+    if (!fs.existsSync(root)) return []
+    return (fs.readdirSync(root, { recursive: true }) as string[])
+      .filter((name) => name.endsWith('.mdx'))
+      .sort()
+  }
+
+  // How each locale reads before and after the save: `unread` makes the
+  // fetch throw, `fallback` answers with the EN document.
+  let beforeSave: Record<string, 'unread'> = {}
+  let afterSave: Record<string, 'unread' | 'fallback'> = {}
   let saved = false
 
   function stubStrapi(savedLocale: string) {
@@ -413,11 +422,8 @@ describe('createBlogLifecycle — slug and date changes', () => {
       },
       documents: () => ({
         findOne: async ({ locale }: { locale: string }) => {
-          const mode = saved ? afterSave[locale] : undefined
-          if (mode === 'unread-once') {
-            delete afterSave[locale]
-            throw new Error('db read failed')
-          }
+          const mode = saved ? afterSave[locale] : beforeSave[locale]
+          if (mode === 'unread') throw new Error('db read failed')
           const post = mode === 'fallback' ? posts.en : posts[locale]
           return post ? { ...post } : null
         }
@@ -445,6 +451,7 @@ describe('createBlogLifecycle — slug and date changes', () => {
 
   beforeEach(() => {
     repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-rename-'))
+    beforeSave = {}
     afterSave = {}
     saved = false
     vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', repoRoot)
@@ -508,29 +515,27 @@ describe('createBlogLifecycle — slug and date changes', () => {
     expect(fs.existsSync(en)).toBe(true)
   })
 
-  // Comparing and writing from separate reads let a retry write the new
-  // file beside an old one the comparison had kept.
-  it('neither moves nor writes a locale whose read fails after the save', async () => {
-    const oldEs = seedFile('es', '2025-06-11-test')
+  // A save that cannot see every locale stops, so Strapi rolls it back and
+  // the files still match what is stored. Carrying on would lose the old
+  // file's name, and the next save would write a duplicate beside it.
+  it.each([
+    ['cannot be read before the save', () => (beforeSave = { es: 'unread' })],
+    ['cannot be read after the save', () => (afterSave = { es: 'unread' })],
+    [
+      'falls back to EN content after the save',
+      () => (afterSave = { es: 'fallback' })
+    ]
+  ])('stops the save when the ES version %s', async (_, failRead) => {
     seedFile('en', '2025-06-11-test')
-    afterSave = { es: 'unread-once' }
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    failRead()
 
-    await save('en', { pathSlug: 'test-change-slug' })
-
-    expect(fs.existsSync(oldEs)).toBe(true)
-    expect(fs.existsSync(blogFile('es', '2025-06-11-test-change-slug'))).toBe(
-      false
+    await expect(save('en', { pathSlug: 'test-change-slug' })).rejects.toThrow(
+      'not saved'
     )
-  })
 
-  it('keeps the ES file when the ES read falls back to EN content', async () => {
-    const oldEs = seedFile('es', '2025-06-11-test')
-    seedFile('en', '2025-06-11-test')
-    afterSave = { es: 'fallback' }
-
-    await save('en', { pathSlug: 'test-change-slug' })
-
-    expect(fs.existsSync(oldEs)).toBe(true)
+    expect(listFiles()).toEqual(before)
   })
 
   it('keeps the old files when writing a new one fails', async () => {
@@ -541,6 +546,21 @@ describe('createBlogLifecycle — slug and date changes', () => {
     ).rejects.toThrow('Author Bio')
 
     expect(fs.existsSync(oldEn)).toBe(true)
+  })
+
+  // EN is written first. Without the undo, the rolled-back save would leave
+  // the new EN file beside the old one.
+  it('removes the files it created when a later locale fails to write', async () => {
+    seedFile('en', '2025-06-11-test')
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    posts.es = { ...posts.es, articleBio: [{ author: '' }] }
+
+    await expect(save('en', { pathSlug: 'test-change-slug' })).rejects.toThrow(
+      'Author Bio'
+    )
+
+    expect(listFiles()).toEqual(before)
   })
 
   it('rewrites the file in place when neither slug nor date changes', async () => {

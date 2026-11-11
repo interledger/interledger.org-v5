@@ -19,6 +19,7 @@ import { mdxSubpath } from './mdxFilenames'
 import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
+import { tryCatchAsync } from './tryCatch'
 import type { AuthorBio } from './contentTypes'
 import type { Core } from '@strapi/strapi'
 
@@ -116,9 +117,9 @@ export function stampBlogLocale(
 async function fetchBlogPost(
   documentId: string,
   locale: string
-): Promise<BlogResult | null> {
-  try {
-    const post = await strapi.documents(BLOG_UID).findOne({
+): Promise<BlogResult | null | Error> {
+  const post = await tryCatchAsync(() =>
+    strapi.documents(BLOG_UID).findOne({
       documentId,
       locale,
       status: 'published',
@@ -133,16 +134,37 @@ async function fetchBlogPost(
         content: BLOG_CONTENT_POPULATE
       }
     })
-    if (!post) return null
-    const stamped = post as unknown as BlogResult
-    return {
-      ...stamped,
-      locale: stampBlogLocale(stamped, locale)
-    }
-  } catch (error) {
-    console.error(`Failed to fetch blog post ${documentId} (${locale}):`, error)
-    return null
+  )
+  if (post instanceof Error) {
+    return new Error(
+      `Failed to fetch blog post ${documentId} (${locale}): ${post.message}`,
+      { cause: post }
+    )
   }
+  if (!post) return null
+  const stamped = post as unknown as BlogResult
+  return {
+    ...stamped,
+    locale: stampBlogLocale(stamped, locale)
+  }
+}
+
+/** For hooks that carry on without the post: log a failed read, then treat it as missing. */
+function logFetchFailure(result: BlogResult | null | Error): BlogResult | null {
+  if (!(result instanceof Error)) return result
+  console.error(`⚠️  ${result.message}`)
+  return null
+}
+
+/**
+ * The error an update hook throws to stop a save. The hooks run inside the
+ * save's transaction, so Strapi rolls the save back and the MDX files on disk
+ * still match what is stored.
+ */
+function abortedSaveError(reason: string): Error {
+  return toValidationError(
+    new Error(`The blog post was not saved: ${reason}. Try again.`)
+  )
 }
 
 /** Fields needed to resolve the English pathSlug used in blog filenames. */
@@ -196,9 +218,8 @@ export function resolveBlogMdxFilename(
 
 /**
  * The old files an update left behind: locales whose file path changed.
- *
- * A locale missing from `after` is skipped, not deleted. Its fetch may just
- * have failed, and deleting on a failed read would lose the post.
+ * A locale missing from `after` is not reported; the update hook stops the
+ * save for one instead.
  */
 export function findMovedBlogFiles(
   before: BlogFilepaths,
@@ -427,10 +448,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
    */
   async function fetchPublishedBlogLocales(
     documentId: string
-  ): Promise<PublishedBlogLocales> {
+  ): Promise<PublishedBlogLocales | Error> {
     const posts: PublishedBlogLocales = {}
     for (const locale of LOCALES) {
       const post = await fetchBlogPost(documentId, locale)
+      if (post instanceof Error) return post
       if (!post) continue
       const normalized = withNormalizedLocale(post)
       posts[normalized.locale] ??= normalized
@@ -459,9 +481,9 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   async function writeBlogPost(
     post: BlogResult,
     englishSlug: string | undefined
-  ): Promise<void> {
+  ): Promise<string> {
     try {
-      await writeMDXFile({
+      return await writeMDXFile({
         outputPath: getOutputPath(post.locale),
         post,
         englishSlug
@@ -475,6 +497,35 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     }
   }
 
+  /**
+   * Write every locale of a moved post. When one write fails, delete the
+   * files this call created before rethrowing: the error rolls the save back,
+   * and those new names would otherwise sit beside the old files as
+   * duplicates.
+   */
+  async function writeMovedBlogLocales(
+    posts: PublishedBlogLocales,
+    englishSlug: string | undefined,
+    oldFilepaths: BlogFilepaths
+  ): Promise<void> {
+    const existing = new Set(Object.values(oldFilepaths))
+    const created: Array<{ locale: string; filepath: string }> = []
+    try {
+      for (const post of Object.values(posts)) {
+        if (!post) continue
+        const filepath = await writeBlogPost(post, englishSlug)
+        if (!existing.has(filepath)) {
+          created.push({ locale: post.locale, filepath })
+        }
+      }
+    } catch (error) {
+      for (const { locale, filepath } of created) {
+        deleteMdxIfExists(filepath, locale)
+      }
+      throw error
+    }
+  }
+
   return {
     async afterCreate(event: BlogEvent) {
       const { result } = event
@@ -482,14 +533,16 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       // Skip before any documents() fetch (sync-mdx sets this header).
       if (shouldSkipMdxExport()) return
       const requestedLocale = result.locale || defaultLang
-      const post = await fetchBlogPost(result.documentId, requestedLocale)
+      const post = logFetchFailure(
+        await fetchBlogPost(result.documentId, requestedLocale)
+      )
       if (!post) return
       const label = event.model.singularName
       console.log(`📝 Creating ${label} MDX for: ${post.pathSlug}`)
       const enPost =
         post.locale === defaultLang
           ? post
-          : await fetchBlogPost(result.documentId, defaultLang)
+          : logFetchFailure(await fetchBlogPost(result.documentId, defaultLang))
       // Trust post.locale from fetchBlogPost (stamped only when omitted).
       await writeMDXFile({
         outputPath: getOutputPath(post.locale),
@@ -513,18 +566,17 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       state: BlogUpdateState
     }) {
       if (shouldSkipMdxExport()) return
+      // Without every locale's current path, a rename cannot remove the old
+      // files, so a failed read stops the save instead of leaving duplicates.
       const target = await resolveUpdateTarget(event, BLOG_UID)
-      if (target instanceof Error) {
-        console.error(`⚠️  ${target.message}`)
-        return
-      }
+      if (target instanceof Error) throw abortedSaveError(target.message)
       if (!target) return
 
       // Every locale, not just the one being saved: an EN slug or date edit
       // renames the ES file too.
-      event.state.oldFilepaths = blogFilepathsOf(
-        await fetchPublishedBlogLocales(target.documentId)
-      )
+      const posts = await fetchPublishedBlogLocales(target.documentId)
+      if (posts instanceof Error) throw abortedSaveError(posts.message)
+      event.state.oldFilepaths = blogFilepathsOf(posts)
     },
     async afterUpdate(event: BlogEvent) {
       const { result } = event
@@ -533,22 +585,28 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (shouldSkipMdxExport()) return
 
       const label = event.model.singularName
-      // Compare and write from the same read, so a locale that fails to load
-      // is neither written under its new name nor deleted under its old one.
+      // Compare and write from the same read. A locale that existed before
+      // the save and cannot be read now stops the save: skipping it would
+      // keep its old file while the stored slug moved on, and nothing would
+      // know that file's name any more.
       const posts = await fetchPublishedBlogLocales(result.documentId)
+      if (posts instanceof Error) throw abortedSaveError(posts.message)
       const englishSlug = posts[defaultLang]?.pathSlug
-      const { oldFilepaths } = event.state
-      const moved = oldFilepaths
-        ? findMovedBlogFiles(oldFilepaths, blogFilepathsOf(posts))
-        : []
+      const newFilepaths = blogFilepathsOf(posts)
+      const { oldFilepaths = {} } = event.state
+      const unread = Object.keys(oldFilepaths).filter(
+        (locale) => !newFilepaths[locale]
+      )
+      if (unread.length > 0) {
+        throw abortedSaveError(
+          `could not read the ${unread.join(', ')} version after saving`
+        )
+      }
 
+      const moved = findMovedBlogFiles(oldFilepaths, newFilepaths)
       if (moved.length > 0) {
         console.log(`📝 Re-exporting all ${label} locales: ${englishSlug}`)
-        for (const post of Object.values(posts)) {
-          if (post) await writeBlogPost(post, englishSlug)
-        }
-        // Delete only after every write succeeded: a failed write throws
-        // above and leaves the old file in place instead of no file at all.
+        await writeMovedBlogLocales(posts, englishSlug, oldFilepaths)
         for (const { locale, oldFilepath } of moved) {
           deleteMdxIfExists(oldFilepath, locale)
         }
@@ -582,7 +640,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       const enPost =
         locale === defaultLang
           ? null
-          : await fetchBlogPost(result.documentId, defaultLang)
+          : logFetchFailure(await fetchBlogPost(result.documentId, defaultLang))
       const englishSlug =
         locale === defaultLang ? result.pathSlug : enPost?.pathSlug
 
