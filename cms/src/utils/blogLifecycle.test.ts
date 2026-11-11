@@ -397,6 +397,12 @@ describe('createBlogLifecycle — slug and date changes', () => {
     return filepath
   }
 
+  // What the post reads as after the save, per locale: `unread-once` makes
+  // the first fetch throw and later ones succeed, `fallback` answers with the
+  // EN document.
+  let afterSave: Record<string, 'unread-once' | 'fallback'> = {}
+  let saved = false
+
   function stubStrapi(savedLocale: string) {
     vi.stubGlobal('strapi', {
       requestContext: { get: () => ({ request: { headers: {} } }) },
@@ -406,8 +412,15 @@ describe('createBlogLifecycle — slug and date changes', () => {
         })
       },
       documents: () => ({
-        findOne: async ({ locale }: { locale: string }) =>
-          posts[locale] ? { ...posts[locale] } : null
+        findOne: async ({ locale }: { locale: string }) => {
+          const mode = saved ? afterSave[locale] : undefined
+          if (mode === 'unread-once') {
+            delete afterSave[locale]
+            throw new Error('db read failed')
+          }
+          const post = mode === 'fallback' ? posts.en : posts[locale]
+          return post ? { ...post } : null
+        }
       })
     })
   }
@@ -422,6 +435,7 @@ describe('createBlogLifecycle — slug and date changes', () => {
       state
     })
     posts[locale] = { ...posts[locale], ...changes }
+    saved = true
     await lifecycle.afterUpdate({
       model: { singularName: 'foundation-blog-post' },
       result: posts[locale],
@@ -431,6 +445,8 @@ describe('createBlogLifecycle — slug and date changes', () => {
 
   beforeEach(() => {
     repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-rename-'))
+    afterSave = {}
+    saved = false
     vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', repoRoot)
     vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'true')
     const shared = {
@@ -490,6 +506,41 @@ describe('createBlogLifecycle — slug and date changes', () => {
     expect(fs.existsSync(oldEs)).toBe(false)
     expect(fs.existsSync(blogFile('es', '2025-07-01-test'))).toBe(true)
     expect(fs.existsSync(en)).toBe(true)
+  })
+
+  // Comparing and writing from separate reads let a retry write the new
+  // file beside an old one the comparison had kept.
+  it('neither moves nor writes a locale whose read fails after the save', async () => {
+    const oldEs = seedFile('es', '2025-06-11-test')
+    seedFile('en', '2025-06-11-test')
+    afterSave = { es: 'unread-once' }
+
+    await save('en', { pathSlug: 'test-change-slug' })
+
+    expect(fs.existsSync(oldEs)).toBe(true)
+    expect(fs.existsSync(blogFile('es', '2025-06-11-test-change-slug'))).toBe(
+      false
+    )
+  })
+
+  it('keeps the ES file when the ES read falls back to EN content', async () => {
+    const oldEs = seedFile('es', '2025-06-11-test')
+    seedFile('en', '2025-06-11-test')
+    afterSave = { es: 'fallback' }
+
+    await save('en', { pathSlug: 'test-change-slug' })
+
+    expect(fs.existsSync(oldEs)).toBe(true)
+  })
+
+  it('keeps the old files when writing a new one fails', async () => {
+    const oldEn = seedFile('en', '2025-06-11-test')
+
+    await expect(
+      save('en', { pathSlug: 'test-change-slug', articleBio: [{ author: '' }] })
+    ).rejects.toThrow('Author Bio')
+
+    expect(fs.existsSync(oldEn)).toBe(true)
   })
 
   it('rewrites the file in place when neither slug nor date changes', async () => {
