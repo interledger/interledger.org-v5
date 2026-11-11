@@ -8,7 +8,8 @@ import {
   buildLayoutConfiguration,
   createCheckFileSize,
   overrideUploadProvider,
-  registerDocumentValidation
+  registerDocumentValidation,
+  registerGrantSlugSiblingValidation
 } from './index'
 
 describe('buildLayoutConfiguration', () => {
@@ -361,5 +362,68 @@ describe('overrideUploadProvider', () => {
       fs.existsSync(path.join(publicDir, 'uploads/img/original/abc.txt'))
     ).toBe(true)
     expect((file as { url?: string }).url).toBe('/uploads/img/original/abc.txt')
+  })
+})
+
+describe('registerGrantSlugSiblingValidation', () => {
+  const GRANT_PAGE = 'api::grant-page.grant-page'
+  const OVERVIEW = 'api::grant-overview-page.grant-overview-page'
+
+  type Middleware = (
+    ctx: {
+      uid: string
+      action: string
+      params: { data?: Record<string, unknown>; locale?: string }
+    },
+    next: () => Promise<void>
+  ) => Promise<void>
+
+  // A grant page already holds /foo/ in English; overview pages hold nothing.
+  function register(isSyncRequest: boolean) {
+    const use = vi.fn()
+    const findMany = vi.fn(async (options: Record<string, unknown>) =>
+      options.locale === 'en' ? [{ documentId: 'g1', pathSlug: '/foo/' }] : []
+    )
+    const documents = Object.assign(
+      vi.fn((uid: string) =>
+        uid === GRANT_PAGE
+          ? { findMany, findOne: vi.fn(async () => null) }
+          : { findMany: vi.fn(async () => []), findOne: vi.fn() }
+      ),
+      { use }
+    )
+    registerGrantSlugSiblingValidation({ documents }, () => isSyncRequest)
+    const middlewares = use.mock.calls.map(([m]) => m as Middleware)
+    return { middlewares, findMany }
+  }
+
+  async function saveOverview(middlewares: Middleware[]) {
+    const next = vi.fn(async () => {})
+    const ctx = {
+      uid: OVERVIEW,
+      action: 'update',
+      params: { data: { pathSlug: '/foo/' }, locale: 'en' }
+    }
+    for (const middleware of middlewares) await middleware(ctx, next)
+    return next
+  }
+
+  it('rejects an admin save whose slug the other collection holds', async () => {
+    const { middlewares } = register(false)
+
+    await expect(saveOverview(middlewares)).rejects.toThrow(
+      'already used by a Grant Page'
+    )
+  })
+
+  // A commit can move a slug between the collections; the sync may save the
+  // new owner first, and must not stop halfway (Jonathan, #867).
+  it('lets a sync request through without querying', async () => {
+    const { middlewares, findMany } = register(true)
+
+    const next = await saveOverview(middlewares)
+
+    expect(next).toHaveBeenCalled()
+    expect(findMany).not.toHaveBeenCalled()
   })
 })

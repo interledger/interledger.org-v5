@@ -214,6 +214,49 @@ export function registerAsyncDocumentValidation(
   })
 }
 
+/** Content types that share the /grant/ URL tree: [uid, other uid, other label]. */
+const GRANT_SLUG_SIBLINGS = [
+  [
+    'api::grant-page.grant-page',
+    'api::grant-overview-page.grant-overview-page',
+    'Grant Overview Page'
+  ],
+  [
+    'api::grant-overview-page.grant-overview-page',
+    'api::grant-page.grant-page',
+    'Grant Page'
+  ]
+] as const
+
+/**
+ * Grant pages and grant overview pages share the /grant/ URL tree, so a slug
+ * must be free in the other collection too.
+ *
+ * Skipped for the MDX sync: the files in git are the source of truth there,
+ * and a commit that moves a slug from one collection to the other would be
+ * rejected halfway when the sync saves the new owner before the old one.
+ */
+export function registerGrantSlugSiblingValidation(
+  strapi: {
+    documents: ((uid: string) => unknown) & {
+      use: (middleware: DocumentValidationMiddleware) => void
+    }
+  },
+  isSyncRequest: () => boolean = isCodeSyncRequest
+) {
+  for (const [uid, otherUid, otherLabel] of GRANT_SLUG_SIBLINGS) {
+    registerAsyncDocumentValidation(strapi, uid, async ({ data, locale }) => {
+      if (isSyncRequest()) return undefined
+      return validateSlugFreeInOtherCollection({
+        otherDocuments: strapi.documents(otherUid) as SectionScopedSlugFinder,
+        otherLabel,
+        data,
+        locale
+      })
+    })
+  }
+}
+
 const REDIRECT_UID = 'api::redirect.redirect'
 
 /**
@@ -238,20 +281,6 @@ const UNIQUE_SLUG_UIDS = [
   'api::grant-overview-page.grant-overview-page',
   'api::podcast-page.podcast-page',
   'api::foundation-blog-post.foundation-blog-post'
-] as const
-
-/** Content types that share the /grant/ URL tree: [uid, other uid, other label]. */
-const GRANT_SLUG_SIBLINGS = [
-  [
-    'api::grant-page.grant-page',
-    'api::grant-overview-page.grant-overview-page',
-    'Grant Overview Page'
-  ],
-  [
-    'api::grant-overview-page.grant-overview-page',
-    'api::grant-page.grant-page',
-    'Grant Page'
-  ]
 ] as const
 
 // Strapi instance type for lifecycle functions
@@ -2570,20 +2599,7 @@ export default {
         })
       )
     }
-    // Grant pages and grant overview pages share the /grant/ URL tree, so a
-    // slug must be free in the other collection too.
-    for (const [uid, otherUid, otherLabel] of GRANT_SLUG_SIBLINGS) {
-      registerAsyncDocumentValidation(strapi, uid, ({ data, locale }) =>
-        validateSlugFreeInOtherCollection({
-          otherDocuments: strapi.documents(
-            otherUid
-          ) as unknown as SectionScopedSlugFinder,
-          otherLabel,
-          data,
-          locale
-        })
-      )
-    }
+    registerGrantSlugSiblingValidation(strapi)
     // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
     // Available badge compare it by bare slug.
     const uidService = strapi.plugin('content-manager')?.service('uid') as
