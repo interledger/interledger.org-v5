@@ -26,8 +26,8 @@ function report(overrides: Partial<GrantReport> = {}): GrantReport {
   return {
     id: 'recReport0000001',
     grantId: 'recUSF6jZiBVoqG01',
+    projectId: '20260504',
     granteeSlug: 'gib',
-    grantYear: '2022',
     projectName: 'Gib',
     reportType: 'Interim Report',
     reportNumber: 1,
@@ -86,16 +86,25 @@ describe('parseGrantReports', () => {
     expect((result as Error).message).toContain('0.granteeSlug')
   })
 
-  it('fails on a grant year that is not four digits', () => {
-    const result = parseGrantReports([report({ grantYear: '22' })])
-    expect((result as Error).message).toContain('0.grantYear')
+  it('fails on a Project id that is not digits', () => {
+    const result = parseGrantReports([report({ projectId: '2026-0504' })])
+    expect((result as Error).message).toContain('0.projectId')
   })
 
-  it('fails on an empty section or option list', () => {
-    expect(parseGrantReports([report({ summary: '' })])).toBeInstanceOf(Error)
-    expect(parseGrantReports([report({ outputTypes: [] })])).toBeInstanceOf(
-      Error
-    )
+  it('accepts a report with every content field empty', () => {
+    const empty = report({
+      reportingPeriodStart: null,
+      reportingPeriodEnd: null,
+      summary: '',
+      progressOnObjectives: '',
+      whoBenefits: '',
+      outputs: '',
+      whatsNext: '',
+      license: '',
+      outputTypes: [],
+      interledgerTechnologies: []
+    })
+    expect(parseGrantReports([empty])).toEqual([empty])
   })
 
   it('fails on an image path that is not site-relative', () => {
@@ -131,14 +140,19 @@ describe('formatReportDate', () => {
 })
 
 describe('grantReportPath', () => {
-  it('puts the report under its grantee, keyed by grant year and number', () => {
-    expect(grantReportSegment(report())).toBe('2022-1')
-    expect(grantReportPath(report())).toBe('grant/grantees/gib/reports/2022-1')
+  it('puts the report under its grantee, keyed by Project id, type and number', () => {
+    expect(grantReportSegment(report())).toBe('20260504-interim-1')
+    expect(grantReportSegment(report({ reportType: 'Final Report' }))).toBe(
+      '20260504-final-1'
+    )
+    expect(grantReportPath(report())).toBe(
+      'grant/grantees/gib/reports/20260504-interim-1'
+    )
   })
 
-  it('tells apart two grants of one grantee by their year', () => {
-    const older = report({ grantYear: '2020' })
-    expect(grantReportPath(older)).not.toBe(grantReportPath(report()))
+  it('tells apart two grants of one grantee by their Project id', () => {
+    const other = report({ projectId: '20260505' })
+    expect(grantReportPath(other)).not.toBe(grantReportPath(report()))
   })
 })
 
@@ -155,10 +169,10 @@ describe('getGrantReportRoutes', () => {
     const routes = getGrantReportRoutes([report()], false)
     expect(routes).toEqual([
       {
-        params: { slug: 'gib', report: '2022-1' },
+        params: { slug: 'gib', report: '20260504-interim-1' },
         props: {
           report: report(),
-          reportPath: 'grant/grantees/gib/reports/2022-1'
+          reportPath: 'grant/grantees/gib/reports/20260504-interim-1'
         }
       }
     ])
@@ -171,7 +185,7 @@ describe('getGrantReportRoutes', () => {
     )
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain(
-      'grant/grantees/gib/reports/2022-1 is used by recReport0000001, recReport0000002'
+      'grant/grantees/gib/reports/20260504-interim-1 is used by recReport0000001, recReport0000002'
     )
   })
 

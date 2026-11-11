@@ -46,25 +46,25 @@ export interface TableRecord {
 
 export type GrantReportType = 'Interim Report' | 'Final Report'
 
-// A grant report as written to grant-reports.json. The sync fails rather than
-// write a report with a required value missing, so no field is optional. The
-// five long-text fields are Markdown: Airtable returns rich text that way.
+// A grant report as written to grant-reports.json. Programs can leave the
+// report content empty: a text field is then '', a date null, and a list [].
+// The five long-text fields are Markdown: Airtable returns rich text that way.
 export interface GrantReport {
   id: string
   // Projects record ID. It matches a record in grantee-data.json only when
   // the grant is published in the directory.
   grantId: string
-  // The grantee that owns the grant, and the grant's year. The report URL
-  // needs both. The sync reads them from Grantees and Projects, because
+  // The ID that Programs use for the grant, for example 20260504.
+  projectId: string
+  // The grantee that owns the grant. The sync reads it from Grantees, because
   // grantee-data.json holds published grants only.
   granteeSlug: string
-  grantYear: string
   projectName: string
   reportType: GrantReportType
   reportNumber: number
   publishedDate: string
-  reportingPeriodStart: string
-  reportingPeriodEnd: string
+  reportingPeriodStart: string | null
+  reportingPeriodEnd: string | null
   summary: string
   progressOnObjectives: string
   whoBenefits: string
@@ -86,8 +86,8 @@ export interface SyncedImage {
   alt: string
 }
 
-// A report before the sync joins it to its grantee and grant year.
-export type UnlinkedGrantReport = Omit<GrantReport, 'granteeSlug' | 'grantYear'>
+// A report before the sync joins it to its grantee.
+export type UnlinkedGrantReport = Omit<GrantReport, 'granteeSlug'>
 
 // A report as read from Airtable, before the sync downloads its images.
 export type GrantReportContent = Omit<UnlinkedGrantReport, 'images'>

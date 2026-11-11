@@ -164,6 +164,7 @@ export const ui = {
     'grantReport.type.interim': 'Interim report',
     'grantReport.type.final': 'Final report',
     'grantReport.subtitle': '{type} (report {number})',
+    'grantReport.breadcrumb': '{type} {number}',
     'grantReport.facts': 'Report facts',
     'grantReport.published': 'Published',
     'grantReport.reporting_period': 'Reporting period',

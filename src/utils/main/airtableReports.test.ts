@@ -15,7 +15,6 @@ import {
   findHiddenReportFields,
   isLiveReport,
   linkReportsToGrantees,
-  readGrantYear,
   reportFieldIdsToFetch,
   toGrantReport,
   toGrantReports
@@ -24,6 +23,7 @@ import {
 const CREATED = '2026-11-15T00:00:00.000Z'
 const F = REPORT_FIELDS
 const GRANT_ID = 'recUSF6jZiBVoqG01'
+const PROJECT_ID = '20260504'
 
 // A Live report with every field set, as the API returns it (keyed by field ID).
 function liveReport(
@@ -50,6 +50,7 @@ function liveReport(
       [F.reportType.id]: ['Interim Report'],
       [F.reportNumber.id]: [1],
       [F.grantRecord.id]: [GRANT_ID],
+      [F.projectId.id]: [PROJECT_ID],
       ...overrides
     }
   }
@@ -87,6 +88,7 @@ describe('toGrantReport', () => {
     expect(expectParsed(toGrantReport(liveReport())).content).toEqual({
       id: 'rec1',
       grantId: GRANT_ID,
+      projectId: PROJECT_ID,
       projectName: 'Gib',
       reportType: 'Interim Report',
       reportNumber: 1,
@@ -227,9 +229,9 @@ describe('toGrantReport', () => {
     const error = expectError(
       toGrantReport(
         liveReport({
-          [F.summary.id]: '   ',
+          [F.summary.id]: 42,
           [F.publishedDate.id]: undefined,
-          [F.outputTypes.id]: []
+          [F.outputTypes.id]: 'Dataset'
         })
       )
     )
@@ -239,8 +241,56 @@ describe('toGrantReport', () => {
       '"Published Date": expected a date, got missing'
     )
     expect(error.message).toContain(
-      '"Public Output Types": expected at least one option, got 0 value(s)'
+      '"Public Output Types": expected a list of options'
     )
+  })
+
+  it('accepts a report with every content field empty', () => {
+    const parsed = expectParsed(
+      toGrantReport(
+        liveReport({
+          [F.reportingPeriodStart.id]: undefined,
+          [F.reportingPeriodEnd.id]: undefined,
+          [F.summary.id]: undefined,
+          [F.progressOnObjectives.id]: '   ',
+          [F.whoBenefits.id]: undefined,
+          [F.outputs.id]: undefined,
+          [F.whatsNext.id]: undefined,
+          [F.license.id]: undefined,
+          [F.outputTypes.id]: undefined,
+          [F.interledgerTechnologies.id]: []
+        })
+      )
+    )
+    expect(parsed.content).toMatchObject({
+      reportingPeriodStart: null,
+      reportingPeriodEnd: null,
+      summary: '',
+      progressOnObjectives: '',
+      whoBenefits: '',
+      outputs: '',
+      whatsNext: '',
+      license: '',
+      outputTypes: [],
+      interledgerTechnologies: []
+    })
+  })
+
+  it('fails on a Project id that is not one value of digits', () => {
+    for (const value of [
+      undefined,
+      [],
+      ['2026-0504'],
+      ['20260504', '20260505'],
+      ['  ']
+    ]) {
+      const error = expectError(
+        toGrantReport(liveReport({ [F.projectId.id]: value }))
+      )
+      expect(error.message).toContain(
+        '"Project id": expected exactly one Project id of digits'
+      )
+    }
   })
 
   it('fails when an image field holds more than one file', () => {
@@ -337,7 +387,10 @@ describe('toGrantReports', () => {
 
   it('does not fail on a bad report that is not Live', () => {
     const badDraft = liveReport(
-      { [PUBLICATION_STATUS_FIELD_ID]: 'Draft', [F.summary.id]: undefined },
+      {
+        [PUBLICATION_STATUS_FIELD_ID]: 'Draft',
+        [F.publishedDate.id]: undefined
+      },
       'rec2'
     )
     expect(toGrantReports([badDraft])).toEqual([])
@@ -349,9 +402,9 @@ describe('toGrantReports', () => {
 
   it('fails the whole set and lists every bad report', () => {
     const result = toGrantReports([
-      liveReport({ [F.summary.id]: undefined }, 'rec1'),
+      liveReport({ [F.publishedDate.id]: undefined }, 'rec1'),
       liveReport(),
-      liveReport({ [F.license.id]: undefined }, 'rec3')
+      liveReport({ [F.projectId.id]: undefined }, 'rec3')
     ])
     const error = expectError(result)
     expect(error.message).toMatch(/^2 report\(s\) cannot be published:\n/)
@@ -361,20 +414,24 @@ describe('toGrantReports', () => {
 
   it('counts a report with several problems once, listing each problem', () => {
     const result = toGrantReports([
-      liveReport({ [F.summary.id]: undefined, [F.license.id]: undefined })
+      liveReport({
+        [F.publishedDate.id]: undefined,
+        [F.projectId.id]: undefined
+      })
     ])
     const error = expectError(result)
     expect(error.message).toMatch(/^1 report\(s\) cannot be published:\n/)
     expect(error.message.match(/^ {2}- /gm)).toHaveLength(2)
   })
 
-  it('sorts by project name, then report number, independent of input order', () => {
+  it('sorts by project name, then report type and number, independent of input order', () => {
     const result = toGrantReports([
       liveReport({ [F.projectName.id]: ['Zeta'] }, 'recZ'),
+      liveReport({ [F.reportType.id]: ['Final Report'] }, 'recF'),
       liveReport({ [F.reportNumber.id]: [2] }, 'recB'),
       liveReport({ [F.reportNumber.id]: [1] }, 'recA')
     ])
-    expect(idsOf(result)).toEqual(['recA', 'recB', 'recZ'])
+    expect(idsOf(result)).toEqual(['recA', 'recB', 'recF', 'recZ'])
   })
 
   it('keeps the reports of two grants with the same name apart', () => {
@@ -425,25 +482,6 @@ describe('reportFieldIdsToFetch', () => {
   })
 })
 
-describe('readGrantYear', () => {
-  it('reads the text the Year formula returns', () => {
-    expect(readGrantYear('2022')).toBe('2022')
-    expect(readGrantYear(' 2022 ')).toBe('2022')
-  })
-
-  it('accepts a number', () => {
-    expect(readGrantYear(2022)).toBe('2022')
-  })
-
-  it('rejects anything that is not a four-digit year', () => {
-    expect(readGrantYear(undefined)).toBeUndefined()
-    expect(readGrantYear('')).toBeUndefined()
-    expect(readGrantYear('22')).toBeUndefined()
-    expect(readGrantYear('2022-23')).toBeUndefined()
-    expect(readGrantYear(['2022'])).toBeUndefined()
-  })
-})
-
 describe('linkReportsToGrantees', () => {
   const OTHER_GRANT_ID = 'recdUkEFGFR3970nG'
 
@@ -453,6 +491,7 @@ describe('linkReportsToGrantees', () => {
     return {
       id: 'recReport0000001',
       grantId: GRANT_ID,
+      projectId: PROJECT_ID,
       projectName: 'Gib',
       reportType: 'Interim Report',
       reportNumber: 1,
@@ -473,26 +512,20 @@ describe('linkReportsToGrantees', () => {
   }
 
   const context = {
-    grantYears: new Map<string, unknown>([
-      [GRANT_ID, '2022'],
-      [OTHER_GRANT_ID, '2020']
-    ]),
     grantees: [
       { slug: 'gib', grantIds: [OTHER_GRANT_ID, GRANT_ID] },
       { slug: 'chimoney', grantIds: [] }
     ]
   }
 
-  it('adds the grantee slug and the grant year', () => {
+  it('adds the grantee slug', () => {
     expect(linkReportsToGrantees([unlinked()], context)).toEqual([
-      { ...unlinked(), granteeSlug: 'gib', grantYear: '2022' }
+      { ...unlinked(), granteeSlug: 'gib' }
     ])
   })
 
   it('passes with no reports', () => {
-    expect(
-      linkReportsToGrantees([], { grantYears: new Map(), grantees: [] })
-    ).toEqual([])
+    expect(linkReportsToGrantees([], { grantees: [] })).toEqual([])
   })
 
   it('fails when no grantee owns the grant', () => {
@@ -517,16 +550,12 @@ describe('linkReportsToGrantees', () => {
     expect((result as Error).message).toContain('found 2')
   })
 
-  it('fails when the grant has no usable year, and names the report', () => {
+  it('names the report that cannot be placed', () => {
     const result = linkReportsToGrantees([unlinked()], {
-      ...context,
-      grantYears: new Map()
+      grantees: []
     })
     expect((result as Error).message).toContain(
       'Report Gib Interim Report 1 (ID: recReport0000001)'
-    )
-    expect((result as Error).message).toContain(
-      'expected a four-digit Year in Projects'
     )
   })
 
@@ -536,7 +565,7 @@ describe('linkReportsToGrantees', () => {
         unlinked(),
         unlinked({ id: 'recReport0000002', grantId: 'recNoGrant0000000' })
       ],
-      { ...context, grantYears: new Map() }
+      { grantees: [{ slug: 'chimoney', grantIds: [] }] }
     )
     expect((result as Error).message).toMatch(/^2 report\(s\) cannot be placed/)
   })
@@ -547,15 +576,30 @@ describe('linkReportsToGrantees', () => {
       context
     )
     expect((result as Error).message).toContain(
-      'grantee gib, year 2022, report 1 is used by recReport0000001, recReport0000002'
+      'grant 20260504, Interim Report 1 is used by recReport0000001, recReport0000002'
     )
   })
 
-  it('places reports of two grants with different years apart', () => {
+  it('places an interim and a final report with the same number apart', () => {
     const result = linkReportsToGrantees(
       [
         unlinked(),
-        unlinked({ id: 'recReport0000002', grantId: OTHER_GRANT_ID })
+        unlinked({ id: 'recReport0000002', reportType: 'Final Report' })
+      ],
+      context
+    )
+    expect(result).not.toBeInstanceOf(Error)
+  })
+
+  it('places reports of two grants of one grantee apart', () => {
+    const result = linkReportsToGrantees(
+      [
+        unlinked(),
+        unlinked({
+          id: 'recReport0000002',
+          grantId: OTHER_GRANT_ID,
+          projectId: '20260505'
+        })
       ],
       context
     )

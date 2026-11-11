@@ -319,27 +319,6 @@ async function fetchGrantReports(
   return reports
 }
 
-// The Year of every Projects record, by record ID. Read without the directory
-// view: a Live report can belong to a grant that the view leaves out, and its
-// URL still needs the year. Only Year is fetched, never the other columns.
-async function fetchGrantYears(
-  meta: TableMeta,
-  apiToken: string
-): Promise<Map<string, unknown>> {
-  const projectsTable = findById(
-    meta.tables,
-    PROJECTS_TABLE_ID,
-    'Projects table'
-  )
-  findById(projectsTable.fields, GRANTEE_FIELDS.Year.id, '"Year" field')
-  const params = new URLSearchParams()
-  params.append('fields[]', GRANTEE_FIELDS.Year.id)
-  const records = await fetchAllRecords(PROJECTS_TABLE_ID, params, apiToken)
-  return new Map(
-    records.map((record) => [record.id, record.fields[GRANTEE_FIELDS.Year.id]])
-  )
-}
-
 async function fetchGranteeProfiles(
   meta: TableMeta,
   apiToken: string
@@ -582,13 +561,7 @@ async function importAirtableData() {
     fetchGranteeDirectory(meta, apiToken)
   )
   const reportsResult = await runSyncPart('Grant reports', async () => {
-    const reports = await addReportImages(
-      await fetchGrantReports(meta, apiToken)
-    )
-    // No Live report needs a year, so skip the Projects read.
-    const grantYears =
-      reports.length === 0 ? new Map() : await fetchGrantYears(meta, apiToken)
-    return { reports, grantYears }
+    return addReportImages(await fetchGrantReports(meta, apiToken))
   })
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
@@ -599,10 +572,9 @@ async function importAirtableData() {
     profilesResult
   ])
   if (results instanceof Error) throw results
-  const [granteeData, { reports, grantYears }, granteeProfiles] = results
+  const [granteeData, reports, granteeProfiles] = results
   // Needs the profiles, so it runs once both parts have passed.
   const grantReports = linkReportsToGrantees(reports, {
-    grantYears,
     grantees: granteeProfiles
   })
   if (grantReports instanceof Error) {

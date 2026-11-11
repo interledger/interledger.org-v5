@@ -252,7 +252,6 @@ export {
   findHiddenReportFields,
   isLiveReport,
   linkReportsToGrantees,
-  readGrantYear,
   reportFieldIdsToFetch,
   toGrantReport,
   toGrantReports

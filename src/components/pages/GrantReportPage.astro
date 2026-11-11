@@ -38,6 +38,7 @@ const REPORT_TYPE_KEYS: Record<GrantReportType, UiKey> = {
 }
 const reportType = t(REPORT_TYPE_KEYS[report.reportType])
 
+// Radu's MVP: Grants / Grantee Directory / Interim report 1.
 const breadcrumbs = [
   buildHomeBreadcrumb(routeLocale, t),
   {
@@ -48,7 +49,13 @@ const breadcrumbs = [
     name: t('grantee.title'),
     href: localizeRoute(grantGranteeDirectoryPath(), routeLocale)
   },
-  { name: report.projectName, href: localizeRoute(reportPath, routeLocale) }
+  {
+    name: t('grantReport.breadcrumb', {
+      type: reportType,
+      number: report.reportNumber
+    }),
+    href: localizeRoute(reportPath, routeLocale)
+  }
 ]
 
 const markdownContext = {
@@ -69,15 +76,22 @@ const SECTIONS = [
 // starts at h3 (INTORG-1310, comment 8e7b1dce).
 const SECTION_TEXT_MIN_HEADING = 3
 
-const sections = SECTIONS.map(([field, headingKey]) => ({
-  id: `grant-report-${field}`,
-  heading: t(headingKey),
-  html: parseMarkdownBelowHeading(
-    report[field],
-    SECTION_TEXT_MIN_HEADING,
-    markdownContext
-  )
-}))
+// Programs can leave any section empty. An empty one is left out, heading
+// and all.
+const sections = SECTIONS.filter(([field]) => report[field].trim() !== '').map(
+  ([field, headingKey]) => ({
+    id: `grant-report-${field}`,
+    heading: t(headingKey),
+    html: parseMarkdownBelowHeading(
+      report[field],
+      SECTION_TEXT_MIN_HEADING,
+      markdownContext
+    )
+  })
+)
+
+const { reportingPeriodStart: periodStart, reportingPeriodEnd: periodEnd } =
+  report
 
 // The images fill the content column, at most max-w-content (1440px).
 const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
@@ -120,27 +134,27 @@ const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
             </time>
           </dd>
         </div>
-        <div>
+        {periodStart && periodEnd && <div>
           <dt class="text-neutral-75">{t('grantReport.reporting_period')}</dt>
           <dd class="m-0">
             {t('grantReport.period_range', {
-              start: formatReportDate(report.reportingPeriodStart, routeLocale),
-              end: formatReportDate(report.reportingPeriodEnd, routeLocale)
+              start: formatReportDate(periodStart, routeLocale),
+              end: formatReportDate(periodEnd, routeLocale)
             })}
           </dd>
-        </div>
-        <div>
+        </div>}
+        {report.license && <div>
           <dt class="text-neutral-75">{t('grantReport.license')}</dt>
           <dd class="m-0">{report.license}</dd>
-        </div>
-        <div>
+        </div>}
+        {report.outputTypes.length > 0 && <div>
           <dt class="text-neutral-75">{t('grantReport.output_types')}</dt>
           <dd class="m-0">{report.outputTypes.join(', ')}</dd>
-        </div>
-        <div>
+        </div>}
+        {report.interledgerTechnologies.length > 0 && <div>
           <dt class="text-neutral-75">{t('grantReport.technologies')}</dt>
           <dd class="m-0">{report.interledgerTechnologies.join(', ')}</dd>
-        </div>
+        </div>}
       </dl>
 
       {sections.map((section) => <section aria-labelledby={section.id}>
