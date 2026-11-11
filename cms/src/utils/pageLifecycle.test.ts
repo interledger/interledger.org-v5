@@ -475,12 +475,13 @@ describe('createPageLifecycle afterUpdate — slug rename cleanup', () => {
   let repoRoot: string
   let outputDir: string
 
-  function writeMdx(locale: string, name: string): string {
+  function writeMdx(locale: string, name: string, localizes?: string): string {
     const dir =
       locale === defaultLang ? outputDir : path.join(outputDir, locale)
     fs.mkdirSync(dir, { recursive: true })
     const filepath = path.join(dir, `${name}.mdx`)
-    fs.writeFileSync(filepath, '---\n---\n')
+    const frontmatter = localizes ? `localizes: '${localizes}'\n` : ''
+    fs.writeFileSync(filepath, `---\n${frontmatter}---\n`)
     return filepath
   }
 
@@ -521,12 +522,26 @@ describe('createPageLifecycle afterUpdate — slug rename cleanup', () => {
   it('removes every locale file on an English rename', async () => {
     stubStrapi(null)
     const en = writeMdx(defaultLang, 'innovation')
-    const es = writeMdx('es', 'innovation')
+    const es = writeMdx('es', 'innovation', '/innovation/')
 
     await renameTo(defaultLang, '/innovation/', '/innovation-fund/')
 
     expect(fs.existsSync(en)).toBe(false)
     expect(fs.existsSync(es)).toBe(false)
+  })
+
+  // Page B exists only in es at /foo/, so its file is es/foo.mdx: the same
+  // name page A's translation would have. Renaming A must not delete it
+  // (Jonathan, #867).
+  it('keeps another page’s same-named file on an English rename', async () => {
+    stubStrapi(null)
+    const en = writeMdx(defaultLang, 'foo')
+    const otherPage = writeMdx('es', 'foo')
+
+    await renameTo(defaultLang, '/foo/', '/bar/')
+
+    expect(fs.existsSync(en)).toBe(false)
+    expect(fs.existsSync(otherPage)).toBe(true)
   })
 
   it('leaves files alone when a translation is renamed', async () => {
@@ -538,9 +553,9 @@ describe('createPageLifecycle afterUpdate — slug rename cleanup', () => {
       pathSlug: '/innovation/',
       locale: defaultLang
     })
-    const ownFile = writeMdx('es', 'innovation')
+    const ownFile = writeMdx('es', 'innovation', '/innovation/')
     // Another page's translation, named after that page's English slug.
-    const otherPage = writeMdx('es', 'innovacion')
+    const otherPage = writeMdx('es', 'innovacion', '/innovacion/')
 
     await renameTo('es', '/innovacion/', '/innovacion-nueva/')
 
@@ -555,5 +570,14 @@ describe('createPageLifecycle afterUpdate — slug rename cleanup', () => {
     await renameTo('es', '/innovacion/', '/innovacion-nueva/')
 
     expect(fs.existsSync(es)).toBe(false)
+  })
+
+  it('keeps another page’s translation when an untranslated page is renamed', async () => {
+    stubStrapi(null)
+    const otherPage = writeMdx('es', 'innovacion', '/innovacion/')
+
+    await renameTo('es', '/innovacion/', '/innovacion-nueva/')
+
+    expect(fs.existsSync(otherPage)).toBe(true)
   })
 })

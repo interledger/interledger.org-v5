@@ -509,6 +509,11 @@ function deleteMdxIfExists(
  * renames them all, and the old ones must all go. A translation's rename
  * changes no filename, unless the document has no published English version,
  * in which case the file carries the translation's own slug.
+ *
+ * A translation file's name alone does not prove whose it is: an entry with
+ * no English version is named after its own slug, which can equal another
+ * page's English slug. So a non-English file is deleted only when its
+ * `localizes` frontmatter says it belongs to this page.
  */
 async function deleteRenamedMdxFiles<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>,
@@ -520,13 +525,21 @@ async function deleteRenamedMdxFiles<T extends UID.ContentType>(
   const oldPage = { pathSlug: oldPathSlug }
 
   if (locale === defaultLang) {
+    deleteMdxIfExists(
+      resolvePageFilepath(outputDir, oldPage, defaultLang),
+      defaultLang,
+      label
+    )
     for (const fileLocale of LOCALES) {
+      if (fileLocale === defaultLang) continue
       const filepath = resolvePageFilepath(
         outputDir,
         oldPage,
         fileLocale,
         oldPathSlug
       )
+      const localizes = readLocalizes(filepath)
+      if (!localizes || !isSameSlug(localizes, oldPathSlug)) continue
       deleteMdxIfExists(filepath, fileLocale, label)
     }
     return
@@ -539,11 +552,19 @@ async function deleteRenamedMdxFiles<T extends UID.ContentType>(
   }
   if (englishPage) return
 
-  deleteMdxIfExists(
-    resolvePageFilepath(outputDir, oldPage, locale),
-    locale,
-    label
-  )
+  // With no English page, this file carries no `localizes`. One that does is
+  // another page's translation that happens to share the name.
+  const filepath = resolvePageFilepath(outputDir, oldPage, locale)
+  if (readLocalizes(filepath)) return
+  deleteMdxIfExists(filepath, locale, label)
+}
+
+/** The `localizes` frontmatter of an MDX file, or null when it has none. */
+function readLocalizes(filepath: string): string | null {
+  const localizes = getPreservedFields(filepath).localizes
+  return typeof localizes === 'string' && localizes.length > 0
+    ? localizes
+    : null
 }
 
 export function createPageLifecycle<T extends UID.ContentType>(
