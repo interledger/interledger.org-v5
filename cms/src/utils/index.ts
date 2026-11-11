@@ -302,10 +302,12 @@ export {
 } from './pageLifecycle'
 export {
   createBlogLifecycle,
+  findMovedBlogFiles,
   generateBlogMDX,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
-  stampBlogLocale
+  stampBlogLocale,
+  type BlogFilepaths
 } from './blogLifecycle'
 export {
   type ProfileMdxCta,

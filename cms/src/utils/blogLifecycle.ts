@@ -16,7 +16,6 @@ import {
   ckeditorFieldToParsedMarkdown
 } from './mdx'
 import { mdxSubpath } from './mdxFilenames'
-import { isSameSlug } from './relativeLinks'
 import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
@@ -67,10 +66,18 @@ interface BlogResult {
   localizations: { pathSlug?: string; locale?: string }[]
 }
 
+/** MDX file path of each published locale of one post, keyed by locale. */
+export type BlogFilepaths = Partial<Record<string, string>>
+
+interface BlogUpdateState {
+  /** Where each locale's file was before this update. */
+  oldFilepaths?: BlogFilepaths
+}
+
 interface BlogEvent {
   model: { singularName: string }
   result: BlogResult
-  state: { oldPathSlug?: string; oldDate?: string }
+  state: BlogUpdateState
 }
 
 /**
@@ -182,6 +189,25 @@ export function resolveBlogMdxFilename(
     englishSlug: resolveBlogEnglishSlug(post, englishSlug),
     date: post.date
   })
+}
+
+/**
+ * The old files an update left behind: locales whose file path changed.
+ *
+ * A locale missing from `after` is skipped, not deleted. Its fetch may just
+ * have failed, and deleting on a failed read would lose the post.
+ */
+export function findMovedBlogFiles(
+  before: BlogFilepaths,
+  after: BlogFilepaths
+): Array<{ locale: string; oldFilepath: string }> {
+  const moved: Array<{ locale: string; oldFilepath: string }> = []
+  for (const [locale, oldFilepath] of Object.entries(before)) {
+    const newFilepath = after[locale]
+    if (!oldFilepath || !newFilepath || newFilepath === oldFilepath) continue
+    moved.push({ locale, oldFilepath })
+  }
+  return moved
 }
 
 /**
@@ -392,19 +418,28 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   }
 
   /**
-   * Delete old blog MDX files for all locales when EN slug changes.
-   * Blog filenames include the date: `{date}-{slug}.mdx` where slug is the
-   * english slug for all locales (via resolveFilenameSlug).
+   * Where each published locale of a post is written, by the same rule as
+   * writeMDXFile. Each locale's filename takes that locale's own date, so an
+   * ES date edit moves the ES file even when nothing English changed.
    */
-  function deleteOldBlogFiles(oldEnSlug: string, oldDate: string): void {
+  async function resolvePublishedBlogFilepaths(
+    documentId: string
+  ): Promise<BlogFilepaths> {
+    const enPost = await fetchBlogPost(documentId, defaultLang)
+    const filepaths: BlogFilepaths = {}
     for (const locale of LOCALES) {
-      const filename = mdxSubpath('blog', {
-        pathSlug: oldEnSlug,
-        date: oldDate
-      })
-      const filepath = path.join(getOutputPath(locale), filename)
-      deleteMdxIfExists(filepath, locale)
+      const post =
+        locale === defaultLang
+          ? enPost
+          : await fetchBlogPost(documentId, locale)
+      if (!post) continue
+      const normalized = withNormalizedLocale(post)
+      filepaths[locale] = path.join(
+        getOutputPath(normalized.locale),
+        resolveBlogMdxFilename(normalized, enPost?.pathSlug)
+      )
     }
+    return filepaths
   }
 
   /** Export all locale variants for a blog post (mirrors pageLifecycle pattern). */
@@ -476,7 +511,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         data?: { documentId?: string; locale?: string }
         where?: Record<string, unknown>
       }
-      state: { oldPathSlug?: string; oldDate?: string }
+      state: BlogUpdateState
     }) {
       if (shouldSkipMdxExport()) return
       const target = await resolveUpdateTarget(event, BLOG_UID)
@@ -485,14 +520,12 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         return
       }
       if (!target) return
-      const { documentId } = target
 
-      // Always stash the EN slug/date — all locale filenames depend on it
-      const enPost = await fetchBlogPost(documentId, defaultLang)
-      if (!enPost?.pathSlug) return
-
-      event.state.oldPathSlug = enPost.pathSlug
-      event.state.oldDate = enPost.date
+      // Every locale, not just the one being saved: an EN slug or date edit
+      // renames the ES file too.
+      event.state.oldFilepaths = await resolvePublishedBlogFilepaths(
+        target.documentId
+      )
     },
     async afterUpdate(event: BlogEvent) {
       const { result } = event
@@ -507,24 +540,23 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       )
 
       const label = event.model.singularName
-      const { oldPathSlug, oldDate } = event.state
       const enPost = await fetchBlogPost(result.documentId, defaultLang)
-      const currentEnSlug = enPost?.pathSlug
-      const currentDate = enPost?.date
+      const { oldFilepaths } = event.state
+      const moved = oldFilepaths
+        ? findMovedBlogFiles(
+            oldFilepaths,
+            await resolvePublishedBlogFilepaths(result.documentId)
+          )
+        : []
 
-      // If the EN slug or the date changed, delete old files for all locales and re-export
-      if (
-        oldPathSlug &&
-        oldDate &&
-        currentEnSlug &&
-        currentDate &&
-        (!isSameSlug(oldPathSlug, currentEnSlug) || oldDate !== currentDate)
-      ) {
+      if (moved.length > 0) {
         console.log(
-          `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`
+          `🗑️  Blog slug or date changed, deleting old MDX files: ${moved.map((file) => file.oldFilepath).join(', ')}`
         )
-        deleteOldBlogFiles(oldPathSlug, oldDate)
-        console.log(`📝 Re-exporting all ${label} locales: ${currentEnSlug}`)
+        for (const { locale, oldFilepath } of moved) {
+          deleteMdxIfExists(oldFilepath, locale)
+        }
+        console.log(`📝 Re-exporting all ${label} locales: ${enPost?.pathSlug}`)
         await exportAllBlogLocales(result.documentId)
       } else {
         const post = currentLocalePost
