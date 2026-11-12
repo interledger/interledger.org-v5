@@ -158,8 +158,10 @@ Rules and invariants:
   so content can use it, but git sync stages only `public/uploads`, so
   `provider.delete` (`resolveDeletableUploadPath`) refuses delete and replace
   for anything outside it. A delete there would leave the VM checkout dirty and
-  break its next pull. Editors upload a new image instead; a developer removes
-  the old file in a PR.
+  break its next pull. Strapi removes a bulk or folder batch with one
+  `Promise.all`, so `guardBatchUploadDeletes` checks the whole batch first;
+  otherwise the uploads in it would still go. Editors upload a new image
+  instead; a developer removes the old file in a PR.
 - **One extension allowlist.** `hasOptimizableRasterExtension` in `imagePaths.ts`
   is the single source of truth for what gets optimized, shared by the encoder,
   `resolveOptimizableSource`, and the audit's `isOptimizableRasterPath`. Extend
