@@ -12,6 +12,7 @@ import {
   describeValue,
   formatProblems,
   isRecordId,
+  isIsoDate,
   isStringArray,
   nonBlankString,
   partitionRecordResults,
@@ -30,10 +31,10 @@ import {
 export const LIVE_STATUS = 'Live'
 export const PUBLICATION_STATUS_FIELD_ID = 'fldOJhHIcLOrM9EYe'
 
-const REPORT_TYPES: readonly GrantReportType[] = [
+export const REPORT_TYPES = [
   'Interim Report',
   'Final Report'
-]
+] as const satisfies readonly GrantReportType[]
 
 // The Published Reports columns the sync reads, by field ID so a rename in
 // Airtable changes nothing. Names are for error messages and match Airtable.
@@ -120,16 +121,11 @@ const IMAGE_SLOTS = [
   description: ReportFieldKey
 }[]
 
-// Airtable writes a date-only field as YYYY-MM-DD.
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
-
 // Projects build it from the approval year and a record number: 20260504.
 export const PROJECT_ID_PATTERN = /^\d+$/
 
 function readDate(value: unknown): string | undefined {
-  return typeof value === 'string' && DATE_PATTERN.test(value)
-    ? value
-    : undefined
+  return typeof value === 'string' && isIsoDate(value) ? value : undefined
 }
 
 function readOptions(value: unknown): string[] | undefined {
@@ -161,7 +157,7 @@ function createFieldReader(fields: Record<string, unknown>) {
     date(key: ReportFieldKey): string {
       return readDate(raw(key)) ?? fail(key, 'a date', '')
     },
-    // Programs can leave a report date empty (meeting, 2026-11-10).
+    // Programs can leave a report date empty.
     optionalDate(key: ReportFieldKey): string | null {
       if (raw(key) === undefined) return null
       return readDate(raw(key)) ?? fail(key, 'a date', null)
@@ -237,6 +233,26 @@ export function isLiveReport(raw: RawTableRecord): boolean {
   return raw.fields[PUBLICATION_STATUS_FIELD_ID] === LIVE_STATUS
 }
 
+// The page shows the period only with both dates, so one date alone would
+// vanish without an error. Both empty is fine.
+function reportingPeriodProblems(
+  start: string | null,
+  end: string | null
+): string[] {
+  const { reportingPeriodStart, reportingPeriodEnd } = REPORT_FIELDS
+  if ((start === null) !== (end === null)) {
+    return [
+      `"${reportingPeriodStart.name}" and "${reportingPeriodEnd.name}": expected both dates or neither, got only ${start === null ? 'the end' : 'the start'}`
+    ]
+  }
+  if (start !== null && end !== null && start > end) {
+    return [
+      `"${reportingPeriodStart.name}": expected a date on or before the end date ${end}, got ${start}`
+    ]
+  }
+  return []
+}
+
 // Every problem in the record is listed, so programs can fix it in one pass.
 export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
   const read = createFieldReader(raw.fields)
@@ -267,8 +283,15 @@ export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
     return read.image(image, read.optionalText(description)) ?? []
   })
 
-  if (read.problems.length === 0) return { content, imageSources }
-  return new Error(formatProblems(`Report ${reportLabel(raw)}`, read.problems))
+  const problems = [
+    ...read.problems,
+    ...reportingPeriodProblems(
+      content.reportingPeriodStart,
+      content.reportingPeriodEnd
+    )
+  ]
+  if (problems.length === 0) return { content, imageSources }
+  return new Error(formatProblems(`Report ${reportLabel(raw)}`, problems))
 }
 
 // Sorted by project, then report type and number, so a change to the view's
@@ -342,7 +365,9 @@ function linkReport(
 
 // The report URL is built from these three. Two Live reports that share them
 // are a resubmission that was published twice, so Programs must withdraw one.
-function findSharedReportKeys(reports: readonly GrantReport[]): string[] {
+function findSharedReportKeys(
+  reports: readonly UnlinkedGrantReport[]
+): string[] {
   const idsByKey = new Map<string, string[]>()
   for (const { projectId, reportType, reportNumber, id } of reports) {
     const key = `grant ${projectId}, ${reportType} ${reportNumber}`
@@ -354,7 +379,8 @@ function findSharedReportKeys(reports: readonly GrantReport[]): string[] {
 }
 
 // Adds the grantee slug that the report URL needs. One report that cannot be
-// placed fails the whole set, with every one listed.
+// placed, or two that share a URL, fail the whole set. Both checks always run,
+// so one error lists every problem of both kinds.
 export function linkReportsToGrantees(
   reports: readonly UnlinkedGrantReport[],
   context: GrantContext
@@ -362,12 +388,18 @@ export function linkReportsToGrantees(
   const { values, problems } = partitionRecordResults(
     reports.map((report) => linkReport(report, context))
   )
-  if (problems.length > 0) {
-    return recordProblemsError(problems, 'report(s) cannot be placed')
-  }
-  const shared = findSharedReportKeys(values)
-  if (shared.length > 0) {
-    return recordProblemsError(shared, 'report URL(s) used twice')
+  // Grantee-independent, so it checks the reports that could not be placed too.
+  const shared = findSharedReportKeys(reports)
+  const errors = [
+    ...(problems.length > 0
+      ? [recordProblemsError(problems, 'report(s) cannot be placed')]
+      : []),
+    ...(shared.length > 0
+      ? [recordProblemsError(shared, 'report URL(s) used twice')]
+      : [])
+  ]
+  if (errors.length > 0) {
+    return new Error(errors.map(({ message }) => message).join('\n\n'))
   }
   return values
 }

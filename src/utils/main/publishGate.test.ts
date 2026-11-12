@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
@@ -280,10 +281,22 @@ describe('shouldHideGrantReports', () => {
       })
     ).toBe(false)
   })
+})
 
-  it('is separate from the profile gate', () => {
-    expect(shouldHideGrantReports({ GRANTEE_PROFILES_FILTER: 'on' })).toBe(
-      false
-    )
+describe('hideGrantReports', () => {
+  const originalContext = process.env.CONTEXT
+  const originalFilter = process.env.GRANT_REPORTS_FILTER
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+    restoreEnv('GRANT_REPORTS_FILTER', originalFilter)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    process.env.GRANT_REPORTS_FILTER = 'on'
+    expect(hideGrantReports()).toBe(true)
+
+    process.env.GRANT_REPORTS_FILTER = 'off'
+    expect(hideGrantReports()).toBe(false)
   })
 })

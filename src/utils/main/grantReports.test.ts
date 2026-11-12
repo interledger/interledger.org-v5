@@ -76,6 +76,11 @@ describe('parseGrantReports', () => {
     expect((result as Error).message).toContain('0.publishedDate')
   })
 
+  it('fails on a date that does not exist', () => {
+    const result = parseGrantReports([report({ publishedDate: '2026-02-30' })])
+    expect((result as Error).message).toContain('0.publishedDate')
+  })
+
   it('fails on a grantId that is not a record ID', () => {
     const result = parseGrantReports([report({ grantId: 'Gib 2022' })])
     expect((result as Error).message).toContain('0.grantId')

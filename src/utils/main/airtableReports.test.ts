@@ -293,6 +293,62 @@ describe('toGrantReport', () => {
     }
   })
 
+  it('reads the Project id lookup as Airtable returns it: one text value', () => {
+    // A lookup of the text field "Project id" in Submitted Reports.
+    const parsed = expectParsed(
+      toGrantReport(liveReport({ [F.projectId.id]: ['20260504'] }))
+    )
+    expect(parsed.content.projectId).toBe('20260504')
+  })
+
+  it('fails on a Project id sent as a number, which means the field type changed', () => {
+    const error = expectError(
+      toGrantReport(liveReport({ [F.projectId.id]: [20260504] }))
+    )
+    expect(error.message).toContain(
+      '"Project id": expected exactly one Project id of digits'
+    )
+  })
+
+  it('fails when only one reporting period date is set', () => {
+    for (const [field, missing] of [
+      [F.reportingPeriodEnd.id, 'the start'],
+      [F.reportingPeriodStart.id, 'the end']
+    ]) {
+      const error = expectError(
+        toGrantReport(liveReport({ [field]: undefined }))
+      )
+      expect(error.message).toContain(
+        `expected both dates or neither, got only ${missing}`
+      )
+    }
+  })
+
+  it('fails when the reporting period starts after it ends', () => {
+    const error = expectError(
+      toGrantReport(
+        liveReport({
+          [F.reportingPeriodStart.id]: '2026-11-01',
+          [F.reportingPeriodEnd.id]: '2026-10-31'
+        })
+      )
+    )
+    expect(error.message).toContain(
+      '"Public Reporting Period Start Date": expected a date on or before the end date 2026-10-31, got 2026-11-01'
+    )
+  })
+
+  it('accepts a reporting period of one day', () => {
+    expectParsed(
+      toGrantReport(
+        liveReport({
+          [F.reportingPeriodStart.id]: '2026-10-31',
+          [F.reportingPeriodEnd.id]: '2026-10-31'
+        })
+      )
+    )
+  })
+
   it('fails when an image field holds more than one file', () => {
     const error = expectError(
       toGrantReport(
@@ -354,6 +410,13 @@ describe('toGrantReport', () => {
     expectError(
       toGrantReport(liveReport({ [F.reportingPeriodEnd.id]: '31/10/2026' }))
     )
+  })
+
+  it('fails on a date that does not exist', () => {
+    const error = expectError(
+      toGrantReport(liveReport({ [F.publishedDate.id]: '2026-02-30' }))
+    )
+    expect(error.message).toContain('"Published Date": expected a date')
   })
 
   it('falls back to the record ID when the report cannot be named', () => {
@@ -561,13 +624,29 @@ describe('linkReportsToGrantees', () => {
 
   it('lists every report that cannot be placed', () => {
     const result = linkReportsToGrantees(
-      [
-        unlinked(),
-        unlinked({ id: 'recReport0000002', grantId: 'recNoGrant0000000' })
-      ],
+      [unlinked(), unlinked({ id: 'recReport0000002', reportNumber: 2 })],
       { grantees: [{ slug: 'chimoney', grantIds: [] }] }
     )
     expect((result as Error).message).toMatch(/^2 report\(s\) cannot be placed/)
+  })
+
+  it('lists shared URLs even when a report cannot be placed', () => {
+    const message = expectError(
+      linkReportsToGrantees(
+        [
+          unlinked(),
+          unlinked({ id: 'recReport0000002' }),
+          unlinked({
+            id: 'recReport0000003',
+            grantId: 'recNoGrant0000000',
+            projectId: '20260599'
+          })
+        ],
+        context
+      )
+    ).message
+    expect(message).toContain('1 report(s) cannot be placed')
+    expect(message).toContain('1 report URL(s) used twice')
   })
 
   it('fails when two reports would share a URL, naming both', () => {

@@ -18,7 +18,6 @@ interface Window {
   }
 }
 declare const __HIDE_DRAFTS__: boolean | undefined
-declare const __HIDE_GRANTEE_PROFILES__: boolean | undefined
 declare const __HIDE_GRANT_REPORTS__: boolean | undefined
 
 declare namespace App {

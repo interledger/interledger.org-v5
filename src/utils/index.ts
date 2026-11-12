@@ -237,6 +237,7 @@ export {
   MAX_SOURCE_IMAGE_BYTES,
   describeValue,
   formatProblems,
+  isIsoDate,
   isRecordId,
   isRecordLike,
   isStringArray,

@@ -235,9 +235,10 @@ describe('parseMarkdownBelowHeading', () => {
     expect(html).toContain('Sub</h4>')
   })
 
-  it('leaves headings that are already low enough', () => {
-    const html = parseMarkdownBelowHeading('#### Deep', 3)
-    expect(html).toContain('Deep</h4>')
+  it('moves headings up so no level is skipped below the section', () => {
+    const html = parseMarkdownBelowHeading('#### Deep\n\n##### Deeper', 3)
+    expect(html).toContain('Deep</h3>')
+    expect(html).toContain('Deeper</h4>')
   })
 
   it('stops at h6', () => {

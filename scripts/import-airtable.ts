@@ -531,6 +531,26 @@ async function runSyncPart<T>(
     : result
 }
 
+// A report gets its URL from its grantee's slug, so linking needs the
+// profiles. It runs whenever both parts pass, even if the directory fails, so
+// the run lists the linking problems with the directory's. When the profiles
+// fail, there is no slug to trust, and their error stands for both parts.
+function linkReportsResult(
+  reports: UnlinkedGrantReport[] | Error,
+  profiles: GranteeProfile[] | Error
+): GrantReport[] | Error {
+  if (reports instanceof Error) return reports
+  if (profiles instanceof Error) {
+    return new Error(
+      'Grant reports: not linked to grantees, because the grantee profiles failed'
+    )
+  }
+  const linked = linkReportsToGrantees(reports, { grantees: profiles })
+  return linked instanceof Error
+    ? new Error(`Grant reports: ${linked.message}`)
+    : linked
+}
+
 async function importAirtableData() {
   const apiToken = process.env.AIRTABLE_API_TOKEN
   if (!apiToken) {
@@ -566,20 +586,14 @@ async function importAirtableData() {
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
+  const linkedReportsResult = linkReportsResult(reportsResult, profilesResult)
   const results = collectResults([
     directoryResult,
-    reportsResult,
+    linkedReportsResult,
     profilesResult
   ])
   if (results instanceof Error) throw results
-  const [granteeData, reports, granteeProfiles] = results
-  // Needs the profiles, so it runs once both parts have passed.
-  const grantReports = linkReportsToGrantees(reports, {
-    grantees: granteeProfiles
-  })
-  if (grantReports instanceof Error) {
-    throw new Error(`Grant reports: ${grantReports.message}`)
-  }
+  const [granteeData, grantReports, granteeProfiles] = results
 
   // Written only after every part succeeds, so a failed run leaves no file
   // half-updated.

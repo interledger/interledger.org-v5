@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import type { GrantReport, GrantReportType } from '@/types/airtable'
-import { isRecordId } from './airtableFieldValues'
+import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
-import { PROJECT_ID_PATTERN } from './airtableReports'
+import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
 import type { Locale } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 import { granteeBasePath } from './routes'
@@ -12,9 +12,8 @@ import { granteeBasePath } from './routes'
 // failure here means a hand edit, or the sync and the site disagree on the
 // shape. The build fails then, instead of rendering a report with holes in it.
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
-const isoDate = z.string().regex(ISO_DATE)
-// Programs can leave any of these empty (meeting, 2026-11-10).
+const isoDate = z.string().refine(isIsoDate, 'expected a date (YYYY-MM-DD)')
+// Programs can leave any of these empty.
 const optionalDate = isoDate.nullable()
 const markdown = z.string()
 const options = z.array(z.string().min(1))
@@ -25,7 +24,7 @@ const grantReportSchema = z.object({
   projectId: z.string().regex(PROJECT_ID_PATTERN),
   granteeSlug: z.string().regex(SLUG_PATTERN),
   projectName: z.string().min(1),
-  reportType: z.enum(['Interim Report', 'Final Report']),
+  reportType: z.enum(REPORT_TYPES),
   reportNumber: z.number().int().positive(),
   publishedDate: isoDate,
   reportingPeriodStart: optionalDate,
@@ -71,7 +70,7 @@ export function grantReportSegment({
 
 // The report URL without the locale prefix. Reports sit under their grantee,
 // where the profile pages will live, so the URL does not change when the
-// profiles ship (Sarah, INTORG-1310).
+// profiles ship.
 export function grantReportPath(
   report: Pick<
     GrantReport,

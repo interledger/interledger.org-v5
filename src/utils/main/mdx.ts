@@ -104,9 +104,10 @@ export async function parseMarkdown(
 const MAX_HEADING_LEVEL = 6
 
 // For Markdown that renders inside a section with its own heading, such as a
-// grant report section under its h2. The headings move down together, so the
-// highest one becomes minHeadingLevel and the order between them stays. Text
-// with no heading above minHeadingLevel is left as it is.
+// grant report section under its h2. The headings move together, up or down,
+// so the highest one becomes minHeadingLevel and no level is skipped below the
+// section heading. Levels past h6 stop at h6: text that uses all six levels
+// under an h3 cannot keep them all apart.
 export function parseMarkdownBelowHeading(
   text: string | null | undefined,
   minHeadingLevel: number,
@@ -119,7 +120,8 @@ export function parseMarkdownBelowHeading(
   marked.walkTokens(tokens, (token) => {
     if (token.type === 'heading') depths.push(token.depth)
   })
-  const shift = Math.max(0, minHeadingLevel - Math.min(...depths))
+  // With no heading, depths is empty and the shift is never applied.
+  const shift = minHeadingLevel - Math.min(...depths)
   marked.walkTokens(tokens, (token) => {
     if (token.type === 'heading') {
       token.depth = Math.min(MAX_HEADING_LEVEL, token.depth + shift)

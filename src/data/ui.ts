@@ -160,11 +160,10 @@ export const ui = {
     'aria.grantee.location': 'Location',
     'aria.grantee.date': 'Start date',
     'grantReport.meta_description':
-      '{type} for {project}, a project funded by the Interledger Foundation.',
+      '{report} for {project}, a project funded by the Interledger Foundation.',
     'grantReport.type.interim': 'Interim report',
     'grantReport.type.final': 'Final report',
-    'grantReport.subtitle': '{type} (report {number})',
-    'grantReport.breadcrumb': '{type} {number}',
+    'grantReport.label': '{type} {number}',
     'grantReport.facts': 'Report facts',
     'grantReport.published': 'Published',
     'grantReport.reporting_period': 'Reporting period',

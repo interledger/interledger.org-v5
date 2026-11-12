@@ -36,9 +36,13 @@ const REPORT_TYPE_KEYS: Record<GrantReportType, UiKey> = {
   'Interim Report': 'grantReport.type.interim',
   'Final Report': 'grantReport.type.final'
 }
-const reportType = t(REPORT_TYPE_KEYS[report.reportType])
+// "Interim report 1": the title, the subtitle and the last breadcrumb.
+const reportLabel = t('grantReport.label', {
+  type: t(REPORT_TYPE_KEYS[report.reportType]),
+  number: report.reportNumber
+})
 
-// Radu's MVP: Grants / Grantee Directory / Interim report 1.
+// No grantee step: the profile pages do not exist yet.
 const breadcrumbs = [
   buildHomeBreadcrumb(routeLocale, t),
   {
@@ -50,10 +54,7 @@ const breadcrumbs = [
     href: localizeRoute(grantGranteeDirectoryPath(), routeLocale)
   },
   {
-    name: t('grantReport.breadcrumb', {
-      type: reportType,
-      number: report.reportNumber
-    }),
+    name: reportLabel,
     href: localizeRoute(reportPath, routeLocale)
   }
 ]
@@ -98,9 +99,9 @@ const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
 ---
 
 <FoundationPageLayout
-  title={`${report.projectName}: ${reportType}`}
+  title={`${report.projectName}: ${reportLabel}`}
   description={t('grantReport.meta_description', {
-    type: reportType,
+    report: reportLabel,
     project: report.projectName
   })}
 >
@@ -109,16 +110,14 @@ const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
     class="flex flex-col px-content pb-section pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
   >
     <article class="w-full max-w-content m-auto flex flex-col gap-2xl">
-      <Breadcrumbs breadcrumbs={breadcrumbs} />
-      <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
+      <Breadcrumbs breadcrumbs={breadcrumbs}>
+        <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
+      </Breadcrumbs>
 
       <header class="flex flex-col gap-sm">
         <h1 class="m-0">{report.projectName}</h1>
         <p class="m-0 text-neutral-75">
-          {t('grantReport.subtitle', {
-            type: reportType,
-            number: report.reportNumber
-          })}
+          {reportLabel}
         </p>
       </header>
 
