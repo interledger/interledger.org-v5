@@ -5,8 +5,60 @@ import {
   isImageOverSizeLimit,
   isImagePath
 } from './uploadLimits'
+import { PATHS } from './paths'
 
 const LOCAL_IMAGE_PREFIXES = ['/img/', '/uploads/'] as const
+
+/** URL prefix of every file the upload provider writes: `PATHS.UPLOADS` as served. */
+export const UPLOAD_URL_PREFIX = `/${PATHS.UPLOADS.replace(/^public\//, '')}`
+
+export interface DeletableUploadFile {
+  url?: string | null
+  hash?: string
+  ext?: string
+  name?: unknown
+}
+
+/**
+ * The file to unlink when the Media Library deletes or replaces `file`, `null`
+ * when there is nothing on disk to remove, or an Error when the file must stay.
+ *
+ * Only the uploads folder belongs to Strapi. `seedUploadsFromDisk` also lists
+ * `public/img/**` so content can use those images, but they are repo-owned:
+ * git sync never stages them, so removing one leaves the VM checkout dirty and
+ * breaks its next pull, and the Astro code references some of them directly.
+ *
+ * The URL wins over the hash. Seeded records use the bare filename as their
+ * hash, so `/img/foo.png` would otherwise match an unrelated upload `foo.png`.
+ */
+export function resolveDeletableUploadPath(
+  uploadDir: string,
+  file: DeletableUploadFile
+): string | null | Error {
+  if (!file.url) {
+    return file.hash
+      ? path.join(uploadDir, `${file.hash}${file.ext ?? ''}`)
+      : null
+  }
+
+  const label =
+    typeof file.name === 'string' && file.name ? file.name : file.url
+  if (!file.url.startsWith(`${UPLOAD_URL_PREFIX}/`)) {
+    return new Error(
+      `“${label}” is a site image stored in the code repository, so it can't be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
+    )
+  }
+
+  const root = path.resolve(uploadDir)
+  const resolved = path.resolve(
+    root,
+    file.url.slice(UPLOAD_URL_PREFIX.length + 1)
+  )
+  if (!resolved.startsWith(root + path.sep)) {
+    return new Error(`Upload path escapes the uploads folder: ${file.url}`)
+  }
+  return resolved
+}
 
 export function isLocalImagePath(url: string): boolean {
   return LOCAL_IMAGE_PREFIXES.some((prefix) => url.startsWith(prefix))

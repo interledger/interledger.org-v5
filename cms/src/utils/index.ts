@@ -42,7 +42,9 @@ export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'
 // Upload validation
 export {
   isLocalImagePath,
+  resolveDeletableUploadPath,
   resolvePublicImagePath,
+  UPLOAD_URL_PREFIX,
   validateImageFileSize,
   validateLocalImageUrl
 } from './uploadValidation'

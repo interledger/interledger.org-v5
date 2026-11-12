@@ -4,7 +4,9 @@ import * as path from 'path'
 import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
+  resolveDeletableUploadPath,
   scheduleGitSync,
+  UPLOAD_URL_PREFIX,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   validateReportDate,
@@ -556,7 +558,6 @@ async function ensureLocales(strapi: StrapiInstance) {
 
 // ── Upload overrides ──────────────────────────────────────────────────────────
 const UPLOAD_SUBDIR = 'img/original'
-const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
 
 /**
  * Strapi normalizes `file.size` to kilobytes (`bytesToKbytes` in @strapi/utils,
@@ -738,17 +739,13 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
   delete provider.replace
   delete provider.replaceStream
 
+  // Strapi calls delete before it touches the database, for a single, bulk or
+  // folder delete and for a replace, so refusing here aborts each of them with
+  // nothing changed.
   provider.delete = async (file: UploadFile) => {
-    const candidates = [
-      path.join(uploadPath, `${file.hash}${file.ext}`),
-      ...(file.url ? [path.join(publicDir, file.url)] : [])
-    ]
-    for (const dest of candidates) {
-      if (fs.existsSync(dest)) {
-        fs.unlinkSync(dest)
-        return
-      }
-    }
+    const target = resolveDeletableUploadPath(uploadPath, file)
+    if (target instanceof Error) throw new errors.ForbiddenError(target.message)
+    if (target && fs.existsSync(target)) fs.unlinkSync(target)
   }
 
   strapi.log.info(
@@ -792,6 +789,8 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
  * served at. Files found on disk but missing from Strapi's `upload_file`
  * table are inserted so MDX references remain valid after a fresh database.
+ * `/img` records are read-only: `provider.delete` refuses them, because git
+ * sync never stages `public/img` (see `resolveDeletableUploadPath`).
  */
 const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
