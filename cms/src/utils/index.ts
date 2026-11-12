@@ -41,6 +41,7 @@ export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'
 
 // Upload validation
 export {
+  findUndeletableUploads,
   isLocalImagePath,
   resolveDeletableUploadPath,
   resolvePublicImagePath,

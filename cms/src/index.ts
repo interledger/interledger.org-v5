@@ -4,6 +4,7 @@ import * as path from 'path'
 import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
+  findUndeletableUploads,
   resolveDeletableUploadPath,
   scheduleGitSync,
   UPLOAD_URL_PREFIX,
@@ -391,6 +392,8 @@ interface StrapiPlugin {
     | UploadService
     | ImageManipulationService
     | UidService
+    | UploadFileService
+    | UploadFolderService
     | undefined
   provider?: UploadProvider
 }
@@ -419,6 +422,9 @@ interface DbQueryApi {
     data: Omit<UploadFileRecord, 'id'>
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
+  findMany: (params: {
+    where: Record<string, unknown>
+  }) => Promise<UploadFileRecord[]>
 }
 interface KoaContext {
   request: { headers: Record<string, string | string[] | undefined> }
@@ -557,7 +563,8 @@ async function ensureLocales(strapi: StrapiInstance) {
 }
 
 // ── Upload overrides ──────────────────────────────────────────────────────────
-const UPLOAD_SUBDIR = 'img/original'
+/** `uploads/img/original`: where the provider writes, relative to `public/`. */
+const UPLOAD_DIR_IN_PUBLIC = UPLOAD_URL_PREFIX.slice(1)
 
 /**
  * Strapi normalizes `file.size` to kilobytes (`bytesToKbytes` in @strapi/utils,
@@ -687,7 +694,7 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   const publicDir = strapi.dirs.static.public
-  const uploadPath = path.join(publicDir, 'uploads', UPLOAD_SUBDIR)
+  const uploadPath = path.join(publicDir, UPLOAD_DIR_IN_PUBLIC)
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true })
   }
@@ -739,9 +746,9 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
   delete provider.replace
   delete provider.replaceStream
 
-  // Strapi calls delete before it touches the database, for a single, bulk or
-  // folder delete and for a replace, so refusing here aborts each of them with
-  // nothing changed.
+  // Strapi calls delete before it touches the database, so refusing here
+  // aborts a single delete or a replace with nothing changed. Batches are
+  // checked up front in `guardBatchUploadDeletes`.
   provider.delete = async (file: UploadFile) => {
     const target = resolveDeletableUploadPath(uploadPath, file)
     if (target instanceof Error) throw new errors.ForbiddenError(target.message)
@@ -751,6 +758,67 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
   strapi.log.info(
     `✅ Upload provider redirected to ${uploadPath} (${MAX_IMAGE_SIZE_LABEL} limit enforced)`
   )
+}
+
+type DeleteFileValidator = (files: UploadFileRecord[]) => Promise<void>
+
+interface UploadFileService {
+  deleteByIds: (ids?: number[]) => Promise<UploadFileRecord[]>
+}
+
+interface UploadFolderService {
+  deleteByIds: (
+    ids?: number[],
+    options?: { validateFiles?: DeleteFileValidator }
+  ) => Promise<unknown>
+}
+
+/**
+ * Refuses a bulk or folder delete that includes a repo image before any file
+ * in it is removed. Strapi removes a batch with one `Promise.all`, so the
+ * refusal in `provider.delete` alone still lets every other file go.
+ *
+ * Not covered: one bulk request that selects both a folder and a repo image.
+ * Strapi deletes the folder before it reads the selected files. The repo
+ * image still stays, so the checkout stays clean.
+ */
+export function guardBatchUploadDeletes(strapi: StrapiInstance): void {
+  const uploadPlugin = strapi.plugin('upload')
+  const fileService = uploadPlugin?.service('file') as
+    UploadFileService | undefined
+  const folderService = uploadPlugin?.service('folder') as
+    UploadFolderService | undefined
+  if (!fileService?.deleteByIds || !folderService?.deleteByIds) {
+    strapi.log.warn(
+      '⚠️  Upload file/folder services not found — batch delete guard skipped'
+    )
+    return
+  }
+
+  const uploadPath = path.join(strapi.dirs.static.public, UPLOAD_DIR_IN_PUBLIC)
+  const assertDeletable = (files: UploadFileRecord[]): void => {
+    const refused = findUndeletableUploads(uploadPath, files)
+    if (refused) throw new errors.ForbiddenError(refused.message)
+  }
+
+  const deleteFiles = fileService.deleteByIds.bind(fileService)
+  fileService.deleteByIds = async (ids = []) => {
+    const files = await strapi.db?.query('plugin::upload.file').findMany({
+      where: { id: { $in: ids } }
+    })
+    assertDeletable(files ?? [])
+    return deleteFiles(ids)
+  }
+
+  const deleteFolders = folderService.deleteByIds.bind(folderService)
+  folderService.deleteByIds = (ids = [], options = {}) =>
+    deleteFolders(ids, {
+      ...options,
+      async validateFiles(files) {
+        assertDeletable(files)
+        await options.validateFiles?.(files)
+      }
+    })
 }
 
 /**
@@ -793,7 +861,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
  * sync never stages `public/img` (see `resolveDeletableUploadPath`).
  */
 const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
-  { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
+  { dir: UPLOAD_DIR_IN_PUBLIC, urlPrefix: UPLOAD_URL_PREFIX },
   { dir: 'img', urlPrefix: '/img' }
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
@@ -2768,6 +2836,7 @@ export default {
 
     // Redirect uploads to public/uploads/img/original/ and disable image variants
     overrideUploadProvider(strapi)
+    guardBatchUploadDeletes(strapi)
     await disableImageVariants(strapi)
 
     // Register any on-disk images that are missing from the DB (fresh DB scenario)

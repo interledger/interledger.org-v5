@@ -16,7 +16,26 @@ export interface DeletableUploadFile {
   url?: string | null
   hash?: string
   ext?: string
-  name?: unknown
+  name?: string
+}
+
+function repoImageError(labels: string[]): Error {
+  const names = labels.map((label) => `“${label}”`).join(', ')
+  const subject =
+    labels.length === 1
+      ? `${names} is a site image`
+      : `${names} are site images`
+  return new Error(
+    `${subject} stored in the code repository, so it can't be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
+  )
+}
+
+function resolveInside(root: string, relativePath: string): string | Error {
+  const resolved = path.resolve(root, relativePath)
+  if (!resolved.startsWith(root + path.sep)) {
+    return new Error(`Upload path escapes the uploads folder: ${relativePath}`)
+  }
+  return resolved
 }
 
 /**
@@ -35,29 +54,33 @@ export function resolveDeletableUploadPath(
   uploadDir: string,
   file: DeletableUploadFile
 ): string | null | Error {
+  const root = path.resolve(uploadDir)
   if (!file.url) {
     return file.hash
-      ? path.join(uploadDir, `${file.hash}${file.ext ?? ''}`)
+      ? resolveInside(root, `${file.hash}${file.ext ?? ''}`)
       : null
   }
 
-  const label =
-    typeof file.name === 'string' && file.name ? file.name : file.url
   if (!file.url.startsWith(`${UPLOAD_URL_PREFIX}/`)) {
-    return new Error(
-      `“${label}” is a site image stored in the code repository, so it can't be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
-    )
+    return repoImageError([file.name || file.url])
   }
+  return resolveInside(root, file.url.slice(UPLOAD_URL_PREFIX.length + 1))
+}
 
-  const root = path.resolve(uploadDir)
-  const resolved = path.resolve(
-    root,
-    file.url.slice(UPLOAD_URL_PREFIX.length + 1)
+/**
+ * Checks a whole delete batch before any of it is removed. Strapi deletes a
+ * batch with one `Promise.all`, so a refusal inside `provider.delete` alone
+ * still lets the other files in the batch go. Names every refused file.
+ */
+export function findUndeletableUploads(
+  uploadDir: string,
+  files: DeletableUploadFile[]
+): Error | null {
+  const refused = files.filter(
+    (file) => resolveDeletableUploadPath(uploadDir, file) instanceof Error
   )
-  if (!resolved.startsWith(root + path.sep)) {
-    return new Error(`Upload path escapes the uploads folder: ${file.url}`)
-  }
-  return resolved
+  if (refused.length === 0) return null
+  return repoImageError(refused.map((file) => file.name || file.url || '?'))
 }
 
 export function isLocalImagePath(url: string): boolean {
