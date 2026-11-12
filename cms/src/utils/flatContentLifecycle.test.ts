@@ -69,6 +69,27 @@ describe('createFlatLocaleMdxLifecycle — slug rename', () => {
     await lifecycle.afterUpdate({ result: entries[locale], state })
   }
 
+  /** `section` is not localized: one edit changes it on every locale. */
+  async function changeSection(section: string) {
+    stubStrapi('en')
+    const lifecycle = createFlatLocaleMdxLifecycle<Profile>({
+      contentTypeUid: 'api::faq.faq',
+      label: 'faq',
+      getBaseDir,
+      namingRule: 'flat-section',
+      generateContent: (entry) => `---\npathSlug: ${entry.pathSlug}\n---\n`
+    })
+    const state = {}
+    await lifecycle.beforeUpdate({
+      params: { where: { id: 7 }, data: {} },
+      state
+    })
+    for (const locale of Object.keys(entries)) {
+      entries[locale] = { ...entries[locale], section }
+    }
+    await lifecycle.afterUpdate({ result: entries.en, state })
+  }
+
   beforeEach(() => {
     contentDir = fs.mkdtempSync(path.join(os.tmpdir(), 'profile-rename-'))
     vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'true')
@@ -87,6 +108,24 @@ describe('createFlatLocaleMdxLifecycle — slug rename', () => {
     vi.unstubAllGlobals()
     vi.unstubAllEnvs()
     fs.rmSync(contentDir, { recursive: true, force: true })
+  })
+
+  // INTORG-1390: same cause, the old section was never stashed.
+  it('moves every locale file when the section changes', async () => {
+    const pathSlug = 'grant/education/nextgen/faq'
+    entries.en.pathSlug = pathSlug
+    entries.es.pathSlug = pathSlug
+    const oldEn = seedFile('en', pathSlug)
+    const oldEs = seedFile('es', pathSlug)
+
+    await changeSection('summit')
+
+    const newName = mdxSubpath('flat-section', { pathSlug, section: 'summit' })
+    expect(newName).toBe('summit-grant-education-nextgen-faq.mdx')
+    expect(fs.existsSync(oldEn)).toBe(false)
+    expect(fs.existsSync(oldEs)).toBe(false)
+    expect(fs.existsSync(path.join(getBaseDir('en'), newName))).toBe(true)
+    expect(fs.existsSync(path.join(getBaseDir('es'), newName))).toBe(true)
   })
 
   it('moves every locale file when the English slug changes', async () => {
