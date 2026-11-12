@@ -1,6 +1,7 @@
 import path from 'path'
 import { describe, it, expect } from 'vitest'
 import {
+  findUndeletableUploads,
   resolveDeletableUploadPath,
   resolvePublicImagePath,
   validateLocalImageUrl
@@ -145,7 +146,43 @@ describe('resolveDeletableUploadPath', () => {
     ).toBe(path.join(uploadDir, 'a.png'))
   })
 
+  it('refuses a hash that escapes the uploads folder', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      hash: '../../../img/logo',
+      ext: '.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
   it('returns null when there is neither url nor hash', () => {
     expect(resolveDeletableUploadPath(uploadDir, {})).toBeNull()
+  })
+})
+
+describe('findUndeletableUploads', () => {
+  const uploadDir = path.resolve('/repo/public/uploads/img/original')
+
+  it('passes a batch of uploads', () => {
+    expect(
+      findUndeletableUploads(uploadDir, [
+        { url: '/uploads/img/original/a.png' },
+        { url: '/uploads/img/original/b.pdf' }
+      ])
+    ).toBeNull()
+  })
+
+  it('passes an empty batch', () => {
+    expect(findUndeletableUploads(uploadDir, [])).toBeNull()
+  })
+
+  it('names every repo image in a mixed batch', () => {
+    const result = findUndeletableUploads(uploadDir, [
+      { url: '/uploads/img/original/a.png', name: 'a.png' },
+      { url: '/img/logo.png', name: 'logo.png' },
+      { url: '/img/hero.avif', name: 'hero.avif' }
+    ])
+    expect(result).toBeInstanceOf(Error)
+    expect(result?.message).toContain('“logo.png”, “hero.avif” are site images')
+    expect(result?.message).not.toContain('a.png”')
   })
 })

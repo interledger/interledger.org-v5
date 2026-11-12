@@ -7,6 +7,7 @@ import {
   assertUploadWithinLimit,
   buildLayoutConfiguration,
   createCheckFileSize,
+  guardBatchUploadDeletes,
   overrideUploadProvider,
   registerDocumentValidation,
   registerGrantSlugSiblingValidation
@@ -396,6 +397,13 @@ describe('overrideUploadProvider', () => {
         url: '/img/logo.png'
       })
     ).rejects.toThrow(/can't be deleted or replaced/)
+    // A ForbiddenError reaches the admin as a 403 carrying the message; a
+    // plain Error would be a 500 and the editor would never see why.
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        url: '/img/logo.png'
+      })
+    ).rejects.toBeInstanceOf(errors.ForbiddenError)
     expect(fs.existsSync(repoImage)).toBe(true)
     expect(fs.existsSync(sameNameUpload)).toBe(true)
   })
@@ -409,6 +417,79 @@ describe('overrideUploadProvider', () => {
         url: '/uploads/img/original/gone.png'
       })
     ).resolves.toBeUndefined()
+  })
+})
+
+describe('guardBatchUploadDeletes', () => {
+  const UPLOAD = { id: 1, name: 'a.png', url: '/uploads/img/original/a.png' }
+  const REPO_IMAGE = { id: 2, name: 'logo.png', url: '/img/logo.png' }
+
+  function guardWith(records: object[]) {
+    const strapiDeleteFiles = vi.fn(async () => records)
+    const fileService = { deleteByIds: strapiDeleteFiles }
+    const folderService = {
+      deleteByIds: vi.fn(
+        async (
+          _ids: number[],
+          options?: { validateFiles?: (files: object[]) => Promise<void> }
+        ) => {
+          await options?.validateFiles?.(records)
+          return {}
+        }
+      )
+    }
+    const services: Record<string, object> = {
+      file: fileService,
+      folder: folderService
+    }
+    const strapi = {
+      plugin: () => ({ service: (name: string) => services[name] }),
+      dirs: { static: { public: '/repo/public' } },
+      db: { query: () => ({ findMany: async () => records }) },
+      log: { info: vi.fn(), warn: vi.fn() }
+    } as unknown as Parameters<typeof guardBatchUploadDeletes>[0]
+    guardBatchUploadDeletes(strapi)
+    return {
+      strapiDeleteFiles,
+      deleteFiles: fileService.deleteByIds as (
+        ids: number[]
+      ) => Promise<unknown>,
+      deleteFolders: folderService.deleteByIds as (
+        ids: number[],
+        options?: { validateFiles?: (files: object[]) => Promise<void> }
+      ) => Promise<unknown>
+    }
+  }
+
+  // Strapi removes a batch with one Promise.all, so a refusal per file still
+  // let the uploads in the same batch be deleted.
+  it('refuses a mixed bulk delete before removing anything', async () => {
+    const { deleteFiles, strapiDeleteFiles } = guardWith([UPLOAD, REPO_IMAGE])
+    await expect(deleteFiles([1, 2])).rejects.toBeInstanceOf(
+      errors.ForbiddenError
+    )
+    expect(strapiDeleteFiles).not.toHaveBeenCalled()
+  })
+
+  it('lets a bulk delete of uploads through', async () => {
+    const { deleteFiles } = guardWith([UPLOAD])
+    await expect(deleteFiles([1])).resolves.toEqual([UPLOAD])
+  })
+
+  it('refuses a folder holding a repo image and keeps the caller check', async () => {
+    const { deleteFolders } = guardWith([UPLOAD, REPO_IMAGE])
+    const callerCheck = vi.fn(async () => {})
+    await expect(
+      deleteFolders([9], { validateFiles: callerCheck })
+    ).rejects.toThrow(/“logo.png” is a site image/)
+    expect(callerCheck).not.toHaveBeenCalled()
+  })
+
+  it('runs the caller check for a folder of uploads', async () => {
+    const { deleteFolders } = guardWith([UPLOAD])
+    const callerCheck = vi.fn(async () => {})
+    await deleteFolders([9], { validateFiles: callerCheck })
+    expect(callerCheck).toHaveBeenCalledWith([UPLOAD])
   })
 })
 
