@@ -1,6 +1,7 @@
 import path from 'path'
 import { describe, it, expect } from 'vitest'
 import {
+  resolveDeletableUploadPath,
   resolvePublicImagePath,
   validateLocalImageUrl
 } from './uploadValidation'
@@ -60,5 +61,91 @@ describe('validateLocalImageUrl', () => {
     expect(
       validateLocalImageUrl('/repo', '/uploads/img/original/clip.mp4')
     ).toBeNull()
+  })
+})
+
+describe('resolveDeletableUploadPath', () => {
+  const uploadDir = path.resolve('/repo/public/uploads/img/original')
+
+  it('resolves an upload by its url', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original/logo_abc.png',
+        hash: 'logo_abc',
+        ext: '.png'
+      })
+    ).toBe(path.join(uploadDir, 'logo_abc.png'))
+  })
+
+  it('keeps a literal space in the filename', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original/hero image.avif'
+      })
+    ).toBe(path.join(uploadDir, 'hero image.avif'))
+  })
+
+  it('refuses a repo image outside the uploads folder, naming it', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/img/reports/chart.svg',
+      hash: 'chart',
+      ext: '.svg',
+      name: 'chart.svg'
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('“chart.svg”')
+    expect((result as Error).message).toMatch(/can't be deleted or replaced/)
+  })
+
+  // Seeded /img records use the bare filename as their hash, so a hash-first
+  // lookup would have unlinked an unrelated upload with the same name.
+  it('never falls back to an upload with the same hash', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/img/logo.png',
+      hash: 'logo',
+      ext: '.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('falls back to the url when the name is missing', () => {
+    const result = resolveDeletableUploadPath(uploadDir, { url: '/img/x.png' })
+    expect((result as Error).message).toContain('“/img/x.png”')
+  })
+
+  it('refuses a sibling folder that only shares the prefix', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/uploads/img/original-backup/x.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('refuses a url that escapes the uploads folder', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/uploads/img/original/../../../img/x.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toMatch(/escapes the uploads folder/)
+  })
+
+  it('refuses the uploads folder itself', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/uploads/img/original/'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('falls back to the hash when there is no url', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: null,
+        hash: 'a',
+        ext: '.png'
+      })
+    ).toBe(path.join(uploadDir, 'a.png'))
+  })
+
+  it('returns null when there is neither url nor hash', () => {
+    expect(resolveDeletableUploadPath(uploadDir, {})).toBeNull()
   })
 })

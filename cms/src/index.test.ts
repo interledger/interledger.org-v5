@@ -363,6 +363,53 @@ describe('overrideUploadProvider', () => {
     ).toBe(true)
     expect((file as { url?: string }).url).toBe('/uploads/img/original/abc.txt')
   })
+
+  function writeFile(publicDir: string, relativePath: string): string {
+    const filePath = path.join(publicDir, relativePath)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    fs.writeFileSync(filePath, 'x')
+    return filePath
+  }
+
+  it('deletes an upload by its url', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const upload = writeFile(publicDir, 'uploads/img/original/abc.png')
+    await (provider.delete as (f: object) => Promise<void>)({
+      hash: 'abc',
+      ext: '.png',
+      url: '/uploads/img/original/abc.png'
+    })
+    expect(fs.existsSync(upload)).toBe(false)
+  })
+
+  // public/img is repo-owned and git sync never stages it, so a delete there
+  // left the VM checkout dirty and broke its next pull.
+  it('refuses to delete a repo image and leaves both files on disk', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const repoImage = writeFile(publicDir, 'img/logo.png')
+    const sameNameUpload = writeFile(publicDir, 'uploads/img/original/logo.png')
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        hash: 'logo',
+        ext: '.png',
+        name: 'logo.png',
+        url: '/img/logo.png'
+      })
+    ).rejects.toThrow(/can't be deleted or replaced/)
+    expect(fs.existsSync(repoImage)).toBe(true)
+    expect(fs.existsSync(sameNameUpload)).toBe(true)
+  })
+
+  it('ignores an upload that is already gone', async () => {
+    const { provider } = overrideWithTempPublicDir()
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        hash: 'gone',
+        ext: '.png',
+        url: '/uploads/img/original/gone.png'
+      })
+    ).resolves.toBeUndefined()
+  })
 })
 
 describe('registerGrantSlugSiblingValidation', () => {
