@@ -251,7 +251,7 @@ export function createSearchResultRow(
     })
   )
 
-  const snippet = requireElement(row, '[data-blog-search-snippet]')
+  const snippet = requireElement<HTMLElement>(row, '[data-blog-search-snippet]')
   snippet.textContent = entry.descriptionSnippet
   if (postLang) snippet.lang = postLang
 
