@@ -1,25 +1,18 @@
 import {
   ckeditorFieldToCompiledMarkdown,
   getImageUrl,
-  hasMediaValue
+  hasMediaValue,
+  serializeIntroProp,
+  type BlockIntroInput,
+  type CtaButtonEntry
 } from '../../utils'
 import { escDouble as esc } from '../shared'
-
-interface SplitLayoutCta {
-  text?: string
-  link?: string
-  style?: string
-  external?: boolean
-  document?: boolean
-}
+import { serializeCtaButtonEntries } from './cta-buttons.serializer'
 
 type SplitLayoutType =
-  | 'image-text'
-  | 'image-quote'
-  | 'video-text'
-  | 'video-quote'
+  'image-text' | 'image-quote' | 'video-text' | 'video-quote'
 
-type SplitLayoutDisplayRatio = '1:1' | '1:2' | '2:1'
+type SplitLayoutDisplayRatio = '3:2' | '2:1' | '1:1' | '1:2'
 
 const SPLIT_LAYOUT_TYPES = [
   'image-text',
@@ -28,9 +21,11 @@ const SPLIT_LAYOUT_TYPES = [
   'video-quote'
 ] as const
 
-const DISPLAY_RATIOS = ['1:1', '1:2', '2:1'] as const
+const DISPLAY_RATIOS = ['3:2', '2:1', '1:1', '1:2'] as const
 
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  buttons?: CtaButtonEntry[] | null
   layoutType?: string | null
   imagePosition?: 'left' | 'right'
   displayRatio?: SplitLayoutDisplayRatio | string | null
@@ -39,12 +34,14 @@ export function serialize(block: {
     alternativeText?: string | null
   } | null
   videoUrl?: string | null
+  videoTitle?: string | null
   content?: string | null
   quote?: string | null
   quoteSource?: string | null
-  cta?: SplitLayoutCta | null
 }): string {
   const attrs: string[] = []
+  const introAttr = serializeIntroProp(block.intro).trim()
+  if (introAttr) attrs.push(introAttr)
   const layoutType = block.layoutType ?? inferLayoutType(block)
   if (!isSplitLayoutType(layoutType)) {
     throw new Error(
@@ -94,6 +91,11 @@ export function serialize(block: {
     attrs.push(`videoUrl="${esc(block.videoUrl)}"`)
   }
 
+  const videoTitle = block.videoTitle?.trim()
+  if (isVideoLayout && videoTitle) {
+    attrs.push(`videoTitle="${esc(videoTitle)}"`)
+  }
+
   if (isQuoteLayout && block.quote) {
     attrs.push(`quote="${esc(block.quote)}"`)
   }
@@ -102,31 +104,16 @@ export function serialize(block: {
     attrs.push(`quoteSource="${esc(block.quoteSource)}"`)
   }
 
-  const cta = block.cta
-  if (cta?.external && cta?.document) {
-    throw new Error(
-      'Split layout CTA cannot be both external and document. Pick one: ' +
-        'external opens a new tab, document downloads a file.'
-    )
-  }
-  if (isTextLayout && cta?.text && cta?.link) {
-    attrs.push(`ctaText="${esc(cta.text)}"`)
-    attrs.push(`ctaLink="${esc(cta.link)}"`)
-    if (cta.style && cta.style !== 'primary') {
-      attrs.push(`ctaStyle="${esc(cta.style)}"`)
-    }
-    if (cta.external) {
-      attrs.push(`ctaExternal={true}`)
-    }
-    if (cta.document) {
-      attrs.push(`ctaDocument={true}`)
-    }
+  const buttons = block.buttons ?? []
+  if (isTextLayout && buttons.length > 0) {
+    const entries = serializeCtaButtonEntries(buttons)
+    attrs.push(`buttons={${JSON.stringify(entries)}}`)
   }
 
   const raw = isTextLayout ? (block.content ?? '') : ''
   const body = raw ? ckeditorFieldToCompiledMarkdown(raw) : ''
-  if (isTextLayout && !body)
-    throw new Error('Split layout text variants require content')
+  if (isTextLayout && !body && !introAttr)
+    throw new Error('Split layout text variants require content or an intro')
   const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : ''
 
   if (body) {

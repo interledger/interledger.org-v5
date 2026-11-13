@@ -40,8 +40,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@/utils': path.resolve(__dirname, 'src/utils'),
-      '@': path.resolve(__dirname, 'src')
+      '@/utils': path.resolve(import.meta.dirname, 'src/utils'),
+      '@': path.resolve(import.meta.dirname, 'src')
     }
   }
 })

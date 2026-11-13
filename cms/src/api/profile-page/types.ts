@@ -16,6 +16,7 @@ export interface ProfilePageBase {
   id?: number
   documentId?: string
   pathSlug: string
+  draft?: boolean | null
   name: string
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null

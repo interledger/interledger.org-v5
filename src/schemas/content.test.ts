@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import {
+  faqFrontmatterSchema,
   foundationBlogFrontmatterSchema,
+  foundationPageFrontmatterSchema,
+  grantOverviewPageFrontmatterSchema,
   grantPageFrontmatterSchema,
   hackathonPageFrontmatterSchema,
   podcastPageFrontmatterSchema,
-  reportFrontmatterSchema
+  profileFrontmatterSchema,
+  reportFrontmatterSchema,
+  summitPageFrontmatterSchema
 } from './content'
 
 const base = {
@@ -25,6 +30,20 @@ describe('foundationBlogFrontmatterSchema', () => {
     expect(parsed.relatedArticles).toEqual(['one', 'two', 'three'])
     expect(parsed.lastUpdated).toBeUndefined()
     expect(parsed.date).toBeInstanceOf(Date)
+  })
+
+  // Content stores slugs as `/slug/` (INTORG-1254); routing compares them bare.
+  it('strips slashes from pathSlug, localizes and relatedArticles', () => {
+    const parsed = foundationBlogFrontmatterSchema.parse({
+      ...base,
+      pathSlug: '/a-post/',
+      localizes: '/the-original/',
+      relatedArticles: ['/blog/one/', '/two/', 'three']
+    })
+
+    expect(parsed.pathSlug).toBe('a-post')
+    expect(parsed.localizes).toBe('the-original')
+    expect(parsed.relatedArticles).toEqual(['one', 'two', 'three'])
   })
 
   it('coerces date and lastUpdated to Date', () => {
@@ -148,6 +167,21 @@ describe('podcastPageFrontmatterSchema', () => {
   it('accepts a minimal valid page', () => {
     const result = podcastPageFrontmatterSchema.safeParse(podcastPageBase)
     expect(result.success).toBe(true)
+  })
+
+  it('accepts a title cards intro and rejects an unknown intro key', () => {
+    const withIntro = (intro: Record<string, string>) =>
+      podcastPageFrontmatterSchema.safeParse({
+        ...podcastPageBase,
+        titleCards: { ...podcastPageBase.titleCards, intro }
+      })
+
+    expect(withIntro({ heading: 'Explore our Featured Series' }).success).toBe(
+      true
+    )
+    expect(withIntro({ title: 'Explore our Featured Series' }).success).toBe(
+      false
+    )
   })
 
   it('rejects a page with no title cards', () => {
@@ -424,5 +458,66 @@ describe('reportFrontmatterSchema', () => {
       authorBios: [{ author: 'Jane Doe' }]
     })
     expect(parsed.authorBios).toEqual([{ author: 'Jane Doe' }])
+  })
+})
+
+describe('draft', () => {
+  const page = { title: 'T', pathSlug: 'p', description: 'D' }
+  const ctaStrip = { buttonText: 'Go', buttonLink: '/go/' }
+  const crossSection = { section: 'foundation', locale: 'en' }
+
+  const schemas = [
+    ['foundation-blog', foundationBlogFrontmatterSchema, base],
+    ['foundation-pages', foundationPageFrontmatterSchema, page],
+    ['summit-pages', summitPageFrontmatterSchema, page],
+    ['hackathon-pages', hackathonPageFrontmatterSchema, page],
+    ['grant-pages', grantPageFrontmatterSchema, { ...page, ctaStrip }],
+    [
+      'grant-overview-pages',
+      grantOverviewPageFrontmatterSchema,
+      { ...page, ctaStrip }
+    ],
+    [
+      'profiles',
+      profileFrontmatterSchema,
+      { pathSlug: 'p', name: 'N', photo: null, ...crossSection }
+    ],
+    [
+      'faqs',
+      faqFrontmatterSchema,
+      {
+        ...page,
+        ...crossSection,
+        heading: 'H',
+        faqSections: [{ heading: 'S', items: [{ question: 'Q', answer: 'A' }] }]
+      }
+    ],
+    [
+      'reports',
+      reportFrontmatterSchema,
+      { ...page, ...crossSection, heading: 'H' }
+    ]
+  ] as const
+
+  it.each(schemas)('%s defaults draft to false', (_, schema, input) => {
+    expect(schema.parse(input).draft).toBe(false)
+  })
+
+  it.each(schemas)('%s keeps draft: true', (_, schema, input) => {
+    expect(schema.parse({ ...input, draft: true }).draft).toBe(true)
+  })
+
+  it.each(schemas)('%s rejects a non-boolean draft', (_, schema, input) => {
+    expect(schema.safeParse({ ...input, draft: 'yes' }).success).toBe(false)
+  })
+
+  // The podcast page is a single fixed page, out of scope for drafts.
+  it('is not part of the podcast page schema', () => {
+    const parsed = podcastPageFrontmatterSchema.parse({
+      ...podcastPageBase,
+      draft: true
+    })
+
+    expect(parsed).not.toHaveProperty('draft')
   })
 })

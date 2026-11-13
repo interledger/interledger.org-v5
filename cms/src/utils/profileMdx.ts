@@ -7,7 +7,12 @@
 
 import matter from 'gray-matter'
 import type { MediaFile } from '../../types/shared/types'
-import { getImageUrl, defaultLang, MATTER_STRINGIFY_OPTIONS } from './mdx'
+import {
+  getImageUrl,
+  defaultLang,
+  draftFrontmatter,
+  MATTER_STRINGIFY_OPTIONS
+} from './mdx'
 import { serializeContent } from '../serializers/blocks'
 
 export interface ProfileMdxCta {
@@ -20,6 +25,7 @@ export interface ProfileMdxCta {
 export interface ProfileMdxInput {
   name: string
   pathSlug: string
+  draft?: boolean | null
   section?: 'summit' | 'hackathon' | 'foundation' | null
   description?: string | null
   media?: { image?: MediaFile | null; alternativeText?: string | null } | null
@@ -58,6 +64,7 @@ export function generateProfileMdx(
   const frontmatter: Record<string, unknown> = {
     name: profile.name,
     pathSlug: profile.pathSlug,
+    ...draftFrontmatter(profile.draft),
     ...(profile.section ? { section: profile.section } : {}),
     photo: photoUrl,
     photoAlt,

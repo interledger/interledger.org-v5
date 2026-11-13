@@ -1,5 +1,8 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntroData } from '@/types/blockIntro'
+import { blockIntroA11y, normalizeBlockIntro } from '@/utils'
 
 /** MDX / site shape */
 interface LogoMdx {
@@ -14,17 +17,33 @@ interface LogoStrapi {
 }
 
 interface Props {
-  heading?: string
+  /** Block intro (ADR-009): sits above the carousel in a content block. */
+  intro?: BlockIntroData | null
+  /** The centred title of a standalone carousel (the homepage). */
+  heading?: string | null
+  /**
+   * Outside the block system (the homepage): keeps the centred heading and
+   * its own bottom padding instead of an intro and block spacing.
+   */
+  standalone?: boolean
   accessibilityLabel: string
   logos: Array<LogoMdx | LogoStrapi>
 }
 
-const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
-const headingText = heading?.trim() || undefined
+const {
+  intro: introProp,
+  heading,
+  standalone = false,
+  accessibilityLabel,
+  logos: rawLogos
+} = Astro.props
+const isContentBlock = !standalone
+const intro = isContentBlock ? normalizeBlockIntro(introProp) : null
+const headingText = isContentBlock ? undefined : heading?.trim() || undefined
 // Stable for this render; unique across multiple carousels on one page.
 const headingId = headingText
   ? `logo-carousel-heading-${crypto.randomUUID()}`
-  : undefined
+  : blockIntroA11y(intro, 'logo-carousel').headingId
 
 // Skip incomplete logos instead of throwing — DynamicZone preview can see
 // half-finished CMS rows; save-time validation (validateContentBlocks) is the
@@ -89,17 +108,26 @@ const carouselStyle = `
 `
 
 const sectionClasses = `
-  px-lg pb-3xl-tight
   bg-neutral-0 text-neutral-900
   dark:bg-neutral-150 dark:text-neutral-0
-  tablet:px-xl
-  desktop:px-5xl desktop:pb-3xl
 `
+// The homepage keeps its own side gutters and bottom padding. A content block
+// runs the full width of the content column with no side padding, so its
+// intro lines up with every other block, and takes the block padding at the
+// bottom: 40 on every device by design (ADR-009, B12).
+const homepagePaddingClasses =
+  'px-lg pb-3xl-tight tablet:px-xl desktop:px-5xl desktop:pb-3xl'
+const CONTENT_BLOCK_STYLE = '--block-pb: var(--spacing-3xl-tight)'
 const containerClasses = `
-  max-w-content py-3xl m-auto
-  border-t border-neutral-50
-  dark:border-neutral-75
+  max-w-content pb-3xl m-auto
   flex flex-col gap-block-heading
+`
+// The homepage divides the carousel from the section above. A content block
+// opens on its intro instead, so a divider and top padding there would sit
+// between the intro and the logos.
+const homepageContainerClasses = `
+  pt-3xl border-t border-neutral-50
+  dark:border-neutral-75
 `
 // Deliberate Figma-verified exception: h2 uses the h3 token here.
 const headerClasses = `
@@ -129,17 +157,18 @@ const logoClasses = `
 
 <section
   data-component="LogoCarousel"
-  class={sectionClasses}
+  data-intro-variant={isContentBlock ? 'universal' : undefined}
+  class:list={[sectionClasses, !isContentBlock && homepagePaddingClasses]}
+  style={isContentBlock ? CONTENT_BLOCK_STYLE : undefined}
   aria-labelledby={headingId}
 >
-  <div class={containerClasses}>
-    {
-      headingText && headingId && (
-        <h2 id={headingId} class={headerClasses}>
-          {headingText}
-        </h2>
-      )
-    }
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[containerClasses, !isContentBlock && homepageContainerClasses]}
+  >
+    {headingText && headingId && <h2 id={headingId} class={headerClasses}>
+      {headingText}
+    </h2>}
 
     <div
       class={viewportClasses}
@@ -147,27 +176,21 @@ const logoClasses = `
       role="group"
       aria-label={accessibilityLabel}
     >
-      {
-        /* loading="eager": this track loops forever, so lazy-loading only
-        risks a late pop-in when a logo scrolls back into view. */
-      }
+      {/* loading="eager": this track loops forever, so lazy-loading only
+        risks a late pop-in when a logo scrolls back into view. */}
       <ul class={trackClasses} role="list">
-        {
-          logos.map((logo) => (
-            <li class="m-0">
-              <OptimizedImage
-                src={logo.src}
-                alt={logo.name}
-                class={logoClasses}
-                width={120}
-                height={40}
-                sizes="120px"
-                loading="eager"
-                draggable={false}
-              />
-            </li>
-          ))
-        }
+        {logos.map((logo) => <li class="m-0">
+          <OptimizedImage
+            src={logo.src}
+            alt={logo.name}
+            class={logoClasses}
+            width={120}
+            height={40}
+            sizes="120px"
+            loading="eager"
+            draggable={false}
+          />
+        </li>)}
         {
           /* Duplicate batches for a seamless loop — hidden from AT and
           keyboard via aria-hidden/inert, but kept in layout even under
@@ -175,20 +198,18 @@ const logoClasses = `
           ensures there are always enough copies that the track never runs out
           of content mid-wrap, even with very few logos. */
           duplicateBatches.map(() =>
-            logos.map((logo) => (
-              <li class="m-0" aria-hidden="true" inert>
-                <OptimizedImage
-                  src={logo.src}
-                  alt=""
-                  class={logoClasses}
-                  width={120}
-                  height={40}
-                  sizes="120px"
-                  loading="eager"
-                  draggable={false}
-                />
-              </li>
-            ))
+            logos.map((logo) => <li class="m-0" aria-hidden="true" inert>
+              <OptimizedImage
+                src={logo.src}
+                alt=""
+                class={logoClasses}
+                width={120}
+                height={40}
+                sizes="120px"
+                loading="eager"
+                draggable={false}
+              />
+            </li>)
           )
         }
       </ul>
@@ -239,14 +260,60 @@ const logoClasses = `
 </style>
 
 <script>
+  /**
+   * Drops <main>'s own end padding when this carousel is genuinely the last
+   * thing on the page, so it doesn't stack with the carousel's own trailing
+   * padding. Can't be a CSS rule: it needs a `:has()` nested inside another
+   * `:has()` to find <main>'s last real child, which every browser rejects
+   * (spacing.css handles the case that doesn't need that — the carousel
+   * ending its own section while the page continues below it).
+   */
+  function isLastRealElement(element: Element): boolean {
+    let next = element.nextElementSibling
+    while (next && (next.tagName === 'SCRIPT' || next.tagName === 'STYLE')) {
+      next = next.nextElementSibling
+    }
+    return next === null
+  }
+
+  function fixTrailingMainPadding(carouselRoot: HTMLElement): void {
+    // Gates on an MDX/Strapi prose ancestor, not just "is a direct child of
+    // main": that's true only off the homepage, where the carousel supplies
+    // <main>'s entire trailing gap on purpose and must keep its own padding.
+    // Page preview renders the zone under [data-prose-blog], same as a post.
+    const prose = carouselRoot.closest(
+      '[data-prose], [data-prose-blog], [data-prose-summit]'
+    )
+    const main = carouselRoot.closest('main')
+    if (!prose || !main || !isLastRealElement(carouselRoot)) return
+
+    // Walk up to the section that's main's own direct child, bailing the
+    // moment something turns out to follow at any level — the page
+    // continues somewhere, so this fix doesn't apply there.
+    let topLevelSection: Element = carouselRoot
+    while (topLevelSection.parentElement !== main) {
+      if (!isLastRealElement(topLevelSection)) return
+      topLevelSection = topLevelSection.parentElement as Element
+    }
+    if (!isLastRealElement(topLevelSection)) return
+
+    main.style.paddingBlockEnd = '0'
+    ;(topLevelSection as HTMLElement).style.paddingBlockEnd = '0'
+  }
+
   /* Drag + auto-scroll for the logo carousel.
-     We take over from the CSS @keyframes, but keep them defined above as a 
+     We take over from the CSS @keyframes, but keep them defined above as a
      fallback if this script fails to load */
 
   const carousels = document.querySelectorAll<HTMLElement>('.logo-carousel')
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
   carousels.forEach((carousel) => {
+    const carouselRoot = carousel.closest<HTMLElement>(
+      '[data-component="LogoCarousel"]'
+    )
+    if (carouselRoot) fixTrailingMainPadding(carouselRoot)
+
     const track = carousel.querySelector<HTMLUListElement>('ul')
     if (!track) return
 

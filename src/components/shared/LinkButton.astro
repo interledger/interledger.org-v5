@@ -6,6 +6,7 @@ import {
   buildUmamiAttrs,
   resolveDownloadName,
   isPreviewPathname,
+  isFundraiseUpElementHref,
   type UmamiLabel
 } from '@/utils'
 import type { HTMLAttributes } from 'astro/types'
@@ -146,10 +147,30 @@ const umamiAttrs = callerProvidesTracking
       linkText,
       ariaLabel: ariaLabel
     })
+
+// Umami's script preventDefault()s any same-tab anchor carrying
+// `data-umami-event`, then navigates itself. A Fundraise Up element id has to
+// receive the click so their script can open the donate modal, so those
+// attributes are renamed off the selector Umami intercepts.
+const fundraiseUpCheckout =
+  typeof resolvedHref === 'string' && isFundraiseUpElementHref(resolvedHref)
+
+function leaveClickAlone<T extends Record<string, unknown>>(attrs: T): T {
+  if (!fundraiseUpCheckout) return attrs
+  const next: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(attrs)) {
+    next[
+      key.startsWith('data-umami-event')
+        ? key.replace('data-umami-event', 'data-track-event')
+        : key
+    ] = value
+  }
+  return next as T
+}
 ---
 
 <a
-  {...rest}
+  {...leaveClickAlone(restRecord)}
   href={resolvedHref}
   class={twMerge(
     buttonVariants({
@@ -166,7 +187,7 @@ const umamiAttrs = callerProvidesTracking
   download={downloadAttr}
   aria-disabled={ariaDisabled ? true : undefined}
   tabindex={ariaDisabled ? -1 : undefined}
-  {...umamiAttrs}
+  {...leaveClickAlone(umamiAttrs)}
 >
   <slot name="icon-left" />
   <slot />

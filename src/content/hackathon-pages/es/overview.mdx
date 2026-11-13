@@ -1,24 +1,20 @@
 ---
 title: 'Sobre nuestros hackatones'
-pathSlug: 'overview'
+pathSlug: '/overview/'
 description: 'Únete a un hackatón de Interledger Open Payments. Dos días, un reto financiero real, premios en efectivo y una sala llena de builders. Estudiantes y profesionales, bienvenidos.'
 heroTitle: 'Construye el futuro de las finanzas'
 heroDescription: "Próximo hackatón:\n16 y 17 de octubre de 2026 – Medellín, Colombia"
 heroImage: '/img/hackathon/hero.webp'
 heroImageBlur: 'data:image/webp;base64,UklGRoABAABXRUJQVlA4WAoAAAAQAAAAEwAAEgAAQUxQSJEAAAANgGNb2/HqiV2mRmXbtp0MI33W8ihufwdh27ZVqbatPiImAF/axn5s7/jU+J25m1Pt+8TFI41jbRKrwx/Skc8AuJpX1YkPcImPeO1vXlZn31m7U70BRBon9cU39u8t74CQrO7U1wCIePgoMVtdamyBL/gQQCxVplqnik8AZPlVFp+9L49C+CnSKv7Je+DxEyQAAFZQOCDIAAAAEAUAnQEqFAATAD7tbq9SKaYkIqgIATAdiWwAuwwVAiMQxRecfyXhLfHP50Wa3OSXIAD9mTir9lmKocLFAzwUoQeSeuUui1ZhkcK1AISM6+mgZ19xzueh+JGXI6g6jAYDXevIM2M/3doZ/qwQ12Z8+EuJhow1r1kGXCUuebYb3rZ/mLfdMebBEgvfj7aAUjAFaZtm3DJs7+HhcXDzQ3zVuTTc9Fhh1755o7eWBmnpK6HlZh1jmPXD3F2ckFF1oYR8QkWqYUoyAAA='
-heroCtas:
-  - text: '<aplicar_ahora>'
-    link: 'https://live.eventtia.com/es/build-the-future-of-finance'
-    external: true
 locale: 'es'
-localizes: 'overview'
+localizes: '/overview/'
 ---
 
 <NumberTiles
-  title="Descripción general"
+  intro={{ heading: 'Descripción general' }}
   tiles={[
     { number: '150', suffix: '+', description: 'Participantes' },
-    { number: '2', suffix: ' días', description: 'para construir' },
+    { number: '2', suffix: 'días', description: 'para construir' },
     { number: '4', description: 'Categorías de premios' },
     { number: '20000', prefix: '$', description: 'USD en premios' }
   ]}
@@ -39,7 +35,7 @@ En un Interledger Open Payments Hackathon vas a enfrentar un reto financiero rea
   mobileSrc="/img/hackathon/2025-hackathon-collection-mobile.webp"
 />
 
-<EventCard title="Open Payments Hackathon 2026">
+<EventCard intro={{"heading":"Open Payments Hackathon 2026"}}>
 
 <EventWhen title="¿Cuándo?" date="16 y 17 de octubre de 2026" time="2 días" />
 
@@ -63,7 +59,7 @@ gran salto en pagos podría empezar contigo.
 
 <HackathonAnimation />
 
-<CardGrid title="¿Por qué participar?" ariaLabel="Razones para participar" variant="Info" columns="Three">
+<CardGrid intro={{"heading":"¿Por qué participar?"}} ariaLabel="Razones para participar" variant="Info" columns="Three">
 <InfoCard heading="Construye algo real">
 
 Convierte un reto financiero real en un prototipo funcional en 2 días.
@@ -126,7 +122,7 @@ video.
   buttons={[
     {
       text: '<recursos_gratis>',
-      link: '/es/hackathon/open-payments',
+      link: '/es/hackathon/open-payments/',
       style: 'primary'
     }
   ]}

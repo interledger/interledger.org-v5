@@ -182,107 +182,94 @@ const umamiBase = {
 }
 ---
 
-{
-  hasReadableContent && (
-    <aside
-      data-component="InternalAdvert"
-      data-umami-component="internal_advert"
-      aria-labelledby={headlineId}
-      aria-label={headlineId ? undefined : t('internalAdvert.block_label')}
-      class="font-poppins flex flex-col gap-lg rounded-3xl border border-neutral-50 bg-neutral-0 p-lg tablet:p-xl"
-    >
-      {/*
+{hasReadableContent && <aside
+  data-component="InternalAdvert"
+  data-umami-component="internal_advert"
+  aria-labelledby={headlineId}
+  aria-label={headlineId ? undefined : t('internalAdvert.block_label')}
+  class="font-poppins flex flex-col gap-lg rounded-3xl border border-neutral-50 bg-neutral-0 p-lg tablet:p-xl"
+>
+  {/*
         Capitals come from CSS, not from what the editor types, so every card
         matches (Radu, 2026-09-18). Doing it here rather than in the stored
         value also keeps the text readable for a screen reader, which
         announces the underlying characters.
       */}
-      {helperText && (
-        <p class="m-0 text-caption uppercase text-neutral-75">{helperText}</p>
-      )}
+  {helperText && <p class="m-0 text-caption uppercase text-neutral-75">
+    {helperText}
+  </p>}
 
-      {(resolvedLogo || logoLabel) && (
-        <div class="flex items-center gap-sm">
-          {resolvedLogo && (
-            /* Fixed box with both dimensions set, so the row reserves its
+  {(resolvedLogo || logoLabel) && <div class="flex items-center gap-sm">
+    {resolvedLogo && (
+      /* Fixed box with both dimensions set, so the row reserves its
                height before the logo decodes and the card does not shift. */
-            <OptimizedImage
-              src={resolvedLogo.src}
-              alt={resolvedLogo.alt}
-              width={LOGO_SIZE}
-              height={LOGO_SIZE}
-              sizes={`${LOGO_SIZE}px`}
-              class="size-11 rounded-none object-contain"
-              pictureClass="block shrink-0 size-11"
-            />
-          )}
-          {logoLabel && (
-            <p class="m-0 text-body-sm-standard text-neutral-100">
-              {logoLabel}
-            </p>
-          )}
-        </div>
-      )}
+      <OptimizedImage
+        src={resolvedLogo.src}
+        alt={resolvedLogo.alt}
+        width={LOGO_SIZE}
+        height={LOGO_SIZE}
+        sizes={`${LOGO_SIZE}px`}
+        class="size-11 rounded-none object-contain"
+        pictureClass="block shrink-0 size-11"
+      />
+    )}
+    {logoLabel && <p class="m-0 text-body-sm-standard text-neutral-100">
+      {logoLabel}
+    </p>}
+  </div>}
 
-      {hasHeadline && (
-        <h2
-          id={headlineId}
-          class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg"
-        >
-          {headline}
-        </h2>
-      )}
+  {hasHeadline && <h2
+    id={headlineId}
+    class="m-0 text-h4 text-neutral-900 tablet:text-h4-md desktop:text-h4-lg"
+  >
+    {headline}
+  </h2>}
 
-      {hasBody && (
-        <div class="text-body-sm-standard text-neutral-75 [&_:is(a,p,ul,ol,li)]:text-body-sm-standard [&_a]:underline [&_a]:underline-offset-2 [&_p]:text-inherit [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
-          {bodyHtml ? <Fragment set:html={bodyHtml} /> : <slot />}
-        </div>
-      )}
+  {hasBody && <div
+    class="text-body-sm-standard text-neutral-75 [&_:is(a,p,ul,ol,li)]:text-body-sm-standard [&_a]:underline [&_a]:underline-offset-2 [&_p]:text-inherit [&_p:first-child]:mt-0 [&_p:last-child]:mb-0"
+  >
+    {bodyHtml ? <Fragment set:html={bodyHtml} /> : <slot />}
+  </div>}
 
-      {resolvedSocials.length > 0 && (
-        <ul role="list" class="m-0 flex list-none flex-wrap gap-md p-0">
-          {resolvedSocials.map((social) => (
-            <li>
-              <LinkButton
-                href={social.url}
-                variant="secondary"
-                size="lg"
-                iconOnly={true}
-                external={true}
-                aria-label={social.label}
-                linkText={social.label}
-                umamiLabel="link"
-                umamiBaseComponent="internal_advert_social"
-              >
-                <Icon name={social.icon} class="size-5" />
-              </LinkButton>
-            </li>
-          ))}
-        </ul>
-      )}
+  {resolvedSocials.length > 0 && <ul
+    role="list"
+    class="m-0 flex list-none flex-wrap gap-md p-0"
+  >
+    {resolvedSocials.map((social) => <li>
+      <LinkButton
+        href={social.url}
+        variant="secondary"
+        size="lg"
+        iconOnly={true}
+        external={true}
+        aria-label={social.label}
+        linkText={social.label}
+        umamiLabel="link"
+        umamiBaseComponent="internal_advert_social"
+      >
+        <Icon name={social.icon} class="size-5" />
+      </LinkButton>
+    </li>)}
+  </ul>}
 
-      {hasButton && resolvedButton && (
-        <LinkButton
-          href={resolvedButton.href}
-          variant="secondary"
-          size="lg"
-          external={resolvedButton.external}
-          document={button.document}
-          iconSide={resolvedButton.icon ? 'right' : 'none'}
-          class="w-full"
-          {...buildUmamiAttrs({
-            ...umamiBase,
-            label: 'button_cta',
-            href: button.link,
-            linkText: button.text
-          })}
-        >
-          {button.text}
-          {resolvedButton.icon && (
-            <Icon name={resolvedButton.icon} slot="icon-right" />
-          )}
-        </LinkButton>
-      )}
-    </aside>
-  )
-}
+  {hasButton && resolvedButton && <LinkButton
+    href={resolvedButton.href}
+    variant="secondary"
+    size="lg"
+    external={resolvedButton.external}
+    document={button.document}
+    iconSide={resolvedButton.icon ? 'right' : 'none'}
+    class="w-full"
+    {...buildUmamiAttrs({
+      ...umamiBase,
+      label: 'button_cta',
+      href: button.link,
+      linkText: button.text
+    })}
+  >
+    {button.text}
+    {resolvedButton.icon && (
+      <Icon name={resolvedButton.icon} slot="icon-right" />
+    )}
+  </LinkButton>}
+</aside>}

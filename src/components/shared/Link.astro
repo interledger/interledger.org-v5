@@ -77,13 +77,11 @@ const umamiAttrs = buildUmamiAttrs({
   {...umamiAttrs}
   {...resolved?.targetAttrs}
   {...resolved?.downloadAttrs}
-  >{text ?? 'Click'}
-  {
-    resolved?.icon && (
-      <Icon
-        name={resolved.icon}
-        class="inline-block h-[0.75em] w-[0.75em] align-baseline"
-      />
-    )
-  }
+>{text ?? 'Click'}
+  {resolved?.icon && (
+    <Icon
+      name={resolved.icon}
+      class="inline-block h-[0.75em] w-[0.75em] align-baseline"
+    />
+  )}
 </a>

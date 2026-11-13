@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { relatedArticlePathSlug } from './relatedArticlePathSlug'
 
 const heroCtaSchema = z.object({
   text: z.string(),
@@ -8,21 +9,33 @@ const heroCtaSchema = z.object({
   document: z.boolean().optional()
 })
 
-// Normalizes pathSlug by stripping any leading or trailing slashes so that
+// Normalizes a slug by stripping any leading or trailing slashes so that
 // "grants/web-grant", "/grants/web-grant", "grants/web-grant/", and
 // "/grants/web-grant/" all resolve to the same route.
-const pathSlugSchema = (required = true) => {
-  const base = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
-  return required
-    ? base.refine((s) => s.length > 0, 'pathSlug is required')
-    : base
-}
+// Same as `trimSlashes` in src/utils/shared/url.ts, kept local on purpose:
+// CMS vitest transforms this file with only cms/ installed (see tsconfig.json
+// here), and an import from outside src/schemas pulls in the Astro tsconfig.
+const bareSlugSchema = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
+
+const pathSlugSchema = (required = true) =>
+  required
+    ? bareSlugSchema.refine((s) => s.length > 0, 'pathSlug is required')
+    : bareSlugSchema
+
+// `localizes` names the English pathSlug, so it is compared bare like one.
+const localizesSchema = bareSlugSchema.optional()
+
+// Work-in-progress flag. Production builds drop drafts from every collection
+// read (see src/utils/main/gatedCollection.ts); other builds show them. The
+// CMS writes `draft: true` only when set, so a missing key means published.
+const draftSchema = z.boolean().optional().default(false)
 
 // Allowed blog categories. Keep in sync with the `shared.category` Strapi component
 // (cms/src/components/shared/category.json) and the `blog.categories.*` keys in
 // src/data/ui.ts. Comms will provide an updated list later (INTORG-765); when it
 // lands, add the new values here and retire the legacy ones.
 const blogCategories = [
+  'Community',
   'Engineering',
   'Grantmaking',
   'Interledger Technology',
@@ -52,8 +65,9 @@ export const foundationBlogFrontmatterSchema = z.object({
   pathSlug: pathSlugSchema(),
   // Pins the post into the featured section at the top of the blog listing.
   featured: z.boolean().default(false),
-  // Desktop feature image. Kept optional in zod so mid-migration files don't break;
-  // Strapi enforces it as required for editors.
+  // Desktop feature image. Optional here so a file without one does not stop
+  // the Astro build; Strapi and the MDX sync (`buildBlogPayload`) reject a
+  // non-legacy post without one.
   featureImage: z.string().optional(),
   featureImageAlt: z.string().nullable().optional(),
   // Base64 LQIP blur placeholder, generated at CMS sync time. Optional: absent
@@ -69,12 +83,18 @@ export const foundationBlogFrontmatterSchema = z.object({
   thumbnailImageAlt: z.string().nullable().optional(),
   articleBios: z.array(AuthorBioSchema).optional().default([]),
   categories: z.array(z.enum(blogCategories)).default([]),
-  // Exactly 3 slugs of related posts (required for all frontmatter; Strapi also enforces this for editors).
-  relatedArticles: z.array(z.string()).length(3),
+  // Exactly 3 related posts. The CMS requires `/blog/{slug}/` and rejects a
+  // bare slug, a URL, or another section (INTORG-1346). This reduces a
+  // `/blog/{slug}/` path, and a legacy bare slug still in a file, to the
+  // pathSlug the page matches. A bad file still parses.
+  relatedArticles: z
+    .array(z.string().transform(relatedArticlePathSlug))
+    .length(3),
   // Reserved for migrated v4 developer blog posts; lets them render without
   // a feature image or thumbnail. Hidden from Strapi editors.
   legacy: z.boolean().optional().default(false),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -97,7 +117,8 @@ export const foundationPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -110,7 +131,8 @@ export const summitPageFrontmatterSchema = z.object({
   heroImage: z.string().optional(),
   heroImageBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).optional(),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -133,7 +155,8 @@ export const hackathonPageFrontmatterSchema = z.object({
   heroImageMobileAlt: z.string().nullable().optional(),
   heroImageMobileBlur: z.string().optional(),
   heroCtas: z.array(heroCtaSchema).max(1).optional(),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 export type HackathonPageFrontmatterType = z.infer<
@@ -254,7 +277,8 @@ export const grantPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -281,7 +305,8 @@ export const grantOverviewPageFrontmatterSchema = z.object({
   ctaStrip: grantCtaStripSchema,
   metaImage: z.string().optional(),
   canonicalUrl: z.string().optional(),
-  localizes: z.string().optional(),
+  draft: draftSchema,
+  localizes: localizesSchema,
   locale: z.string().optional()
 })
 
@@ -310,7 +335,8 @@ export const profileFrontmatterSchema = z.object({
   role: z.string().nullable().optional(),
   cta: heroCtaSchema.optional(),
   locale: z.string(),
-  localizes: z.string().optional()
+  draft: draftSchema,
+  localizes: localizesSchema
 })
 export type ProfileFrontmatterType = z.infer<typeof profileFrontmatterSchema>
 
@@ -336,7 +362,8 @@ export const faqFrontmatterSchema = z.object({
   introParagraph: z.string().nullable().optional(),
   faqSections: z.array(faqSectionSchema).min(1),
   locale: z.string(),
-  localizes: z.string().optional()
+  draft: draftSchema,
+  localizes: localizesSchema
 })
 export type FaqFrontmatterType = z.infer<typeof faqFrontmatterSchema>
 export type FaqSectionType = z.infer<typeof faqSectionSchema>
@@ -361,7 +388,8 @@ export const reportFrontmatterSchema = z.object({
   date: reportDateSchema.optional(),
   authorBios: z.array(AuthorBioSchema).optional().default([]),
   locale: z.string(),
-  localizes: z.string().optional()
+  draft: draftSchema,
+  localizes: localizesSchema
 })
 export type ReportFrontmatterType = z.infer<typeof reportFrontmatterSchema>
 
@@ -393,7 +421,18 @@ const podcastTitleCardSchema = z.object({
   })
 })
 
+// A block intro in frontmatter (ADR-009): the keys the CMS writes, each
+// optional; the CMS leaves the whole object out when it is empty.
+const blockIntroSchema = z
+  .object({
+    heading: z.string().optional(),
+    subheading: z.string().optional(),
+    description: z.string().optional()
+  })
+  .strict()
+
 const podcastTitleCardsSchema = z.object({
+  intro: blockIntroSchema.optional(),
   columns: z.enum(['Three', 'Two']),
   ariaLabel: z.string().min(1, 'ariaLabel is required'),
   cards: z.array(podcastTitleCardSchema).min(1)
@@ -432,7 +471,7 @@ export const podcastPageFrontmatterSchema = z.object({
   podcasts: z.array(podcastItemSchema).min(1),
   ctaStrip: podcastCtaStripSchema,
   locale: z.string().optional(),
-  localizes: z.string().optional()
+  localizes: localizesSchema
 })
 export type PodcastPageFrontmatterType = z.infer<
   typeof podcastPageFrontmatterSchema

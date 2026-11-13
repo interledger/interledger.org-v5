@@ -24,9 +24,11 @@ import {
   findOrphanedRedirects,
   getProjectRoot,
   parseRedirectConfigFile,
+  redirectSourceKey,
   type RedirectEntry
 } from '@/utils'
 import { assertStrapiRunning } from './ensureStrapiRunning'
+import { writeUntilSettled } from './writeUntilSettled'
 
 const DRY_RUN = process.argv.includes('--dry-run')
 const FORCE = process.argv.includes('--force')
@@ -65,6 +67,8 @@ function readRedirectConfig(filepath: string): unknown {
 
 function isUnchanged(stored: RedirectEntry, wanted: RedirectEntry): boolean {
   return (
+    // Rows are matched by source key, so `/old` against `/old/` is an update.
+    stored.source === wanted.source &&
     stored.destination === wanted.destination &&
     stored.category === wanted.category &&
     (stored.redirectType ?? 'permanent') === wanted.redirectType &&
@@ -99,7 +103,9 @@ async function fetchStoredRedirects(
       )
     }
     const body = (await res.json()) as ListResponse
-    for (const entry of body.data) stored.set(entry.source, entry)
+    for (const entry of body.data) {
+      stored.set(redirectSourceKey(entry.source), entry)
+    }
     if (page >= body.meta.pagination.pageCount) return stored
   }
 }
@@ -167,6 +173,12 @@ async function pruneRedirects(
   return orphans.length
 }
 
+interface RedirectWrite {
+  entry: RedirectEntry
+  /** The stored row to update. Absent for a create. */
+  documentId?: string
+}
+
 async function syncRedirects(
   entries: RedirectEntry[],
   stored: Map<string, StoredRedirect>,
@@ -174,8 +186,9 @@ async function syncRedirects(
   token: string
 ): Promise<SyncCounts> {
   const counts: SyncCounts = { created: 0, updated: 0, unchanged: 0 }
+  const writes: RedirectWrite[] = []
   for (const entry of entries) {
-    const existing = stored.get(entry.source)
+    const existing = stored.get(redirectSourceKey(entry.source))
     if (existing && isUnchanged(existing, entry)) {
       counts.unchanged++
       continue
@@ -185,11 +198,22 @@ async function syncRedirects(
       console.log(
         `🔍 [DRY-RUN] Would ${action} ${entry.source} → ${entry.destination}`
       )
-    } else {
-      await writeRedirect(baseUrl, token, entry, existing?.documentId)
     }
+    writes.push({ entry, documentId: existing?.documentId })
     counts[existing ? 'updated' : 'created']++
   }
+  if (DRY_RUN) return counts
+
+  // The server refuses a write that forms a chain with a stored row. A row
+  // later in the file can still hold its old value, so a valid file can fail
+  // in file order. Retrying after the other writes lets it settle, and the
+  // server never holds a chain at any point.
+  const failed = await writeUntilSettled(
+    writes,
+    ({ entry, documentId }) => writeRedirect(baseUrl, token, entry, documentId),
+    (count) => console.log(`🔁 Retrying ${count} redirect(s)`)
+  )
+  if (failed instanceof Error) throw failed
   return counts
 }
 

@@ -41,7 +41,7 @@ function ctxWith(uploads: Record<string, number> = {}): ParserContext {
 describe('SplitLayout handler', () => {
   it('parses an image and text layout with left image position', async () => {
     const mdx = [
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" ctaText="Apply" ctaLink="https://example.com" ctaExternal={true}>`,
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com","external":true}]}>`,
       '',
       'Some **body** copy.',
       '',
@@ -63,40 +63,16 @@ describe('SplitLayout handler', () => {
         displayRatio: '2:1',
         media: { image: STRAPI_UPLOAD_ID.primaryImage, alternativeText: null },
         content: 'Some **body** copy.',
-        cta: {
-          text: 'Apply',
-          link: 'https://example.com',
-          external: true
-        }
+        buttons: [
+          {
+            text: 'Apply',
+            link: 'https://example.com',
+            style: 'primary',
+            external: true
+          }
+        ]
       }
     ])
-  })
-
-  it('parses ctaDocument into the CTA document flag', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Application pack" ctaLink="/uploads/pack.pdf" ctaDocument={true}>Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      cta: {
-        text: 'Application pack',
-        link: '/uploads/pack.pdf',
-        document: true
-      }
-    })
-  })
-
-  it('omits the CTA document flag when ctaDocument is absent', async () => {
-    const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Apply" ctaLink="/apply">Body.</SplitLayout>`,
-      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
-    )
-
-    expect(blocks[0]).toMatchObject({
-      cta: { text: 'Apply', link: '/apply' }
-    })
-    expect(blocks[0].cta).not.toHaveProperty('document')
   })
 
   it('parses imageAlt into media.alternativeText', async () => {
@@ -191,21 +167,75 @@ describe('SplitLayout handler', () => {
         content: 'Body.'
       }
     ])
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
   })
 
-  it('parses CTA style when provided', async () => {
+  it('keeps a posterless imageAlt as the video title', async () => {
     const blocks = await parseMdxToBlocks(
-      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" ctaText="Learn" ctaLink="/learn" ctaStyle="secondary">Body.</SplitLayout>`,
+      '<SplitLayout layoutType="video-text" displayRatio="1:1" videoUrl="https://youtu.be/G0GSrKTekdA" imageAlt="Thank you for being part of Summit 2023">Body.</SplitLayout>',
+      { locale: 'en' }
+    )
+
+    expect(blocks).toEqual([
+      {
+        __component: 'blocks.split-layout',
+        layoutType: 'video-text',
+        imagePosition: 'right',
+        displayRatio: '1:1',
+        videoUrl: 'https://youtu.be/G0GSrKTekdA',
+        videoTitle: 'Thank you for being part of Summit 2023',
+        content: 'Body.'
+      }
+    ])
+    expect(blocks[0]).not.toHaveProperty('media')
+  })
+
+  it('stores an explicit video title apart from the poster alt', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/4UVw1gQNGp0" videoTitle="Future | Money Arts & Culture Grant" imageSrc="${TEST_IMAGE_SRC}" imageAlt="Talk still">Body.</SplitLayout>`,
       ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
     )
 
     expect(blocks[0]).toMatchObject({
-      cta: {
-        text: 'Learn',
-        link: '/learn',
-        style: 'secondary'
+      videoTitle: 'Future | Money Arts & Culture Grant',
+      media: {
+        image: STRAPI_UPLOAD_ID.primaryImage,
+        alternativeText: 'Talk still'
       }
     })
+  })
+
+  it('trims a video title and keeps an accented one', async () => {
+    const blocks = await parseMdxToBlocks(
+      '<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/abc" videoTitle="  Ponte al día con las charlas 2023  " />',
+      { locale: 'es' }
+    )
+
+    expect(blocks[0]).toMatchObject({
+      videoTitle: 'Ponte al día con las charlas 2023'
+    })
+    expect(blocks[0]).not.toHaveProperty('media')
+  })
+
+  it('drops a blank video title and does not copy a poster alt into it', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout layoutType="video-text" videoUrl="https://youtu.be/abc" videoTitle="   " imageSrc="${TEST_IMAGE_SRC}" imageAlt="Talk still">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
+    expect(blocks[0]).toMatchObject({
+      media: { alternativeText: 'Talk still' }
+    })
+  })
+
+  it('does not treat imageAlt as a video title on an image layout', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" imageAlt="Foo alt">Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).not.toHaveProperty('videoTitle')
   })
 
   it('uses layoutType to ignore stale quote attributes for text layouts', async () => {
@@ -307,26 +337,6 @@ describe('SplitLayout handler — errors', () => {
     expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
   })
 
-  it('returns DYNAMIC_EXPRESSION when ctaExternal is dynamic', async () => {
-    const result = await parseMdxToBlocks(
-      '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaExternal={isExternal}>Body.</SplitLayout>',
-      { locale: 'en' }
-    )
-
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
-  })
-
-  it('returns DYNAMIC_EXPRESSION when ctaDocument is dynamic', async () => {
-    const result = await parseMdxToBlocks(
-      '<SplitLayout ctaText="Apply" ctaLink="/apply" ctaDocument={isDocument}>Body.</SplitLayout>',
-      { locale: 'en' }
-    )
-
-    expect(result).toBeInstanceOf(MdxParserError)
-    expect(result).toMatchObject({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
-  })
-
   it('returns MISSING_REQUIRED_PROP when imageSrc needs a media resolver', async () => {
     const result = await parseMdxToBlocks(
       `<SplitLayout imageSrc="${TEST_IMAGE_SRC}">Body.</SplitLayout>`,
@@ -381,5 +391,37 @@ describe('SplitLayout handler — mixed content', () => {
       content: 'Split body.'
     })
     expect(blocks[2]).toMatchObject({ __component: 'blocks.paragraph' })
+  })
+})
+
+describe('SplitLayout handler: intro and button group', () => {
+  it('parses the intro, the button group and the 3:2 ratio', async () => {
+    const blocks = await parseMdxToBlocks(
+      `<SplitLayout intro={{"heading":"Heading","subheading":"Sub"}} displayRatio="3:2" imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"Apply","link":"/apply/","style":"primary"},{"text":"More","link":"/more/","style":"secondary"}]} />`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(blocks[0]).toMatchObject({
+      intro: { heading: 'Heading', subheading: 'Sub' },
+      displayRatio: '3:2',
+      buttons: [
+        { text: 'Apply', link: '/apply/', style: 'primary' },
+        { text: 'More', link: '/more/', style: 'secondary' }
+      ]
+    })
+    expect(blocks[0]).not.toHaveProperty('content')
+  })
+
+  it('rejects an invalid button group', async () => {
+    const result = await parseMdxToBlocks(
+      `<SplitLayout imageSrc="${TEST_IMAGE_SRC}" buttons={[{"text":"","link":"/x/"}]}>Body.</SplitLayout>`,
+      ctxWith({ [TEST_IMAGE_SRC]: STRAPI_UPLOAD_ID.primaryImage })
+    )
+
+    expect(result).toBeInstanceOf(MdxParserError)
+    expect(result).toMatchObject({
+      code: ParserErrorCode.INVALID_PROP_VALUE,
+      prop: 'buttons'
+    })
   })
 })

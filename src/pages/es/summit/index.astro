@@ -1,22 +1,26 @@
 ---
 import SummitContentPage from '@/components/pages/SummitContentPage.astro'
-import { defaultLocale, type Locale, HOME_CONTENT_SLUG } from '@/utils'
-import { getCollection } from 'astro:content'
+import {
+  HOME_CONTENT_SLUG,
+  type Locale,
+  getGatedCollection,
+  hideDrafts,
+  resolveSummitHome
+} from '@/utils'
 
 const pageLang: Locale = 'es'
 
-const pages = await getCollection('summit-pages')
-const localizedHomePage = pages.find(
-  (page) =>
-    page.data.pathSlug === HOME_CONTENT_SLUG && page.data.locale === pageLang
+const home = resolveSummitHome(
+  await getGatedCollection('summit-pages'),
+  pageLang
 )
-
-const contentLocale = localizedHomePage ? pageLang : defaultLocale
-const isFallback = !localizedHomePage
+// Production fails the build: a drafted home must not ship as a /404 redirect.
+if (home instanceof Error && hideDrafts()) throw home
+if (home instanceof Error) return Astro.redirect('/404')
 ---
 
 <SummitContentPage
   slug={HOME_CONTENT_SLUG}
-  contentLocale={contentLocale}
-  isFallback={isFallback}
+  contentLocale={home.contentLocale}
+  isFallback={home.isFallback}
 />

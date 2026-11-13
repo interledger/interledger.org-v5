@@ -24,7 +24,7 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 
 const DRY_RUN = process.argv.includes('--dry-run')
 
@@ -93,7 +93,7 @@ function buildFrontmatter(fm: DevFrontmatter): string {
   ordered.legacy = true
 
   const dumped = yaml
-    .dump(ordered, { lineWidth: -1, quotingType: "'", forceQuotes: false })
+    .dump(ordered, { lineWidth: -1, quoteStyle: 'single', forceQuotes: false })
     .trimEnd()
 
   // js-yaml quotes date-like strings; existing foundation posts use an

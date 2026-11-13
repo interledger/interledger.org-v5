@@ -65,6 +65,14 @@
       font-weight: var(--text-body-sm-standard--font-weight);
     }
 
+    /* prose/default.css sizes `main p, a, ul, ol` directly, which beats the cell's
+       size. Cell text inherits it instead, so a link matches its sentence. */
+    & :is(th, td) :is(p, a, ul, ol, li) {
+      font-size: inherit;
+      line-height: inherit;
+      font-weight: inherit;
+    }
+
     & th p,
     & td p {
       margin-block: 0;

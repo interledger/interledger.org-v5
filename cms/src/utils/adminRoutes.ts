@@ -27,10 +27,7 @@ export interface AdminRouteShape {
 }
 
 export type AdminRouteWrapDecision =
-  | 'wrap'
-  | 'already-wrapped'
-  | 'empty'
-  | 'unrecognized-route-tree'
+  'wrap' | 'already-wrapped' | 'empty' | 'unrecognized-route-tree'
 
 export function decideAdminRouteWrap(
   routes: ReadonlyArray<AdminRouteShape>

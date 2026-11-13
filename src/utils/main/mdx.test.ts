@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createMarked } from './mdx'
+import { createMarked, parseMarkdownBelowHeading } from './mdx'
 
 describe('createMarked', () => {
   it('injects the new attribute set on inline links', () => {
@@ -192,5 +192,73 @@ describe('createMarked', () => {
     it('does not add new-tab attributes to a dropped unsafe link', () => {
       expect(render('[x](javascript:alert(1))')).toBe('x')
     })
+  })
+})
+
+describe('createMarked own-site links', () => {
+  const render = (markdown: string) =>
+    createMarked({ pathname: '/', lang: 'en' }).parseInline(markdown) as string
+
+  it('renders a bare staging URL relative, keeping the URL as its text', () => {
+    const html = render('Visit https://staging.interledger.org/blog/')
+    expect(html).toContain('href="/blog/"')
+    expect(html).toContain('>https://staging.interledger.org/blog/</a>')
+    expect(html).not.toContain('target="_blank"')
+  })
+
+  it('renders a bare scheme-less www. URL relative', () => {
+    expect(render('Visit www.interledger.org/es/blog/')).toContain(
+      'href="/es/blog/"'
+    )
+  })
+
+  it('collapses a doubled slash after the host', () => {
+    expect(render('[a](https://interledger.org//blog/x/)')).toContain(
+      'href="/blog/x/"'
+    )
+  })
+})
+
+describe('parseMarkdownBelowHeading', () => {
+  it('moves the headings down together, keeping their order', () => {
+    const html = parseMarkdownBelowHeading('# Top\n\n## Sub\n\nText', 3)
+    expect(html).toContain('<h3')
+    expect(html).toContain('Top</h3>')
+    expect(html).toContain('Sub</h4>')
+    expect(html).not.toContain('<h1')
+    expect(html).not.toContain('<h2')
+  })
+
+  it('starts from the highest heading in the text, not from h1', () => {
+    const html = parseMarkdownBelowHeading('## Top\n\n### Sub', 3)
+    expect(html).toContain('Top</h3>')
+    expect(html).toContain('Sub</h4>')
+  })
+
+  it('moves headings up so no level is skipped below the section', () => {
+    const html = parseMarkdownBelowHeading('#### Deep\n\n##### Deeper', 3)
+    expect(html).toContain('Deep</h3>')
+    expect(html).toContain('Deeper</h4>')
+  })
+
+  it('stops at h6', () => {
+    const html = parseMarkdownBelowHeading('# Top\n\n###### Deepest', 3)
+    expect(html).toContain('Deepest</h6>')
+  })
+
+  it('renders text with no heading as usual', () => {
+    expect(parseMarkdownBelowHeading('We **shipped** it.', 3)).toBe(
+      '<p>We <strong>shipped</strong> it.</p>\n'
+    )
+  })
+
+  it('returns an empty string for no text', () => {
+    expect(parseMarkdownBelowHeading('', 3)).toBe('')
+    expect(parseMarkdownBelowHeading(null, 3)).toBe('')
+  })
+
+  it('does not change the cached instance that parseMarkdown shares', () => {
+    parseMarkdownBelowHeading('# Top', 3)
+    expect(createMarked().parse('# Top')).toContain('<h1')
   })
 })

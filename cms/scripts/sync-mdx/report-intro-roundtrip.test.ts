@@ -113,3 +113,66 @@ describe('ReportIntro round-trip (introParagraph footnotes)', () => {
     expect(twice).toBe(once)
   })
 })
+
+const RICH_INTRO = [
+  'Intro with **bold**, _italic_ and a [link](/about-us/).',
+  '![A banner](/img/reports/banner.png)',
+  '| Network | Fee model |\n| --- | --- |\n| Credit cards | Interchange |\n| SEPA | Fixed fee |',
+  '- First bullet\n- Second bullet',
+  '1. First step\n2. Second step',
+  '> A quote.'
+].join('\n\n')
+
+const REPORT_WITH_RICH_INTRO = {
+  ...REPORT_WITH_FOOTNOTE,
+  introParagraph: RICH_INTRO
+}
+
+function exportedBody(report: typeof REPORT_WITH_FOOTNOTE): string {
+  const mdx = generateReportMdx(report)
+  return mdx.match(/^---\n[\s\S]*?\n---\n([\s\S]*)$/)?.[1] ?? ''
+}
+
+describe('ReportIntro round-trip (rich text)', () => {
+  it('keeps an image, a table, lists and a blockquote inside <ReportIntro>', () => {
+    const body = exportedBody(REPORT_WITH_RICH_INTRO)
+    const intro = body.slice(0, body.indexOf('</ReportIntro>'))
+
+    expect(intro).toContain('![A banner](/img/reports/banner.png)')
+    expect(intro).toMatch(/\|\s*Credit cards\s*\|\s*Interchange\s*\|/)
+    expect(intro).toMatch(/^[-*] First bullet$/m)
+    expect(intro).toMatch(/^1\. First step$/m)
+    expect(intro).toContain('> A quote.')
+  })
+
+  it('extractReportIntro returns the rich intro and leaves the sections alone', async () => {
+    const result = extractReportIntro(exportedBody(REPORT_WITH_RICH_INTRO))
+    if (result instanceof Error) throw result
+
+    expect(result.introParagraph).toContain(
+      '![A banner](/img/reports/banner.png)'
+    )
+    expect(result.introParagraph).toMatch(/\|\s*SEPA\s*\|\s*Fixed fee\s*\|/)
+
+    const blocks = await parseMdxToBlocks(
+      result.remainingContent,
+      ctx(result.remainingContent)
+    )
+    if (blocks instanceof Error) throw blocks
+    expect(blocks).toHaveLength(1)
+    expect(blocks[0]).toMatchObject({ __component: 'blocks.report-section' })
+  })
+
+  it('is idempotent across export → import → export', () => {
+    const once = generateReportMdx(REPORT_WITH_RICH_INTRO)
+    const extracted = extractReportIntro(exportedBody(REPORT_WITH_RICH_INTRO))
+    if (extracted instanceof Error) throw extracted
+
+    const twice = generateReportMdx({
+      ...REPORT_WITH_RICH_INTRO,
+      introParagraph: extracted.introParagraph
+    })
+
+    expect(twice).toBe(once)
+  })
+})

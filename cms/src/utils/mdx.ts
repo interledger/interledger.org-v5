@@ -5,7 +5,7 @@
 
 import fs from 'fs'
 import prettier from 'prettier'
-import yaml from 'js-yaml'
+import * as yaml from 'js-yaml'
 import matter from 'gray-matter'
 import isHtml from 'is-html'
 import TurndownService from 'turndown'
@@ -14,7 +14,14 @@ import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 
 export type { Hero, HeroCta }
 
-type MediaLike = { url?: string; formats?: MediaFile['formats'] }
+type MediaLike = {
+  id?: number | string | null
+  url?: string
+  formats?: MediaFile['formats']
+}
+
+/** A media relation as a Strapi write or read can carry it. See {@link hasMediaValue}. */
+export type MediaValue = MediaLike | number | string | undefined | null
 
 const turndown = new TurndownService({
   headingStyle: 'atx',
@@ -46,29 +53,65 @@ export function uidToLogLabel(uid: string): string {
 
 /**
  * Options for gray-matter stringify to output single-quoted YAML strings.
- * Uses a custom YAML engine with js-yaml 4's forceQuotes (gray-matter's
+ * Uses a custom YAML engine with js-yaml's forceQuotes (gray-matter's
  * bundled js-yaml 3.x does not support this option).
+ *
+ * js-yaml 5 double-quotes whitespace-only strings. Dropping that rule keeps
+ * them single-quoted, as js-yaml 4 wrote them, so exported files do not change.
  */
-const YAML_QUOTE_OPTS = { forceQuotes: true, quotingType: "'" as const }
+const YAML_QUOTE_OPTS: yaml.DumpOptions = {
+  forceQuotes: true,
+  quoteStyle: 'single',
+  scalarStyleRules: Object.entries(yaml.DEFAULT_SCALAR_STYLE_RULES)
+    .filter(([name]) => name !== 'doubleQuoteWhitespaceOnly')
+    .map(([, rule]) => rule)
+}
+
+/**
+ * js-yaml 4's default schema: the core schema plus timestamps, merge keys and
+ * the binary, omap, pairs and set tags. Dates load as Date objects, and `yes`,
+ * `no`, `on` and `off` stay strings (YAML11_SCHEMA would make them booleans).
+ */
+const YAML_PARSE_SCHEMA = yaml.CORE_SCHEMA.withTags(
+  yaml.timestampTag,
+  yaml.mergeTag,
+  yaml.binaryTag,
+  yaml.omapTag,
+  yaml.pairsTag,
+  yaml.setTag
+)
 
 export const MATTER_STRINGIFY_OPTIONS = {
   engines: {
     yaml: {
-      parse: (input: string) => yaml.load(input) as Record<string, unknown>,
+      parse: (input: string) =>
+        yaml.load(input, { schema: YAML_PARSE_SCHEMA }) as Record<
+          string,
+          unknown
+        >,
       stringify: (data: object) => yaml.dump(data, YAML_QUOTE_OPTS)
     }
   }
 } as Record<string, unknown>
 
+// C0 controls other than tab. In a single-quoted scalar, LF fails Astro's YAML
+// parser, every other one except CR fails gray-matter's js-yaml 3, and a lone
+// CR survives into the parsed value. Tab is safe in both, so it is kept.
+// eslint-disable-next-line no-control-regex -- intentionally matching C0 controls to fold them, not a typo
+const YAML_UNSAFE_CONTROL_CHARS = /[\x00-\x08\x0A-\x1F]+/g
+
 /**
  * Serializes a value as a YAML scalar: single-quoted string or 'null'.
- * Escapes internal single quotes per YAML spec ('').
+ * Folds each run of C0 control characters other than tab (line breaks
+ * included) into one space
+ * and escapes internal single quotes per YAML spec ('').
  */
 export function yamlSingleQuoteScalar(
   value: string | null | undefined
 ): string {
   if (value === null || value === undefined) return 'null'
-  return `'${String(value).replace(/\r\n/g, '\n').replace(/'/g, "''")}'`
+  const oneLine = String(value).replace(YAML_UNSAFE_CONTROL_CHARS, ' ')
+  return `'${oneLine.replace(/'/g, "''")}'`
 }
 
 /**
@@ -93,19 +136,18 @@ export function yamlLiteralBlockScalar(
 
 /**
  * True when a media relation field carries some value, whether or not it has
- * been populated yet. Strapi's document-service create/update payload (what
- * `registerDocumentValidation` middleware sees) only ever has the raw
- * uploaded file ID for a media relation — `getImageUrl`'s `.url` check would
- * always read as "missing" there, since population only happens on read.
+ * been populated yet. A document-service create/update payload (what
+ * `registerDocumentValidation` middleware sees) can hold the raw upload ID
+ * (the MDX sync sends one), an ID-only reference such as `{ id: 378 }` (a
+ * valid REST body) or the full upload object (the admin sends one), so the
+ * check can't rely on `.url`, which only a populated file is sure to have.
  * Use this for required-field validation; use `getImageUrl` once the
  * relation has actually been populated (e.g. MDX export via `findOne`).
  */
-export function hasMediaValue(
-  media: MediaLike | number | string | undefined | null
-): boolean {
+export function hasMediaValue(media: MediaValue): boolean {
   if (media == null) return false
   if (typeof media === 'number' || typeof media === 'string') return true
-  return Boolean(media.url)
+  return media.id != null || Boolean(media.url)
 }
 
 /**
@@ -196,6 +238,33 @@ export function formatBlockquote(quote: string): string {
 }
 
 // ── Frontmatter helpers ──────────────────────────────────────────────────────
+
+/**
+ * Frontmatter for the `draft` checkbox: `{ draft: true }` when checked,
+ * nothing otherwise. Leaving the key out when false keeps existing MDX files
+ * unchanged; the site schema defaults a missing key to false.
+ */
+export function draftFrontmatter(draft: boolean | null | undefined): {
+  draft?: true
+} {
+  return draft === true ? { draft: true } : {}
+}
+
+/**
+ * Value to pass to {@link draftFrontmatter}.
+ *
+ * `true` and `false` are the checkbox. `null` and `undefined` mean the field
+ * is not on this Strapi yet, or the sync has not written it. That is not an
+ * uncheck: a `draft: true` already in the file stays, so a save cannot
+ * publish a page the repo still marks as a draft (INTORG-1290).
+ */
+export function resolveDraft(
+  stored: boolean | null | undefined,
+  preserved: unknown
+): boolean | null | undefined {
+  if (typeof stored === 'boolean') return stored
+  return preserved === true ? true : stored
+}
 
 /**
  * Read all existing frontmatter fields from an MDX file.

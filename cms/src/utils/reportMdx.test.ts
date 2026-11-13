@@ -247,3 +247,17 @@ describe('generateReportMdx — author bios', () => {
     expect(data.authorBios[0].imageAlt).toBe('Jane Doe headshot')
   })
 })
+
+describe('generateReportMdx — draft', () => {
+  it('writes draft: true when the box is checked', () => {
+    const mdx = generateReportMdx(makeReport({ draft: true }))
+
+    expect(matter(mdx).data.draft).toBe(true)
+  })
+
+  it('omits draft when the box is unchecked', () => {
+    const mdx = generateReportMdx(makeReport({ draft: false }))
+
+    expect(matter(mdx).data).not.toHaveProperty('draft')
+  })
+})

@@ -1,4 +1,9 @@
-import { getImageUrl, hasMediaValue } from '../../utils'
+import {
+  getImageUrl,
+  hasMediaValue,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble as esc } from '../shared'
 
 type MediaField =
@@ -52,7 +57,7 @@ function logoToMdxItem(logo: CarouselLogoEntry): { name: string; src: string } {
 }
 
 export function serialize(block: {
-  heading?: string
+  intro?: BlockIntroInput | null
   accessibilityLabel?: string
   logos?: CarouselLogoEntry[]
 }): string {
@@ -72,9 +77,9 @@ export function serialize(block: {
 
   const logoItems = block.logos.map(logoToMdxItem)
 
-  const headingAttr = block.heading ? ` heading="${esc(block.heading)}"` : ''
+  const introAttr = serializeIntroProp(block.intro)
   const labelAttr = ` accessibilityLabel="${esc(block.accessibilityLabel)}"`
   const logosAttr = ` logos={${JSON.stringify(logoItems)}}`
 
-  return `<LogoCarousel${headingAttr}${labelAttr}${logosAttr} />`
+  return `<LogoCarousel${introAttr}${labelAttr}${logosAttr} />`
 }

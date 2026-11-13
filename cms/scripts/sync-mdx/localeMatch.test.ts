@@ -4,6 +4,7 @@ import {
   hasMdxFile,
   findMatchingLocales
 } from './localeMatch'
+import { identityForEntry } from './entryIdentity'
 import { createMdxFile } from './test-utils'
 
 /** Content type keyed on pathSlug alone (the default). */
@@ -146,6 +147,23 @@ describe('hasMdxFile', () => {
     ).toBe(false)
   })
 
+  // The orphan pass: a slashed Strapi slug must still find its bare MDX key,
+  // or the entry is deleted (INTORG-1254).
+  it('finds a bare MDX key for a slashed Strapi slug', () => {
+    const map = buildMdxSlugsByLocale(
+      [createMdxFile({ pathSlug: 'about-us', locale: 'en' })],
+      BY_SLUG
+    )
+
+    expect(
+      hasMdxFile(
+        map,
+        'en',
+        identityForEntry(BY_SLUG, { documentId: 'a', pathSlug: '/about-us/' })
+      )
+    ).toBe(true)
+  })
+
   it('returns false for empty set', () => {
     const map = new Map<string, Set<string>>([['en', new Set()]])
 
@@ -159,6 +177,21 @@ describe('hasMdxFile', () => {
 // frontmatter field. This powers the main sync loop where we process English files first,
 // then sync their translations.
 describe('findMatchingLocales', () => {
+  it('matches a slashed localizes against a bare English slug', () => {
+    const englishMdx = createMdxFile({ pathSlug: 'about-us' })
+    const localeFiles = [
+      createMdxFile({
+        pathSlug: 'sobre-nosotros',
+        locale: 'es',
+        localizes: '/about-us/'
+      })
+    ]
+
+    expect(findMatchingLocales(englishMdx, localeFiles, BY_SLUG)).toHaveLength(
+      1
+    )
+  })
+
   it('matches locale file via localizes field', () => {
     const englishMdx = createMdxFile({ pathSlug: 'about-us' })
     const localeFiles = [

@@ -1,5 +1,10 @@
-import type { AgendaBlock, ParsedBlock } from './types.blocks'
-import { getStaticLiteralAttr } from './jsxExtract'
+/**
+ * <Agenda intro={{…}} heading={…} items={[...]} />
+ *
+ * `intro` and the day `heading` are optional; `items` needs at least two.
+ */
+import type { AgendaBlock, AgendaItem, ParsedBlock } from './types.blocks'
+import { getIntroAttr, getStaticLiteralAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -12,12 +17,6 @@ import {
 } from './parserErrors'
 
 const MIN_ITEMS = 2
-
-interface AgendaItem {
-  time: string
-  activity: string
-  additionalInfo?: string
-}
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0
@@ -37,62 +36,79 @@ function isAgendaItem(value: unknown): value is AgendaItem {
   )
 }
 
+function invalidProp(
+  node: JsxBlockNode,
+  prop: string,
+  message: string
+): MdxParserError {
+  return new MdxParserError({
+    code: ParserErrorCode.INVALID_PROP_VALUE,
+    message,
+    component: 'Agenda',
+    prop,
+    line: node.position?.start.line,
+    column: node.position?.start.column
+  })
+}
+
+function normalizeItem(item: AgendaItem): AgendaItem {
+  return {
+    time: item.time.trim(),
+    activity: item.activity.trim(),
+    ...(isNonEmptyString(item.additionalInfo)
+      ? { additionalInfo: item.additionalInfo.trim() }
+      : {})
+  }
+}
+
+function parseSchedule(
+  node: JsxBlockNode
+): Pick<AgendaBlock, 'heading' | 'items'> {
+  const heading = getStaticLiteralAttr(node, 'heading')
+  const items = getStaticLiteralAttr(node, 'items', { required: true })
+
+  if (heading !== undefined && heading !== null && !isNonEmptyString(heading)) {
+    throw invalidProp(
+      node,
+      'heading',
+      'Prop "heading" must be a non-empty string when provided.'
+    )
+  }
+
+  if (!Array.isArray(items) || !items.every(isAgendaItem)) {
+    throw invalidProp(
+      node,
+      'items',
+      'Prop "items" must be an array of { time, activity, additionalInfo? } objects. time and activity must be non-empty strings.'
+    )
+  }
+
+  if (items.length < MIN_ITEMS) {
+    throw invalidProp(
+      node,
+      'items',
+      `Prop "items" requires at least ${MIN_ITEMS} agenda items.`
+    )
+  }
+
+  return {
+    ...(isNonEmptyString(heading) ? { heading: heading.trim() } : {}),
+    items: items.map(normalizeItem)
+  }
+}
+
 async function handleAgenda(
   node: JsxBlockNode,
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
-    const heading = getStaticLiteralAttr(node, 'heading')
-    const items = getStaticLiteralAttr(node, 'items', { required: true })
-
-    if (
-      heading !== undefined &&
-      heading !== null &&
-      !isNonEmptyString(heading)
-    ) {
-      throw new MdxParserError({
-        code: ParserErrorCode.INVALID_PROP_VALUE,
-        message: 'Prop "heading" must be a non-empty string when provided.',
-        component: 'Agenda',
-        prop: 'heading',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
-
-    if (!Array.isArray(items) || !items.every(isAgendaItem)) {
-      throw new MdxParserError({
-        code: ParserErrorCode.INVALID_PROP_VALUE,
-        message:
-          'Prop "items" must be an array of { time, activity, additionalInfo? } objects. time and activity must be non-empty strings.',
-        component: 'Agenda',
-        prop: 'items',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
-
-    if (items.length < MIN_ITEMS) {
-      throw new MdxParserError({
-        code: ParserErrorCode.INVALID_PROP_VALUE,
-        message: `Prop "items" requires at least ${MIN_ITEMS} agenda items.`,
-        component: 'Agenda',
-        prop: 'items',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
+    const intro = getIntroAttr(node)
+    const schedule = parseSchedule(node)
 
     const block: AgendaBlock = {
       __component: 'blocks.agenda',
-      ...(isNonEmptyString(heading) ? { heading: heading.trim() } : {}),
-      items: items.map((item) => ({
-        time: item.time.trim(),
-        activity: item.activity.trim(),
-        ...(isNonEmptyString(item.additionalInfo)
-          ? { additionalInfo: item.additionalInfo.trim() }
-          : {})
-      }))
+      ...(intro ? { intro } : {}),
+      ...schedule
     }
 
     return [block]

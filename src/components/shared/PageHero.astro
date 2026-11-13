@@ -105,104 +105,90 @@ const parallaxImgClass = isWideBand
 <div data-component="PageHero">
   <div class:list={['bg-white px-content pt-page-offset', copyBandPadding]}>
     <div class="content-column">
-      {
-        breadcrumbs && breadcrumbs.length > 0 && (
-          <Breadcrumbs
-            breadcrumbs={breadcrumbs}
-            class="[&_a]:text-body-sm-standard"
-          >
-            <slot name="after-breadcrumbs" />
-          </Breadcrumbs>
-        )
-      }
+      {breadcrumbs && breadcrumbs.length > 0 && <Breadcrumbs
+        breadcrumbs={breadcrumbs}
+        class="[&_a]:text-body-sm-standard"
+      >
+        <slot name="after-breadcrumbs" />
+      </Breadcrumbs>}
 
       <h1 class="text-neutral-900 mb-2xl tablet:mb-3xl">
         {title}
       </h1>
 
-      {
-        description && (
-          <p class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line">
-            {description}
-          </p>
-        )
-      }
-      {
-        cta && resolvedCta && (
-          <LinkButton
-            href={resolvedCta.href}
-            variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
-            external={resolvedCta.external}
-            document={resolvedCta.document}
-            class="w-full tablet:w-auto"
-            linkText={cta.text}
-            umamiLabel="button_cta"
-            umamiBaseComponent="hero"
-          >
-            {cta.text}
-            <Icon name={resolvedCta.icon} slot="icon-right" />
-          </LinkButton>
-        )
-      }
+      {description && <p
+        class="text-h4 tablet:text-h4-md desktop:text-h4-lg font-normal mb-xl tablet:mb-lg whitespace-pre-line"
+      >
+        {description}
+      </p>}
+      {cta && resolvedCta && <LinkButton
+        href={resolvedCta.href}
+        variant={cta.style === 'secondary' ? 'secondary' : 'primary'}
+        external={resolvedCta.external}
+        document={resolvedCta.document}
+        class="w-full tablet:w-auto"
+        linkText={cta.text}
+        umamiLabel="button_cta"
+        umamiBaseComponent="hero"
+      >
+        {cta.text}
+        <Icon name={resolvedCta.icon} slot="icon-right" />
+      </LinkButton>}
     </div>
   </div>
 
   <!-- Parallax image: image is taller than the frame so we can pan as you scroll -->
-  {
-    (image || imageMobile) && (
-      <div
-        class:list={[
-          'parallax-wrapper relative w-full overflow-hidden bg-neutral-100',
-          bandClass
-        ]}
-        data-image-band={imageBand}
-      >
-        {imageMobile ? (
-          <>
-            <OptimizedImage
-              src={imageMobile}
-              alt={resolvedMobileAlt ?? ''}
-              width={768}
-              height={480}
-              loading="eager"
-              fetchpriority="high"
-              decoding="sync"
-              media={PAGE_HERO_MOBILE_MEDIA}
-              pictureClass={parallaxPictureClass}
-              class:list={[parallaxImgClass, 'block tablet:hidden']}
-              placeholder={imageMobileBlur ?? undefined}
-            />
-            <OptimizedImage
-              src={image || imageMobile!}
-              alt={imageAlt ?? ''}
-              width={1920}
-              height={940}
-              loading="eager"
-              fetchpriority="high"
-              decoding="sync"
-              media={PAGE_HERO_DESKTOP_MEDIA}
-              pictureClass={parallaxPictureClass}
-              class:list={[parallaxImgClass, 'hidden tablet:block']}
-              placeholder={(image ? imageBlur : imageMobileBlur) ?? undefined}
-            />
-          </>
-        ) : (
-          <OptimizedImage
-            src={image}
-            alt={imageAlt ?? ''}
-            width={1920}
-            height={940}
-            loading="eager"
-            fetchpriority="high"
-            decoding="sync"
-            pictureClass={parallaxPictureClass}
-            class={parallaxImgClass}
-            placeholder={imageBlur ?? undefined}
-          />
-        )}
-      </div>
-    )
-  }
+  {(image || imageMobile) && <div
+    class:list={[
+      'parallax-wrapper relative w-full overflow-hidden bg-neutral-100',
+      bandClass
+    ]}
+    data-image-band={imageBand}
+  >
+    {imageMobile ? (
+      <>
+        <OptimizedImage
+          src={imageMobile}
+          alt={resolvedMobileAlt ?? ''}
+          width={768}
+          height={480}
+          loading="eager"
+          fetchpriority="high"
+          decoding="sync"
+          media={PAGE_HERO_MOBILE_MEDIA}
+          pictureClass={parallaxPictureClass}
+          class:list={[parallaxImgClass, 'block tablet:hidden']}
+          placeholder={imageMobileBlur ?? undefined}
+        />
+        <OptimizedImage
+          src={image || imageMobile!}
+          alt={imageAlt ?? ''}
+          width={1920}
+          height={940}
+          loading="eager"
+          fetchpriority="high"
+          decoding="sync"
+          media={PAGE_HERO_DESKTOP_MEDIA}
+          pictureClass={parallaxPictureClass}
+          class:list={[parallaxImgClass, 'hidden tablet:block']}
+          placeholder={(image ? imageBlur : imageMobileBlur) ?? undefined}
+        />
+      </>
+    ) : (
+      <OptimizedImage
+        src={image}
+        alt={imageAlt ?? ''}
+        width={1920}
+        height={940}
+        loading="eager"
+        fetchpriority="high"
+        decoding="sync"
+        pictureClass={parallaxPictureClass}
+        class={parallaxImgClass}
+        placeholder={imageBlur ?? undefined}
+      />
+    )}
+  </div>}
 </div>
 
 <script>

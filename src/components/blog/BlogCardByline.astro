@@ -58,35 +58,33 @@ const authorWrapProps =
 ---
 
 <div class={bylineClasses}>
-  {
-    bio && (
-      <AuthorWrap {...authorWrapProps}>
-        {bio.image ? (
-          <OptimizedImage
-            src={bio.image}
-            alt=""
-            width={40}
-            height={40}
-            class="m-0 size-10 rounded-full object-cover"
-            pictureClass="shrink-0"
-            loading={featured ? 'eager' : 'lazy'}
-            fetchpriority={featured ? 'high' : 'auto'}
-          />
-        ) : (
-          <FallbackAuthorIcon svgClasses="w-[40px] h-[40px] rounded-full shrink-0" />
-        )}
-        <span
-          class={
-            authorLink
-              ? 'underline decoration-transparent transition-all duration-200 hover-hover:group-hover/author:decoration-inherit'
-              : undefined
-          }
-        >
-          {bio.author}
-        </span>
-      </AuthorWrap>
-    )
-  }
+  {bio && <AuthorWrap {...authorWrapProps}>
+    {bio.image ? (
+      <OptimizedImage
+        src={bio.image}
+        alt=""
+        width={40}
+        height={40}
+        class="m-0 size-10 rounded-full object-cover"
+        pictureClass="shrink-0"
+        loading={featured ? 'eager' : 'lazy'}
+        fetchpriority={featured ? 'high' : 'auto'}
+      />
+    ) : (
+      <FallbackAuthorIcon
+        svgClasses="w-[40px] h-[40px] rounded-full shrink-0"
+      />
+    )}
+    <span
+      class={
+        authorLink
+          ? 'underline decoration-transparent transition-all duration-200 hover-hover:group-hover/author:decoration-inherit'
+          : undefined
+      }
+    >
+      {bio.author}
+    </span>
+  </AuthorWrap>}
   <div class="flex gap-xl py-sm">
     <time datetime={date.toISOString()}>
       {formatDate(date, routeLocale)}

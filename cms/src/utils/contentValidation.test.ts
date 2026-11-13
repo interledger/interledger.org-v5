@@ -1040,9 +1040,69 @@ describe('validateBlogFields', () => {
   it('returns undefined for exactly 3 related articles, all with slugs', () => {
     expect(
       validateBlogFields({
-        relatedArticles: [{ slug: 'one' }, { slug: 'two' }, { slug: 'three' }]
+        featureMedia: { image: 12 },
+        relatedArticles: [
+          { slug: '/blog/one/' },
+          { slug: '/blog/two/' },
+          { slug: '/blog/three/' }
+        ]
       })
     ).toBeUndefined()
+  })
+
+  describe('feature image', () => {
+    const relatedArticles = [
+      { slug: '/blog/one/' },
+      { slug: '/blog/two/' },
+      { slug: '/blog/three/' }
+    ]
+
+    // The post from #805 was saved with no feature image at all.
+    it('flags a post with no feature image component', () => {
+      const err = validateBlogFields({ relatedArticles })
+      expect(err?.message).toBe('Feature Image (Desktop): Image is required')
+      expect(err?.details.errors[0].path).toEqual(['featureMedia'])
+    })
+
+    it('flags a feature image component with the image removed', () => {
+      const err = validateBlogFields({
+        featureMedia: { image: null, alternativeText: 'Alt' },
+        relatedArticles
+      })
+      expect(err?.message).toBe('Feature Image (Desktop): Image is required')
+      expect(err?.details.errors[0].path).toEqual(['featureMedia', 'image'])
+    })
+
+    it('accepts an upload ID (the sync sends one)', () => {
+      expect(
+        validateBlogFields({ featureMedia: { image: 7 }, relatedArticles })
+      ).toBeUndefined()
+    })
+
+    it('accepts an upload object (the admin sends one)', () => {
+      expect(
+        validateBlogFields({
+          featureMedia: { image: { id: 7, url: '/uploads/feature.jpg' } },
+          relatedArticles
+        })
+      ).toBeUndefined()
+    })
+
+    // Strapi also accepts a reference with only an id, e.g. in a PUT body.
+    it('accepts a reference with only an id', () => {
+      expect(
+        validateBlogFields({
+          featureMedia: { image: { id: 378 } },
+          relatedArticles
+        })
+      ).toBeUndefined()
+    })
+
+    it('does not require one on a legacy post', () => {
+      expect(
+        validateBlogFields({ legacy: true, relatedArticles })
+      ).toBeUndefined()
+    })
   })
 
   it('flags a bio missing an author with an index-aware path', () => {
@@ -1055,7 +1115,11 @@ describe('validateBlogFields', () => {
 
   it('flags a related article missing a slug with an index-aware path', () => {
     const err = validateBlogFields({
-      relatedArticles: [{ slug: 'valid' }, { slug: '' }, { slug: 'valid-2' }]
+      relatedArticles: [
+        { slug: '/blog/valid/' },
+        { slug: '' },
+        { slug: '/blog/valid-2/' }
+      ]
     })
     expect(err?.message).toBe('Related Articles: Slug is required')
     expect(err?.details.errors[0].path).toEqual([
@@ -1065,10 +1129,94 @@ describe('validateBlogFields', () => {
     ])
   })
 
+  // INTORG-1346: saved as is, these related articles vanished from the page.
+  it.each([
+    [
+      '/https://interledger.org/blog/call-papers-program/',
+      '/blog/call-papers-program/'
+    ],
+    [
+      'https://interledger.org/blog/call-papers-program/',
+      '/blog/call-papers-program/'
+    ],
+    ['/es/blog/call-papers-program/', '/blog/call-papers-program/'],
+    ['/grant/eoi-call-for-papers-reviewer/', '/blog/my-post/'],
+    [
+      'https://interledger.org/grant/eoi-call-for-papers-reviewer/',
+      '/blog/my-post/'
+    ],
+    ['/eoi-call-for-papers-reviewer/', '/blog/eoi-call-for-papers-reviewer/'],
+    ['/grant-slug', '/blog/grant-slug/'],
+    ['/my-post/', '/blog/my-post/'],
+    ['two', '/blog/two/']
+  ])('rejects %s and suggests %s', (slug, suggestion) => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug },
+        { slug: '/blog/three/' }
+      ]
+    })
+    expect(err?.message).toBe(
+      `Related Articles: should be a blog path, like ${suggestion}.`
+    )
+    expect(err?.details.errors[0].path).toEqual([
+      'relatedArticles',
+      '1',
+      'slug'
+    ])
+  })
+
+  it('treats a whitespace-only slug as missing', () => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug: '  ' },
+        { slug: '/blog/three/' }
+      ]
+    })
+    expect(err?.message).toBe('Related Articles: Slug is required')
+  })
+
+  it('reports every bad slug', () => {
+    const err = validateBlogFields({
+      featureMedia: { image: 12 },
+      relatedArticles: [
+        { slug: '/blog/one/' },
+        { slug: 'https://interledger.org/blog/two/' },
+        { slug: '/grant/three/' }
+      ]
+    })
+    expect(err?.details.errors.map((e) => e.path)).toEqual([
+      ['relatedArticles', '1', 'slug'],
+      ['relatedArticles', '2', 'slug']
+    ])
+  })
+
+  it('accepts a /blog/{slug}/ path with or without its trailing slash', () => {
+    expect(
+      validateBlogFields({
+        featureMedia: { image: 12 },
+        relatedArticles: [
+          { slug: '/blog/one/' },
+          { slug: '/blog/two' },
+          { slug: '/blog/what-is-web3.0/' }
+        ]
+      })
+    ).toBeUndefined()
+  })
+
   it('reports a missing bio author and a missing related-article slug together', () => {
     const err = validateBlogFields({
+      featureMedia: { image: 12 },
       articleBio: [{ author: null }],
-      relatedArticles: [{ slug: '' }, { slug: 'two' }, { slug: 'three' }]
+      relatedArticles: [
+        { slug: '' },
+        { slug: '/blog/two/' },
+        { slug: '/blog/three/' }
+      ]
     })
     expect(err?.details.errors.map((e) => e.path)).toEqual([
       ['articleBio', '0', 'author'],

@@ -4,7 +4,11 @@ import * as path from 'path'
 import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
+  findUndeletableUploads,
+  REPO_IMAGE_URL_PREFIX,
+  resolveDeletableUploadPath,
   scheduleGitSync,
+  UPLOAD_URL_PREFIX,
   validateGitSyncRepoOnStartup,
   validateNoNestedJsx,
   validateReportDate,
@@ -16,7 +20,12 @@ import {
   validateGrantPageFaqSection,
   validateFaqSections,
   validateSectionScopedSlug,
+  validateUniqueSlug,
+  validateSlugFreeInOtherCollection,
   type SectionScopedSlugFinder,
+  patchUidServiceForSlashedSlugs,
+  type UidDocuments,
+  type UidService,
   validateAndSaveRedirect,
   redirectDeleteError,
   isCodeSyncRequest,
@@ -34,12 +43,14 @@ import {
   LOCALES,
   shouldSkipMdxExport,
   extractBearerToken,
+  CONTENT_API_TOKEN_SERVICE,
   isFullAccessApiToken,
   SERVER_STATUS_PATH,
   DEV_BUILD_ID,
   createServerStatusHandler,
   readAdminBuildId,
-  resolveAdminIndexHtmlPath
+  resolveAdminIndexHtmlPath,
+  type GetModel
 } from './utils'
 import {
   validateContentBlocks,
@@ -207,6 +218,49 @@ export function registerAsyncDocumentValidation(
   })
 }
 
+/** Content types that share the /grant/ URL tree: [uid, other uid, other label]. */
+const GRANT_SLUG_SIBLINGS = [
+  [
+    'api::grant-page.grant-page',
+    'api::grant-overview-page.grant-overview-page',
+    'Grant Overview Page'
+  ],
+  [
+    'api::grant-overview-page.grant-overview-page',
+    'api::grant-page.grant-page',
+    'Grant Page'
+  ]
+] as const
+
+/**
+ * Grant pages and grant overview pages share the /grant/ URL tree, so a slug
+ * must be free in the other collection too.
+ *
+ * Skipped for the MDX sync: the files in git are the source of truth there,
+ * and a commit that moves a slug from one collection to the other would be
+ * rejected halfway when the sync saves the new owner before the old one.
+ */
+export function registerGrantSlugSiblingValidation(
+  strapi: {
+    documents: ((uid: string) => unknown) & {
+      use: (middleware: DocumentValidationMiddleware) => void
+    }
+  },
+  isSyncRequest: () => boolean = isCodeSyncRequest
+) {
+  for (const [uid, otherUid, otherLabel] of GRANT_SLUG_SIBLINGS) {
+    registerAsyncDocumentValidation(strapi, uid, async ({ data, locale }) => {
+      if (isSyncRequest()) return undefined
+      return validateSlugFreeInOtherCollection({
+        otherDocuments: strapi.documents(otherUid) as SectionScopedSlugFinder,
+        otherLabel,
+        data,
+        locale
+      })
+    })
+  }
+}
+
 const REDIRECT_UID = 'api::redirect.redirect'
 
 /**
@@ -219,6 +273,18 @@ const SECTION_SCOPED_SLUG_UIDS = [
   'api::faq.faq',
   'api::profile-page.profile-page',
   'api::report.report'
+] as const
+
+/** Content types whose `pathSlug` is `unique: true` across the collection. */
+const UNIQUE_SLUG_UIDS = [
+  'api::foundation-page.foundation-page',
+  'api::fundraising-page.fundraising-page',
+  'api::summit-page.summit-page',
+  'api::hackathon-page.hackathon-page',
+  'api::grant-page.grant-page',
+  'api::grant-overview-page.grant-overview-page',
+  'api::podcast-page.podcast-page',
+  'api::foundation-blog-post.foundation-blog-post'
 ] as const
 
 // Strapi instance type for lifecycle functions
@@ -293,6 +359,8 @@ interface UploadProvider {
   uploadStream: (file: UploadFile) => Promise<void>
   delete: (file: UploadFile) => Promise<void>
   checkFileSize: (file: UploadFile, options?: unknown) => Promise<void>
+  replace?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
+  replaceStream?: (newFile: UploadFile, oldFile: UploadFile) => Promise<void>
 }
 
 export interface UploadFile {
@@ -324,6 +392,9 @@ interface StrapiPlugin {
     | CmComponentsService
     | UploadService
     | ImageManipulationService
+    | UidService
+    | UploadFileService
+    | UploadFolderService
     | undefined
   provider?: UploadProvider
 }
@@ -352,6 +423,9 @@ interface DbQueryApi {
     data: Omit<UploadFileRecord, 'id'>
   }) => Promise<UploadFileRecord>
   count: (params: { where: Record<string, unknown> }) => Promise<number>
+  findMany: (params: {
+    where: Record<string, unknown>
+  }) => Promise<UploadFileRecord[]>
 }
 interface KoaContext {
   request: { headers: Record<string, string | string[] | undefined> }
@@ -365,6 +439,7 @@ interface StrapiInstance {
     use: (middleware: DocumentValidationMiddleware) => void
   }
   log: StrapiLogger
+  getModel: GetModel
   dirs: { static: { public: string } }
   db?: {
     lifecycles?: {
@@ -489,8 +564,8 @@ async function ensureLocales(strapi: StrapiInstance) {
 }
 
 // ── Upload overrides ──────────────────────────────────────────────────────────
-const UPLOAD_SUBDIR = 'img/original'
-const UPLOAD_URL_PREFIX = `/uploads/${UPLOAD_SUBDIR}`
+/** `uploads/img/original`: where the provider writes, relative to `public/`. */
+const UPLOAD_DIR_IN_PUBLIC = UPLOAD_URL_PREFIX.slice(1)
 
 /**
  * Strapi normalizes `file.size` to kilobytes (`bytesToKbytes` in @strapi/utils,
@@ -612,7 +687,7 @@ function createImageSizeLimitTransform(label: string): Transform {
  * Redirect the local upload provider so files land in
  * `public/uploads/img/original/` and URLs reflect the new path.
  */
-function overrideUploadProvider(strapi: StrapiInstance): void {
+export function overrideUploadProvider(strapi: StrapiInstance): void {
   const uploadPlugin = strapi.plugin('upload')
   if (!uploadPlugin?.provider) {
     strapi.log.warn('⚠️  Upload plugin provider not found — skipping override')
@@ -620,7 +695,7 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
   }
 
   const publicDir = strapi.dirs.static.public
-  const uploadPath = path.join(publicDir, 'uploads', UPLOAD_SUBDIR)
+  const uploadPath = path.join(publicDir, UPLOAD_DIR_IN_PUBLIC)
   if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true })
   }
@@ -664,22 +739,89 @@ function overrideUploadProvider(strapi: StrapiInstance): void {
     file.url = `${UPLOAD_URL_PREFIX}/${file.hash}${file.ext}`
   }
 
+  // The local provider has its own replace methods since Strapi 5.57. They
+  // write to `public/uploads/`, not to `uploadPath`, and skip the streaming
+  // byte check and the check after write above (Strapi still calls
+  // checkFileSize first). Without them, Strapi replaces a file with `delete`
+  // and then `upload`.
+  delete provider.replace
+  delete provider.replaceStream
+
+  // Strapi calls delete before it touches the database, so refusing here
+  // aborts a single delete or a replace with nothing changed. Batches are
+  // checked up front in `guardBatchUploadDeletes`. Both throw `PolicyError`:
+  // Strapi's authorize middleware answers any other `ForbiddenError` with a
+  // bare "Forbidden", so the editor would never see why.
   provider.delete = async (file: UploadFile) => {
-    const candidates = [
-      path.join(uploadPath, `${file.hash}${file.ext}`),
-      ...(file.url ? [path.join(publicDir, file.url)] : [])
-    ]
-    for (const dest of candidates) {
-      if (fs.existsSync(dest)) {
-        fs.unlinkSync(dest)
-        return
-      }
-    }
+    const target = resolveDeletableUploadPath(uploadPath, file)
+    if (target instanceof Error) throw new errors.PolicyError(target.message)
+    if (target && fs.existsSync(target)) fs.unlinkSync(target)
   }
 
   strapi.log.info(
     `✅ Upload provider redirected to ${uploadPath} (${MAX_IMAGE_SIZE_LABEL} limit enforced)`
   )
+}
+
+type DeleteFileValidator = (files: UploadFileRecord[]) => Promise<void>
+
+interface UploadFileService {
+  deleteByIds: (ids?: number[]) => Promise<UploadFileRecord[]>
+}
+
+interface UploadFolderService {
+  deleteByIds: (
+    ids?: number[],
+    options?: { validateFiles?: DeleteFileValidator }
+  ) => Promise<unknown>
+}
+
+/**
+ * Refuses a bulk or folder delete that includes a repo image before any file
+ * in it is removed. Strapi removes a batch with one `Promise.all`, so the
+ * refusal in `provider.delete` alone still lets every other file go.
+ *
+ * Not covered: one bulk request that selects both a folder and a repo image.
+ * Strapi deletes the folder before it reads the selected files. The repo
+ * image still stays, so the checkout stays clean.
+ */
+export function guardBatchUploadDeletes(strapi: StrapiInstance): void {
+  const uploadPlugin = strapi.plugin('upload')
+  const fileService = uploadPlugin?.service('file') as
+    UploadFileService | undefined
+  const folderService = uploadPlugin?.service('folder') as
+    UploadFolderService | undefined
+  if (!fileService?.deleteByIds || !folderService?.deleteByIds) {
+    strapi.log.warn(
+      '⚠️  Upload file/folder services not found — batch delete guard skipped'
+    )
+    return
+  }
+
+  const uploadPath = path.join(strapi.dirs.static.public, UPLOAD_DIR_IN_PUBLIC)
+  const assertDeletable = (files: UploadFileRecord[]): void => {
+    const refused = findUndeletableUploads(uploadPath, files)
+    if (refused) throw new errors.PolicyError(refused.message)
+  }
+
+  const deleteFiles = fileService.deleteByIds.bind(fileService)
+  fileService.deleteByIds = async (ids = []) => {
+    const files = await strapi.db?.query('plugin::upload.file').findMany({
+      where: { id: { $in: ids } }
+    })
+    assertDeletable(files ?? [])
+    return deleteFiles(ids)
+  }
+
+  const deleteFolders = folderService.deleteByIds.bind(folderService)
+  folderService.deleteByIds = (ids = [], options = {}) =>
+    deleteFolders(ids, {
+      ...options,
+      async validateFiles(files) {
+        assertDeletable(files)
+        await options.validateFiles?.(files)
+      }
+    })
 }
 
 /**
@@ -691,8 +833,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   if (!uploadPlugin) return
 
   const uploadService = uploadPlugin.service('upload') as
-    | UploadService
-    | undefined
+    UploadService | undefined
   if (uploadService) {
     await uploadService.setSettings({
       responsiveDimensions: false,
@@ -704,8 +845,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
   }
 
   const imgService = uploadPlugin.service('image-manipulation') as
-    | ImageManipulationService
-    | undefined
+    ImageManipulationService | undefined
   if (imgService) {
     imgService.generateThumbnail = async () => null
     imgService.generateResponsiveFormats = async () => []
@@ -720,10 +860,12 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
  * Each entry maps a disk path (relative to public/) to the URL prefix it's
  * served at. Files found on disk but missing from Strapi's `upload_file`
  * table are inserted so MDX references remain valid after a fresh database.
+ * `/img` records are read-only: `provider.delete` refuses them, because git
+ * sync never stages `public/img` (see `resolveDeletableUploadPath`).
  */
 const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
-  { dir: `uploads/${UPLOAD_SUBDIR}`, urlPrefix: `/uploads/${UPLOAD_SUBDIR}` },
-  { dir: 'img', urlPrefix: '/img' }
+  { dir: UPLOAD_DIR_IN_PUBLIC, urlPrefix: UPLOAD_URL_PREFIX },
+  { dir: REPO_IMAGE_URL_PREFIX.slice(1), urlPrefix: REPO_IMAGE_URL_PREFIX }
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
@@ -814,7 +956,7 @@ async function ensureCiApiToken(strapi: StrapiInstance): Promise<void> {
   if (!outputPath) return
 
   const tokenService = strapi.service(
-    'admin::api-token'
+    CONTENT_API_TOKEN_SERVICE
   ) as AdminApiTokenService
 
   const existing = await tokenService.getByName(CI_API_TOKEN_NAME)
@@ -870,6 +1012,7 @@ function collectMediaPaths(dir: string): string[] {
 async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
+      draft: 'Draft',
       name: 'Name',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -881,6 +1024,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Biography'
     },
     'api::foundation-blog-post.foundation-blog-post': {
+      draft: 'Draft',
       title: 'Title',
       description: 'Short Description',
       pathSlug: 'Path Slug',
@@ -897,6 +1041,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language'
     },
     'api::foundation-page.foundation-page': {
+      draft: 'Draft',
+      title: 'Page Title',
+      pathSlug: 'Path Slug',
+      description: 'Short Description',
+      hero: 'Hero',
+      content: 'Page Content'
+    },
+    'api::fundraising-page.fundraising-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -904,6 +1057,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Page Content'
     },
     'api::summit-page.summit-page': {
+      draft: 'Draft',
       title: 'Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -911,6 +1065,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content'
     },
     'api::hackathon-page.hackathon-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -930,6 +1085,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaButton: 'CTA Button'
     },
     'api::grant-page.grant-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -942,6 +1098,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -951,6 +1108,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       followUpContent: 'Follow-up Content'
     },
     'api::faq.faq': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -960,6 +1118,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       faqSections: 'FAQ Sections'
     },
     'api::report.report': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -982,6 +1141,18 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
+  // Each pathSlug hint reads: format, the type's own example, Spanish rule.
+  // The podcast page's slug is fixed, so its hint skips the format note.
+  const PATH_SLUG_FORMAT_NOTE =
+    'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
+  // Spanish pages are served at /es/<english path slug> (ADR-004), so a
+  // translated slug breaks every /es/ link that follows that rule.
+  const SPANISH_PATH_SLUG_NOTE =
+    'On the Spanish entry, use exactly the same path slug as the English one. Don’t translate it and don’t add /es/: that is added automatically.'
+  // `section` is not localized in the FAQ, Report and Profile schemas.
+  const SECTION_DESCRIPTION =
+    'Site section for routing and breadcrumbs. Use foundation for a page at the site root or under a full pathSlug; summit or hackathon for a page under that microsite prefix. Shared by both languages: changing it on one changes the other.'
+
   const contentTypeDescriptions: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
       tagline:
@@ -990,60 +1161,62 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Groups related profiles so a Profile Grid can list everyone who shares this label (e.g. "Past Fellows", "2025 Hackathon Judges").',
       media:
         'The photo is cropped to a circle on the site — upload an image that works in that shape, with the face centred and clear of the edges.',
-      pathSlug:
-        'Path relative to the chosen Section, no leading slash, e.g. 2025/judges/jane-doe. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. Example: /2025/judges/jane-doe/. ${SPANISH_PATH_SLUG_NOTE}`,
       role: "Job title or role shown under the profile name on the profile page (e.g. 'Open Web Advocate & Open Source Contributor').",
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for profiles at the site root or under a full pathSlug (e.g. grant/fellowship/jane-doe); summit or hackathon when the profile lives under that microsite prefix.',
+      section: SECTION_DESCRIPTION,
       description:
         'Short intro blurb shown on the profile page, above the biography sections. Also used for SEO.'
     },
     'api::foundation-page.foundation-page': {
       title:
         'Enter only the page name, e.g. "Our Grantmaking" — not "Interledger Foundation | Our Grantmaking". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the site root (/). Example: about-us → /about-us; no leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /about-us/. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
+    },
+    'api::fundraising-page.fundraising-page': {
+      title:
+        'Enter only the page name, e.g. "Donate" — not "Interledger Foundation | Donate". The "Interledger Foundation |" part is added automatically in the browser tab.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /get-involved/donate/. ${SPANISH_PATH_SLUG_NOTE}`,
+      description:
+        'Short description used for SEO. Aim for 120–160 characters.',
+      // A dynamic-zone hint stays hidden until a block is added, then Strapi
+      // clips it to one line. The same note is on the Donation Cards component.
+      content: ''
     },
     'api::summit-page.summit-page': {
       title:
         'Enter only the page name, e.g. "Schedule" — not "Interledger Summit | Schedule". The "Interledger Summit |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to /summit/. Example: faq → /summit/faq. Do not include /summit/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /faq/ → /summit/faq/. Do not include /summit. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::hackathon-page.hackathon-page': {
       title:
         'Enter only the page name, e.g. "Rules" — not "Open Payment Hackathons | Rules". The "Open Payment Hackathons |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to /hackathon/. Example: overview → /hackathon/overview. Do not include /hackathon/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /overview/ → /hackathon/overview/. Do not include /hackathon. ${SPANISH_PATH_SLUG_NOTE}`,
       description: 'Short description used for SEO. Aim for 120–160 characters.'
     },
     'api::grant-page.grant-page': {
       title:
         'Enter only the page name, e.g. "On-Campus Education" — not "Interledger Foundation | On-Campus Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to /grant/. Example: education/on-campus → /grant/education/on-campus. No leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/on-campus/ → /grant/education/on-campus/. Do not include /grant. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::grant-overview-page.grant-overview-page': {
       title:
         'Enter only the page name, e.g. "Education" — not "Interledger Foundation | Education". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to /grant/. Example: education → /grant/education. No leading slash. Must not clash with any Grant Page slug. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /education/ → /grant/education/. Do not include /grant. Must not clash with any Grant Page slug. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.'
     },
     'api::podcast-page.podcast-page': {
       title:
         'Enter only the page name, e.g. "Future Money" — not "Interledger Foundation | Future Money". The "Interledger Foundation |" part is added automatically in the browser tab.',
-      pathSlug:
-        'Path must be set to "podcast". We only render one page with slug "podcast", at /podcast. Other slugs will not be built. If you need changes contact the frontend dev team.',
+      pathSlug: `Path must be set to "/podcast/". We only render one page with that slug, at /podcast/. Other slugs will not be built. If you need changes contact the frontend dev team. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
-        'Optional paragraph shown below the hero, above the title cards. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
+        'Optional paragraph shown below the hero, above the title cards. Put the heading that titles the cards in Title Cards → Intro, not here. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
       titleCards:
         'List every featured podcast series shown at the top of the page.',
       podcasts:
@@ -1052,8 +1225,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to /blog/. Example: my-article-title → /blog/my-article-title. Do not include /blog/ or a leading slash. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -1065,15 +1237,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Optional mobile feature image. Dimensions: 358 x 240. Falls back to the desktop image when empty. Set alternative text on this media file when the mobile crop or content differs from desktop.',
       thumbnailMedia: 'Optional listing thumbnail. Dimensions: 240 x 140.',
       relatedArticles:
-        'Add exactly 3 slugs of related blog posts to display in the "You may also like" section. Enter the slug only (e.g. my-related-post), not the full URL.'
+        'Add exactly 3 related blog posts to display in the "You may also like" section. Enter each post’s path as /blog/{slug}/ (e.g. /blog/my-related-post/). A bare slug, a path from another section, or a full URL is rejected.'
     },
     'api::faq.faq': {
       title:
         'Enter only the page name, e.g. "Frequently Asked Questions" — not "Interledger Foundation | Frequently Asked Questions". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. grant/education/on-campus/faq). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for FAQs at the site root or under a full pathSlug; summit or hackathon when the FAQ lives under that microsite prefix.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /grant/education/on-campus/faq/. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
@@ -1089,16 +1259,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::report.report': {
       title:
         'Enter only the page name, e.g. "Annual Report 2025" — not "Interledger Foundation | Annual Report 2025". The site name for the chosen Section (Interledger Foundation, Interledger Summit, or Open Payment Hackathons) is added automatically in the browser tab.',
-      pathSlug:
-        'Path relative to the chosen Section, no leading slash. For section: foundation this is the full path from the site root (e.g. policy-and-advocacy/role-stablecoins-...). For summit or hackathon, leave off the summit/ or hackathon/ prefix. For the Spanish entry, do not prefix with es/ — it’s added automatically.',
-      section:
-        'Site section for routing and breadcrumbs. Use foundation for reports at the site root or under a full pathSlug; summit or hackathon when the report lives under that microsite prefix.',
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Relative to the chosen Section. For section: foundation this is the full path from the site root. Example: /policy-and-advocacy/role-stablecoins-.../. For summit or hackathon, leave off the /summit or /hackathon prefix. ${SPANISH_PATH_SLUG_NOTE}`,
+      section: SECTION_DESCRIPTION,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       heading:
         'The heading shown at the top of the report page. Can differ from the Page Title.',
       introParagraph:
-        'Optional intro paragraph shown below the heading and dates.',
+        'Optional intro shown below the heading and dates. Supports images, tables and lists. Headings here do not appear in the section navigation.',
       date: 'Optional. Add this component to show a Publish Date (required once added) and an optional Last Updated date.'
     }
   }
@@ -1131,11 +1299,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profile: 'Profile'
     },
     'blocks.profile-grid': {
-      heading: 'Heading',
+      intro: 'Intro',
       category: 'Category',
       profiles: 'Profiles'
     },
     'blocks.blockquote': {
+      intro: 'Intro',
       quote: 'Quote',
       source: 'Source'
     },
@@ -1146,6 +1315,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       series: 'Series'
     },
     'blocks.quote': {
+      intro: 'Intro',
       quote: 'Quote',
       authorName: 'Author Name',
       authorImage: 'Author Image',
@@ -1153,6 +1323,14 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.callout-text': {
       content: 'Content'
+    },
+    'blocks.pdf-embed': {
+      intro: 'Intro'
+    },
+    'shared.block-intro': {
+      heading: 'Heading',
+      subheading: 'Subheading',
+      description: 'Description'
     },
     'shared.cta-link': {
       link: 'Link',
@@ -1175,6 +1353,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.cta-buttons': {
+      intro: 'Intro',
       buttons: 'Buttons'
     },
     'shared.secondary-cta-link': {
@@ -1184,7 +1363,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.card-grid': {
-      title: 'Title',
+      intro: 'Intro',
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
@@ -1236,7 +1415,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       items: 'Questions'
     },
     'blocks.faq': {
-      heading: 'Heading',
+      intro: 'Intro',
       items: 'Questions'
     },
     'blocks.faq-item': {
@@ -1256,7 +1435,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       imageAlt: 'Image alternative text'
     },
     'blocks.carousel': {
-      heading: 'Section Heading',
+      intro: 'Intro',
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
@@ -1265,7 +1444,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       alternativeText: 'Alternative Text'
     },
     'blocks.number-tiles': {
-      title: 'Title (optional)',
+      intro: 'Intro',
       tiles: 'Tiles'
     },
     'blocks.number-tile': {
@@ -1275,7 +1454,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description'
     },
     'blocks.agenda': {
-      heading: 'Heading (optional)',
+      intro: 'Intro',
+      heading: 'Day heading (optional)',
       items: 'Agenda items (minimum 2)'
     },
     'blocks.agenda-item': {
@@ -1284,7 +1464,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       additionalInfo: 'Additional information (optional)'
     },
     'blocks.event-card': {
-      title: 'Title',
+      intro: 'Intro',
       when: 'When',
       where: 'Where',
       apply: 'Apply'
@@ -1307,8 +1487,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
+      intro: 'Intro',
       color: 'Color',
-      heading: 'Heading',
+      heading: 'CTA strip title',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
       primaryButtonLink: 'Primary Button URL',
@@ -1332,6 +1513,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       url: 'Profile URL'
     },
     'blocks.image-block': {
+      intro: 'Intro',
       media: 'Image',
       tabletImage: 'Tablet image variant (optional)',
       mobileImage: 'Mobile image variant (optional)',
@@ -1348,6 +1530,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Title (optional)'
     },
     'blocks.video-embed': {
+      intro: 'Intro',
       source: 'Source',
       externalUrl: 'Video URL',
       file: 'Video file',
@@ -1355,6 +1538,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       poster: 'Cover image'
     },
     'blocks.split-layout': {
+      intro: 'Intro',
+      buttons: 'Buttons',
       layoutType: 'Layout',
       imagePosition: 'Image position',
       displayRatio: 'Display ratio',
@@ -1364,10 +1549,16 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       // become ambiguous if this wrapper field used the same text.
       media: 'Media',
       videoUrl: 'Video URL',
+      videoTitle: 'Video title',
       content: 'Content',
       quote: 'Quote',
-      quoteSource: 'Quote Attribution',
-      cta: 'Call-to-action Button'
+      quoteSource: 'Quote Attribution'
+    },
+    'blocks.title-card-grid': {
+      intro: 'Intro',
+      titleCards: 'Title Cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessible label'
     },
     'blocks.title-card': {
       heading: 'Heading',
@@ -1381,8 +1572,49 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.related-article': {
       slug: 'Related Post Slug'
+    },
+    'blocks.donation-cards': {
+      ariaLabel: 'Accessible label for the row',
+      cards: 'Cards'
+    },
+    'blocks.donation-card': {
+      heading: 'Heading',
+      amount: 'Gift size',
+      summary: 'Summary',
+      seats: 'Seats line',
+      benefitsLabel: 'Benefits label',
+      benefits: 'Benefits',
+      ctaText: 'Button text',
+      ctaLink: 'Button link',
+      ctaExternal: 'Opens in a new tab',
+      ctaDocument: 'Link is a document'
+    },
+    'blocks.timeline': {
+      sections: 'Sections'
+    },
+    'blocks.timeline-section': {
+      heading: 'Section heading',
+      subheading: 'Section subheading',
+      description: 'Section description',
+      events: 'Events'
+    },
+    'blocks.timeline-event': {
+      date: 'Date',
+      description: 'Description',
+      tag: 'Tag'
     }
   }
+
+  // Shared helper text for the block intro (ADR-009).
+  const BLOCK_INTRO_DESCRIPTION =
+    'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.'
+  // Nothing adds /es/ to links on a Spanish page, so editors type it.
+  const LINK_FIELD_DESCRIPTION =
+    'For a page on this site, use its path, starting and ending with a slash (e.g. /about-us/). For another site, use a full URL (https://...). On the Spanish entry, add /es/ in front of a page path only (e.g. /es/about-us/). For a document, link its Spanish version if there is one.'
+  const EXTERNAL_FLAG_DESCRIPTION =
+    'Opens in a new tab. Check it when the link is a full URL (https://...). Cannot be combined with Document Download.'
+  const DOCUMENT_FLAG_DESCRIPTION =
+    'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
 
   const componentDescriptions: Record<string, Record<string, string>> = {
     'shared.category': {
@@ -1400,7 +1632,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profileBio: 'We recommend a max of 255 characters'
     },
     'shared.related-article': {
-      slug: 'Add exactly 3. Enter the slug of the related post - the segment after /blog/, not the full URL (e.g. my-related-post). No leading slash'
+      slug: 'Add exactly 3. Enter the blog post path, starting with /blog/ and ending with a slash (e.g. /blog/my-related-post/). A full URL, a path from another section (e.g. /grant/...), or a slug without /blog/ is rejected. A missing trailing slash is added when you save. On a Spanish post, use the English slug, without /es/.'
     },
     'blocks.profile-grid': {
       category: 'Option A: show profiles by category (leave profiles empty)',
@@ -1459,10 +1691,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading:
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
-    'blocks.faq': {
-      heading:
-        'Optional. Shown above the questions. Leave blank to run the questions straight on from the content above. At least 1 question is required below.'
-    },
     'blocks.faq-item': {
       question: 'Required.',
       answer: 'Required.'
@@ -1477,9 +1705,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
       displayRatio:
-        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
+        'Content-to-media width. 3:2 (default) is the current design: 60/40 with a 4:3 image. 2:1 wider content; 1:1 equal columns; 1:2 wider media.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
+      videoTitle:
+        'Accessible name for the video player. Independent of the poster image alt, so a video with no poster still has a title.',
       quote:
         'Quote text. When set, renders as a blockquote instead of the Content field.',
       quoteSource: 'Attribution shown below the quote (e.g. "Jane Doe, CEO").',
@@ -1487,55 +1717,55 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Rich text for the content column. Leave empty when using a Quote.'
     },
     'blocks.title-card-grid': {
+      intro:
+        'Optional heading, subheading and description above the cards. On the podcast page it titles the featured series.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
     'shared.secondary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.cta-button': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grants/apply). Only use a full URL (https://...) when External Link is checked.',
+      link: LINK_FIELD_DESCRIPTION,
       style:
         'Primary is the filled button, Secondary is the outlined one. With two buttons you can use one Primary and one Secondary, or two Secondary, and the Primary must come first.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'blocks.cta-buttons': {
       buttons:
         'One button, or two side by side. On mobile they stack and both go full width.'
     },
+    'shared.block-intro': {
+      heading: 'Optional. The block title, shown as an H2.',
+      subheading: 'Optional. Shown as an H3 under the heading, or on its own.',
+      description:
+        'Optional. Short text under the heading; links and bold allowed.'
+    },
     'shared.cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'shared.primary-cta-link': {
-      link: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). Only use a full URL (http:// or https://...) when External Link is checked.',
-      document:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      external: 'Opens in a new tab. Cannot be combined with Document Download.'
+      link: LINK_FIELD_DESCRIPTION,
+      document: DOCUMENT_FLAG_DESCRIPTION,
+      external: EXTERNAL_FLAG_DESCRIPTION
     },
     'navigation.menu-item': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+      href: LINK_FIELD_DESCRIPTION
     },
     'navigation.menu-group': {
-      href: 'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+      href: LINK_FIELD_DESCRIPTION
     },
     'blocks.grant-faq-section': {
-      ctaLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
-      ctaExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      ctaDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      ctaLink: LINK_FIELD_DESCRIPTION,
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.card-grid': {
-      title: 'Optional. Shown above the cards as a heading.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -1573,7 +1803,6 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
-      title: 'Optional heading shown above the When / Where / Apply columns.',
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
       apply:
@@ -1596,25 +1825,23 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     },
+    // `intro` is a component field, so Strapi shows no hint for it: it sits
+    // above the strip in page blocks and is unused on grant, grant overview
+    // and podcast pages.
     'blocks.cta-strip': {
+      heading: 'Optional. Shown inside the strip, above the description.',
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
-      primaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
-      primaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      primaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.',
-      secondaryButtonLink:
-        'For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.',
-      secondaryButtonExternal:
-        'Opens in a new tab. Cannot be combined with Document Download.',
-      secondaryButtonDocument:
-        'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
+      primaryButtonLink: LINK_FIELD_DESCRIPTION,
+      primaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      primaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION,
+      secondaryButtonLink: LINK_FIELD_DESCRIPTION,
+      secondaryButtonExternal: EXTERNAL_FLAG_DESCRIPTION,
+      secondaryButtonDocument: DOCUMENT_FLAG_DESCRIPTION
     },
     'blocks.quote': {
-      authorLink:
-        'Optional. For a page on this site, start with a forward slash (e.g. /grant/our-grantmaking). For an external site, use a full URL starting with http:// or https://.'
+      intro: BLOCK_INTRO_DESCRIPTION,
+      authorLink: `Optional. ${LINK_FIELD_DESCRIPTION}`
     },
     // Strapi renders a description for a scalar field only. `logo`,
     // `socialLinks` and `cta` are components, so a description on them never
@@ -1630,6 +1857,32 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'shared.social-link': {
       url: 'Full profile URL, starting with https://. The icon follows from the address: LinkedIn, Instagram, X, Mastodon, YouTube, GitHub and Slack are recognized. Any other address gets a plain link icon.'
+    },
+    'blocks.donation-cards': {
+      ariaLabel:
+        'Required. Describes the row for screen readers, e.g. "Founding Circle membership tiers". Not shown on the page.'
+    },
+    'blocks.donation-card': {
+      amount: 'Required. The gift size, e.g. "$10/month or $100 annually".',
+      seats:
+        'Optional. Static copy, e.g. "50 of 50 seats available" — Fundraise Up does not report a live seat count, so this needs editing as seats fill.',
+      benefitsLabel: 'Optional. Defaults to "Benefits".',
+      ctaLink: `Required. For a Fundraise Up donate button, use the Element ID from the Fundraise Up dashboard prefixed with # (e.g. #XVSHSPQU). ${LINK_FIELD_DESCRIPTION}`,
+      ctaExternal: EXTERNAL_FLAG_DESCRIPTION,
+      ctaDocument: DOCUMENT_FLAG_DESCRIPTION
+    },
+    'blocks.timeline': {
+      sections:
+        'Required, at least one. Each section groups the events of one chapter. Its heading, subheading and description stay on screen while the reader scrolls through its events. Colours follow a fixed sequence and cannot be chosen.'
+    },
+    'blocks.timeline-section': {
+      events:
+        'Required, at least one. Listed in the order they appear; the timeline does not sort by date.'
+    },
+    'blocks.timeline-event': {
+      date: 'Required. Shown as typed, e.g. "Oct 2015", "2015-2017" or "today".',
+      description: 'Required. Explain what event took place.',
+      tag: 'Required. Just one or two words, e.g. "Standards / Protocol".'
     }
   }
 
@@ -1683,11 +1936,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   if (!plugin) return
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   if (!contentTypeService || !componentService) return
 
@@ -1749,6 +2000,7 @@ async function configureLayouts(strapi: StrapiInstance) {
   const plugin = strapi.plugin('content-manager')
   if (!plugin) return
 
+  // `draft` is deliberately absent: DraftCheckbox renders it in the Entry panel.
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::foundation-blog-post.foundation-blog-post': [
       [{ name: 'title', size: 12 }],
@@ -1800,6 +2052,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'content', size: 12 }]
     ],
     'api::foundation-page.foundation-page': [
+      [{ name: 'title', size: 12 }],
+      [{ name: 'pathSlug', size: 12 }],
+      [{ name: 'description', size: 12 }],
+      [{ name: 'hero', size: 12 }],
+      [{ name: 'content', size: 12 }]
+    ],
+    'api::fundraising-page.fundraising-page': [
       [{ name: 'title', size: 12 }],
       [{ name: 'pathSlug', size: 12 }],
       [{ name: 'description', size: 12 }],
@@ -1893,7 +2152,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'shared.related-article': [[{ name: 'slug', size: 8 }]],
     'blocks.profile-grid': [
-      [{ name: 'heading', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
     ],
@@ -1906,7 +2165,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }]
     ],
     'blocks.carousel': [
-      [{ name: 'heading', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
     ],
@@ -1914,8 +2173,12 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'image', size: 6 }],
       [{ name: 'alternativeText', size: 6 }]
     ],
+    'blocks.faq': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
     'blocks.number-tiles': [
-      [{ name: 'title', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [{ name: 'tiles', size: 12 }]
     ],
     'blocks.number-tile': [
@@ -1927,6 +2190,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }]
     ],
     'blocks.agenda': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'heading', size: 12 }],
       [{ name: 'items', size: 12 }]
     ],
@@ -1938,7 +2202,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'additionalInfo', size: 12 }]
     ],
     'blocks.event-card': [
-      [{ name: 'title', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [{ name: 'when', size: 12 }],
       [{ name: 'where', size: 12 }],
       [{ name: 'apply', size: 12 }]
@@ -1961,7 +2225,25 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
     ],
+    // Listed only to put the intro first; every other field keeps
+    // Strapi's order. Add new fields here too (see the note above).
+    'blocks.video-embed': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'source', size: 12 }],
+      [{ name: 'externalUrl', size: 12 }],
+      [{ name: 'file', size: 12 }],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'poster', size: 12 }]
+    ],
+    'blocks.pdf-embed': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'source', size: 12 }],
+      [{ name: 'externalUrl', size: 12 }],
+      [{ name: 'file', size: 12 }],
+      [{ name: 'label', size: 12 }]
+    ],
     'blocks.image-block': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'media', size: 12 }],
       [
         { name: 'tabletImage', size: 6 },
@@ -1973,10 +2255,12 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.blockquote': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
     ],
     'blocks.quote': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'quote', size: 12 }],
       [
         { name: 'authorName', size: 4 },
@@ -1985,6 +2269,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.cta-strip': [
+      [{ name: 'intro', size: 12 }],
       [
         { name: 'heading', size: 9 },
         { name: 'color', size: 3 }
@@ -2047,7 +2332,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'document', size: 4 }
       ]
     ],
-    'blocks.cta-buttons': [[{ name: 'buttons', size: 12 }]],
+    'blocks.cta-buttons': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'buttons', size: 12 }]
+    ],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [
@@ -2057,6 +2345,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'code', size: 12 }]
     ],
     'blocks.split-layout': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'layoutType', size: 12 }],
       [{ name: 'image', size: 12 }],
       [
@@ -2065,13 +2354,22 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'imageAlt', size: 6 },
         { name: 'videoUrl', size: 6 }
       ],
+      [{ name: 'videoTitle', size: 12 }],
       [{ name: 'media', size: 12 }],
       [{ name: 'content', size: 12 }],
       [
         { name: 'quote', size: 8 },
         { name: 'quoteSource', size: 4 }
       ],
-      [{ name: 'cta', size: 12 }]
+      [{ name: 'buttons', size: 12 }]
+    ],
+    'blocks.title-card-grid': [
+      [{ name: 'intro', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
     ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],
@@ -2090,7 +2388,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],
-      [{ name: 'title', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [
         { name: 'columns', size: 6 },
         { name: 'ariaLabel', size: 6 }
@@ -2146,11 +2444,9 @@ async function configureLayouts(strapi: StrapiInstance) {
   }
 
   const contentTypeService = plugin.service('content-types') as
-    | CmContentTypesService
-    | undefined
+    CmContentTypesService | undefined
   const componentService = plugin.service('components') as
-    | CmComponentsService
-    | undefined
+    CmComponentsService | undefined
 
   for (const [uid, editLayout] of Object.entries(contentTypeLayouts)) {
     try {
@@ -2199,7 +2495,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi } */) {
+  register() {
     // Copy schema JSON files after TypeScript compilation
     copySchemas()
   },
@@ -2270,11 +2566,16 @@ export default {
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Auto-correct relative-link slashes (add a leading slash to
-        // href-like fields that are missing one, strip one from path-segment
-        // fields that shouldn't have one) before any validation below runs.
+        // Store every link in its relative form before any validation below
+        // runs: link and slug fields as /path/, our own site's origins
+        // (any environment) stripped, and the CMS origin CKEditor prefixes
+        // onto upload URLs stripped. See documentLinks.ts.
         if (!NAV_UIDS.has(ctx.uid)) {
-          normalizeRelativeLinksInDocumentData(ctx.params.data)
+          ctx.params.data = await normalizeRelativeLinksInDocumentData(
+            ctx.params.data,
+            strapi.getModel(ctx.uid),
+            (uid) => strapi.getModel(uid)
+          )
         }
 
         // Drop inactive card-grid variant arrays before schema/business
@@ -2356,9 +2657,43 @@ export default {
         })
       )
     }
+    // Strapi's own `unique` check compares exact strings, so `about` and
+    // `/about/` would pass as two slugs (INTORG-1254).
+    for (const uid of UNIQUE_SLUG_UIDS) {
+      registerAsyncDocumentValidation(strapi, uid, (args) =>
+        validateUniqueSlug({
+          documents: strapi.documents(
+            uid
+          ) as unknown as SectionScopedSlugFinder,
+          ...args
+        })
+      )
+    }
+    registerGrantSlugSiblingValidation(strapi)
+    // The blog's uid pathSlug is stored as `/slug/`; make Generate and the
+    // Available badge compare it by bare slug.
+    const uidService = strapi.plugin('content-manager')?.service('uid') as
+      UidService | undefined
+    if (uidService) {
+      patchUidServiceForSlashedSlugs(
+        uidService,
+        (uid) => strapi.documents(uid) as unknown as UidDocuments
+      )
+    }
     registerDocumentValidation(
       strapi,
       'api::foundation-page.foundation-page',
+      (body) =>
+        mergeValidationErrors(
+          validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
+          validateContentBlocks(
+            Array.isArray(body.content) ? body.content : undefined
+          )
+        )
+    )
+    registerDocumentValidation(
+      strapi,
+      'api::fundraising-page.fundraising-page',
       (body) =>
         mergeValidationErrors(
           validateHeroFields(body as Parameters<typeof validateHeroFields>[0]),
@@ -2458,7 +2793,7 @@ export default {
       return next()
     })
 
-    // Normalize nav href fields (force leading slash), then validate required
+    // Normalize nav href fields (stored as /path/), then validate required
     // menu/CTA labels, before saving to DB
     strapi.documents.use(async (ctx, next) => {
       if (ctx.action === 'create' || ctx.action === 'update') {
@@ -2504,6 +2839,7 @@ export default {
 
     // Redirect uploads to public/uploads/img/original/ and disable image variants
     overrideUploadProvider(strapi)
+    guardBatchUploadDeletes(strapi)
     await disableImageVariants(strapi)
 
     // Register any on-disk images that are missing from the DB (fresh DB scenario)

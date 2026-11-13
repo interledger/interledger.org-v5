@@ -1,4 +1,6 @@
-const normalizePathSlug = (slug: string) => slug.replace(/^\/+|\/+$/g, '')
+import { trimSlashes } from '../shared/url'
+
+const normalizePathSlug = trimSlashes
 
 const PROFILE_GRID_PATHSLUGS_RE =
   /<ProfileGrid\b[^>]*\bpathSlugs=\{\[([\s\S]*?)\]\}/g

@@ -19,7 +19,7 @@
       }
     },
     "alternativeText": {
-      "type": "string",
+      "type": "text",
       "required": false,
       "pluginOptions": {
         "i18n": {

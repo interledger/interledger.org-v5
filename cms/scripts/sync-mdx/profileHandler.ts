@@ -3,8 +3,11 @@
  *
  * Handles:
  * - <ProfileCard pathSlug="..." />
- * - <ProfileGrid heading="..." pathSlugs={["a","b"]} />
- * - <ProfileGrid heading="..." category="..." />
+ * - <ProfileGrid intro={{ heading: '...' }} pathSlugs={["a","b"]} />
+ * - <ProfileGrid intro={{ heading: '...' }} category="..." />
+ *
+ * A legacy ProfileGrid `heading` attribute is still read, as the intro
+ * heading.
  *
  * Both handlers resolve profile pathSlugs to Strapi document IDs
  * via the generic `resolveRelation` function on ParserContext.
@@ -22,7 +25,8 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-import { getStringAttr, getStringArrayAttr } from './jsxExtract'
+import { bareSlug } from '@/utils'
+import { getIntroAttr, getStringAttr, getStringArrayAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 // ---------------------------------------------------------------------------
@@ -87,7 +91,7 @@ export function createRelationResolver(
       }
     }
 
-    if (dryRun && dryRunPathSlugs?.has(`${locale}:${pathSlug}`)) {
+    if (dryRun && dryRunPathSlugs?.has(`${locale}:${bareSlug(pathSlug)}`)) {
       console.log(
         `   ⚠️  [DRY-RUN] Relation "${pathSlug}" (${apiId}) not yet in Strapi for "${locale}" — would be created by this same sync run.`
       )
@@ -140,7 +144,7 @@ async function handleProfileGrid(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
-    const heading = getStringAttr(node, 'heading')
+    const intro = getIntroAttr(node)
     const pathSlugs = getStringArrayAttr(node, 'pathSlugs')
     const category = getStringAttr(node, 'category')
 
@@ -152,12 +156,10 @@ async function handleProfileGrid(
     }
 
     const block: ProfileGridBlock = {
-      __component: 'blocks.profile-grid'
+      __component: 'blocks.profile-grid',
+      ...(intro ? { intro } : {})
     }
 
-    if (heading !== undefined) {
-      block.heading = heading
-    }
     if (category !== undefined) {
       block.category = category
     }

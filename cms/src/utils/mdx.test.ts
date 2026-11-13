@@ -1,10 +1,14 @@
 import { describe, it, expect } from 'vitest'
+import matter from 'gray-matter'
 import {
+  MATTER_STRINGIFY_OPTIONS,
   ckeditorFieldToCompiledMarkdown,
   ckeditorFieldToParsedMarkdown,
   formatBlockquote,
   formatMdx,
-  looksLikeHtmlField
+  hasMediaValue,
+  looksLikeHtmlField,
+  yamlSingleQuoteScalar
 } from './mdx'
 import { serialize as serializeCtaStrip } from '../serializers/blocks/cta-strip.serializer'
 import { serialize as serializeQuote } from '../serializers/blocks/quote.serializer'
@@ -211,5 +215,81 @@ describe('formatMdx', () => {
 
       expect(result, `${name} wrapped its prose`).toContain(prose)
     }
+  })
+})
+
+describe('MATTER_STRINGIFY_OPTIONS', () => {
+  it('single-quotes every string value', () => {
+    const out = matter.stringify(
+      '',
+      { title: "It's here", tag: 'x' },
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(out).toContain("title: 'It''s here'\ntag: 'x'\n")
+  })
+
+  it('single-quotes whitespace-only values', () => {
+    const out = matter.stringify(
+      '',
+      { one: ' ', three: '   ' },
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(out).toContain("one: ' '\nthree: '   '\n")
+  })
+
+  it('parses yes, no, on and off as strings', () => {
+    const { data } = matter(
+      '---\na: yes\nb: No\nc: on\nd: off\n---\n',
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(data).toEqual({ a: 'yes', b: 'No', c: 'on', d: 'off' })
+  })
+
+  it('parses dates as Date objects', () => {
+    const { data } = matter(
+      '---\ndate: 2023-09-12\n---\n',
+      MATTER_STRINGIFY_OPTIONS
+    )
+    expect(data.date).toBeInstanceOf(Date)
+  })
+})
+
+describe('yamlSingleQuoteScalar', () => {
+  it.each([
+    ['gig workers.\n', "'gig workers. '"],
+    ['a\nb', "'a b'"],
+    ['a\r\nb', "'a b'"],
+    ['a\rb', "'a b'"],
+    ['a\n\nb', "'a b'"],
+    ['a\vb', "'a b'"],
+    ['a\tb', "'a\tb'"],
+    ["It's", "'It''s'"],
+    [null, 'null'],
+    [undefined, 'null']
+  ])('serializes %j as %j', (value, expected) => {
+    expect(yamlSingleQuoteScalar(value)).toBe(expected)
+  })
+})
+
+describe('hasMediaValue', () => {
+  // Every shape a media relation takes in a Strapi write (raw id, id-only
+  // reference, upload object) or after population on read.
+  it.each([
+    ['an upload id', 378],
+    ['a string id', '378'],
+    ['an id-only reference', { id: 378 }],
+    ['an upload object', { id: 378, url: '/uploads/feature.jpg' }],
+    ['a populated file without an id', { url: '/uploads/feature.jpg' }]
+  ])('is true for %s', (_case, media) => {
+    expect(hasMediaValue(media)).toBe(true)
+  })
+
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+    ['an empty object', {}],
+    ['an object with an empty url', { url: '' }]
+  ])('is false for %s', (_case, media) => {
+    expect(hasMediaValue(media)).toBe(false)
   })
 })

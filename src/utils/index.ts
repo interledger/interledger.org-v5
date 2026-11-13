@@ -9,6 +9,9 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  isFilePath,
+  joinPagePath,
+  trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
   ensureAbsoluteUrl,
@@ -22,9 +25,11 @@ export {
   type SocialIconName
 } from './shared/url'
 export { tryCatch, tryCatchAsync } from './shared/tryCatch'
+export { collectResults } from './shared/collectResults'
 export { foldSearchText } from './shared/foldSearchText'
 export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
+export { contentLangAttr } from './shared/contentLang'
 export { getVisiblePages } from './shared/pagination'
 export {
   parseRedirectConfig,
@@ -62,11 +67,13 @@ export {
   HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   GRANT_GRANTEE_DIRECTORY_SLUG,
+  GRANT_GRANTEES_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
+  granteeBasePath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'
@@ -80,12 +87,14 @@ export {
   locales,
   defaultLocale,
   switcherLocales,
-  useTranslations,
+  useTranslations
+} from './main/i18'
+export {
   translatePath,
   COLLECTION_INDEX_SLUG,
   buildRoutePath,
   getBlogPostPath
-} from './main/i18'
+} from './main/translatePath'
 export {
   getAlternateLocale,
   getAlternateLocaleHref,
@@ -95,9 +104,10 @@ export { buildMap } from './main/translationMap'
 export { translationMap } from './main/translationMapData'
 
 // Main site: Data fetching
-export { getNavigation } from './main/navigation'
+export { getNavigation, isDirectNavLink } from './main/navigation'
 export { fetchStrapi, type StrapiResponse } from './main/fetchStrapi'
 export { applyPreviewNoStore } from './main/cache'
+export { logPreviewFetchError } from './main/previewLog'
 
 // Main site: Static paths
 export { CONTENT, CONTENT_ROOT } from './main/contentCollections'
@@ -111,6 +121,7 @@ export {
 } from './main/static-paths'
 export {
   type BreadcrumbItem,
+  buildHomeBreadcrumb,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
@@ -121,7 +132,6 @@ export {
   getTermSlug,
   getTermUrl,
   translateTerm,
-  buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm,
   ALL_TERM_SLUG,
@@ -137,10 +147,11 @@ export {
   resolveRelatedPosts,
   sortByPublishDateDesc
 } from './main/blog'
-// The single gated reader every blog collection access goes through — see
-// blogPosts.ts. Like blogSearch below, it imports astro:content at module
-// scope, so it must not be pulled into a client bundle.
-export { getBlogPosts, getGatedCollection } from './main/blogPosts'
+// The single gated reader every page collection access goes through — see
+// gatedCollection.ts. Like blogSearch below, both import astro:content at
+// module scope, so they must not be pulled into a client bundle.
+export { getGatedCollection } from './main/gatedCollection'
+export { getBlogPosts } from './main/blogPosts'
 export {
   PODCAST_PAGE_SIZE,
   type PodcastPageData,
@@ -149,12 +160,19 @@ export {
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 
-// Main site: Publish gate (future-dated content is hidden on production only)
+// Main site: Publish gate (future-dated and draft content is hidden on production only)
 export {
+  hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
+  isProductionDeploy,
+  isDraft,
   isPublishedAt,
+  productionDeploy,
   resolveGateNow,
-  shouldHideFuturePosts
+  shouldHideDrafts,
+  shouldHideFuturePosts,
+  shouldHideGrantReports
 } from './main/publishGate'
 
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
@@ -192,11 +210,77 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+export {
+  formatReportDate,
+  getGrantReportRoutes,
+  grantReportPath,
+  grantReportSegment,
+  parseGrantReports,
+  type GrantReportRoute
+} from './main/grantReports'
+// Listed for the catalog only. scripts/import-airtable.ts imports the module
+// directly, because tsx can't load this barrel's astro:content chains.
+export {
+  GRANTEE_FIELDS,
+  checkGranteeFieldsPresent,
+  buildContactNameMap,
+  filterPublishedRecords,
+  findRenamedFields,
+  isRawTableRecord,
+  listUnrenderedViewFields,
+  selectPublishedGranteeFields,
+  toGranteeRecord,
+  toGranteeRecords,
+  type GranteeFieldName
+} from './main/airtableRecords'
+export {
+  ALLOWED_IMAGE_TYPES,
+  MAX_SOURCE_IMAGE_BYTES,
+  describeValue,
+  formatProblems,
+  isIsoDate,
+  isRecordId,
+  isRecordLike,
+  isStringArray,
+  nonBlankString,
+  partitionRecordResults,
+  readImageField,
+  recordProblemsError
+} from './main/airtableFieldValues'
+export {
+  LIVE_STATUS,
+  PUBLICATION_STATUS_FIELD_ID,
+  REPORT_FIELDS,
+  findHiddenReportFields,
+  isLiveReport,
+  linkReportsToGrantees,
+  reportFieldIdsToFetch,
+  toGrantReport,
+  toGrantReports
+} from './main/airtableReports'
+export {
+  GRANTEE_TYPES,
+  PROFILE_FIELDS,
+  SLUG_PATTERN,
+  findHiddenProfileFields,
+  profileFieldIdsToFetch,
+  splitThematicTags,
+  toGranteeProfile,
+  toGranteeProfiles
+} from './main/airtableProfiles'
+// Not exported: ./main/syncedImages imports sharp, a native module that must
+// never reach the site bundle through this barrel. The sync script and the
+// tests import it directly. It holds normalizeSyncedImage, syncedImagePath,
+// findOrphanImagePaths, readStoredImageSize and the image folder constants.
 
 // Main site: Text
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'
-export { parseMarkdown, parseMarkdownInline } from './main/mdx'
+export {
+  parseMarkdown,
+  parseMarkdownBelowHeading,
+  parseMarkdownInline
+} from './main/mdx'
 export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
 export {
   TABLE_SCROLL_CLASS,
@@ -207,6 +291,11 @@ export {
   createExcerpt,
   createSearchPlainText
 } from './main/create-excerpt'
+export {
+  hasReportIntro,
+  getReportNavSections,
+  type ReportNavSection
+} from './main/reportSections'
 
 // Main site: Formatting
 export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
@@ -221,6 +310,25 @@ export {
   type CtaLinkInput,
   type ResolvedCtaLink
 } from './main/cta'
+export { isFundraiseUpElementHref } from './main/fundraiseUp'
+export {
+  blockIntroA11y,
+  blockIntroLabel,
+  type BlockIntroA11y,
+  normalizeBlockIntro,
+  type NormalizedBlockIntro
+} from './main/blockIntro'
+export {
+  SELF_SPACED_BLOCKS,
+  getPreviewBlockGapClass
+} from './main/dynamicZoneSpacing'
+export {
+  TIMELINE_ACCENT_COUNT,
+  TIMELINE_DOT_CLASS,
+  timelineAccentIndex,
+  timelineEventOffsets,
+  resolveTimelineSections
+} from './main/timeline'
 
 // Main site: Summit
 export { sessionizeApiMap, YEARS, currentSummitYear } from './main/sessionize'
@@ -236,6 +344,7 @@ export {
   getSpeakerPages,
   getSessionPages
 } from './main/summit-talks-speakers'
+export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 
 // Main site: Images
 export {
@@ -264,6 +373,10 @@ export {
   PAGE_HERO_MOBILE_MEDIA,
   PAGE_HERO_DESKTOP_MEDIA
 } from './main/homepageHeroImage'
+export {
+  renderOptimizedImageHtml,
+  type RichTextImage
+} from './main/richTextImage'
 export {
   getHomepageHeroPreloadLinks,
   getPageHeroPreloadLinks,
@@ -305,6 +418,7 @@ export {
   buildSectionNavLinkUmamiAttrs,
   escapeHtml,
   isSiteHostname,
+  stripKnownOrigin,
   umamiAttrsToHtml
 } from './main/umami'
 
@@ -327,6 +441,7 @@ export {
 export {
   isDemoPathSlug,
   isDemoPathname,
+  isExcludedFromSitemap,
   isPreviewPathname
 } from './shared/demoPaths'
 

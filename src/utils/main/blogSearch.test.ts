@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { CollectionEntry } from 'astro:content'
+import type { AuthorBioType } from '@/schemas/content'
 
 // `./blogSearch` -> `./i18` -> `./locales` reaches into Astro's virtual modules
 // for i18n config, and the module itself calls the `astro:content`
@@ -21,7 +22,7 @@ vi.mock('astro:content', async () => {
 })
 
 const { getBlogSearchIndex } = await import('./blogSearch')
-const { setPublishGateForTests } = await import('./blogPosts')
+const { setPublishGateForTests } = await import('./gatedCollection')
 const {
   setImageCdnEnabledForTests,
   setDeployedImageSourcesForTests,
@@ -43,6 +44,7 @@ interface FakePost {
   featureImageAlt?: string
   featureImageBlur?: string
   legacy?: boolean
+  articleBios?: AuthorBioType[]
 }
 
 // Minimal stand-in for a content collection entry; only the fields
@@ -64,7 +66,7 @@ function makePost(post: FakePost): Entry {
       featureImage: post.featureImage,
       featureImageAlt: post.featureImageAlt,
       featureImageBlur: post.featureImageBlur,
-      articleBios: [],
+      articleBios: post.articleBios ?? [],
       relatedArticles: []
     }
   } as unknown as Entry
@@ -174,6 +176,100 @@ describe('getBlogSearchIndex', () => {
     })
   })
 
+  describe('byline', () => {
+    // Not a real file: a real one is in the variant catalog a local build
+    // generates, which would make the raw-path expectation machine-dependent.
+    const AVATAR = '/img/foundation-blog/authors/test-author.jpg'
+    const SABINE: AuthorBioType = {
+      author: 'Sabine Schaller',
+      link: 'https://www.linkedin.com/in/sabine/',
+      image: AVATAR
+    }
+
+    async function indexEntryWith(articleBios: AuthorBioType[]) {
+      getCollectionMock.mockResolvedValue([
+        makePost({ slug: 'p', date: '2026-01-01', articleBios })
+      ])
+      const [entry] = await getBlogSearchIndex()
+      return entry
+    }
+
+    afterEach(() => {
+      setImageCdnEnabledForTests(null)
+      setDeployedImageSourcesForTests(null)
+    })
+
+    it('maps the first author and the reading time', async () => {
+      getCollectionMock.mockResolvedValue([
+        makePost({
+          slug: 'p',
+          date: '2026-01-01',
+          body: 'word '.repeat(450),
+          articleBios: [SABINE]
+        })
+      ])
+
+      const [entry] = await getBlogSearchIndex()
+
+      // `AVATAR` is in no variant catalog, so it falls back to the raw path.
+      expect(entry.author).toEqual({
+        name: 'Sabine Schaller',
+        href: 'https://www.linkedin.com/in/sabine/',
+        avatarSrc: AVATAR
+      })
+      expect(entry.readingTime).toBe(3)
+    })
+
+    it('has no author when the post has no bios, but keeps the reading time', async () => {
+      const entry = await indexEntryWith([])
+
+      expect(entry.author).toBeNull()
+      expect(entry.readingTime).toBe(1)
+    })
+
+    it('has no avatar when the bio has no image', async () => {
+      const entry = await indexEntryWith([{ ...SABINE, image: undefined }])
+
+      expect(entry.author?.avatarSrc).toBeNull()
+      expect(entry.author?.name).toBe('Sabine Schaller')
+    })
+
+    it('has no href when the bio has no link', async () => {
+      const entry = await indexEntryWith([{ ...SABINE, link: undefined }])
+
+      expect(entry.author?.href).toBeNull()
+    })
+
+    it('drops a link with an unsafe scheme', async () => {
+      // The href is set on an anchor in the browser, so it must never carry a
+      // scheme the card's byline would also reject.
+      const entry = await indexEntryWith([
+        { ...SABINE, link: 'javascript:alert(1)' }
+      ])
+
+      expect(entry.author?.href).toBeNull()
+    })
+
+    it('uses only the first of several authors, as the card does', async () => {
+      const entry = await indexEntryWith([
+        SABINE,
+        { author: 'Second Author', link: 'https://example.com/' }
+      ])
+
+      expect(entry.author?.name).toBe('Sabine Schaller')
+    })
+
+    it('ships the narrowest avatar rung in CDN mode', async () => {
+      // A 40px avatar: the thumbnail ladder would put a 640px image in it.
+      setImageCdnEnabledForTests(true)
+      setDeployedImageSourcesForTests([AVATAR])
+
+      const entry = await indexEntryWith([SABINE])
+
+      expect(entry.author?.avatarSrc).toContain('w=240')
+    })
+  })
+
   it('puts every searchable field into searchText', async () => {
     // A regression that quietly drops one of these would leave search unable to
     // find posts by that field, with every other test still green.
@@ -254,7 +350,7 @@ describe('getBlogSearchIndex', () => {
     expect(entry.descriptionSnippet).toBe('A short description')
     expect(entry.categories).toEqual(['News'])
     expect(entry.date).toBe(new Date('2026-03-04').toISOString())
-    expect(entry.postPath).toBe('/blog/mapped-post')
+    expect(entry.postPath).toBe('/blog/mapped-post/')
     expect(entry.locale).toBe('en')
     // No variant catalog in tests, so src falls back to the raw path — what
     // matters here is that alt and the LQIP survive into the catalog.

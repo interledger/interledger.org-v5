@@ -259,7 +259,7 @@ All commands are run from the root of the project, from a terminal:
 | `pnpm run format`                    | Format code and fix linting issues                             |
 | `pnpm run lint`                      | Check code formatting and linting                              |
 | `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
-| `pnpm run sync:airtable`             | Fetch grantee data from Airtable into a local JSON file        |
+| `pnpm run sync:airtable`             | Fetch grantee, report and profile data (JSON + images)         |
 | `pnpm run optimize:images`           | Generate responsive WebP variants for all raster images        |
 
 ### 🔍 Code Formatting
@@ -285,7 +285,7 @@ Pull requests must pass all checks before merging.
 
 Two build-time checks can fail the build on their own:
 
-- **Internal link validation** reports internal links and fragments this deploy does not serve, including `hreflang` and canonical tags. It runs on every build, local ones included, but only **warns** — editors commit content straight to `staging` with no PR (see [Content Synchronization](#content-synchronization)), and failing there would block staging on typos they usually fix themselves. A production publish via Force Reset sets `LINK_CHECK=strict`, so broken links fail the build that publishes to production, before the branch moves. Clear the warnings before publishing. Rolling back to a SHA from before this check existed publishes without validation — the check lives in the tree being built, so `LINK_CHECK=strict` has nothing to act on. The Force Reset run warns rather than fails: a rollback target's broken links are pre-existing. A permanently unresolvable target can be exempted in `src/integrations/internal-link-exceptions.ts`, with a comment saying why.
+- **Internal link validation** reports internal links and fragments this deploy does not serve, including `hreflang` and canonical tags. It runs on every build, local ones included, but only **warns** — editors commit content straight to `staging` with no PR (see [Content Synchronization](#content-synchronization)), and failing there would block staging on typos they usually fix themselves. A production publish via Force Reset sets `LINK_CHECK=strict`, so broken links fail the build that publishes to production, before the branch moves. Clear the warnings before publishing. Rolling back to a SHA from before this check existed publishes without validation — the check lives in the tree being built, so `LINK_CHECK=strict` has nothing to act on. The Force Reset run warns rather than fails: a rollback target's broken links are pre-existing. A permanently unresolvable target can be exempted in `src/integrations/internal-link-exceptions.ts`, with a comment saying why. One kind of finding **fails every build**: an internal page link without a trailing slash. Netlify serves every page at `/path/`, so a link to `/path` costs a redirect. Strapi adds the slash on save, so such a link can only come from code or a file edited in the repo; fix it there, as there is no exception list for it.
 - **Image optimization audit** fails when an image bypasses `OptimizedImage` and ships unoptimized. Only runs in Netlify Image CDN mode, so a plain local `pnpm build` skips it; CI sets `IMAGE_CDN=on`, and you can reproduce it with `IMAGE_CDN=on pnpm build`. Escape hatch for a deliberate raw image: `data-allow-unoptimized` on the tag.
 
 See `CLAUDE.md` for how each check works and what it deliberately does not cover.
@@ -471,6 +471,7 @@ Rule of thumb:
 
 - If you are working with folders or files on disk, use `src/utils/main/paths.ts`
 - If you are working with browser URLs or route generation, use `src/utils/main/routes.ts`
+- Internal page links end in `/`. Build them with `localizeRoute` or `translatePath`, and add path segments with `joinPagePath` rather than string concatenation. Route params and translation-map keys stay without the slash.
 
 In Astro `<script>` tags or hydrated browser components, use `@/utils/main/client`.
 In `src/content.config.ts`, import collection constants from
@@ -504,19 +505,19 @@ Used for: Summit landing pages, schedules, speaker lists, event resources.
 
 #### Foundation & Summit routes: **Full Path Slug** (`pathSlug`)
 
-In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **without a leading slash**. The same value is stored in MDX frontmatter as `pathSlug`. The **live site URL** is `/{pathSlug}` (normalized, no duplicate slashes).
+In Strapi this is a **single field** (“Full Path Slug”): the **full URL path of the page**, **starting and ending with a slash**, like every other link field. Strapi adds missing slashes on save. The same value is stored in MDX frontmatter as `pathSlug`. Routing compares slugs without their surrounding slashes, so `about-us` and `/about-us/` are the same page.
 
 Examples:
 
-| `pathSlug` (frontmatter / Strapi) | Public URL             |
-| --------------------------------- | ---------------------- |
-| `about-us`                        | `/about-us`            |
-| `grant/grant-for-web`             | `/grant/grant-for-web` |
+| `pathSlug` (frontmatter / Strapi) | Public URL              |
+| --------------------------------- | ----------------------- |
+| `/about-us/`                      | `/about-us/`            |
+| `/grant/grant-for-web/`           | `/grant/grant-for-web/` |
 
-**On disk (English):** split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
+**On disk (English):** trim the surrounding slashes and split `pathSlug` on `/`; all segments except the last are folders; the last segment is the filename.
 
-- `about-us` → `foundation-pages/about-us.mdx`
-- `grant/grant-for-web` → `foundation-pages/grant/grant-for-web.mdx`
+- `/about-us/` → `foundation-pages/about-us.mdx`
+- `/grant/grant-for-web/` → `foundation-pages/grant/grant-for-web.mdx`
 
 **Localized pages** live under one collection-level locale folder, with nested path segments after it (e.g. `foundation-pages/es/grant/…mdx` for Spanish).
 
@@ -524,16 +525,16 @@ Examples:
 
 ```yaml
 ---
-pathSlug: 'grant/grant-for-web'
+pathSlug: '/grant/grant-for-web/'
 ---
 ```
 
-→ public URL: `/grant/grant-for-web`
+→ public URL: `/grant/grant-for-web/`
 
 **Key rules:**
 
 - `pathSlug` is **required** on all foundation and summit pages (the build will fail without it).
-- Leading and trailing slashes on `pathSlug` are stripped when parsing content.
+- Write `pathSlug` with a leading and a trailing slash. Parsing strips them for routing, so a legacy bare value still resolves to the same page.
 - There is **no separate `path`** field in Strapi or frontmatter for these types; use one multi-segment `pathSlug` for nested URLs.
 - If `pathSlug` is omitted from frontmatter (not allowed for a valid build), sync tooling may derive a default from the **filename** (without extension and without any `YYYY-MM-DD-` date prefix); nested URLs should use explicit folders + filename that match the intended `pathSlug`, or set `pathSlug` in frontmatter.
 
@@ -554,6 +555,7 @@ Please **only use the existing, approved categories** unless you have aligned wi
 
 **Current categories:**
 
+- Community
 - Engineering
 - Grantmaking
 - Interledger Technology
@@ -572,6 +574,8 @@ Docs live in `src/content/docs`.
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
 RFC pages under `src/content/docs/rfcs/` are a small exception. Those route files wrap the upstream markdown from the `interledger/rfcs` repository via `src/components/Rfc.astro`. Internal RFC-to-RFC links are rewritten in `src/utils/docs/rewriteRfcLinks.ts` so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
+
+Write internal links in docs markdown with a trailing slash (`[Get involved](/developers/get-involved/)`); a link without one fails the build. Strapi never sees these files, so nothing adds the slash for you.
 
 Static assets, like favicons or images, can be placed in the `public/` directory. When referencing these assets in your markdown, you do not have to include `public/` in the file path, so an image would have a path like:
 
@@ -779,7 +783,15 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 ## Grantee Data (Airtable Integration)
 
-To make the work funded through Interledger Foundation grants easier to explore, the website hosts a publicly accessible grantee directory sourced from Airtable. A sync script fetches approved records into a local JSON file that the `/grant/grantee-directory` page renders.
+To make the work funded through Interledger Foundation grants easier to explore, the website publishes grantee data from Airtable. One sync script reads three tables and writes one committed JSON file for each:
+
+| File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                                                                        |
+| ---------------------------- | --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory`                                                         |
+| `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | `/grant/grantees/<slug>/reports/<report>` (hidden on production until INTORG-1313) |
+| `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                                                                        |
+
+Report images and grantee logos are downloaded into `public/img/grantee-reports/` and `public/img/grantee-profiles/`, and committed with the JSON.
 
 ### Syncing Data from Airtable
 
@@ -789,28 +801,68 @@ Run the script by hand, locally or to preview a change before the next scheduled
 pnpm run sync:airtable
 ```
 
-**What it does:**
+Every table is read by field ID, so editors can rename a column in Airtable without changing the output. The three files are written only when all three parts pass, Prettier-formatted, so they are lint-clean and a manual run and an automated one produce byte-identical output. Images no record uses any more are then deleted.
 
-- Fetches records from the **Projects** table using a configured view
+**Grantee directory** (`grantee-data.json`):
+
+- Fetches records from the **Projects** table using a configured view, which sets which rows are read and in what order
 - Keeps only records marked **Published on Website**
+- Writes only the columns the site renders (`GRANTEE_FIELDS`), and only while they are visible in the view, so hiding a column in Airtable takes it off the site. Any other visible column is named in the log and never written
 - Resolves linked **Project Leader** IDs into contact names from the **Contacts** table
-- Writes the result to `src/data/airtable/grantee-data.json`, Prettier-formatted, so the file is lint-clean and a manual run and an automated one produce byte-identical output
+- **Project Name** is the only required column. Values are written as Airtable sends them; `grantee.ts` trims them when it reads the file
+
+**Grant reports** (`grant-reports.json`):
+
+- Fetches the **Published Reports** table through its public view, and keeps only reports whose **Publication Status** is **Live**. The sync checks the status itself, so a change to the view cannot publish a draft
+- Required: **Published Date**, and the lookups **Project Name**, **Report Type**, **Report Num**, the grant record and **Project id** (exactly one value of digits). The lookups come from the submission, so the sync never reads the **Submitted Reports** table or its private fields
+- Every content field can be empty: the five text sections, the license, the output types, the technologies and the images. An empty section or fact is left off the page
+- The reporting period dates can both be empty, but not only one of them, and the start must not be after the end
+- Each report gets its grantee's slug from **Grantees**, through the grant, for its URL: `/grant/grantees/<slug>/reports/<project id>-<interim|final>-<number>`, for example `20260504-interim-1`
+- An image's description is its alt text. An image without one is published with `alt=""`, as decorative
+- No Live report at all is valid
+
+**Grantee profiles** (`grantee-profiles.json`):
+
+- Every grantee in the **Grantees** table gets a profile, and every field in its view is public
+- Required: **Name**, **Slug** (lowercase letters, numbers and single hyphens, since it becomes a URL segment), **Grantee Type** (Organisation or Individual), and the numbers **Grant Count**, **Total Committed** and **Published Reports** (0 or more)
+- Optional: **Formerly Known As**, **Description**, **Country**, **Website**, **X / Twitter**, **LinkedIn**, **Bluesky** and **Social Web** (links must be `http` or `https` URLs, so a fediverse handle such as `@name@example.social` fails the sync), **Grants**, **Thematic Tags** and **Logo**
+- The logo has no alt text: the grantee's name shows next to it
+
+**Images** (report images and logos): each image field holds at most one file, of type JPEG, PNG, WebP or AVIF and at most 50 MB. The sync removes its metadata, limits its longest side (2,400 px for a report image, 1,024 px for a logo), encodes it as WebP and stores it under one folder per record. A later run reuses the stored file.
+
+**Failures:** the sync never leaves out bad data with only a log warning, because nobody reads the log of a run that passes. A renamed column or an unused visible column is not bad data, so it is only logged. The sync fails, and writes no JSON file, on:
+
+- a missing required value, in any of the three tables
+- an invalid value, required or optional: a value of the wrong type, a formula error (`#ERROR!`, `NaN`), a profile link that is not an `http` or `https` URL, or a bad slug. Directory values are checked by type only, so free text in **Project Links** is allowed; `grantee.ts` skips any entry that is not a usable URL
+- a **Project Leader** linked to a contact with no name
+- two grantees with the same slug
+- a report whose grant belongs to no grantee, or to more than one
+- two Live reports with the same **Project id**, report type and number, which would share a URL: a resubmission that was published twice
+- an image that breaks the rules above, or fails to download or convert
+- a table, view or column it reads that was deleted, a field the reports or profiles need that is hidden in the view, or a view that is no longer a grid view
+- in the directory: **Project Name** hidden in the view, no published record, or a rendered column with no value on any published record (the column was emptied, or its formula returns a blank value in every row)
+- no grantee at all in the **Grantees** table
+
+An empty optional cell is not an error. One failure lists every bad record in all three tables, so programs can fix them in one pass. Three kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read; images, like the directory's blank-column check, are checked only once every record passes; and reports are linked to grantees only when the profiles pass, because the slug comes from them. The site keeps the last good data until a run passes and its pull request is merged.
+
+A failed run can still store new images for the parts that passed. In CI they are discarded with the runner. After a failed local run they show as untracked files under `public/img/`; discard them, or keep them, since the next passing run reuses them or deletes those no record needs.
 
 **Requirements:**
 
 - `AIRTABLE_API_TOKEN` must be set in your environment (see `.env.example`)
 - In CI the token comes from the `AIRTABLE_API_TOKEN` secret on the `staging` GitHub Actions environment
 
-The Airtable base ID, table IDs, view ID, and relevant field IDs are pinned as constants at the top of `scripts/import-airtable.ts`. They reference Airtable IDs (stable across renames), not field names — so editors can rename fields in Airtable without breaking the script.
+The base, table and view IDs and the **Published on Website** field ID are constants at the top of `scripts/import-airtable.ts`; the **Publication Status** field ID is in `airtableReports.ts`. The columns each part reads live in `GRANTEE_FIELDS` (`src/utils/main/airtableRecords.ts`), `REPORT_FIELDS` (`airtableReports.ts`) and `PROFILE_FIELDS` (`airtableProfiles.ts`), each mapped from its Airtable field ID. The sync logs a renamed directory column so the name in code can be updated. To render a new directory column, add it to `GRANTEE_FIELDS` and read it in `src/utils/main/grantee.ts`. The JSON is committed, so never add the internal **Project** column.
 
 ### Automated Sync
 
-`.github/workflows/sync-airtable.yml` runs the same script on a schedule and, when the data has changed, **opens a pull request against `staging`** rather than committing to it. The grantee directory is public-facing data, so a person sees every change before it ships.
+`.github/workflows/sync-airtable.yml` runs the same script on a schedule and, when the data has changed, **opens a pull request against `staging`** rather than committing to it. This is public-facing data, so a person sees every change before it ships.
 
 - **Schedule**: 09:00 SAST daily (`07:00 UTC`), one hour after the Strapi content sync so it branches from a settled `staging`. `workflow_dispatch` runs it on demand.
 - **When nothing changed**: the run is a true no-op — no branch, no empty commit, no PR. It reports the decision in the run summary and exits green.
-- **When something changed**: the workflow commits `src/data/airtable/grantee-data.json` as `chore(data): sync grantee data from Airtable`, force-pushes the branch `chore/airtable-grantee-sync`, and opens a PR — or refreshes the existing one, so there is never more than one open.
-- **The PR body** reports the record-count delta (e.g. `267 → 269`), so the change can be sanity-checked without reading ~4,900 lines of JSON.
+- **When something changed**: the workflow commits the three JSON files and the synced images as `chore(data): sync Airtable data`, force-pushes the branch `chore/airtable-grantee-sync`, and opens a PR — or refreshes the existing one, so there is never more than one open.
+- **When the sync fails**: no PR is opened, and Slack (`#frontend-team`) is told, with a link to the run whose log lists the problems.
+- **The PR body** reports the before and after counts of directory records, grant reports and grantee profiles (e.g. `267 → 269`), so the change can be sanity-checked without reading thousands of lines of JSON.
 - **Merging it** triggers a Netlify build of staging, same as any other merge.
 - **Secrets**: the job runs in the `staging` GitHub Actions environment, which holds both the Airtable token and the GitHub App credential used to open the PR.
 

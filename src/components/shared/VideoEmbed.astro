@@ -43,49 +43,47 @@ const embedWrapperClass = 'video-embed w-full overflow-hidden rounded-3xl'
 const embedPosterQuality = 'max' as const
 ---
 
-{
-  provider === 'youtube' ? (
-    <div class={embedWrapperClass} data-component="VideoEmbed">
-      <YouTube
-        id={url}
-        playlabel={title}
-        poster={posterSrc}
-        posterQuality={embedPosterQuality}
-      />
-    </div>
-  ) : provider === 'vimeo' ? (
-    <div class={embedWrapperClass} data-component="VideoEmbed">
-      <Vimeo
-        id={url}
-        playlabel={title}
-        poster={posterSrc}
-        posterQuality={embedPosterQuality}
-      />
-    </div>
-  ) : provider === 'file' ? (
-    <div class={embedWrapperClass} data-component="VideoEmbed">
-      <video
-        src={url}
-        poster={posterSrc}
-        controls
-        loop
-        muted
-        autoplay
-        playsinline
-        aria-label={title}
-        class="block w-full border-0"
-      >
-        <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
-          {title}
-        </a>
-      </video>
-    </div>
-  ) : (
-    <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
-      {title}
-    </a>
-  )
-}
+{provider === 'youtube' ? (
+  <div class={embedWrapperClass} data-component="VideoEmbed">
+    <YouTube
+      id={url}
+      playlabel={title}
+      poster={posterSrc}
+      posterQuality={embedPosterQuality}
+    />
+  </div>
+) : provider === 'vimeo' ? (
+  <div class={embedWrapperClass} data-component="VideoEmbed">
+    <Vimeo
+      id={url}
+      playlabel={title}
+      poster={posterSrc}
+      posterQuality={embedPosterQuality}
+    />
+  </div>
+) : provider === 'file' ? (
+  <div class={embedWrapperClass} data-component="VideoEmbed">
+    <video
+      src={url}
+      poster={posterSrc}
+      controls
+      loop
+      muted
+      autoplay
+      playsinline
+      aria-label={title}
+      class="block w-full border-0"
+    >
+      <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
+        {title}
+      </a>
+    </video>
+  </div>
+) : (
+  <a href={url} target="_blank" rel="noopener noreferrer" {...videoAttrs}>
+    {title}
+  </a>
+)}
 
 <style>
   .video-embed :is(lite-youtube, lite-vimeo, video) {

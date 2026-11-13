@@ -16,7 +16,7 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { getNavigation } = await import('./navigation')
+const { getNavigation, isDirectNavLink } = await import('./navigation')
 
 describe('getNavigation', () => {
   it('returns the hackathon menu, not the summit one', () => {
@@ -32,8 +32,20 @@ describe('getNavigation', () => {
   it('returns the localized config for es', () => {
     const { mainMenu } = getNavigation('hackathon', 'es')
     expect(mainMenu[0].items?.[0]).toMatchObject({
-      href: '/es/hackathon/overview'
+      href: '/es/hackathon/overview/'
     })
+  })
+
+  it('keeps Spanish past summits on the Spanish site', () => {
+    const hrefs = getNavigation('summit', 'es')
+      .mainMenu.flatMap((group) => group.items ?? [])
+      .map((item) => item.href)
+      .filter((href) => /\/summit\/202[234]\/$/.test(href ?? ''))
+    expect(hrefs).toEqual([
+      '/es/summit/2024/',
+      '/es/summit/2023/',
+      '/es/summit/2022/'
+    ])
   })
 
   it('keeps each site on its own config', () => {
@@ -42,6 +54,35 @@ describe('getNavigation', () => {
       (g) => g.label
     )
     expect(summit).not.toEqual(hackathon)
+  })
+
+  it('treats a childless href as a direct link', () => {
+    expect(
+      isDirectNavLink({
+        label: 'Code of conduct',
+        href: '/summit/code-conduct/'
+      })
+    ).toBe(true)
+    expect(isDirectNavLink({ label: 'Summit', items: [] })).toBe(false)
+  })
+
+  it('rejects a group that has both an href and children', () => {
+    // The JSON is cast to NavigationData, so the MenuGroup union never sees
+    // it. An editor can publish both, and the menu would drop the href.
+    const sites = ['foundation', 'summit', 'hackathon'] as const
+    const locales = ['en', 'es'] as const
+
+    for (const site of sites) {
+      for (const locale of locales) {
+        const mixed = getNavigation(site, locale).mainMenu.filter(
+          (group) =>
+            Boolean(group.href) &&
+            ((group.items?.length ?? 0) > 0 ||
+              (group.subGroups?.length ?? 0) > 0)
+        )
+        expect(mixed, `${site} ${locale}`).toEqual([])
+      }
+    }
   })
 
   it('falls back to the default locale when a site has no config for it', () => {

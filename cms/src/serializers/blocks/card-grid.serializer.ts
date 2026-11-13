@@ -3,6 +3,8 @@ import {
   SerializerFieldError,
   getImageUrl,
   hasMediaValue,
+  serializeIntroProp,
+  type BlockIntroInput,
   type FieldError
 } from '../../utils'
 import {
@@ -22,7 +24,7 @@ export interface CardGridSerializeInput extends Partial<
   Record<CardGridCardsField, CardGridCard[]>
 > {
   ariaLabel?: string
-  title?: string
+  intro?: BlockIntroInput | null
   variant?: string
   columns?: string
   /** @deprecated Prefer variant-specific fields; kept for tests and legacy. */
@@ -413,9 +415,8 @@ export function serialize(block: CardGridSerializeInput): string {
 
   const variant = block.variant as CardGridVariant
   const cards = resolveCardGridCards(block, variant)
-  const title = block.title?.trim()
-  const titleAttr = title ? ` title="${esc(title)}"` : ''
-  const gridAttrs = `${titleAttr} ariaLabel="${esc(block.ariaLabel)}" variant="${esc(block.variant)}" columns="${esc(block.columns)}"`
+  const introAttr = serializeIntroProp(block.intro)
+  const gridAttrs = `${introAttr} ariaLabel="${esc(block.ariaLabel)}" variant="${esc(block.variant)}" columns="${esc(block.columns)}"`
   const cardMdx = cards.map((card) => serializeCard(card, variant))
 
   return `<CardGrid${gridAttrs}>\n${cardMdx.join('\n')}\n</CardGrid>`

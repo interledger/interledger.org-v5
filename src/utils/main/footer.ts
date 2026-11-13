@@ -1,6 +1,7 @@
 import type { MenuGroup, NavigationSite } from '@/types/navigation'
 import type { SocialIconName } from '../shared/url'
-import { translatePath, type Locale, type UiKey, useTranslations } from './i18'
+import { type Locale, type UiKey, useTranslations } from './i18'
+import { translatePath } from './translatePath'
 
 export interface SocialLink {
   href: string
@@ -45,41 +46,44 @@ export const socialLinks: SocialLink[] = [
 
 /**
  * The footer's extra nav column — items shown in the footer only, on top of
- * `mainMenu` (shared with the header via `getNavigation`, from
- * `foundation-navigation`/`hackathon-navigation`). Hackathon has no such
- * column for now. Every other site (SiteFooter is currently only
- * rendered for 'foundation' or 'hackathon' — 'summit' uses MicrositeFooter
- * instead) gets the Foundation-only column (terms, privacy, press, FAQ).
+ * `mainMenu` (shared with the header via `getNavigation`). Hackathon's links
+ * all live in its own nav, so it gets nothing here. Summit's nav never had
+ * the legal links MicrositeFooter rendered, so it keeps terms and privacy
+ * only. Press and FAQ stay on the foundation footer.
  */
 export function getFooterOnlyColumn(
   site: NavigationSite,
   lang: Locale
 ): MenuGroup | null {
-  const t = useTranslations(lang)
+  if (site === 'hackathon') return null
 
-  if (site === 'hackathon') {
-    return null
-  }
+  const t = useTranslations(lang)
+  const legal = [
+    {
+      label: t('footer.terms_service'),
+      href: translatePath('foundation-pages', lang, 'terms-of-service')
+    },
+    {
+      label: t('footer.privacy_policy'),
+      href: translatePath('foundation-pages', lang, 'privacy-policy')
+    }
+  ]
 
   return {
     label: t('footer.resources'),
-    items: [
-      {
-        label: t('footer.terms_service'),
-        href: translatePath('foundation-pages', lang, 'terms-of-service')
-      },
-      {
-        label: t('footer.privacy_policy'),
-        href: translatePath('foundation-pages', lang, 'privacy-policy')
-      },
-      {
-        label: t('footer.press_media'),
-        href: translatePath('foundation-pages', lang, 'press')
-      },
-      {
-        label: t('footer.faq'),
-        href: translatePath('foundation-pages', lang, 'faq')
-      }
-    ]
+    items:
+      site === 'summit'
+        ? legal
+        : [
+            ...legal,
+            {
+              label: t('footer.press_media'),
+              href: translatePath('foundation-pages', lang, 'press')
+            },
+            {
+              label: t('footer.faq'),
+              href: translatePath('foundation-pages', lang, 'faq')
+            }
+          ]
   }
 }

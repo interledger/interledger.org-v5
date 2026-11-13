@@ -19,7 +19,7 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-import { getStringAttr, getBooleanAttr } from './jsxExtract'
+import { getStringAttr, getBooleanAttr, getIntroAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 async function handleImageBlock(
@@ -42,8 +42,10 @@ async function handleImageBlock(
     const tabletSrc = getStringAttr(node, 'tabletSrc')
     const mobileSrc = getStringAttr(node, 'mobileSrc')
 
+    const intro = getIntroAttr(node)
     const block: ImageBlockBlock = {
       __component: 'blocks.image-block',
+      ...(intro ? { intro } : {}),
       media: {
         image: await resolveMedia(src),
         // null when alt is omitted so serializers can fall back to the upload's

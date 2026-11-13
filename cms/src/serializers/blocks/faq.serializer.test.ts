@@ -8,10 +8,15 @@ const validItem = {
 }
 
 describe('faq serializer', () => {
-  it('serializes a block with a heading and a single question', () => {
-    const result = serialize({ heading: 'About us', items: [validItem] })
+  it('serializes a block with an intro and a single question', () => {
+    const result = serialize({
+      intro: { heading: 'About us', subheading: 'The basics' },
+      items: [validItem]
+    })
 
-    expect(result).toContain('<Faq heading="About us">')
+    expect(result).toContain(
+      '<Faq intro={{"heading":"About us","subheading":"The basics"}}>'
+    )
     expect(result).toContain(
       '<FaqItem question="What is the Interledger Foundation?">'
     )
@@ -24,14 +29,14 @@ describe('faq serializer', () => {
     const result = serialize({ items: [validItem] })
 
     expect(result).toContain('<Faq>')
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
   })
 
-  it('omits the heading attribute when the heading is only whitespace', () => {
-    const result = serialize({ heading: '   ', items: [validItem] })
+  it('omits the intro when its heading is only whitespace', () => {
+    const result = serialize({ intro: { heading: '   ' }, items: [validItem] })
 
     expect(result).toContain('<Faq>')
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
   })
 
   it('serializes multiple questions in order', () => {
@@ -47,11 +52,11 @@ describe('faq serializer', () => {
 
   it('escapes only the quote that would break a JSX attribute', () => {
     const result = serialize({
-      heading: 'A & B',
+      intro: { heading: 'A & B' },
       items: [{ ...validItem, question: 'Is it "free" & <open>?' }]
     })
 
-    expect(result).toContain('heading="A & B"')
+    expect(result).toContain('intro={{"heading":"A & B"}}')
     expect(result).toContain('question="Is it &quot;free&quot; & <open>?"')
   })
 
@@ -73,10 +78,10 @@ describe('faq serializer', () => {
   })
 
   it('throws when there are no questions', () => {
-    expect(() => serialize({ heading: 'About us', items: [] })).toThrow(
-      SerializerFieldError
-    )
-    expect(() => serialize({ heading: 'About us' })).toThrow(
+    expect(() =>
+      serialize({ intro: { heading: 'About us' }, items: [] })
+    ).toThrow(SerializerFieldError)
+    expect(() => serialize({ intro: { heading: 'About us' } })).toThrow(
       SerializerFieldError
     )
   })

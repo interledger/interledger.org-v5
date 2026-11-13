@@ -1,4 +1,9 @@
-import { getImageUrl, hasMediaValue } from '../../utils'
+import {
+  getImageUrl,
+  hasMediaValue,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble as esc } from '../shared'
 
 type ImageField = { url?: string; alternativeText?: string } | number
@@ -9,6 +14,8 @@ interface LocalizedMediaField {
 }
 
 interface ImageBlockBlock {
+  /** Optional block intro (ADR-009). */
+  intro?: BlockIntroInput | null
   media?: LocalizedMediaField
   tabletImage?: ImageField
   mobileImage?: ImageField
@@ -31,6 +38,8 @@ export function serialize(block: ImageBlockBlock): string {
   const mobileSrc = getImageUrl(asMediaObject(block.mobileImage))
 
   const attrs: string[] = []
+  const introAttr = serializeIntroProp(block.intro).trim()
+  if (introAttr) attrs.push(introAttr)
   if (src) attrs.push(`src="${esc(src)}"`)
   attrs.push(`alt="${esc(alt)}"`)
   if (tabletSrc) attrs.push(`tabletSrc="${esc(tabletSrc)}"`)

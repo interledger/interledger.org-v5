@@ -1,13 +1,23 @@
+import { addTrailingSlash } from '../shared/url'
 import { defaultLocale, type Locale } from './locales'
 
 export const HOME_CONTENT_SLUG = 'home'
 export const HACKATHON_HOME_SLUG = 'overview'
+
+/** Slug of the 404 page, served at `/404`. EN-only, so it has no translation. */
+export const NOT_FOUND_SLUG = '404'
 
 /** pathSlug for the primary grant overview at `/grant/our-grantmaking`. */
 export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 
 /** Dedicated Astro route (not a CMS grant page) at `/grant/grantee-directory`. */
 export const GRANT_GRANTEE_DIRECTORY_SLUG = 'grantee-directory'
+
+/**
+ * Dedicated Astro routes under `/grant/grantees/<grantee slug>`: the grant
+ * reports now, the grantee profiles later (INTORG-1309).
+ */
+export const GRANT_GRANTEES_SLUG = 'grantees'
 
 /**
  * pathSlug for the single podcast landing page at `/podcast`.
@@ -18,6 +28,7 @@ export const PODCAST_PAGE_SLUG = 'podcast'
 
 export const ROUTE_BASES = {
   'foundation-pages': '',
+  'fundraising-pages': '',
   'foundation-blog': '/blog',
   'summit-pages': '/summit',
   'hackathon-pages': '/hackathon',
@@ -54,12 +65,13 @@ export function grantGranteeDirectoryPath(): string {
   return grantOverviewRouteParam(GRANT_GRANTEE_DIRECTORY_SLUG)
 }
 
+/** URL path (no locale prefix) under which one grantee's pages live. */
+export function granteeBasePath(granteeSlug: string): string {
+  return grantOverviewRouteParam(`${GRANT_GRANTEES_SLUG}/${granteeSlug}`)
+}
+
+/** Locale-prefixed page path, always slashed: `/`, `/es/`, `/es/blog/`. */
 export function localizeRoute(basePath: string, locale: Locale): string {
-  const normalizedBasePath = normalizeBasePath(basePath)
-
-  if (locale === defaultLocale) {
-    return normalizedBasePath || '/'
-  }
-
-  return normalizedBasePath ? `/${locale}${normalizedBasePath}` : `/${locale}`
+  const localePrefix = locale === defaultLocale ? '' : `/${locale}`
+  return addTrailingSlash(`${localePrefix}${normalizeBasePath(basePath)}`)
 }

@@ -67,9 +67,9 @@ describe('NumberTiles round-trip (serialize → parse)', () => {
     ])
   })
 
-  it('round-trips an optional title', async () => {
+  it('round-trips an intro', async () => {
     const original = {
-      title: 'Overview',
+      intro: { heading: 'Overview', subheading: 'In numbers' },
       tiles: [
         { number: '150', suffix: '+', description: 'Builders' },
         { number: '24', suffix: 'H', description: 'Code Rush' }

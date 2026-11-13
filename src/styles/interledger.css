@@ -87,6 +87,13 @@ header.header {
   padding-block-start: 0;
 }
 
+/* docs-design-system 0.14 adds a margin before the external link icon,
+   because Astro 7's default whitespace mode drops the space before it. This
+   site keeps that space (compressHTML: true), so the margin doubles the gap. */
+.sidebar-content [data-icon='external']::after {
+  margin-inline-start: 0;
+}
+
 /* Navigation sidebar font issue */
 .sidebar-content .sidebar ul {
   font-family: var(--sl-font-system);

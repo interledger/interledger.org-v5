@@ -6,9 +6,10 @@
   },
   "options": {},
   "attributes": {
-    "heading": {
-      "type": "string",
-      "required": false,
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
       "pluginOptions": {
         "i18n": {
           "localized": true

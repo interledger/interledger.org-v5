@@ -2,14 +2,15 @@ import { describe, it, expect } from 'vitest'
 import { serialize } from './carousel.serializer'
 
 describe('carousel serializer', () => {
-  it('serializes heading, accessibilityLabel, and logos', () => {
+  it('serializes the intro, accessibilityLabel, and logos', () => {
     const result = serialize({
-      heading: 'In partnership with',
+      intro: { heading: 'In partnership with' },
       accessibilityLabel: 'Our Partners',
       logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
-    expect(result).toContain('heading="In partnership with"')
+    expect(result).toContain('intro={{"heading":"In partnership with"}}')
+    expect(result).not.toContain('heading="')
     expect(result).toContain('accessibilityLabel="Our Partners"')
     expect(result).toContain(
       'logos={[{"name":"Plata","src":"/img/plata.png"}]}'
@@ -59,7 +60,7 @@ describe('carousel serializer', () => {
       logos: [{ image: { url: '/img/plata.png' }, alternativeText: 'Plata' }]
     })
 
-    expect(result).not.toContain('heading=')
+    expect(result).not.toMatch(/heading=|intro=/)
     expect(result).toContain('accessibilityLabel="Our Partners"')
   })
 
@@ -94,7 +95,7 @@ describe('carousel serializer', () => {
   it('throws when logos is missing', () => {
     expect(() =>
       serialize({
-        heading: 'In partnership with',
+        intro: { heading: 'In partnership with' },
         accessibilityLabel: 'Our Partners'
       })
     ).toThrow('Carousel block is missing logos')

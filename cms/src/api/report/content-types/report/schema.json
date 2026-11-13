@@ -36,6 +36,16 @@
       "required": true,
       "description": "Must be unique within a Section, not across the whole site: two sections may hold the same pathSlug."
     },
+    "draft": {
+      "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "default": false
+    },
     "section": {
       "type": "enumeration",
       "pluginOptions": {
@@ -77,10 +87,10 @@
       },
       "customField": "plugin::ckeditor5.CKEditor",
       "options": {
-        "preset": "basicMarkdownPreset"
+        "preset": "defaultMarkdown"
       },
       "required": false,
-      "description": "Optional intro paragraph shown below the heading and dates."
+      "description": "Optional intro shown below the heading and dates. Supports images, tables and lists. Headings here do not appear in the section navigation."
     },
     "date": {
       "type": "component",

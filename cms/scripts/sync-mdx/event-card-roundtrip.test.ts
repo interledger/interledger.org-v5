@@ -22,7 +22,7 @@ describe('EventCard round-trip (serialize → parse)', () => {
         location: 'Mexico City',
         text: 'Main auditorium.'
       },
-      title: 'Upcoming',
+      intro: { heading: 'Upcoming' },
       apply: {
         title: 'Apply',
         text: 'A 24h hackathon for students.',

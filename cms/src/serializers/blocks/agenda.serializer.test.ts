@@ -123,6 +123,18 @@ describe('agenda serializer', () => {
     }
   })
 
+  it('serializes the intro before the day heading and items', () => {
+    const result = serialize({
+      intro: { heading: 'Timetable' },
+      heading: 'Friday October 16',
+      items: validItems
+    })
+
+    expect(result).toBe(
+      `<Agenda intro={{"heading":"Timetable"}} heading={"Friday October 16"} items={${JSON.stringify(validItems)}} />`
+    )
+  })
+
   it('omits empty additional information', () => {
     const result = serialize({
       items: [

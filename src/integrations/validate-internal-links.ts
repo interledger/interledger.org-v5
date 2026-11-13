@@ -17,9 +17,11 @@
  * URLs, and anything only an SSR route renders.
  *
  * Findings warn by default and fail the build under `LINK_CHECK=strict`, which
- * only a Force Reset production publish sets — see {@link isStrict}.
- * `INTERNAL_LINK_EXCEPTIONS` permanently exempts a target, each with a comment
- * saying why.
+ * only a Force Reset production publish sets — see {@link isStrict}. A page
+ * link without a trailing slash fails every build — see
+ * {@link formatSlashlessReport}.
+ * `INTERNAL_LINK_EXCEPTIONS` permanently exempts a target from the findings,
+ * each with a comment saying why. It never exempts a slashless link.
  */
 import type { AstroIntegration, IntegrationResolvedRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
@@ -28,10 +30,15 @@ import { fileURLToPath } from 'node:url'
 import {
   addTrailingSlash,
   hasUrlScheme,
+  isFilePath,
   stripTrailingSlash
 } from '../utils/shared/url'
 import { tryCatchAsync } from '../utils/shared/tryCatch'
+import { isFundraiseUpElementHref } from '../utils/main/fundraiseUp'
 import { INTERNAL_LINK_EXCEPTIONS } from './internal-link-exceptions'
+
+/** Present only when `FundraiseUpScript` rendered the install snippet. */
+const FUNDRAISE_UP_WIDGET = 'cdn.fundraiseup.com/widget/'
 
 const OPEN_TAG_RE = /<[a-z][a-z0-9-]*\b[^>]*>/gi
 
@@ -65,6 +72,7 @@ export type LinkFindingReason =
   | 'missing-fragment'
   | 'malformed-url'
   | 'redirect-to-missing'
+  | 'slashless-link'
 
 const REASON_LABEL: Record<LinkFindingReason, string> = {
   'missing-page': 'no page, redirect, or SSR route',
@@ -72,10 +80,14 @@ const REASON_LABEL: Record<LinkFindingReason, string> = {
   'missing-upload': 'upload missing from this deploy',
   'missing-fragment': 'no element with that id',
   'malformed-url': 'malformed URL',
-  'redirect-to-missing': 'redirect lands on nothing this deploy serves'
+  'redirect-to-missing': 'redirect lands on nothing this deploy serves',
+  'slashless-link': 'no trailing slash'
 }
 
 const MAX_REPORTED = 25
+
+/** The 404 page's address: Netlify serves `404.html` at `/404`, with no slash. */
+const NOT_FOUND_PATH = '/404'
 
 // ---------------------------------------------------------------------------
 // Parsing helpers
@@ -169,8 +181,9 @@ function decodeOrSelf(value: string): string {
  * Normalises a path for comparison: no trailing slash (except root).
  *
  * Astro's default `trailingSlash: 'ignore'` serves both `/contact` and
- * `/contact/`, and the build writes targets both ways, so collapsing them keeps
- * one link from looking like two. Case is preserved deliberately: macOS is
+ * `/contact/`. Page links are written with the slash, while the dist index,
+ * redirect sources and SSR patterns are keyed without it, so collapsing them
+ * lets one lookup match. Case is preserved deliberately: macOS is
  * case-insensitive and Netlify is not, so folding it would let a `/Blog` typo
  * pass locally and 404 in production.
  */
@@ -185,6 +198,8 @@ export interface ClassifiedLink {
   fragment: string | null
   /** The URL could not be percent-decoded — a genuine authoring bug. */
   malformed: boolean
+  /** A page link without its trailing slash, which costs a 301 on Netlify. */
+  slashless: boolean
 }
 
 export interface ClassifyContext {
@@ -209,12 +224,14 @@ export function classifyHref(
   const value = decodeHtmlEntities(raw).trim()
   if (!value) return null
 
-  // A bare fragment resolves against the page it sits on.
+  // A bare fragment resolves against the page it sits on. That page's own
+  // path is normalised, so it is never slashless.
   if (value.startsWith('#')) {
     return {
       pathname: fromPathname,
       fragment: decodeOrSelf(value.slice(1)),
-      malformed: false
+      malformed: false,
+      slashless: false
     }
   }
 
@@ -278,7 +295,12 @@ export function classifyHref(
   return {
     pathname: normalizeInternalPath(pathname),
     fragment: rawFragment === null ? null : decodeOrSelf(rawFragment),
-    malformed
+    malformed,
+    // Read before normalising, which strips the slash.
+    slashless:
+      !pathname.endsWith('/') &&
+      !isFilePath(pathname) &&
+      pathname !== NOT_FOUND_PATH
   }
 }
 
@@ -476,12 +498,7 @@ export interface TargetIndex {
 }
 
 export type ResolutionKind =
-  | 'file'
-  | 'redirect'
-  | 'ssr'
-  | 'netlify-redirect'
-  | 'allowed'
-  | 'none'
+  'file' | 'redirect' | 'ssr' | 'netlify-redirect' | 'allowed' | 'none'
 
 export function resolveTarget(
   index: TargetIndex,
@@ -583,12 +600,17 @@ export interface Finding {
 
 function classifyMissingReason(pathname: string): LinkFindingReason {
   if (pathname.startsWith('/uploads/')) return 'missing-upload'
-  const lastSegment = pathname.slice(pathname.lastIndexOf('/') + 1)
-  return lastSegment.includes('.') ? 'missing-asset' : 'missing-page'
+  return isFilePath(pathname) ? 'missing-asset' : 'missing-page'
 }
 
-/** One line per distinct target, truncated with an overflow note. */
-export function formatFindings(entries: Array<[string, Finding]>): string {
+/**
+ * One line per distinct target, most-linked first, truncated with an overflow
+ * note.
+ */
+export function formatFindings(findings: Map<string, Finding>): string {
+  const entries = [...findings.entries()].sort(
+    ([, a], [, b]) => b.count - a.count
+  )
   const lines = entries.slice(0, MAX_REPORTED).map(([target, finding]) => {
     const { reason, file, count } = finding
     // A redirect has no occurrences to count — `file` is where it points.
@@ -603,6 +625,22 @@ export function formatFindings(entries: Array<[string, Finding]>): string {
       ? `\n  …and ${entries.length - MAX_REPORTED} more`
       : ''
   return lines.join('\n') + overflow
+}
+
+/**
+ * Why slashless links fail every build, not only under strict: Strapi slashes
+ * internal links on save, so one can only come from Astro code or a file edited
+ * in the repo — never from an editor's routine publish.
+ */
+function formatSlashlessReport(slashless: Map<string, Finding>): string {
+  return (
+    `${slashless.size} page(s) linked without a trailing slash. This fails ` +
+    `every build, whatever LINK_CHECK is set to.\n` +
+    `Why: Netlify serves pages at /path/, so a link to /path costs a 301.\n` +
+    `Fix: add the slash. In Astro code, build hrefs with localizeRoute or ` +
+    `translatePath, and append segments with joinPagePath.\n` +
+    formatFindings(slashless)
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -634,7 +672,10 @@ function isStrict(): boolean {
   return process.env.LINK_CHECK === 'strict'
 }
 
-/** A fragment that always resolves, per the HTML spec. */
+/**
+ * A fragment that resolves without an element in the HTML.
+ * `#top` and a bare `#` are defined by HTML.
+ */
 function isAlwaysValidFragment(fragment: string): boolean {
   return fragment === '' || fragment.toLowerCase() === 'top'
 }
@@ -701,10 +742,17 @@ export function validateInternalLinks(): AstroIntegration {
         // Keyed by file, not by target: one file answers to several targets
         // (`/about`, `/about/index.html`) and a fragment must validate on any.
         const pageIds = new Map<string, Set<string>>()
+        // Its own map: `refs` keys on the normalised path, which has already
+        // lost the slash.
+        const slashless = new Map<string, Finding>()
 
         for (const relPath of htmlFiles) {
           const html = await readFile(path.join(distDir, relPath), 'utf8')
           const { targets, ids } = scanDocument(html)
+          // A bare `#XXXXXXXX` is a Fundraise Up element id, not an element in
+          // the page. Only a page that loaded the widget gets that exemption.
+          // `/path#XXXXXXXX` is still a normal fragment.
+          const loadsFundraiseUp = html.includes(FUNDRAISE_UP_WIDGET)
 
           const [ownPath] = distFileToTargets(relPath).sort(
             (a, b) => a.length - b.length
@@ -713,12 +761,32 @@ export function validateInternalLinks(): AstroIntegration {
           pageIds.set(relPath, ids)
 
           for (const raw of targets) {
+            if (
+              loadsFundraiseUp &&
+              isFundraiseUpElementHref(decodeHtmlEntities(raw).trim())
+            ) {
+              continue
+            }
+
             const link = classifyHref(raw, {
               fromPathname: ownPath,
               siteHost,
               servedWithTrailingSlash
             })
             if (!link) continue
+
+            if (link.slashless) {
+              const found = slashless.get(link.pathname)
+              if (found) {
+                found.count += 1
+              } else {
+                slashless.set(link.pathname, {
+                  reason: 'slashless-link',
+                  file: relPath,
+                  count: 1
+                })
+              }
+            }
 
             const key = link.fragment
               ? `${link.pathname}#${link.fragment}`
@@ -816,32 +884,35 @@ export function validateInternalLinks(): AstroIntegration {
           ? ` ${fragmentsSkipped} fragment(s) behind a redirect or SSR route were not checked.`
           : ''
 
-        if (findings.size === 0) {
+        const findingsReport =
+          findings.size === 0
+            ? null
+            : `${scanned} — ${findings.size} do not resolve.${skipped}\n` +
+              `Fix the link or the redirect's destination, add a redirect in ` +
+              `Strapi (Content Manager → Redirect; patterns go in public/_redirects), ` +
+              `or add an entry to ` +
+              `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
+              formatFindings(findings)
+
+        if (!findingsReport && slashless.size === 0) {
           logger.info(`${scanned} — all resolve.${skipped}`)
-          return
-        }
-
-        const entries = [...findings.entries()].sort(
-          ([, a], [, b]) => b.count - a.count
-        )
-
-        const report =
-          `${scanned} — ${findings.size} do not resolve.${skipped}\n` +
-          `Fix the link or the redirect's destination, add a redirect in ` +
-          `Strapi (Content Manager → Redirect; patterns go in public/_redirects), ` +
-          `or add an entry to ` +
-          `src/integrations/internal-link-exceptions.ts with a comment saying why.\n` +
-          formatFindings(entries)
-
-        if (!isStrict()) {
+        } else if (findingsReport && !isStrict()) {
           logger.warn(
-            `${report}\nThis build still succeeds, but publishing to ` +
-              `production will fail until these are fixed.`
+            `${findingsReport}\nThese alone do not fail this build, but ` +
+              `publishing to production will fail until they are fixed.`
           )
-          return
         }
 
-        throw new Error(`Internal link validation failed: ${report}`)
+        const failures = [
+          isStrict() ? findingsReport : null,
+          slashless.size > 0 ? formatSlashlessReport(slashless) : null
+        ].filter((report): report is string => report !== null)
+
+        if (failures.length > 0) {
+          throw new Error(
+            `Internal link validation failed: ${failures.join('\n\n')}`
+          )
+        }
       }
     }
   }

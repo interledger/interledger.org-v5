@@ -28,10 +28,11 @@ jobs:
   # report separately: a cms serializer break shouldn't hide the state of the
   # Astro site's tests, or vice versa. They also run in parallel.
   #
-  # --ignore-scripts on both installs: the unit tests don't touch sharp,
-  # better-sqlite3, or @parcel/watcher, so skipping their native builds keeps
-  # these jobs fast. esbuild resolves its platform binary from the optional dep
-  # without its postinstall, so vitest still runs.
+  # --ignore-scripts on both installs: skipping the native builds of sharp,
+  # better-sqlite3 and @parcel/watcher keeps these jobs fast. The unit tests do
+  # use sharp (the Airtable image tests), and sharp still loads, because it
+  # ships prebuilt binaries as optional deps. esbuild does the same, so vitest
+  # still runs.
   test-src:
     name: Test src
     runs-on: ubuntu-latest
@@ -222,6 +223,17 @@ jobs:
           echo "Note: since this Strapi instance starts empty (aside from bootstrap-seeded media),"
           echo "every content entry below will report as 'would create', not 'would update' — that's expected."
           pnpm run sync:mdx:dry-run
+
+      # The images dry-run is left out: this Strapi starts empty, so it would
+      # list every file. redirects.json is checked by the cms suite, which
+      # needs no Strapi.
+      - name: Run navigation sync in dry-run mode
+        working-directory: cms
+        env:
+          STRAPI_URL: http://localhost:1337
+        run: |
+          export STRAPI_API_TOKEN=$(cat .ci-api-token)
+          pnpm run sync:navigation:dry-run
 
       - name: Stop ephemeral Strapi
         if: always()

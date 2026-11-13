@@ -1,7 +1,15 @@
-import { formatBlockquote } from '../../utils'
+import {
+  formatBlockquote,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
-export function serialize(block: { quote: string; source?: string }): string {
+export function serialize(block: {
+  intro?: BlockIntroInput | null
+  quote: string
+  source?: string
+}): string {
   if (!block.quote) throw new Error('Blockquote block is missing quote')
   // Escape { and } so MDX doesn't try to parse them as JS expressions
   const quote = escMdxBraces(formatBlockquote(block.quote))
@@ -12,5 +20,6 @@ export function serialize(block: { quote: string; source?: string }): string {
 
   // Blank line is load-bearing: Prettier ignores proseWrap for JSX children
   // flush against tags, but respects it once they're a real paragraph (INTORG-1188).
-  return `<Blockquote${sourceAttr}>\n\n${quote}\n\n</Blockquote>`
+  const introAttr = serializeIntroProp(block.intro)
+  return `<Blockquote${introAttr}${sourceAttr}>\n\n${quote}\n\n</Blockquote>`
 }

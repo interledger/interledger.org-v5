@@ -25,7 +25,7 @@ export interface StatItem {
    * SR engines pronounce inconsistently ("M plus" vs "million plus").
    */
   ariaLabel?: string
-  /** Merged onto the default width classes — lets callers override the fixed per-breakpoint widths (e.g. for a percentage-based flex-basis layout). */
+  /** Merged onto the default classes. The card fills its container by default; pass `max-w-*` to cap it. */
   class?: string
   /** Merged onto the number's default size classes. Suffix size follows this unless `suffixClass` overrides it. */
   numberClass?: string
@@ -51,7 +51,7 @@ const {
 } = Astro.props
 const hideContents: 'true' | undefined = ariaLabel ? 'true' : undefined
 const liClasses = twMerge(
-  'flex w-[227px] flex-col items-center gap-sm p-lg animate-rise-in-view tablet:w-[251px] desktop:w-[290px] desktop:items-start desktop:p-xl',
+  'flex w-full flex-col items-center gap-sm p-lg animate-rise-in-view desktop:items-start desktop:p-xl',
   className
 )
 const numberClasses = twMerge(

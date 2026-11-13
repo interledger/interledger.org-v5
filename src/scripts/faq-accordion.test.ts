@@ -5,8 +5,11 @@ import {
   handleFaqItemClick,
   initFaqAccordion,
   openFaqPanel,
+  holdPositionScrollY,
+  keepQuestionReadable,
   questionScrollDestination,
-  scrollQuestionIntoView
+  scrollQuestionIntoView,
+  stickyUpwardRoom
 } from './faq-accordion'
 
 type FakePanel = {
@@ -26,7 +29,7 @@ type FakeItem = {
   dataset: Record<string, string | undefined>
   scrollIntoView: ReturnType<typeof vi.fn>
   removeAttribute: ReturnType<typeof vi.fn>
-  getBoundingClientRect: () => { top: number }
+  getBoundingClientRect: () => { top: number; bottom?: number }
   querySelector: (selector: string) => FakePanel | FakeSummary | null
   closest?: (selector: string) => unknown
 }
@@ -62,9 +65,21 @@ function makeItem(open = false): {
   return { item, panel, summary }
 }
 
-function stubMatchMedia(reduce: boolean) {
+function stubMatchMedia(
+  reduceOrOptions: boolean | { reduce?: boolean; desktop?: boolean }
+) {
+  const reduce =
+    typeof reduceOrOptions === 'boolean'
+      ? reduceOrOptions
+      : Boolean(reduceOrOptions.reduce)
+  const desktop =
+    typeof reduceOrOptions === 'boolean'
+      ? false
+      : Boolean(reduceOrOptions.desktop)
   vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: reduce && query.includes('reduce'),
+    matches:
+      (reduce && query.includes('reduce')) ||
+      (desktop && query.includes('1200')),
     addEventListener() {},
     removeEventListener() {}
   }))
@@ -199,6 +214,7 @@ describe('handleFaqItemClick', () => {
     a.panel.dataset.open = 'true'
     const b = makeItem(false)
     const accordion = {
+      dataset: {} as Record<string, string | undefined>,
       querySelectorAll: (selector: string) =>
         selector === '[data-faq-item]' ? [a.item, b.item] : []
     }
@@ -213,6 +229,110 @@ describe('handleFaqItemClick', () => {
     expect(b.item.open).toBe(true)
     expect(scrollTo).not.toHaveBeenCalled()
     expect(b.item.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('keeps a visible question still on a desktop grant FAQ', () => {
+    stubMatchMedia({ desktop: true })
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('requestAnimationFrame', vi.fn())
+    vi.stubGlobal('innerHeight', 900)
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '76px' }))
+
+    const a = makeItem(true)
+    a.item.dataset.faqExpanded = 'true'
+    a.panel.dataset.open = 'true'
+    const b = makeItem(false)
+    b.item.getBoundingClientRect = () => ({ top: 400, bottom: 460 })
+    const accordion = {
+      dataset: { faqHoldPosition: 'true' },
+      querySelectorAll: () => []
+    }
+    const closest = (selector: string) =>
+      selector === '[data-faq-accordion]' ? accordion : null
+    a.item.closest = closest
+    b.item.closest = closest
+
+    handleFaqItemClick(
+      b.item as unknown as HTMLDetailsElement,
+      [a.item, b.item] as unknown as HTMLDetailsElement[]
+    )
+
+    expect(b.item.open).toBe(true)
+    expect(a.item.open).toBe(false)
+    expect(a.panel.addEventListener).not.toHaveBeenCalled()
+    expect(scrollTo).not.toHaveBeenCalled()
+    expect(b.item.scrollIntoView).not.toHaveBeenCalled()
+  })
+
+  it('still scrolls to the question below the desktop breakpoint', () => {
+    stubMatchMedia({ reduce: true })
+    const b = makeItem(false)
+    const accordion = {
+      dataset: { faqHoldPosition: 'true' },
+      querySelectorAll: () => []
+    }
+    b.item.closest = (selector: string) =>
+      selector === '[data-faq-accordion]' ? accordion : null
+
+    handleFaqItemClick(
+      b.item as unknown as HTMLDetailsElement,
+      [b.item] as unknown as HTMLDetailsElement[]
+    )
+
+    expect(b.item.scrollIntoView).toHaveBeenCalledWith({ block: 'start' })
+  })
+
+  it('stops the lift at the page top, then clears the header if it still can', () => {
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('scrollY', 60)
+    vi.stubGlobal('innerHeight', 900)
+    vi.stubGlobal('getComputedStyle', () => ({ scrollMarginTop: '80px' }))
+
+    const item = makeItem(false).item
+    // Closing the answer above would need 300px. Only 60px of document is left.
+    item.getBoundingClientRect = () => ({ top: 40, bottom: 100 })
+
+    keepQuestionReadable(item as unknown as HTMLElement, 340)
+
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(0, { immediate: true })
+  })
+
+  it('does not scroll up far enough to unstick the title column', () => {
+    const scrollTo = vi.fn()
+    vi.stubGlobal('__siteLenis', { scrollTo })
+    vi.stubGlobal('scrollY', 6000)
+    vi.stubGlobal('innerHeight', 900)
+    vi.stubGlobal(
+      'getComputedStyle',
+      (el: { stickyTop?: string; scrollMargin?: string }) => ({
+        scrollMarginTop: el.scrollMargin ?? '80px',
+        top: el.stickyTop ?? 'auto'
+      })
+    )
+
+    const column = {
+      stickyTop: '120px',
+      getBoundingClientRect: () => ({ top: 120 })
+    }
+    const section = {
+      getBoundingClientRect: () => ({ top: 115 }),
+      firstElementChild: column
+    }
+    const item = makeItem(false).item
+    item.getBoundingClientRect = () => ({ top: 398, bottom: 460 })
+    item.closest = (selector: string) => {
+      if (selector === '[data-component="GrantFaqSection"]') return section
+      return null
+    }
+
+    expect(stickyUpwardRoom(item as unknown as HTMLElement)).toBe(5)
+    keepQuestionReadable(item as unknown as HTMLElement, 500)
+
+    expect(scrollTo).toHaveBeenCalledOnce()
+    expect(scrollTo).toHaveBeenCalledWith(6000 - 5, { immediate: true })
   })
 
   it('collapses an already expanded item without scrolling', () => {
@@ -230,6 +350,82 @@ describe('handleFaqItemClick', () => {
     expect(a.item.dataset.faqExpanded).toBe('false')
     expect(b.item.open).toBe(false)
     expect(a.item.scrollIntoView).not.toHaveBeenCalled()
+  })
+})
+
+describe('holdPositionScrollY', () => {
+  const base = {
+    scrollY: 1000,
+    headerGap: 80,
+    upwardRoom: 1000,
+    viewportHeight: 900
+  }
+
+  it('does not scroll when nothing lifted and the answer is on screen', () => {
+    expect(
+      holdPositionScrollY({
+        ...base,
+        topBefore: 400,
+        topAfter: 420,
+        answerBottom: 500
+      })
+    ).toBe(1000)
+  })
+
+  it('stops at the page top when the lift is taller than the document above', () => {
+    expect(
+      holdPositionScrollY({
+        ...base,
+        scrollY: 60,
+        topBefore: 340,
+        topAfter: 40,
+        answerBottom: 100,
+        upwardRoom: 5000
+      })
+    ).toBe(0)
+  })
+
+  it('restores a question that started clear of the header and ended under it', () => {
+    expect(
+      holdPositionScrollY({
+        ...base,
+        topBefore: 200,
+        topAfter: 20,
+        answerBottom: 80
+      })
+    ).toBe(1000 - (200 - 20))
+  })
+
+  it('leaves a question under the header when further upward scroll would pass the cap', () => {
+    expect(
+      holdPositionScrollY({
+        ...base,
+        topBefore: 90,
+        topAfter: -10,
+        answerBottom: 40,
+        upwardRoom: 20
+      })
+    ).toBe(1000 - 20)
+  })
+
+  it('scrolls an answer below the fold up, and stops at the header', () => {
+    expect(
+      holdPositionScrollY({
+        ...base,
+        topBefore: 830,
+        topAfter: 830,
+        answerBottom: 1004
+      })
+    ).toBe(1000 + (1004 - 900))
+
+    expect(
+      holdPositionScrollY({
+        ...base,
+        topBefore: 830,
+        topAfter: 830,
+        answerBottom: 2000
+      })
+    ).toBe(1000 + (830 - 80))
   })
 })
 

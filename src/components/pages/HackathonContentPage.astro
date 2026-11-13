@@ -1,5 +1,6 @@
 ---
-import { getCollection, render } from 'astro:content'
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
+import { render } from 'astro:content'
 import HackathonPageLayout from '@/layouts/HackathonPageLayout.astro'
 import Paragraph from '@/components/blocks/Paragraph.astro'
 import InfoCard from '@/components/shared/InfoCard.astro'
@@ -32,7 +33,8 @@ import {
   useTranslations,
   HACKATHON_HERO_SIZES,
   HACKATHON_HOME_SLUG,
-  buildSectionEntryBreadcrumbs
+  buildSectionEntryBreadcrumbs,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -43,14 +45,14 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 
-const pages = await getCollection('hackathon-pages')
+const pages = await getGatedCollection('hackathon-pages')
 const entry = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
 )
 
 if (!entry) return Astro.redirect('/404')
 
-Astro.locals.profileEntries = await getCollection('profiles')
+Astro.locals.profileEntries = await getGatedCollection('profiles')
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -90,7 +92,7 @@ const breadcrumbs = showBreadcrumbs
       'hackathon',
       heroTitle ?? title,
       routeLocale,
-      t('nav.home')
+      t
     )
   : undefined
 ---
@@ -120,11 +122,18 @@ const breadcrumbs = showBreadcrumbs
     >
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </HackathonHero>
-    <section class="px-content py-4xl">
+    {/* No top padding when the prose opens with a block that owns its
+      spacing, its intro or empty-intro spacer its own child or one level down
+      (SplitLayout): that is the gap under the hero (ADR-009, A6). The same
+      for a Paragraph block, whose "first" padding is the gap (A3). */}
+    <section
+      class="px-content py-4xl [&:has([data-prose]>[data-intro-variant]:first-child>[data-block-intro])]:pt-0 [&:has([data-prose]>[data-intro-variant]:first-child>*>[data-block-intro])]:pt-0 [&:has([data-prose]>[data-intro-variant]:first-child>[data-intro-spacer])]:pt-0 [&:has([data-prose]>[data-intro-variant]:first-child>*>[data-intro-spacer])]:pt-0 [&:has([data-prose]>[data-intro-variant=paragraph]:first-child)]:pt-0 [&:has([data-prose]>[data-intro-variant=paragraph]:first-child)]:[--para-lead-pt:var(--para-first-pt)]"
+    >
       <div class="content-column">
         <div data-prose>
           <MdxContent
             components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
               Paragraph,
               InfoCard,
               NumberTiles,

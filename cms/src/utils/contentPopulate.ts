@@ -16,29 +16,35 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true
+    }
   },
-  'blocks.blockquote': {},
+  'blocks.blockquote': { populate: { intro: true } },
   'blocks.callout-text': {},
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
     }
   },
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.carousel': {
-    populate: { logos: { populate: { image: true } } }
+    populate: { intro: true, logos: { populate: { image: true } } }
   },
   'blocks.number-tiles': {
-    populate: { tiles: true }
+    populate: { intro: true, tiles: true }
   },
   'blocks.card-grid': {
     populate: {
+      intro: true,
       titleCards: {
         populate: { secondaryCta: true, secondSecondaryCta: true }
       },
@@ -54,10 +60,14 @@ const GRANT_BLOCKS = {
 const FOUNDATION_PAGE_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.agenda': {
-    populate: { items: true }
+    populate: { intro: true, items: true }
   },
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true
+    }
   },
   'blocks.profile': {
     populate: {
@@ -65,32 +75,34 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.profile-grid': {
-    populate: { profiles: true }
+    populate: { intro: true, profiles: true }
   },
-  'blocks.blockquote': {},
+  'blocks.blockquote': { populate: { intro: true } },
   'blocks.quote': {
-    populate: { authorImage: true }
+    populate: { intro: true, authorImage: true }
   },
   'blocks.callout-text': {},
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.pdf-embed': {
-    populate: { file: true }
+    populate: { intro: true, file: true }
   },
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
     }
   },
   'blocks.number-tiles': {
-    populate: { tiles: true }
+    populate: { intro: true, tiles: true }
   },
   'blocks.card-grid': {
     populate: {
+      intro: true,
       titleCards: {
         populate: { secondaryCta: true, secondSecondaryCta: true }
       },
@@ -100,31 +112,39 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.carousel': {
-    populate: { logos: { populate: { image: true } } }
+    populate: { intro: true, logos: { populate: { image: true } } }
   },
   'blocks.faq': {
-    populate: { items: true }
+    populate: { intro: true, items: true }
   },
   'blocks.cta-buttons': {
-    populate: { buttons: true }
+    populate: { intro: true, buttons: true }
   },
   'blocks.event-card': {
     populate: {
+      intro: true,
       when: true,
       where: true,
       apply: { populate: { primaryCta: true } }
     }
   },
-  'blocks.code-block': {}
+  'blocks.code-block': {},
+  'blocks.donation-cards': {
+    populate: { cards: true }
+  },
+  'blocks.timeline': {
+    populate: { sections: { populate: { events: true } } }
+  }
 } as const
 
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
@@ -132,7 +152,7 @@ const FOUNDATION_BLOG_BLOCKS = {
   },
   'blocks.code-block': {},
   'blocks.quote': {
-    populate: { authorImage: true }
+    populate: { intro: true, authorImage: true }
   },
   'blocks.internal-advert': {
     populate: {
@@ -165,6 +185,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.paragraph': {},
     'blocks.card-grid': {
       populate: {
+        intro: true,
         titleCards: {
           populate: { secondaryCta: true, secondSecondaryCta: true }
         },
@@ -174,40 +195,46 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       }
     },
     'blocks.number-tiles': {
-      populate: { tiles: true }
+      populate: { intro: true, tiles: true }
     },
     'blocks.agenda': {
-      populate: { items: true }
+      populate: { intro: true, items: true }
     },
     'blocks.split-layout': {
-      populate: { media: { populate: { image: true } }, cta: true }
+      populate: {
+        intro: true,
+        media: { populate: { image: true } },
+        buttons: true
+      }
     },
     'blocks.profile-grid': {
-      populate: { profiles: true }
+      populate: { intro: true, profiles: true }
     },
-    'blocks.cta-strip': {},
+    'blocks.cta-strip': { populate: { intro: true } },
     'blocks.carousel': {
-      populate: { logos: { populate: { image: true } } }
+      populate: { intro: true, logos: { populate: { image: true } } }
     },
     'blocks.faq': {
-      populate: { items: true }
+      populate: { intro: true, items: true }
     },
     'blocks.cta-buttons': {
-      populate: { buttons: true }
+      populate: { intro: true, buttons: true }
     },
     'blocks.event-card': {
       populate: {
+        intro: true,
         when: true,
         where: true,
         apply: { populate: { primaryCta: true } }
       }
     },
     'blocks.quote': {
-      populate: { authorImage: true }
+      populate: { intro: true, authorImage: true }
     },
     'blocks.hackathon-animation': {},
     'blocks.image-block': {
       populate: {
+        intro: true,
         media: { populate: { image: true } },
         tabletImage: true,
         mobileImage: true
@@ -217,7 +244,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
   }
 } as const
 
-/** Populate config for foundation-page and summit-page content fields. */
+/** Populate config for foundation-page, fundraising-page, and summit-page content fields. */
 export const FOUNDATION_PAGE_CONTENT_POPULATE = {
   on: { ...FOUNDATION_PAGE_BLOCKS }
 } as const
@@ -241,7 +268,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
     on: {
       ...GRANT_BLOCKS,
       'blocks.profile-grid': {
-        populate: { profiles: true }
+        populate: { intro: true, profiles: true }
       }
     }
   },
@@ -276,6 +303,7 @@ export const PODCAST_PAGE_CONTENT_POPULATE = {
   },
   titleCards: {
     populate: {
+      intro: true,
       titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } }
     }
   },

@@ -60,8 +60,16 @@ const HOME_SUFFIX = '_home'
 const TITLE_LABEL_PREFIX = 'label:'
 export const DEFAULT_INLINE_LINK_BASE_COMPONENT = 'inline_link'
 
-// Absolute links to the site's own domain must classify as internal
-const SITE_HOSTNAMES = new Set(['interledger.org', 'www.interledger.org'])
+// Absolute links to the site's own domain must classify as internal. Staging
+// and playground count too: editors copy links from whichever environment
+// they work on. Keep in step with the CMS's `SITE_HOSTS` (tested).
+export const SITE_HOSTNAMES: ReadonlySet<string> = new Set([
+  'interledger.org',
+  'www.interledger.org',
+  'staging.interledger.org',
+  'staging--interledger-org-v5.netlify.app',
+  'playground--interledger-org-v5.netlify.app'
+])
 
 const MICROSITE_SEGMENTS = new Set(['summit', 'hackathon'])
 // Purely-numeric or date-shaped segments (2026, 2026-01, 2026-01-07)
@@ -140,19 +148,30 @@ export function isSiteHostname(hostname: string): boolean {
   )
 }
 
+const WEB_PROTOCOLS = new Set(['http:', 'https:'])
+
 /**
  * Rewrites an absolute link to the site's own domain into a relative path,
  * so it flows through the internal classification pipeline instead of the
- * external one. Non-matching or unparseable hrefs are returned unchanged.
+ * external one, and keeps the reader in the environment they are on.
+ * Only http(s) with no port counts as our site, as the CMS strips on save, so
+ * a link stored absolute is not rendered relative. Non-matching or
+ * unparseable hrefs are returned unchanged.
  */
-function stripKnownOrigin(href: string): string {
+export function stripKnownOrigin(href: string): string {
   // `new URL` can't parse a protocol-relative `//host` without a scheme.
   const parsable = href.startsWith('//') ? `https:${href}` : href
   try {
     const url = new URL(parsable)
-    return isSiteHostname(url.hostname)
-      ? `${url.pathname}${url.search}${url.hash}`
-      : href
+    const isOwnSite =
+      WEB_PROTOCOLS.has(url.protocol) &&
+      url.port === '' &&
+      isSiteHostname(url.hostname)
+    if (!isOwnSite) return href
+    // A leading `//` would make the path a protocol-relative link to a host
+    // named after its first segment.
+    const path = url.pathname.replace(/^\/+/, '/')
+    return `${path}${url.search}${url.hash}`
   } catch {
     return href
   }
@@ -194,7 +213,7 @@ function getDestination(href: string | null | undefined): {
 
   const normalized = stripKnownOrigin(trimmed)
 
-  // A hash-only href (`#section`, e.g. FaqSectionsNav's in-page jumps) is a
+  // A hash-only href (`#section`, e.g. SectionsNav's in-page jumps) is a
   // same-page anchor, not a navigation destination — treat it like a
   // destination-less interaction rather than letting the empty remainder
   // below collapse to `<section>_home`.
@@ -312,8 +331,7 @@ export function buildSessionCardUmamiAttrs(
 /**
  * Shared Umami attrs for a top-level site-nav link (logo, menu item,
  * language toggle, submenu item) — used by `FoundationHeader.astro`,
- * `MicrositeHeader.astro`, `HackathonHeader.astro`, `MicrositeNavMenu.astro`,
- * and `NavMenuLink.astro` (which `FoundationNavMenu.astro` renders through).
+ * `HackathonHeader.astro`, `FoundationNavMenu.astro`, and `NavMenuLink.astro`.
  * Kept in one place so a header can't drift onto a made-up field name
  * instead of `label`/`baseComponent`.
  */
@@ -337,8 +355,8 @@ export function buildNavLinkUmamiAttrs(
 
 /**
  * Shared Umami attrs for a header/nav's CTA button — used by
- * `FoundationHeader.astro`, `MicrositeHeader.astro`, `HackathonHeader.astro`,
- * `FoundationNavActions.astro`, and `MicrositeNavActions.astro`. Kept
+ * `FoundationHeader.astro`, `HackathonHeader.astro`, and
+ * `FoundationNavActions.astro`. Kept
  * separate from `buildNavLinkUmamiAttrs` so a header's plain nav links and
  * its CTA are never tracked under the same bucket by accident.
  */
@@ -359,9 +377,9 @@ export function buildNavCtaUmamiAttrs(
 }
 
 /**
- * Shared Umami attrs for an in-page section-nav link (`FaqSectionsNav.astro`,
- * `ReportSectionsNav.astro`) — same `#id` anchor shape, distinguished by
- * `baseComponent` per content domain (`faq`, `report`).
+ * Shared Umami attrs for an in-page section-nav link (`SectionsNav.astro`).
+ * Same `#id` anchor shape, distinguished by `baseComponent` per content
+ * domain (`faq`, `report`).
  */
 export function buildSectionNavLinkUmamiAttrs(
   pathname: string,

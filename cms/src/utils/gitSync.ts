@@ -161,10 +161,7 @@ export class GitCommandError extends Error {
 }
 
 export type GitSyncSkipReason =
-  | 'disabled'
-  | 'no-changes'
-  | 'no-stage-paths'
-  | 'no-valid-paths'
+  'disabled' | 'no-changes' | 'no-stage-paths' | 'no-valid-paths'
 
 /**
  * What integrating the commit had to overwrite. Present on a `synced` result

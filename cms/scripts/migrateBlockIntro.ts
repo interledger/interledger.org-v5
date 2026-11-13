@@ -1,0 +1,446 @@
+/**
+ * Moves block headings into the block intro (INTORG-1154, ADR-009) in MDX
+ * source, so the repo and Strapi agree before the next sync:
+ *
+ * - A legacy `title="…"` / `heading="…"` on a block becomes
+ *   `intro={{"heading":"…"}}`.
+ * - A SplitLayout's legacy single CTA (`ctaText`, `ctaLink`, `ctaStyle`,
+ *   `ctaExternal`, `ctaDocument`) becomes a one-button `buttons={[…]}` group.
+ * - With `fold`, a "fake intro" — a `<Paragraph>` holding only a `##` or
+ *   `###` heading and plain description paragraphs, directly before a block
+ *   with no heading of its own — moves into that block's intro. Anything
+ *   less clean is reported for an editor, never rewritten.
+ *
+ * Works on source offsets from the MDX parse, so the rest of the file stays
+ * byte for byte unchanged and the diff shows only the moved text.
+ */
+
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkMdx from 'remark-mdx'
+import type { Root, RootContent } from 'mdast'
+import type {
+  MdxJsxAttribute,
+  MdxJsxFlowElement,
+  MdxJsxTextElement
+} from 'mdast-util-mdx-jsx'
+import type { SerializedBlockIntro } from '../src/utils/contentTypes'
+import {
+  RETIRED_HEADING_PROPS,
+  RETIRED_SPLIT_LAYOUT_CTA_PROPS,
+  SPLIT_LAYOUT,
+  retiredPropsOf
+} from './sync-mdx/retiredProps'
+
+/** A JSX element on its own lines (flow) or inside a line of text. */
+type JsxElement = MdxJsxFlowElement | MdxJsxTextElement
+
+const FAKE_INTRO_WRAPPER = 'Paragraph'
+
+/** YAML frontmatter; a byte-order mark may precede it. */
+const FRONTMATTER = /^\uFEFF?---\r?\n[\s\S]*?\r?\n---(?=\r?\n|$)/
+
+/**
+ * The source with its frontmatter blanked to spaces, so MDX doesn't parse
+ * YAML as markdown while every offset and line number still matches.
+ */
+function blankFrontmatter(source: string): string {
+  return source.replace(FRONTMATTER, (frontmatter) =>
+    frontmatter.replace(/[^\r\n]/g, ' ')
+  )
+}
+
+/** Parses MDX source with its frontmatter blanked, or returns the error. */
+function parseMdxSource(source: string): Root | Error {
+  try {
+    return unified()
+      .use(remarkParse)
+      .use(remarkMdx)
+      .parse(blankFrontmatter(source)) as Root
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error))
+  }
+}
+
+/** Inline content a description may hold and still fold cleanly. */
+const PLAIN_INLINE_TYPES = new Set([
+  'text',
+  'strong',
+  'emphasis',
+  'link',
+  'inlineCode',
+  'break'
+])
+
+export interface FakeIntroReport {
+  line: number
+  block: string
+  reason: string
+}
+
+export interface BlockIntroMigration {
+  /** The rewritten source, or `null` when nothing changed. */
+  source: string | null
+  /** Fake intros found but left alone, with why. */
+  skipped: FakeIntroReport[]
+  /** Fake intros folded into their block. */
+  folded: FakeIntroReport[]
+}
+
+interface Edit {
+  start: number
+  end: number
+  text: string
+}
+
+type Offsets = { start: number; end: number }
+
+function offsetsOf(node: {
+  position?: { start: { offset?: number }; end: { offset?: number } }
+}): Offsets | null {
+  const start = node.position?.start.offset
+  const end = node.position?.end.offset
+  return start === undefined || end === undefined ? null : { start, end }
+}
+
+function isFlowElement(
+  node: RootContent | undefined
+): node is MdxJsxFlowElement {
+  return node?.type === 'mdxJsxFlowElement'
+}
+
+function isIntroBlock(
+  node: RootContent | undefined
+): node is MdxJsxFlowElement {
+  return (
+    isFlowElement(node) &&
+    node.name !== null &&
+    node.name in RETIRED_HEADING_PROPS
+  )
+}
+
+function findAttr(node: JsxElement, name: string): MdxJsxAttribute | undefined {
+  return node.attributes.find(
+    (attr): attr is MdxJsxAttribute =>
+      attr.type === 'mdxJsxAttribute' && attr.name === name
+  )
+}
+
+function introAttr(intro: SerializedBlockIntro): string {
+  return `intro={${JSON.stringify(intro)}}`
+}
+
+/** Offset just after `<Name`, where a new attribute can go. */
+function afterTagName(node: MdxJsxFlowElement): number | null {
+  const offsets = offsetsOf(node)
+  return offsets && node.name ? offsets.start + 1 + node.name.length : null
+}
+
+/**
+ * A standalone LogoCarousel renders `heading` as its centred title and no
+ * intro, so moving the heading into an intro would hide it. The migration
+ * leaves it alone; `findLegacyBlockAttrs` still reports it, because the sync
+ * has no `standalone` field and rejects the `heading`.
+ */
+function isStandaloneCarousel(node: MdxJsxFlowElement): boolean {
+  return (
+    node.name === 'LogoCarousel' && isTrueAttr(findAttr(node, 'standalone'))
+  )
+}
+
+/** Rewrites `title="…"` / `heading="…"` on one block into `intro={…}`. */
+function legacyHeadingEdit(node: MdxJsxFlowElement): Edit | null {
+  const legacyName = node.name ? RETIRED_HEADING_PROPS[node.name] : undefined
+  if (!legacyName || findAttr(node, 'intro') || isStandaloneCarousel(node))
+    return null
+
+  const legacy = findAttr(node, legacyName)
+  const offsets = legacy && offsetsOf(legacy)
+  if (!legacy || !offsets || typeof legacy.value !== 'string') return null
+
+  const heading = legacy.value.trim()
+  return {
+    ...offsets,
+    text: heading ? introAttr({ heading }) : ''
+  }
+}
+
+function hasHeading(node: MdxJsxFlowElement): boolean {
+  const legacyName = node.name ? RETIRED_HEADING_PROPS[node.name] : ''
+  const legacy = legacyName ? findAttr(node, legacyName) : undefined
+  return (
+    findAttr(node, 'intro') !== undefined ||
+    (typeof legacy?.value === 'string' && legacy.value.trim() !== '')
+  )
+}
+
+function isPlainInline(node: RootContent): boolean {
+  if (!PLAIN_INLINE_TYPES.has(node.type)) return false
+  return 'children' in node
+    ? (node.children as RootContent[]).every(isPlainInline)
+    : true
+}
+
+type FoldResult =
+  | { intro: SerializedBlockIntro; reason?: undefined }
+  | { intro?: undefined; reason: string }
+
+/**
+ * Reads a fake intro out of a `<Paragraph>`: a heading first, then only
+ * plain paragraphs. Returns why it can't fold otherwise.
+ */
+function readFakeIntro(
+  paragraph: MdxJsxFlowElement,
+  source: string
+): FoldResult {
+  if (paragraph.attributes.length > 0) {
+    return { reason: 'the Paragraph has attributes' }
+  }
+  const [first, ...rest] = paragraph.children
+  if (first?.type !== 'heading' || (first.depth !== 2 && first.depth !== 3)) {
+    return { reason: 'content comes before the heading' }
+  }
+  if (!first.children.every((child) => child.type === 'text')) {
+    return { reason: 'the heading has formatting or links' }
+  }
+  const unclean = rest.find(
+    (node) => node.type !== 'paragraph' || !node.children.every(isPlainInline)
+  )
+  if (unclean) {
+    return { reason: `the description has a ${unclean.type}` }
+  }
+
+  const text = first.children
+    .map((child) => child.value)
+    .join('')
+    .trim()
+  const intro: SerializedBlockIntro =
+    first.depth === 2 ? { heading: text } : { subheading: text }
+
+  const firstOffsets = rest.length > 0 ? offsetsOf(rest[0]) : null
+  const lastOffsets = rest.length > 0 ? offsetsOf(rest[rest.length - 1]) : null
+  if (firstOffsets && lastOffsets) {
+    intro.description = source.slice(firstOffsets.start, lastOffsets.end).trim()
+  }
+  return { intro }
+}
+
+/** Whether a Paragraph holds a `##`/`###` heading, so it may be a fake intro. */
+function looksLikeFakeIntro(paragraph: MdxJsxFlowElement): boolean {
+  return paragraph.children.some(
+    (child) =>
+      child.type === 'heading' && (child.depth === 2 || child.depth === 3)
+  )
+}
+
+interface FoldPass {
+  edits: Edit[]
+  folded: FakeIntroReport[]
+  skipped: FakeIntroReport[]
+  /** Blocks whose legacy-heading edit the fold replaces. */
+  foldedBlocks: Set<MdxJsxFlowElement>
+}
+
+function foldPass(root: Root, source: string, fold: boolean): FoldPass {
+  const pass: FoldPass = {
+    edits: [],
+    folded: [],
+    skipped: [],
+    foldedBlocks: new Set()
+  }
+
+  root.children.forEach((node, index) => {
+    if (!isFlowElement(node) || node.name !== FAKE_INTRO_WRAPPER) return
+    const block = root.children[index + 1]
+    if (!isIntroBlock(block) || !looksLikeFakeIntro(node)) return
+
+    const line = node.position?.start.line ?? 0
+    const report = { line, block: block.name ?? '' }
+    if (hasHeading(block)) {
+      pass.skipped.push({
+        ...report,
+        reason: 'the block already has a heading'
+      })
+      return
+    }
+    const result = readFakeIntro(node, source)
+    if (!result.intro) {
+      pass.skipped.push({ ...report, reason: result.reason })
+      return
+    }
+    if (!fold) {
+      pass.skipped.push({ ...report, reason: 'foldable; run with --fold' })
+      return
+    }
+
+    const paragraphOffsets = offsetsOf(node)
+    const blockOffsets = offsetsOf(block)
+    const insertAt = afterTagName(block)
+    if (!paragraphOffsets || !blockOffsets || insertAt === null) return
+
+    pass.edits.push(
+      // The Paragraph and the blank lines up to the block.
+      { start: paragraphOffsets.start, end: blockOffsets.start, text: '' },
+      { start: insertAt, end: insertAt, text: ` ${introAttr(result.intro)}` }
+    )
+    pass.folded.push({ ...report, reason: 'folded' })
+    pass.foldedBlocks.add(block)
+  })
+
+  return pass
+}
+
+/**
+ * A JSX attribute set to true: valueless, `{true}` or `"true"`, the same
+ * forms `getBooleanAttr` accepts in the sync.
+ */
+function isTrueAttr(attr: MdxJsxAttribute | undefined): boolean {
+  if (!attr) return false
+  if (attr.value === null || attr.value === undefined) return true
+  if (typeof attr.value === 'string') return attr.value.trim() === 'true'
+  return attr.value.value.trim() === 'true'
+}
+
+function stringAttr(node: MdxJsxFlowElement, name: string): string | undefined {
+  const value = findAttr(node, name)?.value
+  return typeof value === 'string' ? value.trim() : undefined
+}
+
+/**
+ * Rewrites a SplitLayout's legacy CTA attributes into a one-button group:
+ * the first CTA attribute becomes `buttons={[…]}` and the rest are dropped.
+ */
+function splitLayoutCtaEdits(node: MdxJsxFlowElement, source: string): Edit[] {
+  if (node.name !== SPLIT_LAYOUT || findAttr(node, 'buttons')) return []
+  const text = stringAttr(node, 'ctaText')
+  const link = stringAttr(node, 'ctaLink')
+  if (!text || !link) return []
+
+  const button = {
+    text,
+    link,
+    style:
+      stringAttr(node, 'ctaStyle') === 'secondary' ? 'secondary' : 'primary',
+    ...(isTrueAttr(findAttr(node, 'ctaExternal')) ? { external: true } : {}),
+    ...(isTrueAttr(findAttr(node, 'ctaDocument')) ? { document: true } : {})
+  }
+  const ranges = RETIRED_SPLIT_LAYOUT_CTA_PROPS.map((name) =>
+    findAttr(node, name)
+  )
+    .map((attr) => (attr ? offsetsOf(attr) : null))
+    .filter((offsets): offsets is Offsets => offsets !== null)
+    .sort((a, b) => a.start - b.start)
+
+  return ranges.map((range, index) =>
+    index === 0
+      ? { ...range, text: `buttons={${JSON.stringify([button])}}` }
+      : // Take the whitespace before a dropped attribute with it, so no
+        // stray space or blank line is left inside the tag.
+        {
+          start: startOfLeadingSpace(source, range.start),
+          end: range.end,
+          text: ''
+        }
+  )
+}
+
+/** Where the run of whitespace that ends at `offset` begins. */
+function startOfLeadingSpace(source: string, offset: number): number {
+  let start = offset
+  while (start > 0 && /\s/.test(source[start - 1])) start--
+  return start
+}
+
+/** Every flow element in the tree, nested ones included. */
+function flowElements(node: Root | RootContent): MdxJsxFlowElement[] {
+  return jsxElements(node).filter(isFlowElement)
+}
+
+/** Every JSX element in the tree, flow or inline, nested ones included. */
+function jsxElements(node: Root | RootContent): JsxElement[] {
+  const own =
+    node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement'
+      ? [node]
+      : []
+  const children = 'children' in node ? (node.children as RootContent[]) : []
+  return [...own, ...children.flatMap(jsxElements)]
+}
+
+export interface LegacyBlockAttr {
+  line: number
+  block: string
+  attr: string
+}
+
+/**
+ * Every legacy attribute still on a block, in any form: a string or an
+ * expression value, beside an `intro`, on an inline or standalone block, or
+ * a Split layout CTA without its link. The migration rewrites only the clean
+ * cases; this reports every one the sync would reject.
+ */
+export function findLegacyBlockAttrs(
+  source: string
+): LegacyBlockAttr[] | Error {
+  const root = parseMdxSource(source)
+  if (root instanceof Error) return root
+
+  return jsxElements(root).flatMap((node) => {
+    const retired = retiredPropsOf(node.name)
+    if (!retired || !node.name) return []
+    const block = node.name
+    return retired.names.flatMap((name) => {
+      const attr = findAttr(node, name)
+      if (!attr) return []
+      const line = attr.position?.start.line ?? node.position?.start.line ?? 0
+      return [{ line, block, attr: name }]
+    })
+  })
+}
+
+/** Every intro block in the tree, nested ones included. */
+function introBlocks(node: Root | RootContent): MdxJsxFlowElement[] {
+  const own = isIntroBlock(node as RootContent)
+    ? [node as MdxJsxFlowElement]
+    : []
+  const children = 'children' in node ? (node.children as RootContent[]) : []
+  return [...own, ...children.flatMap(introBlocks)]
+}
+
+function applyEdits(source: string, edits: Edit[]): string {
+  return [...edits]
+    .sort((a, b) => b.start - a.start)
+    .reduce(
+      (text, edit) =>
+        text.slice(0, edit.start) + edit.text + text.slice(edit.end),
+      source
+    )
+}
+
+/**
+ * Migrates one MDX file's block headings to block intros. Pass `fold` to
+ * also fold clean fake intros; without it they are only reported.
+ */
+export function migrateBlockIntro(
+  source: string,
+  { fold = false }: { fold?: boolean } = {}
+): BlockIntroMigration | Error {
+  const root = parseMdxSource(source)
+  if (root instanceof Error) return root
+
+  const pass = foldPass(root, source, fold)
+  const legacyEdits = introBlocks(root)
+    .filter((block) => !pass.foldedBlocks.has(block))
+    .map(legacyHeadingEdit)
+    .filter((edit): edit is Edit => edit !== null)
+
+  const splitLayoutEdits = flowElements(root).flatMap((node) =>
+    splitLayoutCtaEdits(node, source)
+  )
+
+  const edits = [...pass.edits, ...legacyEdits, ...splitLayoutEdits]
+  return {
+    source: edits.length > 0 ? applyEdits(source, edits) : null,
+    folded: pass.folded,
+    skipped: pass.skipped
+  }
+}

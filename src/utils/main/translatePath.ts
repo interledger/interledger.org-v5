@@ -30,12 +30,13 @@ export function translatePath(
 }
 
 /**
- * Builds a blog post's href using its own content locale rather than the
- * current page's routeLocale since we can display blogs of one language on a page of another language.
+ * Builds a blog post's href. The locale defaults to the post's own content
+ * locale. Pass the page's routeLocale to keep the link on the reader's site
+ * when the post is an EN fallback: every EN post has an `/es/` route.
  */
 export function getBlogPostPath(
-  post: CollectionEntry<'foundation-blog'>
+  post: CollectionEntry<'foundation-blog'>,
+  locale: Locale = (post.data.locale as Locale | undefined) ?? defaultLocale
 ): string {
-  const locale = (post.data.locale as Locale | undefined) ?? defaultLocale
   return translatePath('foundation-blog', locale, post.data.pathSlug)
 }

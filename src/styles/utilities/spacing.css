@@ -54,6 +54,127 @@
   & > [data-stack='cta'] {
     margin-block-start: var(--spacing-2xl);
   }
+
+  /*
+   * The bridge for sections whose block owns its spacing: the same maths as
+   * the block rhythm in prose/rhythm.css, one level up. A template section
+   * holds its block in `.content-column`, either directly (a grant's
+   * InfoCards or FAQ) or as the first block of its prose.
+   *
+   * - A section opening on such a block gets --block-pb above it, standing in
+   *   for the padding-bottom the section above doesn't have; the block's
+   *   intro, or its default spacer when the intro is empty, supplies the
+   *   rest of the gap.
+   * - A section that is such a block ends on its --block-pb, so the section
+   *   after it takes --space-section less that padding, or nothing when it
+   *   opens on an intro of its own.
+   *
+   * A section's prose ending on such a block is not covered: rhythm.css
+   * drops the padding of the last block in the prose, so it ends like any
+   * other section. A CTA section keeps its tight gap. Like the prose rules,
+   * these stay (ADR-009).
+   */
+  &
+    > *
+    + :has(
+      > .content-column > [data-intro-variant]:first-child,
+      > .content-column > [data-prose] > [data-intro-variant]:first-child
+    ) {
+    margin-block-start: var(--block-pb);
+  }
+
+  & > :has(> .content-column > [data-intro-variant]:first-child),
+  & > :has(> .content-column > [data-intro-variant]:first-child) + script {
+    & + :not(script, [data-stack='cta']) {
+      margin-block-start: calc(var(--space-section) - var(--block-pb));
+    }
+
+    /* A Paragraph opening that section's prose keeps its h2's section
+       margin, which collapses out through the wrappers and wins over the
+       smaller gap above. */
+    &
+      + :not(script, [data-stack='cta'])
+      [data-prose]
+      > [data-component='Paragraph']:first-child
+      > h2:first-child {
+      margin-block-start: 0;
+    }
+
+    &
+      + :has(
+        > .content-column > [data-intro-variant]:first-child,
+        > .content-column > [data-prose] > [data-intro-variant]:first-child
+      ) {
+      margin-block-start: 0;
+    }
+  }
+
+  /*
+   * Content starts right under the hero (ADR-009, A6): when the section after
+   * it opens with a block that owns its spacing, that block's intro
+   * (`[data-block-intro]`, set by BlockIntro) or, with the intro empty, its
+   * default spacer (`[data-intro-spacer]`) is the whole gap. The block is
+   * the section's own, or the first in its prose; the intro is the block's
+   * child, or one level down where the block puts it in a column
+   * (GrantFaqSection). A Paragraph block takes the rule below; a first block
+   * that doesn't own its spacing keeps the stack gap.
+   * PageHero emits its `<script>` as the next sibling, so reach across one.
+   */
+  &
+    > :first-child
+    + :has(
+      .content-column
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      .content-column
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer])
+    ),
+  &
+    > :first-child
+    + script
+    + :has(
+      .content-column
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      .content-column
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > :is([data-block-intro], [data-intro-spacer]),
+      [data-prose]
+        > [data-intro-variant]:first-child
+        > *
+        > :is([data-block-intro], [data-intro-spacer])
+    ) {
+    margin-block-start: 0;
+  }
+
+  /*
+   * The same when the section's prose opens with a Paragraph block: the
+   * first heading's "first" padding (A3) is the whole gap, so the stack
+   * gives none and the block reads --para-lead-pt.
+   */
+  &
+    > :first-child
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child),
+  &
+    > :first-child
+    + script
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child) {
+    margin-block-start: 0;
+    --para-lead-pt: var(--para-first-pt);
+  }
 }
 
 /*
@@ -95,4 +216,33 @@
 
 @utility gap-section {
   gap: var(--space-section);
+}
+
+/*
+ * LogoCarousel pads below its logos. On the homepage that's the whole gap
+ * before the footer and it's the size we want; everywhere else the page
+ * itself also pads its own end, and the two stack into a doubled gap when
+ * the carousel is the last block. This only covers the carousel ending its
+ * own section while the page continues below it (a grant FAQ, say) — the
+ * next section's normal gap already covers that case, so the carousel's own
+ * padding is dropped here. "Carousel is the literal last thing on the page"
+ * needs a `:has()` nested inside another `:has()` to reach <main>, which
+ * every browser rejects as invalid — see `fixTrailingMainPadding` in
+ * LogoCarousel.astro for that case instead.
+ *
+ * `:last-of-type` (not `:has(~ …)`) checks for a following section, since
+ * every <main> here uses `<section>` for all its top-level children.
+ * `:not(:has(~ :not(script, style)))` does the equivalent check one level
+ * down, where a `<script>`/`<style>` Astro emits after the carousel can be a
+ * real next sibling.
+ *
+ * Unlayered so this beats the Tailwind padding utilities.
+ * `[data-prose-blog]` is included because page preview renders the zone
+ * under that attribute, the same as a post.
+ */
+main
+  > section:not(:last-of-type)
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+  > [data-component='LogoCarousel']:not(:has(~ :not(script, style))) {
+  padding-block-end: 0;
 }

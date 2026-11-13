@@ -5,6 +5,7 @@ import starlight from '@astrojs/starlight'
 import starlightFullViewMode from 'starlight-fullview-mode'
 import netlify from '@astrojs/netlify'
 import mdx from '@astrojs/mdx'
+import { unified } from '@astrojs/markdown-remark'
 import { PUBLISHED_RFC_SIDEBAR_ITEMS } from './src/data/docs/rfcs.ts'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
@@ -13,14 +14,23 @@ import rehypeWrapScrollableTables from './src/utils/main/rehypeWrapScrollableTab
 import { stripDocsCssFromMainSite } from './src/integrations/strip-docs-css-from-main-site.ts'
 import { auditImageOptimization } from './src/integrations/audit-image-optimization.ts'
 import { validateInternalLinks } from './src/integrations/validate-internal-links.ts'
-import { isDemoPathname } from './src/utils/shared/demoPaths.ts'
+import { isExcludedFromSitemap } from './src/utils/shared/demoPaths.ts'
 import { isImageCdnEnabled } from './src/utils/main/imageCdn.ts'
-import { shouldHideFuturePosts } from './src/utils/main/publishGate.ts'
+import {
+  isProductionDeploy,
+  shouldHideDrafts,
+  shouldHideGrantReports,
+  shouldHideFuturePosts
+} from './src/utils/main/publishGate.ts'
 import { LOCALE_CODES } from './src/utils/main/localeCodes.ts'
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://interledger.org',
+  // Astro 7 changed the default to 'jsx', which removes the whitespace
+  // between inline elements across line breaks. `true` keeps the HTML rules.
+  // .prettierrc sets astroCompressHTML to the same mode.
+  compressHTML: true,
   build: {
     // Inline project CSS so Lighthouse does not wait on extra /_astro/*.css round trips.
     inlineStylesheets: 'always'
@@ -54,7 +64,11 @@ export default defineConfig({
     ]
   }),
   markdown: {
-    rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    // The rehype plugins need the unified pipeline. Astro 7's default
+    // processor, Satteri, does not run them. MDX inherits this processor.
+    processor: unified({
+      rehypePlugins: [rehypeUmamiLinks, rehypeWrapScrollableTables]
+    })
   },
   integrations: [
     stripDocsCssFromMainSite(),
@@ -62,6 +76,7 @@ export default defineConfig({
     starlight({
       title: 'Interledger',
       description: 'Enable seamless exchange of value across payment networks.',
+      favicon: '/favicon.ico',
       customCss: [
         './node_modules/@interledger/docs-design-system/src/styles/teal-theme.css',
         './node_modules/@interledger/docs-design-system/src/styles/ilf-docs.css',
@@ -75,6 +90,46 @@ export default defineConfig({
         })
       ],
       head: [
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '32x32',
+            href: '/favicon-32x32.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'icon',
+            type: 'image/png',
+            sizes: '16x16',
+            href: '/favicon-16x16.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'apple-touch-icon',
+            sizes: '180x180',
+            href: '/apple-touch-icon.png'
+          }
+        },
+        {
+          tag: 'link',
+          attrs: {
+            rel: 'manifest',
+            href: '/site.webmanifest'
+          }
+        },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'theme-color',
+            content: '#ffffff'
+          }
+        },
         {
           tag: 'script',
           attrs: {
@@ -113,11 +168,11 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Overview',
-          link: '/developers/get-started'
+          link: '/developers/get-started/'
         },
         {
           label: 'Get involved',
-          link: '/developers/get-involved'
+          link: '/developers/get-involved/'
         },
         {
           label: 'Specifications',
@@ -149,12 +204,9 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
-      // Exclude previews and design/QA demo pages (demo / demo-* path segments)
-      filter: (url) => {
-        const pathname = new URL(url).pathname
-        if (pathname.includes('/preview')) return false
-        return !isDemoPathname(pathname)
-      }
+      // Exclude previews (incl. /page-preview/, /profile-preview/) and
+      // design/QA demo pages (demo / demo-* path segments)
+      filter: (url) => !isExcludedFromSitemap(new URL(url).pathname)
     }),
     // Must stay last. Integration hooks run in array order, and this one reads
     // the finished dist tree — including files other integrations write during
@@ -168,10 +220,17 @@ export default defineConfig({
     //
     // The publish gate is pinned the same way, for the same reason: CONTEXT is
     // a build-time signal and isn't guaranteed in the Functions runtime.
-    // See src/utils/main/publishGate.ts (hideFuturePosts).
+    // See src/utils/main/publishGate.ts (hideFuturePosts, hideDrafts,
+    // hideGrantReports).
+    //
+    // Checkout livemode is pinned beside it. A missing CONTEXT must keep
+    // Fundraise Up in test mode, not fall through to a live charge.
     define: {
       __IMAGE_CDN_ENABLED__: JSON.stringify(isImageCdnEnabled()),
-      __HIDE_FUTURE_POSTS__: JSON.stringify(shouldHideFuturePosts())
+      __HIDE_FUTURE_POSTS__: JSON.stringify(shouldHideFuturePosts()),
+      __IS_PRODUCTION_DEPLOY__: JSON.stringify(isProductionDeploy()),
+      __HIDE_DRAFTS__: JSON.stringify(shouldHideDrafts()),
+      __HIDE_GRANT_REPORTS__: JSON.stringify(shouldHideGrantReports())
     },
     server: {
       allowedHosts: ['.netlify.app', '.interledger.org']

@@ -10,12 +10,6 @@ import {
 // (createExcerpt/markdown-it). matchesBlogSearch is the client-safe filter;
 // the search entry type is erased at compile time.
 
-declare global {
-  interface Window {
-    umami?: { track: (event: string, data?: Record<string, string>) => void }
-  }
-}
-
 const DEBOUNCE_MS = 200
 const QUERY_PARAM = 'q'
 
@@ -124,6 +118,7 @@ interface BlogSearchDom {
   staticList: HTMLElement
   searchResults: HTMLOListElement
   emptyState: HTMLElement
+  skeleton: HTMLElement | null
   rowTemplate: HTMLTemplateElement
   categoryTemplate: HTMLTemplateElement
   langNotice: HTMLElement | null
@@ -171,6 +166,7 @@ function collectSearchDom(): BlogSearchDom | null {
     staticList,
     searchResults,
     emptyState,
+    skeleton: document.querySelector('[data-blog-search-skeleton]'),
     rowTemplate,
     categoryTemplate,
     langNotice: document.querySelector('[data-blog-lang-notice]'),
@@ -199,6 +195,7 @@ export interface BlogSearchViewState {
   staticHidden: boolean
   emptyHidden: boolean
   resultsHidden: boolean
+  skeletonHidden: boolean
   countHidden: boolean
   errorHidden: boolean
   langNoticeHidden: boolean
@@ -224,6 +221,7 @@ export function computeSearchViewState(
       staticHidden: input.initialStaticHidden,
       emptyHidden: input.initialEmptyHidden,
       resultsHidden: true,
+      skeletonHidden: true,
       countHidden: true,
       errorHidden: input.mode !== 'error',
       langNoticeHidden: false,
@@ -238,7 +236,9 @@ export function computeSearchViewState(
       staticHidden: true,
       emptyHidden: true,
       resultsHidden: true,
-      countHidden: true,
+      skeletonHidden: !input.awaitingFetch,
+      // Holds "Searching…" so results don't land a line lower
+      countHidden: !input.awaitingFetch,
       errorHidden: true,
       langNoticeHidden: true,
       paginationHidden: true,
@@ -254,6 +254,7 @@ export function computeSearchViewState(
     staticHidden: true,
     emptyHidden: hasResults,
     resultsHidden: !hasResults,
+    skeletonHidden: true,
     countHidden: false,
     errorHidden: true,
     langNoticeHidden: true,
@@ -270,6 +271,8 @@ interface SearchViewConfig extends StaticViewBaseline {
   searchingMessage: string
   lang: Locale
   categoryLabels: Record<string, string>
+  readingTimeLabel: string
+  authorProfileLabel: string
 }
 
 interface SearchView {
@@ -312,6 +315,7 @@ function createSearchView(
     dom.staticList.hidden = state.staticHidden
     dom.emptyState.hidden = state.emptyHidden
     dom.searchResults.hidden = state.resultsHidden
+    if (dom.skeleton) dom.skeleton.hidden = state.skeletonHidden
     if (dom.searchCount) dom.searchCount.hidden = state.countHidden
     if (dom.searchError) dom.searchError.hidden = state.errorHidden
     if (dom.langNotice) dom.langNotice.hidden = state.langNoticeHidden
@@ -334,7 +338,9 @@ function createSearchView(
     return {
       pathname: dom.root.dataset.pathname ?? window.location.pathname,
       lang: (dom.root.dataset.lang ?? config.lang) as Locale,
-      categoryLabels: config.categoryLabels
+      categoryLabels: config.categoryLabels,
+      readingTimeLabel: config.readingTimeLabel,
+      authorProfileLabel: config.authorProfileLabel
     }
   }
 
@@ -351,7 +357,9 @@ function createSearchView(
       applyViewState(
         computeSearchViewState({ mode: 'searching', awaitingFetch })
       )
-      if (awaitingFetch) announce(config.searchingMessage)
+      if (!awaitingFetch) return
+      if (dom.searchCount) dom.searchCount.textContent = config.searchingMessage
+      announce(config.searchingMessage)
     },
 
     showResults(entries: BlogSearchEntry[]) {
@@ -470,6 +478,8 @@ export function initBlogSearch(): void {
     emptyMessage: dom.emptyState.textContent?.trim() ?? '',
     errorMessage: dom.searchError?.textContent?.trim() ?? '',
     searchingMessage: root.dataset.searchingLabel ?? '',
+    readingTimeLabel: root.dataset.readingTimeLabel ?? '',
+    authorProfileLabel: root.dataset.authorProfileLabel ?? '',
     initialStaticHidden: dom.staticList.hidden,
     initialEmptyHidden: dom.emptyState.hidden,
     lang,

@@ -7,8 +7,10 @@
   },
   "options": {},
   "attributes": {
-    "heading": {
-      "type": "string",
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
       "pluginOptions": {
         "i18n": {
           "localized": true

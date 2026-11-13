@@ -4,11 +4,13 @@ import {
   buildUmamiAttrs,
   escapeHtml,
   extractTitleLabel,
+  stripKnownOrigin,
   umamiAttrsToHtml,
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { buildNewTabLinkHtml } from './newTabLinks'
+import { renderOptimizedImageHtml } from './richTextImage'
 import { wrapScrollableTables } from './wrapScrollableTables'
 
 export interface UmamiContext {
@@ -26,10 +28,12 @@ function stripTags(html: string): string {
 const markedCache = new Map<string, Marked>()
 
 /**
- * Returns a Marked instance whose link renderer injects umami attributes,
- * opens off-site links in a new tab (see `getNewTabLinkAttrs`), and drops
+ * Returns a Marked instance whose link renderer makes own-site links relative
+ * (see `stripKnownOrigin`), injects umami attributes, opens off-site links
+ * in a new tab (see `getNewTabLinkAttrs`), and drops
  * any link whose href isn't a safe scheme (see `isSafeMarkdownHref`) rather
- * than rendering it.
+ * than rendering it. Images go through the image optimizer
+ * (`renderOptimizedImageHtml`).
  */
 export function createMarked(context: UmamiContext = {}): Marked {
   const pathname = context.pathname ?? '/'
@@ -47,12 +51,15 @@ export function createMarked(context: UmamiContext = {}): Marked {
     html({ text }: Tokens.HTML | Tokens.Tag) {
       return escapeHtml(text)
     },
-    link({ href, title, tokens }: Tokens.Link) {
+    link({ href: rawHref, title, tokens }: Tokens.Link) {
+      // First, so the scheme check, umami and new-tab logic all see the href
+      // the page emits: an own-site URL as a relative path.
+      const href = stripKnownOrigin(rawHref)
       const innerHtml = this.parser.parseInline(tokens)
       // Marked only HTML-escapes href, it doesn't restrict schemes — drop
       // the link (keep the text) rather than emitting a javascript:/data:
       // href from editor-supplied markdown.
-      if (!isSafeMarkdownHref(href ?? '')) return innerHtml
+      if (!isSafeMarkdownHref(href)) return innerHtml
       const { label: baseComponentOverride, title: cleanedTitle } =
         extractTitleLabel(title)
       const attrs = buildUmamiAttrs({
@@ -69,7 +76,14 @@ export function createMarked(context: UmamiContext = {}): Marked {
         ? ` title="${escapeHtml(cleanedTitle)}"`
         : ''
       const newTab = buildNewTabLinkHtml(href, lang)
-      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
+      return `<a href="${escapeHtml(href)}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
+    },
+    image({ href, title, text, tokens }: Tokens.Image) {
+      // Alt text as plain text, the way Marked's default renderer derives it.
+      const alt = tokens
+        ? this.parser.parseInline(tokens, this.parser.textRenderer)
+        : text
+      return renderOptimizedImageHtml({ src: href ?? '', alt, title })
     }
   }
   const instance = new Marked()
@@ -84,6 +98,36 @@ export async function parseMarkdown(
 ): Promise<string> {
   if (!text) return ''
   const html = await createMarked(context).parse(text)
+  return wrapScrollableTables(html, getTableScrollAriaLabel(context.lang))
+}
+
+const MAX_HEADING_LEVEL = 6
+
+// For Markdown that renders inside a section with its own heading, such as a
+// grant report section under its h2. The headings move together, up or down,
+// so the highest one becomes minHeadingLevel and no level is skipped below the
+// section heading. Levels past h6 stop at h6: text that uses all six levels
+// under an h3 cannot keep them all apart.
+export function parseMarkdownBelowHeading(
+  text: string | null | undefined,
+  minHeadingLevel: number,
+  context: UmamiContext = {}
+): string {
+  if (!text) return ''
+  const marked = createMarked(context)
+  const tokens = marked.lexer(text)
+  const depths: number[] = []
+  marked.walkTokens(tokens, (token) => {
+    if (token.type === 'heading') depths.push(token.depth)
+  })
+  // With no heading, depths is empty and the shift is never applied.
+  const shift = minHeadingLevel - Math.min(...depths)
+  marked.walkTokens(tokens, (token) => {
+    if (token.type === 'heading') {
+      token.depth = Math.min(MAX_HEADING_LEVEL, token.depth + shift)
+    }
+  })
+  const html = marked.parser(tokens)
   return wrapScrollableTables(html, getTableScrollAriaLabel(context.lang))
 }
 

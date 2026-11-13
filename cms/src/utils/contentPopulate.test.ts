@@ -13,6 +13,15 @@ import {
 } from './contentPopulate'
 
 const API_DIR = fileURLToPath(new URL('../api', import.meta.url))
+const COMPONENTS_DIR = fileURLToPath(new URL('../components', import.meta.url))
+
+/** Whether a component's schema (`blocks.card-grid`) has an `intro` field. */
+function hasIntroField(component: string): boolean {
+  const [category, name] = component.split('.')
+  const schemaPath = path.join(COMPONENTS_DIR, category, `${name}.json`)
+  const schema = JSON.parse(readFileSync(schemaPath, 'utf8'))
+  return 'intro' in (schema.attributes ?? {})
+}
 
 /**
  * Populate config each content type's lifecycle uses to read its dynamic zone
@@ -23,6 +32,7 @@ const API_DIR = fileURLToPath(new URL('../api', import.meta.url))
  */
 const ZONE_POPULATE_BY_CONTENT_TYPE: Record<string, { on: object }> = {
   'foundation-page': FOUNDATION_PAGE_CONTENT_POPULATE,
+  'fundraising-page': FOUNDATION_PAGE_CONTENT_POPULATE,
   'summit-page': FOUNDATION_PAGE_CONTENT_POPULATE,
   'hackathon-page': HACKATHON_PAGE_CONTENT_POPULATE,
   'foundation-blog-post': BLOG_CONTENT_POPULATE,
@@ -96,6 +106,45 @@ describe('dynamic zone populate configs', () => {
       `${contentType}.${zones[0].field} allows components missing from its populate map, ` +
         `so they would be dropped from the MDX export: ${missing.join(', ')}`
     ).toEqual([])
+  })
+
+  it.each(contentTypes)(
+    'populates the intro of every %s block that has one',
+    (contentType) => {
+      // A nested component is only fetched when the fragment names it, so a
+      // block that gains `intro` but not `populate.intro` exports without it.
+      const on = ZONE_POPULATE_BY_CONTENT_TYPE[contentType].on as Record<
+        string,
+        { populate?: Record<string, unknown> }
+      >
+      const missing = Object.entries(on)
+        .filter(([component]) => hasIntroField(component))
+        .filter(([, fragment]) => fragment.populate?.intro !== true)
+        .map(([component]) => component)
+      expect(
+        missing,
+        `${contentType} blocks with an intro field but no populate.intro: ${missing.join(', ')}`
+      ).toEqual([])
+    }
+  )
+
+  it.each(contentTypes)('nests %s relations under populate', (contentType) => {
+    // A dynamic-zone `on` fragment only accepts query options. A component
+    // field written at that level (`{ cards: true }`) is not a populate of
+    // the field — Strapi reads it as an unknown query key and rejects the
+    // whole fetch, so no page of that content type exports MDX.
+    const on = ZONE_POPULATE_BY_CONTENT_TYPE[contentType].on as Record<
+      string,
+      object
+    >
+    for (const [component, fragment] of Object.entries(on)) {
+      const keys = Object.keys(fragment).filter((key) => key !== 'populate')
+      expect(
+        keys,
+        `${contentType} ${component} must be {} or { populate: { … } }, ` +
+          `not { ${keys.join(', ')}: … }`
+      ).toEqual([])
+    }
   })
 })
 

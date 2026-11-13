@@ -92,7 +92,7 @@ const DOCS_BASE_PATH = '/developers'
 
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
   label: rfc.title,
-  link: `${DOCS_BASE_PATH}${rfc.route}`
+  link: addTrailingSlash(`${DOCS_BASE_PATH}${rfc.route}`)
 }))
 
 export function getPublishedRfcRouteBySourcePath(): Map<string, string> {

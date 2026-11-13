@@ -3,7 +3,7 @@ import type { Schema, Struct } from '@strapi/strapi'
 export interface BlocksAgenda extends Struct.ComponentSchema {
   collectionName: 'components_blocks_agendas'
   info: {
-    description: 'A schedule with an optional heading and at least two agenda items'
+    description: 'A schedule with an optional intro, an optional day heading and at least two agenda items'
     displayName: 'Agenda'
     icon: 'calendar'
   }
@@ -15,6 +15,12 @@ export interface BlocksAgenda extends Struct.ComponentSchema {
           preset: 'defaultMarkdown'
         }
       > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -81,6 +87,12 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
     icon: 'quote'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     quote: Schema.Attribute.Text & Schema.Attribute.Required
     source: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
@@ -129,14 +141,14 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
       }> &
       Schema.Attribute.DefaultTo<'Three'>
     infoCards: Schema.Attribute.Component<'blocks.info-card', true>
-    navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
-    resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
-    title: Schema.Attribute.String &
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
+    navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
+    resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true>
     variant: Schema.Attribute.String &
       Schema.Attribute.Required &
@@ -165,7 +177,7 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    heading: Schema.Attribute.String &
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -280,6 +292,12 @@ export interface BlocksCtaButtons extends Struct.ComponentSchema {
         },
         number
       >
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -311,6 +329,12 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
         }
       }>
     heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -373,6 +397,108 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
   }
 }
 
+export interface BlocksDonationCard extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards_items'
+  info: {
+    description: 'One giving tier: gift size, seats, benefits, and a single call to action.'
+    displayName: 'Donation Card'
+    icon: 'heart'
+  }
+  attributes: {
+    amount: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefits: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    benefitsLabel: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaDocument: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaExternal: Schema.Attribute.Boolean &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.DefaultTo<false>
+    ctaLink: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    ctaText: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    seats: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksDonationCards extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_donation_cards'
+  info: {
+    description: 'Row of giving tiers. Only on a Fundraising Page. That template loads the Fundraise Up script, so a card CTA can point at an Element ID.'
+    displayName: 'Donation Cards'
+    icon: 'heart'
+  }
+  attributes: {
+    ariaLabel: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    cards: Schema.Attribute.Component<'blocks.donation-card', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface BlocksEventCard extends Struct.ComponentSchema {
   collectionName: 'components_blocks_event_cards'
   info: {
@@ -387,7 +513,7 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    title: Schema.Attribute.String &
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -513,7 +639,7 @@ export interface BlocksFaq extends Struct.ComponentSchema {
     icon: 'question'
   }
   attributes: {
-    heading: Schema.Attribute.String &
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -712,6 +838,12 @@ export interface BlocksImageBlock extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     media: Schema.Attribute.Component<'shared.localized-media', false> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -948,13 +1080,13 @@ export interface BlocksNumberTiles extends Struct.ComponentSchema {
     icon: 'chart-pie'
   }
   attributes: {
-    tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
         }
       }>
-    title: Schema.Attribute.String &
+    tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1004,6 +1136,12 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
   attributes: {
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'files'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     label: Schema.Attribute.String & Schema.Attribute.DefaultTo<'Download file'>
     source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
       Schema.Attribute.Required &
@@ -1076,7 +1214,12 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
   }
   attributes: {
     category: Schema.Attribute.String
-    heading: Schema.Attribute.String
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     profiles: Schema.Attribute.Relation<
       'oneToMany',
       'api::profile-page.profile-page'
@@ -1105,6 +1248,12 @@ export interface BlocksQuote extends Struct.ComponentSchema {
         }
       }>
     authorName: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1203,6 +1352,18 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
     icon: 'layout'
   }
   attributes: {
+    buttons: Schema.Attribute.Component<'shared.cta-button', true> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 2
+        },
+        number
+      >
     content: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
         'plugin::ckeditor5.CKEditor',
@@ -1215,20 +1376,14 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
-    cta: Schema.Attribute.Component<'shared.cta-link', false> &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true
-        }
-      }>
-    displayRatio: Schema.Attribute.Enumeration<['1:1', '1:2', '2:1']> &
+    displayRatio: Schema.Attribute.Enumeration<['3:2', '2:1', '1:1', '1:2']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: false
         }
       }> &
-      Schema.Attribute.DefaultTo<'2:1'>
+      Schema.Attribute.DefaultTo<'3:2'>
     imagePosition: Schema.Attribute.Enumeration<['left', 'right']> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1237,6 +1392,12 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
         }
       }> &
       Schema.Attribute.DefaultTo<'right'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     layoutType: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.CustomField<'plugin::split-layout-type-picker.layout-type'> &
@@ -1264,7 +1425,114 @@ export interface BlocksSplitLayout extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    videoTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     videoUrl: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksTimeline extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timelines'
+  info: {
+    description: 'Scrolling timeline of dated events grouped into sections. Section colours follow a fixed sequence; editors do not pick them. Only on a Foundation Page.'
+    displayName: 'Timeline'
+    icon: 'clock'
+  }
+  attributes: {
+    sections: Schema.Attribute.Component<'blocks.timeline-section', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+  }
+}
+
+export interface BlocksTimelineEvent extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timeline_events'
+  info: {
+    description: 'One dated event in a timeline section: when it happened, what happened, and a one- or two-word tag.'
+    displayName: 'Timeline Event'
+    icon: 'calendar'
+  }
+  attributes: {
+    date: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    tag: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
+export interface BlocksTimelineSection extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_timeline_sections'
+  info: {
+    description: 'A chapter of the timeline. Its heading, subheading and description stay on screen while the reader scrolls through its events.'
+    displayName: 'Timeline Section'
+    icon: 'layer'
+  }
+  attributes: {
+    description: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    events: Schema.Attribute.Component<'blocks.timeline-event', true> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }> &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1
+        },
+        number
+      >
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.String &
+      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1311,6 +1579,7 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
     columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Three'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
@@ -1332,6 +1601,12 @@ export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   attributes: {
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'videos'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     poster: Schema.Attribute.Media<'images'>
     source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
       Schema.Attribute.Required &
@@ -1455,6 +1730,41 @@ export interface SharedArticleBio extends Struct.ComponentSchema {
   }
 }
 
+export interface SharedBlockIntro extends Struct.ComponentSchema {
+  collectionName: 'components_shared_block_intros'
+  info: {
+    description: "Optional heading (H2), subheading (H3) and description shown above a block's content"
+    displayName: 'Block Intro'
+    icon: 'heading'
+  }
+  attributes: {
+    description: Schema.Attribute.RichText &
+      Schema.Attribute.CustomField<
+        'plugin::ckeditor5.CKEditor',
+        {
+          preset: 'basicMarkdownPreset'
+        }
+      > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    subheading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+  }
+}
+
 export interface SharedCategory extends Struct.ComponentSchema {
   collectionName: 'components_shared_categories'
   info: {
@@ -1463,6 +1773,7 @@ export interface SharedCategory extends Struct.ComponentSchema {
   attributes: {
     categoryValue: Schema.Attribute.Enumeration<
       [
+        'Community',
         'Engineering',
         'Grantmaking',
         'Interledger Technology',
@@ -1641,7 +1952,7 @@ export interface SharedLocalizedMedia extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
-    alternativeText: Schema.Attribute.String &
+    alternativeText: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1700,7 +2011,9 @@ export interface SharedRelatedArticle extends Struct.ComponentSchema {
     displayName: 'Related Article'
   }
   attributes: {
-    slug: Schema.Attribute.String & Schema.Attribute.Required
+    slug: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::related-article-slug.related-article-slug'>
   }
 }
 
@@ -1786,7 +2099,7 @@ export interface SharedSocialLink extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'blocks.agenda': BlocksAgenda
       'blocks.agenda-item': BlocksAgendaItem
@@ -1798,6 +2111,8 @@ declare module '@strapi/strapi' {
       'blocks.code-block': BlocksCodeBlock
       'blocks.cta-buttons': BlocksCtaButtons
       'blocks.cta-strip': BlocksCtaStrip
+      'blocks.donation-card': BlocksDonationCard
+      'blocks.donation-cards': BlocksDonationCards
       'blocks.event-card': BlocksEventCard
       'blocks.event-card-apply': BlocksEventCardApply
       'blocks.event-card-when': BlocksEventCardWhen
@@ -1825,6 +2140,9 @@ declare module '@strapi/strapi' {
       'blocks.report-text': BlocksReportText
       'blocks.resource-card': BlocksResourceCard
       'blocks.split-layout': BlocksSplitLayout
+      'blocks.timeline': BlocksTimeline
+      'blocks.timeline-event': BlocksTimelineEvent
+      'blocks.timeline-section': BlocksTimelineSection
       'blocks.title-card': BlocksTitleCard
       'blocks.title-card-grid': BlocksTitleCardGrid
       'blocks.video-embed': BlocksVideoEmbed
@@ -1832,6 +2150,7 @@ declare module '@strapi/strapi' {
       'navigation.menu-item': NavigationMenuItem
       'navigation.menu-sub-group': NavigationMenuSubGroup
       'shared.article-bio': SharedArticleBio
+      'shared.block-intro': SharedBlockIntro
       'shared.category': SharedCategory
       'shared.cta-button': SharedCtaButton
       'shared.cta-link': SharedCtaLink

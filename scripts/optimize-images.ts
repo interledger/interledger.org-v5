@@ -47,7 +47,8 @@ const CONCURRENCY = 4
 // such as target widths or output naming, increment the trailing token
 // manually. If you do not, the script skips processed sources and keeps the old
 // variants.
-const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth`
+// `sharp035`: sharp 0.35 changed the default lossy AVIF tuning.
+const PIPELINE_ID = `webp${WEBP_QUALITY}-avif${AVIF_QUALITY}-exactWidth-sharp035`
 
 interface SourceConfig {
   dir: string

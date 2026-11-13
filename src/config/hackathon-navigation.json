@@ -5,44 +5,36 @@
       "items": [
         {
           "label": "Overview",
-          "href": "/hackathon/overview"
-        },
-        {
-          "label": "Participation Requirements",
-          "href": "/hackathon/participation"
-        },
-        {
-          "label": "FAQ",
-          "href": "/hackathon/faq"
+          "href": "/hackathon/overview/"
         }
       ]
     },
     {
-      "label": "2026 Open Payment Hackathon",
+      "label": "About Open Payment Hackathons",
       "items": [
         {
-          "label": "Key Information",
-          "href": "/hackathon/2026-hackathon-medellin"
+          "label": " Hackathon Tools and Resources",
+          "href": "/hackathon/open-payments/"
         },
         {
-          "label": " Hackathon Tools and Resources",
-          "href": "/hackathon/open-payments"
+          "label": "Participation Requirements",
+          "href": "/hackathon/participation/"
         },
         {
           "label": "Submissions & Judging",
-          "href": "/hackathon/submission-judging"
-        },
-        {
-          "label": "Timetable",
-          "href": "/hackathon/2026-timetable"
+          "href": "/hackathon/submission-judging/"
         },
         {
           "label": "Code of Conduct",
-          "href": "/hackathon/code-conduct"
+          "href": "/hackathon/code-conduct/"
         },
         {
           "label": "AI Policy",
-          "href": "/hackathon/ai-policy"
+          "href": "/hackathon/ai-policy/"
+        },
+        {
+          "label": "FAQ",
+          "href": "/hackathon/faq/"
         }
       ]
     }

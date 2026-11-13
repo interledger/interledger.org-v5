@@ -18,17 +18,21 @@ import {
   defaultLang,
   heroFrontmatter,
   getPreservedFields,
+  draftFrontmatter,
+  resolveDraft,
   uidToLogLabel,
   formatMdx,
   MATTER_STRINGIFY_OPTIONS
 } from './mdx'
 import { mdxRelativePath } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 import { toValidationError } from './contentValidation'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
+import { tryCatchAsync } from './tryCatch'
 
 export interface PageData {
   id: number
@@ -36,6 +40,7 @@ export interface PageData {
   title: string
   /** May be null on afterDelete in some Strapi versions / payloads */
   pathSlug: string | null
+  draft?: boolean | null
   locale?: string
   hero?: Hero | null
   description?: string
@@ -68,13 +73,14 @@ export function shouldSkipMdxExport(): boolean {
   }
 }
 
-const API_TOKEN_STRATEGY = 'api-token'
+// Strapi 5.57 renamed the content API token strategy (was `api-token`).
+const API_TOKEN_STRATEGY = 'content-api-token'
 
 /**
  * True for an automation request, such as the repo's sync scripts:
- * authenticated with an API token and sending `x-skip-mdx-export`. Admin
- * sessions use the `admin` strategy, so an editor can't pass for one by adding
- * the header. The header is caller-controlled, so this doesn't single out the
+ * authenticated with a content API token and sending `x-skip-mdx-export`.
+ * Admin sessions use the `admin` strategy and admin tokens the `admin-token`
+ * strategy, so neither can pass for one by adding the header. The header is caller-controlled, so this doesn't single out the
  * sync: any API token with the permission qualifies. Tokens are issued by
  * admins only.
  */
@@ -139,7 +145,7 @@ function normalizePathSlug(pathSlug: unknown): string {
 }
 
 /**
- * Resolves the MDX filepath for a page from `pathSlug` (full URL path, no leading slash).
+ * Resolves the MDX filepath for a page from `pathSlug` (full URL path; surrounding slashes are trimmed).
  * Segments before the last `/` are directories; the last segment is the filename stem.
  *
  * Pass `englishSlug` for a non-default locale, the same way the blog and flat
@@ -181,6 +187,11 @@ export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const locale = page.locale || defaultLang
   const isLocalized = locale !== defaultLang
   const { localizes, ...restPreserved } = preservedFields
+  // `draft` is Strapi-managed, so an unchecked box must clear a stale key.
+  // A missing value is not an uncheck: the field may not be deployed yet,
+  // or the sync may not have written it. Keep a draft already in the file.
+  const preservedDraft = restPreserved.draft
+  delete restPreserved.draft
   // Use englishSlug (current English slug) if provided, otherwise fall back to preserved localizes
   const localizesValue =
     (isLocalized && englishSlug ? englishSlug : undefined) || localizes
@@ -200,6 +211,7 @@ export async function generateMDX<T extends UID.ContentType = UID.ContentType>(
   const frontmatterData: Record<string, unknown> = {
     ...restPreserved,
     pathSlug: page.pathSlug,
+    ...draftFrontmatter(resolveDraft(page.draft, preservedDraft)),
     title: page.title,
     description: page.description,
     ...heroData,
@@ -392,10 +404,7 @@ export function readLocaleFromUpdateEvent(event: {
     typeof combined === 'string' && combined.length > 0 ? combined : defaultLang
 
   let source:
-    | 'params.locale'
-    | 'params.data.locale'
-    | 'params.where.locale'
-    | 'default'
+    'params.locale' | 'params.data.locale' | 'params.where.locale' | 'default'
   if (!(typeof combined === 'string' && combined.length > 0)) {
     source = 'default'
   } else if (fromLocale != null && fromLocale === combined) {
@@ -420,6 +429,57 @@ export function readLocaleFromUpdateEvent(event: {
   return resolved
 }
 
+/** The document and locale a DB-level update is about to change. */
+export interface UpdateTarget {
+  documentId: string
+  locale: string
+}
+
+interface UpdateEventParams {
+  locale?: string
+  documentId?: string
+  data?: { documentId?: string; locale?: string }
+  where?: StrapiDocumentServiceUpdateWhere
+}
+
+/**
+ * Identify the document and locale a `beforeUpdate` event is about to change.
+ *
+ * Since Strapi 5.57 the document service strips `documentId` from `data`
+ * before the DB update, and `where` holds only the row `id`. Read that row
+ * when the event does not name the document: it also holds the real locale,
+ * which the event no longer carries. Returns null when the row is gone.
+ */
+export async function resolveUpdateTarget(
+  event: { params?: UpdateEventParams },
+  uid: UID.ContentType
+): Promise<UpdateTarget | null | Error> {
+  const params = event.params
+  const documentId = params?.documentId ?? params?.data?.documentId
+  if (documentId) {
+    return { documentId, locale: readLocaleFromUpdateEvent(event) }
+  }
+
+  const id = params?.where?.id
+  if (typeof id !== 'number' && typeof id !== 'string') return null
+
+  const row = await tryCatchAsync(
+    () =>
+      strapi.db.query(uid).findOne({
+        where: { id },
+        select: ['documentId', 'locale']
+      }) as Promise<{ documentId?: string; locale?: string | null } | null>
+  )
+  if (row instanceof Error) {
+    return new Error(
+      `Failed to read ${uidToLogLabel(uid)} row ${id}: ${row.message}`,
+      { cause: row }
+    )
+  }
+  if (!row?.documentId) return null
+  return { documentId: row.documentId, locale: row.locale || defaultLang }
+}
+
 function deleteMdxIfExists(
   filepath: string,
   locale: string,
@@ -442,6 +502,71 @@ function deleteMdxIfExists(
 /**
  * Creates Strapi lifecycle hooks for a page-like content type with i18n and dynamic zones.
  */
+/**
+ * Remove the MDX files a pathSlug rename leaves behind.
+ *
+ * Every locale's file is named after the English slug, so an English rename
+ * renames them all, and the old ones must all go. A translation's rename
+ * changes no filename, unless the document has no published English version,
+ * in which case the file carries the translation's own slug.
+ *
+ * A translation file's name alone does not prove whose it is: an entry with
+ * no English version is named after its own slug, which can equal another
+ * page's English slug. So a non-English file is deleted only when its
+ * `localizes` frontmatter says it belongs to this page.
+ */
+async function deleteRenamedMdxFiles<T extends UID.ContentType>(
+  config: PageLifecycleConfig<T>,
+  rename: { documentId: string; oldPathSlug: string; locale: string }
+): Promise<void> {
+  const { documentId, oldPathSlug, locale } = rename
+  const outputDir = getOutputDir(config)
+  const label = uidToLogLabel(config.contentTypeUid)
+  const oldPage = { pathSlug: oldPathSlug }
+
+  if (locale === defaultLang) {
+    deleteMdxIfExists(
+      resolvePageFilepath(outputDir, oldPage, defaultLang),
+      defaultLang,
+      label
+    )
+    for (const fileLocale of LOCALES) {
+      if (fileLocale === defaultLang) continue
+      const filepath = resolvePageFilepath(
+        outputDir,
+        oldPage,
+        fileLocale,
+        oldPathSlug
+      )
+      const localizes = readLocalizes(filepath)
+      if (!localizes || !isSameSlug(localizes, oldPathSlug)) continue
+      deleteMdxIfExists(filepath, fileLocale, label)
+    }
+    return
+  }
+
+  const englishPage = await fetchPublished(config, documentId, defaultLang)
+  if (englishPage instanceof Error) {
+    console.error(`⚠️  ${englishPage.message}`)
+    return
+  }
+  if (englishPage) return
+
+  // With no English page, this file carries no `localizes`. One that does is
+  // another page's translation that happens to share the name.
+  const filepath = resolvePageFilepath(outputDir, oldPage, locale)
+  if (readLocalizes(filepath)) return
+  deleteMdxIfExists(filepath, locale, label)
+}
+
+/** The `localizes` frontmatter of an MDX file, or null when it has none. */
+function readLocalizes(filepath: string): string | null {
+  const localizes = getPreservedFields(filepath).localizes
+  return typeof localizes === 'string' && localizes.length > 0
+    ? localizes
+    : null
+}
+
 export function createPageLifecycle<T extends UID.ContentType>(
   config: PageLifecycleConfig<T>
 ) {
@@ -473,12 +598,13 @@ export function createPageLifecycle<T extends UID.ContentType>(
       state: { oldPathSlug?: string; locale?: string }
     }) {
       if (shouldSkipMdxExport()) return
-      // Strapi v5: documentId is in params.data.documentId
-      const documentId =
-        event.params?.documentId ?? event.params?.data?.documentId
-      if (!documentId) return
-
-      const locale = readLocaleFromUpdateEvent(event)
+      const target = await resolveUpdateTarget(event, config.contentTypeUid)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        return
+      }
+      if (!target) return
+      const { documentId, locale } = target
 
       // Runs on every save (draft or publish). We only stash a prior slug when this
       // locale has a published version — export writes MDX from published data, so
@@ -506,15 +632,15 @@ export function createPageLifecycle<T extends UID.ContentType>(
       const locale = result.locale ?? defaultLang
       const { oldPathSlug } = event.state
 
-      // If this locale's pathSlug changed, remove only that locale's old file
-      if (oldPathSlug && oldPathSlug !== result.pathSlug) {
+      if (oldPathSlug && !isSameSlug(oldPathSlug, result.pathSlug)) {
         console.log(
-          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX file`
+          `🗑️  PathSlug changed (${locale}) from "${oldPathSlug}" to "${result.pathSlug}", deleting old MDX files`
         )
-        const outputDir = getOutputDir(config)
-        const oldPage = { pathSlug: oldPathSlug }
-        const oldFilepath = resolvePageFilepath(outputDir, oldPage, locale)
-        deleteMdxIfExists(oldFilepath, locale, label)
+        await deleteRenamedMdxFiles(config, {
+          documentId: result.documentId,
+          oldPathSlug,
+          locale
+        })
       }
 
       console.log(

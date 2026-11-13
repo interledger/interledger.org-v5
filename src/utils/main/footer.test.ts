@@ -1,12 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
 
-// `./i18` -> `translatePath` -> `translationMapData` reaches into real
-// content collections via `getCollection`, which isn't available under
-// plain vitest. Mock `./i18` directly instead of the virtual-module chain
-// other suites use (see navigation.test.ts) — getFooterOnlyColumn only cares
-// that it calls `t`/`translatePath` with the right keys, not how they resolve.
+// `./translatePath` -> `translationMapData` reaches into real content
+// collections via `getCollection`, which isn't available under plain vitest.
+// Both are mocked rather than the virtual-module chain other suites use (see
+// navigation.test.ts) — getFooterOnlyColumn only cares that it calls
+// `t`/`translatePath` with the right keys, not how they resolve.
 vi.mock('./i18', () => ({
-  useTranslations: (lang: string) => (key: string) => `${lang}:${key}`,
+  useTranslations: (lang: string) => (key: string) => `${lang}:${key}`
+}))
+vi.mock('./translatePath', () => ({
   translatePath: (routeBase: string, lang: string, enSlug: string) =>
     `/${lang}/${routeBase}/${enSlug}`
 }))
@@ -39,13 +41,20 @@ describe('getFooterOnlyColumn', () => {
     })
   })
 
-  it('falls back to the Foundation-only column for any other non-hackathon site', () => {
-    // SiteFooter only ever renders 'foundation' or 'hackathon' (summit uses
-    // MicrositeFooter instead), but the function itself branches on
-    // 'hackathon' alone, so any other NavigationSite takes this path too.
-    expect(getFooterOnlyColumn('summit', 'en')).toEqual(
-      getFooterOnlyColumn('foundation', 'en')
-    )
+  it('keeps terms and privacy on the summit footer, and not press or FAQ', () => {
+    expect(getFooterOnlyColumn('summit', 'en')).toEqual({
+      label: 'en:footer.resources',
+      items: [
+        {
+          label: 'en:footer.terms_service',
+          href: '/en/foundation-pages/terms-of-service'
+        },
+        {
+          label: 'en:footer.privacy_policy',
+          href: '/en/foundation-pages/privacy-policy'
+        }
+      ]
+    })
   })
 
   it('localizes hrefs and labels for a non-default locale', () => {

@@ -1,3 +1,5 @@
+import { trimSlashes } from './url'
+
 /**
  * Demo content pages (e.g. `demo-foundation-page`) are for design/QA only.
  * Path slugs that start with `demo-` (or are exactly `demo`) are treated as
@@ -5,7 +7,7 @@
  */
 export function isDemoPathSlug(pathSlug: string | undefined | null): boolean {
   if (!pathSlug) return false
-  const slug = pathSlug.replace(/^\/+|\/+$/g, '')
+  const slug = trimSlashes(pathSlug)
   // Match path segments (slugs can include nested `/` segments), same rule as
   // isDemoPathname so sitemap exclusion and noindex stay aligned.
   return slug
@@ -32,4 +34,18 @@ export function isPreviewPathname(pathname: string): boolean {
     .split('/')
     .filter(Boolean)
     .some((segment) => segment === 'preview' || segment.endsWith('-preview'))
+}
+
+/**
+ * Pages the XML sitemap leaves out: preview routes and demo pages. Uses the
+ * same preview rule as analytics and hreflang, so `/page-preview/` and
+ * `/profile-preview/` are excluded along with everything under `/preview/`.
+ *
+ * Side effect: the rule matches any path segment ending in `-preview`, so a
+ * content page with such a slug (say `/grant/program-preview/`) is left out of
+ * the sitemap too, with no warning. No slug ends that way today. Give such a
+ * page another slug, or narrow this rule to the preview routes.
+ */
+export function isExcludedFromSitemap(pathname: string): boolean {
+  return isPreviewPathname(pathname) || isDemoPathname(pathname)
 }

@@ -1,4 +1,9 @@
-import { ckeditorFieldToCompiledMarkdown, isCtaStripColor } from '../../utils'
+import {
+  ckeditorFieldToCompiledMarkdown,
+  isCtaStripColor,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 /**
@@ -7,9 +12,12 @@ import { escDouble as esc, escMdxBraces } from '../shared'
  * Purple is the default and is left off the tag. Green is the pistachio
  * variant. The secondary CTA is optional and its two fields travel together:
  * a half-filled one would render as a dead or unlabelled button, so it is
- * only emitted when both are set.
+ * only emitted when both are set. `heading` is the CTA strip title, inside
+ * the strip; the optional intro sits above it (ADR-009, D6).
  */
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  /** The CTA strip title, shown inside the strip. */
   heading?: string
   description?: string
   color?: string
@@ -51,7 +59,9 @@ export function serialize(block: {
     block.secondaryButtonText?.trim() && block.secondaryButtonLink?.trim()
   )
 
+  const introAttr = serializeIntroProp(block.intro).trim()
   const attrs = [
+    introAttr || null,
     block.color === 'green' ? 'color="green"' : null,
     block.heading ? `heading="${esc(block.heading)}"` : null,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,

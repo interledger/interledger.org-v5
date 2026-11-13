@@ -99,7 +99,7 @@ function clearInlineStyles(section: HTMLElement): void {
   }
 }
 
-/** View progress for `animation-range: entry 0% exit 100%`. Uses cached geometry + scrollY to avoid layout reads on scroll. */
+/** View progress for `animation-range: cover` (`entry 0%` to `exit 100%`). Uses cached geometry + scrollY to avoid layout reads on scroll. */
 export function getViewProgress(): number {
   const progress =
     (window.scrollY + window.innerHeight - scrollController.sectionTop) /

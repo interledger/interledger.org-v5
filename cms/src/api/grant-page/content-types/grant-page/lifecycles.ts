@@ -5,6 +5,7 @@ import {
   PATHS,
   MATTER_STRINGIFY_OPTIONS,
   heroFrontmatter,
+  draftFrontmatter,
   ckeditorFieldToParsedMarkdown,
   GRANT_PAGE_CONTENT_POPULATE,
   ctaStripColorMdxFields
@@ -80,6 +81,7 @@ export async function generateGrantPageMDX(
   delete (restPreserved as Record<string, unknown>).faqSection
   delete (restPreserved as Record<string, unknown>).ctaStrip
   delete (restPreserved as Record<string, unknown>).programOverview
+  delete (restPreserved as Record<string, unknown>).draft
   for (const key of [
     'heroTitle',
     'heroDescription',
@@ -104,6 +106,7 @@ export async function generateGrantPageMDX(
     ...restPreserved,
     title: page.title,
     pathSlug: page.pathSlug,
+    ...draftFrontmatter(page.draft),
     description: grantPage.description ?? '',
     ...heroData,
     ...(grantPage.programOverview

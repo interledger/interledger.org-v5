@@ -1,0 +1,81 @@
+/*
+ * Starlight parity for main-site pages.
+ *
+ * Until INTORG-1232, Astro bundled Starlight's CSS and the docs design system
+ * into main-site pages (see "Starlight Docs Isolation" in ../README.md). The
+ * site was designed, reviewed and shipped with that CSS in place. Astro 6.4
+ * stopped the leak, so this file restates the rules that still changed
+ * main-site pages, with the values they resolved to. It keeps every page
+ * pixel-identical to production. Removing a rule here is a visible design
+ * change and belongs in its own reviewed PR.
+ *
+ * Cascade position matters as much as the values:
+ * - Starlight's reset sat in `starlight.reset`, the lowest layer (declared in
+ *   tailwind.css), so any main-site rule beats it.
+ * - The docs design system rules were unlayered, so they beat every layered
+ *   main-site rule, utilities included. They stay unlayered here.
+ */
+
+@layer starlight.reset {
+  html {
+    accent-color: hsl(180 100% 23%);
+    /* No scroll-padding-top. The leaked value (the docs nav, 1.5rem +
+       4.275rem) stacked on reset.css's :target scroll-margin, which already
+       clears the header, so every anchor landed with a gap under it. Any
+       padding here doubles that clearance. */
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    color: hsl(224 10% 23%);
+    background-color: hsl(0 0% 100%);
+  }
+
+  html[data-theme='dark'] body {
+    color: hsl(224 6% 77%);
+    background-color: hsl(224 10% 10%);
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  code {
+    overflow-wrap: break-word;
+  }
+
+  code {
+    font-family:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+      'Courier New', monospace;
+  }
+}
+
+/* Unlayered on purpose: see the header. The leak also rounded `img` and the
+   first-row `thead` corners, but tailwind.css reverts those with `:root`
+   overrides, so production never showed them. */
+code {
+  border-radius: 6px;
+}
+
+table,
+pre:not(.mermaid) {
+  border-radius: 6px;
+  box-shadow:
+    0 1px 1px hsl(0 0% 0% / 0.06),
+    0 2px 1px hsl(0 0% 0% / 0.06);
+}
+
+/* Starlight sets its dark shadow values on `:root`, so dark pages had these. */
+html[data-theme='dark'] :is(table, pre:not(.mermaid)) {
+  box-shadow:
+    0 1px 1px hsl(0 0% 0% / 0.12),
+    0 2px 1px hsl(0 0% 0% / 0.24);
+}
+
+table code {
+  word-break: break-all;
+}

@@ -1,5 +1,6 @@
 import type { CollectionEntry } from 'astro:content'
 import type { BlogThumbnail } from '@/types/blog'
+import { relatedArticlePathSlug } from '../../schemas/relatedArticlePathSlug'
 import type { Locale } from './locales'
 
 type FoundationBlogEntry = CollectionEntry<'foundation-blog'>
@@ -93,8 +94,8 @@ export function getBlogThumbnail(
 /**
  * Resolves related-article slugs to posts for display.
  *
- * Prefers the post in `contentLocale`, then falls back to `fallbackLocale`
- * when no translation exists. Callers pass the site's default locale (EN),
+ * Prefers the post in `preferredLocale` (callers pass the route locale), then
+ * falls back to `fallbackLocale` when no translation exists. Callers pass the site's default locale (EN),
  * matching the site's EN-fallback rule so an untranslated related post still
  * shows (in EN) instead of the whole section silently vanishing. Slugs that
  * resolve to nothing (e.g. a stale slug) are skipped so the build never breaks.
@@ -105,18 +106,25 @@ export function getBlogThumbnail(
 export function resolveRelatedPosts(
   posts: FoundationBlogEntry[],
   slugs: readonly string[] | undefined,
-  contentLocale: Locale,
+  preferredLocale: Locale,
   fallbackLocale: Locale
 ): FoundationBlogEntry[] {
-  const findBySlug = (slug: string, locale: Locale) =>
-    posts.find(
-      (post) => post.data.pathSlug === slug && post.data.locale === locale
+  // A translation can have its own slug, and a related slug can name the EN
+  // post, so also match on `localizes`. An own-slug match wins, so the result
+  // does not depend on the order of `posts`.
+  const findBySlug = (slug: string, locale: Locale) => {
+    const key = relatedArticlePathSlug(slug)
+    const inLocale = posts.filter((post) => post.data.locale === locale)
+    return (
+      inLocale.find((post) => post.data.pathSlug === key) ??
+      inLocale.find((post) => post.data.localizes === key)
     )
+  }
 
   return (slugs ?? [])
     .map(
       (slug) =>
-        findBySlug(slug, contentLocale) ?? findBySlug(slug, fallbackLocale)
+        findBySlug(slug, preferredLocale) ?? findBySlug(slug, fallbackLocale)
     )
     .filter((post): post is FoundationBlogEntry => Boolean(post))
 }

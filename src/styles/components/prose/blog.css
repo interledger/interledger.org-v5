@@ -9,8 +9,10 @@
 
 @layer components {
   [data-prose-blog] {
-    /* === Extended element spacing === */
-    & figure {
+    /* === Extended element spacing ===
+       Not inside a block that owns its spacing (ADR-009): there the frame's
+       padding is the gap, and a margin would add to it. */
+    & figure:not([data-intro-variant] figure) {
       margin-block-end: var(--spacing-xl);
     }
 
@@ -75,7 +77,7 @@
       overflow-wrap: anywhere;
     }
 
-    .video-embed {
+    .video-embed:not([data-intro-variant] .video-embed) {
       margin-block-end: var(--spacing-2xl);
     }
   }

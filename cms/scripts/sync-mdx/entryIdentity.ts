@@ -13,7 +13,12 @@
  * (locale, section, pathSlug). This module builds that key and nothing else,
  * so every lookup, orphan check and collision check agrees on what "the same
  * entry" means.
+ *
+ * The pathSlug is compared bare: Strapi and the MDX frontmatter may each hold
+ * `about` or `/about/` while stored slugs move to the slashed form
+ * (INTORG-1254), and a mismatch here reads as an orphan and deletes the entry.
  */
+import { bareSlug } from '@/utils'
 import type { ContentTypeConfig } from './config'
 import type { MDXFile } from './mdxTypes'
 import type { StrapiEntry } from './strapiClient'
@@ -34,7 +39,7 @@ export function identityForMdx(
   mdx: MDXFile
 ): EntryIdentity {
   return {
-    pathSlug: mdx.pathSlug,
+    pathSlug: bareSlug(mdx.pathSlug),
     section: config.sectionScopedIdentity ? mdx.section : null
   }
 }
@@ -45,7 +50,7 @@ export function identityForEntry(
   entry: StrapiEntry
 ): EntryIdentity {
   return {
-    pathSlug: entry.pathSlug,
+    pathSlug: bareSlug(entry.pathSlug),
     section: config.sectionScopedIdentity
       ? ((entry.section as string | undefined) ?? null)
       : null

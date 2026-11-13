@@ -36,6 +36,16 @@
       },
       "description": "Must be unique within a Section, not across the whole site: two sections may hold the same pathSlug."
     },
+    "draft": {
+      "type": "boolean",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      },
+      "required": false,
+      "default": false
+    },
     "section": {
       "type": "enumeration",
       "enum": ["foundation", "summit", "hackathon"],

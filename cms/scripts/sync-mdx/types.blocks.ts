@@ -28,6 +28,7 @@ export {
 } from '../../src/utils/cardGrid'
 
 import type { CtaButtonStyle } from '../../src/utils/ctaButtons'
+import type { SerializedBlockIntro } from '../../src/utils/contentTypes'
 
 export {
   CTA_BUTTON_STYLES,
@@ -44,6 +45,16 @@ export {
   isReportTextType,
   type ReportTextType
 } from '../../src/utils/reportText'
+
+import type { TimelineSection } from '../../src/utils/timeline'
+
+export {
+  MIN_TIMELINE_SECTIONS,
+  MIN_TIMELINE_EVENTS,
+  normalizeTimelineSections,
+  type TimelineEvent,
+  type TimelineSection
+} from '../../src/utils/timeline'
 
 // ---------------------------------------------------------------------------
 // Shared
@@ -89,7 +100,7 @@ export interface ProfileBlock extends StrapiBlockBase {
  */
 export interface ProfileGridBlock extends StrapiBlockBase {
   __component: 'blocks.profile-grid'
-  heading?: string
+  intro?: SerializedBlockIntro
   profiles?: { connect: Array<{ documentId: string }> }
   category?: string
 }
@@ -97,6 +108,7 @@ export interface ProfileGridBlock extends StrapiBlockBase {
 /** blocks.blockquote – styled quote with optional attribution. */
 export interface BlockquoteBlock extends StrapiBlockBase {
   __component: 'blocks.blockquote'
+  intro?: SerializedBlockIntro
   quote: string
   source?: string
 }
@@ -110,6 +122,7 @@ export interface BlockquoteBlock extends StrapiBlockBase {
  */
 export interface QuoteBlock extends StrapiBlockBase {
   __component: 'blocks.quote'
+  intro?: SerializedBlockIntro
   quote: string
   authorName?: string
   /** Strapi upload file integer ID — set when authorImage is provided. */
@@ -134,6 +147,7 @@ export interface CalloutTextBlock extends StrapiBlockBase {
  */
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
+  intro?: SerializedBlockIntro
   heading?: string
   description?: string
   color?: 'purple' | 'green'
@@ -150,6 +164,7 @@ export interface CtaStripBlock extends StrapiBlockBase {
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
 export interface PdfEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.pdf-embed'
+  intro?: SerializedBlockIntro
   source: 'media_library' | 'external_url'
   /**
    * Strapi upload file integer ID — set when source is 'media_library'.
@@ -170,6 +185,7 @@ export interface PdfEmbedBlock extends StrapiBlockBase {
  */
 export interface VideoEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.video-embed'
+  intro?: SerializedBlockIntro
   source: 'media_library' | 'external_url'
   /** Strapi upload file integer ID — set when source is 'media_library'. */
   file?: number
@@ -193,6 +209,7 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
  */
 export interface ImageBlockBlock extends StrapiBlockBase {
   __component: 'blocks.image-block'
+  intro?: SerializedBlockIntro
   media: {
     image: number | null
     /** null when omitted in MDX; '' when explicitly empty (decorative). */
@@ -215,26 +232,24 @@ export interface CodeBlockBlock extends StrapiBlockBase {
 /** blocks.split-layout – two-column layout with media on one side and content on the other. */
 export interface SplitLayoutBlock extends StrapiBlockBase {
   __component: 'blocks.split-layout'
+  intro?: SerializedBlockIntro
   layoutType: 'image-text' | 'image-quote' | 'video-text' | 'video-quote'
   imagePosition: 'left' | 'right'
   /** Content : media column ratio. Defaults to 2:1 when omitted in MDX. */
-  displayRatio?: '1:1' | '1:2' | '2:1'
+  displayRatio?: '3:2' | '2:1' | '1:1' | '1:2'
   media?: {
     image: number | null
     /** null when omitted in MDX; '' when explicitly empty (decorative). */
     alternativeText: string | null
   }
   videoUrl?: string
+  /** Accessible player name. Not the poster alt. */
+  videoTitle?: string
   content?: string
   quote?: string
   quoteSource?: string
-  cta?: {
-    text: string
-    link: string
-    style?: string
-    external?: boolean
-    document?: boolean
-  }
+  /** The button group. */
+  buttons?: CtaButton[]
 }
 
 /**
@@ -243,7 +258,7 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
  */
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
-  heading?: string
+  intro?: SerializedBlockIntro
   accessibilityLabel: string
   logos: Array<{ image: number; alternativeText: string | null }>
 }
@@ -256,7 +271,7 @@ export interface CarouselBlock extends StrapiBlockBase {
  */
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
-  title?: string
+  intro?: SerializedBlockIntro
   tiles: {
     number: string
     prefix?: string
@@ -265,15 +280,18 @@ export interface NumberTilesBlock extends StrapiBlockBase {
   }[]
 }
 
-/** blocks.agenda — an optional heading followed by at least two scheduled items. */
+export interface AgendaItem {
+  time: string
+  activity: string
+  additionalInfo?: string
+}
+
+/** blocks.agenda — an optional intro and day heading, then at least two items. */
 export interface AgendaBlock extends StrapiBlockBase {
   __component: 'blocks.agenda'
+  intro?: SerializedBlockIntro
   heading?: string
-  items: {
-    time: string
-    activity: string
-    additionalInfo?: string
-  }[]
+  items: AgendaItem[]
 }
 
 /** shared.cta-link — standalone call-to-action link, usable directly in a dynamic zone. */
@@ -298,21 +316,7 @@ export interface CtaButton {
 /** blocks.cta-buttons — one CTA button, or two side by side. */
 export interface CtaButtonsBlock extends StrapiBlockBase {
   __component: 'blocks.cta-buttons'
-  buttons: CtaButton[]
-}
-
-/** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
-export interface CtaButton {
-  text: string
-  link: string
-  style: CtaButtonStyle
-  external?: boolean
-  document?: boolean
-}
-
-/** blocks.cta-buttons — one CTA button, or two side by side. */
-export interface CtaButtonsBlock extends StrapiBlockBase {
-  __component: 'blocks.cta-buttons'
+  intro?: SerializedBlockIntro
   buttons: CtaButton[]
 }
 
@@ -320,7 +324,7 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
   ariaLabel: string
-  title?: string
+  intro?: SerializedBlockIntro
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
 } & Partial<Record<CardGridCardsField, CardGridCard[]>>
@@ -335,7 +339,7 @@ export interface FaqItem {
 /** blocks.faq — accordion of question/answer pairs under an optional heading. */
 export interface FaqBlock extends StrapiBlockBase {
   __component: 'blocks.faq'
-  heading?: string
+  intro?: SerializedBlockIntro
   items: FaqItem[]
 }
 
@@ -394,7 +398,7 @@ export interface EventCardApply {
  */
 export interface EventCardBlock extends StrapiBlockBase {
   __component: 'blocks.event-card'
-  title?: string
+  intro?: SerializedBlockIntro
   when: EventCardWhen
   where: EventCardWhere
   apply?: EventCardApply
@@ -444,6 +448,41 @@ export interface InternalAdvertBlock extends StrapiBlockBase {
   }
 }
 
+export interface DonationCard {
+  heading: string
+  amount: string
+  summary?: string
+  seats?: string
+  benefitsLabel?: string
+  benefits: string
+  ctaText: string
+  ctaLink: string
+  ctaExternal?: boolean
+  ctaDocument?: boolean
+}
+
+/**
+ * blocks.donation-cards — the giving tiers on a Fundraising Page. A card's
+ * CTA may point at a Fundraise Up Element ID (`#XVSHSPQU`). The script is
+ * part of the Fundraising Page template, not this block, and the block is
+ * not available on a Foundation Page.
+ */
+export interface DonationCardsBlock extends StrapiBlockBase {
+  __component: 'blocks.donation-cards'
+  ariaLabel: string
+  cards: DonationCard[]
+}
+
+/**
+ * blocks.timeline — dated events grouped into sections whose heading,
+ * subheading and description stay on screen while the reader scrolls through
+ * them. Section colours are assigned by position in Astro, never stored.
+ */
+export interface TimelineBlock extends StrapiBlockBase {
+  __component: 'blocks.timeline'
+  sections: TimelineSection[]
+}
+
 // ---------------------------------------------------------------------------
 // Union
 // ---------------------------------------------------------------------------
@@ -473,3 +512,5 @@ export type ParsedBlock =
   | CtaButtonsBlock
   | HackathonAnimationBlock
   | InternalAdvertBlock
+  | DonationCardsBlock
+  | TimelineBlock

@@ -23,6 +23,7 @@ import type { MdxJsxFlowElement, MdxJsxTextElement } from 'mdast-util-mdx-jsx'
 
 import type { ParsedBlock } from './types.blocks'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
+import { findRetiredProp } from './retiredProps'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -247,6 +248,9 @@ export async function parseMdxToBlocks(
           column: jsxNode.position?.start.column
         })
       }
+
+      const retiredProp = findRetiredProp(jsxNode)
+      if (retiredProp) return retiredProp
 
       const result = await handler(jsxNode, parserContext)
       if (result instanceof MdxParserError) return result

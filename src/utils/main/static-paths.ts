@@ -3,11 +3,12 @@ import {
   crossSectionCollections,
   type CrossSectionCollection
 } from '@/lib/templates'
-import { getGatedCollection } from './blogPosts'
+import { getGatedCollection } from './gatedCollection'
 import { defaultLocale, type Locale } from './i18'
 
 export type CollectionType =
   | 'foundation-pages'
+  | 'fundraising-pages'
   | 'grant-pages'
   | 'grant-overview-pages'
   | 'summit-pages'

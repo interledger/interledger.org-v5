@@ -1,6 +1,8 @@
 import path from 'path'
 import { describe, it, expect } from 'vitest'
 import {
+  findUndeletableUploads,
+  resolveDeletableUploadPath,
   resolvePublicImagePath,
   validateLocalImageUrl
 } from './uploadValidation'
@@ -60,5 +62,161 @@ describe('validateLocalImageUrl', () => {
     expect(
       validateLocalImageUrl('/repo', '/uploads/img/original/clip.mp4')
     ).toBeNull()
+  })
+})
+
+describe('resolveDeletableUploadPath', () => {
+  const uploadDir = path.resolve('/repo/public/uploads/img/original')
+
+  it('resolves an upload by its url', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original/logo_abc.png',
+        hash: 'logo_abc',
+        ext: '.png'
+      })
+    ).toBe(path.join(uploadDir, 'logo_abc.png'))
+  })
+
+  it('keeps a literal space in the filename', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original/hero image.avif'
+      })
+    ).toBe(path.join(uploadDir, 'hero image.avif'))
+  })
+
+  it('refuses a repo image outside the uploads folder, naming it', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/img/reports/chart.svg',
+      hash: 'chart',
+      ext: '.svg',
+      name: 'chart.svg'
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain(
+      "“chart.svg” is a site image stored in the code repository, so it can't"
+    )
+    expect((result as Error).message).toMatch(/can't be deleted or replaced/)
+  })
+
+  // Seeded /img records use the bare filename as their hash, so a hash-first
+  // lookup would have unlinked an unrelated upload with the same name.
+  it('never falls back to an upload with the same hash', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/img/logo.png',
+      hash: 'logo',
+      ext: '.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('falls back to the url when the name is missing', () => {
+    const result = resolveDeletableUploadPath(uploadDir, { url: '/img/x.png' })
+    expect((result as Error).message).toContain('“/img/x.png”')
+  })
+
+  it('leaves the disk alone for a sibling folder that only shares the prefix', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original-backup/x.png'
+      })
+    ).toBeNull()
+  })
+
+  // Staging still has rows from the old provider at /uploads/<file>, whose
+  // files were never in the repo. Deleting one removes just the row.
+  it('lets an old provider row go without touching the disk', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/old_photo_abc.jpg',
+        hash: 'old_photo_abc',
+        ext: '.jpg',
+        name: 'old photo.jpg'
+      })
+    ).toBeNull()
+  })
+
+  it('refuses a url that escapes the uploads folder', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/uploads/img/original/../../../img/x.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toMatch(/escapes the uploads folder/)
+  })
+
+  it('refuses the uploads folder itself', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      url: '/uploads/img/original/'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('falls back to the hash when there is no url', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: null,
+        hash: 'a',
+        ext: '.png'
+      })
+    ).toBe(path.join(uploadDir, 'a.png'))
+  })
+
+  it('refuses a hash that escapes the uploads folder', () => {
+    const result = resolveDeletableUploadPath(uploadDir, {
+      hash: '../../../img/logo',
+      ext: '.png'
+    })
+    expect(result).toBeInstanceOf(Error)
+  })
+
+  it('returns null when there is neither url nor hash', () => {
+    expect(resolveDeletableUploadPath(uploadDir, {})).toBeNull()
+  })
+})
+
+describe('findUndeletableUploads', () => {
+  const uploadDir = path.resolve('/repo/public/uploads/img/original')
+
+  it('passes a batch of uploads', () => {
+    expect(
+      findUndeletableUploads(uploadDir, [
+        { url: '/uploads/img/original/a.png' },
+        { url: '/uploads/img/original/b.pdf' }
+      ])
+    ).toBeNull()
+  })
+
+  it('passes a batch with an old provider row', () => {
+    expect(
+      findUndeletableUploads(uploadDir, [
+        { url: '/uploads/img/original/a.png' },
+        { url: '/uploads/old_photo_abc.jpg' }
+      ])
+    ).toBeNull()
+  })
+
+  it('reports an escaping path as itself, not as a site image', () => {
+    const result = findUndeletableUploads(uploadDir, [
+      { url: '/uploads/img/original/../../../etc/x.png' }
+    ])
+    expect(result?.message).toMatch(/escapes the uploads folder/)
+  })
+
+  it('passes an empty batch', () => {
+    expect(findUndeletableUploads(uploadDir, [])).toBeNull()
+  })
+
+  it('names every repo image in a mixed batch', () => {
+    const result = findUndeletableUploads(uploadDir, [
+      { url: '/uploads/img/original/a.png', name: 'a.png' },
+      { url: '/img/logo.png', name: 'logo.png' },
+      { url: '/img/hero.avif', name: 'hero.avif' }
+    ])
+    expect(result).toBeInstanceOf(Error)
+    expect(result?.message).toContain(
+      "“logo.png”, “hero.avif” are site images stored in the code repository, so they can't be deleted"
+    )
+    expect(result?.message).not.toContain('a.png”')
   })
 })

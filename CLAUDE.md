@@ -12,7 +12,7 @@
 - Use content collections and `getStaticPaths` for any route-driven content
 - Shared types live in `src/types/`, utilities in `src/utils/`, layouts in `src/layouts/`
 - Prefer static output (`output: 'static'`) unless a page explicitly needs SSR
-- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` from the database on every save. The sync runs both ways, like the MDX content sync: `pnpm sync:redirects` (from `cms/`, also part of `sync:all`) mirrors the file into Strapi, creating, updating and **deleting** rows the file no longer has. A code edit to the file, a removal included, therefore reaches Strapi on the next sync — but until then the next editor save rewrites the file from the database and undoes it, so run the build-and-sync workflow right after merging one. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file but out of Astro. The server refuses every delete from an admin session; it accepts one only from an API-token request sending `x-skip-mdx-export` (`isCodeSyncRequest`). That header is caller-controlled, so any API token with Redirect delete permission can delete — not just the sync. Tokens are admin-issued. Root `redirects.ts` only loads and validates the file for `astro.config.mjs`. Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this.
+- Redirects: literal paths are managed in Strapi (Content Manager → Redirect), which rewrites `src/config/redirects.json` from the database on every save. The sync runs both ways, like the MDX content sync: `pnpm sync:redirects` (from `cms/`, also part of `sync:all`) mirrors the file into Strapi, creating, updating and **deleting** rows the file no longer has. A code edit to the file, a removal included, therefore reaches Strapi on the next sync — but until then the next editor save rewrites the file from the database and undoes it, so run the build-and-sync workflow right after merging one. The `destination` is stored like any link field: an own-site URL from any environment (production, staging or playground) is saved relative and slashed, so `https://staging.interledger.org/blog` becomes `/blog/`. Editors can't delete a redirect; they switch `enabled` off, which keeps it in the file but out of Astro. The server refuses every delete from an admin session; it accepts one only from an API-token request sending `x-skip-mdx-export` (`isCodeSyncRequest`). That header is caller-controlled, so any API token with Redirect delete permission can delete — not just the sync. Tokens are admin-issued. Root `redirects.ts` only loads and validates the file for `astro.config.mjs`. Any rule with a `[param]` goes in `public/_redirects`, written in Netlify syntax (`:param`, `*` in the source, `:splat` in the destination). The Netlify adapter emits a dynamic `[...rest]` destination as a literal `*`, so the redirect lands on a 404, and it appends its rules after `public/_redirects`, where they can't be ordered. `src/redirects.test.ts` enforces this. Hand-written page destinations in `public/_redirects` and `netlify.toml` end in `/`, except a bare `:splat`: the `*` keeps the request's trailing slash, so `:splat/` would redirect `/all/x/2/` to `…/2//`. The same test enforces both. File destinations (`/404.html`) and external URLs keep their form.
 
 ## Code Style
 
@@ -154,6 +154,16 @@ Rules and invariants:
   absolute CMS URLs are reduced to site-relative pathnames. Uploads reach the
   repo via async git sync, so an upload rendered before the next deploy won't be
   in the catalog yet — that's the expected degrade-to-`<img>` window, not a bug.
+- **`public/img` is read-only in Strapi.** It is seeded into the Media Library
+  so content can use it, but git sync stages only `public/uploads`, so
+  `provider.delete` (`resolveDeletableUploadPath`) refuses delete and replace
+  for any `/img/` URL, with a `PolicyError` (Strapi reduces any other
+  `ForbiddenError` to a bare "Forbidden", hiding the message). A delete there
+  would leave the VM checkout dirty and break its next pull. Other URLs outside
+  the uploads folder (old-provider rows) delete just the row. Strapi removes a bulk or folder batch with one
+  `Promise.all`, so `guardBatchUploadDeletes` checks the whole batch first;
+  otherwise the uploads in it would still go. Editors upload a new image
+  instead; a developer removes the old file in a PR.
 - **One extension allowlist.** `hasOptimizableRasterExtension` in `imagePaths.ts`
   is the single source of truth for what gets optimized, shared by the encoder,
   `resolveOptimizableSource`, and the audit's `isOptimizableRasterPath`. Extend
@@ -201,6 +211,15 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
   Catching content that references a nonexistent image is a separate job and
   wants its own check — the marker is blind to SVGs/GIFs and to anything that
   doesn't reach prerendered HTML.
+- **Rich-text images.** CKEditor stores images as Markdown, and they reach the
+  page by two routes that must emit the same markup: MDX bodies via the `img`
+  override in `RICH_TEXT_MDX_COMPONENTS` (`src/components/mdx/`), which every
+  `<Content components>` map spreads, and HTML-string rich text via Marked's
+  `image` renderer (`renderOptimizedImageHtml`), behind every `parseMarkdown`.
+  A new template that renders MDX must spread the map, or its images ship raw.
+  The CKEditor plugin prefixes the CMS origin onto every upload it inserts;
+  the CMS document middleware strips it on save (`stripUploadOriginsInText`),
+  and `src/contentUploadUrls.test.ts` fails on any that still reach the repo.
 - **Single-URL contexts.** A CSS background and a `poster` cannot carry a
   srcset, so they take `getOptimizedImage(src).fullSrc` and fall back to the raw
   path — see `getHeroSectionStyle` and `VideoEmbed`. Netlify clamps to the source
@@ -215,7 +234,8 @@ og:image>`, and SSR routes (no file in `dist`) — the success message names the
 `src/integrations/validate-internal-links.ts` scans `dist/**/*.html` in
 `astro:build:done` and reports internal links and fragments that this deploy
 does not serve — warning by default, failing the build under
-`LINK_CHECK=strict` (see below). It replaced `starlight-links-validator`, which
+`LINK_CHECK=strict` (see below). It also fails every build on an internal page
+link without a trailing slash (see [Trailing Slashes](#trailing-slashes)). It replaced `starlight-links-validator`, which
 only ever covered the 13 Starlight `docs` pages — 0.6% of the site, and none of
 the places real breakage lives.
 
@@ -250,7 +270,8 @@ the places real breakage lives.
   served at `/about-us/`, and against the slashless form `new URL` drops a
   segment. `fromPathname` must stay slashless — a bare `#frag` returns it as the
   dist-index key — so `classifyHref` takes `servedWithTrailingSlash` separately.
-- **Findings warn; only Force Reset fails.** Editors commit MDX straight to
+- **Findings warn; only Force Reset fails** — slashless links aside, which
+  fail every build (see [Trailing Slashes](#trailing-slashes)). Editors commit MDX straight to
   `staging` with no PR and fix most of their own broken links quickly, so
   failing every build would stop staging far more often than it would prevent
   anything reaching production — and a PR to `staging` is built merged with
@@ -280,7 +301,7 @@ the places real breakage lives.
 - **`INTERNAL_LINK_EXCEPTIONS`** is a flat list of targets (exact match, no
   globs; each entry carries a comment saying why). An entry that stops being
   needed — its target resolves now, or nothing links to it any more — is
-  reported as a warning, never a failure.
+  reported as a warning, never a failure. It never exempts a slashless link.
 - **Blind spots**, neither checked nor reported — a clean run is not a
   whole-site guarantee: `url()` in emitted CSS, `og:image` and `og:url`
   (`<meta content>` isn't scanned; `og:url` shares canonical's value, so it is
@@ -290,24 +311,99 @@ the places real breakage lives.
   without knowing which pages were built, so pages whose twin may not exist pass
   `localeAlternates={false}` (see `BaseLayout`). Paginated listings past page 1
   opt out on both counts: ES carries fewer posts, and page 4 of the EN blog is
-  not the translation of page 4 of the ES blog anyway.
+  not the translation of page 4 of the ES blog anyway. The 404 page opts out
+  too: it has no ES twin.
 
-## The Publish Gate (future-dated blog posts)
+## Trailing Slashes
+
+Netlify serves every page at `/path/`, so a link to `/path` costs a 301. Astro
+stays on `trailingSlash: 'ignore'`; the convention is kept in code and enforced
+at build time.
+
+- **Page hrefs end in `/`.** Build them with `localizeRoute` or `translatePath`,
+  which return `/`, `/es/`, `/es/blog/`. Append segments with
+  `joinPagePath(base, ...segments)` (`src/utils/shared/url.ts`): it drops empty
+  segments and slashes the result whether or not the base ends in `/`. Never
+  concatenate onto a built path.
+- **Stay slashless:** translation-map keys (`buildRoutePath`,
+  `normalizeBasePath`) and `getStaticPaths` params (`grantOverviewRouteParam`).
+  To compare an href with the current path, strip both with
+  `stripTrailingSlash`, as `Breadcrumbs` and `SiteFooter` do.
+- **A file is not a page.** Put a filename after `localizeRoute('/', locale)`,
+  as `GranteeIndex` does for its search index; `joinPagePath` would add a slash.
+- **The guard.** `validate-internal-links` flags a page link whose path, read
+  after the query and fragment are cut and before normalisation, doesn't end in
+  `/`. It fails every build, whatever `LINK_CHECK` is set to — the exception to
+  "findings warn". Fix it at its source; there is no exception list.
+  - Why a build check, not unit tests: tests cover the helpers, but many hrefs
+    never pass through one — markup, docs markdown, the Starlight sidebar,
+    canonical and `hreflang`. Only the rendered HTML shows every link, and this
+    validator already parses it.
+  - Why fail, not warn: Strapi slashes links on save (below), so a slashless
+    link can only come from Astro code or a file edited in the repo, such as the
+    Starlight docs markdown, which Strapi never sees. Failing stops the PR that
+    added it; warnings pile up unnoticed, which is how about half the site's
+    internal hrefs ended up slashless before this check.
+  - Scope: rendered HTML only, in the validator's carriers (`href`, `src`,
+    `srcset`, `action`, `poster`).
+  - Exempt: `/`; `/404`; files, i.e. a last segment ending in an extension
+    with at least one letter, `/\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$/`, so
+    `report.pdf` and `episode.mp3` are files but `what-is-web3.0` is a page
+    (`isFilePath` in `src/utils/shared/url.ts`, whose `FILE_EXTENSION` mirrors
+    `cms/src/utils/relativeLinks.ts` — change both together); and everything the
+    check already ignores (external URLs, `/.netlify/`, `/.well-known/`).
+- **Blind spots.** URLs built in client-side JS and the JSON search indexes
+  (`postPath` in the blog index, grantee tag links) are not checked. They are
+  slashed today because they come from `getBlogPostPath` and
+  `getGranteeFilterUrl`, but nothing enforces it. Nor are SSR-only routes or
+  `<meta content>` (`og:url`).
+- **Strapi slashes on save.** The document middleware in `cms/src/index.ts`
+  runs `normalizeRelativeLinksInDocumentData` on every create and update:
+  href-like fields go through `toSlashedPath`, `pathSlug`/`slug` through
+  `toSlashedSlug`, and every other string through `slashInternalMarkdownLinks`,
+  outside code. Navigation hrefs (`cms/src/utils/navigationLifecycle.ts`) and redirect
+  destinations (`cms/src/utils/redirects.ts`) use `toSlashedPath` too. Known
+  gaps: a link with a title, `[x](/foo "title")`, and a reference-style
+  definition, `[x]: /foo`, are not slashed. Neither appears in content today;
+  the build guard catches one that does.
+- **The 404 page.** `/404` is its address, with no slash. It is EN-only — there
+  is no ES 404 — and `noindex`, with no canonical, `og:url` or `hreflang`
+  (`canonicalURL={null}`, `localeAlternates={false}`). Its language switcher
+  points to home (`NOT_FOUND_SLUG` in `languageSwitcherHrefs.ts`). Netlify
+  serves a real file before any rule, so `/404` and `/404.html` would answer
+  200; the forced `404!` rules at the top of `public/_redirects` make them
+  answer 404.
+- **Redirect destinations** follow the rule in
+  [Astro Conventions](#astro-conventions).
+
+## The Publish Gate (future-dated blog posts and drafts)
 
 Site changes are promoted from `staging` to production on a cadence, so a blog
-post scheduled for a future launch date must not block unrelated promotions. On
-production the `date` frontmatter field is a real publish gate: a post dated
-later than today is excluded from the collection entirely. Staging, playground,
-deploy previews and local dev show everything, so upcoming content stays
-reviewable.
+post scheduled for a future launch date, or a page still in progress, must not
+block unrelated promotions. On production two frontmatter fields are real
+publish gates, and a gated entry is excluded from the collection entirely:
 
-- **One reader, no exceptions.** All blog collection access goes through
-  `getBlogPosts()` / `getGatedCollection()` in `src/utils/main/blogPosts.ts`.
-  Never call `getCollection('foundation-blog')` directly — six readers with six
+- `date` on blog posts: a post dated later than today is hidden.
+- `draft: true` on every page collection except the podcast page (blog, grant,
+  grant overview, report, FAQ, profile, summit, hackathon, foundation,
+  fundraising). Editors set it with the **Draft** checkbox in Strapi. The CMS
+  writes the key only when it is checked, and the schema defaults a missing key
+  to `false`.
+
+Staging, playground, deploy previews and local dev show everything, so upcoming
+content and drafts stay reviewable.
+
+- **One reader, no exceptions.** All page collection access goes through
+  `getGatedCollection()` in `src/utils/main/gatedCollection.ts`, and blog
+  access through `getBlogPosts()` (`src/utils/main/blogPosts.ts`), which wraps
+  it. Never call `getCollection()` directly for a page collection: a page
+  lookup, a profile grid or a listing that reads around the gate shows a draft
+  on production even though its route was never built. Six readers with six
   filters is how a route set ends up disagreeing with the category pills or the
-  language-switcher map, which is exactly how a scheduled post leaks. Ungated
-  collections pass straight through `getGatedCollection`, so the two
+  language-switcher map, which is exactly how a scheduled post leaks. The two
   collection-agnostic callers (`getLocalizedPaths`, `buildMap`) use it too.
+  `podcastPagination.ts` is the one exception: the podcast page has no draft
+  field.
 - **The gate cascades to translations.** Filtering each entry on its own `date`
   is not enough: `getLocalizedPaths` builds every ES route from the EN entry
   list, and nothing forces a translation to carry its original's date. A
@@ -317,7 +413,13 @@ reviewable.
   did not survive the date filter. Only inside the gated branch: a dangling
   `localizes` with the gate off is a pre-existing content bug, not this gate's
   business.
-- **Gated by collection name, not field shape.** `GATED_COLLECTIONS` lists
+- **Drafts cascade the same way, more narrowly.** A draft original takes its
+  translations with it. The draft gate only drops translations of originals it
+  removed, keyed by `section` + `pathSlug` because cross-section collections
+  reuse slugs across sections, so it never touches a dangling `localizes` in a
+  collection with no drafts. A draft translation of a live original is dropped
+  alone, and its ES route falls back to the EN content.
+- **Date gate by collection name, not field shape.** `DATE_GATED_COLLECTIONS` lists
   `foundation-blog` only. `reports` also has a `date`, but it is an object
   (`{ publishDate, lastUpdated }`) — sniffing for the field would gate the wrong
   thing. An entry with no date, or an unparseable one, always counts as
@@ -327,8 +429,17 @@ reviewable.
   Vite `define` `__HIDE_FUTURE_POSTS__` (`astro.config.mjs`), and
   `hideFuturePosts()` prefers the define. It reads Netlify's `CONTEXT`
   (`production` gates; `branch-deploy`, `deploy-preview` and a missing value do
-  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. No per-context
-  env vars in `netlify.toml`.
+  not), with `BLOG_DATE_FILTER=on|off` as an explicit override. Drafts follow
+  the same pattern with their own pair: `shouldHideDrafts()` frozen into
+  `__HIDE_DRAFTS__`, overridden by `DRAFT_FILTER=on|off`. No per-context env
+  vars in `netlify.toml`.
+- **Grant report pages have a third gate, a feature gate.**
+  `shouldHideGrantReports()` is frozen into `__HIDE_GRANT_REPORTS__`, overridden
+  by `GRANT_REPORTS_FILTER=on|off`, and decided by `CONTEXT` like the other two.
+  It hides every report page on production until the feature is released
+  (INTORG-1313 removes it). It does not decide which reports are public: that
+  is the Airtable sync's Live filter, so the reports are not part of
+  `getGatedCollection()`.
 - **`BUILD_NOW` is frozen at module load.** A build starting at 23:59:50 UTC
   would otherwise gate the listing on one day and the static paths on the next,
   emitting a post's URL with nothing linking to it.
@@ -344,8 +455,24 @@ reviewable.
   but only for `staging`/`playground`.
 - **`date` is overloaded.** It is both the displayed/sort date and the publish
   gate. Back-dating to push a post down the listing is safe; forward-dating to
-  show a nicer date now hides it. There is no `draft` flag and no separate
-  `publishDate`, so "publish now, display a future date" is not possible.
+  show a nicer date now hides it. There is no separate `publishDate`, so
+  "publish now, display a future date" is not possible. `draft` hides a post
+  regardless of its date.
+- **Links to a draft are broken links on production.** A nav entry, a body
+  link or a redirect pointing at a draft resolves on staging but not in the
+  production build, so the internal link check reports it, and
+  `LINK_CHECK=strict` fails the Force Reset publish. That is intended: unlink
+  the page or publish it first.
+- **A draft summit home fails the production build.** `/summit/` and
+  `/es/summit/` are fixed index routes that render the `HOME_CONTENT_SLUG`
+  entry without a static path. A gated-out home would still emit a page that
+  redirects to `/404`, which neither the sitemap nor the link check catches, so
+  with the draft gate on the index routes throw on `resolveSummitHome`'s error.
+  With it off they keep the redirect, so a missing home never blocks staging.
+  A draft ES home alone is fine: it falls
+  back to the EN content. Other section homes (hackathon `overview`) come from
+  static paths, so a draft one just has no route, and links to it are
+  reported like any other.
 - **`/blog/preview` is unaffected** — it is SSR and fetches Strapi by
   `documentId`, bypassing the collection. That is the way to view a scheduled
   post on production.
@@ -359,6 +486,74 @@ reviewable.
 
   Then check `dist/blog/<slug>/index.html`, `dist/blog-search-index.json`,
   `dist/sitemap-*.xml` and `dist/blog/index.html` for the slug.
+
+  For drafts, set `draft: true` on an entry and build with `DRAFT_FILTER=on`
+  and then `off` (or `CONTEXT=production` / `branch-deploy`). Check that the
+  page's `dist/<path>/index.html`, its sitemap entry and any listing or profile
+  grid that shows it appear only in the second build.
+
+## Airtable Sync
+
+`scripts/import-airtable.ts` runs daily in CI (`sync-airtable.yml`), and Slack
+is told only when it fails. Nobody reads the log of a run that passes.
+
+- **Fail, never warn, on bad data.** A missing required value or an invalid
+  value, required or optional, fails the whole sync, in the directory, the
+  grant reports and the grantee profiles alike. An empty optional cell is not
+  an error. Don't add a "warn and leave it out" path: the value then vanishes
+  from the site with nobody told. This was decided with the PM after two such
+  paths shipped (#766, and the one in #833). Beyond a non-blank Project Name
+  and a contact name for every Project Leader, directory values are checked by
+  type only, a decision of the same review: free text in Project Links is
+  allowed, and `grantee.ts` skips entries that are not URLs.
+- **One run lists every bad record.** Each record lists all of its problems,
+  each part lists all of its bad records, and `collectResults` joins the
+  three parts' failures into one error. A part still stops at its first
+  missing or hidden table, view or column, and checks images (and blank
+  directory columns) only once every record passes.
+- **The parts throw; the script catches each one.** An exception to "return
+  `T | Error`" (Errors as Values): the `fetch*` functions throw, and
+  `importAirtableData` wraps each part in `tryCatchAsync` so one failure
+  doesn't stop the others. Converting them is a separate task.
+- The site keeps the last good data until a run passes and its pull request is
+  merged: the JSON is written only after every part succeeds.
+
+## Block Intro and Spacing
+
+Every content block owns its heading area and its vertical spacing (ADR-009,
+`docs/decisions/009-block-intro-and-block-owned-spacing.md`).
+
+- **One intro per block.** A block's heading, subheading and description come
+  from its `intro` field (`shared.block-intro`), rendered by
+  `src/components/shared/BlockIntro.astro`. Don't add a per-block `title` or
+  `heading` field for the block's title, and don't render its own `<h2>` for
+  it. Normalize with `normalizeBlockIntro`, and name the `<section>` with
+  `blockIntroA11y`. Some headings are not a block intro and stay, for
+  example the CTA strip title (inside the strip, ADR D6), the Agenda day
+  heading, the InternalAdvert headline and the homepage's standalone
+  LogoCarousel. The grant InfoCards `heading` and GrantFaqSection
+  `title`/`subtitle` are their own fields, mapped into the intro.
+- **The marker.** A block that renders an intro sets `data-intro-variant` on
+  its root. It then owns its top (the intro, or the empty-intro spacer) and its
+  bottom (`--block-pb`), and sits out the prose rhythm. Every `Paragraph` sets
+  it too (`"paragraph"`). Spacing inside the block is padding, never margin,
+  so it never collapses. The tokens (`--intro-*`, `--block-pb`, `--para-*`,
+  `--media-pt`) live in `src/styles/base/variables.css`.
+- **The bridge stays.** Plain Markdown and the blocks without the marker
+  (such as CodeBlock, CalloutText, Timeline, DonationCards, CTA buttons
+  without an intro, or a Split layout in an older ratio without one) don't
+  own their spacing. The bridge rules in `prose/rhythm.css` and
+  `utilities/spacing.css` (`page-stack`) keep 120 on desktop between the two
+  kinds. They are permanent, not a migration leftover.
+- **Adding the intro to a block** touches the schema (`intro`), every
+  `on['blocks.x']` populate in `cms/src/utils/contentPopulate.ts` and in the
+  Strapi preview queries (`src/pages/page-preview.astro`,
+  `src/pages/preview/*.astro`) (without them the intro silently drops out of
+  the export or the preview), the serializer
+  (`serializeIntroProp`), the sync handler (`getIntroAttr`), the component,
+  and `SELF_SPACED_BLOCKS` in `src/utils/main/dynamicZoneSpacing.ts`, the
+  preview's copy of the marker. `selfSpacedBlocks.test.ts` fails when that
+  set and the components drift.
 
 ## Git
 

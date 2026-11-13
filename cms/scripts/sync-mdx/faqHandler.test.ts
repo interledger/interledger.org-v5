@@ -14,24 +14,24 @@ const faq = (items: string[], attrs = '') =>
   [`<Faq${attrs}>`, ...items, '</Faq>'].join('\n')
 
 describe('Faq handler', () => {
-  it('parses a block with a heading and a single question', async () => {
+  it('parses an intro', async () => {
     const blocks = await parseMdxToBlocks(
-      faq([item('What is it?')], ' heading="About us"'),
+      faq(
+        [item('What is it?')],
+        ' intro={{"heading":"About us","description":"The basics."}}'
+      ),
       ctx
     )
 
-    expect(blocks).toEqual([
-      {
-        __component: 'blocks.faq',
-        heading: 'About us',
-        items: [{ question: 'What is it?', answer: 'An answer.' }]
-      }
-    ])
+    expect(blocks[0]).toMatchObject({
+      intro: { heading: 'About us', description: 'The basics.' }
+    })
   })
 
-  it('omits heading when the attribute is absent', async () => {
+  it('omits the intro when there is none', async () => {
     const blocks = await parseMdxToBlocks(faq([item('What is it?')]), ctx)
 
+    expect(blocks[0]).not.toHaveProperty('intro')
     expect(blocks[0]).not.toHaveProperty('heading')
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.faq',
@@ -81,7 +81,10 @@ describe('Faq handler', () => {
   })
 
   it('errors when the block has no FaqItem children', async () => {
-    const result = await parseMdxToBlocks('<Faq heading="About us" />', ctx)
+    const result = await parseMdxToBlocks(
+      '<Faq intro={{"heading":"About us"}} />',
+      ctx
+    )
 
     expect(result).toBeInstanceOf(MdxParserError)
     expect((result as MdxParserError).code).toBe(

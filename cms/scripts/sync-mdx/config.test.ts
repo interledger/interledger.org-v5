@@ -90,3 +90,41 @@ describe('buildContentTypes carousel logo payload', () => {
     expect(strapi.updateUploadAlt).not.toHaveBeenCalled()
   })
 })
+
+describe('buildContentTypes draft payload', () => {
+  // Removing `draft: true` at launch must send draft: false, or Strapi keeps
+  // the page a draft.
+  it.each([
+    ['fundraising-pages', true, true],
+    ['fundraising-pages', undefined, false],
+    ['foundation-pages', undefined, false]
+  ] as const)(
+    '%s with draft %s sends draft %s',
+    async (type, draft, expected) => {
+      const contentTypes = buildContentTypes(
+        '/nonexistent-project-root',
+        'http://localhost:1337',
+        'token'
+      )
+      const mdx = createMdxFile({
+        pathSlug: 'some-page',
+        frontmatter: {
+          title: 'Some page',
+          pathSlug: 'some-page',
+          description: 'A page',
+          ...(draft === undefined ? {} : { draft })
+        }
+      })
+
+      const payload = await contentTypes[type].buildPayload(
+        mdx,
+        stubStrapi(),
+        null,
+        false
+      )
+
+      expect(payload).not.toBeInstanceOf(Error)
+      expect(payload).toHaveProperty('draft', expected)
+    }
+  )
+})

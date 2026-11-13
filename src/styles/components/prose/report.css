@@ -1,0 +1,51 @@
+/**
+ * Report Rich Text Styles
+ * Applied via [data-prose-report] (ReportIntro, ReportText Paragraph and
+ * Disclaimer). All three take the same CKEditor markdown, so a table or a
+ * list looks the same in the intro and in the body.
+ * Part of @layer components - can be overridden by utility classes
+ */
+
+@layer components {
+  /* `main` and the `:is(ol, ul) li` path raise these rules to the specificity
+     of prose/default.css's `main ul:not(.list-none)` and
+     `main ul li:last-of-type`. This file loads later, so it wins the tie. */
+  main [data-prose-report] {
+    & :is(ol, ul) {
+      margin-block-end: var(--spacing-xl);
+    }
+
+    & :is(ol, ul) li {
+      margin-block-end: var(--spacing-md);
+    }
+
+    /* Resets the table to body copy. ReportIntro sets a larger text size,
+       which a table would otherwise inherit. */
+    & table {
+      width: 100%;
+      font-size: var(--text-body-lg-standard);
+      line-height: var(--text-body-lg-standard--line-height);
+      font-weight: var(--text-body-lg-standard--font-weight);
+    }
+
+    & :is(th, td) {
+      padding: var(--spacing-md);
+    }
+
+    & th {
+      color: var(--color-neutral-75);
+    }
+
+    & thead th {
+      font-size: var(--text-body-sm-emphasis);
+      line-height: var(--text-body-sm-emphasis--line-height);
+      font-weight: var(--text-body-sm-emphasis--font-weight);
+
+      @variant desktop {
+        font-size: var(--text-body-lg-emphasis);
+        line-height: var(--text-body-lg-emphasis--line-height);
+        font-weight: var(--text-body-lg-emphasis--font-weight);
+      }
+    }
+  }
+}

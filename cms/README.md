@@ -42,14 +42,46 @@ Set `ASTRO_PREVIEW_URL` to match your Astro dev server port (default `http://loc
 
 #### Environment variables
 
-| Variable                    | Description                                                                                                                                                                                                 |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PORT`                      | CMS runs on port 1337 (default)                                                                                                                                                                             |
-| `ASTRO_PREVIEW_URL`         | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                          |
-| `STRAPI_GIT_SYNC_REPO_PATH` | Target git clone used for lifecycle hook commits (default: the repo Strapi runs from). On the VM it must be the workflow's `ENV_DEPLOY_PATH` checkout, since the two writers share a lock inside its `.git` |
-| `STRAPI_UPLOADS_BASE_URL`   | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).      |
-| `STRAPI_DISABLE_GIT_SYNC`   | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                 |
-| `SLACK_WEBHOOK_URL`         | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                              |
+| Variable                        | Description                                                                                                                                                                                                 |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                          | CMS runs on port 1337 (default)                                                                                                                                                                             |
+| `ASTRO_PREVIEW_URL`             | Must match the Astro dev server URL (e.g. `http://localhost:1103`)                                                                                                                                          |
+| `STRAPI_GIT_SYNC_REPO_PATH`     | Target git clone used for lifecycle hook commits (default: the repo Strapi runs from). On the VM it must be the workflow's `ENV_DEPLOY_PATH` checkout, since the two writers share a lock inside its `.git` |
+| `STRAPI_UPLOADS_BASE_URL`       | Base URL prepended to upload paths in generated content files (e.g. `https://cdn.example.com`). Only needed if uploads are hosted externally. When unset, upload paths stay relative (`/uploads/...`).      |
+| `STRAPI_DISABLE_GIT_SYNC`       | Set to `true` to skip the automatic git commit and push after content changes. Useful in local development.                                                                                                 |
+| `SLACK_WEBHOOK_URL`             | The Slack incoming webhook URL for git sync failures. **Required when git sync is enabled.** Strapi will not start without it.                                                                              |
+| `STRAPI_ADMIN_ENVIRONMENT_NAME` | Build-time. Which website the admin's nav link opens: `local`, `staging` or `playground`. Leave it unset locally. See [Admin website link](#admin-website-link).                                            |
+
+#### Admin website link
+
+The admin nav shows a link to this environment's website, below Settings on
+desktop (in the mobile menu, Strapi lists it above Settings). The URL
+and label come from `STRAPI_ADMIN_ENVIRONMENT_NAME` (map in
+`src/utils/websiteLink.ts`):
+
+| Value        | Link                                                                      |
+| ------------ | ------------------------------------------------------------------------- |
+| `local`      | Local website, `http://localhost:1103/`                                   |
+| `staging`    | Staging website, `https://staging.interledger.org/`                       |
+| `playground` | Playground website, `https://playground--interledger-org-v5.netlify.app/` |
+
+- **It is baked in when the admin is built,** like every `STRAPI_ADMIN_*` variable.
+  Changing it needs a rebuild, not a restart.
+- **The VMs get it from the rebuild workflow,** not from `.env` or the systemd unit.
+  `strapi-rebuild-and-sync.yml` sets it from the deploy branch on the `cms/` build
+  command.
+- **Unset or unknown means `local`.** So `pnpm develop`, a local build and the CI
+  build need nothing.
+- **Known gap, accepted on purpose:** an admin built by hand on a VM
+  (`cd cms && pnpm run build` over SSH) gets no name and links to localhost. We
+  accepted this because it is **improbable** and **benign**:
+  - **Improbable:** VM builds go through the workflow, so a manual build is a
+    deliberate, unusual step.
+  - **Benign:** only this nav link is wrong, and visibly so.
+  - **Self-healing within 24 hours:** the daily scheduled rebuild (06:00 UTC, both
+    VMs) rebuilds with the name. Run **Build and Sync** to fix it sooner.
+
+  Build through the workflow, not by hand.
 
 ### Git Sync Failure Reporting
 
@@ -201,8 +233,8 @@ When content is published or updated in Strapi:
   Example: `2025-01-15-interledger-launches-new-platform.mdx`
 
 - MDX files for **profile pages** are stored **flat** under `src/content/profiles/` (and `src/content/profiles/es/` for localized entries). The filename is derived from the `pathSlug` with slashes replaced by hyphens.<br/>
-  Example: `section: foundation`, `pathSlug: grant/fellowship/jane-doe` → `src/content/profiles/grant-fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe`.<br/>
-  Example: `section: summit`, `pathSlug: 2025/speakers/jane-doe` → `src/content/profiles/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe`.
+  Example: `section: foundation`, `pathSlug: /grant/fellowship/jane-doe/` → `src/content/profiles/grant-fellowship-jane-doe.mdx` → public URL `/grant/fellowship/jane-doe/`.<br/>
+  Example: `section: summit`, `pathSlug: /2025/speakers/jane-doe/` → `src/content/profiles/2025-speakers-jane-doe.mdx` → public URL `/summit/2025/speakers/jane-doe/`.
 
 **Profile pages**
 
@@ -216,11 +248,11 @@ When content is published or updated in Strapi:
 
 Each profile's public URL is built from the `section` and `pathSlug` fields:
 
-| Part           | Field              | Example                     |
-| -------------- | ------------------ | --------------------------- |
-| Domain         | _(static label)_   | `interledger.org`           |
-| Section prefix | `section` dropdown | _(none for foundation)_     |
-| Path           | `pathSlug`         | `grant/fellowship/jane-doe` |
+| Part           | Field              | Example                       |
+| -------------- | ------------------ | ----------------------------- |
+| Domain         | _(static label)_   | `interledger.org`             |
+| Section prefix | `section` dropdown | _(none for foundation)_       |
+| Path           | `pathSlug`         | `/grant/fellowship/jane-doe/` |
 
 The **section** dropdown controls routing and breadcrumbs:
 
@@ -230,7 +262,7 @@ The **section** dropdown controls routing and breadcrumbs:
 | Summit (`summit`)         | `/summit`                            | `src/pages/summit/[...page].astro`    |
 | Hackathon (`hackathon`)   | `/hackathon`                         | `src/pages/hackathon/[...page].astro` |
 
-For **foundation** profiles, `pathSlug` is the full site path (e.g. `grant/fellowship/jane-doe` → `/grant/fellowship/jane-doe`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `2025/speakers/jane-doe` → `/summit/2025/speakers/jane-doe`).
+For **foundation** profiles, `pathSlug` is the full site path (e.g. `/grant/fellowship/jane-doe/` → `/grant/fellowship/jane-doe/`). For **summit** or **hackathon**, `pathSlug` is relative to that section prefix (e.g. `/2025/speakers/jane-doe/` → `/summit/2025/speakers/jane-doe/`).
 
 **Migrating from ambassadors**
 

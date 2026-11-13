@@ -1,5 +1,7 @@
+import { serializeIntroProp, type BlockIntroInput } from '../../utils'
+
 export function serialize(block: {
-  title?: string
+  intro?: BlockIntroInput | null
   tiles?: {
     number?: string
     prefix?: string
@@ -33,9 +35,8 @@ export function serialize(block: {
     }
   })
 
-  const title = block.title?.trim()
-  const titleAttr = title ? ` title=${JSON.stringify(title)}` : ''
+  const introAttr = serializeIntroProp(block.intro)
   const tilesAttr = ` tiles={${JSON.stringify(tileItems)}}`
 
-  return `<NumberTiles${titleAttr}${tilesAttr} />`
+  return `<NumberTiles${introAttr}${tilesAttr} />`
 }

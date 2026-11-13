@@ -128,3 +128,17 @@ describe('generateProfileMdx', () => {
     expect(data.localizes).toBeUndefined()
   })
 })
+
+describe('generateProfileMdx — draft', () => {
+  it('writes draft: true when the box is checked', () => {
+    const mdx = generateProfileMdx(makeProfile({ draft: true }))
+
+    expect(matter(mdx).data.draft).toBe(true)
+  })
+
+  it('omits draft when the box is unchecked', () => {
+    const mdx = generateProfileMdx(makeProfile({ draft: false }))
+
+    expect(matter(mdx).data).not.toHaveProperty('draft')
+  })
+})

@@ -100,39 +100,51 @@ describe('getGranteeFilterUrl', () => {
   const directory = '/grant/grantee-directory'
 
   it('returns the directory path when nothing is selected', () => {
-    expect(getGranteeFilterUrl(directory)).toBe(directory)
+    expect(getGranteeFilterUrl(directory)).toBe('/grant/grantee-directory/')
+  })
+
+  it('treats whitespace-only values as not selected', () => {
+    expect(getGranteeFilterUrl(directory, '  ', ' ')).toBe(
+      '/grant/grantee-directory/'
+    )
+  })
+
+  it('gives the same URL whether the directory path is slashed or not', () => {
+    expect(getGranteeFilterUrl(`${directory}/`, '2024', 'privacy')).toBe(
+      '/grant/grantee-directory/2024/tag/privacy/'
+    )
   })
 
   it('appends the year value', () => {
     expect(getGranteeFilterUrl(directory, '2024')).toBe(
-      '/grant/grantee-directory/2024'
+      '/grant/grantee-directory/2024/'
     )
   })
 
   it('puts every tag under /tag/, including reserved slugs', () => {
     expect(getGranteeFilterUrl(directory, undefined, 'privacy')).toBe(
-      '/grant/grantee-directory/tag/privacy'
+      '/grant/grantee-directory/tag/privacy/'
     )
     expect(getGranteeFilterUrl(directory, undefined, 'all')).toBe(
-      '/grant/grantee-directory/tag/all'
+      '/grant/grantee-directory/tag/all/'
     )
     expect(getGranteeFilterUrl(directory, undefined, '2024')).toBe(
-      '/grant/grantee-directory/tag/2024'
+      '/grant/grantee-directory/tag/2024/'
     )
     expect(getGranteeFilterUrl(directory, undefined, '2')).toBe(
-      '/grant/grantee-directory/tag/2'
+      '/grant/grantee-directory/tag/2/'
     )
   })
 
   it('nests year and tag as /<year>/tag/<slug>', () => {
     expect(getGranteeFilterUrl(directory, '2024', 'privacy')).toBe(
-      '/grant/grantee-directory/2024/tag/privacy'
+      '/grant/grantee-directory/2024/tag/privacy/'
     )
     expect(getGranteeFilterUrl(directory, '2024', 'all')).toBe(
-      '/grant/grantee-directory/2024/tag/all'
+      '/grant/grantee-directory/2024/tag/all/'
     )
     expect(getGranteeFilterUrl(directory, '2024', '2')).toBe(
-      '/grant/grantee-directory/2024/tag/2'
+      '/grant/grantee-directory/2024/tag/2/'
     )
   })
 })

@@ -56,9 +56,12 @@ describe('CardGrid round-trip (serialize → parse)', () => {
     expect(blocks).toEqual([{ __component: 'blocks.card-grid', ...original }])
   })
 
-  it('round-trips an optional title', async () => {
+  it('round-trips an intro', async () => {
     const original = {
-      title: 'Why Participate?',
+      intro: {
+        heading: 'Why Participate?',
+        description: 'Open **worldwide**.'
+      },
       ariaLabel: 'Reasons to participate',
       variant: 'Info' as const,
       columns: 'Three' as const,

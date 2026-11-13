@@ -16,7 +16,7 @@ import {
   ParserErrorCode,
   tryCatchParserError
 } from './parserErrors'
-import { getStringAttr } from './jsxExtract'
+import { getIntroAttr, getStringAttr } from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 async function handlePdfEmbed(
@@ -27,8 +27,10 @@ async function handlePdfEmbed(
     const url = getStringAttr(node, 'url', { required: true })
     const label = getStringAttr(node, 'label')
 
+    const intro = getIntroAttr(node)
     const block: PdfEmbedBlock = {
       __component: 'blocks.pdf-embed',
+      ...(intro ? { intro } : {}),
       source: url.startsWith('/') ? 'media_library' : 'external_url'
     }
 

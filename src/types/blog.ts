@@ -14,3 +14,15 @@ export interface BlogThumbnail {
 export interface BlogSearchThumbnail extends BlogThumbnail {
   srcset?: string
 }
+
+/**
+ * A post's first author as shipped in the blog search catalog, already in the
+ * shape BlogCardByline renders: `href` is null when the bio has no link or one
+ * with a rejected scheme, `avatarSrc` is null when the bio has no image (the
+ * row then shows the fallback icon).
+ */
+export interface BlogSearchAuthor {
+  name: string
+  href: string | null
+  avatarSrc: string | null
+}

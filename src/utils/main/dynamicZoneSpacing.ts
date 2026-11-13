@@ -1,0 +1,87 @@
+/**
+ * Spacing between blocks in the Strapi preview (DynamicZone.astro). On a live
+ * MDX page prose/rhythm.css does this job; the two must place a block in the
+ * same spot, so the cases here mirror that file's rules.
+ */
+
+/**
+ * Blocks that own their spacing only in some cases, so neither
+ * OWNS_ITS_SPACING nor SELF_SPACED_BLOCKS describes them: CtaButtons with an
+ * intro, and SplitLayout with an intro or the 3:2 design ratio. The preview
+ * treats them as blocks that don't own their spacing, which is exact for most
+ * of them and approximate for the rest.
+ */
+export const CONDITIONALLY_SELF_SPACED: ReadonlySet<string> = new Set([
+  'blocks.cta-buttons',
+  'blocks.split-layout'
+])
+
+/**
+ * Blocks that keep their own margin. Only a block that renders in both the
+ * preview and an exported MDX page belongs here: in MDX there is no wrapper,
+ * so the component's own margin is the only spacing it gets.
+ *
+ * CtaButtons switches to intro-block spacing only when it has an intro, so it
+ * stays here rather than in SELF_SPACED_BLOCKS: the preview keeps its usual
+ * tight pairing, and is only approximate for a CtaButtons with an intro.
+ */
+const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
+
+const PARAGRAPH = 'blocks.paragraph'
+const CTA_LINK = 'shared.cta-link'
+
+/**
+ * Blocks that render a `BlockIntro` and set `data-intro-variant` on their
+ * root (INTORG-1154). They own their top (the intro) and bottom
+ * (`--block-pb`) edges, so they sit out the section gap. Add a block's
+ * `__component` here when it adopts the intro.
+ */
+export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
+  'blocks.agenda',
+  'blocks.blockquote',
+  'blocks.card-grid',
+  'blocks.carousel',
+  'blocks.cta-strip',
+  'blocks.event-card',
+  'blocks.faq',
+  'blocks.image-block',
+  'blocks.number-tiles',
+  'blocks.paragraph',
+  'blocks.pdf-embed',
+  'blocks.profile-grid',
+  'blocks.quote',
+  'blocks.video-embed'
+])
+
+const SECTION_GAP = 'mt-section'
+// A block that doesn't own its spacing, before a self-spaced one, stands in
+// for the padding-bottom it doesn't have.
+const BLOCK_PADDING_GAP = 'mt-(--block-pb)'
+// After a self-spaced block, the section gap less the padding it already has.
+const SECTION_GAP_AFTER_SELF_SPACED =
+  'mt-[calc(var(--space-section)-var(--block-pb))]'
+
+/**
+ * Class for the wrapper margin above a preview block, or `null` for none.
+ *
+ * Approximate at the top: the preview pages keep their own top padding, so
+ * a first block that opens with an intro or a Paragraph sits lower there
+ * than under a live page's hero (ADR-009, A6).
+ * `prevUid` is `null` for the first block.
+ */
+export function getPreviewBlockGapClass(
+  uid: string,
+  prevUid: string | null,
+  selfSpacedBlocks: ReadonlySet<string> = SELF_SPACED_BLOCKS
+): string | null {
+  if (prevUid === null) return null
+  if (OWNS_ITS_SPACING.has(uid)) return null
+
+  const isSelfSpaced = selfSpacedBlocks.has(uid)
+  const prevIsSelfSpaced = selfSpacedBlocks.has(prevUid)
+  // A self-spaced Paragraph pads its bottom to the tight CTA gap itself
+  // (prose/paragraph-block.css), as on a live page.
+  if (uid === CTA_LINK && prevUid === PARAGRAPH && prevIsSelfSpaced) return null
+  if (isSelfSpaced) return prevIsSelfSpaced ? null : BLOCK_PADDING_GAP
+  return prevIsSelfSpaced ? SECTION_GAP_AFTER_SELF_SPACED : SECTION_GAP
+}

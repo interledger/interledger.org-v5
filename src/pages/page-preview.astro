@@ -3,12 +3,14 @@
  * Page Preview Route (SSR)
  * Fetches draft content from Strapi for preview before publishing
  * URL: /page-preview?documentId={documentId}
+ * Fundraising pages add `&type=fundraising`.
  */
 import BaseLayout from '@/layouts/BaseLayout.astro'
+import FundraisingPagePreview from '@/components/pages/FundraisingPagePreview.astro'
 import DynamicZone from '@/components/blocks/DynamicZone.astro'
 import TableScrollSupport from '@/components/shared/TableScrollSupport.astro'
 import PageHero from '@/components/shared/PageHero.astro'
-import { applyPreviewNoStore, fetchStrapi } from '@/utils'
+import { applyPreviewNoStore, fetchStrapi, logPreviewFetchError } from '@/utils'
 
 interface HeroCta {
   text?: string
@@ -46,7 +48,7 @@ applyPreviewNoStore(Astro.response.headers)
 
 const documentId = Astro.url.searchParams.get('documentId')
 if (!documentId) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 // Build populate query for dynamic zone with nested relations
@@ -59,30 +61,66 @@ const populateParams = new URLSearchParams({
   'populate[hero][populate][hero_call_to_action]': 'true',
   'populate[content][on][blocks.paragraph][populate]': '*',
   'populate[content][on][blocks.agenda][populate][items]': '*',
+  'populate[content][on][blocks.agenda][populate][intro]': '*',
   'populate[content][on][blocks.blockquote][populate]': '*',
   'populate[content][on][blocks.quote][populate]': '*',
   'populate[content][on][blocks.cta-strip][populate]': '*',
+  'populate[content][on][blocks.carousel][populate][intro]': '*',
   'populate[content][on][blocks.carousel][populate][logos][populate]': '*',
   'populate[content][on][blocks.profile][populate][profile][populate]': '*',
+  'populate[content][on][blocks.profile-grid][populate][intro]': '*',
   'populate[content][on][blocks.profile-grid][populate][profiles][populate]':
     '*',
   'populate[content][on][blocks.faq][populate][items]': '*',
+  'populate[content][on][blocks.card-grid][populate][intro]': '*',
+  'populate[content][on][blocks.faq][populate][intro]': '*',
+  'populate[content][on][blocks.number-tiles][populate][intro]': '*',
+  'populate[content][on][blocks.number-tiles][populate][tiles]': '*',
+  'populate[content][on][blocks.cta-buttons][populate][intro]': '*',
   'populate[content][on][blocks.cta-buttons][populate][buttons]': '*',
+  'populate[content][on][blocks.event-card][populate][intro]': '*',
   'populate[content][on][blocks.event-card][populate][when]': '*',
   'populate[content][on][blocks.event-card][populate][where]': '*',
   'populate[content][on][blocks.event-card][populate][apply][populate]': '*',
-  'populate[content][on][blocks.code-block][populate]': '*'
+  'populate[content][on][blocks.code-block][populate]': '*',
+  'populate[content][on][blocks.pdf-embed][populate]': '*',
+  'populate[content][on][blocks.video-embed][populate]': '*',
+  'populate[content][on][blocks.image-block][populate][media][populate]':
+    'image',
+  'populate[content][on][blocks.image-block][populate][intro]': '*',
+  'populate[content][on][blocks.image-block][populate][tabletImage]': 'true',
+  'populate[content][on][blocks.image-block][populate][mobileImage]': 'true',
+  'populate[content][on][blocks.donation-cards][populate][cards]': '*',
+  'populate[content][on][blocks.timeline][populate][sections][populate][events]':
+    '*',
+  'populate[content][on][blocks.split-layout][populate][media][populate]':
+    'image',
+  'populate[content][on][blocks.split-layout][populate][intro]': '*',
+  'populate[content][on][blocks.split-layout][populate][buttons]': '*',
+  'populate[content][on][blocks.card-grid][populate][infoCards][populate]': '*',
+  'populate[content][on][blocks.card-grid][populate][titleCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][resourceCards][populate]':
+    '*',
+  'populate[content][on][blocks.card-grid][populate][navigationCards][populate]':
+    '*'
 })
 
+// The admin preview link for a Fundraising Page sets type=fundraising.
+// That document is not in foundation-pages, so the default lookup 404s.
+const isFundraising = Astro.url.searchParams.get('type') === 'fundraising'
+const apiId = isFundraising ? 'fundraising-pages' : 'foundation-pages'
+
 const response = await fetchStrapi<FoundationPagePreview>(
-  `api/foundation-pages/${documentId}?${populateParams.toString()}`
+  `api/${apiId}/${documentId}?${populateParams.toString()}`
 )
 if (response instanceof Error) {
-  return Astro.redirect('/404')
+  logPreviewFetchError('page-preview', `page ${apiId}/${documentId}`, response)
+  return Astro.rewrite('/preview/not-found')
 }
 const page = response.data
 if (!page) {
-  return Astro.redirect('/404')
+  return Astro.rewrite('/preview/not-found')
 }
 
 const title = page.title || 'Preview'
@@ -98,16 +136,28 @@ const heroCta = page.hero?.hero_call_to_action
 const content = page.content || []
 ---
 
-<BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
-  <TableScrollSupport />
-  <main class="pb-3xl">
-    <!-- Preview Banner -->
-    <div class="bg-yellow-400 text-black text-center py-2 font-semibold">
-      PREVIEW MODE - This content is not published
-    </div>
+{isFundraising ? (
+  <FundraisingPagePreview
+    title={title}
+    description={metaDescription}
+    heroTitle={heroTitle}
+    heroDescription={heroDescription}
+    heroImage={heroImage}
+    heroImageAlt={heroImageAlt}
+    heroImageMobile={heroImageMobile}
+    heroImageMobileAlt={heroImageMobileAlt}
+    heroCta={heroCta}
+    content={content}
+  />
+) : (
+  <BaseLayout title={`[PREVIEW] ${title}`} description={metaDescription}>
+    <TableScrollSupport />
+    <main class="pb-3xl">
+      <div class="bg-yellow-400 py-2 text-center font-semibold text-black">
+        PREVIEW MODE - This content is not published
+      </div>
 
-    {
-      heroTitle && (
+      {heroTitle && (
         <PageHero
           title={heroTitle}
           description={heroDescription}
@@ -117,17 +167,13 @@ const content = page.content || []
           imageMobileAlt={heroImageMobileAlt}
           cta={heroCta}
         />
-      )
-    }
+      )}
 
-    {
-      content.length > 0 && (
-        <section class="px-content py-4xl">
-          <div class="content-column min-w-0" data-prose-blog>
-            <DynamicZone blocks={content} />
-          </div>
-        </section>
-      )
-    }
-  </main>
-</BaseLayout>
+      {content.length > 0 && <section class="px-content py-4xl">
+        <div class="content-column min-w-0" data-prose-blog>
+          <DynamicZone blocks={content} />
+        </div>
+      </section>}
+    </main>
+  </BaseLayout>
+)}

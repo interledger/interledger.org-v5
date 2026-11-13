@@ -1,6 +1,10 @@
 import fs from 'fs'
 import path from 'path'
-import { shouldSkipMdxExport, getAdminAuthor } from './pageLifecycle'
+import {
+  shouldSkipMdxExport,
+  getAdminAuthor,
+  resolveUpdateTarget
+} from './pageLifecycle'
 import { serializeContent } from '../serializers/blocks'
 import { scheduleGitSync, getTargetRepoRoot, type SyncContext } from './gitSync'
 import {
@@ -12,6 +16,7 @@ import {
   ckeditorFieldToParsedMarkdown
 } from './mdx'
 import { mdxSubpath } from './mdxFilenames'
+import { isSameSlug } from './relativeLinks'
 import { generateBlurPlaceholder } from './imageBlurPlaceholder'
 import { BLOG_CONTENT_POPULATE } from './contentPopulate'
 import { toValidationError } from './contentValidation'
@@ -37,6 +42,7 @@ interface BlogResult {
   lastUpdated?: string
   featured: boolean
   legacy?: boolean
+  draft?: boolean | null
   content: ContentBlock[] | string
   createdAt: Date
   updatedAt: Date
@@ -245,6 +251,7 @@ export async function generateBlogMDX(
     `date: ${post.date}`,
     post.lastUpdated ? `lastUpdated: ${post.lastUpdated}` : null,
     `pathSlug: ${post.pathSlug}`,
+    post.draft === true ? `draft: true` : null,
     `featured: ${post.featured ?? false}`,
     // Always write locale so ES files never lose `locale: es` on re-export.
     // Bare scalars (not yqs) to match checked-in blog MDX and pathSlug above —
@@ -467,13 +474,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         locale?: string
         documentId?: string
         data?: { documentId?: string; locale?: string }
+        where?: Record<string, unknown>
       }
       state: { oldPathSlug?: string; oldDate?: string }
     }) {
       if (shouldSkipMdxExport()) return
-      const documentId =
-        event.params?.documentId ?? event.params?.data?.documentId
-      if (!documentId) return
+      const target = await resolveUpdateTarget(event, BLOG_UID)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        return
+      }
+      if (!target) return
+      const { documentId } = target
 
       // Always stash the EN slug/date — all locale filenames depend on it
       const enPost = await fetchBlogPost(documentId, defaultLang)
@@ -506,7 +518,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         oldDate &&
         currentEnSlug &&
         currentDate &&
-        (oldPathSlug !== currentEnSlug || oldDate !== currentDate)
+        (!isSameSlug(oldPathSlug, currentEnSlug) || oldDate !== currentDate)
       ) {
         console.log(
           `🗑️  Blog pathSlug/date changed from "${oldPathSlug}"/"${oldDate}" to "${currentEnSlug}"/"${currentDate}", deleting old MDX files`

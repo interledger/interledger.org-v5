@@ -2,7 +2,13 @@
 export { tryCatch, tryCatchAsync } from './tryCatch'
 
 // Shared content-type shapes
-export { type AuthorBio } from './contentTypes'
+export {
+  type AuthorBio,
+  BLOCK_INTRO_FIELDS,
+  type BlockIntroField,
+  type BlockIntroInput,
+  type SerializedBlockIntro
+} from './contentTypes'
 
 // Code block
 export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
@@ -24,15 +30,23 @@ export {
 } from './uploadLimits'
 
 // API token authorization (routes registered outside Strapi's middleware)
-export { extractBearerToken, isFullAccessApiToken } from './apiTokenAuth'
+export {
+  CONTENT_API_TOKEN_SERVICE,
+  extractBearerToken,
+  isFullAccessApiToken
+} from './apiTokenAuth'
 
 // Disk → Media Library seeding (bootstrap + sync:images)
 export { SEED_MIME_BY_EXT, SEEDABLE_EXTENSIONS } from './seedMedia'
 
 // Upload validation
 export {
+  findUndeletableUploads,
   isLocalImagePath,
+  resolveDeletableUploadPath,
+  REPO_IMAGE_URL_PREFIX,
   resolvePublicImagePath,
+  UPLOAD_URL_PREFIX,
   validateImageFileSize,
   validateLocalImageUrl
 } from './uploadValidation'
@@ -85,6 +99,8 @@ export {
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
+  draftFrontmatter,
+  resolveDraft,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,
@@ -119,13 +135,25 @@ export {
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
+export { relatedArticleSlugError } from './relatedArticleSlug'
 
 // Section-relative pathSlug uniqueness (cross-section content types)
 export {
   validateSectionScopedSlug,
+  validateUniqueSlug,
+  validateSlugFreeInOtherCollection,
   type SectionScopedSlugFinder,
-  type SectionScopedSlugCheck
+  type SectionScopedSlugCheck,
+  type CrossCollectionSlugCheck
 } from './sectionScopedSlug'
+
+// Admin UID helpers for slugs stored as /slug/
+export {
+  nextFreeSlashedSlug,
+  patchUidServiceForSlashedSlugs,
+  type UidDocuments,
+  type UidService
+} from './slashedSlugUid'
 
 // Redirects (editor-owned literal redirects → src/config/redirects.json)
 export {
@@ -140,6 +168,7 @@ export {
   type RedirectFinder,
   type RedirectLinkCheck,
   normalizeRedirectSource,
+  redirectSourceKey,
   normalizeRedirectInput,
   isRedirectEnabled,
   redirectDeleteError,
@@ -196,9 +225,21 @@ export {
   type CtaStripColor
 } from './ctaStrip'
 export {
+  MIN_TIMELINE_SECTIONS,
+  MIN_TIMELINE_EVENTS,
+  validateTimelineSections,
+  normalizeTimelineSections,
+  TimelineFieldError,
+  type TimelineEvent,
+  type TimelineSection
+} from './timeline'
+export {
   deleteLocaleMdxFiles,
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
+
+// Block intro (serializers, sync handlers)
+export { normalizeBlockIntroForMdx, serializeIntroProp } from './blockIntro'
 
 // Report text types (serializers, sync handlers)
 export {
@@ -259,7 +300,9 @@ export {
   resolvePageFilepath,
   generateMDX,
   createPageLifecycle,
-  readLocaleFromUpdateEvent
+  readLocaleFromUpdateEvent,
+  resolveUpdateTarget,
+  type UpdateTarget
 } from './pageLifecycle'
 export {
   createBlogLifecycle,
@@ -338,6 +381,10 @@ export {
   decideAdminRouteWrap
 } from './adminRoutes'
 
+// Admin nav link to this environment's website (admin panel imports this
+// module directly)
+export { resolveWebsiteLink } from './websiteLink'
+
 // Server-status notice: browser-safe state machine (admin panel imports this
 // module directly) and the node-only endpoint half
 export {
@@ -364,8 +411,21 @@ export {
 
 // Relative link / path-segment slash normalization
 export {
-  ensureLeadingSlash,
-  normalizePathSegment,
-  normalizeRelativeLinksInDocumentData,
-  stripUploadOrigin
+  bareSlug,
+  isSameSlug,
+  slugVariants,
+  toSlashedPath,
+  toSlashedSlug,
+  isRelatedArticleSlug,
+  mapOutsideMarkdownCode,
+  slashInternalMarkdownLinks,
+  stripUploadOrigin,
+  stripSiteOriginsInText,
+  stripUploadOriginsInText,
+  toStoredHref,
+  toStoredUrl
 } from './relativeLinks'
+export {
+  normalizeRelativeLinksInDocumentData,
+  type GetModel
+} from './documentLinks'

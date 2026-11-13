@@ -13,7 +13,7 @@
 
 import type { ParsedBlock, QuoteBlock } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr } from './jsxExtract'
+import { getIntroAttr, getStringAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -49,8 +49,10 @@ async function handleQuote(
       })
     }
 
+    const intro = getIntroAttr(node)
     const block: QuoteBlock = {
       __component: 'blocks.quote',
+      ...(intro ? { intro } : {}),
       quote
     }
 

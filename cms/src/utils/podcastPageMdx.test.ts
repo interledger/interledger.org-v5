@@ -64,6 +64,31 @@ describe('generatePodcastPageMdx', () => {
     expect(titleCards.cards[0]?.heading).toBe('Future Money')
   })
 
+  it('writes the title cards intro, and leaves it out when empty', async () => {
+    const withIntro = matter(
+      await generatePodcastPageMdx(
+        makePage({
+          titleCards: {
+            ...makePage().titleCards,
+            intro: { heading: '  Explore our Featured Series ', subheading: '' }
+          }
+        })
+      )
+    )
+    expect(withIntro.data.titleCards.intro).toEqual({
+      heading: 'Explore our Featured Series'
+    })
+
+    const emptyIntro = matter(
+      await generatePodcastPageMdx(
+        makePage({
+          titleCards: { ...makePage().titleCards, intro: { heading: ' ' } }
+        })
+      )
+    )
+    expect(emptyIntro.data.titleCards).not.toHaveProperty('intro')
+  })
+
   it('flattens podcasts', async () => {
     const { data } = matter(await generatePodcastPageMdx(makePage()))
     const podcasts = data.podcasts as Array<{

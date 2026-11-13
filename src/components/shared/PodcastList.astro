@@ -16,11 +16,9 @@ const { podcasts } = Astro.props
 ---
 
 <ul class="m-0 flex list-none flex-col p-0" role="list">
-  {
-    podcasts.map((podcast) => (
-      <li class="border-b border-neutral-50 py-3xl first:pt-0 last:border-b-0 last:pb-0">
-        <PodcastItem podcast={podcast} />
-      </li>
-    ))
-  }
+  {podcasts.map((podcast) => <li
+    class="border-b border-neutral-50 py-3xl first:pt-0 last:border-b-0 last:pb-0"
+  >
+    <PodcastItem podcast={podcast} />
+  </li>)}
 </ul>

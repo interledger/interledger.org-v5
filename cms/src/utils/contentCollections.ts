@@ -21,6 +21,7 @@ export const CONTENT_COLLECTION_NAMING_RULES: Record<
 > = {
   blog: 'blog',
   foundationPages: 'page',
+  fundraisingPages: 'page',
   grantPages: 'page',
   grantOverviewPages: 'page',
   summitPages: 'page',

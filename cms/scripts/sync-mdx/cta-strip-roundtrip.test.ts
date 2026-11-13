@@ -155,4 +155,17 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
       }
     ])
   })
+
+  it('round-trips an intro alongside the strip title', async () => {
+    const original = {
+      intro: { heading: 'Get involved', description: 'Two ways in.' },
+      heading: 'Apply now',
+      primaryButtonText: 'Apply',
+      primaryButtonLink: '/apply/'
+    }
+
+    const blocks = await parseMdxToBlocks(serialize(original), enCtx)
+
+    expect(blocks).toEqual([{ __component: 'blocks.cta-strip', ...original }])
+  })
 })

@@ -119,13 +119,149 @@
     --color-primary: var(--color-orchid-100);
   }
 
+  /* Block intro and block spacing (INTORG-1154, Figma "Spacing
+     Consistency" board). A block with `data-intro-variant` owns its own
+     spacing: the intro supplies the top, `--block-pb` the bottom.
+
+     The intro spacers are padding, never margin, so they add up and never
+     collapse, which is how the design builds them. Each spacer belongs to
+     the element above it and disappears with it:
+
+       --intro-top      above the intro, whenever it has content
+       --intro-empty    the whole intro when it has no content: the block's
+                        default top spacer (Figma's min height on the intro)
+       --intro-h2-pt    above the heading text
+       --intro-h2-pb    below the heading
+       --intro-h3-pt    above the subheading text
+       --intro-h3-pb    below the subheading
+       --intro-desc-pb  below the description
+
+     Two blocks therefore sit pb + top + h2-pt = 72/96/120 apart, heading
+     to content, and the desktop value equals --space-section.
+
+     --media-pt pads the top of an image, table or list inside a Paragraph
+     block. Media has no bottom padding: what follows it supplies the gap.
+
+     Declared on every intro block as well as on :root, so a block nested in
+     another (say inside a Split layout) starts from the defaults again
+     instead of inheriting its parent's variant overrides below. */
+  :root,
+  [data-intro-variant] {
+    --intro-top: var(--spacing-xl);
+    --intro-empty: calc(var(--spacing-lg) + var(--spacing-xs));
+    --intro-h2-pt: var(--spacing-xl);
+    --intro-h2-pb: var(--spacing-3xl-tight);
+    --intro-h3-pt: var(--spacing-lg);
+    --intro-h3-pb: var(--spacing-xl);
+    --intro-desc-pb: var(--spacing-xl);
+    --block-pb: var(--spacing-xl);
+    --media-pt: var(--spacing-xl);
+
+    @variant tablet {
+      --intro-top: var(--spacing-2xl);
+      /* 30px, off the spacing scale: Figma's tablet intro min height. */
+      --intro-empty: 1.875rem;
+      --intro-h2-pt: var(--spacing-2xl);
+      --intro-h2-pb: var(--spacing-3xl);
+      --intro-h3-pt: var(--spacing-xl);
+      --intro-h3-pb: var(--spacing-2xl);
+      --intro-desc-pb: var(--spacing-2xl);
+      --block-pb: var(--spacing-2xl);
+      --media-pt: var(--spacing-2xl);
+    }
+
+    @variant desktop {
+      --intro-top: var(--spacing-3xl-tight);
+      --intro-empty: var(--spacing-4xl);
+      --intro-h2-pt: var(--spacing-3xl-tight);
+      --intro-h2-pb: var(--spacing-4xl);
+      --intro-h3-pt: var(--spacing-2xl);
+      --intro-h3-pb: var(--spacing-3xl-tight);
+      --intro-desc-pb: var(--spacing-4xl);
+      --block-pb: var(--spacing-3xl-tight);
+      --media-pt: var(--spacing-4xl);
+    }
+  }
+
+  /* Paragraph block spacing (ADR-009, A3–A5). Padding, so it adds up with
+     the block's --block-pb and never collapses. Headings take "first" only
+     at the very top of the content (--para-lead-pt, set where a template
+     lets content start under its hero); everywhere else a block above
+     supplies the rest of the gap. A paragraph's top depends on what is
+     directly above it. Read by components/prose/paragraph-block.css. */
+  :root {
+    --para-first-pt: var(--spacing-4xl);
+    --para-h2-pt: var(--spacing-3xl-tight);
+    --para-h2-pb: var(--spacing-md);
+    --para-h3-pt: var(--spacing-xl);
+    --para-h3-pb: var(--spacing-sm);
+    --para-h4-pt: var(--spacing-lg);
+    --para-h4-pb: var(--spacing-xs);
+    --para-p-pb: var(--spacing-sm);
+    --para-p-lead-pt: calc(var(--spacing-lg) + var(--spacing-xs));
+    --para-p-after-h2: var(--spacing-xl);
+    --para-p-after-h3: var(--spacing-lg);
+    --para-p-after-h4: var(--spacing-md);
+    --para-p-after-p: var(--spacing-lg);
+    --para-p-after-media: var(--spacing-2xl);
+
+    @variant tablet {
+      --para-first-pt: var(--spacing-5xl);
+      --para-h2-pt: var(--spacing-4xl);
+      --para-h2-pb: var(--spacing-lg);
+      --para-h3-pt: var(--spacing-2xl);
+      --para-h3-pb: var(--spacing-md);
+      --para-h4-pt: var(--spacing-xl);
+      --para-h4-pb: var(--spacing-sm);
+      --para-p-pb: var(--spacing-md);
+      --para-p-lead-pt: var(--spacing-3xl-tight);
+      --para-p-after-h2: var(--spacing-2xl);
+      --para-p-after-h3: var(--spacing-xl);
+      --para-p-after-h4: var(--spacing-lg);
+      --para-p-after-p: var(--spacing-xl);
+      --para-p-after-media: var(--spacing-3xl-tight);
+    }
+
+    @variant desktop {
+      --para-first-pt: var(--spacing-6xl);
+      --para-h2-pt: var(--spacing-5xl);
+      --para-h2-pb: var(--spacing-xl);
+      --para-h3-pt: var(--spacing-3xl-tight);
+      --para-h3-pb: var(--spacing-lg);
+      --para-h4-pt: var(--spacing-2xl);
+      --para-h4-pb: var(--spacing-md);
+      --para-p-pb: var(--spacing-lg);
+      --para-p-lead-pt: var(--spacing-4xl);
+      --para-p-after-h2: var(--spacing-3xl-tight);
+      --para-p-after-h3: var(--spacing-2xl);
+      --para-p-after-h4: var(--spacing-xl);
+      --para-p-after-p: var(--spacing-2xl);
+      --para-p-after-media: var(--spacing-4xl);
+    }
+  }
+
+  /* Block intro variants: only the spacers that differ from Universal.
+     `0px`, not `0`: a unitless zero is invalid inside calc(). */
+  [data-intro-variant='button-cta'] {
+    --intro-desc-pb: 0px;
+  }
+
+  [data-intro-variant='split-layout'] {
+    @variant desktop {
+      --intro-top: 0px;
+      --intro-h2-pb: var(--spacing-3xl-tight);
+      --intro-desc-pb: 0px;
+    }
+  }
+
   /* Site overrides — set on <html> by BaseLayout, alongside data-theme.
      Same shape as the pillar hook above, keyed on the site instead of the
      section.
 
-     This has to be a site selector, not `dark:`. Both microsites set
-     data-theme="dark", so no dark variant can tell hackathon from summit, and
-     apricot is a hackathon colour. The prototype confirms the two are separate
+     This has to be a site selector, not `dark:`. Hackathon sets
+     data-theme="dark", and summit uses the foundation light page, so a dark
+     variant cannot mark the hackathon buttons. Apricot is a hackathon colour.
+     The prototype confirms the two are separate
      kinds rather than two themes of one: a single hackathon page carries both
      an apricot primary and an orchid one (INTORG-1083). */
   /* Values read from the `Hackathon primary CTA` component in Figma

@@ -1,5 +1,4 @@
 ---
-import { getCollection } from 'astro:content'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import FaqSections from '@/components/faq/FaqSections.astro'
@@ -9,7 +8,8 @@ import {
   useTranslations,
   buildSectionEntryBreadcrumbs,
   parseMarkdown,
-  getSectionPageLayout
+  getSectionPageLayout,
+  getGatedCollection
 } from '@/utils'
 
 interface Props {
@@ -23,7 +23,7 @@ const { slug, contentLocale, section, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const allFaqs = await getCollection('faqs')
+const allFaqs = await getGatedCollection('faqs')
 const entry = allFaqs.find(
   (f) =>
     f.data.pathSlug === slug &&
@@ -46,7 +46,7 @@ const breadcrumbs = buildSectionEntryBreadcrumbs(
   section,
   heading,
   routeLocale,
-  t('nav.home')
+  t
 )
 
 const Layout = getSectionPageLayout(section)
@@ -61,19 +61,15 @@ const Layout = getSectionPageLayout(section)
       <h1 class="text-neutral-900 mt-xl tablet:mt-3xl dark:text-neutral-0">
         {heading}
       </h1>
-      {
-        introParagraphHtml && (
-          <section
-            aria-label={t('faq.introduction')}
-            class="mt-xl tablet:mt-3xl"
-          >
-            <div
-              class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
-              set:html={introParagraphHtml}
-            />
-          </section>
-        )
-      }
+      {introParagraphHtml && <section
+        aria-label={t('faq.introduction')}
+        class="mt-xl tablet:mt-3xl"
+      >
+        <div
+          class="text-neutral-100 dark:text-neutral-50 [&_p]:text-h4 [&_p]:tablet:text-h4-md [&_p]:desktop:text-h5-lg"
+          set:html={introParagraphHtml}
+        />
+      </section>}
       <section class="mt-section">
         <FaqSections sections={faqSections} uiLocale={routeLocale} />
       </section>

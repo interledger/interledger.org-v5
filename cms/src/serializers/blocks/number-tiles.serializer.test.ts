@@ -34,28 +34,30 @@ describe('number-tiles serializer', () => {
     )
   })
 
-  it('serializes an optional title', () => {
+  it('serializes the intro', () => {
     const result = serialize({
-      title: 'Overview',
+      intro: { heading: 'Overview', subheading: 'In numbers' },
       tiles: [
         { number: '150', suffix: '+', description: 'Builders' },
         { number: '24', suffix: 'H', description: 'Code Rush' }
       ]
     })
 
-    expect(result).toContain('title="Overview"')
+    expect(result).toContain(
+      '<NumberTiles intro={{"heading":"Overview","subheading":"In numbers"}} tiles='
+    )
   })
 
-  it('omits a blank title', () => {
+  it('omits an intro with a blank heading', () => {
     const result = serialize({
-      title: '  ',
+      intro: { heading: '  ' },
       tiles: [
         { number: '150', description: 'Builders' },
         { number: '24', description: 'Code Rush' }
       ]
     })
 
-    expect(result).not.toContain('title=')
+    expect(result).not.toMatch(/title=|intro=/)
   })
 
   it('omits a blank prefix', () => {

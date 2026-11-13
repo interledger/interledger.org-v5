@@ -1,5 +1,5 @@
 ---
-pathSlug: 'tech/dev-portal'
+pathSlug: '/tech/dev-portal/'
 title: "Developers' Portal"
 description: 'Everything you need to build on open, interoperable payments'
 heroTitle: "Developers' Portal"
@@ -18,7 +18,7 @@ The protocols, the standards, the Open Payments API, and the tools built on them
 
 </Paragraph>
 
-<CardGrid title="Where to Start" ariaLabel="Starting points for building on Interledger" variant="Title" columns="Two">
+<CardGrid intro={{"heading":"Where to Start"}} ariaLabel="Starting points for building on Interledger" variant="Title" columns="Two">
 <TitleCard heading="Open Payments" buttonUrl="https://openpayments.dev/" buttonText="Open Payments Docs" buttonExternal={true} secondButtonUrl="https://github.com/interledger/open-payments" secondButtonText="Open Payments Repo" secondButtonExternal={true}>
 
 Open Payments is an open API standard that can be implemented by account servicing entities to facilitate interoperability in the setup and completion of payments for different use cases.
@@ -29,14 +29,21 @@ Open Payments is an open API standard that can be implemented by account servici
 Rafiki is open source software that provides an efficient solution for an Account Servicing Entity to enable Interledger functionality on its users' accounts.
 
 </TitleCard>
-<TitleCard heading="Specifications" buttonUrl="/developers/rfcs/interledger-protocol" buttonText="Specifications Docs" buttonExternal={true} secondButtonUrl="https://github.com/interledger/rfcs" secondButtonText="Specifications Repo" secondButtonExternal={true}>
+<TitleCard heading="Specifications" buttonUrl="/developers/rfcs/interledger-protocol/" buttonText="Specifications Docs" buttonExternal={true} secondButtonUrl="https://github.com/interledger/rfcs" secondButtonText="Specifications Repo" secondButtonExternal={true}>
 
 The Interledger Protocol (ILP) is an open, neutral protocol for transferring money based on TCP/IP, designed for sending packets of money across different accounting ledgers.
 
 </TitleCard>
-<TitleCard heading="Test Tools" buttonUrl="/tech/test-tools" buttonText="Test Tools" buttonExternal={false} secondButtonUrl="https://github.com/interledger/testnet" secondButtonText="Testnet Repo" secondButtonExternal={true}>
+<TitleCard heading="Test Tools" buttonUrl="/tech/test-tools/" buttonText="Test Tools" buttonExternal={false} secondButtonUrl="https://github.com/interledger/testnet" secondButtonText="Testnet Repo" secondButtonExternal={true}>
 
 Create a test wallet, make a mock purchase, and simulate a full payment flow from request to approval. You can also test your own integrations on the Test Network (Testnet), an open Interledger network working with test money.
+
+</TitleCard>
+<TitleCard heading="Rhyza" buttonUrl="https://docs.rhyza.dev/" buttonText="Rhyza Docs" buttonExternal={true}>
+
+Rhyza is the evolution of Rafiki. It's a free, open-source integration solution that helps financial service providers connect their existing infrastructure to Interledger and offer Open Payments-enabled accounts and services.
+
+**Status: Now in alpha for development and testing.**
 
 </TitleCard>
 </CardGrid>
@@ -53,27 +60,19 @@ Interledger is developed in the open, and so is its roadmap. Track active work, 
   buttons={[
     {
       text: 'View the Developer Roadmap',
-      link: '/tech/roadmap',
+      link: '/tech/roadmap/',
       style: 'primary'
     }
   ]}
 />
 
-<Paragraph>
-
-## Get Involved
-
-The stack gets better because people build with it and contribute back. There are many ways to take part, whatever your experience with open source.
-
-</Paragraph>
-
-<CardGrid ariaLabel="Ways to get involved with Interledger" variant="Title" columns="Three">
+<CardGrid intro={{"heading":"Get Involved","description":"The stack gets better because people build with it and contribute back. There are many ways to take part, whatever your experience with open source."}} ariaLabel="Ways to get involved with Interledger" variant="Title" columns="Three">
 <TitleCard heading="Join the Community Slack" buttonUrl="https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA" buttonText="Join the Slack" buttonExternal={true}>
 
 Ask questions, share what you're building, and talk directly with the people developing the stack.
 
 </TitleCard>
-<TitleCard heading="Hacktober" buttonUrl="/hacktober" buttonText="Join us for Hacktober" buttonExternal={false}>
+<TitleCard heading="Hacktober" buttonUrl="/tech/hacktober/" buttonText="Join us for Hacktober" buttonExternal={false}>
 
 Join us this October to collaborate on our open source projects.
 
@@ -97,12 +96,12 @@ You can build on Interledger on your own, using the open documentation, reposito
   buttons={[
     {
       text: 'Start Building',
-      link: '/developers/get-started',
+      link: '/developers/get-started/',
       style: 'primary'
     },
     {
       text: 'Explore Grants',
-      link: '/grant/our-grantmaking',
+      link: '/grant/our-grantmaking/',
       style: 'secondary'
     }
   ]}

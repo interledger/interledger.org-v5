@@ -1,8 +1,15 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
+  isProductionDeploy,
+  isDraft,
   isPublishedAt,
+  productionDeploy,
   resolveGateNow,
+  shouldHideDrafts,
+  shouldHideGrantReports,
   shouldHideFuturePosts
 } from './publishGate'
 
@@ -51,6 +58,49 @@ describe('shouldHideFuturePosts', () => {
   })
 })
 
+describe('isProductionDeploy', () => {
+  it('is off for a plain local build, so checkout stays in test mode', () => {
+    expect(isProductionDeploy({})).toBe(false)
+  })
+
+  it('is on only for a Netlify production build', () => {
+    expect(isProductionDeploy({ CONTEXT: 'production' })).toBe(true)
+    expect(isProductionDeploy({ CONTEXT: ' PRODUCTION ' })).toBe(true)
+  })
+
+  it.each(['branch-deploy', 'deploy-preview', 'dev'])(
+    'is off for CONTEXT=%s',
+    (context) => {
+      expect(isProductionDeploy({ CONTEXT: context })).toBe(false)
+    }
+  )
+
+  it('ignores the blog-gate override, which must not flip a live checkout', () => {
+    expect(isProductionDeploy({ BLOG_DATE_FILTER: 'on' })).toBe(false)
+    expect(
+      isProductionDeploy({ CONTEXT: 'production', BLOG_DATE_FILTER: 'off' })
+    ).toBe(true)
+  })
+})
+
+describe('productionDeploy', () => {
+  const originalContext = process.env.CONTEXT
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    // __IS_PRODUCTION_DEPLOY__ is injected by Vite `define`, so under plain
+    // vitest it is undefined and the accessor must read process.env instead.
+    delete process.env.CONTEXT
+    expect(productionDeploy()).toBe(false)
+
+    process.env.CONTEXT = 'production'
+    expect(productionDeploy()).toBe(true)
+  })
+})
+
 describe('hideFuturePosts', () => {
   const originalContext = process.env.CONTEXT
   const originalFilter = process.env.BLOG_DATE_FILTER
@@ -68,6 +118,81 @@ describe('hideFuturePosts', () => {
 
     process.env.BLOG_DATE_FILTER = 'off'
     expect(hideFuturePosts()).toBe(false)
+  })
+})
+
+describe('shouldHideDrafts', () => {
+  it('is off for a plain local build', () => {
+    expect(shouldHideDrafts({})).toBe(false)
+  })
+
+  it('is on for a Netlify production build', () => {
+    expect(shouldHideDrafts({ CONTEXT: 'production' })).toBe(true)
+    expect(shouldHideDrafts({ CONTEXT: ' Production ' })).toBe(true)
+  })
+
+  it.each(['branch-deploy', 'deploy-preview', 'dev'])(
+    'is off for CONTEXT=%s, so editors can review drafts',
+    (context) => {
+      expect(shouldHideDrafts({ CONTEXT: context })).toBe(false)
+    }
+  )
+
+  it('honours DRAFT_FILTER over CONTEXT', () => {
+    expect(shouldHideDrafts({ DRAFT_FILTER: ' ON ' })).toBe(true)
+    expect(
+      shouldHideDrafts({ CONTEXT: 'production', DRAFT_FILTER: 'off' })
+    ).toBe(false)
+  })
+
+  it('falls back to CONTEXT for an unrecognised DRAFT_FILTER value', () => {
+    expect(
+      shouldHideDrafts({ CONTEXT: 'production', DRAFT_FILTER: 'maybe' })
+    ).toBe(true)
+    expect(shouldHideDrafts({ DRAFT_FILTER: 'maybe' })).toBe(false)
+  })
+
+  it('is independent of BLOG_DATE_FILTER', () => {
+    expect(shouldHideDrafts({ BLOG_DATE_FILTER: 'on' })).toBe(false)
+    expect(
+      shouldHideDrafts({ CONTEXT: 'production', BLOG_DATE_FILTER: 'off' })
+    ).toBe(true)
+  })
+})
+
+describe('hideDrafts', () => {
+  const originalContext = process.env.CONTEXT
+  const originalFilter = process.env.DRAFT_FILTER
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+    restoreEnv('DRAFT_FILTER', originalFilter)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    process.env.DRAFT_FILTER = 'on'
+    expect(hideDrafts()).toBe(true)
+
+    process.env.DRAFT_FILTER = 'off'
+    expect(hideDrafts()).toBe(false)
+  })
+})
+
+describe('isDraft', () => {
+  it('is true only for a literal true', () => {
+    expect(isDraft({ draft: true })).toBe(true)
+  })
+
+  it.each([false, undefined, null, 'true', 1])(
+    'treats draft: %s as published',
+    (draft) => {
+      expect(isDraft({ draft })).toBe(false)
+    }
+  )
+
+  it('treats missing data as published', () => {
+    expect(isDraft(undefined)).toBe(false)
+    expect(isDraft({})).toBe(false)
   })
 })
 
@@ -139,3 +264,39 @@ function restoreEnv(key: string, value: string | undefined): void {
   }
   process.env[key] = value
 }
+
+describe('shouldHideGrantReports', () => {
+  it('is on for a Netlify production build only', () => {
+    expect(shouldHideGrantReports({ CONTEXT: 'production' })).toBe(true)
+    expect(shouldHideGrantReports({ CONTEXT: 'branch-deploy' })).toBe(false)
+    expect(shouldHideGrantReports({})).toBe(false)
+  })
+
+  it('honours GRANT_REPORTS_FILTER over CONTEXT', () => {
+    expect(shouldHideGrantReports({ GRANT_REPORTS_FILTER: 'on' })).toBe(true)
+    expect(
+      shouldHideGrantReports({
+        CONTEXT: 'production',
+        GRANT_REPORTS_FILTER: 'off'
+      })
+    ).toBe(false)
+  })
+})
+
+describe('hideGrantReports', () => {
+  const originalContext = process.env.CONTEXT
+  const originalFilter = process.env.GRANT_REPORTS_FILTER
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+    restoreEnv('GRANT_REPORTS_FILTER', originalFilter)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    process.env.GRANT_REPORTS_FILTER = 'on'
+    expect(hideGrantReports()).toBe(true)
+
+    process.env.GRANT_REPORTS_FILTER = 'off'
+    expect(hideGrantReports()).toBe(false)
+  })
+})

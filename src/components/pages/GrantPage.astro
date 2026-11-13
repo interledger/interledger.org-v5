@@ -1,13 +1,16 @@
 ---
+import { RICH_TEXT_MDX_COMPONENTS } from '@/components/mdx/richTextComponents'
 import {
   type Locale,
   parseMarkdown,
   resolveCtaLink,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
-  grantOverviewHubPath
+  grantOverviewHubPath,
+  getGatedCollection
 } from '@/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import PageHero from '@/components/shared/PageHero.astro'
 import CtaStrip from '@/components/blocks/CtaStrip.astro'
@@ -36,7 +39,7 @@ interface Props {
 
 const { slug, contentLocale, isFallback = false } = Astro.props
 const { routeLocale } = Astro.locals
-const pages = await getCollection('grant-pages')
+const pages = await getGatedCollection('grant-pages')
 
 const mdxPage = pages.find(
   (page) => page.data.pathSlug === slug && page.data.locale === contentLocale
@@ -90,7 +93,7 @@ const t = useTranslations(routeLocale)
 const resolvedHeroTitle = heroTitle?.trim() || title
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   {
     name: t('nav.grants'),
     href: localizeRoute(grantOverviewHubPath(), routeLocale)
@@ -133,56 +136,48 @@ const heroLcpPreload =
     >
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </PageHero>
-    {
-      programOverviewHtml && (
-        <section class="px-content">
-          <div class="content-column">
-            <div
-              data-prose
-              class:list={[grantSectionHeadingClass, '[&>h2:first-child]:mt-0']}
-              set:html={programOverviewHtml}
-            />
-          </div>
-        </section>
-      )
-    }
+    {programOverviewHtml && <section class="px-content">
+      <div class="content-column">
+        <div
+          data-prose
+          class:list={[grantSectionHeadingClass, '[&>h2:first-child]:mt-0']}
+          set:html={programOverviewHtml}
+        />
+      </div>
+    </section>}
 
-    {
-      primaryCta && resolvedPrimaryCta && (
-        <section class="px-content" data-stack="cta">
-          <div class="content-column">
-            <LinkButton
-              href={resolvedPrimaryCta.href}
-              variant="primary"
-              external={resolvedPrimaryCta.external}
-              document={resolvedPrimaryCta.document}
-              linkText={primaryCta.text}
-              umamiLabel="button_cta"
-              umamiBaseComponent="primary_cta"
-            >
-              {primaryCta.text}
-              <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
-            </LinkButton>
-          </div>
-        </section>
-      )
-    }
+    {primaryCta && resolvedPrimaryCta && <section
+      class="px-content"
+      data-stack="cta"
+    >
+      <div class="content-column">
+        <LinkButton
+          href={resolvedPrimaryCta.href}
+          variant="primary"
+          external={resolvedPrimaryCta.external}
+          document={resolvedPrimaryCta.document}
+          linkText={primaryCta.text}
+          umamiLabel="button_cta"
+          umamiBaseComponent="primary_cta"
+        >
+          {primaryCta.text}
+          <Icon name={resolvedPrimaryCta.icon} slot="icon-right" />
+        </LinkButton>
+      </div>
+    </section>}
 
-    {
-      infoCards && (
-        <section class="px-content">
-          <div class="content-column">
-            <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
-          </div>
-        </section>
-      )
-    }
+    {infoCards && <section class="px-content">
+      <div class="content-column">
+        <InfoCards heading={infoCards.heading} cards={infoCards.cards} />
+      </div>
+    </section>}
 
     <section class="px-content">
       <div class="content-column">
         <div data-prose class={grantSectionHeadingClass}>
           <MdxContent
             components={{
+              ...RICH_TEXT_MDX_COMPONENTS,
               Paragraph,
               SplitLayout,
               Blockquote: BlockquoteBlock,
@@ -202,19 +197,16 @@ const heroLcpPreload =
       </div>
     </section>
 
-    {
-      faqSection && (
-        <section class="px-content">
-          <div class="content-column">
-            <GrantFaqSection {...faqSection} />
-          </div>
-        </section>
-      )
-    }
+    {faqSection && <section class="px-content">
+      <div class="content-column">
+        <GrantFaqSection {...faqSection} />
+      </div>
+    </section>}
 
     <section class="px-content">
       <div class="content-column">
         <CtaStrip
+          standalone
           heading={ctaStrip.heading}
           description={ctaStrip.description}
           primaryButtonText={ctaStrip.buttonText}

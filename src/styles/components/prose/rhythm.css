@@ -10,17 +10,18 @@
  *
  *   --space-section        between two top-level blocks (image, FAQ, …)
  *   --space-block-heading  between a heading and the content under it
- *   --spacing-2xl          between paragraphs (bare `p` or a `Paragraph` block)
+ *   --spacing-2xl          between bare paragraphs (markdown outside a block)
  *
  * `--space-section` is the larger of the first pair, so a section break always
  * reads wider than a heading break. Paragraph spacing is the tighter text
- * rhythm from prose/default.css (32px), not a section break.
+ * rhythm from prose/default.css (32px), not a section break. Text inside a
+ * Paragraph block is spaced by the block itself (prose/paragraph-block.css).
  *
  * A "block" is any child carrying `data-component`, except `Paragraph`.
- * `Paragraph` is running text that happens to be wrapped; treating it as a
- * section stacked 64/80/120px holes between ordinary paragraphs. Block
- * components set `data-component` on their root, so the rhythm reaches an
- * MDX page (direct child of the prose container) and a Strapi preview alike.
+ * A Paragraph block owns its spacing (`data-intro-variant="paragraph"`,
+ * prose/paragraph-block.css). Block components set `data-component` on their
+ * root, so the rhythm reaches an MDX page (direct child of the prose
+ * container) and a Strapi preview alike.
  *
  * All three prose variants share the rhythm. Each still keeps its own text
  * flow. Blog and summit set their own heading and paragraph margins with
@@ -29,6 +30,11 @@
  * Text elements keep the tighter flow rhythm from prose/default.css. Margins
  * of adjacent siblings collapse to the larger of the two, so a paragraph that
  * meets a real block still gets the full section gap.
+ *
+ * A block with `data-intro-variant` owns its spacing instead
+ * (components/block-intro.css) and sits out this rhythm. Pages mix those
+ * blocks with elements that don't own their spacing, so the bridge rules
+ * below keep the gap between the two kinds at --space-section.
  */
 
 @layer components {
@@ -41,60 +47,86 @@
     > [data-component]:not(
         [data-component='CtaButtons'],
         [data-component='Paragraph'],
-        .cta-link
+        .cta-link,
+        [data-intro-variant]
       ) {
       margin-block: var(--space-section);
     }
 
-    /* A markdown h2 opens a section: wide above, tight below.
-       Rendered markdown reaches the page two ways: as direct children of the
-       prose container, or wrapped in a `Paragraph` block. An h2 has to read
-       the same in both. A block's own heading is not in this flow. Those zero
-       their margins with a utility, which wins over this layer. */
-    > h2,
-    > [data-component='Paragraph'] > h2 {
+    /* A markdown h2 directly in the prose opens a section: wide above, tight
+       below. A Paragraph block spaces its own headings, and a block's own
+       heading is not in this flow. Those zero their margins with a utility,
+       which wins over this layer. */
+    > h2 {
       margin-block-start: var(--space-section);
       margin-block-end: var(--space-block-heading);
     }
 
     /* The heading owns the gap down to its content. Without this the block's
        own top margin collapses in and wins, and the heading floats away from
-       what it titles.
+       what it titles. A Paragraph block that ends on a heading does the same
+       in prose/paragraph-block.css.
 
-       The second selector is the same case one level down: a `Paragraph` that
-       ends on a heading is a title for the block that follows it. Zeroing the
-       wrapper's bottom margin lets the heading's own margin collapse out and
-       decide the gap.
-
-       The repeated `:not()` on the first selector is for specificity, not
-       meaning. Without it this rule scores one selector below the block rule
-       above and never applies. */
+       The repeated `:not()` is for specificity, not meaning. Without it this
+       rule scores one selector below the block rule above and never applies. */
     > h2
       + [data-component]:not(
         [data-component='CtaButtons'],
         [data-component='Paragraph'],
-        .cta-link
-      ),
-    > [data-component='Paragraph']:has(> h2:last-child) + [data-component] {
+        .cta-link,
+        [data-intro-variant]
+      ) {
       margin-block-start: var(--space-block-heading);
     }
 
-    > [data-component='Paragraph']:has(> h2:last-child) {
+    /* The bridge between a block that owns its spacing (an intro block) and
+       an element that doesn't: plain Markdown, or a block without the
+       marker, such as CodeBlock, CalloutText, Timeline, DonationCards, CTA
+       buttons without an intro, or a Split layout in an older ratio without
+       one. An intro block opens with its intro
+       (--intro-top plus the heading's padding) and closes with
+       --block-pb; on desktop the two add up to --space-section when the
+       intro has a heading. These rules give the other element the same:
+
+       - Before an intro block, the other element stands in for the
+         padding-bottom it doesn't have.
+       - After one, it takes --space-section less the padding the intro
+         block already put there.
+
+       An intro block with an empty intro opens with the default block
+       spacer (--intro-empty) instead, so the other element sits --block-pb
+       plus that spacer above it (A1). Astro emits a component's <script> as
+       its next sibling, so each rule also reaches across one script. CtaButtons and CtaLink set
+       their bottom margin with a utility, which this layer cannot beat;
+       they handle the intro block themselves.
+
+       Each selector matches the block rule's specificity or beats it, and
+       comes after it. These rules stay: plain Markdown and the blocks
+       above don't own their spacing (ADR-009). */
+    > :not([data-intro-variant], script):has(
+        + [data-intro-variant],
+        + script + [data-intro-variant]
+      ) {
+      margin-block-end: var(--block-pb);
+    }
+
+    /* Its last child's own margin (a paragraph's 32px) would collapse
+       through the unpadded wrapper and beat a smaller --block-pb on mobile,
+       so the wrapper alone sets the gap. */
+    > :not([data-intro-variant], script):has(
+        + [data-intro-variant],
+        + script + [data-intro-variant]
+      )
+      > :last-child {
       margin-block-end: 0;
     }
 
-    /* Same idea for the CTA pair, one level up. prose/default.css already
-       zeroes the bottom margin of a bare `p` or heading that a `CtaButtons`
-       follows, but a `Paragraph` block wraps its markdown in a div, so that
-       rule cannot see it. Zero the wrapper and its last text child, and let
-       the CTA's own tight top margin decide the gap. */
-    > [data-component='Paragraph']:has(+ [data-component='CtaButtons']) {
-      margin-block-end: 0;
-    }
-
-    > [data-component='Paragraph']:has(+ [data-component='CtaButtons'])
-      > :is(p, h2, h3, h4, h5, h6, ul, ol):last-child {
-      margin-block-end: 0;
+    > [data-intro-variant]
+      + :not([data-intro-variant], script, [data-footnotes]),
+    > [data-intro-variant]
+      + script
+      + :not([data-intro-variant], script, [data-footnotes]) {
+      margin-block-start: calc(var(--space-section) - var(--block-pb));
     }
 
     /* The stack around the prose already supplies the outer gap, and the page
@@ -116,14 +148,29 @@
        real elements, so an earlier p/h2 is not zeroed when an h3 or
        blockquote still follows.
 
+       The GFM footnotes section (`[data-footnotes]`) closes the prose like
+       the page's floor does: it brings its own top margin and border
+       (prose/footnotes.css), so what sits above it still counts as last.
+
        `[data-component][data-component]` is for specificity, not meaning:
        `:not(:has(~ :not(script)))` is only a type selector, so without the
        doubled attribute this loses to the block-spacing rule above and a
        trailing LogoCarousel keeps `--space-section` on the bottom. */
     > :is([data-component][data-component], h2, p, ul, ol):not(
-        :has(~ :not(script))
+        :has(~ :not(script, [data-footnotes]))
       ) {
       margin-block-end: 0;
+    }
+
+    /* Same for the padding an intro block owns: at the end of the prose it
+       would stack on the page's own bottom padding. LogoCarousel is the
+       exception: as the last block its script removes the page's bottom
+       padding instead (`fixTrailingMainPadding`), so its own padding is the
+       gap to the footer. */
+    > [data-intro-variant]:not([data-component='LogoCarousel']):not(
+        :has(~ :not(script, [data-footnotes]))
+      ) {
+      padding-block-end: 0;
     }
 
     /* A trailing margin one level down does the same damage as one at the
@@ -131,7 +178,7 @@
        rather than collapsing into it. A list that ends a block left 144px
        under it instead of 120px. */
     > :is([data-component][data-component], h2, p, ul, ol):not(
-        :has(~ :not(script))
+        :has(~ :not(script, [data-footnotes]))
       )
       > :is(li, p, ul, ol):last-child {
       margin-block-end: 0;

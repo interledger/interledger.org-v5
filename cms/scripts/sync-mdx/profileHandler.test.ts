@@ -327,14 +327,14 @@ describe('ProfileCard handler', () => {
 describe('ProfileGrid handler', () => {
   it('parses <ProfileGrid> with heading and pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Our Team" pathSlugs={["alice","bob"]} />',
+      '<ProfileGrid intro={{"heading":"Our Team"}} pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' })
     )
 
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: 'Our Team',
+        intro: { heading: 'Our Team' },
         profiles: {
           connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
         }
@@ -361,12 +361,12 @@ describe('ProfileGrid handler', () => {
       ctxWith({ alice: 'doc-alice' })
     )
 
-    expect(blocks[0]).not.toHaveProperty('heading')
+    expect(blocks[0]).not.toHaveProperty('intro')
   })
 
   it('returns MISSING_REQUIRED_PROP when both pathSlugs and category are missing', async () => {
     const result = await parseMdxToBlocks(
-      '<ProfileGrid heading="Team" />',
+      '<ProfileGrid intro={{"heading":"Team"}} />',
       ctxWith({})
     )
     expect(result).toBeInstanceOf(MdxParserError)
@@ -377,14 +377,14 @@ describe('ProfileGrid handler', () => {
 
   it('parses <ProfileGrid> with category instead of pathSlugs', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Past Fellows" category="Past Fellows" />',
+      '<ProfileGrid intro={{"heading":"Past Fellows"}} category="Past Fellows" />',
       ctxWith({})
     )
 
     expect(blocks).toEqual([
       {
         __component: 'blocks.profile-grid',
-        heading: 'Past Fellows',
+        intro: { heading: 'Past Fellows' },
         category: 'Past Fellows'
       }
     ])
@@ -400,7 +400,7 @@ describe('ProfileGrid handler', () => {
       __component: 'blocks.profile-grid',
       category: 'Past Fellows'
     })
-    expect(blocks[0]).not.toHaveProperty('heading')
+    expect(blocks[0]).not.toHaveProperty('intro')
   })
 
   it('returns UNRESOLVED_RELATION when any pathSlug is unresolved', async () => {
@@ -436,13 +436,13 @@ describe('ProfileCard handler (locale import)', () => {
 
   it('resolves ProfileGrid pathSlugs in es locale', async () => {
     const blocks = await parseMdxToBlocks(
-      '<ProfileGrid heading="Equipo" pathSlugs={["alice","bob"]} />',
+      '<ProfileGrid intro={{"heading":"Equipo"}} pathSlugs={["alice","bob"]} />',
       ctxWith({ alice: 'doc-alice', bob: 'doc-bob' }, 'es')
     )
 
     expect(blocks[0]).toMatchObject({
       __component: 'blocks.profile-grid',
-      heading: 'Equipo',
+      intro: { heading: 'Equipo' },
       profiles: {
         connect: [{ documentId: 'doc-alice' }, { documentId: 'doc-bob' }]
       }

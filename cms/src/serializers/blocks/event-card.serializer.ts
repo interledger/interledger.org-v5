@@ -2,6 +2,8 @@ import { escDouble as esc, escMdxBraces } from '../shared'
 import {
   SerializerFieldError,
   hasConflictingCtaFlags,
+  serializeIntroProp,
+  type BlockIntroInput,
   type FieldError
 } from '../../utils'
 
@@ -168,7 +170,7 @@ function serializeApply(apply: EventCardApply): string {
 }
 
 export function serialize(block: {
-  title?: string
+  intro?: BlockIntroInput | null
   when?: EventCardWhen
   where?: EventCardWhere
   apply?: EventCardApply | null
@@ -176,9 +178,8 @@ export function serialize(block: {
   const fieldErrors = validateEventCard(block)
   if (fieldErrors.length > 0) throw new SerializerFieldError(fieldErrors)
 
-  const open = block.title?.trim()
-    ? `<EventCard title="${esc(block.title.trim())}">`
-    : '<EventCard>'
+  const introAttr = serializeIntroProp(block.intro)
+  const open = `<EventCard${introAttr}>`
 
   const parts = [serializeWhen(block.when!), serializeWhere(block.where!)]
   if (block.apply) parts.push(serializeApply(block.apply))

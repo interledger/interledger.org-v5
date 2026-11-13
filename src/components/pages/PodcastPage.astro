@@ -2,6 +2,7 @@
 import type { Page } from 'astro'
 import {
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   stripPagination,
   translateTerm,
@@ -77,7 +78,7 @@ const pageDescription = translatedTerm
   : description
 
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   { name: heroTitle ?? title, href: podcastPath }
 ]
 
@@ -120,29 +121,25 @@ const heroLcpPreload =
       <TranslationDisclaimer slot="after-breadcrumbs" isVisible={isFallback} />
     </PageHero>
 
-    {
-      isLandingPage && (
-        <section class="px-content">
-          {/*
-            The intro text and the cards share one prose flow, so the standard
-            rhythm decides the gap between them. The text ends on the heading
-            that titles the cards, and prose/rhythm.css gives that pair the
-            tighter heading gap instead of a full section break.
+    {isLandingPage && <section class="px-content">
+      {/*
+            The intro text and the cards share one prose flow. The cards'
+            own intro titles them, so the grid owns the gap between them
+            (ADR-009).
           */}
-          <div class="content-column">
-            <div data-prose>
-              {textSectionHtml && <Fragment set:html={textSectionHtml} />}
-              <CardGrid
-                ariaLabel={titleCards.ariaLabel}
-                columns={titleCards.columns}
-                variant="Title"
-                titleCards={titleCards.cards}
-              />
-            </div>
-          </div>
-        </section>
-      )
-    }
+      <div class="content-column">
+        <div data-prose>
+          {textSectionHtml && <Fragment set:html={textSectionHtml} />}
+          <CardGrid
+            intro={titleCards.intro}
+            ariaLabel={titleCards.ariaLabel}
+            columns={titleCards.columns}
+            variant="Title"
+            titleCards={titleCards.cards}
+          />
+        </div>
+      </div>
+    </section>}
 
     <section aria-label={t('aria.podcast.filters_label')} class="px-content">
       <div class="content-column">
@@ -173,6 +170,7 @@ const heroLcpPreload =
     <section class="px-content">
       <div class="content-column">
         <CtaStrip
+          standalone
           heading={ctaStrip.heading}
           description={ctaStrip.description}
           primaryButtonText={ctaStrip.buttonText}

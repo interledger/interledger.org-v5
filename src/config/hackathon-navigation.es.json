@@ -5,50 +5,42 @@
       "items": [
         {
           "label": "Descripción general",
-          "href": "/es/hackathon/overview"
-        },
-        {
-          "label": "Requisitos de participación",
-          "href": "/es/hackathon/participation"
-        },
-        {
-          "label": "Preguntas frecuentes",
-          "href": "/es/hackathon/faq"
+          "href": "/es/hackathon/overview/"
         }
       ]
     },
     {
-      "label": "2026 Hackatón de Open Payments",
+      "label": "Sobre Hackatones de Open Payments ",
       "items": [
         {
-          "label": "Información clave",
-          "href": "/es/hackathon/2026-hackathon-medellin"
+          "label": "Herramientas y Recursos",
+          "href": "/es/hackathon/open-payments/"
         },
         {
           "label": "Entrega y evaluación",
-          "href": "/es/hackathon/submission-judging"
-        },
-        {
-          "label": "Herramientas y Recursos",
-          "href": "/es/hackathon/open-payments"
-        },
-        {
-          "label": "Cronograma",
-          "href": "/es/hackathon/2026-timetable"
+          "href": "/es/hackathon/submission-judging/"
         },
         {
           "label": "Código de conducta",
-          "href": "/es/hackathon/code-conduct"
+          "href": "/es/hackathon/code-conduct/"
         },
         {
           "label": "Política de IA",
-          "href": "/es/hackathon/ai-policy"
+          "href": "/es/hackathon/ai-policy/"
+        },
+        {
+          "label": "Requisitos de participación",
+          "href": "/es/hackathon/participation/"
+        },
+        {
+          "label": "Preguntas frecuentes",
+          "href": "/es/hackathon/faq/"
         }
       ]
     }
   ],
   "ctaButton": {
     "label": "Interledger Foundation",
-    "href": "/es"
+    "href": "/es/"
   }
 }

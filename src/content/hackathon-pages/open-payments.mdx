@@ -1,6 +1,6 @@
 ---
 title: 'Hackathon Tools and Resources'
-pathSlug: 'open-payments'
+pathSlug: '/open-payments/'
 description: "Learn the Open Payments API and get access to all the tools you'll need for your participation in an Interledger Hackathon. We have plenty of free resources to help you."
 locale: 'en'
 ---
@@ -9,13 +9,9 @@ locale: 'en'
 
 Everything you need to arrive hackathon-ready, in one place. Your goal is simple: get one payment working end to end. Once you can do that, everything else builds from there.
 
-## Step 1 - Learn the Concepts
-
-Get oriented before you write any code. Start here if Open Payments is new to you.
-
 </Paragraph>
 
-<CardGrid ariaLabel="Step 1 resources" variant="Title" columns="Three">
+<CardGrid intro={{"heading":"Step 1 - Learn the Concepts","description":"Get oriented before you write any code. Start here if Open Payments is new to you."}} ariaLabel="Step 1 resources" variant="Title" columns="Three">
 <TitleCard heading="Open Payments Course on Platzi" buttonUrl="https://platzi.com/cursos/interledger-openpayments/" buttonText="Start the course" buttonExternal={true}>
 
 A free beginner course that walks you through the technology so you start the
@@ -29,7 +25,7 @@ in-depth walk-through of Open Payments. Follow along with the
 open-payments-node repository and the code snippets in the docs.
 
 </TitleCard>
-<TitleCard heading="Engineering Blog" buttonUrl="/blog/category/engineering" buttonText="Read the blog" buttonExternal={false}>
+<TitleCard heading="Engineering Blog" buttonUrl="/blog/category/engineering/" buttonText="Read the blog" buttonExternal={false}>
 
 Posts from our engineering team that introduce Open Payments, explain why we
 chose GNAP for authorization, and cover the Open Payments PHP SDK.
@@ -37,15 +33,7 @@ chose GNAP for authorization, and cover the Open Payments PHP SDK.
 </TitleCard>
 </CardGrid>
 
-<Paragraph>
-
-## Step 2 - Read the Reference Materials
-
-As you start coding, keep these resources open in another tab.
-
-</Paragraph>
-
-<CardGrid ariaLabel="Step 2 resources" variant="Title" columns="Three">
+<CardGrid intro={{"heading":"Step 2 - Read the Reference Materials","description":"As you start coding, keep these resources open in another tab."}} ariaLabel="Step 2 resources" variant="Title" columns="Three">
 <TitleCard heading="Open Payments docs" buttonUrl="https://openpayments.dev/" buttonText="Read the docs" buttonExternal={true}>
 
 Detailed explanations, code snippets, implementation guides, and the full API
@@ -67,15 +55,7 @@ the resources and start building.
 </TitleCard>
 </CardGrid>
 
-<Paragraph>
-
-## Step 3 - Build & test
-
-Hands-on tools to make a payment actually happen.
-
-</Paragraph>
-
-<CardGrid ariaLabel="Step 3 resources" variant="Title" columns="Two">
+<CardGrid intro={{"heading":"Step 3 - Build & test","description":"Hands-on tools to make a payment actually happen."}} ariaLabel="Step 3 resources" variant="Title" columns="Two">
 <TitleCard heading="Interledger Test Wallet" buttonUrl="https://wallet.interledger-test.dev" buttonText="Get a Test Wallet" buttonExternal={true}>
 
 Simulates a financial service provider with Interledger enabled. Sign up, go

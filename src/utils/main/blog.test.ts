@@ -21,6 +21,7 @@ interface FakePost {
   featureImageBlur?: string
   legacy?: boolean
   locale?: string
+  localizes?: string
 }
 
 // Minimal stand-in for a content collection entry; only the fields the helpers
@@ -38,7 +39,8 @@ function makePost(post: FakePost): Entry {
       featureImageAlt: post.featureImageAlt,
       featureImageBlur: post.featureImageBlur,
       legacy: post.legacy ?? false,
-      locale: post.locale ?? 'en'
+      locale: post.locale ?? 'en',
+      localizes: post.localizes
     }
   } as unknown as Entry
 }
@@ -204,12 +206,81 @@ describe('resolveRelatedPosts', () => {
     expect(result[0].data.locale).toBe('en')
   })
 
+  it('finds a translation with its own slug by the EN slug it localizes', () => {
+    const posts = [
+      makePost({ slug: 'en-slug', date: '2025-01-01', locale: 'en' }),
+      makePost({
+        slug: 'es-slug',
+        date: '2025-01-01',
+        locale: 'es',
+        localizes: 'en-slug'
+      })
+    ]
+
+    const result = resolveRelatedPosts(posts, ['en-slug'], 'es', 'en')
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['es-slug'])
+  })
+
+  it('prefers an own-slug match over a translation of another post', () => {
+    const translationOfA = makePost({
+      slug: 'b',
+      date: '2025-01-01',
+      locale: 'es',
+      localizes: 'a'
+    })
+    const postA = makePost({ slug: 'a', date: '2025-01-01', locale: 'es' })
+
+    for (const posts of [
+      [translationOfA, postA],
+      [postA, translationOfA]
+    ]) {
+      const result = resolveRelatedPosts(posts, ['a'], 'es', 'en')
+
+      expect(result).toEqual([postA])
+    }
+  })
+
   it('skips slugs that resolve to no post in any locale', () => {
     const posts = [makePost({ slug: 'real', date: '2025-01-01', locale: 'en' })]
 
     const result = resolveRelatedPosts(posts, ['real', 'ghost'], 'es', 'en')
 
     expect(result.map((p) => p.data.pathSlug)).toEqual(['real'])
+  })
+
+  it('matches a /blog/{slug}/ value to the post pathSlug', () => {
+    const posts = [
+      makePost({ slug: 'my-post', date: '2025-01-01', locale: 'en' })
+    ]
+
+    const result = resolveRelatedPosts(
+      posts,
+      ['/blog/my-post/', 'my-post'],
+      'en',
+      'en'
+    )
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['my-post', 'my-post'])
+  })
+
+  it('matches a mixed-case /blog/ path to the lowercase pathSlug', () => {
+    const posts = [
+      makePost({
+        slug: 'interledger-universe',
+        date: '2025-01-01',
+        locale: 'en'
+      })
+    ]
+
+    const result = resolveRelatedPosts(
+      posts,
+      ['/blog/Interledger-Universe/'],
+      'en',
+      'en'
+    )
+
+    expect(result.map((p) => p.data.pathSlug)).toEqual(['interledger-universe'])
   })
 
   it('preserves the order of the requested slugs', () => {

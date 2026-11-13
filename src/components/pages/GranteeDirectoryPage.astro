@@ -9,6 +9,7 @@ import {
   type Grantee,
   type GranteeFilterOption,
   useTranslations,
+  buildHomeBreadcrumb,
   localizeRoute,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
@@ -30,7 +31,7 @@ const t = useTranslations(routeLocale)
 const pageHref = localizeRoute(grantGranteeDirectoryPath(), routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
 const breadcrumbs = [
-  { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+  buildHomeBreadcrumb(routeLocale, t),
   {
     name: t('nav.grants'),
     href: localizeRoute(grantOverviewHubPath(), routeLocale)
@@ -58,20 +59,16 @@ const breadcrumbs = [
         selectedYear={selectedYear}
         selectedTag={selectedTag}
       />
-      {
-        page.lastPage > 1 && (
-          <div data-grantee-pagination class="mt-section">
-            <Pagination
-              baseUrl={basePath}
-              length={page.lastPage}
-              currentPage={page.currentPage}
-              prevUrl={page.url.prev}
-              nextUrl={page.url.next}
-              label={t('grantee.title')}
-            />
-          </div>
-        )
-      }
+      {page.lastPage > 1 && <div data-grantee-pagination class="mt-section">
+        <Pagination
+          baseUrl={basePath}
+          length={page.lastPage}
+          currentPage={page.currentPage}
+          prevUrl={page.url.prev}
+          nextUrl={page.url.next}
+          label={t('grantee.title')}
+        />
+      </div>}
       <footer
         role="note"
         aria-label={t('grantee.caveat.label')}

@@ -1,10 +1,16 @@
-import { describe, expect, it, vi } from 'vitest'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { errors } from '@strapi/utils'
 import {
   assertUploadWithinLimit,
   buildLayoutConfiguration,
   createCheckFileSize,
-  registerDocumentValidation
+  guardBatchUploadDeletes,
+  overrideUploadProvider,
+  registerDocumentValidation,
+  registerGrantSlugSiblingValidation
 } from './index'
 
 describe('buildLayoutConfiguration', () => {
@@ -303,5 +309,248 @@ describe('createCheckFileSize', () => {
 
   it('works when the provider has no size check of its own', async () => {
     await expect(createCheckFileSize()(oversized)).rejects.toThrow(/2 MB limit/)
+  })
+})
+
+describe('overrideUploadProvider', () => {
+  const tempDirs: string[] = []
+
+  afterEach(() => {
+    for (const dir of tempDirs.splice(0)) {
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
+  })
+
+  function overrideWithTempPublicDir() {
+    const publicDir = fs.mkdtempSync(path.join(os.tmpdir(), 'upload-provider-'))
+    tempDirs.push(publicDir)
+    const provider: Record<string, unknown> = {
+      upload: vi.fn(),
+      uploadStream: vi.fn(),
+      delete: vi.fn(),
+      checkFileSize: vi.fn(),
+      replace: vi.fn(),
+      replaceStream: vi.fn()
+    }
+    const strapi = {
+      plugin: () => ({ provider }),
+      dirs: { static: { public: publicDir } },
+      log: { info: vi.fn(), warn: vi.fn() }
+    } as unknown as Parameters<typeof overrideUploadProvider>[0]
+    overrideUploadProvider(strapi)
+    return { provider, publicDir }
+  }
+
+  // The local provider's replace methods write to public/uploads/ and skip
+  // the image size limit. Without them, Strapi replaces a file with delete
+  // and upload, which go through this override.
+  it('removes the provider replace methods', () => {
+    const { provider } = overrideWithTempPublicDir()
+    expect(provider.replace).toBeUndefined()
+    expect(provider.replaceStream).toBeUndefined()
+  })
+
+  it('writes uploads under uploads/img/original', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const file = {
+      hash: 'abc',
+      ext: '.txt',
+      mime: 'text/plain',
+      buffer: Buffer.from('x')
+    }
+    await (provider.upload as (f: typeof file) => Promise<void>)(file)
+    expect(
+      fs.existsSync(path.join(publicDir, 'uploads/img/original/abc.txt'))
+    ).toBe(true)
+    expect((file as { url?: string }).url).toBe('/uploads/img/original/abc.txt')
+  })
+
+  function writeFile(publicDir: string, relativePath: string): string {
+    const filePath = path.join(publicDir, relativePath)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    fs.writeFileSync(filePath, 'x')
+    return filePath
+  }
+
+  it('deletes an upload by its url', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const upload = writeFile(publicDir, 'uploads/img/original/abc.png')
+    await (provider.delete as (f: object) => Promise<void>)({
+      hash: 'abc',
+      ext: '.png',
+      url: '/uploads/img/original/abc.png'
+    })
+    expect(fs.existsSync(upload)).toBe(false)
+  })
+
+  // public/img is repo-owned and git sync never stages it, so a delete there
+  // left the VM checkout dirty and broke its next pull.
+  it('refuses to delete a repo image and leaves both files on disk', async () => {
+    const { provider, publicDir } = overrideWithTempPublicDir()
+    const repoImage = writeFile(publicDir, 'img/logo.png')
+    const sameNameUpload = writeFile(publicDir, 'uploads/img/original/logo.png')
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        hash: 'logo',
+        ext: '.png',
+        name: 'logo.png',
+        url: '/img/logo.png'
+      })
+    ).rejects.toThrow(/can't be deleted or replaced/)
+    // Strapi's authorize middleware reduces any other ForbiddenError to a
+    // bare "Forbidden"; only a PolicyError keeps the message for the editor.
+    // A unit test can't see that layer, so this pins the type instead.
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        url: '/img/logo.png'
+      })
+    ).rejects.toBeInstanceOf(errors.PolicyError)
+    expect(fs.existsSync(repoImage)).toBe(true)
+    expect(fs.existsSync(sameNameUpload)).toBe(true)
+  })
+
+  it('ignores an upload that is already gone', async () => {
+    const { provider } = overrideWithTempPublicDir()
+    await expect(
+      (provider.delete as (f: object) => Promise<void>)({
+        hash: 'gone',
+        ext: '.png',
+        url: '/uploads/img/original/gone.png'
+      })
+    ).resolves.toBeUndefined()
+  })
+})
+
+describe('guardBatchUploadDeletes', () => {
+  const UPLOAD = { id: 1, name: 'a.png', url: '/uploads/img/original/a.png' }
+  const REPO_IMAGE = { id: 2, name: 'logo.png', url: '/img/logo.png' }
+
+  function guardWith(records: object[]) {
+    const strapiDeleteFiles = vi.fn(async () => records)
+    const fileService = { deleteByIds: strapiDeleteFiles }
+    const folderService = {
+      deleteByIds: vi.fn(
+        async (
+          _ids: number[],
+          options?: { validateFiles?: (files: object[]) => Promise<void> }
+        ) => {
+          await options?.validateFiles?.(records)
+          return {}
+        }
+      )
+    }
+    const services: Record<string, object> = {
+      file: fileService,
+      folder: folderService
+    }
+    const strapi = {
+      plugin: () => ({ service: (name: string) => services[name] }),
+      dirs: { static: { public: '/repo/public' } },
+      db: { query: () => ({ findMany: async () => records }) },
+      log: { info: vi.fn(), warn: vi.fn() }
+    } as unknown as Parameters<typeof guardBatchUploadDeletes>[0]
+    guardBatchUploadDeletes(strapi)
+    return {
+      strapiDeleteFiles,
+      deleteFiles: fileService.deleteByIds as (
+        ids: number[]
+      ) => Promise<unknown>,
+      deleteFolders: folderService.deleteByIds as (
+        ids: number[],
+        options?: { validateFiles?: (files: object[]) => Promise<void> }
+      ) => Promise<unknown>
+    }
+  }
+
+  // Strapi removes a batch with one Promise.all, so a refusal per file still
+  // let the uploads in the same batch be deleted.
+  it('refuses a mixed bulk delete before removing anything', async () => {
+    const { deleteFiles, strapiDeleteFiles } = guardWith([UPLOAD, REPO_IMAGE])
+    await expect(deleteFiles([1, 2])).rejects.toBeInstanceOf(errors.PolicyError)
+    expect(strapiDeleteFiles).not.toHaveBeenCalled()
+  })
+
+  it('lets a bulk delete of uploads through', async () => {
+    const { deleteFiles } = guardWith([UPLOAD])
+    await expect(deleteFiles([1])).resolves.toEqual([UPLOAD])
+  })
+
+  it('refuses a folder holding a repo image and keeps the caller check', async () => {
+    const { deleteFolders } = guardWith([UPLOAD, REPO_IMAGE])
+    const callerCheck = vi.fn(async () => {})
+    await expect(
+      deleteFolders([9], { validateFiles: callerCheck })
+    ).rejects.toThrow(/“logo.png” is a site image/)
+    expect(callerCheck).not.toHaveBeenCalled()
+  })
+
+  it('runs the caller check for a folder of uploads', async () => {
+    const { deleteFolders } = guardWith([UPLOAD])
+    const callerCheck = vi.fn(async () => {})
+    await deleteFolders([9], { validateFiles: callerCheck })
+    expect(callerCheck).toHaveBeenCalledWith([UPLOAD])
+  })
+})
+
+describe('registerGrantSlugSiblingValidation', () => {
+  const GRANT_PAGE = 'api::grant-page.grant-page'
+  const OVERVIEW = 'api::grant-overview-page.grant-overview-page'
+
+  type Middleware = (
+    ctx: {
+      uid: string
+      action: string
+      params: { data?: Record<string, unknown>; locale?: string }
+    },
+    next: () => Promise<void>
+  ) => Promise<void>
+
+  // A grant page already holds /foo/ in English; overview pages hold nothing.
+  function register(isSyncRequest: boolean) {
+    const use = vi.fn()
+    const findMany = vi.fn(async (options: Record<string, unknown>) =>
+      options.locale === 'en' ? [{ documentId: 'g1', pathSlug: '/foo/' }] : []
+    )
+    const documents = Object.assign(
+      vi.fn((uid: string) =>
+        uid === GRANT_PAGE
+          ? { findMany, findOne: vi.fn(async () => null) }
+          : { findMany: vi.fn(async () => []), findOne: vi.fn() }
+      ),
+      { use }
+    )
+    registerGrantSlugSiblingValidation({ documents }, () => isSyncRequest)
+    const middlewares = use.mock.calls.map(([m]) => m as Middleware)
+    return { middlewares, findMany }
+  }
+
+  async function saveOverview(middlewares: Middleware[]) {
+    const next = vi.fn(async () => {})
+    const ctx = {
+      uid: OVERVIEW,
+      action: 'update',
+      params: { data: { pathSlug: '/foo/' }, locale: 'en' }
+    }
+    for (const middleware of middlewares) await middleware(ctx, next)
+    return next
+  }
+
+  it('rejects an admin save whose slug the other collection holds', async () => {
+    const { middlewares } = register(false)
+
+    await expect(saveOverview(middlewares)).rejects.toThrow(
+      'already used by a Grant Page'
+    )
+  })
+
+  // A commit can move a slug between the collections; the sync may save the
+  // new owner first, and must not stop halfway (Jonathan, #867).
+  it('lets a sync request through without querying', async () => {
+    const { middlewares, findMany } = register(true)
+
+    const next = await saveOverview(middlewares)
+
+    expect(next).toHaveBeenCalled()
+    expect(findMany).not.toHaveBeenCalled()
   })
 })

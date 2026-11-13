@@ -1,0 +1,226 @@
+# Block intro and block spacing: implementation plan
+
+> Status 2026-10-15. Implementation phases for INTORG-1154. **The definitions live in [ADR-009: Every block owns its intro and its spacing](../decisions/009-block-intro-and-block-owned-spacing.md)**: the global spec (A0–A6), the per-block spec (B1–B14), the decisions (D1–D8) and the open design items (E-Q1–E-Q17). IDs below link to those sections. All values are written **Mobile / Tablet / Desktop**.
+
+## Phases
+
+Each phase is one PR into `staging`.
+
+### Phase 0: Foundation (no visual change)
+
+1. **`cms/src/components/shared/block-intro.json`:** `heading` and `subheading` (localized strings), and `description` (CKE `basicMarkdownPreset`, localized). Regenerate `contentTypes.d.ts`.
+2. **Types:**
+   - `src/types/`: `BlockIntro` and `BlockIntroVariant = 'universal' | 'button-cta' | 'profile-grid' | 'split-layout'`.
+   - CMS: a matching input type.
+3. **Tokens** in `src/styles/base/variables.css`, following the `--space-section` `@variant` pattern:
+   - `--intro-top`, `--intro-h2-pt`, `--intro-h3-pt`, `--intro-h2-pb`, `--intro-h3-pb`, `--intro-desc-pb`
+   - `--block-pb`
+   - `--media-pt` ([A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list))
+   - variant overrides for Split layout (desktop) and Button CTA, via `[data-intro-variant=…]`
+4. **`src/components/shared/BlockIntro.astro`:**
+   - `<header>` with an optional `<h2 id>`, `<h3>` and description (through `parseMarkdown`)
+   - padding-based spacers, with the [A1](../decisions/009-block-intro-and-block-owned-spacing.md#a1-intro-every-block) conditions
+   - renders nothing when the intro is empty
+5. **Self-spacing hook:**
+   - The block root gets `data-intro-variant`. `block-intro.css` gives it `padding-block-end: var(--block-pb)`.
+   - `rhythm.css` excludes these blocks from the `--space-section` margin, and adds the transitional rules for mixed pages ([how spacing ownership works](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
+   - `DynamicZone.astro` skips `mt-section` for them.
+6. **Serializer helper** `serializeIntroProp(intro)` in `cms/src/utils/blockIntro.ts`, exported from the barrel. Normalise the description like Agenda does. Braces need no escaping: MDX parses the expression with acorn.
+7. **Sync helper** `getIntroAttr(node)` in `cms/scripts/sync-mdx/jsxExtract.ts`, with shape validation that throws `MdxParserError` on a bad shape.
+8. **Tests:**
+   - BlockIntro drop rules
+   - serializer empty, partial and full
+   - sync round-trip and malformed input
+   - special characters round-trip
+
+**Phase 0 review follow-ups** (left open on purpose; settle before or during the phase named):
+
+- **Phase 1, first block on the page.** Settled by design ([A6](../decisions/009-block-intro-and-block-owned-spacing.md#a6-h1-hero-only-543261853)): the gap below the hero or bare H1 is 0 and the first block supplies its own top. So the intro's top spacer stays. Remove the templates' own gap under the hero and H1 (e.g. `mb-2xl tablet:mb-3xl` on the hero-less H1 in `FoundationContentPage.astro`) and any top spacing of the prose container. Do it in the template that first renders an intro block.
+- **Phase 1, `aria-labelledby`.** Only the h2 gets `headingId`. A block must label its `<section>` only when the intro has a heading (use `normalizeBlockIntro`). An intro with only a subheading renders an h3 with no h2 above it, by design: the editor decides ([A1](../decisions/009-block-intro-and-block-owned-spacing.md#a1-intro-every-block)). Such a block gets an `aria-label` instead.
+- **Phase 1, sync handlers.** `getIntroAttr` returns `undefined` (prop absent) or `null` (all fields empty). Both map to `intro: null` in Strapi.
+- **Phase 1, preview list.** `SELF_SPACED_BLOCKS` (`src/utils/main/dynamicZoneSpacing.ts`) must list every block that sets `data-intro-variant`. Add a test that ties the two together when the first block is migrated. In the preview, an intro block at the end keeps its 40 bottom padding, which the live page drops.
+- **Phase 2, `page-stack`.** `page-stack` (`utilities/spacing.css`) still adds `--space-section` between `<main>` sections. Exclude `[data-intro-variant]` there before InfoCards and GrantFaqSection adopt the intro.
+- **Known transitional gaps.** A fake-intro Paragraph (ending on `## Heading`) before an intro block gives 128 on desktop, not 120. A legacy block before an intro block whose intro is empty sits 40 above it ([A2](../decisions/009-block-intro-and-block-owned-spacing.md#a2-block-padding-bottom-every-block-including-paragraph)'s minimum).
+
+### Phase 1: Pilot (CardGrid, FAQ, NumberTiles)
+
+Per block, following the dynamic-zone block checklist:
+
+- **Schema:** add `intro`, keeping `title`/`heading` for now.
+- **Serializer:** emit `intro`, falling back to the legacy field.
+- **Sync handler:** reads `intro` and still accepts the legacy attribute.
+- **Component:** renders `<BlockIntro>`, keeps `aria-labelledby`, sets `data-intro-variant`.
+
+Then:
+
+- Run the migration script (`cms/scripts/migrate-block-intro.ts`, with `--dry-run` and `--fold` for fake intros), then `sync:mdx`.
+- Follow-up PR: remove the legacy fields.
+
+No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). CardGrid, FAQ and NumberTiles stay as built; they only gain the intro and the block spacing.
+
+**Phase 1 status (2026-10-19).**
+
+- **Done:** the Phase 0 follow-ups for the first block on the page, `aria-labelledby`, the sync handlers and the preview list.
+  - The hero gap drops when the first section's prose opens with an intro block (`page-stack` in `utilities/spacing.css`, and `HackathonContentPage`). Its intro, or its default spacer when the intro is empty, is the whole gap.
+  - The hero-less H1 margin in `FoundationContentPage` was left for Phase 3, which removed it.
+  - The sync handlers leave `intro` out when it's empty, like other optional fields. The sync replaces the whole dynamic zone, so nothing stale survives.
+  - Blocks label their `<section>` by the heading, or the subheading when there is no heading (`blockIntroLabel`).
+- **Run `pnpm sync:mdx` right after this merges.** Until it runs, Strapi still holds the unfolded Paragraphs and the legacy titles. An editor save on one of those pages would export the old shape and undo the migration.
+- **22 fake intros are left for editors.** They have formatted headings, content before the heading, or lists. List them with `cd cms && pnpm exec tsx scripts/migrate-block-intro.ts --dry-run`.
+- **Content follow-up:** `events.mdx` (EN and ES) has a Paragraph ending on "Upcoming Events" right before a CardGrid whose own heading is "October". It now reads as two separate headings, a full section apart.
+- **Admin:** component layouts in `cms/src/index.ts` replace Strapi's generated layout. Every block that gains `intro` must be added there too.
+
+**Phase 2a status (2026-10-19).** The intro is on Image, Video, PDF, Quote, Blockquote, Event card, Logo carousel, Profile grid and CTA buttons.
+
+- **`IntroBlockFrame`** (`shared/IntroBlockFrame.astro`) wraps blocks whose content is a reusable component, so that component stays usable without block spacing. The MDX maps point `Blockquote`, `VideoEmbed` and `PdfEmbed` at the block components.
+- **Blog posts use the framed blocks like every page** (D3, revised 2026-10-22; the first pass kept them unframed). `blog.css` drops its figure and video bottom margins inside a frame, where the frame's padding is the gap.
+- **Logo carousel:**
+  - `standalone` keeps the homepage version as built.
+  - As a content block it has no side padding of its own, so its intro and logos line up with the other blocks (designer, 2026-10-19).
+  - A legacy element after a mid-page carousel reads the default `--block-pb`, not the carousel's 40, so it sits a little too low. No page has one yet.
+- **CTA buttons:**
+  - Self-spaced only when they have an intro. Without one they keep the tight pairing with the paragraph above (`OWNS_ITS_SPACING`), and the preview is approximate for one with an intro.
+  - A heading-only intro drops the buttons' top padding, so the H2 spacer alone is the gap (designer, 2026-10-19).
+- **Pre-existing gaps, not from this work:**
+  - `FundraisingPage` maps none of these blocks, though its schema allows them.
+  - The root `page-preview.astro` doesn't populate image, video or PDF media.
+
+**Phase 2b status (2026-10-20).** D6 and D7 agreed. CTA strip, Split layout and the grant FAQ section are done.
+
+- **CTA strip:** `heading` is the CTA strip title, always inside the strip, and an optional intro sits above it (corrected 2026-10-21; the first pass had moved the heading into the intro). Template strips (grant, grant overview, podcast, blog listing) pass `standalone` and have no intro.
+- **Split layout:**
+  - `intro` and `buttons` (shared with CtaButtons: `ctaButtonsProp.ts`, `serializeCtaButtonEntries`).
+  - The `3:2` ratio carries the design. Existing content has no `displayRatio`, so it stays 2:1 and keeps its look. Stacked, the text always comes first.
+  - The draft preview now maps `media`, `content` and `cta`.
+- **Split layout admin form:** the type picker doesn't hide `intro` or `buttons` per layout. It clears `buttons` when switching to a quote layout.
+- **Grant FAQ section:** `pb-0` until Phase 2c teaches the grant template's page stack about self-spaced sections.
+- **Migration:** 6 Split layout CTAs became button groups. CTA strip titles stay as they are.
+- **Split layout spacing:** owns its spacing only with an intro or the 3:2 ratio (`CONDITIONALLY_SELF_SPACED`). Existing 2:1, 1:1 and 1:2 blocks without an intro keep the section rhythm.
+- **Behaviour that follows the design (check at review):**
+  - Migrated Split layout CTAs render through the button group: an internal primary gets the arrow, and buttons are full width on mobile (B2).
+  - Below desktop, the Split layout intro keeps its description spacer (24 / 32) before the buttons' 24, as the designer confirmed (E-Q16).
+  - The grant FAQ section's subtitle and description now use the intro styles (H3 size, body text).
+  - A Split layout with an intro as the first block under the hero sits 40 below it on desktop (split variant: no top spacer).
+- **Admin:** the CTA strip `heading` is labelled "CTA strip title". The intro is a component field, so Strapi shows no hint for it; it is unused on grant, grant overview and podcast pages.
+
+### Phase 2: Remaining blocks
+
+Same recipe as Phase 1. Blocks that are already built only gain the intro and the block spacing ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). The listed structural changes follow the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
+
+| Block                              | Variant      | Today                                           | Notes                                                                                                                                                                                                                                                                                                                                                                                                |
+| ---------------------------------- | ------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ImageBlock, VideoEmbed             | universal    | none                                            | [B3](../decisions/009-block-intro-and-block-owned-spacing.md#b3-image--video-embed-543142614): media stays as built                                                                                                                                                                                                                                                                                  |
+| PdfEmbed                           | universal    | none                                            | [B8](../decisions/009-block-intro-and-block-owned-spacing.md#b8-pdf-embed-546866900): no design; responsive frame and content                                                                                                                                                                                                                                                                        |
+| Quote                              | universal    | none                                            | [B6](../decisions/009-block-intro-and-block-owned-spacing.md#b6-quote-546666281-and-blockquote-546766429): stays as built; drop `my-2xl` so the block spacing applies                                                                                                                                                                                                                                |
+| Blockquote                         | universal    | none                                            | [B6](../decisions/009-block-intro-and-block-owned-spacing.md#b6-quote-546666281-and-blockquote-546766429), [D8](../decisions/009-block-intro-and-block-owned-spacing.md#decision): stays as built, `source` kept; Quote's padding rules                                                                                                                                                              |
+| EventCard                          | universal    | `title`                                         | [B13](../decisions/009-block-intro-and-block-owned-spacing.md#b13-event-card-547473345): stays as built; intro and block spacing only                                                                                                                                                                                                                                                                |
+| LogoCarousel                       | universal    | `heading`                                       | [B12](../decisions/009-block-intro-and-block-owned-spacing.md#b12-logo-carousel-547471790): stays as built; heading → left-aligned H2 intro; block pb 40 on every device; drop `fixTrailingMainPadding` if the block padding replaces it                                                                                                                                                             |
+| CtaStrip                           | universal    | `heading` + description                         | [B14](../decisions/009-block-intro-and-block-owned-spacing.md#b14-cta-strip-547473965), [D6](../decisions/009-block-intro-and-block-owned-spacing.md#decision): heading → intro; strip stays as built                                                                                                                                                                                                |
+| CtaButtons                         | button-cta   | none                                            | [B2](../decisions/009-block-intro-and-block-owned-spacing.md#b2-cta-buttons-543261858-button-cta-intro): buttons stay as built; button group pt 24 / 24 / 32; replaces `OWNS_ITS_SPACING` and the three CTA-pair hacks                                                                                                                                                                               |
+| ProfileGrid                        | universal    | `heading`                                       | [B7](../decisions/009-block-intro-and-block-owned-spacing.md#b7-profile-grid-546465604): grid and cards stay as built; drop the tagline `mb-xl`                                                                                                                                                                                                                                                      |
+| SplitLayout                        | split-layout | none                                            | [B5](../decisions/009-block-intro-and-block-owned-spacing.md#b5-split-layout-544163402-split-layout-intro), [D7](../decisions/009-block-intro-and-block-owned-spacing.md#decision): columns 60 / 40 (flipped for FAQ accordions), gap 120; media 4:3, radius 24; intro → buttons → media; media padding only with a CTA; button group; new FAQ option in the second column; fix the preview prop gap |
+| Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): intro only; day heading and items unchanged; agenda styles stay as built                                                                                                                                                                  |
+| InfoCards (grant), GrantFaqSection | universal    | `heading`; `title` + `subtitle` + `description` | single fields                                                                                                                                                                                                                                                                                                                                                                                        |
+| Title Cards (podcast)              | universal    | trailing `## Heading` in `textSection`          | Give the podcast title card grid its own `intro` (schema, export, sync, migration out of `textSection`). Then `PodcastPage` reads it instead of `splitTrailingHeading`, which is transitional and goes in Phase 4.                                                                                                                                                                                   |
+
+Not in Figma, so left alone: DonationCards, InternalAdvert, CodeBlock, CalloutText, ReportSection, HackathonAnimation, CtaLink.
+
+### Phase 3: Paragraph block (A3–A5)
+
+Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)–[A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list). CSS only, in `src/styles/components/prose/paragraph-block.css`, scoped to `[data-component='Paragraph']`:
+
+1. Zero the `default.css` bottom margins inside the block, and apply the [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)/[A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values as padding.
+2. H3 and H4 inside the block use the header weight, SemiBold 600 ([A0](../decisions/009-block-intro-and-block-owned-spacing.md#a0-tokens)).
+3. Sibling selectors:
+   - When the block is the first child of the prose container, its first element gets the "first" padding-top. A heading (`> :is(h2,h3,h4):first-child`) gets **60 / 80 / 120** ([A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)). A paragraph (`> p:first-child`) gets **20 / 40 / 60** ([A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body), designer, 2026-10-21). Otherwise the "not first" values apply.
+   - `h2 + p`, `h3 + p`, `h4 + p`, `p + p` get the [A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values.
+   - Media + p gets the "Image, table or list on top" padding-top (32 / 40 / 60). Media has no padding-bottom, so that padding is the whole gap.
+4. Media wrappers `> :is(ul, ol, figure, .table-wrapper, p:has(> img:only-child))` get `padding-block-start: var(--media-pt)` and no padding-bottom. Marked wraps a lone image in a `<p>`.
+5. Images, tables and lists stay as built ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)); only their padding-top is new.
+6. Block pb `var(--block-pb)`.
+7. Delete the `rhythm.css` h2 and fake-intro rules once no content relies on them.
+8. Check that the summit and hackathon `[&>h2]` overrides don't conflict.
+9. Blog posts are in scope ([D3](../decisions/009-block-intro-and-block-owned-spacing.md#decision)): their Paragraph blocks get the same rules under `[data-prose-blog]`. Zero the `blog.css` margins inside the block the same way, and check a post on its narrow column.
+10. Update `src/styles/README.md` and the comment at the top of `rhythm.css`.
+
+**Phase 2c status (2026-10-22, Agenda revised 2026-10-26).** The Agenda intro, the grant InfoCards intro, the podcast Title Cards intro and page-stack self-spacing are done.
+
+- **Agenda:** an optional intro above the existing day heading and items (D5, revised 2026-10-26 after Anca's #812 review: the first version's dated `days` could not hold a range like "Nov 13–17"). The day heading is `h3` under an intro heading and `h2` without one, in the Figma day heading style. Consecutive Agenda blocks sit 60 apart as the days of one schedule. The holiday contest agenda got a real intro in place of its markdown heading.
+- **InfoCards:** its `heading` field becomes the intro heading in the component. No schema change, as there is nothing else to put in an intro.
+- **Podcast Title Cards:** `titleCards.intro` (schema, export, sync, content). The heading moved out of `textSection`, and `splitTrailingHeading` is gone (done here rather than in Phase 4).
+- **Page stack** (`utilities/spacing.css`): a section holding a self-spaced block, directly or as the first block of its prose, gets the same transitional maths as `rhythm.css`. The grant FAQ section dropped its `pb-0` and zeroed spacers. Its accordion column now offsets by the intro's top spacing on desktop, so the first question stays 16px below the heading text.
+- **Behaviour that follows the design (check at review):** the grant FAQ section sits 80 below the section above on desktop (was 120): the Split layout variant has no top spacer there (A1).
+- **Deploy:** run `sync:mdx` right after merging. Saving the podcast page or the holiday contest page in Strapi before that exports the pre-migration shape back over the MDX.
+- **Blind spot:** a section whose prose _ends_ on a self-spaced block still ends like a legacy one, because `rhythm.css` drops that block's padding at the end of the prose. That holds the 120 today; revisit when the transitional rules go.
+
+**Phase 3 status (2026-10-22).** The Paragraph block spacing (A3–A5) is done, on every template with blog posts included.
+
+- **How:** `Paragraph.astro` sets `data-intro-variant="paragraph"`, so the block gets `--block-pb` and the transitional rules treat it as self-spaced. `prose/paragraph-block.css` zeroes the prose margins inside it and pads headings, paragraphs and media with the `--para-*` tokens.
+- **"First" top (A3):** only where content starts under the hero, through `--para-lead-pt`: page-stack templates (`utilities/spacing.css`), hackathon and summit content sections, and the first block after a blog post header. Anywhere else a Paragraph opening on a heading takes "not first" and the block above supplies the rest.
+- **Profiles follow the blog rules** (D3, revised 2026-11-04; the first pass kept them on the old rhythm). Both are narrow pages ([Narrow pages](../decisions/009-block-intro-and-block-owned-spacing.md#narrow-pages-blog-posts-and-profiles)).
+  - Every Paragraph renders with the marker, so the `legacySpacing` path is gone, and with it the `rhythm.css` rules for an unmarked Paragraph.
+  - `ProfileDetailPage`: a biography right after the header takes the "first" top, and the header drops its margin. The description stays in the header, 24 below the role. A `---` inside a Paragraph sits like Figma's divider between blocks.
+  - A biography written as plain Markdown (13 of 30 profiles) keeps the profile's own heading and divider margins.
+- **Kept, transitional:** the CTA pairing (CtaButtons without an intro, CtaLink) and the fake-intro rule for a Paragraph that ends on a heading before a legacy block (two blog posts with a CodeBlock; `events.mdx` before its CardGrid).
+- **Behaviour that follows the design (check at review):**
+  - p → p is 48 on desktop (was 32), H2 → p 64, and a list or table after a sentence sits 60 below it (A5).
+  - Between two Paragraph blocks: the last paragraph's 16 + block 40 + H2 80, as Figma draws it.
+  - A Paragraph that opens on an H3 after another block sits 40 + 40 below it, H3's "not first".
+  - Blog posts and profiles space their Paragraph blocks like pages; the narrow-page values are a follow-up ([E-Q20](../decisions/009-block-intro-and-block-owned-spacing.md#still-open)).
+  - On a profile, a biography opening on a paragraph sits that paragraph's lead top below the divider: 92 on desktop, was 32.
+- **Hero-less H1** (`FoundationContentPage`): no bottom margin. Beside a legacy first block it collapsed into the section gap anyway; beside a self-spaced one it stacked on the block's top.
+- **Preview:** CTA pairing is mirrored for DynamicZone's wrappers, CtaLink after a Paragraph included. The top of the preview is still approximate: the preview pages keep their own top padding.
+
+### Phase 4: Cleanup
+
+Scope decision (2026-11-04): remove the legacy fields and their fallbacks, but keep the spacing rules that join self-spaced blocks to everything else. Plain Markdown and the blocks without the marker (such as CodeBlock, CalloutText, Timeline, DonationCards, CTA buttons without an intro, or a Split layout in an older ratio without one) don't own their spacing, so those rules are a permanent bridge, not a transition ([ADR-009](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
+
+**Phase 4 status (2026-11-05).** Done, in two PRs.
+
+- **CMS and sync** (#854): removed card grid, number tiles and event card `title`, faq, carousel and profile grid `heading`, and the split layout `cta`, with their serializer and sync-handler fallbacks, admin labels and layout rows, and the preview populate keys. The Split layout picker hides the button group outside text layouts. Agenda keeps its `heading`: it is the day heading, not a legacy field.
+- **Astro:** the components drop the legacy props and `resolveBlockIntro`. InfoCards normalizes its own `heading` field, and the homepage LogoCarousel keeps its standalone `heading`.
+- **Tokens:** `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`.
+- **Bridge rules:** the comments in `prose/rhythm.css`, `utilities/spacing.css` and `prose/paragraph-block.css` now describe them as permanent. ADR-009 moves to Accepted.
+- **`CLAUDE.md`:** new "Block Intro and Spacing" section.
+- **Kept:** `cms/scripts/migrate-block-intro.ts` stays, so content brought in from an old branch or a hand edit can still be rewritten. The sync rejects a legacy attribute (`cms/scripts/sync-mdx/retiredProps.ts`) rather than dropping it, and `cms/scripts/contentLegacyBlockAttrs.test.ts` catches one on the PR that adds it (`findLegacyBlockAttrs`), inline and nested blocks included, along with the cases the script leaves for a hand fix. The script leaves a standalone LogoCarousel's `heading` alone, because moving it into an intro would hide it, but the check still reports it: the sync has no `standalone` field.
+
+### Phase 5: Figma improvements (after Phase 4)
+
+Design updates found on the Spacing Consistency board ([`5474:74250`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-74250)) after the ADR was written. They change values, not structure, so they wait until the cleanup is done. Update the ADR together with each one.
+
+- **Narrow pages** ([E-Q20](../decisions/009-block-intro-and-block-owned-spacing.md#still-open)): blog posts and profiles get their own Paragraph values. Desktop is drawn: heading 80 / 16, text 24 below a heading and 16 below itself, image 60 below a heading, block bottom padding 40. Tablet and mobile are not drawn yet. Scope it to `.max-w-narrow` (the heading sizes there are already one size down, in `reset.css`).
+- **H2 / H3 values (A3):** H2 40 / 60 / 80 at the top of the content and 32 / 40 / 60 elsewhere; H3 40 / 60 / 80 at the top. This replaces `--para-first-pt` (60 / 80 / 120) and the current H2 values.
+- **FAQ split (B5):** the columns stay 40 / 60. The accordion gets a top padding of 40 and gaps of 24 / 16 / 16, and its first question lines up with the top of the section instead of 16 below the heading text (`GrantFaqSection.astro`).
+- **Profile divider:** Figma has no divider between the description and button and the biography (`ProfileDetailPage.astro`).
+- **Ask design first:**
+  - Narrow-page values for tablet and mobile.
+  - A Paragraph at the top of the content: 60 / 80 / 120 or 20 / 40 / 60?
+  - Does the blog title take the "first" top?
+  - The accordion's top padding when the FAQ split is stacked (tablet and mobile).
+
+---
+
+## Verification
+
+- **Tests:** `pnpm test` (`src` suite) and `cd cms && pnpm test` (`cms` suite), plus `test:coverage` in both.
+- **New tests per phase:** intro serializer, sync handler, round-trip, BlockIntro rendering and migration scripts.
+- **Content checks:**
+  - `cd cms && pnpm run check:mdx-filenames`
+  - migration `--dry-run` reports
+  - `sync:mdx` against a dev Strapi, then confirm the intro fields in the Content Manager
+- **Build:** `IMAGE_CDN=on pnpm run build`, with no new image-audit or link-validator findings, and no duplicate `<h2>`.
+- **Visual:** `pnpm dev` at 375 / 810 / 1440. Measure the gaps against the ADR's [global](../decisions/009-block-intro-and-block-owned-spacing.md#a-global-spec) and [per-block](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec) specs on:
+  - `/our-grantmaking` (fake intro)
+  - an FAQ page
+  - a NumberTiles page
+  - the hackathon timetable (Agenda)
+  - a Paragraph-heavy foundation page
+
+  Also check `/page-preview`.
+
+- **Accessibility:**
+  - Heading order: page H1 → block H2 → H3 (Agenda day).
+  - `aria-labelledby` resolves to the right heading.
+  - Focus is visible on FAQ toggles and buttons.
+  - The carousel respects `prefers-reduced-motion`.
+  - The layout holds at 200% zoom.

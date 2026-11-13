@@ -1097,7 +1097,7 @@ describe('buildGrantPagePayload', () => {
         pathSlug: 'education/on-campus',
         frontmatter: baseGrantFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com"}]}>\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantPagePayload(
@@ -1114,7 +1114,9 @@ describe('buildGrantPagePayload', () => {
           displayRatio: '2:1',
           media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
-          cta: { text: 'Apply', link: 'https://example.com' }
+          buttons: [
+            { text: 'Apply', link: 'https://example.com', style: 'primary' }
+          ]
         }
       ])
     })
@@ -2011,7 +2013,7 @@ describe('buildGrantOverviewPagePayload', () => {
         pathSlug: 'digital-finance',
         frontmatter: baseGrantOverviewFrontmatter,
         content:
-          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" ctaText="Apply" ctaLink="https://example.com">\n\nSome body copy.\n\n</SplitLayout>'
+          '<SplitLayout imageSrc="/img/foo.jpg" imagePosition="left" buttons={[{"text":"Apply","link":"https://example.com"}]}>\n\nSome body copy.\n\n</SplitLayout>'
       })
 
       const payload = await buildGrantOverviewPagePayload(
@@ -2033,7 +2035,9 @@ describe('buildGrantOverviewPagePayload', () => {
           displayRatio: '2:1',
           media: { image: 42, alternativeText: null },
           content: 'Some body copy.',
-          cta: { text: 'Apply', link: 'https://example.com' }
+          buttons: [
+            { text: 'Apply', link: 'https://example.com', style: 'primary' }
+          ]
         }
       ])
     })
@@ -2667,6 +2671,41 @@ describe('buildPodcastPagePayload', () => {
       mdx
     )
     expect((payload as Record<string, unknown>).textSection).toBeNull()
+  })
+
+  it('sends the title cards intro, and null when the MDX has none', async () => {
+    const withIntro = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      createMdxFile({
+        pathSlug: 'podcast',
+        frontmatter: {
+          ...basePodcastPageFrontmatter,
+          titleCards: {
+            ...basePodcastPageFrontmatter.titleCards,
+            intro: { heading: 'Explore our Featured Series' }
+          }
+        }
+      })
+    )
+    const without = await buildPodcastPagePayload(
+      podcastPageFrontmatterSchema,
+      createMdxFile({
+        pathSlug: 'podcast',
+        frontmatter: basePodcastPageFrontmatter
+      })
+    )
+
+    const introOf = (payload: unknown) =>
+      (
+        (payload as Record<string, unknown>).titleCards as Record<
+          string,
+          unknown
+        >
+      ).intro
+    expect(introOf(withIntro)).toEqual({
+      heading: 'Explore our Featured Series'
+    })
+    expect(introOf(without)).toBeNull()
   })
 
   it('sends purple when the ctaStrip does not set a colour', async () => {
@@ -3312,17 +3351,110 @@ describe('buildProfilePayload', () => {
 })
 
 describe('buildBlogPayload', () => {
+  const baseFeatureImage = '/uploads/img/base-feature.jpg'
   const baseBlogFrontmatter = {
     title: 'Test post',
     description: 'A test description',
     date: '2026-06-10',
     locale: 'en',
-    relatedArticles: ['one', 'two', 'three']
+    featureImage: baseFeatureImage,
+    relatedArticles: ['/blog/one/', '/blog/two/', '/blog/three/']
   }
+  const blogFrontmatterWithoutFeatureImage: Record<string, unknown> = {
+    ...baseBlogFrontmatter
+  }
+  delete blogFrontmatterWithoutFeatureImage.featureImage
+
+  // Non-legacy posts need a feature image, so every upload context here
+  // resolves the base one.
+  const createBlogUploadContext = (uploads: Record<string, number> = {}) =>
+    createMockStrapiUploadContext({ [baseFeatureImage]: 1, ...uploads })
+
+  describe('relatedArticles', () => {
+    const payloadFor = (relatedArticles: string[]) =>
+      buildBlogPayload(
+        foundationBlogFrontmatterSchema,
+        createMdxFile({
+          pathSlug: 'test-post',
+          frontmatter: { ...baseBlogFrontmatter, relatedArticles }
+        }),
+        createBlogUploadContext().strapiUploadContext
+      )
+
+    it('stores the /blog/{slug}/ path, adding a missing trailing slash', async () => {
+      const payload = await payloadFor([
+        '/blog/one/',
+        '/blog/two',
+        '/blog/Interledger-Universe/'
+      ])
+
+      expect((payload as Record<string, unknown>).relatedArticles).toEqual([
+        { slug: '/blog/one/' },
+        { slug: '/blog/two/' },
+        { slug: '/blog/interledger-universe/' }
+      ])
+    })
+
+    // INTORG-1346: a bare slug or another section matches no post.
+    it('rejects a bare slug, a grant path, and a pasted URL', async () => {
+      const payload = await payloadFor([
+        '/grant/eoi-call-for-papers-reviewer/',
+        'two',
+        '/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/'
+      ])
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toBe(
+        [
+          'relatedArticles[0] "/grant/eoi-call-for-papers-reviewer/": should be a blog path, like /blog/my-post/.',
+          'relatedArticles[1] "two": should be a blog path, like /blog/two/.',
+          'relatedArticles[2] "/https://interledger.org/blog/taxes-on-digital-financial-services-in-africa/": should be a blog path, like /blog/taxes-on-digital-financial-services-in-africa/.'
+        ].join('; ')
+      )
+    })
+
+    it('rejects a one-segment grant slug', async () => {
+      const payload = await payloadFor([
+        '/eoi-call-for-papers-reviewer/',
+        '/grant-slug',
+        '/blog/one/'
+      ])
+
+      expect(payload).toBeInstanceOf(Error)
+      expect((payload as Error).message).toBe(
+        [
+          'relatedArticles[0] "/eoi-call-for-papers-reviewer/": should be a blog path, like /blog/eoi-call-for-papers-reviewer/.',
+          'relatedArticles[1] "/grant-slug": should be a blog path, like /blog/grant-slug/.'
+        ].join('; ')
+      )
+    })
+
+    // Same split as featureImage: the build skips the card, the sync rejects.
+    it('leaves a bad related slug parseable by the shared schema', () => {
+      const parsed = foundationBlogFrontmatterSchema.safeParse({
+        ...baseBlogFrontmatter,
+        pathSlug: 'test-post',
+        relatedArticles: [
+          '/grant/eoi-call-for-papers-reviewer/',
+          '/grant-slug',
+          '/blog/one/'
+        ]
+      })
+
+      expect(parsed.success).toBe(true)
+      if (parsed.success) {
+        expect(parsed.data.relatedArticles).toEqual([
+          'grant/eoi-call-for-papers-reviewer',
+          'grant-slug',
+          'one'
+        ])
+      }
+    })
+  })
 
   describe('featureMedia / thumbnailMedia', () => {
     it('resolves featureImage and featureImageAlt into featureMedia', async () => {
-      const { strapiUploadContext } = createMockStrapiUploadContext({
+      const { strapiUploadContext } = createBlogUploadContext({
         '/uploads/img/feature.jpg': 42
       })
       const mdx = createMdxFile({
@@ -3347,7 +3479,7 @@ describe('buildBlogPayload', () => {
     })
 
     it('patches featureImageMobile upload alt from featureImageMobileAlt', async () => {
-      const { strapiUploadContext } = createMockStrapiUploadContext({
+      const { strapiUploadContext } = createBlogUploadContext({
         '/uploads/img/feature-mobile.jpg': 99
       })
       const mdx = createMdxFile({
@@ -3372,31 +3504,54 @@ describe('buildBlogPayload', () => {
       )
     })
 
-    it('omits featureMedia when featureImage is absent, since Strapi requires the field and rejects null', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext()
-      const mdx = createMdxFile({
-        pathSlug: 'test-post',
-        frontmatter: baseBlogFrontmatter
-      })
+    it.each([
+      ['missing', {}],
+      ['empty', { featureImage: '' }],
+      ['whitespace', { featureImage: '   ' }]
+    ])(
+      'rejects a non-legacy post whose featureImage is %s',
+      async (_case, featureImageField) => {
+        const { strapiUploadContext } = createBlogUploadContext()
+        const mdx = createMdxFile({
+          pathSlug: 'test-post',
+          frontmatter: {
+            ...blogFrontmatterWithoutFeatureImage,
+            ...featureImageField
+          }
+        })
 
-      const payload = await buildBlogPayload(
-        foundationBlogFrontmatterSchema,
-        mdx,
-        strapiUploadContext,
-        updatedAltIds
-      )
+        const payload = await buildBlogPayload(
+          foundationBlogFrontmatterSchema,
+          mdx,
+          strapiUploadContext
+        )
 
-      expect(payload).not.toHaveProperty('featureMedia')
+        expect(payload).toBeInstanceOf(Error)
+        // The sync prefixes the entry, e.g. "Error processing test-post (en): …"
+        expect((payload as Error).message).toBe(
+          'featureImage is required (only legacy posts may omit it)'
+        )
+      }
+    )
+
+    // The shared schema is also the Astro collection schema, and a post
+    // without an image must not stop the build: only the sync rejects it.
+    it('leaves featureImage optional in the shared schema', () => {
+      expect(
+        foundationBlogFrontmatterSchema.safeParse({
+          ...blogFrontmatterWithoutFeatureImage,
+          pathSlug: 'test-post'
+        }).success
+      ).toBe(true)
     })
 
     it('falls back to the tech-thumbnail image when a legacy post has no featureImage', async () => {
-      const { strapiUploadContext } = createMockStrapiUploadContext({
+      const { strapiUploadContext } = createBlogUploadContext({
         '/img/tech-thumbnail.svg': 7
       })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
-        frontmatter: { ...baseBlogFrontmatter, legacy: true }
+        frontmatter: { ...blogFrontmatterWithoutFeatureImage, legacy: true }
       })
 
       const payload = await buildBlogPayload(
@@ -3412,12 +3567,16 @@ describe('buildBlogPayload', () => {
     })
 
     it('falls back to the tech-thumbnail image when a legacy post has an empty-string featureImage', async () => {
-      const { strapiUploadContext } = createMockStrapiUploadContext({
+      const { strapiUploadContext } = createBlogUploadContext({
         '/img/tech-thumbnail.svg': 7
       })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
-        frontmatter: { ...baseBlogFrontmatter, legacy: true, featureImage: '' }
+        frontmatter: {
+          ...blogFrontmatterWithoutFeatureImage,
+          legacy: true,
+          featureImage: ''
+        }
       })
 
       const payload = await buildBlogPayload(
@@ -3433,10 +3592,9 @@ describe('buildBlogPayload', () => {
     })
 
     it('resolves thumbnailImage and thumbnailImageAlt into thumbnailMedia', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext({
-          '/uploads/img/thumb.jpg': 84
-        })
+      const { strapiUploadContext, updatedAltIds } = createBlogUploadContext({
+        '/uploads/img/thumb.jpg': 84
+      })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {
@@ -3460,8 +3618,7 @@ describe('buildBlogPayload', () => {
     })
 
     it('sets thumbnailMedia to null when thumbnailImage is absent, clearing any existing Strapi value', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext()
+      const { strapiUploadContext, updatedAltIds } = createBlogUploadContext()
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: baseBlogFrontmatter
@@ -3481,10 +3638,9 @@ describe('buildBlogPayload', () => {
 
   describe('articleBio media', () => {
     it('resolves bio.image and bio.imageAlt into media', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext({
-          '/uploads/img/jane.jpg': 7
-        })
+      const { strapiUploadContext, updatedAltIds } = createBlogUploadContext({
+        '/uploads/img/jane.jpg': 7
+      })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {
@@ -3517,10 +3673,9 @@ describe('buildBlogPayload', () => {
     })
 
     it('stores null alternativeText when bio imageAlt is absent so author fallback works', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext({
-          '/uploads/img/jane.jpg': 7
-        })
+      const { strapiUploadContext, updatedAltIds } = createBlogUploadContext({
+        '/uploads/img/jane.jpg': 7
+      })
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {
@@ -3552,8 +3707,7 @@ describe('buildBlogPayload', () => {
     })
 
     it('sets media to null when the bio has no image', async () => {
-      const { strapiUploadContext, updatedAltIds } =
-        createMockStrapiUploadContext()
+      const { strapiUploadContext, updatedAltIds } = createBlogUploadContext()
       const mdx = createMdxFile({
         pathSlug: 'test-post',
         frontmatter: {

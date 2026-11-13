@@ -38,7 +38,9 @@ import {
   tryCatchAsync,
   getProjectRoot,
   validateLocalImageUrl,
-  ctaStripColorPayload
+  ctaStripColorPayload,
+  relatedArticleSlugError,
+  toSlashedSlug
 } from '@/utils'
 import {
   formatCardGridVariantList,
@@ -351,6 +353,7 @@ export async function buildPagePayload(
     const data: Record<string, unknown> = {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       publishedAt: new Date().toISOString()
     }
@@ -579,9 +582,7 @@ export async function buildProfilePayload(
     }
 
     const photoAltFrontmatter = mdx.frontmatter.photoAlt as
-      | string
-      | null
-      | undefined
+      string | null | undefined
     const media = photoId
       ? {
           image: photoId,
@@ -595,6 +596,7 @@ export async function buildProfilePayload(
     return {
       name: nullOrValue(mdx.frontmatter.name),
       pathSlug: mdx.pathSlug,
+      draft: mdx.frontmatter.draft === true,
       ...(mdx.frontmatter.section ? { section: mdx.frontmatter.section } : {}),
       ...(content !== undefined ? { content } : {}),
       ...(media ? { media } : {}),
@@ -719,6 +721,7 @@ export async function buildGrantPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero,
       programOverview: parsed.programOverview || null,
@@ -807,6 +810,7 @@ export async function buildGrantOverviewPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero,
       ctaStrip,
@@ -836,6 +840,7 @@ export async function buildFaqPayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
@@ -877,6 +882,8 @@ export async function buildPodcastPagePayload(
     )
 
     const titleCards = {
+      // null clears an intro the MDX no longer has.
+      intro: parsed.titleCards.intro ?? null,
       columns: parsed.titleCards.columns,
       ariaLabel: parsed.titleCards.ariaLabel,
       titleCards: parsed.titleCards.cards
@@ -1032,6 +1039,7 @@ export async function buildReportPayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
@@ -1094,6 +1102,7 @@ export async function buildHackathonPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero: await buildHeroWithImage(
         parsed as Record<string, unknown>,
@@ -1133,6 +1142,30 @@ export async function buildBlogPayload(
       pathSlug: mdx.pathSlug
     })
 
+    // Blog listings and cards need a feature image (#805). The shared schema
+    // keeps it optional so a file without one doesn't stop the Astro build,
+    // so the sync is where such a post is rejected. Whitespace counts as empty.
+    if (!parsed.legacy && !parsed.featureImage?.trim()) {
+      // No slug prefix: the sync already logs the entry it was processing.
+      throw new Error(
+        'featureImage is required (only legacy posts may omit it)'
+      )
+    }
+
+    // The shared schema still parses a bad value so one post cannot fail the
+    // Astro build. Reject it here, against the frontmatter as written, and
+    // store the slashed /blog/{slug}/ form the field requires.
+    const rawRelated = Array.isArray(mdx.frontmatter.relatedArticles)
+      ? mdx.frontmatter.relatedArticles.map((slug) => String(slug))
+      : []
+    const slugErrors = rawRelated.flatMap((slug, index) => {
+      const message = relatedArticleSlugError(slug)
+      if (!message) return []
+      const reason = message.replace(/^Related Articles: /, '')
+      return [`relatedArticles[${index}] ${JSON.stringify(slug)}: ${reason}`]
+    })
+    if (slugErrors.length > 0) throw new Error(slugErrors.join('; '))
+
     const date = new Date(parsed.date || Date.now())
     const featureImage = await getImageFromStrapi(strapiUploadContext, {
       image:
@@ -1162,8 +1195,8 @@ export async function buildBlogPayload(
       categoryValue: category
     }))
 
-    const relatedArticles = (parsed.relatedArticles ?? []).map((slug) => ({
-      slug
+    const relatedArticles = rawRelated.map((slug) => ({
+      slug: toSlashedSlug(slug).toLowerCase()
     }))
 
     const articleBio = await buildAuthorBiosPayload(
@@ -1219,6 +1252,7 @@ export async function buildBlogPayload(
       title: parsed.title,
       description: parsed.description,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       date: date.toISOString().split('T')[0],
       ...(parsed.lastUpdated
         ? {
@@ -1228,10 +1262,14 @@ export async function buildBlogPayload(
           }
         : {}),
       featured: parsed.featured ?? false,
+      // featureMedia is required and Strapi rejects null. Every post reaching
+      // this line has a feature image (or the legacy fallback), so it is only
+      // null in a dry run whose image is on disk but not yet in Strapi:
+      // getImageFromStrapi returns null there instead of throwing. Leaving
+      // the key out keeps that dry run going.
       ...(featureMedia ? { featureMedia } : {}),
       featureImageMobile,
-      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it —
-      // unlike featureMedia above, which is required and would be rejected as null.
+      // thumbnailMedia is optional in the schema, so null is sent as-is to clear it.
       thumbnailMedia,
       articleBio,
       categories,

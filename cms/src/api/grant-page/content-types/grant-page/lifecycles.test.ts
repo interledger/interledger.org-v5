@@ -217,3 +217,55 @@ describe('generateGrantPageMDX', () => {
     )
   })
 })
+
+describe('generateGrantPageMDX — draft', () => {
+  it('writes draft: true when the box is checked', async () => {
+    const mdx = await generateGrantPageMDX(
+      {
+        ...{
+          id: 1,
+          documentId: 'grant-1',
+          title: 'On-Campus Grant',
+          pathSlug: 'education/on-campus',
+          description: 'Funding for campus programmes.',
+          locale: 'en',
+          ctaStrip: {
+            heading: 'Apply now',
+            description: 'Deadline approaching.',
+            primaryButtonText: 'Start application',
+            primaryButtonLink: 'https://example.com/apply'
+          }
+        },
+        draft: true
+      },
+      {}
+    )
+
+    expect(matter(mdx).data.draft).toBe(true)
+  })
+
+  it('clears a stale draft key once the box is unchecked', async () => {
+    const mdx = await generateGrantPageMDX(
+      {
+        ...{
+          id: 1,
+          documentId: 'grant-1',
+          title: 'On-Campus Grant',
+          pathSlug: 'education/on-campus',
+          description: 'Funding for campus programmes.',
+          locale: 'en',
+          ctaStrip: {
+            heading: 'Apply now',
+            description: 'Deadline approaching.',
+            primaryButtonText: 'Start application',
+            primaryButtonLink: 'https://example.com/apply'
+          }
+        },
+        draft: false
+      },
+      { draft: true }
+    )
+
+    expect(matter(mdx).data).not.toHaveProperty('draft')
+  })
+})

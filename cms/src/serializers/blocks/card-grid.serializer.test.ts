@@ -120,28 +120,18 @@ describe('card-grid serializer', () => {
     expect(result).toContain('secondButtonExternal={false}')
   })
 
-  it('serializes an optional title and omits it when blank', () => {
+  it('serializes the intro', () => {
     expect(
       serialize({
-        title: 'Why Participate?',
+        intro: { heading: 'Why Participate?', description: 'Three reasons.' },
         ariaLabel: 'Reasons to participate',
         variant: 'Info',
         columns: 'Three',
         cards: [infoCard]
       })
     ).toContain(
-      '<CardGrid title="Why Participate?" ariaLabel="Reasons to participate"'
+      '<CardGrid intro={{"heading":"Why Participate?","description":"Three reasons."}} ariaLabel="Reasons to participate"'
     )
-
-    expect(
-      serialize({
-        title: '   ',
-        ariaLabel: 'Info',
-        variant: 'Info',
-        columns: 'Three',
-        cards: [infoCard]
-      })
-    ).not.toContain('title="')
   })
 
   it('serializes Resource cards with document flag', () => {

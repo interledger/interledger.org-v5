@@ -16,6 +16,8 @@ import {
 } from './cardGrid'
 import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
+import { hasMediaValue, type MediaValue } from './mdx'
+import { relatedArticleSlugError } from './relatedArticleSlug'
 
 export interface FieldError {
   path: Array<string | number>
@@ -481,8 +483,7 @@ export function validateGrantInfoCards(
 
   for (const key of ['card1', 'card2', 'card3'] as const) {
     const card = (infoCards as Record<string, unknown>)[key] as
-      | Record<string, unknown>
-      | undefined
+      Record<string, unknown> | undefined
     if (!card || typeof card !== 'object') {
       fieldErrors.push({
         message: `Information Cards: ${key} is required`,
@@ -768,19 +769,51 @@ export function validateAuthorBio(
   )
 }
 
+/** The fields of a blog post write that the feature image check reads. */
+interface BlogFeatureImageFields {
+  featureMedia?: { image?: MediaValue } | null
+  legacy?: boolean | null
+}
+
 /**
- * Validate a blog post's Related Articles component (Article Bio itself is
- * validated via {@link validateAuthorBio}). `relatedArticles` is `required`
- * with `min`/`max` of 3 in the content-type schema, so Strapi enforces the
- * count on create; this fills the same partial-update gap as the other
- * validators here (see `validateFaqSections` for the same pattern).
+ * Require the desktop feature image on every blog post except legacy ones, as
+ * defense in depth (#805). The admin form already blocks a save without one,
+ * but `featureMedia` and its `image` are only `required` in the schemas, and
+ * Strapi's server enforces just the component: an API write whose
+ * `featureMedia` has no `image` is saved on create and update alike.
+ *
+ * Legacy posts are the migrated developer blog posts, which have no feature
+ * image. The admin never sends `legacy` (the field is hidden), but those posts
+ * already carry the fallback image the MDX sync gives them, so they pass. An
+ * API write with `legacy: true` skips the check on purpose: that is how the
+ * sync writes migrated posts, and editors can't set the field.
+ */
+function validateBlogFeatureImage(post: BlogFeatureImageFields): FieldError[] {
+  if (post.legacy === true) return []
+  if (hasMediaValue(post.featureMedia?.image)) return []
+  return [
+    {
+      message: 'Feature Image (Desktop): Image is required',
+      path: post.featureMedia ? ['featureMedia', 'image'] : ['featureMedia']
+    }
+  ]
+}
+
+/**
+ * Validate a blog post's feature image and Related Articles component (Article
+ * Bio itself is validated via {@link validateAuthorBio}). `relatedArticles` is
+ * `required` with `min`/`max` of 3 in the content-type schema, so Strapi
+ * enforces the count on create; this fills the same partial-update gap as the
+ * other validators here (see `validateFaqSections` for the same pattern).
  *
  * Returns a `ValidationError` combining every missing field found, `undefined` otherwise.
  */
-export function validateBlogFields(post: {
-  articleBio?: { author: string | null }[]
-  relatedArticles?: { slug: string }[]
-}): errors.ValidationError | undefined {
+export function validateBlogFields(
+  post: BlogFeatureImageFields & {
+    articleBio?: { author: string | null }[]
+    relatedArticles?: { slug: string }[]
+  }
+): errors.ValidationError | undefined {
   const fieldErrors: FieldError[] = []
   const related = post.relatedArticles
 
@@ -791,14 +824,13 @@ export function validateBlogFields(post: {
     })
   } else {
     for (const [i, item] of related.entries()) {
-      if (!item.slug) {
-        fieldErrors.push({
-          message: 'Related Articles: Slug is required',
-          path: ['relatedArticles', i, 'slug']
-        })
+      const message = relatedArticleSlugError(item.slug ?? '')
+      if (message) {
+        fieldErrors.push({ message, path: ['relatedArticles', i, 'slug'] })
       }
     }
   }
+  fieldErrors.push(...validateBlogFeatureImage(post))
 
   return mergeValidationErrors(
     validateAuthorBio(post, 'articleBio'),

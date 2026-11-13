@@ -7,6 +7,16 @@
   },
   "options": {},
   "attributes": {
+    "intro": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.block-intro",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "buttons": {
       "type": "component",
       "component": "shared.cta-button",

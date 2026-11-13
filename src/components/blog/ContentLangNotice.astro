@@ -19,15 +19,11 @@ const isViewingEnContent = contentLang === 'en'
   <p class="m-0 text-body-sm-emphasis">
     {t('blog.lang_filter.results', { totalEntries })}
   </p>
-  {
-    isViewingEsContent && (
-      <aside role="note">({t('blog.lang_filter.viewing_es_posts')})</aside>
-    )
-  }
+  {isViewingEsContent && <aside role="note">
+    ({t('blog.lang_filter.viewing_es_posts')})
+  </aside>}
 
-  {
-    isViewingEnContent && (
-      <aside role="note">({t('blog.lang_filter.viewing_en_posts')})</aside>
-    )
-  }
+  {isViewingEnContent && <aside role="note">
+    ({t('blog.lang_filter.viewing_en_posts')})
+  </aside>}
 </div>
