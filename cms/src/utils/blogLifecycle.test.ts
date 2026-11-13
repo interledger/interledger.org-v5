@@ -2,6 +2,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import matter from 'gray-matter'
+import { errors } from '@strapi/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createBlogLifecycle,
@@ -525,16 +526,32 @@ describe('createBlogLifecycle — slug and date changes', () => {
       'falls back to EN content after the save',
       () => (afterSave = { es: 'fallback' })
     ]
-  ])('stops the save when the ES version %s', async (_, failRead) => {
+  ])('stops the save when the ES version %s', async (situation, failRead) => {
     seedFile('en', '2025-06-11-test')
     seedFile('es', '2025-06-11-test')
     const before = listFiles()
     failRead()
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    await expect(save('en', { pathSlug: 'test-change-slug' })).rejects.toThrow(
-      'not saved'
-    )
+    try {
+      await save('en', { pathSlug: 'test-change-slug' })
+      expect.fail('save should have stopped')
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error)
+      const message = error instanceof Error ? error.message : String(error)
+      expect(message).toContain('could not read the es version')
+      expect(message).toContain(
+        'Try again. If it keeps failing, contact a developer.'
+      )
+      expect(message).not.toContain('db read failed')
+    }
 
+    if (situation.startsWith('cannot be read')) {
+      expect(logged).toHaveBeenCalledWith(
+        expect.stringContaining('db read failed')
+      )
+    }
+    logged.mockRestore()
     expect(listFiles()).toEqual(before)
   })
 
@@ -543,13 +560,16 @@ describe('createBlogLifecycle — slug and date changes', () => {
 
     await expect(
       save('en', { pathSlug: 'test-change-slug', articleBio: [{ author: '' }] })
-    ).rejects.toThrow('Author Bio')
+    ).rejects.toThrow(
+      'The English version could not be exported: Author Bio: Name is required'
+    )
 
     expect(fs.existsSync(oldEn)).toBe(true)
   })
 
   // EN is written first. Without the undo, the rolled-back save would leave
-  // the new EN file beside the old one.
+  // the new EN file beside the old one. The message names the Spanish post,
+  // which is the one with the bad author bio, not the English form on screen.
   it('removes the files it created when a later locale fails to write', async () => {
     seedFile('en', '2025-06-11-test')
     seedFile('es', '2025-06-11-test')
@@ -557,9 +577,44 @@ describe('createBlogLifecycle — slug and date changes', () => {
     posts.es = { ...posts.es, articleBio: [{ author: '' }] }
 
     await expect(save('en', { pathSlug: 'test-change-slug' })).rejects.toThrow(
-      'Author Bio'
+      'The Spanish version could not be exported: Author Bio: Name is required'
     )
 
+    expect(listFiles()).toEqual(before)
+  })
+
+  // A content-block failure arrives as a ValidationError with field paths.
+  // Naming the locale must not drop those, or the admin cannot highlight them.
+  it('keeps field errors when a later locale fails to export', async () => {
+    seedFile('en', '2025-06-11-test')
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    posts.es = {
+      ...posts.es,
+      content: [{ __component: 'blocks.paragraph', content: '' }]
+    }
+
+    const error = await save('en', { pathSlug: 'test-change-slug' }).then(
+      () => {
+        throw new Error('save should have stopped')
+      },
+      (caught: unknown) => caught
+    )
+
+    expect(error).toBeInstanceOf(errors.ValidationError)
+    expect(error).toMatchObject({
+      message:
+        'The Spanish version could not be exported: Paragraph block is missing content',
+      details: {
+        errors: [
+          {
+            path: ['content', '0'],
+            message: 'Paragraph block is missing content',
+            name: 'ValidationError'
+          }
+        ]
+      }
+    })
     expect(listFiles()).toEqual(before)
   })
 

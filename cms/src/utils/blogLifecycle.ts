@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { errors } from '@strapi/utils'
 import {
   shouldSkipMdxExport,
   getAdminAuthor,
@@ -163,7 +164,36 @@ function logFetchFailure(result: BlogResult | null | Error): BlogResult | null {
  */
 function abortedSaveError(reason: string): Error {
   return toValidationError(
-    new Error(`The blog post was not saved: ${reason}. Try again.`)
+    new Error(
+      `The blog post was not saved: ${reason}. Try again. If it keeps failing, contact a developer.`
+    )
+  )
+}
+
+/** Names an editor recognizes. An unknown code is left as the code. */
+const BLOG_VERSION_NAMES: Record<string, string> = {
+  en: 'English',
+  es: 'Spanish'
+}
+
+function blogVersionName(locale: string): string {
+  const code = locale.trim() || defaultLang
+  return BLOG_VERSION_NAMES[code] ?? code
+}
+
+/**
+ * An English save rewrites the Spanish file too. Name the version that
+ * failed, so the editor knows which entry to open. Field errors from
+ * `toValidationError` stay, so the admin can still highlight them.
+ */
+function blogExportError(
+  locale: string,
+  error: unknown
+): errors.ValidationError {
+  const validationError = toValidationError(error)
+  return new errors.ValidationError(
+    `The ${blogVersionName(locale)} version could not be exported: ${validationError.message}`,
+    validationError.details
   )
 }
 
@@ -452,7 +482,11 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
     const posts: PublishedBlogLocales = {}
     for (const locale of LOCALES) {
       const post = await fetchBlogPost(documentId, locale)
-      if (post instanceof Error) return post
+      if (post instanceof Error) {
+        // The editor is told the locale. The database text stays in the log.
+        console.error(`⚠️  ${post.message}`)
+        return new Error(`could not read the ${locale} version`)
+      }
       if (!post) continue
       const normalized = withNormalizedLocale(post)
       posts[normalized.locale] ??= normalized
@@ -493,7 +527,7 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         `⚠️  Failed to export ${post.locale} blog post for ${post.documentId}:`,
         error
       )
-      throw toValidationError(error)
+      throw blogExportError(post.locale, error)
     }
   }
 
@@ -569,7 +603,10 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       // Without every locale's current path, a rename cannot remove the old
       // files, so a failed read stops the save instead of leaving duplicates.
       const target = await resolveUpdateTarget(event, BLOG_UID)
-      if (target instanceof Error) throw abortedSaveError(target.message)
+      if (target instanceof Error) {
+        console.error(`⚠️  ${target.message}`)
+        throw abortedSaveError('could not read the post')
+      }
       if (!target) return
 
       // Every locale, not just the one being saved: an EN slug or date edit
