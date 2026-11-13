@@ -50,6 +50,7 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.pdf-embed',
   'blocks.profile-grid',
   'blocks.quote',
+  'blocks.timeline',
   'blocks.video-embed'
 ])
 
