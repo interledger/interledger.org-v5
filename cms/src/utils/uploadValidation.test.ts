@@ -94,7 +94,9 @@ describe('resolveDeletableUploadPath', () => {
       name: 'chart.svg'
     })
     expect(result).toBeInstanceOf(Error)
-    expect((result as Error).message).toContain('“chart.svg”')
+    expect((result as Error).message).toContain(
+      "“chart.svg” is a site image stored in the code repository, so it can't"
+    )
     expect((result as Error).message).toMatch(/can't be deleted or replaced/)
   })
 
@@ -114,11 +116,25 @@ describe('resolveDeletableUploadPath', () => {
     expect((result as Error).message).toContain('“/img/x.png”')
   })
 
-  it('refuses a sibling folder that only shares the prefix', () => {
-    const result = resolveDeletableUploadPath(uploadDir, {
-      url: '/uploads/img/original-backup/x.png'
-    })
-    expect(result).toBeInstanceOf(Error)
+  it('leaves the disk alone for a sibling folder that only shares the prefix', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/img/original-backup/x.png'
+      })
+    ).toBeNull()
+  })
+
+  // Staging still has rows from the old provider at /uploads/<file>, whose
+  // files were never in the repo. Deleting one removes just the row.
+  it('lets an old provider row go without touching the disk', () => {
+    expect(
+      resolveDeletableUploadPath(uploadDir, {
+        url: '/uploads/old_photo_abc.jpg',
+        hash: 'old_photo_abc',
+        ext: '.jpg',
+        name: 'old photo.jpg'
+      })
+    ).toBeNull()
   })
 
   it('refuses a url that escapes the uploads folder', () => {
@@ -171,6 +187,22 @@ describe('findUndeletableUploads', () => {
     ).toBeNull()
   })
 
+  it('passes a batch with an old provider row', () => {
+    expect(
+      findUndeletableUploads(uploadDir, [
+        { url: '/uploads/img/original/a.png' },
+        { url: '/uploads/old_photo_abc.jpg' }
+      ])
+    ).toBeNull()
+  })
+
+  it('reports an escaping path as itself, not as a site image', () => {
+    const result = findUndeletableUploads(uploadDir, [
+      { url: '/uploads/img/original/../../../etc/x.png' }
+    ])
+    expect(result?.message).toMatch(/escapes the uploads folder/)
+  })
+
   it('passes an empty batch', () => {
     expect(findUndeletableUploads(uploadDir, [])).toBeNull()
   })
@@ -182,7 +214,9 @@ describe('findUndeletableUploads', () => {
       { url: '/img/hero.avif', name: 'hero.avif' }
     ])
     expect(result).toBeInstanceOf(Error)
-    expect(result?.message).toContain('“logo.png”, “hero.avif” are site images')
+    expect(result?.message).toContain(
+      "“logo.png”, “hero.avif” are site images stored in the code repository, so they can't be deleted"
+    )
     expect(result?.message).not.toContain('a.png”')
   })
 })

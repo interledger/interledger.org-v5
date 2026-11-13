@@ -397,13 +397,14 @@ describe('overrideUploadProvider', () => {
         url: '/img/logo.png'
       })
     ).rejects.toThrow(/can't be deleted or replaced/)
-    // A ForbiddenError reaches the admin as a 403 carrying the message; a
-    // plain Error would be a 500 and the editor would never see why.
+    // Strapi's authorize middleware reduces any other ForbiddenError to a
+    // bare "Forbidden"; only a PolicyError keeps the message for the editor.
+    // A unit test can't see that layer, so this pins the type instead.
     await expect(
       (provider.delete as (f: object) => Promise<void>)({
         url: '/img/logo.png'
       })
-    ).rejects.toBeInstanceOf(errors.ForbiddenError)
+    ).rejects.toBeInstanceOf(errors.PolicyError)
     expect(fs.existsSync(repoImage)).toBe(true)
     expect(fs.existsSync(sameNameUpload)).toBe(true)
   })
@@ -465,9 +466,7 @@ describe('guardBatchUploadDeletes', () => {
   // let the uploads in the same batch be deleted.
   it('refuses a mixed bulk delete before removing anything', async () => {
     const { deleteFiles, strapiDeleteFiles } = guardWith([UPLOAD, REPO_IMAGE])
-    await expect(deleteFiles([1, 2])).rejects.toBeInstanceOf(
-      errors.ForbiddenError
-    )
+    await expect(deleteFiles([1, 2])).rejects.toBeInstanceOf(errors.PolicyError)
     expect(strapiDeleteFiles).not.toHaveBeenCalled()
   })
 
