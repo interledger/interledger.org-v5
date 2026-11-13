@@ -12,6 +12,9 @@ const LOCAL_IMAGE_PREFIXES = ['/img/', '/uploads/'] as const
 /** URL prefix of every file the upload provider writes: `PATHS.UPLOADS` as served. */
 export const UPLOAD_URL_PREFIX = `/${PATHS.UPLOADS.replace(/^public\//, '')}`
 
+/** URL prefix of `public/img`, the repo-owned images seeded into the Media Library. */
+export const REPO_IMAGE_URL_PREFIX = '/img'
+
 export interface DeletableUploadFile {
   url?: string | null
   hash?: string
@@ -23,10 +26,10 @@ function repoImageError(labels: string[]): Error {
   const names = labels.map((label) => `“${label}”`).join(', ')
   const subject =
     labels.length === 1
-      ? `${names} is a site image`
-      : `${names} are site images`
+      ? `${names} is a site image stored in the code repository, so it can't`
+      : `${names} are site images stored in the code repository, so they can't`
   return new Error(
-    `${subject} stored in the code repository, so it can't be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
+    `${subject} be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
   )
 }
 
@@ -61,9 +64,13 @@ export function resolveDeletableUploadPath(
       : null
   }
 
-  if (!file.url.startsWith(`${UPLOAD_URL_PREFIX}/`)) {
+  if (file.url.startsWith(`${REPO_IMAGE_URL_PREFIX}/`)) {
     return repoImageError([file.name || file.url])
   }
+  // Any other URL outside the uploads folder (rows left by the old provider at
+  // `/uploads/<file>`, whose files were never in the repo) has no file of ours
+  // to remove, so its row is deleted and the disk is left alone.
+  if (!file.url.startsWith(`${UPLOAD_URL_PREFIX}/`)) return null
   return resolveInside(root, file.url.slice(UPLOAD_URL_PREFIX.length + 1))
 }
 
@@ -80,7 +87,16 @@ export function findUndeletableUploads(
     (file) => resolveDeletableUploadPath(uploadDir, file) instanceof Error
   )
   if (refused.length === 0) return null
-  return repoImageError(refused.map((file) => file.name || file.url || '?'))
+
+  const repoImages = refused.filter((file) =>
+    file.url?.startsWith(`${REPO_IMAGE_URL_PREFIX}/`)
+  )
+  if (repoImages.length < refused.length) {
+    // A path escaping the uploads folder; report it as itself.
+    const [escaping] = refused.filter((file) => !repoImages.includes(file))
+    return resolveDeletableUploadPath(uploadDir, escaping) as Error
+  }
+  return repoImageError(repoImages.map((file) => file.name || file.url || '?'))
 }
 
 export function isLocalImagePath(url: string): boolean {

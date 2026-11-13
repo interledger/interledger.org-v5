@@ -44,6 +44,7 @@ export {
   findUndeletableUploads,
   isLocalImagePath,
   resolveDeletableUploadPath,
+  REPO_IMAGE_URL_PREFIX,
   resolvePublicImagePath,
   UPLOAD_URL_PREFIX,
   validateImageFileSize,

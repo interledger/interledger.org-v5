@@ -5,6 +5,7 @@ import { Transform } from 'stream'
 import { pipeline } from 'stream/promises'
 import {
   findUndeletableUploads,
+  REPO_IMAGE_URL_PREFIX,
   resolveDeletableUploadPath,
   scheduleGitSync,
   UPLOAD_URL_PREFIX,
@@ -748,10 +749,12 @@ export function overrideUploadProvider(strapi: StrapiInstance): void {
 
   // Strapi calls delete before it touches the database, so refusing here
   // aborts a single delete or a replace with nothing changed. Batches are
-  // checked up front in `guardBatchUploadDeletes`.
+  // checked up front in `guardBatchUploadDeletes`. Both throw `PolicyError`:
+  // Strapi's authorize middleware answers any other `ForbiddenError` with a
+  // bare "Forbidden", so the editor would never see why.
   provider.delete = async (file: UploadFile) => {
     const target = resolveDeletableUploadPath(uploadPath, file)
-    if (target instanceof Error) throw new errors.ForbiddenError(target.message)
+    if (target instanceof Error) throw new errors.PolicyError(target.message)
     if (target && fs.existsSync(target)) fs.unlinkSync(target)
   }
 
@@ -798,7 +801,7 @@ export function guardBatchUploadDeletes(strapi: StrapiInstance): void {
   const uploadPath = path.join(strapi.dirs.static.public, UPLOAD_DIR_IN_PUBLIC)
   const assertDeletable = (files: UploadFileRecord[]): void => {
     const refused = findUndeletableUploads(uploadPath, files)
-    if (refused) throw new errors.ForbiddenError(refused.message)
+    if (refused) throw new errors.PolicyError(refused.message)
   }
 
   const deleteFiles = fileService.deleteByIds.bind(fileService)
@@ -862,7 +865,7 @@ async function disableImageVariants(strapi: StrapiInstance): Promise<void> {
  */
 const SEED_DIRS: ReadonlyArray<{ dir: string; urlPrefix: string }> = [
   { dir: UPLOAD_DIR_IN_PUBLIC, urlPrefix: UPLOAD_URL_PREFIX },
-  { dir: 'img', urlPrefix: '/img' }
+  { dir: REPO_IMAGE_URL_PREFIX.slice(1), urlPrefix: REPO_IMAGE_URL_PREFIX }
 ]
 const EXCLUDED_SEED_SUBDIRS = new Set(['optimized'])
 
