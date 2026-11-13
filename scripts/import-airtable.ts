@@ -10,6 +10,7 @@ import type {
   SyncedImage,
   SyncedImageSource,
   TableMeta,
+  UnlinkedGrantReport,
   Table,
   TableRecord,
   RawTableRecord
@@ -40,6 +41,7 @@ import {
 } from '../src/utils/main/airtableProfiles'
 import {
   findHiddenReportFields,
+  linkReportsToGrantees,
   reportFieldIdsToFetch,
   toGrantReports
 } from '../src/utils/main/airtableReports'
@@ -427,8 +429,8 @@ function reportName({ content }: ParsedGrantReport): string {
 // Every image of every report is tried, so one run lists all bad images.
 async function addReportImages(
   parsedReports: ParsedGrantReport[]
-): Promise<GrantReport[]> {
-  const reports: GrantReport[] = []
+): Promise<UnlinkedGrantReport[]> {
+  const reports: UnlinkedGrantReport[] = []
   const problems: string[] = []
   for (const parsed of parsedReports) {
     const images: SyncedImage[] = []
@@ -529,6 +531,26 @@ async function runSyncPart<T>(
     : result
 }
 
+// A report gets its URL from its grantee's slug, so linking needs the
+// profiles. It runs whenever both parts pass, even if the directory fails, so
+// the run lists the linking problems with the directory's. When the profiles
+// fail, there is no slug to trust, and their error stands for both parts.
+function linkReportsResult(
+  reports: UnlinkedGrantReport[] | Error,
+  profiles: GranteeProfile[] | Error
+): GrantReport[] | Error {
+  if (reports instanceof Error) return reports
+  if (profiles instanceof Error) {
+    return new Error(
+      'Grant reports: not linked to grantees, because the grantee profiles failed'
+    )
+  }
+  const linked = linkReportsToGrantees(reports, { grantees: profiles })
+  return linked instanceof Error
+    ? new Error(`Grant reports: ${linked.message}`)
+    : linked
+}
+
 async function importAirtableData() {
   const apiToken = process.env.AIRTABLE_API_TOKEN
   if (!apiToken) {
@@ -558,15 +580,16 @@ async function importAirtableData() {
   const directoryResult = await runSyncPart('Grantee directory', () =>
     fetchGranteeDirectory(meta, apiToken)
   )
-  const reportsResult = await runSyncPart('Grant reports', async () =>
-    addReportImages(await fetchGrantReports(meta, apiToken))
-  )
+  const reportsResult = await runSyncPart('Grant reports', async () => {
+    return addReportImages(await fetchGrantReports(meta, apiToken))
+  })
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
+  const linkedReportsResult = linkReportsResult(reportsResult, profilesResult)
   const results = collectResults([
     directoryResult,
-    reportsResult,
+    linkedReportsResult,
     profilesResult
   ])
   if (results instanceof Error) throw results

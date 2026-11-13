@@ -67,11 +67,13 @@ export {
   HACKATHON_HOME_SLUG,
   GRANT_OVERVIEW_PRIMARY_SLUG,
   GRANT_GRANTEE_DIRECTORY_SLUG,
+  GRANT_GRANTEES_SLUG,
   PODCAST_PAGE_SLUG,
   ROUTE_BASES,
   grantOverviewRouteParam,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
+  granteeBasePath,
   normalizeBasePath,
   localizeRoute
 } from './main/routes'
@@ -162,13 +164,15 @@ export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 export {
   hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
-  shouldHideFuturePosts
+  shouldHideFuturePosts,
+  shouldHideGrantReports
 } from './main/publishGate'
 
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content
@@ -206,6 +210,14 @@ export {
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
+export {
+  formatReportDate,
+  getGrantReportRoutes,
+  grantReportPath,
+  grantReportSegment,
+  parseGrantReports,
+  type GrantReportRoute
+} from './main/grantReports'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
@@ -226,6 +238,7 @@ export {
   MAX_SOURCE_IMAGE_BYTES,
   describeValue,
   formatProblems,
+  isIsoDate,
   isRecordId,
   isRecordLike,
   isStringArray,
@@ -240,6 +253,7 @@ export {
   REPORT_FIELDS,
   findHiddenReportFields,
   isLiveReport,
+  linkReportsToGrantees,
   reportFieldIdsToFetch,
   toGrantReport,
   toGrantReports
@@ -247,6 +261,7 @@ export {
 export {
   GRANTEE_TYPES,
   PROFILE_FIELDS,
+  SLUG_PATTERN,
   findHiddenProfileFields,
   profileFieldIdsToFetch,
   splitThematicTags,
@@ -261,7 +276,11 @@ export {
 // Main site: Text
 export { generateSlug } from './main/slug'
 export { truncateText } from './main/text'
-export { parseMarkdown, parseMarkdownInline } from './main/mdx'
+export {
+  parseMarkdown,
+  parseMarkdownBelowHeading,
+  parseMarkdownInline
+} from './main/mdx'
 export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
 export {
   TABLE_SCROLL_CLASS,

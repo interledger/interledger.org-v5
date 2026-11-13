@@ -738,11 +738,11 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 To make the work funded through Interledger Foundation grants easier to explore, the website publishes grantee data from Airtable. One sync script reads three tables and writes one committed JSON file for each:
 
-| File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                |
-| ---------------------------- | --------------------- | ------------------------------------- | -------------------------- |
-| `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory` |
-| `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | no page yet                |
-| `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                |
+| File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                                                                        |
+| ---------------------------- | --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory`                                                         |
+| `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | `/grant/grantees/<slug>/reports/<report>` (hidden on production until INTORG-1313) |
+| `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                                                                        |
 
 Report images and grantee logos are downloaded into `public/img/grantee-reports/` and `public/img/grantee-profiles/`, and committed with the JSON.
 
@@ -767,7 +767,10 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 **Grant reports** (`grant-reports.json`):
 
 - Fetches the **Published Reports** table through its public view, and keeps only reports whose **Publication Status** is **Live**. The sync checks the status itself, so a change to the view cannot publish a draft
-- Every field is required except the three images and their descriptions. Project name, report type and report number are lookups from the submission, so the sync never reads the **Submitted Reports** table or its private fields
+- Required: **Published Date**, and the lookups **Project Name**, **Report Type**, **Report Num**, the grant record and **Project id** (exactly one value of digits). The lookups come from the submission, so the sync never reads the **Submitted Reports** table or its private fields
+- Every content field can be empty: the five text sections, the license, the output types, the technologies and the images. An empty section or fact is left off the page
+- The reporting period dates can both be empty, but not only one of them, and the start must not be after the end
+- Each report gets its grantee's slug from **Grantees**, through the grant, for its URL: `/grant/grantees/<slug>/reports/<project id>-<interim|final>-<number>`, for example `20260504-interim-1`
 - An image's description is its alt text. An image without one is published with `alt=""`, as decorative
 - No Live report at all is valid
 
@@ -786,12 +789,14 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 - an invalid value, required or optional: a value of the wrong type, a formula error (`#ERROR!`, `NaN`), a profile link that is not an `http` or `https` URL, or a bad slug. Directory values are checked by type only, so free text in **Project Links** is allowed; `grantee.ts` skips any entry that is not a usable URL
 - a **Project Leader** linked to a contact with no name
 - two grantees with the same slug
+- a report whose grant belongs to no grantee, or to more than one
+- two Live reports with the same **Project id**, report type and number, which would share a URL: a resubmission that was published twice
 - an image that breaks the rules above, or fails to download or convert
 - a table, view or column it reads that was deleted, a field the reports or profiles need that is hidden in the view, or a view that is no longer a grid view
 - in the directory: **Project Name** hidden in the view, no published record, or a rendered column with no value on any published record (the column was emptied, or its formula returns a blank value in every row)
 - no grantee at all in the **Grantees** table
 
-An empty optional cell is not an error. One failure lists every bad record in all three tables, so programs can fix them in one pass. Two kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read, and images, like the directory's blank-column check, are checked only once every record passes. The site keeps the last good data until a run passes and its pull request is merged.
+An empty optional cell is not an error. One failure lists every bad record in all three tables, so programs can fix them in one pass. Three kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read; images, like the directory's blank-column check, are checked only once every record passes; and reports are linked to grantees only when the profiles pass, because the slug comes from them. The site keeps the last good data until a run passes and its pull request is merged.
 
 A failed run can still store new images for the parts that passed. In CI they are discarded with the runner. After a failed local run they show as untracked files under `public/img/`; discard them, or keep them, since the next passing run reuses them or deletes those no record needs.
 

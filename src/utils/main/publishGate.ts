@@ -95,6 +95,24 @@ export function hideDrafts(): boolean {
 }
 
 /**
+ * Whether this build hides the grant report pages. Override:
+ * `GRANT_REPORTS_FILTER`.
+ *
+ * A feature gate, not a content gate: the pages stay out of production builds
+ * until the feature is approved (INTORG-1310), then the gate is removed
+ * (INTORG-1313). Which reports are public is the sync's Live filter.
+ */
+export function shouldHideGrantReports(env: BuildEnv = process.env): boolean {
+  return isGateOn('GRANT_REPORTS_FILTER', env)
+}
+
+export function hideGrantReports(): boolean {
+  return typeof __HIDE_GRANT_REPORTS__ === 'boolean'
+    ? __HIDE_GRANT_REPORTS__
+    : shouldHideGrantReports()
+}
+
+/**
  * Whether an entry's frontmatter marks it as a draft.
  *
  * Only a literal `true` counts. A missing or malformed value means published:

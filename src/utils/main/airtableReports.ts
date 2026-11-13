@@ -1,14 +1,18 @@
 import type {
+  GrantReport,
   GrantReportContent,
   GrantReportType,
+  GranteeProfileContent,
   ParsedGrantReport,
   RawTableRecord,
-  SyncedImageSource
+  SyncedImageSource,
+  UnlinkedGrantReport
 } from '@/types/airtable'
 import {
   describeValue,
   formatProblems,
   isRecordId,
+  isIsoDate,
   isStringArray,
   nonBlankString,
   partitionRecordResults,
@@ -27,14 +31,14 @@ import {
 export const LIVE_STATUS = 'Live'
 export const PUBLICATION_STATUS_FIELD_ID = 'fldOJhHIcLOrM9EYe'
 
-const REPORT_TYPES: readonly GrantReportType[] = [
+export const REPORT_TYPES = [
   'Interim Report',
   'Final Report'
-]
+] as const satisfies readonly GrantReportType[]
 
 // The Published Reports columns the sync reads, by field ID so a rename in
 // Airtable changes nothing. Names are for error messages and match Airtable.
-// The four lookups come from Submitted Reports through Source Submission, so
+// The five lookups come from Submitted Reports through Source Submission, so
 // the sync never reads that table and its private fields.
 export const REPORT_FIELDS = {
   publishedDate: { id: 'fldoN3aDnVtZlXQ4A', name: 'Published Date' },
@@ -85,6 +89,9 @@ export const REPORT_FIELDS = {
   // record ID. A project name is not unique: one grantee can have two grants
   // with the same name.
   grantRecord: { id: 'fldahnD71g8colQsZ', name: 'Grant Record' },
+  // The ID that Programs use for the grant, for example 20260504. It is in
+  // the report URL, so two grants of one grantee never share a URL.
+  projectId: { id: 'fldzQX4wACjAnsD5Z', name: 'Project id' },
   image1: { id: 'fldQY4Dses4064EI3', name: 'Public Image 1' },
   image2: { id: 'fld7WuZSUfppIE3Qs', name: 'Public Image 2' },
   image3: { id: 'fld5bJMgKQXnQ91A4', name: 'Public Image 3' },
@@ -114,17 +121,15 @@ const IMAGE_SLOTS = [
   description: ReportFieldKey
 }[]
 
-// Airtable writes a date-only field as YYYY-MM-DD.
-const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+// Projects build it from the approval year and a record number: 20260504.
+export const PROJECT_ID_PATTERN = /^\d+$/
 
 function readDate(value: unknown): string | undefined {
-  return typeof value === 'string' && DATE_PATTERN.test(value)
-    ? value
-    : undefined
+  return typeof value === 'string' && isIsoDate(value) ? value : undefined
 }
 
 function readOptions(value: unknown): string[] | undefined {
-  return isStringArray(value) && value.length > 0 ? value : undefined
+  return isStringArray(value) ? value : undefined
 }
 
 // A lookup returns one value per linked record. A report links to exactly one
@@ -152,15 +157,25 @@ function createFieldReader(fields: Record<string, unknown>) {
     date(key: ReportFieldKey): string {
       return readDate(raw(key)) ?? fail(key, 'a date', '')
     },
-    text(key: ReportFieldKey): string {
-      return nonBlankString(raw(key)) ?? fail(key, 'text', '')
+    // Programs can leave a report date empty.
+    optionalDate(key: ReportFieldKey): string | null {
+      if (raw(key) === undefined) return null
+      return readDate(raw(key)) ?? fail(key, 'a date', null)
     },
+    // Airtable omits an empty multiple-select field from the record.
     options(key: ReportFieldKey): string[] {
-      return readOptions(raw(key)) ?? fail(key, 'at least one option', [])
+      if (raw(key) === undefined) return []
+      return readOptions(raw(key)) ?? fail(key, 'a list of options', [])
     },
     lookupText(key: ReportFieldKey): string {
       const value = nonBlankString(readSingleLookup(raw(key)))
       return value ?? fail(key, 'exactly one text value', '')
+    },
+    lookupProjectId(key: ReportFieldKey): string {
+      const value = nonBlankString(readSingleLookup(raw(key)))?.trim()
+      return value !== undefined && PROJECT_ID_PATTERN.test(value)
+        ? value
+        : fail(key, 'exactly one Project id of digits', '')
     },
     lookupRecordId(key: ReportFieldKey): string {
       const value = readSingleLookup(raw(key))
@@ -180,7 +195,8 @@ function createFieldReader(fields: Record<string, unknown>) {
         ? value
         : fail(key, REPORT_TYPES.join(' or '), REPORT_TYPES[0])
     },
-    // An empty description is allowed: the image then shows with alt="".
+    // Empty text is allowed: a report section can be empty, and an image
+    // without a description shows with alt="".
     optionalText(key: ReportFieldKey): string {
       const value = raw(key)
       if (value === undefined) return ''
@@ -217,24 +233,45 @@ export function isLiveReport(raw: RawTableRecord): boolean {
   return raw.fields[PUBLICATION_STATUS_FIELD_ID] === LIVE_STATUS
 }
 
+// The page shows the period only with both dates, so one date alone would
+// vanish without an error. Both empty is fine.
+function reportingPeriodProblems(
+  start: string | null,
+  end: string | null
+): string[] {
+  const { reportingPeriodStart, reportingPeriodEnd } = REPORT_FIELDS
+  if ((start === null) !== (end === null)) {
+    return [
+      `"${reportingPeriodStart.name}" and "${reportingPeriodEnd.name}": expected both dates or neither, got only ${start === null ? 'the end' : 'the start'}`
+    ]
+  }
+  if (start !== null && end !== null && start > end) {
+    return [
+      `"${reportingPeriodStart.name}": expected a date on or before the end date ${end}, got ${start}`
+    ]
+  }
+  return []
+}
+
 // Every problem in the record is listed, so programs can fix it in one pass.
 export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
   const read = createFieldReader(raw.fields)
   const content: GrantReportContent = {
     id: raw.id,
     grantId: read.lookupRecordId('grantRecord'),
+    projectId: read.lookupProjectId('projectId'),
     projectName: read.lookupText('projectName'),
     reportType: read.reportType('reportType'),
     reportNumber: read.lookupNumber('reportNumber'),
     publishedDate: read.date('publishedDate'),
-    reportingPeriodStart: read.date('reportingPeriodStart'),
-    reportingPeriodEnd: read.date('reportingPeriodEnd'),
-    summary: read.text('summary'),
-    progressOnObjectives: read.text('progressOnObjectives'),
-    whoBenefits: read.text('whoBenefits'),
-    outputs: read.text('outputs'),
-    whatsNext: read.text('whatsNext'),
-    license: read.text('license'),
+    reportingPeriodStart: read.optionalDate('reportingPeriodStart'),
+    reportingPeriodEnd: read.optionalDate('reportingPeriodEnd'),
+    summary: read.optionalText('summary'),
+    progressOnObjectives: read.optionalText('progressOnObjectives'),
+    whoBenefits: read.optionalText('whoBenefits'),
+    outputs: read.optionalText('outputs'),
+    whatsNext: read.optionalText('whatsNext'),
+    license: read.optionalText('license'),
     outputTypes: read.options('outputTypes'),
     interledgerTechnologies: read.options('interledgerTechnologies')
   }
@@ -246,12 +283,19 @@ export function toGrantReport(raw: RawTableRecord): ParsedGrantReport | Error {
     return read.image(image, read.optionalText(description)) ?? []
   })
 
-  if (read.problems.length === 0) return { content, imageSources }
-  return new Error(formatProblems(`Report ${reportLabel(raw)}`, read.problems))
+  const problems = [
+    ...read.problems,
+    ...reportingPeriodProblems(
+      content.reportingPeriodStart,
+      content.reportingPeriodEnd
+    )
+  ]
+  if (problems.length === 0) return { content, imageSources }
+  return new Error(formatProblems(`Report ${reportLabel(raw)}`, problems))
 }
 
-// Sorted by project, then report number, so a change to the view's sort in
-// Airtable does not reorder the committed file.
+// Sorted by project, then report type and number, so a change to the view's
+// sort in Airtable does not reorder the committed file.
 function compareReports(
   { content: a }: ParsedGrantReport,
   { content: b }: ParsedGrantReport
@@ -259,6 +303,7 @@ function compareReports(
   return (
     a.projectName.localeCompare(b.projectName, 'en') ||
     a.grantId.localeCompare(b.grantId) ||
+    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType) ||
     a.reportNumber - b.reportNumber ||
     a.id.localeCompare(b.id)
   )
@@ -293,4 +338,68 @@ export function reportFieldIdsToFetch(): string[] {
     ...Object.values(REPORT_FIELDS).map(({ id }) => id),
     PUBLICATION_STATUS_FIELD_ID
   ]
+}
+
+export interface GrantContext {
+  grantees: readonly Pick<GranteeProfileContent, 'slug' | 'grantIds'>[]
+}
+
+function linkReport(
+  report: UnlinkedGrantReport,
+  { grantees }: GrantContext
+): GrantReport | Error {
+  const owners = grantees.filter(({ grantIds }) =>
+    grantIds.includes(report.grantId)
+  )
+  const [owner] = owners
+  if (owners.length !== 1 || owner === undefined) {
+    const label = `${report.projectName} ${report.reportType} ${report.reportNumber} (ID: ${report.id})`
+    return new Error(
+      formatProblems(`Report ${label}`, [
+        `grant ${report.grantId}: expected exactly one grantee in Grantees, found ${owners.length}`
+      ])
+    )
+  }
+  return { ...report, granteeSlug: owner.slug }
+}
+
+// The report URL is built from these three. Two Live reports that share them
+// are a resubmission that was published twice, so Programs must withdraw one.
+function findSharedReportKeys(
+  reports: readonly UnlinkedGrantReport[]
+): string[] {
+  const idsByKey = new Map<string, string[]>()
+  for (const { projectId, reportType, reportNumber, id } of reports) {
+    const key = `grant ${projectId}, ${reportType} ${reportNumber}`
+    idsByKey.set(key, [...(idsByKey.get(key) ?? []), id])
+  }
+  return [...idsByKey]
+    .filter(([, ids]) => ids.length > 1)
+    .map(([key, ids]) => `${key} is used by ${ids.join(', ')}`)
+}
+
+// Adds the grantee slug that the report URL needs. One report that cannot be
+// placed, or two that share a URL, fail the whole set. Both checks always run,
+// so one error lists every problem of both kinds.
+export function linkReportsToGrantees(
+  reports: readonly UnlinkedGrantReport[],
+  context: GrantContext
+): GrantReport[] | Error {
+  const { values, problems } = partitionRecordResults(
+    reports.map((report) => linkReport(report, context))
+  )
+  // Grantee-independent, so it checks the reports that could not be placed too.
+  const shared = findSharedReportKeys(reports)
+  const errors = [
+    ...(problems.length > 0
+      ? [recordProblemsError(problems, 'report(s) cannot be placed')]
+      : []),
+    ...(shared.length > 0
+      ? [recordProblemsError(shared, 'report URL(s) used twice')]
+      : [])
+  ]
+  if (errors.length > 0) {
+    return new Error(errors.map(({ message }) => message).join('\n\n'))
+  }
+  return values
 }

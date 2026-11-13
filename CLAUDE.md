@@ -433,6 +433,13 @@ content and drafts stay reviewable.
   the same pattern with their own pair: `shouldHideDrafts()` frozen into
   `__HIDE_DRAFTS__`, overridden by `DRAFT_FILTER=on|off`. No per-context env
   vars in `netlify.toml`.
+- **Grant report pages have a third gate, a feature gate.**
+  `shouldHideGrantReports()` is frozen into `__HIDE_GRANT_REPORTS__`, overridden
+  by `GRANT_REPORTS_FILTER=on|off`, and decided by `CONTEXT` like the other two.
+  It hides every report page on production until the feature is released
+  (INTORG-1313 removes it). It does not decide which reports are public: that
+  is the Airtable sync's Live filter, so the reports are not part of
+  `getGatedCollection()`.
 - **`BUILD_NOW` is frozen at module load.** A build starting at 23:59:50 UTC
   would otherwise gate the listing on one day and the static paths on the next,
   emitting a post's URL with nothing linking to it.

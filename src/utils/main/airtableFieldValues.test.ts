@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatProblems,
+  isIsoDate,
   isRecordId,
   partitionRecordResults,
   recordProblemsError
@@ -55,6 +56,35 @@ describe('isRecordId', () => {
       null
     ]) {
       expect(isRecordId(value)).toBe(false)
+    }
+  })
+})
+
+describe('isIsoDate', () => {
+  it('accepts a date-only value as Airtable writes it', () => {
+    expect(isIsoDate('2026-11-20')).toBe(true)
+    expect(isIsoDate('2028-02-29')).toBe(true)
+  })
+
+  it('rejects a day that does not exist', () => {
+    for (const value of [
+      '2026-02-30',
+      '2027-02-29',
+      '2026-13-01',
+      '2026-00-10'
+    ]) {
+      expect(isIsoDate(value)).toBe(false)
+    }
+  })
+
+  it('rejects any other format', () => {
+    for (const value of [
+      '20/11/2026',
+      '2026-11-20T00:00:00Z',
+      '2026-1-2',
+      ''
+    ]) {
+      expect(isIsoDate(value)).toBe(false)
     }
   })
 })

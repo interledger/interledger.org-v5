@@ -2,12 +2,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   hideDrafts,
   hideFuturePosts,
+  hideGrantReports,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
+  shouldHideGrantReports,
   shouldHideFuturePosts
 } from './publishGate'
 
@@ -262,3 +264,39 @@ function restoreEnv(key: string, value: string | undefined): void {
   }
   process.env[key] = value
 }
+
+describe('shouldHideGrantReports', () => {
+  it('is on for a Netlify production build only', () => {
+    expect(shouldHideGrantReports({ CONTEXT: 'production' })).toBe(true)
+    expect(shouldHideGrantReports({ CONTEXT: 'branch-deploy' })).toBe(false)
+    expect(shouldHideGrantReports({})).toBe(false)
+  })
+
+  it('honours GRANT_REPORTS_FILTER over CONTEXT', () => {
+    expect(shouldHideGrantReports({ GRANT_REPORTS_FILTER: 'on' })).toBe(true)
+    expect(
+      shouldHideGrantReports({
+        CONTEXT: 'production',
+        GRANT_REPORTS_FILTER: 'off'
+      })
+    ).toBe(false)
+  })
+})
+
+describe('hideGrantReports', () => {
+  const originalContext = process.env.CONTEXT
+  const originalFilter = process.env.GRANT_REPORTS_FILTER
+
+  afterEach(() => {
+    restoreEnv('CONTEXT', originalContext)
+    restoreEnv('GRANT_REPORTS_FILTER', originalFilter)
+  })
+
+  it('falls back to the environment when the build-time define is absent', () => {
+    process.env.GRANT_REPORTS_FILTER = 'on'
+    expect(hideGrantReports()).toBe(true)
+
+    process.env.GRANT_REPORTS_FILTER = 'off'
+    expect(hideGrantReports()).toBe(false)
+  })
+})

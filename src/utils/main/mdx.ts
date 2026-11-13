@@ -101,6 +101,36 @@ export async function parseMarkdown(
   return wrapScrollableTables(html, getTableScrollAriaLabel(context.lang))
 }
 
+const MAX_HEADING_LEVEL = 6
+
+// For Markdown that renders inside a section with its own heading, such as a
+// grant report section under its h2. The headings move together, up or down,
+// so the highest one becomes minHeadingLevel and no level is skipped below the
+// section heading. Levels past h6 stop at h6: text that uses all six levels
+// under an h3 cannot keep them all apart.
+export function parseMarkdownBelowHeading(
+  text: string | null | undefined,
+  minHeadingLevel: number,
+  context: UmamiContext = {}
+): string {
+  if (!text) return ''
+  const marked = createMarked(context)
+  const tokens = marked.lexer(text)
+  const depths: number[] = []
+  marked.walkTokens(tokens, (token) => {
+    if (token.type === 'heading') depths.push(token.depth)
+  })
+  // With no heading, depths is empty and the shift is never applied.
+  const shift = minHeadingLevel - Math.min(...depths)
+  marked.walkTokens(tokens, (token) => {
+    if (token.type === 'heading') {
+      token.depth = Math.min(MAX_HEADING_LEVEL, token.depth + shift)
+    }
+  })
+  const html = marked.parser(tokens)
+  return wrapScrollableTables(html, getTableScrollAriaLabel(context.lang))
+}
+
 export function parseMarkdownInline(
   text: string | null | undefined,
   context: UmamiContext = {}
