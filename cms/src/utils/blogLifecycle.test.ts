@@ -1,6 +1,12 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import matter from 'gray-matter'
-import { describe, expect, it } from 'vitest'
+import { errors } from '@strapi/utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  createBlogLifecycle,
+  findMovedBlogFiles,
   generateBlogMDX,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
@@ -342,4 +348,282 @@ describe('generateBlogMDX — draft', () => {
       expect(mdx).not.toMatch(/^draft:/m)
     }
   )
+})
+
+describe('findMovedBlogFiles', () => {
+  it('returns each locale whose path changed', () => {
+    expect(
+      findMovedBlogFiles(
+        { en: 'a/2026-01-01-old.mdx', es: 'a/es/2026-01-01-old.mdx' },
+        { en: 'a/2026-01-01-new.mdx', es: 'a/es/2026-01-01-new.mdx' }
+      )
+    ).toEqual([
+      { locale: 'en', oldFilepath: 'a/2026-01-01-old.mdx' },
+      { locale: 'es', oldFilepath: 'a/es/2026-01-01-old.mdx' }
+    ])
+  })
+
+  it('returns nothing when no path changed', () => {
+    const paths = { en: 'a/2026-01-01-post.mdx' }
+    expect(findMovedBlogFiles(paths, { ...paths })).toEqual([])
+  })
+
+  it('keeps a locale that could not be read after the update', () => {
+    expect(findMovedBlogFiles({ es: 'a/es/2026-01-01-post.mdx' }, {})).toEqual(
+      []
+    )
+  })
+})
+
+// INTORG-1392: on Strapi 5.57 a rename left the old file behind, and the next
+// sync imported it as a second post. The events below carry only `where.id`,
+// as 5.57 sends them.
+describe('createBlogLifecycle — slug and date changes', () => {
+  const outputDir = 'src/content/foundation-blog-posts'
+  let repoRoot: string
+  let posts: Record<string, Record<string, unknown>>
+
+  function blogFile(locale: string, name: string): string {
+    const dir =
+      locale === 'en'
+        ? path.join(repoRoot, outputDir)
+        : path.join(repoRoot, outputDir, locale)
+    return path.join(dir, `${name}.mdx`)
+  }
+
+  function seedFile(locale: string, name: string): string {
+    const filepath = blogFile(locale, name)
+    fs.mkdirSync(path.dirname(filepath), { recursive: true })
+    fs.writeFileSync(filepath, '---\n---\n')
+    return filepath
+  }
+
+  /** Every MDX file under the blog folder, so a test can assert none moved. */
+  function listFiles(): string[] {
+    const root = path.join(repoRoot, outputDir)
+    if (!fs.existsSync(root)) return []
+    return (fs.readdirSync(root, { recursive: true }) as string[])
+      .filter((name) => name.endsWith('.mdx'))
+      .sort()
+  }
+
+  // How each locale reads before and after the save: `unread` makes the
+  // fetch throw, `fallback` answers with the EN document.
+  let beforeSave: Record<string, 'unread'> = {}
+  let afterSave: Record<string, 'unread' | 'fallback'> = {}
+  let saved = false
+
+  function stubStrapi(savedLocale: string) {
+    vi.stubGlobal('strapi', {
+      requestContext: { get: () => ({ request: { headers: {} } }) },
+      db: {
+        query: () => ({
+          findOne: async () => ({ documentId: 'doc1', locale: savedLocale })
+        })
+      },
+      documents: () => ({
+        findOne: async ({ locale }: { locale: string }) => {
+          const mode = saved ? afterSave[locale] : beforeSave[locale]
+          if (mode === 'unread') throw new Error('db read failed')
+          const post = mode === 'fallback' ? posts.en : posts[locale]
+          return post ? { ...post } : null
+        }
+      })
+    })
+  }
+
+  /** Run one admin save of `locale` through both update hooks. */
+  async function save(locale: string, changes: Record<string, unknown>) {
+    stubStrapi(locale)
+    const lifecycle = createBlogLifecycle({ outputDir })
+    const state = {}
+    await lifecycle.beforeUpdate({
+      params: { where: { id: 7 }, data: {} },
+      state
+    })
+    posts[locale] = { ...posts[locale], ...changes }
+    saved = true
+    await lifecycle.afterUpdate({
+      model: { singularName: 'foundation-blog-post' },
+      result: posts[locale],
+      state
+    } as unknown as Parameters<typeof lifecycle.afterUpdate>[0])
+  }
+
+  beforeEach(() => {
+    repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'blog-rename-'))
+    beforeSave = {}
+    afterSave = {}
+    saved = false
+    vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', repoRoot)
+    vi.stubEnv('STRAPI_DISABLE_GIT_SYNC', 'true')
+    const shared = {
+      documentId: 'doc1',
+      description: 'A test description',
+      date: '2025-06-11',
+      featured: false,
+      content: 'Body content.',
+      publishedAt: new Date('2025-06-11'),
+      localizations: []
+    }
+    posts = {
+      en: { ...shared, title: 'Post', pathSlug: 'test', locale: 'en' },
+      es: { ...shared, title: 'Entrada', pathSlug: 'prueba', locale: 'es' }
+    }
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.unstubAllEnvs()
+    fs.rmSync(repoRoot, { recursive: true, force: true })
+  })
+
+  it('moves every locale file when the English slug changes', async () => {
+    const oldEn = seedFile('en', '2025-06-11-test')
+    const oldEs = seedFile('es', '2025-06-11-test')
+
+    await save('en', { pathSlug: 'test-change-slug' })
+
+    expect(fs.existsSync(oldEn)).toBe(false)
+    expect(fs.existsSync(oldEs)).toBe(false)
+    expect(fs.existsSync(blogFile('en', '2025-06-11-test-change-slug'))).toBe(
+      true
+    )
+    expect(fs.existsSync(blogFile('es', '2025-06-11-test-change-slug'))).toBe(
+      true
+    )
+  })
+
+  it('moves the English file when the English date changes', async () => {
+    const oldEn = seedFile('en', '2025-06-11-test')
+
+    await save('en', { date: '2025-07-01' })
+
+    expect(fs.existsSync(oldEn)).toBe(false)
+    expect(fs.existsSync(blogFile('en', '2025-07-01-test'))).toBe(true)
+  })
+
+  // Each locale's filename takes its own date, so the old cleanup, which
+  // looked only at the English date, missed this one.
+  it('moves only the Spanish file when only the Spanish date changes', async () => {
+    const en = seedFile('en', '2025-06-11-test')
+    const oldEs = seedFile('es', '2025-06-11-test')
+
+    await save('es', { date: '2025-07-01' })
+
+    expect(fs.existsSync(oldEs)).toBe(false)
+    expect(fs.existsSync(blogFile('es', '2025-07-01-test'))).toBe(true)
+    expect(fs.existsSync(en)).toBe(true)
+  })
+
+  // A save that cannot see every locale stops, so Strapi rolls it back and
+  // the files still match what is stored. Carrying on would lose the old
+  // file's name, and the next save would write a duplicate beside it.
+  it.each([
+    ['cannot be read before the save', () => (beforeSave = { es: 'unread' })],
+    ['cannot be read after the save', () => (afterSave = { es: 'unread' })],
+    [
+      'falls back to EN content after the save',
+      () => (afterSave = { es: 'fallback' })
+    ]
+  ])('stops the save when the ES version %s', async (situation, failRead) => {
+    seedFile('en', '2025-06-11-test')
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    failRead()
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    try {
+      await save('en', { pathSlug: 'test-change-slug' })
+      expect.fail('save should have stopped')
+    } catch (error) {
+      expect(error).toBeInstanceOf(Error)
+      const message = error instanceof Error ? error.message : String(error)
+      expect(message).toContain('could not read the es version')
+      expect(message).toContain(
+        'Try again. If it keeps failing, contact a developer.'
+      )
+      expect(message).not.toContain('db read failed')
+    }
+
+    if (situation.startsWith('cannot be read')) {
+      expect(logged).toHaveBeenCalledWith(
+        expect.stringContaining('db read failed')
+      )
+    }
+    logged.mockRestore()
+    expect(listFiles()).toEqual(before)
+  })
+
+  it('keeps the old files when writing a new one fails', async () => {
+    const oldEn = seedFile('en', '2025-06-11-test')
+
+    await expect(
+      save('en', { pathSlug: 'test-change-slug', articleBio: [{ author: '' }] })
+    ).rejects.toThrow(
+      'The English version could not be exported: Author Bio: Name is required'
+    )
+
+    expect(fs.existsSync(oldEn)).toBe(true)
+  })
+
+  // EN is written first. Without the undo, the rolled-back save would leave
+  // the new EN file beside the old one. The message names the Spanish post,
+  // which is the one with the bad author bio, not the English form on screen.
+  it('removes the files it created when a later locale fails to write', async () => {
+    seedFile('en', '2025-06-11-test')
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    posts.es = { ...posts.es, articleBio: [{ author: '' }] }
+
+    await expect(save('en', { pathSlug: 'test-change-slug' })).rejects.toThrow(
+      'The Spanish version could not be exported: Author Bio: Name is required'
+    )
+
+    expect(listFiles()).toEqual(before)
+  })
+
+  // A content-block failure arrives as a ValidationError with field paths.
+  // Naming the locale must not drop those, or the admin cannot highlight them.
+  it('keeps field errors when a later locale fails to export', async () => {
+    seedFile('en', '2025-06-11-test')
+    seedFile('es', '2025-06-11-test')
+    const before = listFiles()
+    posts.es = {
+      ...posts.es,
+      content: [{ __component: 'blocks.paragraph', content: '' }]
+    }
+
+    const error = await save('en', { pathSlug: 'test-change-slug' }).then(
+      () => {
+        throw new Error('save should have stopped')
+      },
+      (caught: unknown) => caught
+    )
+
+    expect(error).toBeInstanceOf(errors.ValidationError)
+    expect(error).toMatchObject({
+      message:
+        'The Spanish version could not be exported: Paragraph block is missing content',
+      details: {
+        errors: [
+          {
+            path: ['content', '0'],
+            message: 'Paragraph block is missing content',
+            name: 'ValidationError'
+          }
+        ]
+      }
+    })
+    expect(listFiles()).toEqual(before)
+  })
+
+  it('rewrites the file in place when neither slug nor date changes', async () => {
+    const en = seedFile('en', '2025-06-11-test')
+
+    await save('en', { title: 'Renamed title' })
+
+    expect(fs.readFileSync(en, 'utf-8')).toContain('Renamed title')
+    expect(fs.readdirSync(path.dirname(en))).toEqual(['2025-06-11-test.mdx'])
+  })
 })
