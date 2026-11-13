@@ -154,6 +154,16 @@ Rules and invariants:
   absolute CMS URLs are reduced to site-relative pathnames. Uploads reach the
   repo via async git sync, so an upload rendered before the next deploy won't be
   in the catalog yet — that's the expected degrade-to-`<img>` window, not a bug.
+- **`public/img` is read-only in Strapi.** It is seeded into the Media Library
+  so content can use it, but git sync stages only `public/uploads`, so
+  `provider.delete` (`resolveDeletableUploadPath`) refuses delete and replace
+  for any `/img/` URL, with a `PolicyError` (Strapi reduces any other
+  `ForbiddenError` to a bare "Forbidden", hiding the message). A delete there
+  would leave the VM checkout dirty and break its next pull. Other URLs outside
+  the uploads folder (old-provider rows) delete just the row. Strapi removes a bulk or folder batch with one
+  `Promise.all`, so `guardBatchUploadDeletes` checks the whole batch first;
+  otherwise the uploads in it would still go. Editors upload a new image
+  instead; a developer removes the old file in a PR.
 - **One extension allowlist.** `hasOptimizableRasterExtension` in `imagePaths.ts`
   is the single source of truth for what gets optimized, shared by the encoder,
   `resolveOptimizableSource`, and the audit's `isOptimizableRasterPath`. Extend

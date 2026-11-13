@@ -5,8 +5,99 @@ import {
   isImageOverSizeLimit,
   isImagePath
 } from './uploadLimits'
+import { PATHS } from './paths'
 
 const LOCAL_IMAGE_PREFIXES = ['/img/', '/uploads/'] as const
+
+/** URL prefix of every file the upload provider writes: `PATHS.UPLOADS` as served. */
+export const UPLOAD_URL_PREFIX = `/${PATHS.UPLOADS.replace(/^public\//, '')}`
+
+/** URL prefix of `public/img`, the repo-owned images seeded into the Media Library. */
+export const REPO_IMAGE_URL_PREFIX = '/img'
+
+export interface DeletableUploadFile {
+  url?: string | null
+  hash?: string
+  ext?: string
+  name?: string
+}
+
+function repoImageError(labels: string[]): Error {
+  const names = labels.map((label) => `“${label}”`).join(', ')
+  const subject =
+    labels.length === 1
+      ? `${names} is a site image stored in the code repository, so it can't`
+      : `${names} are site images stored in the code repository, so they can't`
+  return new Error(
+    `${subject} be deleted or replaced in Strapi. Upload a new image and use it in your content instead.`
+  )
+}
+
+function resolveInside(root: string, relativePath: string): string | Error {
+  const resolved = path.resolve(root, relativePath)
+  if (!resolved.startsWith(root + path.sep)) {
+    return new Error(`Upload path escapes the uploads folder: ${relativePath}`)
+  }
+  return resolved
+}
+
+/**
+ * The file to unlink when the Media Library deletes or replaces `file`, `null`
+ * when there is nothing on disk to remove, or an Error when the file must stay.
+ *
+ * Only the uploads folder belongs to Strapi. `seedUploadsFromDisk` also lists
+ * `public/img/**` so content can use those images, but they are repo-owned:
+ * git sync never stages them, so removing one leaves the VM checkout dirty and
+ * breaks its next pull, and the Astro code references some of them directly.
+ *
+ * The URL wins over the hash. Seeded records use the bare filename as their
+ * hash, so `/img/foo.png` would otherwise match an unrelated upload `foo.png`.
+ */
+export function resolveDeletableUploadPath(
+  uploadDir: string,
+  file: DeletableUploadFile
+): string | null | Error {
+  const root = path.resolve(uploadDir)
+  if (!file.url) {
+    return file.hash
+      ? resolveInside(root, `${file.hash}${file.ext ?? ''}`)
+      : null
+  }
+
+  if (file.url.startsWith(`${REPO_IMAGE_URL_PREFIX}/`)) {
+    return repoImageError([file.name || file.url])
+  }
+  // Any other URL outside the uploads folder (rows left by the old provider at
+  // `/uploads/<file>`, whose files were never in the repo) has no file of ours
+  // to remove, so its row is deleted and the disk is left alone.
+  if (!file.url.startsWith(`${UPLOAD_URL_PREFIX}/`)) return null
+  return resolveInside(root, file.url.slice(UPLOAD_URL_PREFIX.length + 1))
+}
+
+/**
+ * Checks a whole delete batch before any of it is removed. Strapi deletes a
+ * batch with one `Promise.all`, so a refusal inside `provider.delete` alone
+ * still lets the other files in the batch go. Names every refused file.
+ */
+export function findUndeletableUploads(
+  uploadDir: string,
+  files: DeletableUploadFile[]
+): Error | null {
+  const refused = files.filter(
+    (file) => resolveDeletableUploadPath(uploadDir, file) instanceof Error
+  )
+  if (refused.length === 0) return null
+
+  const repoImages = refused.filter((file) =>
+    file.url?.startsWith(`${REPO_IMAGE_URL_PREFIX}/`)
+  )
+  if (repoImages.length < refused.length) {
+    // A path escaping the uploads folder; report it as itself.
+    const [escaping] = refused.filter((file) => !repoImages.includes(file))
+    return resolveDeletableUploadPath(uploadDir, escaping) as Error
+  }
+  return repoImageError(repoImages.map((file) => file.name || file.url || '?'))
+}
 
 export function isLocalImagePath(url: string): boolean {
   return LOCAL_IMAGE_PREFIXES.some((prefix) => url.startsWith(prefix))

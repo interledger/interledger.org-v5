@@ -59,7 +59,7 @@ const ABSOLUTE_OR_SPECIAL_HREF =
 
 /**
  * Where the upload provider writes every file. Keep in step with
- * `UPLOAD_SUBDIR` in `src/index.ts`.
+ * `PATHS.UPLOADS`.
  */
 const UPLOAD_PATH_PREFIX = '/uploads/img/original/'
 
