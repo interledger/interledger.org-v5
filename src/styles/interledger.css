@@ -181,6 +181,21 @@ div.community.community p {
   padding: 0;
 }
 
+/* RFC tables sit in a .table-scroll region (renderRfcMarkdown.ts).
+   ilf-docs.css sets tables to display: table, which turns off Starlight's own
+   table scrolling, so a wide table widened the whole page on mobile. The
+   region scrolls instead. It takes the table's radius and shadow, which its
+   overflow would otherwise clip. */
+.sl-markdown-content .table-scroll {
+  overflow-x: auto;
+  border-radius: var(--border-radius);
+  box-shadow: var(--sl-shadow-sm);
+}
+
+.sl-markdown-content .table-scroll > table {
+  box-shadow: none;
+}
+
 /* Misc tweaks */
 .sl-markdown-content img {
   background-color: white;

@@ -11,7 +11,7 @@ import {
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
 import { buildNewTabLinkHtml } from './newTabLinks'
 import { renderOptimizedImageHtml } from './richTextImage'
-import { wrapScrollableTables } from './wrapScrollableTables'
+import { wrapScrollableTables } from '../shared/wrapScrollableTables'
 
 export interface UmamiContext {
   pathname?: string
