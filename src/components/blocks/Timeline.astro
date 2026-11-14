@@ -2,15 +2,18 @@
 /**
  * Timeline block — dated events grouped into sections (INTORG-930).
  *
- * No block heading, subheading, or description until the shared block intro
- * lands (INTORG-1154, INTORG-1348). Until then the page supplies the h2, so
- * section headings are h3. Colour is not stored: it follows event position
- * across the whole timeline.
+ * Opens with the optional block intro (INTORG-1348). Its heading is the h2,
+ * or the page supplies one, so section headings are h3. Colour is not
+ * stored: it follows event position across the whole timeline.
  */
+import type { BlockIntroData } from '@/types/blockIntro'
 import type { TimelineSection } from '@/types/timeline'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
 import Icon from '@/components/shared/Icon.astro'
 import {
+  blockIntroA11y,
   buildUmamiAttrs,
+  normalizeBlockIntro,
   resolveTimelineSections,
   TIMELINE_DOT_CLASS,
   timelineAccentIndex,
@@ -19,12 +22,20 @@ import {
 } from '@/utils'
 
 interface Props {
+  intro?: BlockIntroData | null
   sections?: TimelineSection[]
 }
 
 const { sections } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const intro = normalizeBlockIntro(Astro.props.intro)
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'timeline',
+  t('timeline.block_label')
+)
 
 const resolved = resolveTimelineSections(sections)
 const lastIndex = resolved.length - 1
@@ -95,13 +106,16 @@ const skipIconFrameClass =
   data-component="Timeline"
   data-umami-component="timeline"
   data-timeline
-  aria-label={t('timeline.block_label')}
+  data-intro-variant="universal"
+  aria-labelledby={headingId}
+  aria-label={ariaLabel}
   class="relative outline-none"
   style={{
     'timeline-scope': timelineScope.join(', '),
     '--timeline-section-count': String(resolved.length)
   }}
 >
+  <BlockIntro intro={intro} headingId={headingId} />
   <div
     data-timeline-layout
     class="tablet:grid tablet:grid-cols-[1fr_2fr] tablet:gap-2xl desktop:gap-6xl"
@@ -625,17 +639,20 @@ const skipIconFrameClass =
   }
 
   /* Space below the timeline. On the block, outside the grid, so it doesn't
-     lengthen the area the panel sticks within. */
+     lengthen the area the panel sticks within. The extra room sits on top
+     of --block-pb, the bottom edge every intro block owns, because the next
+     block subtracts --block-pb from its gap (prose/rhythm.css). */
   @media (width >= 810px) {
     [data-timeline] {
-      padding-bottom: var(--spacing-5xl);
+      padding-bottom: calc(var(--block-pb) + var(--spacing-5xl));
     }
   }
 
   @media (width >= 1200px) {
     [data-timeline] {
       padding-bottom: calc(
-        var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
+        var(--block-pb) + var(--spacing-6xl) + var(--spacing-3xl) * 2 +
+          var(--spacing-xl)
       );
     }
   }

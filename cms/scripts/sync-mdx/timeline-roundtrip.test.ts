@@ -105,6 +105,37 @@ describe('Timeline round-trip (serialize → parse)', () => {
       { __component: 'blocks.timeline', sections: [tricky] }
     ])
   })
+
+  it('round-trips the block intro', async () => {
+    const intro = {
+      heading: 'Our journey',
+      subheading: 'Ten years of Interledger',
+      description: 'From a whitepaper to a **global** movement.'
+    }
+
+    const mdx = serialize({ intro, sections: [possibility] })
+    expect(mdx).toMatch(/^<Timeline intro=\{\{"heading":"Our journey"/)
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.timeline', intro, sections: [possibility] }
+    ])
+  })
+
+  it('writes no intro prop when every intro field is empty', async () => {
+    const mdx = serialize({
+      intro: { heading: '  ', subheading: null, description: '' },
+      sections: [possibility]
+    })
+    expect(mdx).not.toContain('intro=')
+
+    const blocks = await parseMdxToBlocks(mdx, ctx)
+
+    expect(blocks).toEqual([
+      { __component: 'blocks.timeline', sections: [possibility] }
+    ])
+  })
 })
 
 describe('Timeline serializer guards', () => {

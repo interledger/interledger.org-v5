@@ -1448,6 +1448,12 @@ export interface BlocksTimeline extends Struct.ComponentSchema {
     icon: 'clock'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     sections: Schema.Attribute.Component<'blocks.timeline-section', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{

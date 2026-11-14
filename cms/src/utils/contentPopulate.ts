@@ -133,7 +133,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { cards: true }
   },
   'blocks.timeline': {
-    populate: { sections: { populate: { events: true } } }
+    populate: { intro: true, sections: { populate: { events: true } } }
   }
 } as const
 
