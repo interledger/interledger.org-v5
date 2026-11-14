@@ -37,6 +37,10 @@ export {
   toAstroRedirects
 } from './shared/redirects'
 export {
+  TABLE_SCROLL_CLASS,
+  wrapScrollableTables
+} from './shared/wrapScrollableTables'
+export {
   parseStatNumber,
   formatStatNumber,
   buildNumberTileAriaLabel
@@ -282,10 +286,6 @@ export {
   parseMarkdownInline
 } from './main/mdx'
 export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
-export {
-  TABLE_SCROLL_CLASS,
-  wrapScrollableTables
-} from './main/wrapScrollableTables'
 export {
   createDisplayPlainText,
   createExcerpt,
