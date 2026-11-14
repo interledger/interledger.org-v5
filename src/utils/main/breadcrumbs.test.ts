@@ -43,7 +43,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
       { name: 'Grants', href: '/grant/our-grantmaking/' },
-      { name: 'Education', href: '/grant/education/' },
+      { name: 'Education Grants', href: '/grant/education/' },
       { name: 'On Campus', href: '/grant/education/on-campus/' },
       { name: 'FAQ', href: '/grant/education/on-campus/faq/' }
     ])
@@ -60,7 +60,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Policy And Advocacy', href: '/policy-and-advocacy/' },
+      { name: 'Policy and Advocacy', href: '/policy-and-advocacy/' },
       {
         name: 'The Role of Stablecoins',
         href: '/policy-and-advocacy/role-stablecoins/'
@@ -111,7 +111,7 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
     expect(breadcrumbs).toEqual([
       { name: 'Home', href: '/' },
-      { name: 'Hackathon', href: '/hackathon/overview/' },
+      { name: 'Hackathons', href: '/hackathon/overview/' },
       { name: '2025', href: '/hackathon/2025/' },
       { name: 'Judges', href: '/hackathon/2025/judges/' },
       { name: 'Jane Doe', href: '/hackathon/2025/judges/jane-doe/' }
@@ -167,6 +167,55 @@ describe('buildSectionEntryBreadcrumbs', () => {
       'Future Money',
       'Re/Simular'
     ])
+  })
+
+  // INTORG-1399: slug labels gave "Policy And Advocacy" and "Nextgen", and
+  // left English words on Spanish pages.
+  it.each([
+    [
+      'policy-and-advocacy/informal-economy',
+      'foundation',
+      ['Policy and Advocacy'],
+      ['Políticas públicas y promoción']
+    ],
+    [
+      'grant/education/nextgen/faq',
+      'foundation',
+      ['Grants', 'Education Grants', 'NextGen'],
+      ['Subvenciones', 'Subvenciones para la educación', 'NextGen']
+    ],
+    [
+      'grant/call-for-papers/report',
+      'foundation',
+      ['Grants', 'Call for Papers'],
+      ['Subvenciones', 'Convocatoria de ponencias']
+    ],
+    ['faq', 'hackathon', ['Hackathons'], ['Hackatones']]
+  ] as const)(
+    'labels the parents of %s by their page, not their slug',
+    (pathSlug, section, english, spanish) => {
+      const parentNames = (locale: 'en' | 'es') =>
+        buildSectionEntryBreadcrumbs(
+          pathSlug,
+          section,
+          'Page',
+          locale,
+          translator(locale)
+        )
+          .slice(1, -1)
+          .map((crumb) => crumb.name)
+
+      expect(parentNames('en')).toEqual(english)
+      expect(parentNames('es')).toEqual(spanish)
+    }
+  )
+
+  it('has a Spanish string for every breadcrumb label', () => {
+    const breadcrumbKeys = Object.keys(ui.en).filter((key) =>
+      key.startsWith('breadcrumb.')
+    )
+
+    expect(breadcrumbKeys.filter((key) => !(key in ui.es))).toEqual([])
   })
 
   it('rewrites a root crumb only at the start of the path', () => {

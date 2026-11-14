@@ -24,13 +24,26 @@ const ROOT_LANDING_PATHS: Record<string, string> = {
 
 /**
  * Paths whose crumb label comes from the UI strings instead of the slug, so
- * it is localized. Keyed by path like ROOT_LANDING_PATHS, so a nested
- * `summit/grant` keeps its slug label. `grant` reuses the label GrantPage
- * gives the same hub link, `grant/fellowship` the navigation's label.
+ * it is cased and localized correctly: a slug gives "Policy And Advocacy",
+ * "Nextgen", and English words on Spanish pages (INTORG-1399). Keyed by path
+ * like ROOT_LANDING_PATHS, so a nested `summit/grant` keeps its slug label.
+ *
+ * Labels come from the navigation where it has a specific one, else from the
+ * page's title. `grant` reuses the label GrantPage gives the same hub link.
+ * A path missing here falls back to its slug, so a new parent page needs an
+ * entry (INTORG-1408 tracks deriving them instead).
  */
 const SEGMENT_LABEL_KEYS: Record<string, UiKey> = {
   grant: 'nav.grants',
-  'grant/fellowship': 'breadcrumb.grant.fellowship'
+  'grant/call-for-papers': 'breadcrumb.grant.call_for_papers',
+  'grant/education': 'breadcrumb.grant.education',
+  'grant/education/nextgen': 'breadcrumb.grant.education.nextgen',
+  'grant/fellowship': 'breadcrumb.grant.fellowship',
+  'grant/innovation': 'breadcrumb.grant.innovation',
+  'grant/innovation/financial-services':
+    'breadcrumb.grant.innovation.financial_services',
+  'policy-and-advocacy': 'breadcrumb.policy_and_advocacy',
+  hackathon: 'breadcrumb.hackathon'
 }
 
 function toLabel(segmentPath: string, segment: string, t: Translate): string {
