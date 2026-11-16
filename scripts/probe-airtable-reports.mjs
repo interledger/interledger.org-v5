@@ -672,6 +672,41 @@ async function projectIdConsistency(tables) {
   console.log(`created in 2026: ${JSON.stringify(recent)}`)
 }
 
+const DATE_NAME = /date|month|end|period|duration|complet|close|finish|modif|updat/i
+const DATE_TYPES = new Set(['date', 'dateTime', 'createdTime', 'lastModifiedTime'])
+
+// Which date fields exist for a grant end date and a report "last updated"
+// date. Names, IDs, types, view visibility and fill counts only, no values.
+async function dateFields(published, tables) {
+  const checks = [
+    { table: tables.find((t) => t.id === 'tbliw87UgsAYRAexr'), viewId: 'viwE6kqV1lvcIz2Ms', publishedId: 'fldI1myVN2uQs6Lqz' },
+    { table: published, viewId: 'viwjgguk3rv8SYZpQ' }
+  ]
+  for (const { table, viewId, publishedId } of checks) {
+    if (!table) continue
+    const view = table.views.find((v) => v.id === viewId)
+    const fields = table.fields.filter((f) => {
+      const resultType = f.options?.result?.type
+      return DATE_TYPES.has(f.type) || DATE_TYPES.has(resultType) || DATE_NAME.test(f.name)
+    })
+    console.log(`\n## Date fields in ${table.name} (view ${view?.name ?? viewId})`)
+    const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+    for (const f of fields) params.append('fields[]', f.id)
+    if (publishedId) params.append('fields[]', publishedId)
+    const records = await fetchAll(table.id, params)
+    const rows = publishedId
+      ? records.filter((r) => r.fields[publishedId] === 'Published on Website')
+      : records
+    console.log(`rows counted: ${rows.length}${publishedId ? ' (published on website)' : ' (all)'}`)
+    for (const f of fields) {
+      const filled = rows.filter((r) => r.fields[f.id] !== undefined && r.fields[f.id] !== '').length
+      const result = f.options?.result?.type ? ` -> ${f.options.result.type}` : ''
+      const visible = view?.visibleFieldIds?.includes(f.id) ?? 'unknown'
+      console.log(`  - ${f.name} [${f.type}${result}] ${f.id}: in view ${visible}, filled ${filled}/${rows.length}`)
+    }
+  }
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -705,13 +740,7 @@ async function main() {
   await countView(published)
   await probeImages(published)
   await grantRecordShape(published, tables)
-  await projectIdLookup(published, tables)
-  await projectIdConsistency(tables)
-  await yearCoverage(tables)
-  await reportTypeCoverage(tables)
-  await repeatedNumbers(tables)
-  await dumpSubmissions(tables)
-  await dumpProjectsAndGrantees(tables)
+  await dateFields(published, tables)
 }
 
 main().catch((error) => {
