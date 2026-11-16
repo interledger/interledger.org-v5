@@ -24,9 +24,10 @@ const ROOT_LANDING_PATHS: Record<string, string> = {
 
 /**
  * Paths whose crumb label comes from the UI strings instead of the slug, so
- * it is cased and localized correctly: a slug gives "Policy And Advocacy",
- * "Nextgen", and English words on Spanish pages (INTORG-1399). Keyed by path
- * like ROOT_LANDING_PATHS, so a nested `summit/grant` keeps its slug label.
+ * the casing is right: a slug gives "Policy And Advocacy" and "Nextgen"
+ * (INTORG-1399). The Spanish copies are empty until translated, and `t`
+ * then uses the English label. Keyed by path like ROOT_LANDING_PATHS, so a
+ * nested `summit/grant` keeps its slug label.
  *
  * Labels come from the navigation where it has a specific one, else from the
  * page's title. `grant` reuses the label GrantPage gives the same hub link.

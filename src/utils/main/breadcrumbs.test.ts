@@ -18,8 +18,9 @@ const { buildHomeBreadcrumb, buildSectionEntryBreadcrumbs } =
   await import('./breadcrumbs')
 const { ui } = await import('@/data/ui')
 
+// Same fallback as useTranslations: an empty Spanish string uses the English label.
 const translator = (locale: keyof typeof ui) => (key: keyof typeof ui.en) =>
-  ui[locale][key]
+  ui[locale][key] || ui.en[key]
 
 describe('buildHomeBreadcrumb', () => {
   it.each([
@@ -169,28 +170,28 @@ describe('buildSectionEntryBreadcrumbs', () => {
     ])
   })
 
-  // INTORG-1399: slug labels gave "Policy And Advocacy" and "Nextgen", and
-  // left English words on Spanish pages.
+  // INTORG-1399: slug labels gave "Policy And Advocacy" and "Nextgen".
+  // The new Spanish strings are empty, so those crumbs use the English label.
   it.each([
     [
       'policy-and-advocacy/informal-economy',
       'foundation',
       ['Policy and Advocacy'],
-      ['Políticas públicas y promoción']
+      ['Policy and Advocacy']
     ],
     [
       'grant/education/nextgen/faq',
       'foundation',
       ['Grants', 'Education Grants', 'NextGen'],
-      ['Subvenciones', 'Subvenciones para la educación', 'NextGen']
+      ['Subvenciones', 'Education Grants', 'NextGen']
     ],
     [
       'grant/call-for-papers/report',
       'foundation',
       ['Grants', 'Call for Papers'],
-      ['Subvenciones', 'Convocatoria de ponencias']
+      ['Subvenciones', 'Call for Papers']
     ],
-    ['faq', 'hackathon', ['Hackathons'], ['Hackatones']]
+    ['faq', 'hackathon', ['Hackathons'], ['Hackathons']]
   ] as const)(
     'labels the parents of %s by their page, not their slug',
     (pathSlug, section, english, spanish) => {
