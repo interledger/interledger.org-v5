@@ -159,8 +159,10 @@ function logFetchFailure(result: BlogResult | null | Error): BlogResult | null {
 
 /**
  * The error an update hook throws to stop a save. The hooks run inside the
- * save's transaction, so Strapi rolls the save back and the MDX files on disk
- * still match what is stored.
+ * save's transaction, so when one of them throws, Strapi rolls the save back
+ * and the MDX files on disk still match what is stored. A failure after
+ * afterUpdate returns also rolls the save back, but by then the files have
+ * already moved.
  */
 function abortedSaveError(reason: string): Error {
   return toValidationError(
@@ -485,7 +487,9 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       if (post instanceof Error) {
         // The editor is told the locale. The database text stays in the log.
         console.error(`⚠️  ${post.message}`)
-        return new Error(`could not read the ${locale} version`)
+        return new Error(
+          `could not read the ${blogVersionName(locale)} version`
+        )
       }
       if (!post) continue
       const normalized = withNormalizedLocale(post)
@@ -532,21 +536,22 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
   }
 
   /**
-   * Write every locale of a moved post. When one write fails, delete the
+   * Write the given locales of a moved post. When one write fails, delete the
    * files this call created before rethrowing: the error rolls the save back,
    * and those new names would otherwise sit beside the old files as
    * duplicates.
    */
   async function writeMovedBlogLocales(
     posts: PublishedBlogLocales,
+    locales: ReadonlySet<string>,
     englishSlug: string | undefined,
     oldFilepaths: BlogFilepaths
   ): Promise<void> {
     const existing = new Set(Object.values(oldFilepaths))
     const created: Array<{ locale: string; filepath: string }> = []
     try {
-      for (const post of Object.values(posts)) {
-        if (!post) continue
+      for (const [locale, post] of Object.entries(posts)) {
+        if (!post || !locales.has(locale)) continue
         const filepath = await writeBlogPost(post, englishSlug)
         if (!existing.has(filepath)) {
           created.push({ locale: post.locale, filepath })
@@ -636,19 +641,33 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
       )
       if (unread.length > 0) {
         throw abortedSaveError(
-          `could not read the ${unread.join(', ')} version after saving`
+          `could not read the ${unread.map(blogVersionName).join(' or ')} version after saving`
         )
       }
 
+      const savedLocale = result.locale || defaultLang
       const moved = findMovedBlogFiles(oldFilepaths, newFilepaths)
       if (moved.length > 0) {
-        console.log(`📝 Re-exporting all ${label} locales: ${englishSlug}`)
-        await writeMovedBlogLocales(posts, englishSlug, oldFilepaths)
+        // The moved files, plus the saved locale for its new content. An ES
+        // date edit moves only the ES file, so EN is left alone.
+        const locales = new Set([
+          savedLocale,
+          ...moved.map((file) => file.locale)
+        ])
+        console.log(
+          `📝 Re-exporting ${label} locales ${[...locales].join(', ')}: ${englishSlug}`
+        )
+        await writeMovedBlogLocales(posts, locales, englishSlug, oldFilepaths)
+        // deleteMdxIfExists logs a failed delete instead of throwing, so the
+        // save then succeeds with the old file beside the new one: the
+        // duplicate this cleanup prevents. Accepted: an unlink in our own
+        // content folder failing right after a write there is rare, and undoing
+        // the writes would need more deletes that can fail the same way.
         for (const { locale, oldFilepath } of moved) {
           deleteMdxIfExists(oldFilepath, locale)
         }
       } else {
-        const post = posts[result.locale || defaultLang]
+        const post = posts[savedLocale]
         if (!post) return
         console.log(`📝 Updating ${label} MDX for: ${post.pathSlug}`)
         await writeBlogPost(post, englishSlug)

@@ -513,7 +513,8 @@ describe('createBlogLifecycle — slug and date changes', () => {
 
     expect(fs.existsSync(oldEs)).toBe(false)
     expect(fs.existsSync(blogFile('es', '2025-07-01-test'))).toBe(true)
-    expect(fs.existsSync(en)).toBe(true)
+    // Not rewritten either: the seed content would be replaced by an export.
+    expect(fs.readFileSync(en, 'utf-8')).toBe('---\n---\n')
   })
 
   // A save that cannot see every locale stops, so Strapi rolls it back and
@@ -539,7 +540,7 @@ describe('createBlogLifecycle — slug and date changes', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(Error)
       const message = error instanceof Error ? error.message : String(error)
-      expect(message).toContain('could not read the es version')
+      expect(message).toContain('could not read the Spanish version')
       expect(message).toContain(
         'Try again. If it keeps failing, contact a developer.'
       )
