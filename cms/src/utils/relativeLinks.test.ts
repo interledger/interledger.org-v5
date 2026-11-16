@@ -6,6 +6,8 @@ import {
   toSlashedPath,
   isRelatedArticleSlug,
   toSlashedSlug,
+  toCanonicalPathSlug,
+  pathSlugFormatError,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripSiteOriginsInText,
@@ -132,6 +134,77 @@ describe('toSlashedSlug', () => {
   // An empty slug is the `required` validator's to report, not `//`.
   it.each(['', '/', '  '])('leaves %j empty', (value) => {
     expect(toSlashedSlug(value)).toBe('')
+  })
+})
+
+describe('toCanonicalPathSlug', () => {
+  it.each([
+    ['about-us', '/about-us/'],
+    ['/About-Us/', '/about-us/'],
+    ['About Us', '/about-us/'],
+    ['about_us', '/about-us/'],
+    ['about \t us', '/about-us/'],
+    ['about--us', '/about-us/'],
+    ['about - us', '/about-us/'],
+    ['-about-us-', '/about-us/'],
+    ['/grant//education/', '/grant/education/'],
+    [' /Grant/On Campus ', '/grant/on-campus/'],
+    [
+      '/grant/call-for-papers/Chenai-Chair/',
+      '/grant/call-for-papers/chenai-chair/'
+    ],
+    ['/faq/', '/faq/'],
+    ['/2025/judges/jane-doe/', '/2025/judges/jane-doe/']
+  ])('stores %j as %j', (input, expected) => {
+    expect(toCanonicalPathSlug(input)).toBe(expected)
+  })
+
+  // An empty slug is the `required` validator's to report, not `//`.
+  it.each(['', '/', '  ', '_', '/-/', '//'])('leaves %j empty', (value) => {
+    expect(toCanonicalPathSlug(value)).toBe('')
+  })
+
+  // What has no obvious fix is kept for pathSlugFormatError to name.
+  it('keeps characters it cannot correct', () => {
+    expect(toCanonicalPathSlug('pdf page? 122%21_13&13ne#ads!')).toBe(
+      '/pdf-page?-122%21-13&13ne#ads!/'
+    )
+  })
+
+  it('returns a valid slug unchanged', () => {
+    const slug = '/grant/education/on-campus/'
+    expect(toCanonicalPathSlug(toCanonicalPathSlug(slug))).toBe(slug)
+  })
+})
+
+describe('pathSlugFormatError', () => {
+  it.each([
+    'about-us',
+    '/about-us/',
+    'About Us',
+    '/grant/education/on-campus/',
+    '/2025/judges/jane-doe/',
+    ''
+  ])('accepts %j', (value) => {
+    expect(pathSlugFormatError(value)).toBeUndefined()
+  })
+
+  it('names every character to remove, once each', () => {
+    expect(pathSlugFormatError('pdf page? 122%21_13&13ne#ads!')).toBe(
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ? % & # !'
+    )
+  })
+
+  it.each([
+    ['/what-is-web3.0/', '.'],
+    ['/café/', 'é'],
+    ['/a%20b/', '%'],
+    ['/../etc/', '.'],
+    ['https://interledger.org/about/', ': .']
+  ])('rejects %j, naming %j', (value, named) => {
+    expect(pathSlugFormatError(value)).toMatch(
+      new RegExp(`Remove: ${named.replace('.', '\\.')}$`)
+    )
   })
 })
 

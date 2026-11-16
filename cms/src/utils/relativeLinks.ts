@@ -417,6 +417,54 @@ export function toSlashedSlug(value: string): string {
   return bare ? `/${bare}/` : ''
 }
 
+/**
+ * One pathSlug segment: lowercase letters and digits, with single hyphens
+ * between words (INTORG-574). Mirrors `PATH_SLUG_SEGMENT` in
+ * `src/schemas/content.ts`, which rejects a hand-edited MDX file the same
+ * way. Change both together.
+ */
+export const PATH_SLUG_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*'
+
+const PATH_SLUG = new RegExp(`^/(?:${PATH_SLUG_SEGMENT}/)+$`)
+
+/** Spaces and underscores are word breaks an editor meant as hyphens. */
+const WORD_BREAK = /[\s_]+/g
+
+function toCanonicalSegment(segment: string): string {
+  return segment
+    .toLowerCase()
+    .replace(WORD_BREAK, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/**
+ * The stored form of a pathSlug, with the mistakes that have one obvious fix
+ * corrected: `About Us` and `/about_us//` both become `/about-us/`.
+ * Characters with no obvious fix (`?`, `%`, `#`, `.`) are kept, so
+ * {@link pathSlugFormatError} can name them. An empty value stays empty for
+ * the `required` validator to report.
+ */
+export function toCanonicalPathSlug(value: string): string {
+  const segments = value.split('/').map(toCanonicalSegment).filter(Boolean)
+  return segments.length > 0 ? `/${segments.join('/')}/` : ''
+}
+
+/** Everything {@link PATH_SLUG_SEGMENT} allows, plus the separator. */
+const PATH_SLUG_CHARACTER = /[a-z0-9/-]/g
+
+/**
+ * The message for a pathSlug that is not valid even after
+ * {@link toCanonicalPathSlug}, naming the characters to remove. `undefined`
+ * when the slug is valid or empty (an empty one is the `required` check's).
+ */
+export function pathSlugFormatError(value: string): string | undefined {
+  const slug = toCanonicalPathSlug(value)
+  if (!slug || PATH_SLUG.test(slug)) return undefined
+  const invalid = [...new Set(slug.replace(PATH_SLUG_CHARACTER, ''))]
+  return `Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ${invalid.join(' ')}`
+}
+
 /** One blog pathSlug segment, the same set the blog uid regex allows. */
 const BLOG_SLUG_SEGMENT = '[A-Za-z0-9._~-]+'
 

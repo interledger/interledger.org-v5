@@ -16,6 +16,7 @@ import {
   validatePodcastPageFields,
   validateBlogFields,
   validateCardGridVariantsForContentType,
+  validatePathSlugFormat,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
@@ -1508,5 +1509,34 @@ describe('card grid variant restrictions', () => {
       'api::grant-page.grant-page'
     )
     expect(err).toBeUndefined()
+  })
+})
+
+describe('validatePathSlugFormat', () => {
+  it('passes a valid pathSlug', () => {
+    expect(validatePathSlugFormat({ pathSlug: '/about-us/' })).toBeUndefined()
+  })
+
+  // A partial update: the stored value was checked when it was written.
+  it('skips a write without a pathSlug', () => {
+    expect(validatePathSlugFormat({ title: 'About' })).toBeUndefined()
+  })
+
+  // Empty is the `required` check's, so the editor sees one message.
+  it('leaves an empty pathSlug to the required check', () => {
+    expect(validatePathSlugFormat({ pathSlug: '' })).toBeUndefined()
+  })
+
+  it('highlights Path Slug with the characters to remove', () => {
+    const error = validatePathSlugFormat({
+      pathSlug: 'pdf page? 122%21_13&13ne#ads!'
+    })
+    expect(error).toBeInstanceOf(errors.ValidationError)
+    const message =
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ? % & # !'
+    expect(error?.message).toBe(message)
+    expect(error?.details).toEqual({
+      errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
+    })
   })
 })

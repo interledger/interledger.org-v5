@@ -18,6 +18,7 @@ import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
 import { relatedArticleSlugError } from './relatedArticleSlug'
+import { pathSlugFormatError } from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -104,6 +105,24 @@ export function mergeValidationErrors(
   return new errors.ValidationError(present[0]!.message, {
     errors: allFieldErrors
   })
+}
+
+/**
+ * Reject a pathSlug that is not lowercase kebab segments (INTORG-574). The
+ * save hook has already corrected spaces, underscores and capitals, so what
+ * reaches here has characters only the editor can decide about. A partial
+ * update that leaves pathSlug out is not checked: the stored value was
+ * checked when it was written.
+ */
+export function validatePathSlugFormat(
+  data: Record<string, unknown>
+): errors.ValidationError | undefined {
+  const { pathSlug } = data
+  if (typeof pathSlug !== 'string') return undefined
+  const message = pathSlugFormatError(pathSlug)
+  return message
+    ? combineFieldErrors([{ path: ['pathSlug'], message }])
+    : undefined
 }
 
 /**

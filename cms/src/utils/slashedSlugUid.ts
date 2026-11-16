@@ -8,7 +8,12 @@
  * and the badge says Available until the save fails on the unique check.
  */
 
-import { bareSlug, slugVariants, toSlashedSlug } from './relativeLinks'
+import {
+  bareSlug,
+  slugVariants,
+  toCanonicalPathSlug,
+  toSlashedSlug
+} from './relativeLinks'
 
 /** uid fields stored with surrounding slashes. */
 const SLASHED_UID_FIELDS = new Set(['pathSlug'])
@@ -83,8 +88,10 @@ export function patchUidServiceForSlashedSlugs(
     if (!SLASHED_UID_FIELDS.has(params.field)) {
       return checkUIDAvailability(params)
     }
+    // Compare what save will store: `My Post` is saved as `/my-post/`.
+    const stored = toCanonicalPathSlug(params.value)
     const count = await documents(params.contentTypeUID).count({
-      filters: { [params.field]: { $in: slugVariants(params.value) } },
+      filters: { [params.field]: { $in: slugVariants(stored) } },
       locale: params.locale,
       status: 'draft'
     })

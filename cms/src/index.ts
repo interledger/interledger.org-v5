@@ -37,6 +37,7 @@ import {
   validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
+  validatePathSlugFormat,
   mergeValidationErrors,
   toValidationError,
   normalizeRelativeLinksInDocumentData,
@@ -1144,7 +1145,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // Each pathSlug hint reads: format, the type's own example, Spanish rule.
   // The podcast page's slug is fixed, so its hint skips the format note.
   const PATH_SLUG_FORMAT_NOTE =
-    'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
+    'Path of the page, starting and ending with a slash: lowercase letters, numbers and hyphens only. Missing slashes, capitals, spaces and underscores are fixed when you save.'
   // Spanish pages are served at /es/<english path slug> (ADR-004), so a
   // translated slug breaks every /es/ link that follows that rule.
   const SPANISH_PATH_SLUG_NOTE =
@@ -2644,6 +2645,11 @@ export default {
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
       validateFaqSections(body)
     )
+    // Every pathSlug is lowercase kebab segments (INTORG-574). The save hook
+    // above has already fixed spaces, underscores and capitals.
+    for (const uid of [...UNIQUE_SLUG_UIDS, ...SECTION_SCOPED_SLUG_UIDS]) {
+      registerDocumentValidation(strapi, uid, validatePathSlugFormat)
+    }
     // pathSlug on these three is relative to its Section, so none of them can
     // carry a plain `unique` constraint: /faq and /hackathon/faq are both
     // `faq` (INTORG-1132). Enforce the real rule instead, unique per Section.

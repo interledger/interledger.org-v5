@@ -1,25 +1,39 @@
 import { describe, it, expect } from 'vitest'
-import { toSlashedSlug } from '@/utils'
+import { pathSlugFormatError, toCanonicalPathSlug } from '@/utils'
 import schema from './schema.json'
 
-// pathSlug is a uid, and without a `regex` Strapi rejects `/` in a uid on
-// publish. The admin validates what the editor typed (or what Generate made
-// from the title), the server validates what the save hook stored.
+// pathSlug is a uid, and without a `regex` Strapi rejects `/` in a uid. The
+// admin checks the regex against what the editor typed, before the save hook
+// can correct it, and shows a generic message. So the regex only asks for a
+// value, and validatePathSlugFormat applies the real rule with our message
+// after the save hook ran (INTORG-574).
 const pathSlugPattern = new RegExp(schema.attributes.pathSlug.regex)
 
 describe('foundation-blog-post pathSlug regex', () => {
-  it.each(['my-post', 'my_post.v2~draft'])(
-    'accepts the generated slug %j and its stored form',
+  it.each(['my-post', '/my-post/', 'My Post', 'my_post', 'my-post?x=1'])(
+    'lets the editor save %j for the save hook to correct or name',
     (slug) => {
       expect(pathSlugPattern.test(slug)).toBe(true)
-      expect(pathSlugPattern.test(toSlashedSlug(slug))).toBe(true)
     }
   )
 
-  it.each(['', '/', '//my-post/', 'my post', 'my-post?x=1', 'my-post#top'])(
-    'rejects %j',
+  it('rejects an empty value', () => {
+    expect(pathSlugPattern.test('')).toBe(false)
+  })
+
+  it.each([
+    ['My Post', '/my-post/'],
+    ['my_post', '/my-post/'],
+    ['//my-post/', '/my-post/']
+  ])('stores %j as %j', (typed, stored) => {
+    expect(toCanonicalPathSlug(typed)).toBe(stored)
+    expect(pathSlugFormatError(typed)).toBeUndefined()
+  })
+
+  it.each(['my-post?x=1', 'my-post#top', 'my_post.v2~draft'])(
+    'names what is wrong with %j',
     (slug) => {
-      expect(pathSlugPattern.test(slug)).toBe(false)
+      expect(pathSlugFormatError(slug)).toMatch(/^Path Slug can only use/)
     }
   )
 })
