@@ -9,6 +9,7 @@ import {
   createCheckFileSize,
   guardBatchUploadDeletes,
   overrideUploadProvider,
+  PATH_SLUG_UIDS,
   registerDocumentValidation,
   registerGrantSlugSiblingValidation
 } from './index'
@@ -552,5 +553,29 @@ describe('registerGrantSlugSiblingValidation', () => {
 
     expect(next).toHaveBeenCalled()
     expect(findMany).not.toHaveBeenCalled()
+  })
+})
+
+// validatePathSlugFormat is registered per uid (INTORG-574), so a new content
+// type with a pathSlug would otherwise skip it silently.
+describe('PATH_SLUG_UIDS', () => {
+  it('lists every content type that has a pathSlug', () => {
+    const apiDir = path.join(__dirname, 'api')
+    const withPathSlug = fs
+      .readdirSync(apiDir)
+      .flatMap((api) => {
+        const typesDir = path.join(apiDir, api, 'content-types')
+        if (!fs.existsSync(typesDir)) return []
+        return fs.readdirSync(typesDir).map((type) => {
+          const schema = JSON.parse(
+            fs.readFileSync(path.join(typesDir, type, 'schema.json'), 'utf8')
+          ) as { attributes: Record<string, unknown> }
+          return 'pathSlug' in schema.attributes ? `api::${api}.${type}` : null
+        })
+      })
+      .filter((uid): uid is string => uid !== null)
+      .sort()
+
+    expect([...PATH_SLUG_UIDS].sort()).toEqual(withPathSlug)
   })
 })

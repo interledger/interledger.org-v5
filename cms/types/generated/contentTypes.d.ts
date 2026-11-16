@@ -513,6 +513,7 @@ export interface ApiFaqFaq extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::faq.faq'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -823,6 +824,7 @@ export interface ApiFoundationPageFoundationPage
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -918,6 +920,7 @@ export interface ApiFundraisingPageFundraisingPage
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1023,6 +1026,7 @@ export interface ApiGrantOverviewPageGrantOverviewPage
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1128,6 +1132,7 @@ export interface ApiGrantPageGrantPage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1283,6 +1288,7 @@ export interface ApiHackathonPageHackathonPage
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1351,6 +1357,7 @@ export interface ApiPodcastPagePodcastPage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1477,6 +1484,7 @@ export interface ApiProfilePageProfilePage extends Struct.CollectionTypeSchema {
       }>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1653,6 +1661,7 @@ export interface ApiReportReport extends Struct.CollectionTypeSchema {
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::report.report'>
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1804,6 +1813,7 @@ export interface ApiSummitPageSummitPage extends Struct.CollectionTypeSchema {
     pathSlug: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
+      Schema.Attribute.CustomField<'plugin::path-slug.path-slug'> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

@@ -288,6 +288,16 @@ const UNIQUE_SLUG_UIDS = [
   'api::foundation-blog-post.foundation-blog-post'
 ] as const
 
+/**
+ * Every content type with a `pathSlug`, all checked by
+ * validatePathSlugFormat. A test fails when a schema adds one that is not
+ * listed above.
+ */
+export const PATH_SLUG_UIDS: readonly string[] = [
+  ...UNIQUE_SLUG_UIDS,
+  ...SECTION_SCOPED_SLUG_UIDS
+]
+
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
   findMany: (options: Record<string, unknown>) => Promise<unknown[]>
@@ -2647,7 +2657,7 @@ export default {
     )
     // Every pathSlug is lowercase kebab segments (INTORG-574). The save hook
     // above has already fixed spaces, underscores and capitals.
-    for (const uid of [...UNIQUE_SLUG_UIDS, ...SECTION_SCOPED_SLUG_UIDS]) {
+    for (const uid of PATH_SLUG_UIDS) {
       registerDocumentValidation(strapi, uid, validatePathSlugFormat)
     }
     // pathSlug on these three is relative to its Section, so none of them can
