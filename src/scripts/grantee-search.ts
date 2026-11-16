@@ -1,15 +1,20 @@
 import { matchesGranteeFilters } from '@/utils/main/granteeFilters'
-import type { GranteeSearchEntry } from '@/utils/main/grantee'
+import type {
+  GranteeReportLink,
+  GranteeSearchEntry,
+  GranteeSearchProject
+} from '@/utils/main/granteeDirectory'
 import { tryCatchAsync } from '@/utils/shared/tryCatch'
 import {
   createSearchResultRow,
   hrefFromOriginal,
-  type SearchResultContext
+  type SearchResultContext,
+  type SearchResultTemplates
 } from './grantee-search-result'
 import { initGranteeDescriptions } from './grantee-description'
 
-// Not the `@/utils` barrel (astro:content) and not grantee.ts (createExcerpt /
-// markdown-it). matchesGranteeFilters is the client-safe filter; the search
+// Not the `@/utils` barrel (astro:content) and not granteeDirectory.ts
+// (markdown). matchesGranteeFilters is the client-safe filter; the search
 // entry type is erased at compile time.
 
 const DEBOUNCE_MS = 200
@@ -30,22 +35,42 @@ function isNullableString(value: unknown): value is string | null {
   return value === null || typeof value === 'string'
 }
 
-function isGranteeSearchEntry(value: unknown): value is GranteeSearchEntry {
+function isReportLink(value: unknown): value is GranteeReportLink {
+  return (
+    isRecord(value) &&
+    typeof value.id === 'string' &&
+    typeof value.label === 'string' &&
+    typeof value.href === 'string'
+  )
+}
+
+function isSearchProject(value: unknown): value is GranteeSearchProject {
   if (!isRecord(value)) return false
   return (
     typeof value.id === 'string' &&
     typeof value.name === 'string' &&
     typeof value.program === 'string' &&
     typeof value.year === 'string' &&
+    isStringArray(value.tags) &&
+    isNullableString(value.budgetLabel) &&
+    (value.reports === null ||
+      (Array.isArray(value.reports) && value.reports.every(isReportLink)))
+  )
+}
+
+function isGranteeSearchEntry(value: unknown): value is GranteeSearchEntry {
+  if (!isRecord(value)) return false
+  return (
+    typeof value.id === 'string' &&
+    typeof value.name === 'string' &&
     typeof value.country === 'string' &&
     typeof value.startMonth === 'string' &&
     typeof value.startLabel === 'string' &&
     typeof value.searchText === 'string' &&
-    isStringArray(value.leaders) &&
     isStringArray(value.tags) &&
     isNullableString(value.descriptionHtml) &&
-    isNullableString(value.projectUrl) &&
-    isNullableString(value.budgetLabel)
+    Array.isArray(value.projects) &&
+    value.projects.every(isSearchProject)
   )
 }
 
@@ -232,8 +257,7 @@ interface SearchDom {
   resultsCount: HTMLElement
   clearButton: HTMLButtonElement
   pagination: HTMLElement | null
-  rowTemplate: HTMLTemplateElement
-  tagTemplate: HTMLTemplateElement
+  templates: SearchResultTemplates
   indexUrl: string
 }
 
@@ -260,10 +284,7 @@ function querySearchDom(): SearchDom | null {
   const pagination = document.querySelector<HTMLElement>(
     '[data-grantee-pagination]'
   )
-  const rowTemplate = document.getElementById('grantee-search-result-template')
-  const tagTemplate = document.querySelector<HTMLTemplateElement>(
-    '[data-grantee-search-tag-template]'
-  )
+  const templates = querySearchTemplates()
   const indexUrl = root?.dataset.searchIndexUrl
 
   if (
@@ -276,8 +297,7 @@ function querySearchDom(): SearchDom | null {
     !searchingStatus ||
     !(clearButton instanceof HTMLButtonElement) ||
     !resultsCount ||
-    !(rowTemplate instanceof HTMLTemplateElement) ||
-    !tagTemplate ||
+    !templates ||
     !indexUrl
   ) {
     return null
@@ -297,10 +317,27 @@ function querySearchDom(): SearchDom | null {
     clearButton,
     resultsCount,
     pagination,
-    rowTemplate,
-    tagTemplate,
+    templates,
     indexUrl
   }
+}
+
+function querySearchTemplates(): SearchResultTemplates | null {
+  const row = document.getElementById('grantee-search-result-template')
+  const tag = document.querySelector('[data-grantee-search-tag-template]')
+  const project = document.querySelector(
+    '[data-grantee-search-project-template]'
+  )
+  const report = document.querySelector('[data-grantee-search-report-template]')
+  if (
+    !(row instanceof HTMLTemplateElement) ||
+    !(tag instanceof HTMLTemplateElement) ||
+    !(project instanceof HTMLTemplateElement) ||
+    !(report instanceof HTMLTemplateElement)
+  ) {
+    return null
+  }
+  return { row, tag, project, report }
 }
 
 export function initGranteeSearch(): void {
@@ -342,8 +379,7 @@ function createSearchView(
     skeleton,
     resultsCount,
     pagination,
-    rowTemplate,
-    tagTemplate
+    templates
   } = dom
 
   function setResultsCount(count: number) {
@@ -398,7 +434,7 @@ function createSearchView(
   ) {
     searchResults.replaceChildren(
       ...entries.map((entry) =>
-        createSearchResultRow(entry, rowTemplate, tagTemplate, context)
+        createSearchResultRow(entry, templates, context)
       )
     )
     applyViewState(
@@ -536,8 +572,9 @@ function wireGranteeSearch(dom: SearchDom): void {
       searchQuery: query,
       pathname: searchRoot.dataset.pathname ?? window.location.pathname,
       lang: searchRoot.dataset.lang ?? '',
-      viewDetailsLabel: searchRoot.dataset.labelViewDetails ?? '',
-      readMoreLabel: searchRoot.dataset.labelReadMore ?? ''
+      readMoreLabel: searchRoot.dataset.labelReadMore ?? '',
+      grantCountTemplate: searchRoot.dataset.labelGrantCount ?? '{count}',
+      grantCountOneLabel: searchRoot.dataset.labelGrantCountOne ?? '1'
     }
   }
 

@@ -4,10 +4,11 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
-import type { GrantReport, GrantReportType } from '@/types/airtable'
+import type { GrantReport } from '@/types/airtable'
 import {
   type UiKey,
   useTranslations,
+  grantReportLabel,
   buildHomeBreadcrumb,
   defaultLocale,
   formatReportDate,
@@ -32,15 +33,8 @@ const { report, reportPath } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const REPORT_TYPE_KEYS: Record<GrantReportType, UiKey> = {
-  'Interim Report': 'grantReport.type.interim',
-  'Final Report': 'grantReport.type.final'
-}
 // "Interim report 1": the title, the subtitle and the last breadcrumb.
-const reportLabel = t('grantReport.label', {
-  type: t(REPORT_TYPE_KEYS[report.reportType]),
-  number: report.reportNumber
-})
+const reportLabel = grantReportLabel(report, t)
 
 // No grantee step: the profile pages do not exist yet.
 const breadcrumbs = [

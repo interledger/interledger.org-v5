@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro'
-import rawGranteeData from '@/data/airtable/grantee-data.json'
+import { granteeDirectorySources } from '@/data/airtable/granteeDirectorySources'
 import {
   getGranteeSearchIndex,
   grantGranteeDirectoryPath,
@@ -8,7 +8,7 @@ import {
 
 export const GET: APIRoute = () => {
   const index = getGranteeSearchIndex(
-    rawGranteeData,
+    granteeDirectorySources(),
     'es',
     localizeRoute(grantGranteeDirectoryPath(), 'es')
   )

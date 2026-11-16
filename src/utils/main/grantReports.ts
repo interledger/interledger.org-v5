@@ -3,7 +3,7 @@ import type { GrantReport, GrantReportType } from '@/types/airtable'
 import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
 import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
-import type { Locale } from './i18'
+import type { Locale, Translate, UiKey } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 import { granteeBasePath } from './routes'
 
@@ -114,6 +114,32 @@ export function getGrantReportRoutes(
     params: { slug: report.granteeSlug, report: grantReportSegment(report) },
     props: { report, reportPath: grantReportPath(report) }
   }))
+}
+
+const REPORT_TYPE_KEYS: Record<GrantReportType, UiKey> = {
+  'Interim Report': 'grantReport.type.interim',
+  'Final Report': 'grantReport.type.final'
+}
+
+// "Interim report 1": the report page's title and every link to the report.
+export function grantReportLabel(
+  report: Pick<GrantReport, 'reportType' | 'reportNumber'>,
+  t: Translate
+): string {
+  return t('grantReport.label', {
+    type: t(REPORT_TYPE_KEYS[report.reportType]),
+    number: report.reportNumber
+  })
+}
+
+// Interim reports first, then final ones, each by number.
+export function compareGrantReports(
+  a: Pick<GrantReport, 'reportType' | 'reportNumber'>,
+  b: Pick<GrantReport, 'reportType' | 'reportNumber'>
+): number {
+  const byType =
+    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType)
+  return byType || a.reportNumber - b.reportNumber
 }
 
 const REPORT_DATE_LOCALES: Record<Locale, string> = {

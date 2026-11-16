@@ -6,7 +6,7 @@ import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import GranteeIndex from '@/components/grant/GranteeIndex.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import {
-  type Grantee,
+  type GranteeDirectoryEntry,
   type GranteeFilterOption,
   useTranslations,
   buildHomeBreadcrumb,
@@ -17,7 +17,7 @@ import {
 } from '@/utils'
 
 interface Props {
-  page: Page<Grantee>
+  page: Page<GranteeDirectoryEntry>
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
   selectedYear?: string

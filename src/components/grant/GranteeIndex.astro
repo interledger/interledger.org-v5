@@ -1,5 +1,5 @@
 ---
-import type { Grantee, GranteeFilterOption } from '@/utils'
+import type { GranteeDirectoryEntry, GranteeFilterOption } from '@/utils'
 import {
   useTranslations,
   buildDeferredUmamiAttrs,
@@ -15,7 +15,7 @@ import GranteeSearchResultTemplate from './GranteeSearchResultTemplate.astro'
 import GranteeSearchSkeleton from './GranteeSearchSkeleton.astro'
 
 interface Props {
-  grantees: Grantee[]
+  grantees: GranteeDirectoryEntry[]
   years: GranteeFilterOption[]
   tags: GranteeFilterOption[]
   totalCount: number
@@ -90,10 +90,11 @@ const searchIndexUrl = `${localizeRoute('/', routeLocale)}grantee-search-index.j
   data-directory-path={directoryPath}
   data-pathname={Astro.url.pathname}
   data-lang={routeLocale}
-  data-label-view-details={t('grantee.view_details')}
   data-label-read-more={t('grantee.read_more')}
+  data-label-grant-count={t('grantee.grants.other')}
+  data-label-grant-count-one={t('grantee.grants.one', { count: 1 })}
   data-results-template={t('grantee.results')}
-  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:my-5xl"
+  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:mt-5xl"
 >
   <div class="flex flex-col gap-xl">
     <div
