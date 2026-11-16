@@ -12,8 +12,11 @@
 # Path slugs are lowercase-only [INTORG-574]. This profile went live with
 # capitals. It lives here, not in redirects.json: Astro would emit the
 # redirect as a page at the same path, which on a case-insensitive filesystem
-# overwrites the real one. Netlify matches rule paths case-sensitively.
+# overwrites the real one. Netlify serves a real file before a non-forced
+# rule, so the lowercase page is never redirected, even if a rule matches
+# without regard to case.
 /grant/call-for-papers/Chenai-Chair/    /grant/call-for-papers/chenai-chair/    301
+/es/grant/call-for-papers/Chenai-Chair/    /es/grant/call-for-papers/chenai-chair/    301
 
 # Grantee directory legacy URLs [INTORG-1112]
 # Netlify applies the first matching rule, and a real page always wins over

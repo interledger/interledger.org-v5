@@ -70,7 +70,7 @@ describe('pathSlugOnBlur', () => {
 })
 
 describe('visiblePathSlugError', () => {
-  const bad = '/pdf-page?/'
+  const bad = '/pdf-page!/'
 
   it('stays quiet while the editor is still typing', () => {
     expect(visiblePathSlugError(bad, undefined, false)).toBeUndefined()
@@ -78,7 +78,7 @@ describe('visiblePathSlugError', () => {
 
   it('names what to remove once the editor left the field', () => {
     expect(visiblePathSlugError(bad, undefined, true)).toMatch(
-      /^Path Slug can only use .* Remove: \?$/
+      /^Path Slug can only use .* Remove: !$/
     )
   })
 

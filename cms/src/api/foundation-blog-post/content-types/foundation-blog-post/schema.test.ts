@@ -33,7 +33,7 @@ describe('foundation-blog-post pathSlug regex', () => {
   it.each(['my-post?x=1', 'my-post#top', 'my_post.v2~draft'])(
     'names what is wrong with %j',
     (slug) => {
-      expect(pathSlugFormatError(slug)).toMatch(/^Path Slug can only use/)
+      expect(pathSlugFormatError(slug)).toMatch(/^Path Slug /)
     }
   )
 })

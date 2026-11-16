@@ -1533,7 +1533,7 @@ describe('validatePathSlugFormat', () => {
     })
     expect(error).toBeInstanceOf(errors.ValidationError)
     const message =
-      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ? % & # !'
+      "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /about-us/."
     expect(error?.message).toBe(message)
     expect(error?.details).toEqual({
       errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]

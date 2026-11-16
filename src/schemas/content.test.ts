@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import {
   faqFrontmatterSchema,
@@ -582,5 +583,20 @@ describe('pathSlug format', () => {
         message: expect.stringMatching(/^pathSlug can only use/)
       })
     )
+  })
+})
+
+// The CMS corrects and checks pathSlug on save with its own copy of the
+// segment pattern. The two must match, or a slug the CMS saves fails the build.
+describe('pathSlug segment pattern', () => {
+  const segmentIn = (file: string) =>
+    /const PATH_SLUG_SEGMENT = '([^']+)'/.exec(
+      readFileSync(new URL(file, import.meta.url), 'utf8')
+    )?.[1]
+
+  it('is the same in the CMS and in the content schema', () => {
+    const cms = segmentIn('../../cms/src/utils/relativeLinks.ts')
+    expect(cms).toBeTruthy()
+    expect(segmentIn('./content.ts')).toBe(cms)
   })
 })

@@ -298,6 +298,53 @@ export const PATH_SLUG_UIDS: readonly string[] = [
   ...SECTION_SCOPED_SLUG_UIDS
 ]
 
+/**
+ * Document-service actions that write the editor's data. Duplicate is
+ * `clone`: it writes the submitted form over a copy of the original, and
+ * skips every create/update hook.
+ */
+const WRITE_ACTIONS_WITH_DATA = new Set(['create', 'update', 'clone'])
+
+/** The slice of the document service the publish-time slug check reads. */
+interface DraftSlugFinder {
+  findMany: (options: Record<string, unknown>) => Promise<unknown[]>
+}
+
+/**
+ * The pathSlug format check (INTORG-574) on every write that sets one, and
+ * on publish. Publish sends no data, so the draft's stored slug is read: a
+ * draft saved before the check existed must not go live unchecked.
+ */
+export function registerPathSlugValidation(strapi: {
+  documents: ((uid: string) => unknown) & {
+    use: (middleware: DocumentValidationMiddleware) => void
+  }
+}) {
+  strapi.documents.use(async (ctx, next) => {
+    if (!PATH_SLUG_UIDS.includes(ctx.uid)) return next()
+    if (WRITE_ACTIONS_WITH_DATA.has(ctx.action)) {
+      const validationErr = validatePathSlugFormat(ctx.params.data ?? {})
+      if (validationErr) throw validationErr
+    } else if (ctx.action === 'publish' && ctx.params.documentId) {
+      const drafts = await (
+        strapi.documents(ctx.uid) as DraftSlugFinder
+      ).findMany({
+        filters: { documentId: ctx.params.documentId },
+        locale: ctx.params.locale,
+        status: 'draft',
+        fields: ['pathSlug']
+      })
+      for (const draft of drafts) {
+        const validationErr = validatePathSlugFormat(
+          (draft ?? {}) as Record<string, unknown>
+        )
+        if (validationErr) throw validationErr
+      }
+    }
+    return next()
+  })
+}
+
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
   findMany: (options: Record<string, unknown>) => Promise<unknown[]>
@@ -2576,19 +2623,19 @@ export default {
     // registerDocumentValidation below for why) so it covers every content
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
+      // Store every link in its relative form before any validation below
+      // runs: link and slug fields as /path/, our own site's origins
+      // (any environment) stripped, and the CMS origin CKEditor prefixes
+      // onto upload URLs stripped. See documentLinks.ts. Duplicate (`clone`)
+      // writes the editor's form over the copy, so it is normalized too.
+      if (WRITE_ACTIONS_WITH_DATA.has(ctx.action) && !NAV_UIDS.has(ctx.uid)) {
+        ctx.params.data = await normalizeRelativeLinksInDocumentData(
+          ctx.params.data,
+          strapi.getModel(ctx.uid),
+          (uid) => strapi.getModel(uid)
+        )
+      }
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Store every link in its relative form before any validation below
-        // runs: link and slug fields as /path/, our own site's origins
-        // (any environment) stripped, and the CMS origin CKEditor prefixes
-        // onto upload URLs stripped. See documentLinks.ts.
-        if (!NAV_UIDS.has(ctx.uid)) {
-          ctx.params.data = await normalizeRelativeLinksInDocumentData(
-            ctx.params.data,
-            strapi.getModel(ctx.uid),
-            (uid) => strapi.getModel(uid)
-          )
-        }
-
         // Drop inactive card-grid variant arrays before schema/business
         // validation so empty Title/Resource/Info/Navigation fields that
         // aren't the selected variant never fail the save. Sanitize can
@@ -2657,9 +2704,7 @@ export default {
     )
     // Every pathSlug is lowercase kebab segments (INTORG-574). The save hook
     // above has already fixed spaces, underscores and capitals.
-    for (const uid of PATH_SLUG_UIDS) {
-      registerDocumentValidation(strapi, uid, validatePathSlugFormat)
-    }
+    registerPathSlugValidation(strapi)
     // pathSlug on these three is relative to its Section, so none of them can
     // carry a plain `unique` constraint: /faq and /hackathon/faq are both
     // `faq` (INTORG-1132). Enforce the real rule instead, unique per Section.

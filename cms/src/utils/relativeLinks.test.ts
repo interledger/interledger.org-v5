@@ -164,6 +164,17 @@ describe('toCanonicalPathSlug', () => {
     expect(toCanonicalPathSlug(value)).toBe('')
   })
 
+  // The ticket: a link pasted from any environment keeps only its path.
+  it.each([
+    'https://interledger.org/About-Us/',
+    'https://www.interledger.org/about-us',
+    'staging.interledger.org/about-us/',
+    'https://playground--interledger-org-v5.netlify.app/about-us/'
+  ])('keeps only the path of our own URL %j', (value) => {
+    expect(toCanonicalPathSlug(value)).toBe('/about-us/')
+    expect(pathSlugFormatError(value)).toBeUndefined()
+  })
+
   // What has no obvious fix is kept for pathSlugFormatError to name.
   it('keeps characters it cannot correct', () => {
     expect(toCanonicalPathSlug('pdf page? 122%21_13&13ne#ads!')).toBe(
@@ -190,8 +201,37 @@ describe('pathSlugFormatError', () => {
   })
 
   it('names every character to remove, once each', () => {
-    expect(pathSlugFormatError('pdf page? 122%21_13&13ne#ads!')).toBe(
-      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ? % & # !'
+    expect(pathSlugFormatError('pdf page 122%21_13&13ne!')).toBe(
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: % & !'
+    )
+  })
+
+  // Deleting the `?` and `=` the generic message would name leaves /aboutx1/.
+  it.each(['about?x=1', '/about/#team', 'pdf page? 122%21_13&13ne#ads!'])(
+    'asks for the path alone instead of a query or fragment in %j',
+    (value) => {
+      expect(pathSlugFormatError(value)).toBe(
+        "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /about-us/."
+      )
+    }
+  )
+
+  // Deleting `:` and `.` would leave /https/example-com/about-us/.
+  it.each(['https://example.com/about-us/', '//example.com/about-us/'])(
+    'asks for a path instead of the link %j',
+    (value) => {
+      expect(pathSlugFormatError(value)).toBe(
+        'Path Slug is a path on this site, not a link. Enter only the path, like /about-us/.'
+      )
+    }
+  )
+
+  it.each([
+    ['about\u200bus', 'U+200B'],
+    ['İstanbul', 'U+0307']
+  ])('names the invisible character in %j by code point', (value, named) => {
+    expect(pathSlugFormatError(value)).toMatch(
+      new RegExp(`Remove: ${named.replace('+', '\\+')}$`)
     )
   })
 
@@ -199,8 +239,7 @@ describe('pathSlugFormatError', () => {
     ['/what-is-web3.0/', '.'],
     ['/café/', 'é'],
     ['/a%20b/', '%'],
-    ['/../etc/', '.'],
-    ['https://interledger.org/about/', ': .']
+    ['/../etc/', '.']
   ])('rejects %j, naming %j', (value, named) => {
     expect(pathSlugFormatError(value)).toMatch(
       new RegExp(`Remove: ${named.replace('.', '\\.')}$`)

@@ -11,6 +11,7 @@ import {
   overrideUploadProvider,
   PATH_SLUG_UIDS,
   registerDocumentValidation,
+  registerPathSlugValidation,
   registerGrantSlugSiblingValidation
 } from './index'
 
@@ -577,5 +578,107 @@ describe('PATH_SLUG_UIDS', () => {
       .sort()
 
     expect([...PATH_SLUG_UIDS].sort()).toEqual(withPathSlug)
+  })
+})
+
+describe('registerPathSlugValidation', () => {
+  const UID = 'api::foundation-page.foundation-page'
+
+  type Middleware = (
+    ctx: {
+      uid: string
+      action: string
+      params: {
+        data?: Record<string, unknown>
+        documentId?: string
+        locale?: string
+      }
+    },
+    next: () => Promise<void>
+  ) => Promise<void>
+
+  function register(drafts: unknown[] = []) {
+    const use = vi.fn()
+    const findMany = vi.fn(async () => drafts)
+    const documents = Object.assign(
+      vi.fn(() => ({ findMany })),
+      { use }
+    )
+    registerPathSlugValidation({ documents })
+    return { middleware: use.mock.calls[0][0] as Middleware, findMany }
+  }
+
+  it.each(['create', 'update', 'clone'])(
+    'rejects a bad pathSlug on %s',
+    async (action) => {
+      const { middleware } = register()
+      const next = vi.fn(async () => {})
+      await expect(
+        middleware(
+          { uid: UID, action, params: { data: { pathSlug: '/a%b/' } } },
+          next
+        )
+      ).rejects.toBeInstanceOf(errors.ValidationError)
+      expect(next).not.toHaveBeenCalled()
+    }
+  )
+
+  // Duplicate is `clone`, which skipped every create/update check.
+  it('lets a clone with a valid pathSlug through', async () => {
+    const { middleware } = register()
+    const next = vi.fn(async () => {})
+    await middleware(
+      { uid: UID, action: 'clone', params: { data: { pathSlug: '/copy/' } } },
+      next
+    )
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it("checks the draft's stored pathSlug on publish", async () => {
+    const { middleware, findMany } = register([{ pathSlug: '/a%b/' }])
+    const next = vi.fn(async () => {})
+    await expect(
+      middleware(
+        {
+          uid: UID,
+          action: 'publish',
+          params: { documentId: 'd1', locale: 'en' }
+        },
+        next
+      )
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: { documentId: 'd1' },
+        locale: 'en',
+        status: 'draft'
+      })
+    )
+    expect(next).not.toHaveBeenCalled()
+  })
+
+  it('publishes a draft whose pathSlug is valid', async () => {
+    const { middleware } = register([{ pathSlug: '/about-us/' }])
+    const next = vi.fn(async () => {})
+    await middleware(
+      { uid: UID, action: 'publish', params: { documentId: 'd1' } },
+      next
+    )
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it('leaves content types without a pathSlug alone', async () => {
+    const { middleware, findMany } = register([{ pathSlug: '/a%b/' }])
+    const next = vi.fn(async () => {})
+    await middleware(
+      {
+        uid: 'api::redirect.redirect',
+        action: 'publish',
+        params: { documentId: 'd1', data: { pathSlug: '/a%b/' } }
+      },
+      next
+    )
+    expect(findMany).not.toHaveBeenCalled()
+    expect(next).toHaveBeenCalledOnce()
   })
 })

@@ -83,7 +83,7 @@ export async function normalizeRelativeLinksInDocumentData<T>(
       if (typeof value !== 'string' || CODE_FIELDS.has(key)) return
       if (HREF_LIKE_FIELDS.has(key)) node[key] = toStoredHref(value)
       else if (URL_FIELDS.has(key)) node[key] = toStoredUrl(value)
-      // `slug` is only the related-article field. pathSlug keeps its case.
+      // `slug` is only the related-article field.
       // Lowercase here so `/blog/Interledger-Universe/` matches the post
       // `interledger-universe` (INTORG-1346).
       else if (key === 'slug') node[key] = toSlashedSlug(value).toLowerCase()
