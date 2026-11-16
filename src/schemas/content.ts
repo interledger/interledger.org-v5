@@ -17,10 +17,27 @@ const heroCtaSchema = z.object({
 // here), and an import from outside src/schemas pulls in the Astro tsconfig.
 const bareSlugSchema = z.string().transform((s) => s.replace(/^\/+|\/+$/g, ''))
 
+// One pathSlug segment: lowercase letters and digits, with single hyphens
+// between words (INTORG-574). Mirrors `PATH_SLUG_SEGMENT` in
+// cms/src/utils/relativeLinks.ts, which applies the same rule on save. Change
+// both together. Kept local for the same reason as bareSlugSchema.
+const PATH_SLUG_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*'
+const BARE_PATH_SLUG = new RegExp(
+  `^${PATH_SLUG_SEGMENT}(?:/${PATH_SLUG_SEGMENT})*$`
+)
+
+// A file edited in the repo never passes the CMS save hook, so a bad slug
+// would otherwise ship as a URL.
+const isPathSlugOrEmpty = (s: string) => s === '' || BARE_PATH_SLUG.test(s)
+const PATH_SLUG_FORMAT_MESSAGE =
+  'pathSlug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/'
+
 const pathSlugSchema = (required = true) =>
   required
-    ? bareSlugSchema.refine((s) => s.length > 0, 'pathSlug is required')
-    : bareSlugSchema
+    ? bareSlugSchema
+        .refine((s) => s.length > 0, 'pathSlug is required')
+        .refine(isPathSlugOrEmpty, PATH_SLUG_FORMAT_MESSAGE)
+    : bareSlugSchema.refine(isPathSlugOrEmpty, PATH_SLUG_FORMAT_MESSAGE)
 
 // `localizes` names the English pathSlug, so it is compared bare like one.
 const localizesSchema = bareSlugSchema.optional()
