@@ -5,7 +5,6 @@ import {
   legacyReportFieldIdsToFetch,
   toLegacyGrantReports
 } from './src/utils/main/airtableLegacyReports'
-import { parseLegacyGrantReports } from './src/utils/main/grantReportLinks'
 
 const BASE = 'https://api.airtable.com/v0/appP2zUc6VKh79IBD'
 const headers = { Authorization: `Bearer ${process.env.AIRTABLE_API_TOKEN}` }
@@ -58,5 +57,3 @@ for (const id of directory) {
   perGrant[key] = (perGrant[key] ?? 0) + 1
 }
 console.log(`links per directory grant: ${JSON.stringify(perGrant)}`)
-const parsed = parseLegacyGrantReports(JSON.parse(JSON.stringify(kept)))
-console.log(`site reader: ${parsed instanceof Error ? 'FAILED ' + parsed.message.split(':')[0] : 'ok, ' + parsed.length}`)
