@@ -52,7 +52,7 @@ const projectCount = grantee.projects.length
 ---
 
 <li data-grantee-card class={classes.card}>
-  <article class="flex flex-col gap-lg">
+  <article class={classes.article}>
     <div class={classes.header}>
       <h3 class={classes.name}>{grantee.name}</h3>
       {(grantee.country || grantee.startLabel) && <ul class={classes.meta}>
@@ -89,7 +89,7 @@ const projectCount = grantee.projects.length
       })}
     </ul>}
 
-    <div class="flex flex-col gap-md">
+    <div class={classes.grants}>
       <p class={classes.grantCount}>
         {t(granteeGrantCountKey(projectCount), { count: projectCount })}
       </p>

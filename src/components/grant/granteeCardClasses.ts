@@ -6,6 +6,8 @@ import type { UiKey } from '@/utils/main/i18'
 // scanner sees every class.
 export const granteeCardClasses = {
   card: 'm-0 rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl',
+  // No gap: each section sets its own top padding (tags, grants).
+  article: 'flex flex-col',
   header:
     'flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl',
   name: 'm-0 min-w-0 text-neutral-150',
@@ -13,8 +15,9 @@ export const granteeCardClasses = {
   metaItem:
     'm-0 flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0',
   metaIcon: 'size-5 shrink-0 text-neutral-75',
-  // pt-sm on top of the card's gap-lg: 24px below the header.
-  tags: 'flex flex-wrap gap-xs list-none m-0 p-0 pt-sm',
+  // Desktop puts the meta list beside the name, so the tags sit right under it.
+  tags: 'flex flex-wrap gap-xs list-none m-0 p-0 pt-xl desktop:pt-0',
+  grants: 'flex flex-col gap-lg pt-lg',
   grantCount: 'm-0 text-body-sm-emphasis text-primary',
   projects: 'flex flex-col gap-sm list-none m-0 p-0',
   project:
@@ -22,7 +25,7 @@ export const granteeCardClasses = {
   program: 'm-0 text-body-sm-standard text-primary',
   projectName:
     'm-0 text-h5 font-semibold tablet:text-h5-md desktop:text-h5-lg text-neutral-150',
-  budget: 'm-0 text-body-sm-standard text-neutral-75',
+  budget: 'm-0 text-body-lg-standard text-neutral-75',
   reports:
     'flex shrink-0 flex-wrap gap-sm list-none m-0 p-0 tablet:justify-end',
   noReports:

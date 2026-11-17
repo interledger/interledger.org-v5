@@ -22,7 +22,7 @@ const reportLinkClass = buttonVariants({
 
 <template id="grantee-search-result-template">
   <li class={classes.card}>
-    <article class="flex flex-col gap-lg">
+    <article class={classes.article}>
       <div class={classes.header}>
         <h3 class={classes.name} data-grantee-search-name></h3>
         <ul class={classes.meta} data-grantee-search-meta-wrap hidden>
@@ -50,7 +50,7 @@ const reportLinkClass = buttonVariants({
         hidden
       ></ul>
 
-      <div class="flex flex-col gap-md">
+      <div class={classes.grants}>
         <p class={classes.grantCount} data-grantee-search-grant-count></p>
         <ul
           class={classes.projects}
