@@ -39,6 +39,13 @@ const pathSlugSchema = (required = true) =>
         .refine(isPathSlugOrEmpty, PATH_SLUG_FORMAT_MESSAGE)
     : bareSlugSchema.refine(isPathSlugOrEmpty, PATH_SLUG_FORMAT_MESSAGE)
 
+// The blog route is /blog/[id], one param, so a nested slug has no page and
+// Astro fails with "Missing parameter: id". The CMS rejects it on save too.
+const blogPathSlugSchema = pathSlugSchema().refine(
+  (s) => !s.includes('/'),
+  "a blog post's pathSlug can't have a slash inside it, like /my-post/"
+)
+
 // `localizes` names the English pathSlug, so it is compared bare like one.
 const localizesSchema = bareSlugSchema.optional()
 
@@ -79,7 +86,7 @@ export const foundationBlogFrontmatterSchema = z.object({
   date: z.coerce.date(),
   // Optional manual entry — only set when a post has a meaningful editorial update.
   lastUpdated: z.coerce.date().optional(),
-  pathSlug: pathSlugSchema(),
+  pathSlug: blogPathSlugSchema,
   // Pins the post into the featured section at the top of the blog listing.
   featured: z.boolean().default(false),
   // Desktop feature image. Optional here so a file without one does not stop

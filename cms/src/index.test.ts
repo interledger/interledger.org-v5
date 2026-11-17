@@ -657,6 +657,39 @@ describe('registerPathSlugValidation', () => {
     expect(next).not.toHaveBeenCalled()
   })
 
+  // /blog/[id] takes one param; a nested blog slug broke the staging build.
+  it('rejects a nested pathSlug on a blog post only', async () => {
+    const { middleware } = register()
+    const next = vi.fn(async () => {})
+    const data = { pathSlug: '/foundation-blog-post/carlos-madrigal/' }
+    await expect(
+      middleware(
+        {
+          uid: 'api::foundation-blog-post.foundation-blog-post',
+          action: 'create',
+          params: { data }
+        },
+        next
+      )
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+    await middleware({ uid: UID, action: 'create', params: { data } }, next)
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it('refuses to publish a nested blog draft', async () => {
+    const { middleware } = register([{ pathSlug: '/a/b/' }])
+    await expect(
+      middleware(
+        {
+          uid: 'api::foundation-blog-post.foundation-blog-post',
+          action: 'publish',
+          params: { documentId: 'd1' }
+        },
+        vi.fn(async () => {})
+      )
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+  })
+
   it('refuses to publish a draft whose pathSlug is blank', async () => {
     const { middleware } = register([{ pathSlug: '' }])
     const next = vi.fn(async () => {})

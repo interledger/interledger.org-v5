@@ -300,6 +300,14 @@ export const PATH_SLUG_UIDS: readonly string[] = [
 ]
 
 /**
+ * Content types whose route takes the pathSlug as one param, so `/a/b/`
+ * has no page: the blog is `/blog/[id]`. Every other type is `[...page]`.
+ */
+const SINGLE_SEGMENT_PATH_SLUG_UIDS: readonly string[] = [
+  'api::foundation-blog-post.foundation-blog-post'
+]
+
+/**
  * Document-service actions that write the editor's data. Duplicate is
  * `clone`: it writes the submitted form over a copy of the original, and
  * skips every create/update hook.
@@ -323,8 +331,11 @@ export function registerPathSlugValidation(strapi: {
 }) {
   strapi.documents.use(async (ctx, next) => {
     if (!PATH_SLUG_UIDS.includes(ctx.uid)) return next()
+    const rules = {
+      singleSegment: SINGLE_SEGMENT_PATH_SLUG_UIDS.includes(ctx.uid)
+    }
     if (WRITE_ACTIONS_WITH_DATA.has(ctx.action)) {
-      const validationErr = validatePathSlugFormat(ctx.params.data ?? {})
+      const validationErr = validatePathSlugFormat(ctx.params.data ?? {}, rules)
       if (validationErr) throw validationErr
     } else if (ctx.action === 'publish' && ctx.params.documentId) {
       const drafts = await (
@@ -337,7 +348,8 @@ export function registerPathSlugValidation(strapi: {
       })
       for (const draft of drafts) {
         const validationErr = validatePathSlugToPublish(
-          (draft ?? {}) as Record<string, unknown>
+          (draft ?? {}) as Record<string, unknown>,
+          rules
         )
         if (validationErr) throw validationErr
       }

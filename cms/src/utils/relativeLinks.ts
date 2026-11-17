@@ -518,6 +518,7 @@ const PATH_SLUG_FORMAT_MESSAGES = {
   link: `Path Slug is a path, not a link. Enter only the end of the page's address, ${PATH_SLUG_EXAMPLE}. Leave out the site, /es/, and a section such as /blog/ or /grant/.`,
   query: `Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, ${PATH_SLUG_EXAMPLE}.`,
   noWord: `Path Slug needs at least one word between the slashes, ${PATH_SLUG_EXAMPLE}.`,
+  oneSegment: `A blog post's Path Slug can't have a slash inside it, like /my-post/. The post's address is always /blog/ followed by it.`,
   characters: `Path Slug can only use lowercase letters, numbers and hyphens between slashes, ${PATH_SLUG_EXAMPLE}. Remove: `
 } as const
 
@@ -526,6 +527,15 @@ const PATH_SLUG_FORMAT_MESSAGES = {
  * lets through: it only rejects a missing value, not `''`.
  */
 export const PATH_SLUG_NO_WORD_MESSAGE = PATH_SLUG_FORMAT_MESSAGES.noWord
+
+/** What a content type's route asks of its pathSlug beyond the format. */
+export interface PathSlugRules {
+  /**
+   * One segment, no `/` inside: the blog's `/blog/[id]` route takes a single
+   * param, so `/a/b/` fails the build with "Missing parameter: id".
+   */
+  singleSegment?: boolean
+}
 
 /**
  * Whether a field error is one of ours, so the input can clear it once the
@@ -545,12 +555,20 @@ export function isPathSlugFormatMessage(message: string): boolean {
  * gets its own message: deleting the `:` or `?` the generic one names would
  * leave a wrong slug (`/aboutx1/` from `about?x=1`).
  */
-export function pathSlugFormatError(value: string): string | undefined {
+export function pathSlugFormatError(
+  value: string,
+  { singleSegment = false }: PathSlugRules = {}
+): string | undefined {
   const typed = value.trim()
   if (!typed) return undefined
   if (isLink(typed)) return PATH_SLUG_FORMAT_MESSAGES.link
   const slug = toCanonicalPathSlug(typed)
-  if (PATH_SLUG.test(slug)) return undefined
+  if (PATH_SLUG.test(slug)) {
+    const nested = slug.slice(1, -1).includes('/')
+    return singleSegment && nested
+      ? PATH_SLUG_FORMAT_MESSAGES.oneSegment
+      : undefined
+  }
   if (!slug.replace(NOT_A_WORD, '')) return PATH_SLUG_FORMAT_MESSAGES.noWord
   if (/[?#]/.test(slug)) return PATH_SLUG_FORMAT_MESSAGES.query
   return PATH_SLUG_FORMAT_MESSAGES.characters + charactersToRemove(typed)

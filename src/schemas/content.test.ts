@@ -56,6 +56,18 @@ describe('foundationBlogFrontmatterSchema', () => {
     expect(parsed.lastUpdated).toBeInstanceOf(Date)
   })
 
+  // /blog/[id] takes one param: a nested slug failed the build with
+  // "Missing parameter: id".
+  it('rejects a pathSlug with a slash inside it', () => {
+    const result = foundationBlogFrontmatterSchema.safeParse({
+      ...base,
+      pathSlug: '/foundation-blog-post/carlos-madrigal/'
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.message).toMatch(/slash inside it/)
+  })
+
   it('rejects an unknown category', () => {
     const result = foundationBlogFrontmatterSchema.safeParse({
       ...base,

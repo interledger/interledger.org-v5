@@ -18,7 +18,11 @@ import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
 import { relatedArticleSlugError } from './relatedArticleSlug'
-import { PATH_SLUG_NO_WORD_MESSAGE, pathSlugFormatError } from './relativeLinks'
+import {
+  PATH_SLUG_NO_WORD_MESSAGE,
+  pathSlugFormatError,
+  type PathSlugRules
+} from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -116,11 +120,12 @@ export function mergeValidationErrors(
  * written before this check existed.
  */
 export function validatePathSlugFormat(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  rules: PathSlugRules = {}
 ): errors.ValidationError | undefined {
   const { pathSlug } = data
   if (typeof pathSlug !== 'string') return undefined
-  const message = pathSlugFormatError(pathSlug)
+  const message = pathSlugFormatError(pathSlug, rules)
   return message
     ? combineFieldErrors([{ path: ['pathSlug'], message }])
     : undefined
@@ -133,7 +138,8 @@ export function validatePathSlugFormat(
  * address of its own. A missing value is still `required`'s to report.
  */
 export function validatePathSlugToPublish(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  rules: PathSlugRules = {}
 ): errors.ValidationError | undefined {
   const { pathSlug } = data
   if (typeof pathSlug === 'string' && !pathSlug.trim()) {
@@ -141,7 +147,7 @@ export function validatePathSlugToPublish(
       { path: ['pathSlug'], message: PATH_SLUG_NO_WORD_MESSAGE }
     ])
   }
-  return validatePathSlugFormat(data)
+  return validatePathSlugFormat(data, rules)
 }
 
 /**
