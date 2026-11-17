@@ -23,6 +23,33 @@ jobs:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
         run: node scripts/probe-airtable-reports.mjs
 
+  # Runs the INTORG-1423 parser on the real rows. Counts only.
+  legacy-parser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: probe
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/intorg-1423
+          path: site
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: site/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+        working-directory: site
+      - name: Parse legacy rows
+        working-directory: site
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: |
+          cp ../probe/scripts/probe-legacy-parser.ts ./probe-legacy-parser.ts
+          pnpm exec tsx probe-legacy-parser.ts
+
   # Runs the real sync from staging on the runner. Nothing is committed or
   # pushed. The sync writes public fields only. Ayesha's image test reports stay
   # Draft, so the Live filter is patched here (never in the repo) to also take
