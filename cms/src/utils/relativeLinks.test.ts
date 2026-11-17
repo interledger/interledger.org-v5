@@ -244,10 +244,54 @@ describe('pathSlugFormatError', () => {
     )
   })
 
+  // Save and blur both correct before they check: the link must survive the
+  // correction, or the message names `:` and `.` instead.
+  it.each(['https://example.com/about-us/', '//example.com/about-us/'])(
+    'still calls %j a link after the save correction',
+    (value) => {
+      expect(pathSlugFormatError(toCanonicalPathSlug(value))).toMatch(
+        /^Path Slug is a path, not a link\./
+      )
+    }
+  )
+
   it.each(['/', '-', '_', '/-/', '//'])('asks for a word in %j', (value) => {
     expect(pathSlugFormatError(value)).toBe(
       'Path Slug needs at least one word between the slashes, like /about-us/.'
     )
+  })
+
+  // The blog route is /blog/[id]: one param.
+  describe('a single-segment slug', () => {
+    const oneSegment =
+      "A blog post's Path Slug can't have a slash inside it, like /my-post/. The post's address is always /blog/ followed by it."
+
+    it('rejects a nested slug', () => {
+      expect(
+        pathSlugFormatError('/foundation-blog-post/carlos-madrigal/', {
+          singleSegment: true
+        })
+      ).toBe(oneSegment)
+    })
+
+    it('accepts one segment, corrected or not', () => {
+      expect(
+        pathSlugFormatError('/my-post/', { singleSegment: true })
+      ).toBeUndefined()
+      expect(
+        pathSlugFormatError('//My Post//', { singleSegment: true })
+      ).toBeUndefined()
+    })
+
+    it('still names a bad character first', () => {
+      expect(pathSlugFormatError('/a/b%/', { singleSegment: true })).toMatch(
+        /Remove: %$/
+      )
+    })
+
+    it('is off by default: pages nest', () => {
+      expect(pathSlugFormatError('/grant/education/')).toBeUndefined()
+    })
   })
 
   it('names the invisible character by code point', () => {
