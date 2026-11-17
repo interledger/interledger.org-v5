@@ -1543,27 +1543,23 @@ describe('validatePathSlugFormat', () => {
 })
 
 describe('validatePathSlugToPublish', () => {
-  const noWord =
-    'Path Slug needs at least one word between the slashes, like /about-us/.'
+  const required =
+    "Path Slug is required to publish. Enter the page's path, like /about-us/."
 
-  // Strapi's `required` only rejects null, so '' from the API would go live.
-  it.each(['', '  '])(
-    'rejects a blank pathSlug %j on Path Slug',
+  // The blog's uid can't be `required` (the admin would pre-fill it), and
+  // Strapi's `required` lets '' through, so this is the rule for both.
+  it.each([[''], ['  '], [null], [undefined]])(
+    'refuses %j on Path Slug',
     (pathSlug) => {
       const error = validatePathSlugToPublish({ pathSlug })
       expect(error).toBeInstanceOf(errors.ValidationError)
       expect(error?.details).toEqual({
         errors: [
-          { path: ['pathSlug'], message: noWord, name: 'ValidationError' }
+          { path: ['pathSlug'], message: required, name: 'ValidationError' }
         ]
       })
     }
   )
-
-  it('leaves a missing pathSlug to the required check', () => {
-    expect(validatePathSlugToPublish({ pathSlug: null })).toBeUndefined()
-    expect(validatePathSlugToPublish({})).toBeUndefined()
-  })
 
   it('applies the format check', () => {
     expect(validatePathSlugToPublish({ pathSlug: '/a%b/' })).toBeInstanceOf(

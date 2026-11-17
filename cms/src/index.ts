@@ -1296,7 +1296,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Required to publish. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:

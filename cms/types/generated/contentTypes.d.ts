@@ -654,7 +654,6 @@ export interface ApiFoundationBlogPostFoundationBlogPost
       'api::foundation-blog-post.foundation-blog-post'
     >
     pathSlug: Schema.Attribute.UID<'title'> &
-      Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true

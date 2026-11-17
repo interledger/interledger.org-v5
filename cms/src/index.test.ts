@@ -690,6 +690,22 @@ describe('registerPathSlugValidation', () => {
     ).rejects.toBeInstanceOf(errors.ValidationError)
   })
 
+  // The blog's uid isn't `required` (the admin pre-fills a required one with
+  // /foundation-blog-post/), so this is its required check.
+  it('refuses to publish a blog draft with no pathSlug', async () => {
+    const { middleware } = register([{ pathSlug: null }])
+    await expect(
+      middleware(
+        {
+          uid: 'api::foundation-blog-post.foundation-blog-post',
+          action: 'publish',
+          params: { documentId: 'd1' }
+        },
+        vi.fn(async () => {})
+      )
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+  })
+
   it('refuses to publish a draft whose pathSlug is blank', async () => {
     const { middleware } = register([{ pathSlug: '' }])
     const next = vi.fn(async () => {})

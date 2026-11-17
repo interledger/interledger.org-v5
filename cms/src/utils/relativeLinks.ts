@@ -518,15 +518,13 @@ const PATH_SLUG_FORMAT_MESSAGES = {
   link: `Path Slug is a path, not a link. Enter only the end of the page's address, ${PATH_SLUG_EXAMPLE}. Leave out the site, /es/, and a section such as /blog/ or /grant/.`,
   query: `Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, ${PATH_SLUG_EXAMPLE}.`,
   noWord: `Path Slug needs at least one word between the slashes, ${PATH_SLUG_EXAMPLE}.`,
+  required: `Path Slug is required to publish. Enter the page's path, ${PATH_SLUG_EXAMPLE}.`,
   oneSegment: `A blog post's Path Slug can't have a slash inside it, like /my-post/. The post's address is always /blog/ followed by it.`,
   characters: `Path Slug can only use lowercase letters, numbers and hyphens between slashes, ${PATH_SLUG_EXAMPLE}. Remove: `
 } as const
 
-/**
- * Publishing a pathSlug with no word in it, which Strapi's `required` check
- * lets through: it only rejects a missing value, not `''`.
- */
-export const PATH_SLUG_NO_WORD_MESSAGE = PATH_SLUG_FORMAT_MESSAGES.noWord
+/** Publishing without a pathSlug: see `validatePathSlugToPublish`. */
+export const PATH_SLUG_REQUIRED_MESSAGE = PATH_SLUG_FORMAT_MESSAGES.required
 
 /** What a content type's route asks of its pathSlug beyond the format. */
 export interface PathSlugRules {

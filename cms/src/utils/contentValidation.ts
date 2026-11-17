@@ -19,7 +19,7 @@ import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
 import { relatedArticleSlugError } from './relatedArticleSlug'
 import {
-  PATH_SLUG_NO_WORD_MESSAGE,
+  PATH_SLUG_REQUIRED_MESSAGE,
   pathSlugFormatError,
   type PathSlugRules
 } from './relativeLinks'
@@ -133,18 +133,21 @@ export function validatePathSlugFormat(
 
 /**
  * {@link validatePathSlugFormat} for a draft about to go live, which also
- * rejects a blank pathSlug. Strapi's `required` only rejects a missing
- * value, so an API write of `''` would otherwise publish a page with no
- * address of its own. A missing value is still `required`'s to report.
+ * requires a pathSlug. This is the `required` rule for the blog, whose uid
+ * field can't carry Strapi's: the admin pre-fills a required uid with the
+ * content type's name (`/foundation-blog-post/`) before there is a title.
+ * It also catches `''`, which Strapi's `required` lets through (it only
+ * rejects a missing value), so an API write can't publish a page with no
+ * address of its own.
  */
 export function validatePathSlugToPublish(
   data: Record<string, unknown>,
   rules: PathSlugRules = {}
 ): errors.ValidationError | undefined {
   const { pathSlug } = data
-  if (typeof pathSlug === 'string' && !pathSlug.trim()) {
+  if (typeof pathSlug !== 'string' || !pathSlug.trim()) {
     return combineFieldErrors([
-      { path: ['pathSlug'], message: PATH_SLUG_NO_WORD_MESSAGE }
+      { path: ['pathSlug'], message: PATH_SLUG_REQUIRED_MESSAGE }
     ])
   }
   return validatePathSlugFormat(data, rules)

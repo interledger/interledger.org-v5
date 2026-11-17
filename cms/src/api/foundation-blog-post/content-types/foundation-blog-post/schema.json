@@ -34,8 +34,7 @@
         }
       },
       "targetField": "title",
-      "regex": "^.+$",
-      "required": true
+      "regex": "^.+$"
     },
     "draft": {
       "type": "boolean",
