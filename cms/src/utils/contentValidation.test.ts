@@ -1544,7 +1544,7 @@ describe('validatePathSlugFormat', () => {
 
 describe('validatePathSlugOnSave', () => {
   const required =
-    "Path Slug is required. Enter the page's path, like /about-us/."
+    "Path Slug is required. Enter the page's path, like /title-of-the-page/."
   const requiredError = {
     errors: [{ path: ['pathSlug'], message: required, name: 'ValidationError' }]
   }
