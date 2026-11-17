@@ -197,6 +197,40 @@ describe('toCanonicalPathSlug', () => {
   })
 })
 
+// Save stores toCanonicalPathSlug(typed), then the validator checks that
+// stored value, correcting it once more. Correcting twice must change
+// nothing, or the check judges a value other than the one stored.
+describe('correct, then check', () => {
+  it.each([
+    'About Us',
+    'about%20us',
+    'about%2520us',
+    '/100%/',
+    'İstanbul',
+    'Ä',
+    '\u212A', // KELVIN SIGN, which lowercases to an ASCII k
+    'café',
+    'pdf page? 122%21_13&13ne#ads!',
+    '/a/b/',
+    '/',
+    'https://example.com/about-us/'
+  ])('gives %j the same verdict as the raw input', (typed) => {
+    const stored = toCanonicalPathSlug(typed)
+    expect(toCanonicalPathSlug(stored)).toBe(stored)
+    expect(pathSlugFormatError(stored)).toBe(pathSlugFormatError(typed))
+  })
+
+  it.each([
+    ['about%2520us', '%'],
+    ['İstanbul', 'İ'],
+    ['\u212A', '\u212A']
+  ])('names what the editor typed in %j after save', (typed, named) => {
+    expect(pathSlugFormatError(toCanonicalPathSlug(typed))).toMatch(
+      new RegExp(`Remove: ${named}$`)
+    )
+  })
+})
+
 describe('pathSlugFormatError', () => {
   it.each([
     'about-us',

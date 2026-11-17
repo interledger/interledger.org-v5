@@ -430,9 +430,15 @@ const PATH_SLUG = new RegExp(`^/(?:${PATH_SLUG_SEGMENT}/)+$`)
 /** Spaces and underscores are word breaks an editor meant as hyphens. */
 const WORD_BREAK = /[\s_]+/g
 
+/**
+ * ASCII capitals only. `İ`.toLowerCase() is `i` plus an invisible U+0307,
+ * so the message would name that instead of what the editor typed.
+ */
+const ASCII_CAPITAL = /[A-Z]/g
+
 function toCanonicalSegment(segment: string): string {
   return segment
-    .toLowerCase()
+    .replace(ASCII_CAPITAL, (capital) => capital.toLowerCase())
     .replace(WORD_BREAK, '-')
     .replace(/-{2,}/g, '-')
     .replace(/^-+|-+$/g, '')
@@ -440,12 +446,16 @@ function toCanonicalSegment(segment: string): string {
 
 /**
  * A pasted path with its escapes decoded, so `about%20us` reads as
- * `about us`. A malformed escape (`100%`) can't be decoded and stays as
- * typed, for {@link pathSlugFormatError} to name the `%`.
+ * `about us`. Stays as typed, for {@link pathSlugFormatError} to name the
+ * `%`, when an escape is malformed (`100%`) or decodes to another escape
+ * (`about%2520us`). Decoding that again would make the correction
+ * non-idempotent: save stores `/about%20us/`, and the validator, which
+ * corrects the stored value once more, would judge `/about-us/` instead.
  */
 function decodePercentEscapes(value: string): string {
   try {
-    return decodeURIComponent(value)
+    const decoded = decodeURIComponent(value)
+    return decoded.includes('%') ? value : decoded
   } catch {
     return value
   }
