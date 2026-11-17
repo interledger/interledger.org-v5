@@ -214,7 +214,7 @@ describe('pathSlugFormatError', () => {
   // `%21` is an escaped `!`: the input shows it decoded after blur.
   it('names every character to remove, once each', () => {
     expect(pathSlugFormatError('pdf page 122%21_13&13ne!')).toBe(
-      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ! &'
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /title-of-the-page/. Remove: ! &'
     )
   })
 
@@ -223,7 +223,7 @@ describe('pathSlugFormatError', () => {
     'asks for the path alone instead of a query or fragment in %j',
     (value) => {
       expect(pathSlugFormatError(value)).toBe(
-        "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /about-us/."
+        "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /title-of-the-page/."
       )
     }
   )
@@ -240,7 +240,7 @@ describe('pathSlugFormatError', () => {
     'interledger.org'
   ])('asks for the end of the address instead of the link %j', (value) => {
     expect(pathSlugFormatError(value)).toBe(
-      "Path Slug is a path, not a link. Enter only the end of the page's address, like /about-us/. Leave out the site, /es/, and a section such as /blog/ or /grant/."
+      "Path Slug is a path, not a link. Enter only the end of the page's address, like /title-of-the-page/. Leave out the site, /es/, and a section such as /blog/ or /grant/."
     )
   })
 
@@ -257,7 +257,7 @@ describe('pathSlugFormatError', () => {
 
   it.each(['/', '-', '_', '/-/', '//'])('asks for a word in %j', (value) => {
     expect(pathSlugFormatError(value)).toBe(
-      'Path Slug needs at least one word between the slashes, like /about-us/.'
+      'Path Slug needs at least one word between the slashes, like /title-of-the-page/.'
     )
   })
 
@@ -310,7 +310,7 @@ describe('pathSlugFormatError', () => {
     ['/../etc/', '.']
   ])('rejects %j, naming %j', (value, named) => {
     expect(pathSlugFormatError(value)).toBe(
-      `Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: ${named}`
+      `Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /title-of-the-page/. Remove: ${named}`
     )
   })
 })

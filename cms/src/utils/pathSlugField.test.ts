@@ -92,7 +92,7 @@ describe('visiblePathSlugError', () => {
   // The admin keeps a failed save's errors until the next save.
   it('drops our message from a failed save once the value is fixed', () => {
     const saved =
-      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: !'
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /title-of-the-page/. Remove: !'
     expect(visiblePathSlugError('/pdf-page/', saved, true)).toBeUndefined()
   })
 
@@ -103,7 +103,7 @@ describe('visiblePathSlugError', () => {
 
   it('keeps our message on a blank value', () => {
     const noWord =
-      'Path Slug needs at least one word between the slashes, like /about-us/.'
+      'Path Slug needs at least one word between the slashes, like /title-of-the-page/.'
     expect(visiblePathSlugError('', noWord, false)).toBe(noWord)
   })
 

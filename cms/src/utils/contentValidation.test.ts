@@ -1534,7 +1534,7 @@ describe('validatePathSlugFormat', () => {
     })
     expect(error).toBeInstanceOf(errors.ValidationError)
     const message =
-      "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /about-us/."
+      "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /title-of-the-page/."
     expect(error?.message).toBe(message)
     expect(error?.details).toEqual({
       errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
