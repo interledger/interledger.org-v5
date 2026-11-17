@@ -3,7 +3,8 @@ import type { GrantReport, GrantReportType } from '@/types/airtable'
 import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
 import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
-import type { Locale } from './i18'
+import type { Grantee } from './grantee'
+import type { Locale, Translate, UiKey } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 import { granteeBasePath } from './routes'
 
@@ -53,6 +54,26 @@ export function parseGrantReports(data: unknown): GrantReport[] | Error {
   return result.data
 }
 
+const REPORT_TYPE_LABEL_KEYS: Record<GrantReportType, UiKey> = {
+  'Interim Report': 'grantReport.type.interim',
+  'Final Report': 'grantReport.type.final'
+}
+
+// "Interim report 1": the report's name on its page, in the breadcrumbs and
+// in the list of the grant's reports.
+export function grantReportLabel(
+  {
+    reportType,
+    reportNumber
+  }: Pick<GrantReport, 'reportType' | 'reportNumber'>,
+  t: Translate
+): string {
+  return t('grantReport.label', {
+    type: t(REPORT_TYPE_LABEL_KEYS[reportType]),
+    number: reportNumber
+  })
+}
+
 const REPORT_TYPE_SEGMENTS: Record<GrantReportType, string> = {
   'Interim Report': 'interim',
   'Final Report': 'final'
@@ -80,9 +101,55 @@ export function grantReportPath(
   return `${granteeBasePath(report.granteeSlug)}/reports/${grantReportSegment(report)}`
 }
 
+// The facts the sidebar shows about the report's grant. They come from the
+// grantee directory, so they exist only while the grant is published there.
+export type GrantFacts = Pick<
+  Grantee,
+  'budgetLabel' | 'program' | 'leaders' | 'country'
+>
+
+// Another report of the same grant, for the "Reports for this grant" list.
+export interface GrantReportListItem {
+  reportType: GrantReportType
+  reportNumber: number
+  reportPath: string
+  isCurrent: boolean
+}
+
+export interface GrantReportPageProps {
+  report: GrantReport
+  reportPath: string
+  // Null when the slug is missing from grantee-profiles.json.
+  granteeName: string | null
+  // Null when the grant is not published in the directory.
+  grant: GrantFacts | null
+  grantReports: GrantReportListItem[]
+}
+
 export interface GrantReportRoute {
   params: { slug: string; report: string }
-  props: { report: GrantReport; reportPath: string }
+  props: GrantReportPageProps
+}
+
+// What a report page needs from the other Airtable files.
+export interface GrantReportSources {
+  grantees: readonly Grantee[]
+  granteeNames: ReadonlyMap<string, string>
+}
+
+const granteeNamesSchema = z.array(
+  z.object({ slug: z.string().min(1), name: z.string().min(1) })
+)
+
+// Grantee name by slug, from grantee-profiles.json.
+export function readGranteeNames(data: unknown): Map<string, string> | Error {
+  const result = granteeNamesSchema.safeParse(data)
+  if (!result.success) {
+    return new Error(
+      'grantee-profiles.json does not match the shape the report pages read'
+    )
+  }
+  return new Map(result.data.map(({ slug, name }) => [slug, name]))
 }
 
 function findSharedReportPaths(reports: readonly GrantReport[]): string[] {
@@ -96,12 +163,51 @@ function findSharedReportPaths(reports: readonly GrantReport[]): string[] {
     .map(([reportPath, ids]) => `${reportPath} is used by ${ids.join(', ')}`)
 }
 
+function compareListItems(
+  a: GrantReportListItem,
+  b: GrantReportListItem
+): number {
+  return (
+    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType) ||
+    a.reportNumber - b.reportNumber
+  )
+}
+
+// Every report of the current report's grant, the current one included:
+// interim reports first, then by number.
+export function listGrantReports(
+  reports: readonly GrantReport[],
+  current: GrantReport
+): GrantReportListItem[] {
+  return reports
+    .filter(({ grantId }) => grantId === current.grantId)
+    .map((report) => ({
+      reportType: report.reportType,
+      reportNumber: report.reportNumber,
+      reportPath: grantReportPath(report),
+      isCurrent: report.id === current.id
+    }))
+    .sort(compareListItems)
+}
+
+function findGrantFacts(
+  grantees: readonly Grantee[],
+  grantId: string
+): GrantFacts | null {
+  const grant = grantees.find(({ id }) => id === grantId)
+  if (!grant) return null
+  const { budgetLabel, program, leaders, country } = grant
+  return { budgetLabel, program, leaders, country }
+}
+
 // One static path per report, or none while the feature gate is on. The
-// caller passes the gate in, so this stays a pure function of its input. Two
-// reports with one URL fail the build: one of them would never be built.
+// caller passes the gate and the other files in, so this stays a pure
+// function of its input. Two reports with one URL fail the build: one of them
+// would never be built.
 export function getGrantReportRoutes(
   data: unknown,
-  hideReports: boolean
+  hideReports: boolean,
+  sources: GrantReportSources
 ): GrantReportRoute[] | Error {
   if (hideReports) return []
   const reports = parseGrantReports(data)
@@ -112,7 +218,13 @@ export function getGrantReportRoutes(
   }
   return reports.map((report) => ({
     params: { slug: report.granteeSlug, report: grantReportSegment(report) },
-    props: { report, reportPath: grantReportPath(report) }
+    props: {
+      report,
+      reportPath: grantReportPath(report),
+      granteeName: sources.granteeNames.get(report.granteeSlug) ?? null,
+      grant: findGrantFacts(sources.grantees, report.grantId),
+      grantReports: listGrantReports(reports, report)
+    }
   }))
 }
 
@@ -121,15 +233,14 @@ const REPORT_DATE_LOCALES: Record<Locale, string> = {
   es: 'es-ES'
 }
 
-// A report date (YYYY-MM-DD) as the page shows it, for example "Nov 15, 2026".
-// Formatted in UTC: Airtable dates have no time, and in a zone west of UTC the
-// local date of UTC midnight is the day before.
-export function formatReportDate(isoDate: string, lang: Locale): string {
+// A report date (YYYY-MM-DD) as the page shows it: month and year, for
+// example "September 2026". Formatted in UTC: Airtable dates have no time, and
+// in a zone west of UTC the local date of UTC midnight is the day before.
+export function formatReportMonth(isoDate: string, lang: Locale): string {
   const date = new Date(`${isoDate}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return isoDate
   return date.toLocaleDateString(REPORT_DATE_LOCALES[lang], {
-    month: 'short',
-    day: 'numeric',
+    month: 'long',
     year: 'numeric',
     timeZone: 'UTC'
   })
