@@ -114,10 +114,7 @@ export function mergeValidationErrors(
 /**
  * Reject a pathSlug that is not lowercase kebab segments (INTORG-574). The
  * save hook has already corrected spaces, underscores and capitals, so what
- * reaches here has characters only the editor can decide about. A partial
- * update that leaves pathSlug out is not checked here; publish checks the
- * stored draft ({@link validatePathSlugToPublish}), which also covers rows
- * written before this check existed.
+ * reaches here has characters only the editor can decide about.
  */
 export function validatePathSlugFormat(
   data: Record<string, unknown>,
@@ -131,21 +128,27 @@ export function validatePathSlugFormat(
     : undefined
 }
 
+export interface PathSlugSaveRules extends PathSlugRules {
+  /** A create, which must bring a pathSlug. An update may leave it out. */
+  isNew: boolean
+}
+
 /**
- * {@link validatePathSlugFormat} for a draft about to go live, which also
- * requires a pathSlug. This is the `required` rule for the blog, whose uid
- * field can't carry Strapi's: the admin pre-fills a required uid with the
- * content type's name (`/foundation-blog-post/`) before there is a title.
- * It also catches `''`, which Strapi's `required` lets through (it only
- * rejects a missing value), so an API write can't publish a page with no
- * address of its own.
+ * {@link validatePathSlugFormat}, plus the `required` rule: a create needs a
+ * pathSlug, and an update that sends one can't blank it. This is the rule
+ * for the blog, whose uid field can't carry Strapi's `required` (the admin
+ * would pre-fill it with `/foundation-blog-post/` before there is a title).
+ * It also catches `''`, which Strapi's `required` lets through. Without a
+ * slug the save's MDX export has no filename and fails with a 500.
  */
-export function validatePathSlugToPublish(
+export function validatePathSlugOnSave(
   data: Record<string, unknown>,
-  rules: PathSlugRules = {}
+  { isNew, ...rules }: PathSlugSaveRules
 ): errors.ValidationError | undefined {
   const { pathSlug } = data
-  if (typeof pathSlug !== 'string' || !pathSlug.trim()) {
+  const sent = pathSlug !== undefined
+  const blank = typeof pathSlug !== 'string' || !pathSlug.trim()
+  if ((isNew || sent) && blank) {
     return combineFieldErrors([
       { path: ['pathSlug'], message: PATH_SLUG_REQUIRED_MESSAGE }
     ])

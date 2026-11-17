@@ -583,163 +583,90 @@ describe('PATH_SLUG_UIDS', () => {
 
 describe('registerPathSlugValidation', () => {
   const UID = 'api::foundation-page.foundation-page'
+  const BLOG = 'api::foundation-blog-post.foundation-blog-post'
 
   type Middleware = (
     ctx: {
       uid: string
       action: string
-      params: {
-        data?: Record<string, unknown>
-        documentId?: string
-        locale?: string
-      }
+      params: { data?: Record<string, unknown>; documentId?: string }
     },
     next: () => Promise<void>
   ) => Promise<void>
 
-  function register(drafts: unknown[] = []) {
+  function register(): Middleware {
     const use = vi.fn()
-    const findMany = vi.fn(async () => drafts)
-    const documents = Object.assign(
-      vi.fn(() => ({ findMany })),
-      { use }
+    registerPathSlugValidation({ documents: { use } })
+    return use.mock.calls[0][0] as Middleware
+  }
+
+  async function run(uid: string, action: string, data?: object) {
+    const next = vi.fn(async () => {})
+    const result = register()(
+      { uid, action, params: { data: data as Record<string, unknown> } },
+      next
     )
-    registerPathSlugValidation({ documents })
-    return { middleware: use.mock.calls[0][0] as Middleware, findMany }
+    return { result, next }
   }
 
   it.each(['create', 'update', 'clone'])(
     'rejects a bad pathSlug on %s',
     async (action) => {
-      const { middleware } = register()
-      const next = vi.fn(async () => {})
-      await expect(
-        middleware(
-          { uid: UID, action, params: { data: { pathSlug: '/a%b/' } } },
-          next
-        )
-      ).rejects.toBeInstanceOf(errors.ValidationError)
+      const { result, next } = await run(UID, action, { pathSlug: '/a%b/' })
+      await expect(result).rejects.toBeInstanceOf(errors.ValidationError)
       expect(next).not.toHaveBeenCalled()
     }
   )
 
   // Duplicate is `clone`, which skipped every create/update check.
   it('lets a clone with a valid pathSlug through', async () => {
-    const { middleware } = register()
-    const next = vi.fn(async () => {})
-    await middleware(
-      { uid: UID, action: 'clone', params: { data: { pathSlug: '/copy/' } } },
-      next
-    )
+    const { result, next } = await run(UID, 'clone', { pathSlug: '/copy/' })
+    await result
     expect(next).toHaveBeenCalledOnce()
   })
 
-  it("checks the draft's stored pathSlug on publish", async () => {
-    const { middleware, findMany } = register([{ pathSlug: '/a%b/' }])
-    const next = vi.fn(async () => {})
-    await expect(
-      middleware(
-        {
-          uid: UID,
-          action: 'publish',
-          params: { documentId: 'd1', locale: 'en' }
-        },
-        next
-      )
-    ).rejects.toBeInstanceOf(errors.ValidationError)
-    expect(findMany).toHaveBeenCalledWith(
-      expect.objectContaining({
-        filters: { documentId: 'd1' },
-        locale: 'en',
-        status: 'draft'
-      })
-    )
-    expect(next).not.toHaveBeenCalled()
+  // A save is the publish (draftAndPublish is off), and the MDX export needs
+  // a slug. The blog's uid isn't `required`, so this is its required check:
+  // without it the export threw and the editor saw a bare 500.
+  it('refuses to create a blog post with no pathSlug', async () => {
+    const { result } = await run(BLOG, 'create', { title: 'A post' })
+    await expect(result).rejects.toMatchObject({
+      details: {
+        errors: [expect.objectContaining({ path: ['pathSlug'] })]
+      }
+    })
+  })
+
+  it('lets an update leave the pathSlug out', async () => {
+    const { result, next } = await run(BLOG, 'update', { title: 'Renamed' })
+    await result
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it('refuses an update that blanks the pathSlug', async () => {
+    const { result } = await run(BLOG, 'update', { pathSlug: null })
+    await expect(result).rejects.toBeInstanceOf(errors.ValidationError)
   })
 
   // /blog/[id] takes one param; a nested blog slug broke the staging build.
   it('rejects a nested pathSlug on a blog post only', async () => {
-    const { middleware } = register()
-    const next = vi.fn(async () => {})
     const data = { pathSlug: '/foundation-blog-post/carlos-madrigal/' }
     await expect(
-      middleware(
-        {
-          uid: 'api::foundation-blog-post.foundation-blog-post',
-          action: 'create',
-          params: { data }
-        },
-        next
-      )
+      (await run(BLOG, 'create', data)).result
     ).rejects.toBeInstanceOf(errors.ValidationError)
-    await middleware({ uid: UID, action: 'create', params: { data } }, next)
-    expect(next).toHaveBeenCalledOnce()
+    const page = await run(UID, 'create', data)
+    await page.result
+    expect(page.next).toHaveBeenCalledOnce()
   })
 
-  it('refuses to publish a nested blog draft', async () => {
-    const { middleware } = register([{ pathSlug: '/a/b/' }])
-    await expect(
-      middleware(
-        {
-          uid: 'api::foundation-blog-post.foundation-blog-post',
-          action: 'publish',
-          params: { documentId: 'd1' }
-        },
-        vi.fn(async () => {})
-      )
-    ).rejects.toBeInstanceOf(errors.ValidationError)
-  })
-
-  // The blog's uid isn't `required` (the admin pre-fills a required one with
-  // /foundation-blog-post/), so this is its required check.
-  it('refuses to publish a blog draft with no pathSlug', async () => {
-    const { middleware } = register([{ pathSlug: null }])
-    await expect(
-      middleware(
-        {
-          uid: 'api::foundation-blog-post.foundation-blog-post',
-          action: 'publish',
-          params: { documentId: 'd1' }
-        },
-        vi.fn(async () => {})
-      )
-    ).rejects.toBeInstanceOf(errors.ValidationError)
-  })
-
-  it('refuses to publish a draft whose pathSlug is blank', async () => {
-    const { middleware } = register([{ pathSlug: '' }])
-    const next = vi.fn(async () => {})
-    await expect(
-      middleware(
-        { uid: UID, action: 'publish', params: { documentId: 'd1' } },
-        next
-      )
-    ).rejects.toBeInstanceOf(errors.ValidationError)
-    expect(next).not.toHaveBeenCalled()
-  })
-
-  it('publishes a draft whose pathSlug is valid', async () => {
-    const { middleware } = register([{ pathSlug: '/about-us/' }])
-    const next = vi.fn(async () => {})
-    await middleware(
-      { uid: UID, action: 'publish', params: { documentId: 'd1' } },
-      next
-    )
-    expect(next).toHaveBeenCalledOnce()
-  })
-
-  it('leaves content types without a pathSlug alone', async () => {
-    const { middleware, findMany } = register([{ pathSlug: '/a%b/' }])
-    const next = vi.fn(async () => {})
-    await middleware(
-      {
-        uid: 'api::redirect.redirect',
-        action: 'publish',
-        params: { documentId: 'd1', data: { pathSlug: '/a%b/' } }
-      },
-      next
-    )
-    expect(findMany).not.toHaveBeenCalled()
-    expect(next).toHaveBeenCalledOnce()
+  it('leaves other actions and content types alone', async () => {
+    const publish = await run(UID, 'publish')
+    await publish.result
+    expect(publish.next).toHaveBeenCalledOnce()
+    const redirect = await run('api::redirect.redirect', 'create', {
+      pathSlug: '/a%b/'
+    })
+    await redirect.result
+    expect(redirect.next).toHaveBeenCalledOnce()
   })
 })

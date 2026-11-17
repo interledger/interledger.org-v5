@@ -37,8 +37,7 @@ import {
   validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
-  validatePathSlugFormat,
-  validatePathSlugToPublish,
+  validatePathSlugOnSave,
   mergeValidationErrors,
   toValidationError,
   normalizeRelativeLinksInDocumentData,
@@ -291,7 +290,7 @@ const UNIQUE_SLUG_UIDS = [
 
 /**
  * Every content type with a `pathSlug`, all checked by
- * validatePathSlugFormat. A test fails when a schema adds one that is not
+ * validatePathSlugOnSave. A test fails when a schema adds one that is not
  * listed above.
  */
 export const PATH_SLUG_UIDS: readonly string[] = [
@@ -314,46 +313,23 @@ const SINGLE_SEGMENT_PATH_SLUG_UIDS: readonly string[] = [
  */
 const WRITE_ACTIONS_WITH_DATA = new Set(['create', 'update', 'clone'])
 
-/** The slice of the document service the publish-time slug check reads. */
-interface DraftSlugFinder {
-  findMany: (options: Record<string, unknown>) => Promise<unknown[]>
-}
-
 /**
- * The pathSlug format check (INTORG-574) on every write that sets one, and
- * on publish. Publish sends no data, so the draft's stored slug is read: a
- * draft saved before the check existed must not go live unchecked.
+ * The pathSlug checks (INTORG-574) on every write that sets one, and the
+ * `required` rule on create. Every pathSlug type has `draftAndPublish: false`,
+ * so a save is the publish: the entry is exported to MDX straight away, and
+ * the export needs a slug for the filename.
  */
 export function registerPathSlugValidation(strapi: {
-  documents: ((uid: string) => unknown) & {
-    use: (middleware: DocumentValidationMiddleware) => void
-  }
+  documents: { use: (middleware: DocumentValidationMiddleware) => void }
 }) {
   strapi.documents.use(async (ctx, next) => {
     if (!PATH_SLUG_UIDS.includes(ctx.uid)) return next()
-    const rules = {
+    if (!WRITE_ACTIONS_WITH_DATA.has(ctx.action)) return next()
+    const validationErr = validatePathSlugOnSave(ctx.params.data ?? {}, {
+      isNew: ctx.action === 'create',
       singleSegment: SINGLE_SEGMENT_PATH_SLUG_UIDS.includes(ctx.uid)
-    }
-    if (WRITE_ACTIONS_WITH_DATA.has(ctx.action)) {
-      const validationErr = validatePathSlugFormat(ctx.params.data ?? {}, rules)
-      if (validationErr) throw validationErr
-    } else if (ctx.action === 'publish' && ctx.params.documentId) {
-      const drafts = await (
-        strapi.documents(ctx.uid) as DraftSlugFinder
-      ).findMany({
-        filters: { documentId: ctx.params.documentId },
-        locale: ctx.params.locale,
-        status: 'draft',
-        fields: ['pathSlug']
-      })
-      for (const draft of drafts) {
-        const validationErr = validatePathSlugToPublish(
-          (draft ?? {}) as Record<string, unknown>,
-          rules
-        )
-        if (validationErr) throw validationErr
-      }
-    }
+    })
+    if (validationErr) throw validationErr
     return next()
   })
 }
@@ -1296,7 +1272,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Required to publish. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Required. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:

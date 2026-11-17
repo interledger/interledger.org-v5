@@ -456,12 +456,18 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         post.locale === defaultLang
           ? post
           : await fetchBlogPost(result.documentId, defaultLang)
-      // Trust post.locale from fetchBlogPost (stamped only when omitted).
-      await writeMDXFile({
-        outputPath: getOutputPath(post.locale),
-        post,
-        englishSlug: enPost?.pathSlug
-      })
+      // A thrown Error reaches the editor as a bare 500; a ValidationError
+      // shows its message, as in afterUpdate.
+      try {
+        // Trust post.locale from fetchBlogPost (stamped only when omitted).
+        await writeMDXFile({
+          outputPath: getOutputPath(post.locale),
+          post,
+          englishSlug: enPost?.pathSlug
+        })
+      } catch (error) {
+        throw toValidationError(error)
+      }
       const ctx: SyncContext = {
         slug: post.pathSlug,
         action: 'create',

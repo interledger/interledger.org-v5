@@ -23,8 +23,8 @@ describe('foundation-blog-post pathSlug regex', () => {
 
   // The admin pre-fills a required uid before there is a title, with the
   // content type's name: /foundation-blog-post/. Editors typed after it and
-  // got a nested slug the /blog/[id] route can't build. Publish requires the
-  // slug instead (validatePathSlugToPublish).
+  // got a nested slug the /blog/[id] route can't build. Save requires the
+  // slug instead (validatePathSlugOnSave).
   it('is not `required`, so the admin leaves it empty', () => {
     expect(schema.attributes.pathSlug).not.toHaveProperty('required')
   })
