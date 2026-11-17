@@ -45,10 +45,13 @@ describe('parseLegacyGrantReports', () => {
     expect(parseLegacyGrantReports([])).toEqual([])
   })
 
-  it('fails on a link to another site', () => {
-    const result = parseLegacyGrantReports([
-      legacy({ url: 'https://example.com/report' })
-    ])
+  it('accepts a link to another site', () => {
+    const report = legacy({ url: 'https://example.com/report' })
+    expect(parseLegacyGrantReports([report])).toEqual([report])
+  })
+
+  it('fails on a url that is not a web link', () => {
+    const result = parseLegacyGrantReports([legacy({ url: 'javascript:0' })])
     expect((result as Error).message).toContain('0.url')
   })
 
@@ -63,7 +66,7 @@ describe('parseLegacyGrantReports', () => {
 })
 
 describe('buildGrantReportLinks', () => {
-  it('links a report page and a forum post of one grant, in report order', () => {
+  it('links a report page and a legacy post of one grant, in report order', () => {
     const links = buildGrantReportLinks({
       reports: [page],
       legacyReports: [
@@ -73,7 +76,7 @@ describe('buildGrantReportLinks', () => {
     })
     expect(links.get(GRANT_ID)).toEqual([
       {
-        kind: 'forum',
+        kind: 'legacy',
         reportType: 'Interim Report',
         reportNumber: 1,
         url: `${FORUM}/interim-1`
@@ -85,7 +88,7 @@ describe('buildGrantReportLinks', () => {
         path: 'grant/grantees/gib/reports/20260504-interim-2'
       },
       {
-        kind: 'forum',
+        kind: 'legacy',
         reportType: 'Final Report',
         reportNumber: 1,
         url: `${FORUM}/final-1`
@@ -93,7 +96,7 @@ describe('buildGrantReportLinks', () => {
     ])
   })
 
-  it('links the page, not the forum post, when a report has both', () => {
+  it('links the page, not the legacy post, when a report has both', () => {
     const links = buildGrantReportLinks({
       reports: [{ ...page, reportNumber: 1 }],
       legacyReports: [legacy()]
@@ -101,12 +104,12 @@ describe('buildGrantReportLinks', () => {
     expect(links.get(GRANT_ID)?.map(({ kind }) => kind)).toEqual(['page'])
   })
 
-  it('falls back to the forum post while the report pages are hidden', () => {
+  it('falls back to the legacy post while the report pages are hidden', () => {
     const links = buildGrantReportLinks({
       reports: [],
       legacyReports: [legacy()]
     })
-    expect(links.get(GRANT_ID)?.map(({ kind }) => kind)).toEqual(['forum'])
+    expect(links.get(GRANT_ID)?.map(({ kind }) => kind)).toEqual(['legacy'])
   })
 
   it('keeps the links of each grant apart, and has no entry for a grant with none', () => {

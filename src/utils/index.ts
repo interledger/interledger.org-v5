@@ -282,7 +282,6 @@ export {
   toGrantReports
 } from './main/airtableReports'
 export {
-  FORUM_HOSTNAME,
   LEGACY_REPORT_FIELDS,
   findHiddenLegacyReportFields,
   legacyReportFieldIdsToFetch,
