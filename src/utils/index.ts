@@ -222,6 +222,12 @@ export {
   parseGrantReports,
   type GrantReportRoute
 } from './main/grantReports'
+export {
+  buildGrantReportLinks,
+  parseLegacyGrantReports,
+  type GrantReportLink,
+  type GrantReportLinkSources
+} from './main/grantReportLinks'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
 export {
@@ -262,6 +268,15 @@ export {
   toGrantReport,
   toGrantReports
 } from './main/airtableReports'
+export {
+  FORUM_HOSTNAME,
+  LEGACY_REPORT_FIELDS,
+  findHiddenLegacyReportFields,
+  legacyReportFieldIdsToFetch,
+  toLegacyGrantReport,
+  toLegacyGrantReports,
+  type LegacyReportsResult
+} from './main/airtableLegacyReports'
 export {
   GRANTEE_TYPES,
   PROFILE_FIELDS,
