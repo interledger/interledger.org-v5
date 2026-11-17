@@ -707,6 +707,109 @@ async function dateFields(published, tables) {
   }
 }
 
+const FORUM_HOST = /(^|\.)interledger\.org$|forem|forum/i
+const LEGACY_NAME = /legacy|forum|progress report/i
+
+// Can the sync link the old forum reports (INTORG-1423)? Counts and field
+// metadata only, never a link or a record value.
+async function legacyLinks(tables) {
+  const submitted = findTable(tables, TABLES.submitted)
+  console.log('\n## Legacy forum report links (Submitted Reports)')
+  if (!submitted) return
+  const byName = (name) => submitted.fields.find((f) => f.name === name)
+  const candidates = submitted.fields.filter((f) => LEGACY_NAME.test(f.name))
+  for (const f of candidates) console.log(`  candidate: ${f.name} [${f.type}] ${f.id}`)
+  const linkField = byName('Legacy Public Progress Report')
+  const projectsField = byName('Projects')
+  const typeField = byName('Report type')
+  const numberField = byName('Report Num')
+  const statusField = byName('Review Status')
+  if (!linkField || !projectsField) {
+    console.log('missing the link field or Projects')
+    return
+  }
+  console.log(`views: ${submitted.views.length}`)
+  for (const v of submitted.views) {
+    const visible = v.visibleFieldIds?.includes(linkField.id) ?? 'unknown'
+    console.log(`  view ${v.name} (${v.id}) [${v.type}]: link visible ${visible}, projects visible ${v.visibleFieldIds?.includes(projectsField.id) ?? 'unknown'}`)
+  }
+  const nameOf = (value) => (typeof value === 'object' && value !== null ? value.name : value)
+  const params = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  for (const f of [linkField, projectsField, typeField, numberField, statusField].filter(Boolean)) params.append('fields[]', f.id)
+  const records = await fetchAll(submitted.id, params)
+  const withLink = records.filter((r) => String(r.fields[linkField.id] ?? '').trim() !== '')
+  console.log(`rows: ${records.length}, with a link: ${withLink.length}`)
+
+  const shapes = {}
+  const hosts = { forum: 0, other: 0, notUrl: 0, multiple: 0 }
+  const urlUse = new Map()
+  for (const r of withLink) {
+    const raw = r.fields[linkField.id]
+    shapes[shapeOf(raw)] = (shapes[shapeOf(raw)] ?? 0) + 1
+    const text = String(raw).trim()
+    const parts = text.split(/\s+/)
+    if (parts.length > 1) hosts.multiple++
+    try {
+      const url = new URL(parts[0])
+      if (FORUM_HOST.test(url.hostname)) hosts.forum++
+      else hosts.other++
+      const key = url.href.replace(/\/$/, '')
+      urlUse.set(key, (urlUse.get(key) ?? 0) + 1)
+    } catch {
+      hosts.notUrl++
+    }
+  }
+  console.log(`value shapes: ${JSON.stringify(shapes)}`)
+  console.log(`hosts: ${JSON.stringify(hosts)}`)
+  console.log(`same link on 2+ rows: ${[...urlUse.values()].filter((c) => c > 1).length} links`)
+
+  const projectCounts = {}
+  for (const r of withLink) {
+    const n = r.fields[projectsField.id]?.length ?? 0
+    const key = n >= 2 ? '2+' : String(n)
+    projectCounts[key] = (projectCounts[key] ?? 0) + 1
+  }
+  console.log(`projects per linked row: ${JSON.stringify(projectCounts)}`)
+  console.log(`linked rows with report type: ${withLink.filter((r) => nameOf(r.fields[typeField?.id])).length}, with report number: ${withLink.filter((r) => r.fields[numberField?.id] !== undefined).length}`)
+  const types = {}
+  const statuses = {}
+  for (const r of withLink) {
+    const t = nameOf(r.fields[typeField?.id]) ?? 'none'
+    types[t] = (types[t] ?? 0) + 1
+    const s = nameOf(r.fields[statusField?.id]) ?? 'none'
+    statuses[s] = (statuses[s] ?? 0) + 1
+  }
+  console.log(`report types: ${JSON.stringify(types)}`)
+  console.log(`review status: ${JSON.stringify(statuses)}`)
+
+  // Same project, type and number with 2+ links: which one does the card show?
+  const groups = new Map()
+  for (const r of withLink) {
+    const project = r.fields[projectsField.id]?.[0]
+    if (!project) continue
+    const key = `${project}|${nameOf(r.fields[typeField?.id]) ?? 'none'}|${r.fields[numberField?.id] ?? 'none'}`
+    groups.set(key, (groups.get(key) ?? 0) + 1)
+  }
+  console.log(`project+type+number with 2+ links: ${[...groups.values()].filter((c) => c > 1).length}`)
+
+  // How many directory grants (published on website) have at least one link.
+  const projects = tables.find((t) => t.id === 'tbliw87UgsAYRAexr')
+  const projectParams = new URLSearchParams({ returnFieldsByFieldId: 'true' })
+  projectParams.append('fields[]', 'fldI1myVN2uQs6Lqz')
+  const projectRecords = await fetchAll(projects.id, projectParams)
+  const published = new Set(projectRecords.filter((r) => r.fields.fldI1myVN2uQs6Lqz === 'Published on Website').map((r) => r.id))
+  const linkedProjects = new Set(withLink.flatMap((r) => r.fields[projectsField.id] ?? []))
+  const linkedPublished = [...linkedProjects].filter((id) => published.has(id)).length
+  console.log(`directory grants: ${published.size}, with 1+ link: ${linkedPublished}; linked projects not in the directory: ${linkedProjects.size - linkedPublished}`)
+  const perGrant = {}
+  for (const id of published) {
+    const n = withLink.filter((r) => r.fields[projectsField.id]?.includes(id)).length
+    const key = n >= 5 ? '5+' : String(n)
+    perGrant[key] = (perGrant[key] ?? 0) + 1
+  }
+  console.log(`links per directory grant: ${JSON.stringify(perGrant)}`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
@@ -729,18 +832,10 @@ async function main() {
   }
 
   const grantees = findTable(tables, TABLES.grantees)
-  if (grantees) {
-    await probeImages(grantees, 'Logo')
-    await profileShapes(grantees)
-  }
 
   const published = findTable(tables, TABLES.published)
   if (!published) return
-  await countLive(published)
-  await countView(published)
-  await probeImages(published)
-  await grantRecordShape(published, tables)
-  await dateFields(published, tables)
+  await legacyLinks(tables)
 }
 
 main().catch((error) => {
