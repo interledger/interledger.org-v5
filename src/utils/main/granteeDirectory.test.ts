@@ -26,8 +26,6 @@ vi.mock('astro:content', async () => {
   return { z, getCollection: vi.fn().mockResolvedValue([]) }
 })
 
-const DIRECTORY = '/grant/grantee-directory/'
-
 function project(
   id: string,
   fields: Record<string, string | number | string[]>
@@ -458,17 +456,16 @@ describe('paginateGranteesByYearAndTag', () => {
 describe('getGranteeSearchIndex', () => {
   function index(
     overrides: Partial<GranteeDirectorySources> = {},
-    locale: 'en' | 'es' = 'en',
-    directory = DIRECTORY
+    locale: 'en' | 'es' = 'en'
   ) {
-    const result = getGranteeSearchIndex(sources(overrides), locale, directory)
+    const result = getGranteeSearchIndex(sources(overrides), locale)
     if (result instanceof Error) throw result
     return result
   }
 
   it('returns an Error when a file is malformed, matching the listing', () => {
     expect(
-      getGranteeSearchIndex(sources({ projects: {} }), 'en', DIRECTORY)
+      getGranteeSearchIndex(sources({ projects: {} }), 'en')
     ).toBeInstanceOf(Error)
   })
 
@@ -477,7 +474,6 @@ describe('getGranteeSearchIndex', () => {
     expect(commonGround).toMatchObject({
       id: 'recGrantee000000A',
       name: 'Common Ground',
-      descriptionHtml: null,
       country: 'Germany',
       startMonth: '2026-10',
       startLabel: 'October 2026',
@@ -498,79 +494,6 @@ describe('getGranteeSearchIndex', () => {
         }
       ]
     })
-  })
-
-  it('renders the profile description as inline HTML, matching GranteeCard', () => {
-    const [commonGround] = index({
-      profiles: [
-        profile(
-          'recGrantee000000A',
-          ['recProject0000001', 'recProject0000002'],
-          {
-            description: 'A **C#** co-op. [docs](https://example.com)'
-          }
-        ),
-        profile('recGrantee000000B', ['recProject0000003'])
-      ]
-    })
-    const html = commonGround?.descriptionHtml ?? ''
-    expect(html).toContain('<strong>C#</strong>')
-    expect(html).toMatch(/<a [^>]*href="https:\/\/example\.com"/)
-  })
-
-  it('attributes description links to the localized grantee directory', () => {
-    const [commonGround] = index(
-      {
-        profiles: [
-          profile(
-            'recGrantee000000A',
-            ['recProject0000001', 'recProject0000002'],
-            {
-              description: '[docs](https://example.com)'
-            }
-          ),
-          profile('recGrantee000000B', ['recProject0000003'])
-        ]
-      },
-      'es',
-      '/es/grant/grantee-directory/'
-    )
-    expect(commonGround?.descriptionHtml).toContain(
-      'data-umami-event-lang="es"'
-    )
-    expect(commonGround?.descriptionHtml).toContain(
-      'data-umami-event-current-path="grant"'
-    )
-  })
-
-  it('drops unsafe link schemes from the rendered description', () => {
-    const [commonGround] = index({
-      profiles: [
-        profile(
-          'recGrantee000000A',
-          ['recProject0000001', 'recProject0000002'],
-          {
-            description: '[click](javascript:alert(1))'
-          }
-        ),
-        profile('recGrantee000000B', ['recProject0000003'])
-      ]
-    })
-    expect(commonGround?.descriptionHtml).not.toContain('javascript:')
-  })
-
-  it('treats a blank description as none', () => {
-    const [commonGround] = index({
-      profiles: [
-        profile(
-          'recGrantee000000A',
-          ['recProject0000001', 'recProject0000002'],
-          { description: '   ' }
-        ),
-        profile('recGrantee000000B', ['recProject0000003'])
-      ]
-    })
-    expect(commonGround?.descriptionHtml).toBeNull()
   })
 
   it('produces entries matchesGranteeFilters can filter directly', () => {

@@ -11,7 +11,6 @@ import {
   type SearchResultContext,
   type SearchResultTemplates
 } from './grantee-search-result'
-import { initGranteeDescriptions } from './grantee-description'
 
 // Not the `@/utils` barrel (astro:content) and not granteeDirectory.ts
 // (markdown). matchesGranteeFilters is the client-safe filter; the search
@@ -68,7 +67,6 @@ function isGranteeSearchEntry(value: unknown): value is GranteeSearchEntry {
     typeof value.startLabel === 'string' &&
     typeof value.searchText === 'string' &&
     isStringArray(value.tags) &&
-    isNullableString(value.descriptionHtml) &&
     Array.isArray(value.projects) &&
     value.projects.every(isSearchProject)
   )
@@ -441,8 +439,6 @@ function createSearchView(
       computeSearchViewState({ mode: 'results', resultsCount: entries.length })
     )
     setResultsCount(entries.length)
-    // After applyViewState: the overflow check needs the rows laid out.
-    initGranteeDescriptions(searchResults)
   }
 
   return { showStatic, enterSearchMode, showSearchError, showSearchResults }
@@ -572,7 +568,6 @@ function wireGranteeSearch(dom: SearchDom): void {
       searchQuery: query,
       pathname: searchRoot.dataset.pathname ?? window.location.pathname,
       lang: searchRoot.dataset.lang ?? '',
-      readMoreLabel: searchRoot.dataset.labelReadMore ?? '',
       grantCountTemplate: searchRoot.dataset.labelGrantCount ?? '{count}',
       grantCountOneLabel: searchRoot.dataset.labelGrantCountOne ?? '1'
     }

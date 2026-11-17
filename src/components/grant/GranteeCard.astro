@@ -3,7 +3,6 @@ import type { GranteeDirectoryEntry, GranteeReportLink } from '@/utils'
 import {
   useTranslations,
   buildUmamiAttrs,
-  parseMarkdownInline,
   generateSlug,
   getGranteeFilterUrl
 } from '@/utils'
@@ -29,11 +28,6 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const { pathname } = Astro.url
 
-const description = grantee.description
-  ? parseMarkdownInline(grantee.description, { pathname, lang: routeLocale })
-  : null
-const descriptionId = `grantee-desc-${grantee.id}`
-
 const tagAttrs = (tag: string, href: string) =>
   buildUmamiAttrs({
     pathname,
@@ -43,18 +37,6 @@ const tagAttrs = (tag: string, href: string) =>
     linkText: `#${tag}`,
     href
   })
-
-const readMoreLabel = t('grantee.read_more')
-const readMoreAttrs = buildUmamiAttrs({
-  pathname,
-  lang: routeLocale,
-  label: 'button_ui',
-  baseComponent: 'grantee_cards',
-  linkText: readMoreLabel,
-  // Toggle does not navigate; still report the listing so destination
-  // matches the ticket (grant / foundation).
-  href: pathname
-})
 
 const reportAttrs = (report: GranteeReportLink) =>
   buildUmamiAttrs({
@@ -72,31 +54,7 @@ const projectCount = grantee.projects.length
 <li data-grantee-card class={classes.card}>
   <article class="flex flex-col gap-lg">
     <div class={classes.header}>
-      <div data-grantee-description class="flex min-w-0 flex-col gap-sm">
-        <h3 class={classes.name}>{grantee.name}</h3>
-        {description && (
-          <p
-            id={descriptionId}
-            data-grantee-description-text
-            class={classes.description}
-            set:html={description}
-          />
-        )}
-        {description && <button
-          type="button"
-          hidden
-          data-grantee-description-toggle
-          data-label-more={t('grantee.read_more')}
-          data-label-less={t('grantee.read_less')}
-          class={classes.readMore}
-          aria-expanded="false"
-          aria-controls={descriptionId}
-          {...readMoreAttrs}
-        >
-          <span data-grantee-description-toggle-label>{readMoreLabel}</span>
-          <Icon name="arrow-down" class={classes.readMoreIcon} />
-        </button>}
-      </div>
+      <h3 class={classes.name}>{grantee.name}</h3>
       {(grantee.country || grantee.startLabel) && <ul class={classes.meta}>
         {grantee.country && <li class={classes.metaItem}>
           <Icon name="map-pin" class={classes.metaIcon} />
@@ -137,7 +95,7 @@ const projectCount = grantee.projects.length
       </p>
       <ul class={classes.projects} aria-label={t('aria.grantee.projects')}>
         {grantee.projects.map((project) => <li class={classes.project}>
-          <div class="flex min-w-0 flex-col gap-2xs">
+          <div class="flex min-w-0 flex-col gap-xs">
             {project.program && <p class={classes.program}>
               {project.program}
             </p>}

@@ -90,15 +90,14 @@ const searchIndexUrl = `${localizeRoute('/', routeLocale)}grantee-search-index.j
   data-directory-path={directoryPath}
   data-pathname={Astro.url.pathname}
   data-lang={routeLocale}
-  data-label-read-more={t('grantee.read_more')}
   data-label-grant-count={t('grantee.grants.other')}
   data-label-grant-count-one={t('grantee.grants.one', { count: 1 })}
   data-results-template={t('grantee.results')}
-  class="flex flex-col gap-xl mt-4xl mb-3xl tablet:my-4xl desktop:mt-5xl"
+  class="flex flex-col gap-xl mt-4xl mb-2xl tablet:my-4xl desktop:mt-5xl"
 >
   <div class="flex flex-col gap-xl">
     <div
-      class="flex flex-col gap-md tablet:flex-row tablet:items-center tablet:gap-xl"
+      class="flex flex-col gap-xl tablet:flex-row tablet:items-center"
     >
       <div class="relative w-full max-w-[400px] tablet:w-[400px]">
         <label for="grantee-search" class="sr-only">
@@ -244,7 +243,6 @@ const searchIndexUrl = `${localizeRoute('/', routeLocale)}grantee-search-index.j
 <GranteeSearchResultTemplate />
 
 <script>
-  import '@/scripts/grantee-description'
   import { initGranteeSearch } from '@/scripts/grantee-search'
 
   initGranteeSearch()

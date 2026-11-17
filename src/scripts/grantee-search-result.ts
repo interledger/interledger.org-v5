@@ -57,7 +57,6 @@ export interface SearchResultContext {
   searchQuery: string
   pathname: string
   lang: string
-  readMoreLabel: string
   /** "{count} grants"; `grantCountOneLabel` is the singular. */
   grantCountTemplate: string
   grantCountOneLabel: string
@@ -93,11 +92,6 @@ export interface SearchResultRowModel {
   country: string | null
   startLabel: string | null
   startMonth: string | null
-  /** Trusted build-time HTML from the search index. */
-  descriptionHtml: string | null
-  /** `aria-controls` target shared by the description text and its toggle. */
-  descriptionId: string
-  readMoreUmami: UmamiAttrs | null
   grantCount: string
   projects: SearchResultProjectModel[]
 }
@@ -180,28 +174,12 @@ export function searchResultRowModel(
   context: SearchResultContext,
   pageOrigin: string
 ): SearchResultRowModel {
-  const descriptionHtml = entry.descriptionHtml || null
-
   return {
     name: entry.name,
     tags: entry.tags.map((tag) => tagPillModel(tag, context, pageOrigin)),
     country: entry.country || null,
     startLabel: entry.startLabel || null,
     startMonth: entry.startMonth || null,
-    descriptionHtml,
-    // Distinct from GranteeCard's `grantee-desc-*`: the static list stays in
-    // the DOM (hidden) while search rows render.
-    descriptionId: `grantee-search-desc-${entry.id}`,
-    readMoreUmami: descriptionHtml
-      ? buildUmamiAttrs({
-          pathname: context.pathname,
-          lang: context.lang,
-          label: 'button_ui',
-          baseComponent: 'grantee_cards',
-          linkText: context.readMoreLabel,
-          href: context.pathname
-        })
-      : null,
     grantCount: formatGrantCount(entry.projects.length, context),
     projects: entry.projects.map((project) => projectModel(project, context))
   }
@@ -313,26 +291,6 @@ function fillMeta(row: HTMLElement, model: SearchResultRowModel): void {
   fillOrHide(metaWrap, Boolean(model.country || model.startLabel))
 }
 
-function fillDescription(row: HTMLElement, model: SearchResultRowModel): void {
-  const text = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-description]'
-  )
-  const toggle = requireElement<HTMLButtonElement>(
-    row,
-    '[data-grantee-description-toggle]'
-  )
-
-  fillOrHide(text, Boolean(model.descriptionHtml), () => {
-    text.innerHTML = model.descriptionHtml ?? ''
-    text.id = model.descriptionId
-    toggle.setAttribute('aria-controls', model.descriptionId)
-    if (model.readMoreUmami) applyUmamiAttrs(toggle, model.readMoreUmami)
-  })
-  // Revealed by grantee-description.ts once the clamped text overflows.
-  toggle.hidden = true
-}
-
 function appendReportLink(
   list: HTMLElement,
   reportTemplate: HTMLTemplateElement,
@@ -425,7 +383,6 @@ export function createSearchResultRow(
   const row = requireElement<HTMLLIElement>(fragment, 'li')
 
   setTextContent(requireElement(row, '[data-grantee-search-name]'), model.name)
-  fillDescription(row, model)
   fillMeta(row, model)
   fillTags(row, templates.tag, model.tags)
   setTextContent(

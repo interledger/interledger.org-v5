@@ -16,7 +16,6 @@ function sampleSearchEntry(
   return {
     id: 'rec1',
     name: 'Test',
-    descriptionHtml: null,
     country: '',
     startMonth: '',
     startLabel: '',
@@ -210,15 +209,6 @@ describe('parseGranteeSearchIndex', () => {
     expect(parseGranteeSearchIndex([{ id: 'rec1' }])).toBeInstanceOf(Error)
   })
 
-  it('returns an Error for a pre-descriptionHtml entry that only has a snippet', () => {
-    const legacy: Record<string, unknown> = {
-      ...sampleSearchEntry(),
-      descriptionSnippet: 'Old'
-    }
-    delete legacy.descriptionHtml
-    expect(parseGranteeSearchIndex([legacy])).toBeInstanceOf(Error)
-  })
-
   it('returns an Error for a pre-grouping entry that carries one project', () => {
     const legacy: Record<string, unknown> = {
       ...sampleSearchEntry(),
@@ -376,7 +366,6 @@ describe('createSearchController stale responses', () => {
         searchQuery,
         pathname: '/grant/grantee-directory',
         lang: 'en',
-        readMoreLabel: 'Read more',
         grantCountTemplate: '{count} grants',
         grantCountOneLabel: '1 grant'
       }),

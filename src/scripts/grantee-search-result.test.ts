@@ -27,8 +27,6 @@ const REQUIRED_TEMPLATE_ATTRS = [
   'data-grantee-search-project-template',
   'data-grantee-search-report-template',
   'data-grantee-search-name',
-  'data-grantee-search-description',
-  'data-grantee-description-toggle',
   'data-grantee-search-meta-wrap',
   'data-grantee-search-country-wrap',
   'data-grantee-search-country',
@@ -68,7 +66,6 @@ function sampleSearchEntry(
   return {
     id: 'rec1',
     name: 'Test',
-    descriptionHtml: null,
     country: '',
     startMonth: '',
     startLabel: '',
@@ -88,7 +85,6 @@ function sampleContext(
     searchQuery: 'wallet',
     pathname: '/grant/grantee-directory',
     lang: 'en',
-    readMoreLabel: 'Read more',
     grantCountTemplate: '{count} grants',
     grantCountOneLabel: '1 grant',
     ...overrides
@@ -171,10 +167,6 @@ describe('GranteeSearchResultTemplate', () => {
   it('keeps every populate-script slot in GranteeSearchResultTemplate', () => {
     const source = readFileSync(SEARCH_RESULT_TEMPLATE_PATH, 'utf8')
     expect(source).toContain('id="grantee-search-result-template"')
-    // grantee-description.ts binds on these hooks, same as GranteeCard.
-    expect(source).toMatch(/data-grantee-description(?![-\w])/)
-    expect(source).toContain('data-grantee-description-text')
-    expect(source).toContain('data-grantee-description-toggle-label')
     for (const attr of REQUIRED_TEMPLATE_ATTRS) {
       expect(source, attr).toContain(attr)
     }
@@ -199,9 +191,7 @@ describe('searchResultRowModel', () => {
         country: 'Kenya',
         startMonth: '2024-03',
         startLabel: 'March 2024',
-        tags: ['Open Payments', 'Education'],
-        descriptionHtml:
-          'A clearing network for <strong>community</strong> wallets.'
+        tags: ['Open Payments', 'Education']
       })
     )
 
@@ -209,16 +199,6 @@ describe('searchResultRowModel', () => {
     expect(model.country).toBe('Kenya')
     expect(model.startLabel).toBe('March 2024')
     expect(model.startMonth).toBe('2024-03')
-    expect(model.descriptionHtml).toBe(
-      'A clearing network for <strong>community</strong> wallets.'
-    )
-    expect(model.descriptionId).toBe('grantee-search-desc-rec1')
-    expect(model.readMoreUmami).toMatchObject({
-      'data-umami-event': 'button_ui',
-      'data-umami-event-base-component': 'grantee_cards',
-      'data-umami-event-link-text': 'Read more',
-      'data-umami-event-lang': 'en'
-    })
     expect(model.grantCount).toBe('1 grant')
 
     expect(model.tags.map((tag) => tag.text)).toEqual([
@@ -253,8 +233,6 @@ describe('searchResultRowModel', () => {
     expect(model.country).toBeNull()
     expect(model.startLabel).toBeNull()
     expect(model.startMonth).toBeNull()
-    expect(model.descriptionHtml).toBeNull()
-    expect(model.readMoreUmami).toBeNull()
     expect(model.projects).toEqual([
       { name: 'Wallet pilot', program: null, budgetLabel: null, reports: null }
     ])
@@ -268,13 +246,6 @@ describe('searchResultRowModel', () => {
     expect(model.country).toBe('Brazil')
     expect(model.startLabel).toBeNull()
     expect(model.startMonth).toBeNull()
-  })
-
-  it('treats an empty description string as no description', () => {
-    const model = rowModel(sampleSearchEntry({ descriptionHtml: '' }))
-
-    expect(model.descriptionHtml).toBeNull()
-    expect(model.readMoreUmami).toBeNull()
   })
 
   it('links yearless tag pills under /tag/<slug>', () => {

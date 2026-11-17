@@ -8,22 +8,17 @@ export const granteeCardClasses = {
   card: 'm-0 rounded-3xl border border-neutral-50 bg-white p-lg tablet:p-xl',
   header:
     'flex flex-col gap-lg desktop:flex-row desktop:items-start desktop:justify-between desktop:gap-3xl',
-  name: 'm-0 text-neutral-150',
-  description:
-    'm-0 line-clamp-2 text-body-lg-standard text-neutral-100 [&_a]:text-[length:inherit] [&_a]:leading-[inherit] [&_a]:font-[inherit] [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-link-hover',
-  readMore:
-    'self-start inline-flex items-center gap-xs border-0 bg-transparent p-0 lowercase text-body-sm-standard text-link underline underline-offset-2 cursor-pointer hover:text-link-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link aria-expanded:[&_svg]:rotate-180',
-  readMoreIcon:
-    'size-5 transition-transform duration-200 motion-reduce:transition-none',
+  name: 'm-0 min-w-0 text-neutral-150',
   meta: 'flex min-w-[200px] shrink-0 flex-col gap-lg list-none m-0 p-0',
   metaItem:
     'm-0 flex items-center gap-sm text-body-sm-standard text-neutral-100 min-w-0',
   metaIcon: 'size-5 shrink-0 text-neutral-75',
-  tags: 'flex flex-wrap gap-xs list-none m-0 p-0',
+  // pt-sm on top of the card's gap-lg: 24px below the header.
+  tags: 'flex flex-wrap gap-xs list-none m-0 p-0 pt-sm',
   grantCount: 'm-0 text-body-sm-emphasis text-primary',
   projects: 'flex flex-col gap-sm list-none m-0 p-0',
   project:
-    'm-0 flex flex-col gap-md rounded-2xl bg-ice-indigo-50 px-xl py-lg tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-xl',
+    'm-0 flex flex-col gap-md rounded-2xl bg-ice-indigo-50 p-lg tablet:px-xl tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-xl',
   program: 'm-0 text-body-sm-standard text-primary',
   projectName:
     'm-0 text-h5 font-semibold tablet:text-h5-md desktop:text-h5-lg text-neutral-150',

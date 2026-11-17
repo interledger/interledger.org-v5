@@ -153,8 +153,6 @@ export const ui = {
     'grantee.grants.other': '{count} grants',
     'grantee.project.committed': '{amount} USD committed',
     'grantee.reports.none': 'No reports published yet',
-    'grantee.read_more': 'read more',
-    'grantee.read_less': 'read less',
     'grantee.empty': 'No grantees match these filters.',
     'grantee.results': '{count} results',
     'grantee.caveat.label': 'Grant amount caveat',
@@ -583,8 +581,6 @@ export const ui = {
     'grantee.grants.other': '{count} subvenciones',
     'grantee.project.committed': '{amount} USD comprometidos',
     'grantee.reports.none': 'Aún no se han publicado informes',
-    'grantee.read_more': 'leer más',
-    'grantee.read_less': 'leer menos',
     'grantee.empty':
       'No hay beneficiarios de subvenciones que coincidan con estos filtros.',
     'grantee.results': '{count} resultados',

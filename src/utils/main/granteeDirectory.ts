@@ -18,7 +18,6 @@ import {
   parseGrantReports
 } from './grantReports'
 import { useTranslations, type Locale } from './i18'
-import { parseMarkdownInline } from './mdx'
 import { localizeRoute } from './routes'
 import { generateSlug } from './slug'
 
@@ -50,8 +49,6 @@ export interface GranteeDirectoryEntry {
   id: string
   slug: string
   name: string
-  /** Markdown from the profile, or null when programs left it empty. */
-  description: string | null
   country: string
   /** The newest project's start month, as YYYY-MM. */
   startMonth: string
@@ -78,14 +75,13 @@ export interface GranteeFilterOption {
 
 type DirectoryProfile = Pick<
   GranteeProfile,
-  'id' | 'name' | 'slug' | 'description' | 'country' | 'grantIds'
+  'id' | 'name' | 'slug' | 'country' | 'grantIds'
 >
 
 const directoryProfileSchema = z.object({
   id: z.string().refine(isRecordId, 'expected an Airtable record ID'),
   name: z.string().trim().min(1),
   slug: z.string().regex(SLUG_PATTERN),
-  description: z.string().nullable(),
   country: z.string().nullable(),
   grantIds: z.array(z.string())
 }) satisfies z.ZodType<DirectoryProfile>
@@ -148,23 +144,17 @@ function toDirectoryEntry(
   projects: GranteeDirectoryProject[]
 ): GranteeDirectoryEntry {
   const [newest] = projects
-  const description = profile.description?.trim() || null
   return {
     id: profile.id,
     slug: profile.slug,
     name: profile.name.trim(),
-    description,
     country: normalizeCountry(profile.country ?? '') || newest.country,
     startMonth: newest.startMonth,
     startLabel: newest.startLabel,
     tags: uniqueTags(projects),
     projects,
     searchText: foldSearchText(
-      [
-        profile.name,
-        description ?? '',
-        ...projects.map((project) => project.searchText)
-      ].join(' ')
+      [profile.name, ...projects.map((project) => project.searchText)].join(' ')
     )
   }
 }
@@ -271,15 +261,11 @@ export interface GranteeSearchProject {
 /**
  * A grantee as shipped in the client-side search catalog (see
  * `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`):
- * what a search-result card needs and nothing more. The description ships
- * as HTML, rendered as `GranteeCard` renders it, so the result can offer the
- * same read-more toggle.
+ * what a search-result card needs and nothing more.
  */
 export interface GranteeSearchEntry {
   id: string
   name: string
-  /** Inline HTML from `parseMarkdownInline`, same as `GranteeCard`. */
-  descriptionHtml: string | null
   country: string
   startMonth: string
   startLabel: string
@@ -303,18 +289,11 @@ function toSearchProject(
 }
 
 function toGranteeSearchEntry(
-  grantee: GranteeDirectoryEntry,
-  locale: Locale,
-  directoryPath: string
+  grantee: GranteeDirectoryEntry
 ): GranteeSearchEntry {
   return {
     id: grantee.id,
     name: grantee.name,
-    descriptionHtml:
-      parseMarkdownInline(grantee.description, {
-        pathname: directoryPath,
-        lang: locale
-      }) || null,
     country: grantee.country,
     startMonth: grantee.startMonth,
     startLabel: grantee.startLabel,
@@ -328,20 +307,15 @@ function toGranteeSearchEntry(
  * Build-time catalog for client-side grantee search. Small and locale-scoped
  * so it can be fetched once (lazily, on first search interaction) and reused
  * across every paginated/filtered directory route — see
- * `src/pages/grantee-search-index.json.ts`. `directoryPath` is the localized
- * directory root: description links report it as their umami page, since one
- * index serves every year/tag route.
+ * `src/pages/grantee-search-index.json.ts`.
  */
 export function getGranteeSearchIndex(
   sources: GranteeDirectorySources,
-  locale: Locale,
-  directoryPath: string
+  locale: Locale
 ): GranteeSearchEntry[] | Error {
   const grantees = buildGranteeDirectory(sources, locale)
   if (grantees instanceof Error) return grantees
-  return grantees.map((grantee) =>
-    toGranteeSearchEntry(grantee, locale, directoryPath)
-  )
+  return grantees.map(toGranteeSearchEntry)
 }
 
 /** Filter options and active selections passed through paginate `props`. */
