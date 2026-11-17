@@ -18,7 +18,7 @@ import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
 import { relatedArticleSlugError } from './relatedArticleSlug'
-import { pathSlugFormatError } from './relativeLinks'
+import { PATH_SLUG_NO_WORD_MESSAGE, pathSlugFormatError } from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -111,8 +111,9 @@ export function mergeValidationErrors(
  * Reject a pathSlug that is not lowercase kebab segments (INTORG-574). The
  * save hook has already corrected spaces, underscores and capitals, so what
  * reaches here has characters only the editor can decide about. A partial
- * update that leaves pathSlug out is not checked: the stored value was
- * checked when it was written.
+ * update that leaves pathSlug out is not checked here; publish checks the
+ * stored draft ({@link validatePathSlugToPublish}), which also covers rows
+ * written before this check existed.
  */
 export function validatePathSlugFormat(
   data: Record<string, unknown>
@@ -123,6 +124,24 @@ export function validatePathSlugFormat(
   return message
     ? combineFieldErrors([{ path: ['pathSlug'], message }])
     : undefined
+}
+
+/**
+ * {@link validatePathSlugFormat} for a draft about to go live, which also
+ * rejects a blank pathSlug. Strapi's `required` only rejects a missing
+ * value, so an API write of `''` would otherwise publish a page with no
+ * address of its own. A missing value is still `required`'s to report.
+ */
+export function validatePathSlugToPublish(
+  data: Record<string, unknown>
+): errors.ValidationError | undefined {
+  const { pathSlug } = data
+  if (typeof pathSlug === 'string' && !pathSlug.trim()) {
+    return combineFieldErrors([
+      { path: ['pathSlug'], message: PATH_SLUG_NO_WORD_MESSAGE }
+    ])
+  }
+  return validatePathSlugFormat(data)
 }
 
 /**

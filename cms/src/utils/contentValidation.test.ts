@@ -17,6 +17,7 @@ import {
   validateBlogFields,
   validateCardGridVariantsForContentType,
   validatePathSlugFormat,
+  validatePathSlugToPublish,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
@@ -1517,7 +1518,7 @@ describe('validatePathSlugFormat', () => {
     expect(validatePathSlugFormat({ pathSlug: '/about-us/' })).toBeUndefined()
   })
 
-  // A partial update: the stored value was checked when it was written.
+  // A partial update: publish checks the stored draft instead.
   it('skips a write without a pathSlug', () => {
     expect(validatePathSlugFormat({ title: 'About' })).toBeUndefined()
   })
@@ -1538,5 +1539,38 @@ describe('validatePathSlugFormat', () => {
     expect(error?.details).toEqual({
       errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
     })
+  })
+})
+
+describe('validatePathSlugToPublish', () => {
+  const noWord =
+    'Path Slug needs at least one word between the slashes, like /about-us/.'
+
+  // Strapi's `required` only rejects null, so '' from the API would go live.
+  it.each(['', '  '])(
+    'rejects a blank pathSlug %j on Path Slug',
+    (pathSlug) => {
+      const error = validatePathSlugToPublish({ pathSlug })
+      expect(error).toBeInstanceOf(errors.ValidationError)
+      expect(error?.details).toEqual({
+        errors: [
+          { path: ['pathSlug'], message: noWord, name: 'ValidationError' }
+        ]
+      })
+    }
+  )
+
+  it('leaves a missing pathSlug to the required check', () => {
+    expect(validatePathSlugToPublish({ pathSlug: null })).toBeUndefined()
+    expect(validatePathSlugToPublish({})).toBeUndefined()
+  })
+
+  it('applies the format check', () => {
+    expect(validatePathSlugToPublish({ pathSlug: '/a%b/' })).toBeInstanceOf(
+      errors.ValidationError
+    )
+    expect(
+      validatePathSlugToPublish({ pathSlug: '/about-us/' })
+    ).toBeUndefined()
   })
 })

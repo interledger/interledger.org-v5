@@ -657,6 +657,18 @@ describe('registerPathSlugValidation', () => {
     expect(next).not.toHaveBeenCalled()
   })
 
+  it('refuses to publish a draft whose pathSlug is blank', async () => {
+    const { middleware } = register([{ pathSlug: '' }])
+    const next = vi.fn(async () => {})
+    await expect(
+      middleware(
+        { uid: UID, action: 'publish', params: { documentId: 'd1' } },
+        next
+      )
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+    expect(next).not.toHaveBeenCalled()
+  })
+
   it('publishes a draft whose pathSlug is valid', async () => {
     const { middleware } = register([{ pathSlug: '/about-us/' }])
     const next = vi.fn(async () => {})

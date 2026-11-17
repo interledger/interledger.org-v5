@@ -131,17 +131,14 @@ export {
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
   validatePathSlugFormat,
+  validatePathSlugToPublish,
   toValidationError,
   mergeValidationErrors,
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
 export { relatedArticleSlugError } from './relatedArticleSlug'
-export {
-  PATH_SLUG_CUSTOM_FIELD,
-  pathSlugOnBlur,
-  visiblePathSlugError
-} from './pathSlugField'
+export { pathSlugOnBlur, visiblePathSlugError } from './pathSlugField'
 
 // Section-relative pathSlug uniqueness (cross-section content types)
 export {
@@ -424,7 +421,7 @@ export {
   toSlashedSlug,
   toCanonicalPathSlug,
   pathSlugFormatError,
-  PATH_SLUG_SEGMENT,
+  isPathSlugFormatMessage,
   isRelatedArticleSlug,
   mapOutsideMarkdownCode,
   slashInternalMarkdownLinks,

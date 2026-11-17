@@ -38,6 +38,7 @@ import {
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
   validatePathSlugFormat,
+  validatePathSlugToPublish,
   mergeValidationErrors,
   toValidationError,
   normalizeRelativeLinksInDocumentData,
@@ -335,7 +336,7 @@ export function registerPathSlugValidation(strapi: {
         fields: ['pathSlug']
       })
       for (const draft of drafts) {
-        const validationErr = validatePathSlugFormat(
+        const validationErr = validatePathSlugToPublish(
           (draft ?? {}) as Record<string, unknown>
         )
         if (validationErr) throw validationErr

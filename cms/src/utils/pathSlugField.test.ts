@@ -1,11 +1,8 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import {
-  PATH_SLUG_CUSTOM_FIELD,
-  pathSlugOnBlur,
-  visiblePathSlugError
-} from '@/utils'
+import { pathSlugOnBlur, visiblePathSlugError } from '@/utils'
+import { PATH_SLUG_CUSTOM_FIELD } from './pathSlugField'
 
 const API_DIR = path.join(__dirname, '..', 'api')
 
@@ -59,10 +56,14 @@ describe('pathSlugOnBlur', () => {
     expect(pathSlugOnBlur(value)).toBe(corrected)
   })
 
-  // No change, so a blur doesn't mark the form as modified.
-  it.each(['/about-us/', ''])('leaves %j alone', (value) => {
-    expect(pathSlugOnBlur(value)).toBeUndefined()
-  })
+  // No change, so a blur doesn't mark the form as modified. A link stays as
+  // typed, so the message still says it is a link.
+  it.each(['/about-us/', '', 'https://example.com/about-us/', '/'])(
+    'leaves %j alone',
+    (value) => {
+      expect(pathSlugOnBlur(value)).toBeUndefined()
+    }
+  )
 
   it.each([null, undefined, 42])('ignores %j', (value) => {
     expect(pathSlugOnBlur(value)).toBeUndefined()
@@ -86,6 +87,24 @@ describe('visiblePathSlugError', () => {
     expect(visiblePathSlugError(bad, 'Invalid', false)).toMatch(
       /^Path Slug can only use/
     )
+  })
+
+  // The admin keeps a failed save's errors until the next save.
+  it('drops our message from a failed save once the value is fixed', () => {
+    const saved =
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /about-us/. Remove: !'
+    expect(visiblePathSlugError('/pdf-page/', saved, true)).toBeUndefined()
+  })
+
+  it("keeps a failed save's other messages after the value changes", () => {
+    const taken = 'Path Slug "/about-us/" is already used by another entry.'
+    expect(visiblePathSlugError('/about-us/', taken, true)).toBe(taken)
+  })
+
+  it('keeps our message on a blank value', () => {
+    const noWord =
+      'Path Slug needs at least one word between the slashes, like /about-us/.'
+    expect(visiblePathSlugError('', noWord, false)).toBe(noWord)
   })
 
   it('keeps the form message for an empty or valid value', () => {

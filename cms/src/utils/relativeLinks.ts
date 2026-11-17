@@ -423,7 +423,7 @@ export function toSlashedSlug(value: string): string {
  * `src/schemas/content.ts`, which rejects a hand-edited MDX file the same
  * way. Change both together.
  */
-export const PATH_SLUG_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*'
+const PATH_SLUG_SEGMENT = '[a-z0-9]+(?:-[a-z0-9]+)*'
 
 const PATH_SLUG = new RegExp(`^/(?:${PATH_SLUG_SEGMENT}/)+$`)
 
@@ -439,25 +439,57 @@ function toCanonicalSegment(segment: string): string {
 }
 
 /**
- * The stored form of a pathSlug, with the mistakes that have one obvious fix
- * corrected: `About Us` and `/about_us//` both become `/about-us/`, and a
- * pasted URL on our own site (any environment) keeps only its path.
- * Characters with no obvious fix (`?`, `%`, `#`, `.`) are kept, so
- * {@link pathSlugFormatError} can name them. An empty value stays empty for
- * the `required` validator to report.
+ * A pasted path with its escapes decoded, so `about%20us` reads as
+ * `about us`. A malformed escape (`100%`) can't be decoded and stays as
+ * typed, for {@link pathSlugFormatError} to name the `%`.
  */
-export function toCanonicalPathSlug(value: string): string {
-  const siteUrl = value.trim().match(SITE_URL)
-  const path = siteUrl ? siteUrl[2] : value
-  const segments = path.split('/').map(toCanonicalSegment).filter(Boolean)
-  return segments.length > 0 ? `/${segments.join('/')}/` : ''
+function decodePercentEscapes(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
 }
 
-/** Everything {@link PATH_SLUG_SEGMENT} allows, plus the separator. */
-const PATH_SLUG_CHARACTER = /[a-z0-9/-]/g
+/**
+ * A URL with a scheme, or protocol-relative with a dotted host: a link, not
+ * a path. `//my-post/` has no host, so it is a doubled slash to correct.
+ */
+const URL_WITH_HOST = /^(?:[a-z][a-z\d+.-]*:\/\/|\/\/[^/]*\.)/i
 
-/** A URL with a scheme, or protocol-relative: a link, not a path. */
-const URL_WITH_HOST = /^(?:[a-z][a-z\d+.-]*:)?\/\//i
+/**
+ * A link rather than a path: any URL with a host, or one of our own hosts
+ * without a scheme (`staging.interledger.org/about-us/`). Not corrected: its
+ * path holds the section and locale the route adds again (`/blog/`, `/es/`),
+ * and which part is the slug depends on the content type and its Section.
+ */
+function isLink(value: string): boolean {
+  return URL_WITH_HOST.test(value) || SITE_URL.test(value)
+}
+
+/**
+ * The stored form of a pathSlug, with the mistakes that have one obvious fix
+ * corrected: `About Us`, `about%20us` and `/about_us//` all become
+ * `/about-us/`. Anything else stays as typed (trimmed), for
+ * {@link pathSlugFormatError} to name: characters with no obvious fix
+ * (`?`, `%`, `.`), a link, and a value with no word to keep (`/`, `_`).
+ * A blank value becomes empty, for the `required` validator to report.
+ */
+export function toCanonicalPathSlug(value: string): string {
+  const typed = value.trim()
+  if (isLink(typed)) return typed
+  const segments = decodePercentEscapes(typed)
+    .split('/')
+    .map(toCanonicalSegment)
+    .filter(Boolean)
+  return segments.length > 0 ? `/${segments.join('/')}/` : typed
+}
+
+/**
+ * What {@link toCanonicalPathSlug} accepts or turns into a valid character:
+ * ASCII letters, digits, `/`, `-`, and the word breaks.
+ */
+const CORRECTABLE_CHARACTER = /[a-z0-9/\-_\s]/gi
 
 /** A character an editor can't see in the message: shown as `U+200B`. */
 const INVISIBLE_CHARACTER = /[\p{C}\p{M}\p{Z}]/u
@@ -468,26 +500,60 @@ function describeCharacter(character: string): string {
   return `U+${codePoint.toString(16).toUpperCase().padStart(4, '0')}`
 }
 
+/** The characters to name, as the editor typed them (`İ`, not `i̇`). */
+function charactersToRemove(typed: string): string {
+  const invalid = [
+    ...new Set(decodePercentEscapes(typed).replace(CORRECTABLE_CHARACTER, ''))
+  ]
+  return invalid.map(describeCharacter).join(' ')
+}
+
 const PATH_SLUG_EXAMPLE = 'like /about-us/'
+
+/** Separators and word breaks: a value of only these has no word to keep. */
+const NOT_A_WORD = /[\s/_-]/g
+
+/** The start of every message {@link pathSlugFormatError} returns. */
+const PATH_SLUG_FORMAT_MESSAGES = {
+  link: `Path Slug is a path, not a link. Enter only the end of the page's address, ${PATH_SLUG_EXAMPLE}. Leave out the site, /es/, and a section such as /blog/ or /grant/.`,
+  query: `Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, ${PATH_SLUG_EXAMPLE}.`,
+  noWord: `Path Slug needs at least one word between the slashes, ${PATH_SLUG_EXAMPLE}.`,
+  characters: `Path Slug can only use lowercase letters, numbers and hyphens between slashes, ${PATH_SLUG_EXAMPLE}. Remove: `
+} as const
+
+/**
+ * Publishing a pathSlug with no word in it, which Strapi's `required` check
+ * lets through: it only rejects a missing value, not `''`.
+ */
+export const PATH_SLUG_NO_WORD_MESSAGE = PATH_SLUG_FORMAT_MESSAGES.noWord
+
+/**
+ * Whether a field error is one of ours, so the input can clear it once the
+ * editor has fixed the value (the admin keeps a save's errors until the
+ * next save).
+ */
+export function isPathSlugFormatMessage(message: string): boolean {
+  return Object.values(PATH_SLUG_FORMAT_MESSAGES).some((start) =>
+    message.startsWith(start)
+  )
+}
 
 /**
  * The message for a pathSlug that is not valid even after
- * {@link toCanonicalPathSlug}. `undefined` when the slug is valid or empty
- * (an empty one is the `required` check's). A link to another site, or a
- * query or fragment, gets its own message: deleting the `:` or `?` the
- * generic one names would leave a wrong slug (`/aboutx1/` from `about?x=1`).
+ * {@link toCanonicalPathSlug}. `undefined` when the slug is valid or blank
+ * (a blank one is the `required` check's). A link, or a query or fragment,
+ * gets its own message: deleting the `:` or `?` the generic one names would
+ * leave a wrong slug (`/aboutx1/` from `about?x=1`).
  */
 export function pathSlugFormatError(value: string): string | undefined {
-  const slug = toCanonicalPathSlug(value)
-  if (!slug || PATH_SLUG.test(slug)) return undefined
-  if (URL_WITH_HOST.test(value.trim())) {
-    return `Path Slug is a path on this site, not a link. Enter only the path, ${PATH_SLUG_EXAMPLE}.`
-  }
-  if (/[?#]/.test(slug)) {
-    return `Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, ${PATH_SLUG_EXAMPLE}.`
-  }
-  const invalid = [...new Set(slug.replace(PATH_SLUG_CHARACTER, ''))]
-  return `Path Slug can only use lowercase letters, numbers and hyphens between slashes, ${PATH_SLUG_EXAMPLE}. Remove: ${invalid.map(describeCharacter).join(' ')}`
+  const typed = value.trim()
+  if (!typed) return undefined
+  if (isLink(typed)) return PATH_SLUG_FORMAT_MESSAGES.link
+  const slug = toCanonicalPathSlug(typed)
+  if (PATH_SLUG.test(slug)) return undefined
+  if (!slug.replace(NOT_A_WORD, '')) return PATH_SLUG_FORMAT_MESSAGES.noWord
+  if (/[?#]/.test(slug)) return PATH_SLUG_FORMAT_MESSAGES.query
+  return PATH_SLUG_FORMAT_MESSAGES.characters + charactersToRemove(typed)
 }
 
 /**

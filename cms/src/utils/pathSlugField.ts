@@ -3,7 +3,11 @@
  * component so it can be tested. Save applies the same correction and the
  * same check, so the input only shows the editor early what save will do.
  */
-import { pathSlugFormatError, toCanonicalPathSlug } from './relativeLinks'
+import {
+  isPathSlugFormatMessage,
+  pathSlugFormatError,
+  toCanonicalPathSlug
+} from './relativeLinks'
 
 /** The field uid on the content-type schemas. Matches `cms/config/plugins.ts`. */
 export const PATH_SLUG_CUSTOM_FIELD = 'plugin::path-slug.path-slug'
@@ -22,7 +26,9 @@ export function pathSlugOnBlur(value: unknown): string | undefined {
 /**
  * The message under the field. Hidden until the editor leaves it or a save
  * fails, so typing `/about-us/` doesn't flash red on the first character.
- * An empty value keeps the form's own `required` message.
+ * The admin keeps a failed save's errors until the next save, so our format
+ * message is dropped once the editor has fixed the value. Other messages
+ * (`required`, a slug already in use) stay, as does ours on a blank value.
  */
 export function visiblePathSlugError(
   value: unknown,
@@ -31,5 +37,9 @@ export function visiblePathSlugError(
 ): string | undefined {
   if (!touched && !formError) return undefined
   if (typeof value !== 'string') return formError
-  return pathSlugFormatError(value) ?? formError
+  const current = pathSlugFormatError(value)
+  if (current) return current
+  const fixed = value.trim() !== ''
+  if (fixed && formError && isPathSlugFormatMessage(formError)) return undefined
+  return formError
 }
