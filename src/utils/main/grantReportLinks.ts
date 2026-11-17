@@ -5,13 +5,12 @@ import type {
   LegacyGrantReport
 } from '@/types/airtable'
 import { isRecordId } from './airtableFieldValues'
-import { FORUM_HOSTNAME } from './airtableLegacyReports'
 import { REPORT_TYPES } from './airtableReports'
 import { grantReportPath } from './grantReports'
 
 // The report links of each grant in the grantee directory. A report can be a
-// page on this site (grant-reports.json) or an older post on the community
-// forum (legacy-grant-reports.json).
+// page on this site (grant-reports.json) or an older report on another site,
+// mostly the community forum (legacy-grant-reports.json).
 
 const legacyGrantReportSchema = z.object({
   grantId: z.string().refine(isRecordId, 'expected an Airtable record ID'),
@@ -19,10 +18,9 @@ const legacyGrantReportSchema = z.object({
   reportNumber: z.number().int().positive(),
   url: z
     .string()
-    .url()
     .refine(
-      (url) => new URL(url).hostname === FORUM_HOSTNAME,
-      `expected a link to ${FORUM_HOSTNAME}`
+      (url) => URL.canParse(url) && /^https?:$/.test(new URL(url).protocol),
+      'expected a web link'
     )
 }) satisfies z.ZodType<LegacyGrantReport>
 
@@ -49,11 +47,11 @@ interface ReportLinkBase {
 // `path` is a site path without the locale prefix; localize it to link.
 export type GrantReportLink =
   | (ReportLinkBase & { kind: 'page'; path: string })
-  | (ReportLinkBase & { kind: 'forum'; url: string })
+  | (ReportLinkBase & { kind: 'legacy'; url: string })
 
 export interface GrantReportLinkSources {
   // Pass [] while the report pages are hidden (hideGrantReports()), so the
-  // card falls back to the forum links instead of linking to a missing page.
+  // card falls back to the legacy links instead of linking to a missing page.
   reports: readonly Pick<
     GrantReport,
     'grantId' | 'granteeSlug' | 'projectId' | 'reportType' | 'reportNumber'
@@ -83,17 +81,17 @@ function groupByGrant<T extends { grantId: string }>(
 }
 
 // Each grant's report links, interim reports first, then by number. A report
-// with a page on this site links there. A report with only a forum post links
-// to the forum. Sarah's order, decided per report: a grant can show a page
-// for one report and a forum post for another. A grant with no reports has
+// with a page on this site links there. A report with only a legacy post links
+// to that post. Sarah's order, decided per report: a grant can show a page
+// for one report and a legacy post for another. A grant with no reports has
 // no entry.
 export function buildGrantReportLinks({
   reports,
   legacyReports
 }: GrantReportLinkSources): ReadonlyMap<string, GrantReportLink[]> {
   const pagesByGrant = groupByGrant(reports)
-  const forumByGrant = groupByGrant(legacyReports)
-  const grantIds = new Set([...pagesByGrant.keys(), ...forumByGrant.keys()])
+  const legacyByGrant = groupByGrant(legacyReports)
+  const grantIds = new Set([...pagesByGrant.keys(), ...legacyByGrant.keys()])
   const links = new Map<string, GrantReportLink[]>()
   for (const grantId of grantIds) {
     const pages: GrantReportLink[] = (pagesByGrant.get(grantId) ?? []).map(
@@ -105,15 +103,15 @@ export function buildGrantReportLinks({
       })
     )
     const pageKeys = new Set(pages.map(linkKey))
-    const forum: GrantReportLink[] = (forumByGrant.get(grantId) ?? [])
+    const legacy: GrantReportLink[] = (legacyByGrant.get(grantId) ?? [])
       .filter((report) => !pageKeys.has(linkKey(report)))
       .map(({ reportType, reportNumber, url }) => ({
-        kind: 'forum',
+        kind: 'legacy',
         reportType,
         reportNumber,
         url
       }))
-    links.set(grantId, [...pages, ...forum].sort(compareLinks))
+    links.set(grantId, [...pages, ...legacy].sort(compareLinks))
   }
   return links
 }

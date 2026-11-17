@@ -62,19 +62,23 @@ describe('toLegacyGrantReport', () => {
     expect((word as Error).message).toContain('a link, got text')
   })
 
-  it('fails on a link to another site, naming the host only', () => {
-    const result = toLegacyGrantReport(
-      row({ [F.link.id]: 'https://medium.com/@gib/report' })
-    )
-    expect((result as Error).message).toContain('got medium.com')
-    expect((result as Error).message).not.toContain('@gib')
+  it('keeps a link to another site, over http or https', () => {
+    for (const url of [
+      'https://medium.com/@gib/report',
+      'http://gib.example.org/report'
+    ]) {
+      expect(toLegacyGrantReport(row({ [F.link.id]: url }))).toMatchObject({
+        url
+      })
+    }
   })
 
-  it('fails on a forum link over http', () => {
+  it('fails on a link that is not a web link, without printing it', () => {
     const result = toLegacyGrantReport(
-      row({ [F.link.id]: FORUM_URL.replace('https:', 'http:') })
+      row({ [F.link.id]: 'mailto:gib@example.org' })
     )
-    expect(result).toBeInstanceOf(Error)
+    expect((result as Error).message).toContain('a web link, got mailto:')
+    expect((result as Error).message).not.toContain('gib@example.org')
   })
 
   it('fails on a row linked to two projects or none', () => {

@@ -72,7 +72,7 @@ const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
 const GRANTEES_TABLE_ID = 'tblfIGFjK88ZmLxNI' // Grantees
 const GRANTEES_VIEW_ID = 'viwE0ixrnaCsXt5X0' // Grid view: every field is public (PRO-371)
 const SUBMITTED_REPORTS_TABLE_ID = 'tblrHejb5zgUggFm2' // Submitted Reports
-// The PUBLIC view of Submitted Reports for the forum links (INTORG-1423). Null
+// The PUBLIC view of Submitted Reports for the legacy report links (INTORG-1423). Null
 // until Programs add it: the legacy part then writes an empty list, because
 // the rest of that table is private.
 const LEGACY_REPORTS_VIEW_ID: string | null = null
@@ -371,7 +371,7 @@ async function fetchGranteeProfiles(
   return profiles
 }
 
-// The forum links of every grant, before the directory filter. A bad row is
+// The legacy report links of every grant, before the directory filter. A bad row is
 // skipped with a warning instead of failing the sync: see
 // airtableLegacyReports.ts.
 async function fetchLegacyGrantReports(

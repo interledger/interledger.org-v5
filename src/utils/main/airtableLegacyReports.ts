@@ -28,9 +28,9 @@ export const LEGACY_REPORT_FIELDS = {
   reportNumber: { id: 'fld8UYDRTHeshaRSO', name: 'Report Num' }
 } as const satisfies Record<string, { id: string; name: string }>
 
-// The forum that holds the legacy reports. A link to any other site is
-// skipped: the card labels every legacy link as a forum report.
-export const FORUM_HOSTNAME = 'community.interledger.org'
+// Most legacy reports are on the community forum, but some are on other
+// sites (Jeremiah, PRO-371), so any web link is kept.
+const WEB_PROTOCOLS = new Set(['http:', 'https:'])
 
 const WHITESPACE = /\s/
 
@@ -38,15 +38,15 @@ function isReportType(value: unknown): value is GrantReportType {
   return REPORT_TYPES.some((type) => type === value)
 }
 
-// The cell holds one forum link. Two links, or a link with a note, has
+// The cell holds one link. Two links, or a link with a note, has
 // whitespace inside it, and the sync cannot tell which part is the report.
-function readForumUrl(value: unknown): string | { expected: string } {
+function readReportUrl(value: unknown): string | { expected: string } {
   const text = typeof value === 'string' ? value.trim() : ''
   if (WHITESPACE.test(text)) return { expected: 'one link, got more text' }
   if (!URL.canParse(text)) return { expected: 'a link, got text' }
   const url = new URL(text)
-  if (url.protocol !== 'https:' || url.hostname !== FORUM_HOSTNAME) {
-    return { expected: `a link to ${FORUM_HOSTNAME}, got ${url.hostname}` }
+  if (!WEB_PROTOCOLS.has(url.protocol)) {
+    return { expected: `a web link, got ${url.protocol}` }
   }
   return url.href
 }
@@ -64,7 +64,7 @@ export function toLegacyGrantReport(
 ): LegacyGrantReport | Error {
   const { link, projects, reportType, reportNumber } = LEGACY_REPORT_FIELDS
   const problems: string[] = []
-  const url = readForumUrl(raw.fields[link.id])
+  const url = readReportUrl(raw.fields[link.id])
   if (typeof url !== 'string') {
     problems.push(`"${link.name}": expected ${url.expected}`)
   }
