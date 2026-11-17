@@ -295,27 +295,63 @@ export interface GitSyncDeps {
   now: () => number
 }
 
-function execInRepo(
-  command: string,
-  cwd: string
-): Promise<string | GitCommandError> {
-  return new Promise((resolve) => {
-    exec(command, { cwd }, (error, stdout, stderr) => {
-      if (error) {
-        resolve(
-          new GitCommandError(
-            command,
-            stdout ?? '',
-            stderr ?? '',
-            stderr?.trim() || error.message
+/**
+ * Backstop for a git command that never returns. Every sync holds the
+ * in-process lock and the file mutex until its commands settle, so one hung
+ * push used to queue every later save behind it forever, with no alert.
+ */
+const GIT_COMMAND_TIMEOUT_MS = 60 * 1_000
+
+/**
+ * Makes git fail instead of waiting. With no TTY, an expired token makes git
+ * wait for credentials on stdin indefinitely; a stalled HTTPS transfer below
+ * the speed limit for the window is aborted by git itself, long before the
+ * timeout above has to kill anything.
+ */
+const GIT_NON_INTERACTIVE_ENV = {
+  GIT_TERMINAL_PROMPT: '0',
+  GIT_HTTP_LOW_SPEED_LIMIT: '1000',
+  GIT_HTTP_LOW_SPEED_TIME: '30'
+} as const
+
+/**
+ * Builds the default {@link GitExec}. The timeout is a parameter so tests can
+ * exercise it without waiting a minute.
+ *
+ * `exec` runs the command through a shell, so the kill reaches the shell and
+ * can orphan a git child. That child releases `index.lock` when it ends, and
+ * {@link execWithLockRetry} absorbs the contention until then.
+ */
+export function createExecInRepo(timeoutMs: number): GitExec {
+  return (command, cwd) =>
+    new Promise((resolve) => {
+      exec(
+        command,
+        {
+          cwd,
+          timeout: timeoutMs,
+          killSignal: 'SIGKILL',
+          env: { ...process.env, ...GIT_NON_INTERACTIVE_ENV }
+        },
+        (error, stdout, stderr) => {
+          if (!error) {
+            resolve(stdout.trim())
+            return
+          }
+          // Its own message, so a hang gets its own alert fingerprint rather
+          // than whatever partial stderr the killed command left behind.
+          const message = error.killed
+            ? `git command timed out after ${timeoutMs / 1_000}s and was killed: ${command}`
+            : stderr?.trim() || error.message
+          resolve(
+            new GitCommandError(command, stdout ?? '', stderr ?? '', message)
           )
-        )
-      } else {
-        resolve(stdout.trim())
-      }
+        }
+      )
     })
-  })
 }
+
+const execInRepo = createExecInRepo(GIT_COMMAND_TIMEOUT_MS)
 
 /** Narrows a thrown filesystem error to its errno code. */
 function errorCode(error: Error): string | undefined {

@@ -12,6 +12,7 @@ import {
   buildPushCommand,
   buildRebaseCommand,
   buildRebaseContinueCommand,
+  createExecInRepo,
   acquireSyncLock,
   formatLockOwner,
   isUnmerged,
@@ -73,9 +74,7 @@ function heldLock(heldAtMs: number, contents = 'pid=999 host=other\n') {
 }
 
 type FakeResponse =
-  | string
-  | GitCommandError
-  | ((command: string) => string | GitCommandError)
+  string | GitCommandError | ((command: string) => string | GitCommandError)
 
 /**
  * Builds test deps.
@@ -610,6 +609,47 @@ describe('buildRebaseCommand', () => {
 describe('buildRebaseContinueCommand', () => {
   it('pins the editor so --continue cannot block on a TTY that is not there', () => {
     expect(buildRebaseContinueCommand()).toContain('-c core.editor=true')
+  })
+})
+
+describe('createExecInRepo', () => {
+  // Real child processes: the point is how a real hung command behaves.
+  it('returns the trimmed stdout of a successful command', async () => {
+    const result = await createExecInRepo(5_000)('echo "  ok  "', os.tmpdir())
+    expect(result).toBe('ok')
+  })
+
+  it('returns a GitCommandError carrying stderr when the command fails', async () => {
+    const result = await createExecInRepo(5_000)(
+      'echo boom >&2; exit 3',
+      os.tmpdir()
+    )
+    expect(result).toBeInstanceOf(GitCommandError)
+    expect((result as GitCommandError).message).toBe('boom')
+  })
+
+  it('kills a command that outlives the timeout and says so', async () => {
+    const result = await createExecInRepo(100)('sleep 5', os.tmpdir())
+    expect(result).toBeInstanceOf(GitCommandError)
+    expect((result as GitCommandError).message).toMatch(
+      /timed out after 0\.1s and was killed: sleep 5/
+    )
+  })
+
+  it('stops git prompting for credentials', async () => {
+    const result = await createExecInRepo(5_000)(
+      'printf %s "$GIT_TERMINAL_PROMPT"',
+      os.tmpdir()
+    )
+    expect(result).toBe('0')
+  })
+
+  it('keeps the rest of the environment', async () => {
+    const result = await createExecInRepo(5_000)(
+      'printf %s "$HOME"',
+      os.tmpdir()
+    )
+    expect(result).toBe(process.env.HOME)
   })
 })
 

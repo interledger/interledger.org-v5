@@ -277,6 +277,7 @@ export {
   type DebouncedGitSync,
   GitCommandError,
   defaultGitSyncDeps,
+  createExecInRepo,
   isGitSyncDisabled,
   getTargetRepoRoot,
   validateGitSyncRepoOnStartup,
