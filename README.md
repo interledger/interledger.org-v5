@@ -984,3 +984,4 @@ Details on **Strapi lifecycles**, **MDX syncing**, and **preview functionality**
 <!-- gitsync S10 DEV 1 -->
 <!-- gitsync S10 DEV 2 -->
 <!-- gitsync W1 DEV 1 -->
+<!-- gitsync W1 DEV 2 -->
