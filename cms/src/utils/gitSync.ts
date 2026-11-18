@@ -284,6 +284,19 @@ export interface LockFs {
   remove: (filepath: string) => void
 }
 
+/**
+ * Working-tree file access for interrupted-operation recovery, injected so the
+ * snapshot and restore are testable without a real checkout. Contents are raw
+ * bytes: uploads are binary.
+ */
+export interface WorkTreeFs {
+  /** The file's bytes, or `null` when it does not exist. */
+  read: (filepath: string) => Buffer | null
+  /** Writes the file, creating parent directories. */
+  write: (filepath: string, contents: Buffer) => void
+  remove: (filepath: string) => void
+}
+
 export interface GitSyncDeps {
   exec: GitExec
   fileExists: (filepath: string) => boolean
@@ -293,6 +306,7 @@ export interface GitSyncDeps {
   lockFs: LockFs
   /** Milliseconds since the epoch. Injected so lock staleness is testable. */
   now: () => number
+  workTree: WorkTreeFs
 }
 
 /**
@@ -401,13 +415,28 @@ const defaultLockFs: LockFs = {
   remove: (filepath) => fs.rmSync(filepath, { force: true })
 }
 
+const defaultWorkTree: WorkTreeFs = {
+  read: (filepath) => {
+    const contents = tryCatch(() => fs.readFileSync(filepath))
+    if (!(contents instanceof Error)) return contents
+    if (errorCode(contents) === 'ENOENT') return null
+    throw contents
+  },
+  write: (filepath, contents) => {
+    fs.mkdirSync(path.dirname(filepath), { recursive: true })
+    fs.writeFileSync(filepath, contents)
+  },
+  remove: (filepath) => fs.rmSync(filepath, { force: true })
+}
+
 export const defaultGitSyncDeps: GitSyncDeps = {
   exec: execInRepo,
   fileExists: (filepath) => fs.existsSync(filepath),
   notify: notifyGitSyncToSlack,
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   lockFs: defaultLockFs,
-  now: () => Date.now()
+  now: () => Date.now(),
+  workTree: defaultWorkTree
 }
 
 // ── Shell + path helpers ─────────────────────────────────────────────────────
@@ -950,12 +979,91 @@ export async function recoverInterruptedOperation(
   console.warn(
     `⚠️  Checkout was left mid-operation (${present.join(', ')}) — clearing it.`
   )
+
+  // `--abort` resets every tracked file, not just the conflicted ones, so the
+  // pages Strapi wrote while the checkout was stuck would go with it. The
+  // editor still sees them saved, and the next daily `sync:mdx` would copy the
+  // stale file back over the database. Snapshot them first.
+  const editorWrites = await snapshotEditorWrites(repoRoot, deps)
+  if (editorWrites instanceof GitCommandError) return editorWrites
+
   // Only one operation can be in progress. The other two exit non-zero with
   // nothing to undo, which is why each is best-effort.
   await deps.exec('git rebase --abort', repoRoot)
   await deps.exec('git merge --abort', repoRoot)
   await deps.exec('git cherry-pick --abort', repoRoot)
+
+  const restored = restoreEditorWrites(repoRoot, editorWrites, deps)
+  if (restored instanceof GitCommandError) return restored
   return 'recovered'
+}
+
+/** A CMS-owned file as it stood before the abort; `null` contents mean deleted. */
+interface EditorWrite {
+  filepath: string
+  contents: Buffer | null
+}
+
+const CONFLICT_MARKERS = [/^<{7}(?: |$)/m, /^>{7}(?: |$)/m] as const
+
+function hasConflictMarkers(contents: Buffer): boolean {
+  const text = contents.toString('utf8')
+  return CONFLICT_MARKERS.every((marker) => marker.test(text))
+}
+
+/**
+ * Collects every CMS-owned file that differs from HEAD, as a candidate editor
+ * write to carry across the abort.
+ *
+ * Strapi writes whole files, so a conflicted path it rewrote has no markers
+ * and is kept, which is CMS-wins once more. A path that still has markers is
+ * git's half-merge, not an editor's write, and is left for the abort to undo.
+ * Untracked files are not listed: the abort leaves them alone already.
+ *
+ * `-z` so a path with a space or a non-ASCII character comes back unquoted.
+ */
+async function snapshotEditorWrites(
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<EditorWrite[] | GitCommandError> {
+  const output = await deps.exec('git diff --name-only -z HEAD', repoRoot)
+  if (output instanceof GitCommandError) return output
+
+  const writes: EditorWrite[] = []
+  for (const filepath of output.split('\0').filter(isResolvablePath)) {
+    const contents = deps.workTree.read(path.join(repoRoot, filepath))
+    if (contents !== null && hasConflictMarkers(contents)) continue
+    writes.push({ filepath, contents })
+  }
+  return writes
+}
+
+function restoreEditorWrites(
+  repoRoot: string,
+  writes: EditorWrite[],
+  deps: GitSyncDeps
+): void | GitCommandError {
+  if (writes.length === 0) return
+
+  for (const { filepath, contents } of writes) {
+    const absolute = path.join(repoRoot, filepath)
+    const restored = tryCatch(() =>
+      contents === null
+        ? deps.workTree.remove(absolute)
+        : deps.workTree.write(absolute, contents)
+    )
+    if (restored instanceof Error) {
+      const message =
+        `Cleared an interrupted operation but could not restore ${filepath}, ` +
+        `which Strapi had written: ${restored.message}`
+      return new GitCommandError('restore editor writes', '', message, message)
+    }
+  }
+
+  console.warn(
+    `⚠️  Kept ${writes.length} file(s) Strapi wrote while the checkout was ` +
+      `stuck: ${writes.map((w) => w.filepath).join(', ')}`
+  )
 }
 
 // ── Conflict description + residual resolution ───────────────────────────────
