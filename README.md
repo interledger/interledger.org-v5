@@ -343,6 +343,8 @@ overwrote branch changes` message goes to `#frontend-team` naming the files
   are **not** announced: the silent revert on a later save described above,
   and the daily workflow replaying a stranded CMS commit with the same
   `-X theirs` policy — that shows only as a warning in the workflow log.
+  The workflow never pushes: Strapi is the only writer to the deploy branch, so
+  the replayed commit reaches it with the next editor save.
 
 > **A note for anyone reading the code:** during a rebase git swaps the meaning
 > of `ours` and `theirs` — `ours` is the branch being replayed _onto_ (the
