@@ -903,6 +903,13 @@ function releaseSyncLock(
  *
  * Age comes from the file's mtime, so a lock with truncated or unreadable
  * contents still expires rather than wedging the repository forever.
+ *
+ * Safe for two contenders, which is all a checkout has: one Strapi process,
+ * whose saves `withGitSyncLock` already serialises, and one workflow job,
+ * which its concurrency group limits to one per branch. With a third, the
+ * path is briefly empty while a live lock is moved aside and put back, and
+ * the third could claim it in that gap. Supporting that would need `flock`
+ * or a lock around the reclaim itself.
  */
 function reclaimStaleLock(
   lockPath: string,
