@@ -2,7 +2,7 @@ import type { Element, Parents, Root } from 'hast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 import { getTableScrollAriaLabel } from './getTableScrollAriaLabel'
-import { TABLE_SCROLL_CLASS } from './wrapScrollableTables'
+import { TABLE_SCROLL_CLASS } from '../shared/wrapScrollableTables'
 import { LOCALE_CODES } from './localeCodes'
 
 const CONTENT_FILE_RE = /\/src\/content\/([^/]+)\/(.+)\.(?:mdx?|md)$/
@@ -26,7 +26,7 @@ function createTableScrollWrapper(table: Element, ariaLabel: string): Element {
       role: 'region',
       ariaLabel,
       tabIndex: 0,
-      // See wrapScrollableTables.ts for why this is the horizontal-only variant.
+      // See shared/wrapScrollableTables.ts for why this is the horizontal-only variant.
       dataLenisPreventHorizontal: ''
     },
     children: [table]
