@@ -153,7 +153,6 @@ export const ui = {
     'grantee.grants.other': '{count} grants',
     'grantee.project.committed': '{amount} USD committed',
     'grantee.reports.none': 'No reports published yet',
-    'grantee.reports.link': 'Report',
     'grantee.reports.numbered': 'Report {number}',
     'grantee.empty': 'No grantees match these filters.',
     'grantee.results': '{count} results',

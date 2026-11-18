@@ -311,7 +311,7 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
         id: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
-        label: 'Final report 1',
+        label: 'Report 1',
         href: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
         external: true
       },
@@ -323,7 +323,7 @@ describe('buildGranteeDirectory report links', () => {
       },
       {
         id: 'https://community.interledger.org/x/africa-final-report-379a',
-        label: 'Final report',
+        label: 'Report 3',
         href: 'https://community.interledger.org/x/africa-final-report-379a',
         external: true
       }

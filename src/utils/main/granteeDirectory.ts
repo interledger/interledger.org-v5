@@ -33,7 +33,7 @@ export const GRANTEE_PAGE_SIZE = 10
 /** A link from a project to one of its reports. */
 export interface GranteeReportLink {
   id: string
-  /** "Interim report 1" for a page, or the same shape read from a forum URL. */
+  /** "Interim report 1" for a page. A forum link is "Report 1", "Report 2". */
   label: string
   href: string
   /** A forum report. A page on this site leaves it unset. */
@@ -103,10 +103,6 @@ function parseDirectoryProfiles(data: unknown): DirectoryProfile[] | Error {
 
 type ReportLinksByProject = Map<string, GranteeReportLink[]>
 
-// "report-1-final" is report 1. "final-report-379a" is not: the digits are
-// the forum post id glued to the slug.
-const FORUM_REPORT_NUMBER = /report-(\d+)(?![a-z0-9])/i
-
 // A report whose project is not in the directory has a page but no link.
 // Programs agreed it should go live anyway (INTORG-1373), because comms can
 // share its address directly.
@@ -132,36 +128,15 @@ function pageLinksByProject(
   return links
 }
 
-// Forum slugs are not a schema. "grant-report-1-final" becomes "Final report
-// 1"; a slug with neither a number nor "final"/"interim" stays "Report".
-function forumReportLabel(url: string, t: Translate): string {
-  let path = url
-  try {
-    path = decodeURIComponent(new URL(url).pathname)
-  } catch {
-    path = url
-  }
-  const number = FORUM_REPORT_NUMBER.exec(path)?.[1]
-  const type = /\bfinal\b/i.test(path)
-    ? t('grantReport.type.final')
-    : /\binterim\b/i.test(path)
-      ? t('grantReport.type.interim')
-      : null
-  if (type && number) {
-    return t('grantReport.label', { type, number })
-  }
-  if (type) return type
-  if (number) return t('grantee.reports.numbered', { number })
-  return t('grantee.reports.link')
-}
-
+// Project Links do not say whether a report is interim or final, so the card
+// numbers them in the order the data lists them: Report 1, Report 2.
 function forumReportLinks(
   project: GranteeProject,
   t: Translate
 ): GranteeReportLink[] {
-  return project.reportUrls.map((url) => ({
+  return project.reportUrls.map((url, index) => ({
     id: url,
-    label: forumReportLabel(url, t),
+    label: t('grantee.reports.numbered', { number: index + 1 }),
     href: url,
     external: true
   }))
