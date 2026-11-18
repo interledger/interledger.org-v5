@@ -57,3 +57,22 @@ for (const id of directory) {
   perGrant[key] = (perGrant[key] ?? 0) + 1
 }
 console.log(`links per directory grant: ${JSON.stringify(perGrant)}`)
+
+// Record IDs only, the same as the sync's own warning. Never the links.
+console.log('skipped rows and reports:')
+for (const message of skipped) console.log(`  ${message.replace(/\n/g, ' | ')}`)
+const F = { projects: 'fldWRAATuUizgITyO', type: 'fldk6wRlmxfC9Ka0D', num: 'fld8UYDRTHeshaRSO' }
+for (const message of skipped.filter((m) => m.includes('different links'))) {
+  const match = /^Grant (\S+) (.+) (\d+):/.exec(message)
+  if (!match) continue
+  const [, grantId, type, num] = match
+  const ids = rows
+    .filter(
+      (r) =>
+        r.fields[F.projects]?.[0] === grantId &&
+        r.fields[F.type] === type &&
+        r.fields[F.num] === Number(num)
+    )
+    .map((r) => r.id)
+  console.log(`  rows for ${grantId} ${type} ${num}: ${ids.join(', ')}`)
+}
