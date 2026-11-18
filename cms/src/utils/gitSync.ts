@@ -242,7 +242,17 @@ export type GitSyncResult =
   | { outcome: 'synced'; message: string; conflict?: ConflictResolution }
   | { outcome: 'nothing-to-commit' }
   | { outcome: 'skipped'; reason: GitSyncSkipReason }
-  | { outcome: 'failed'; error: Error }
+  | {
+      outcome: 'failed'
+      error: Error
+      /**
+       * Set when a rebase already applied the CMS-wins resolution but no push
+       * got it out. The resolved content stays staged, and the next save pushes
+       * it as a plain fast-forward with no probe, so this is the only chance to
+       * announce the overwrite.
+       */
+      conflict?: ConflictResolution
+    }
 
 // ── Injected effects ─────────────────────────────────────────────────────────
 
@@ -554,20 +564,33 @@ export async function validateGitSyncRepoOnStartup(
 
 // ── Git status + commit message inference ───────────────────────────────────
 
-export function parseGitStatusLine(line: string): GitStatusChange | null {
-  if (!line.trim()) return null
+/**
+ * Parses `git status --porcelain -z`.
+ *
+ * `-z` is what makes the paths literal. Without it git quotes and escapes any
+ * path with a space or a non-ASCII byte (`"src/content/caf\303\251.mdx"`),
+ * and that quoted form fails every prefix check and every git command it is
+ * handed. Records are `XY PATH`, NUL-terminated; a rename or copy is followed
+ * by a second record holding the source path, which is skipped.
+ *
+ * The leading space of the first record may be missing: command output is
+ * trimmed, and an unstaged change starts with one (` M path`). Every real
+ * record has a space at index 2, so its absence means exactly that.
+ */
+export function parseGitStatusZ(output: string): GitStatusChange[] {
+  const records = output.split('\0')
+  const changes: GitStatusChange[] = []
 
-  const status = line.slice(0, 2).trim()
-  // git status --porcelain: "XY PATH" (2-char status + space); slice(3) skips to path
-  const rawPath = line.slice(3).trimStart()
-  const filepath = rawPath.includes(' -> ')
-    ? (rawPath.split(' -> ').pop() ?? rawPath)
-    : rawPath
+  for (let i = 0; i < records.length; i++) {
+    const record =
+      i === 0 && records[i][2] !== ' ' ? ` ${records[i]}` : records[i]
+    if (record.length < 4) continue
 
-  return {
-    status,
-    filepath
+    const code = record.slice(0, 2)
+    changes.push({ status: code.trim(), filepath: record.slice(3) })
+    if (code[0] === 'R' || code[0] === 'C') i++
   }
+  return changes
 }
 
 function isDeleted(status: string): boolean {
@@ -596,14 +619,11 @@ async function getGitStatus(
   cwd: string,
   deps: GitSyncDeps
 ): Promise<GitStatusChange[] | GitCommandError> {
-  const output = await execWithLockRetry('git status --porcelain', cwd, deps)
+  const output = await execWithLockRetry('git status --porcelain -z', cwd, deps)
   if (output instanceof GitCommandError) return output
   if (!output) return []
 
-  return output
-    .split('\n')
-    .map(parseGitStatusLine)
-    .filter((change): change is GitStatusChange => Boolean(change))
+  return parseGitStatusZ(output)
 }
 
 export function extractSlug(filepath: string): string {
@@ -883,6 +903,13 @@ function releaseSyncLock(
  *
  * Age comes from the file's mtime, so a lock with truncated or unreadable
  * contents still expires rather than wedging the repository forever.
+ *
+ * Safe for two contenders, which is all a checkout has: one Strapi process,
+ * whose saves `withGitSyncLock` already serialises, and one workflow job,
+ * which its concurrency group limits to one per branch. With a third, the
+ * path is briefly empty while a live lock is moved aside and put back, and
+ * the third could claim it in that gap. Supporting that would need `flock`
+ * or a lock around the reclaim itself.
  */
 function reclaimStaleLock(
   lockPath: string,
@@ -1339,17 +1366,17 @@ async function pushWithRebase(
       continue
     }
 
+    // Held apart until the rebase succeeds: an aborted rebase overwrote
+    // nothing, and a pending-push alert must not claim that it did.
+    let attempted: ConflictResolution | undefined
     const probe = await describeConflict(repoRoot, upstreamRef, deps)
     if (probe.kind === 'conflict') {
-      conflict = mergeConflictResolutions(conflict, probe.resolution)
+      attempted = probe.resolution
     } else if (probe.kind === 'unavailable') {
       // The rebase below resolves conflicting hunks silently, so without the
       // probe we cannot tell whether it overwrote anything. Announce the
       // possibility rather than stay quiet about a potential overwrite.
-      conflict = mergeConflictResolutions(conflict, {
-        ...NO_CONFLICT,
-        detailsUnavailable: true
-      })
+      attempted = { ...NO_CONFLICT, detailsUnavailable: true }
     }
 
     const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
@@ -1361,6 +1388,7 @@ async function pushWithRebase(
       break
     }
 
+    if (attempted) conflict = mergeConflictResolutions(conflict, attempted)
     if (resolved.length > 0) {
       // The probe reports every conflicted path, including the existence
       // conflicts the resolver then settles, so the two lists would otherwise
@@ -1465,7 +1493,8 @@ async function pushRecoveredCommits(
     outcome: 'failed',
     error:
       push.error ??
-      new Error('Could not push commits left by an interrupted sync')
+      new Error('Could not push commits left by an interrupted sync'),
+    conflict: push.conflict
   }
 }
 
@@ -1535,7 +1564,7 @@ async function commitAndPush(
       `⚠️  Git sync could not unwind its commit: ${unwound.message}`
     )
   }
-  return { outcome: 'failed', error }
+  return { outcome: 'failed', error, conflict: push.conflict }
 }
 
 // ── Reporting ────────────────────────────────────────────────────────────────
@@ -1592,7 +1621,8 @@ async function report(
   // clears an open failure, this one is the audit record of the developer work
   // the CMS superseded. Nothing lints a direct push to the deploy branch, so
   // without this the overwrite is invisible until it surfaces weeks later.
-  if (result.outcome === 'synced' && result.conflict) {
+  if (result.outcome !== 'nothing-to-commit' && result.conflict) {
+    const pendingPush = result.outcome === 'failed'
     const {
       overwrittenPaths,
       resolvedPaths,
@@ -1601,8 +1631,9 @@ async function report(
     } = result.conflict
     const named = [...overwrittenPaths, ...resolvedPaths.map((r) => r.path)]
     console.warn(
-      `⚠️  Git sync overwrote branch changes in favour of the CMS: ` +
-        (named.length > 0 ? named.join(', ') : 'paths unavailable')
+      `⚠️  Git sync overwrote branch changes in favour of the CMS` +
+        (pendingPush ? ' (not pushed yet)' : '') +
+        `: ${named.length > 0 ? named.join(', ') : 'paths unavailable'}`
     )
     const sent = await tryCatchAsync(() =>
       deps.notify({
@@ -1614,7 +1645,8 @@ async function report(
         overwrittenPaths,
         resolvedPaths,
         supersededCommits,
-        detailsUnavailable
+        detailsUnavailable,
+        ...(pendingPush ? { pendingPush } : {})
       })
     )
     if (sent instanceof Error) {
