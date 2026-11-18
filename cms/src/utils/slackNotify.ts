@@ -68,6 +68,12 @@ export interface GitSyncAlert {
    * overwrite was empty.
    */
   detailsUnavailable?: boolean
+  /**
+   * The overwrite is decided and staged, but the push failed. It reaches the
+   * branch with the next successful save, which announces nothing, so this
+   * alert is sent now and says so.
+   */
+  pendingPush?: boolean
 }
 
 export type NotifyGitSync = (alert: GitSyncAlert) => Promise<void>
@@ -253,9 +259,13 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
     : `⚠️ *Strapi git sync overwrote branch changes*\n` +
       `A CMS save conflicted with commits already on the branch. Policy is that the ` +
       `CMS wins, so the editor's version was kept.`
+  const pending = input.pendingPush
+    ? `\n*Not pushed yet:* the push failed (see the failure alert), and the ` +
+      `next successful save pushes this overwrite without another notice.`
+    : ''
 
   const blocks: unknown[] = [
-    { type: 'section', text: { type: 'mrkdwn', text: headline } },
+    { type: 'section', text: { type: 'mrkdwn', text: headline + pending } },
     { type: 'section', fields }
   ]
 

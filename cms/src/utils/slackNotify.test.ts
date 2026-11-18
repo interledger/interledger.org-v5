@@ -297,6 +297,38 @@ describe('buildSlackPayload', () => {
 
 // ── Notifier ─────────────────────────────────────────────────────────────────
 
+describe('buildSlackPayload pending overwrite', () => {
+  it('says the overwrite has not reached the branch yet', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        outcome: 'conflict-resolved',
+        label: 'faq',
+        repoRoot: '/staging-clone',
+        hostname: 'strapi-vm',
+        overwrittenPaths: ['src/content/faqs/a.mdx'],
+        pendingPush: true
+      })
+    )
+
+    expect(text).toContain('*Not pushed yet:*')
+    expect(text).toContain('src/content/faqs/a.mdx')
+  })
+
+  it('says nothing about pushing for an overwrite that was pushed', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        outcome: 'conflict-resolved',
+        label: 'faq',
+        repoRoot: '/staging-clone',
+        hostname: 'strapi-vm',
+        overwrittenPaths: ['src/content/faqs/a.mdx']
+      })
+    )
+
+    expect(text).not.toContain('Not pushed yet')
+  })
+})
+
 describe('readCheckedOutBranch', () => {
   let repo: string
 
