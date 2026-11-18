@@ -7,6 +7,7 @@ import {
   getGranteeFilterUrl
 } from '@/utils'
 import Icon from '@/components/shared/Icon.astro'
+import LabelWithTrailingIcon from '@/components/shared/LabelWithTrailingIcon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import PillLink from '@/components/shared/PillLink.astro'
 import {
@@ -123,7 +124,14 @@ const projectCount = grantee.projects.length
                 external={report.external}
                 {...reportAttrs(report)}
               >
-                {report.label}
+                {report.external ? (
+                  <LabelWithTrailingIcon
+                    label={report.label}
+                    icon="external-link"
+                  />
+                ) : (
+                  report.label
+                )}
                 <span class="sr-only">, {project.name}</span>
               </LinkButton>
             </li>)}

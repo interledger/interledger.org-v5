@@ -92,7 +92,14 @@ const reportLinkClass = buttonVariants({
 <template data-grantee-search-report-template>
   <li class="m-0">
     <a class={reportLinkClass}>
-      <span data-grantee-search-report-label></span>
+      <span data-grantee-search-report-label></span><span
+        class="whitespace-nowrap"
+        data-grantee-search-report-external
+        hidden>&nbsp;<Icon
+          name="external-link"
+          class="ms-xs inline-block size-4 align-middle -translate-y-px"
+        /></span
+      >
       <span class="sr-only" data-grantee-search-report-project></span>
       <span class="sr-only" data-grantee-search-report-new-tab hidden>
         {t('aria.opens_new_tab')}

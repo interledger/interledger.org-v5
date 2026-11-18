@@ -302,6 +302,10 @@ function appendReportLink(
   const fragment = cloneTemplate(reportTemplate)
   const link = requireElement<HTMLAnchorElement>(fragment, 'a')
   link.href = report.href
+  requireElement<HTMLElement>(
+    link,
+    '[data-grantee-search-report-external]'
+  ).hidden = !report.external
   if (report.external) {
     link.target = '_blank'
     link.rel = 'noopener noreferrer'

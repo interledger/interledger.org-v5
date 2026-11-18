@@ -42,6 +42,7 @@ const REQUIRED_TEMPLATE_ATTRS = [
   'data-grantee-search-no-reports',
   'data-grantee-search-reports',
   'data-grantee-search-report-label',
+  'data-grantee-search-report-external',
   'data-grantee-search-report-project',
   'data-grantee-search-report-new-tab'
 ] as const
