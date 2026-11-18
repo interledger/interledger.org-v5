@@ -26,7 +26,7 @@ import {
   gitCommitAndPush,
   inferCommitMessage,
   isGitSyncDisabled,
-  parseGitStatusLine,
+  parseGitStatusZ,
   runGitSync,
   shellQuote,
   toGitPath,
@@ -46,7 +46,7 @@ const STAGE_DIRS = [
   path.join(REPO, 'public/uploads/img/original')
 ]
 
-const STATUS_COMMAND = 'git status --porcelain'
+const STATUS_COMMAND = 'git status --porcelain -z'
 
 interface FakeDeps extends GitSyncDeps {
   /** Every command given to `exec`, in order. */
@@ -229,10 +229,12 @@ function gitFailure(
  * uses two columns for the status code. So this function pads `M` to the
  * staged `M ` form.
  */
+/** `git status --porcelain -z` output, trimmed the way command output is. */
 function status(...lines: [string, string][]): string {
   return lines
-    .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}`)
-    .join('\n')
+    .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}\0`)
+    .join('')
+    .trim()
 }
 
 /** Returns each value in turn, repeating the last one once exhausted. */
@@ -391,51 +393,70 @@ describe('toGitPath', () => {
 
 // ── Porcelain parsing ────────────────────────────────────────────────────────
 
-describe('parseGitStatusLine', () => {
-  it('returns null for a blank line', () => {
-    expect(parseGitStatusLine('')).toBeNull()
-    expect(parseGitStatusLine('   ')).toBeNull()
+describe('parseGitStatusZ', () => {
+  it('returns nothing for empty output', () => {
+    expect(parseGitStatusZ('')).toEqual([])
   })
 
-  it('parses an untracked file', () => {
-    expect(parseGitStatusLine('?? src/content/faqs/new.mdx')).toEqual({
-      status: '??',
-      filepath: 'src/content/faqs/new.mdx'
-    })
-  })
-
-  it('parses an unstaged modification, trimming the leading status space', () => {
-    expect(parseGitStatusLine(' M src/content/faqs/a.mdx')).toEqual({
-      status: 'M',
-      filepath: 'src/content/faqs/a.mdx'
-    })
-  })
-
-  it('parses a staged deletion', () => {
-    expect(parseGitStatusLine('D  src/content/faqs/a.mdx')).toEqual({
-      status: 'D',
-      filepath: 'src/content/faqs/a.mdx'
-    })
-  })
-
-  it('keeps the destination of a rename', () => {
+  it('parses untracked, staged and unstaged records', () => {
     expect(
-      parseGitStatusLine(
-        'R  src/content/faqs/old.mdx -> src/content/faqs/new.mdx'
+      parseGitStatusZ(
+        '?? src/content/faqs/new.mdx\0D  src/content/faqs/gone.mdx\0 M src/content/faqs/a.mdx\0'
       )
-    ).toEqual({
-      status: 'R',
-      filepath: 'src/content/faqs/new.mdx'
-    })
+    ).toEqual([
+      { status: '??', filepath: 'src/content/faqs/new.mdx' },
+      { status: 'D', filepath: 'src/content/faqs/gone.mdx' },
+      { status: 'M', filepath: 'src/content/faqs/a.mdx' }
+    ])
   })
 
-  it('preserves spaces inside a filename', () => {
+  it('restores the leading space trimming took from the first record', () => {
+    // ` M src/content/faqs/a.mdx` arrives as `M src/content/faqs/a.mdx`.
+    expect(parseGitStatusZ('M src/content/faqs/a.mdx\0')).toEqual([
+      { status: 'M', filepath: 'src/content/faqs/a.mdx' }
+    ])
+  })
+
+  it('keeps the destination of a rename and skips its source record', () => {
     expect(
-      parseGitStatusLine('?? public/uploads/img/original/hero image.avif')
-    ).toEqual({
-      status: '??',
-      filepath: 'public/uploads/img/original/hero image.avif'
-    })
+      parseGitStatusZ(
+        'R  src/content/faqs/new.mdx\0src/content/faqs/old.mdx\0UU src/content/faqs/b.mdx\0'
+      )
+    ).toEqual([
+      { status: 'R', filepath: 'src/content/faqs/new.mdx' },
+      { status: 'UU', filepath: 'src/content/faqs/b.mdx' }
+    ])
+  })
+
+  it('keeps spaces and non-ASCII characters literal', () => {
+    expect(
+      parseGitStatusZ(
+        '?? public/uploads/img/original/hero image.avif\0UU src/content/foundation-pages/café.mdx\0'
+      )
+    ).toEqual([
+      { status: '??', filepath: 'public/uploads/img/original/hero image.avif' },
+      { status: 'UU', filepath: 'src/content/foundation-pages/café.mdx' }
+    ])
+  })
+
+  it('reads real git output the same way', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-status-'))
+    try {
+      execSync('git init -q', { cwd: repo })
+      fs.mkdirSync(path.join(repo, 'src/content'), { recursive: true })
+      fs.writeFileSync(path.join(repo, 'src/content/café a.mdx'), 'x')
+      const output = execSync('git status --porcelain -z -uall', {
+        cwd: repo
+      })
+        .toString()
+        .trim()
+
+      expect(parseGitStatusZ(output)).toEqual([
+        { status: '??', filepath: 'src/content/café a.mdx' }
+      ])
+    } finally {
+      fs.rmSync(repo, { recursive: true, force: true })
+    }
   })
 })
 

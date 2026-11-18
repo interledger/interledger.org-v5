@@ -554,20 +554,33 @@ export async function validateGitSyncRepoOnStartup(
 
 // ── Git status + commit message inference ───────────────────────────────────
 
-export function parseGitStatusLine(line: string): GitStatusChange | null {
-  if (!line.trim()) return null
+/**
+ * Parses `git status --porcelain -z`.
+ *
+ * `-z` is what makes the paths literal. Without it git quotes and escapes any
+ * path with a space or a non-ASCII byte (`"src/content/caf\303\251.mdx"`),
+ * and that quoted form fails every prefix check and every git command it is
+ * handed. Records are `XY PATH`, NUL-terminated; a rename or copy is followed
+ * by a second record holding the source path, which is skipped.
+ *
+ * The leading space of the first record may be missing: command output is
+ * trimmed, and an unstaged change starts with one (` M path`). Every real
+ * record has a space at index 2, so its absence means exactly that.
+ */
+export function parseGitStatusZ(output: string): GitStatusChange[] {
+  const records = output.split('\0')
+  const changes: GitStatusChange[] = []
 
-  const status = line.slice(0, 2).trim()
-  // git status --porcelain: "XY PATH" (2-char status + space); slice(3) skips to path
-  const rawPath = line.slice(3).trimStart()
-  const filepath = rawPath.includes(' -> ')
-    ? (rawPath.split(' -> ').pop() ?? rawPath)
-    : rawPath
+  for (let i = 0; i < records.length; i++) {
+    const record =
+      i === 0 && records[i][2] !== ' ' ? ` ${records[i]}` : records[i]
+    if (record.length < 4) continue
 
-  return {
-    status,
-    filepath
+    const code = record.slice(0, 2)
+    changes.push({ status: code.trim(), filepath: record.slice(3) })
+    if (code[0] === 'R' || code[0] === 'C') i++
   }
+  return changes
 }
 
 function isDeleted(status: string): boolean {
@@ -596,14 +609,11 @@ async function getGitStatus(
   cwd: string,
   deps: GitSyncDeps
 ): Promise<GitStatusChange[] | GitCommandError> {
-  const output = await execWithLockRetry('git status --porcelain', cwd, deps)
+  const output = await execWithLockRetry('git status --porcelain -z', cwd, deps)
   if (output instanceof GitCommandError) return output
   if (!output) return []
 
-  return output
-    .split('\n')
-    .map(parseGitStatusLine)
-    .filter((change): change is GitStatusChange => Boolean(change))
+  return parseGitStatusZ(output)
 }
 
 export function extractSlug(filepath: string): string {
