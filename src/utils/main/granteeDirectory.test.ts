@@ -304,6 +304,35 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[1]?.reports).toEqual([])
   })
 
+  it('calls a single forum report Report', () => {
+    const oneReport = {
+      projects: [
+        {
+          ...walletPilot,
+          fields: {
+            ...walletPilot.fields,
+            'Project Links': [
+              'https://community.interledger.org/x/wallet-grant-report-1-final-abc'
+            ]
+          }
+        },
+        workshops,
+        newsroom
+      ]
+    }
+    const [commonGround] = build(oneReport)
+    expect(commonGround?.projects[0]?.reports).toEqual([
+      {
+        id: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
+        label: 'Report',
+        href: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
+        external: true
+      }
+    ])
+    const [spanish] = build(oneReport, 'es')
+    expect(spanish?.projects[0]?.reports?.[0]?.label).toBe('Report')
+  })
+
   it('links the forum reports when the project has no report page', () => {
     const [commonGround] = build({
       projects: [withForumReports(walletPilot), workshops, newsroom]

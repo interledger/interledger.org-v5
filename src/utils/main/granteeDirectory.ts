@@ -33,7 +33,7 @@ export const GRANTEE_PAGE_SIZE = 10
 /** A link from a project to one of its reports. */
 export interface GranteeReportLink {
   id: string
-  /** "Interim report 1" for a page. A forum link is "Report 1", "Report 2". */
+  /** "Interim report 1" for a page. One forum link is "Report"; several are "Report 1", "Report 2". */
   label: string
   href: string
   /** A forum report. A page on this site leaves it unset. */
@@ -128,15 +128,18 @@ function pageLinksByProject(
   return links
 }
 
-// Project Links do not say whether a report is interim or final, so the card
-// numbers them in the order the data lists them: Report 1, Report 2.
+// Project Links do not say whether a report is interim or final. One link is
+// "Report". Several are numbered in the order the data lists them.
 function forumReportLinks(
   project: GranteeProject,
   t: Translate
 ): GranteeReportLink[] {
+  const single = project.reportUrls.length === 1
   return project.reportUrls.map((url, index) => ({
     id: url,
-    label: t('grantee.reports.numbered', { number: index + 1 }),
+    label: single
+      ? t('grantee.reports.one')
+      : t('grantee.reports.numbered', { number: index + 1 }),
     href: url,
     external: true
   }))
