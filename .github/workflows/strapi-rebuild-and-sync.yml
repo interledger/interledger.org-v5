@@ -251,7 +251,7 @@ jobs:
               exit 1
             fi
           elif git merge-base --is-ancestor "origin/$DEPLOY_BRANCH" HEAD; then
-            # Ahead only: nothing to integrate. The push below sends the local commits.
+            # Ahead only: nothing to integrate. Strapi's next save pushes the local commits.
             :
           else
             # Diverged: a Strapi commit never reached origin. Failing here used to take
@@ -309,8 +309,8 @@ jobs:
             fi
 
             # --fork-point, as in gitSync.ts: after reset.yml force-pushes the branch,
-            # plain merge-base semantics would replay the commits it discarded and the
-            # push below would restore them.
+            # plain merge-base semantics would replay the commits it discarded, and
+            # Strapi's next push would restore them.
             if ! git -c rebase.autoStash=true -c rerere.enabled=false \
                    rebase --fork-point -X theirs "origin/$DEPLOY_BRANCH"; then
               # Leaving it mid-rebase would break every later editor save as well as the next
@@ -324,15 +324,15 @@ jobs:
             fi
           fi
 
-          # Outside the divergence branch on purpose: the ahead-only case — a commit made
-          # locally whose push failed — integrates nothing, and still has to be pushed.
-          #
-          # Non-fatal: the rebuild and sync below are still valid against this tree, and
-          # the next run retries.
-          if [ "$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")" -gt 0 ]; then
-            echo "Pushing $(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD") local commit(s) to $DEPLOY_BRANCH."
-            git push origin "HEAD:$DEPLOY_BRANCH" || \
-              echo "::warning::Local commits not pushed; the next run will retry."
+          # This workflow never pushes. Strapi's git sync is the only writer to the deploy
+          # branch, so a push here can never start a push-triggered workflow that pushes
+          # again, and the runner needs no GitHub credentials. Local commits, whether
+          # stranded or just replayed above, reach origin with the next editor save: its
+          # push sends everything on HEAD. The rebuild and sync below are valid against
+          # this tree either way.
+          LOCAL_COMMITS="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
+          if [ "$LOCAL_COMMITS" -gt 0 ]; then
+            echo "::notice::$LOCAL_COMMITS local commit(s) not on origin/$DEPLOY_BRANCH yet; Strapi's next save pushes them."
           fi
 
           # Defensive check: after a clean `-X theirs` rebase nothing can be unmerged, so
