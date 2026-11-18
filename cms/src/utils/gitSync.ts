@@ -242,7 +242,17 @@ export type GitSyncResult =
   | { outcome: 'synced'; message: string; conflict?: ConflictResolution }
   | { outcome: 'nothing-to-commit' }
   | { outcome: 'skipped'; reason: GitSyncSkipReason }
-  | { outcome: 'failed'; error: Error }
+  | {
+      outcome: 'failed'
+      error: Error
+      /**
+       * Set when a rebase already applied the CMS-wins resolution but no push
+       * got it out. The resolved content stays staged, and the next save pushes
+       * it as a plain fast-forward with no probe, so this is the only chance to
+       * announce the overwrite.
+       */
+      conflict?: ConflictResolution
+    }
 
 // ── Injected effects ─────────────────────────────────────────────────────────
 
@@ -1349,17 +1359,17 @@ async function pushWithRebase(
       continue
     }
 
+    // Held apart until the rebase succeeds: an aborted rebase overwrote
+    // nothing, and a pending-push alert must not claim that it did.
+    let attempted: ConflictResolution | undefined
     const probe = await describeConflict(repoRoot, upstreamRef, deps)
     if (probe.kind === 'conflict') {
-      conflict = mergeConflictResolutions(conflict, probe.resolution)
+      attempted = probe.resolution
     } else if (probe.kind === 'unavailable') {
       // The rebase below resolves conflicting hunks silently, so without the
       // probe we cannot tell whether it overwrote anything. Announce the
       // possibility rather than stay quiet about a potential overwrite.
-      conflict = mergeConflictResolutions(conflict, {
-        ...NO_CONFLICT,
-        detailsUnavailable: true
-      })
+      attempted = { ...NO_CONFLICT, detailsUnavailable: true }
     }
 
     const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
@@ -1371,6 +1381,7 @@ async function pushWithRebase(
       break
     }
 
+    if (attempted) conflict = mergeConflictResolutions(conflict, attempted)
     if (resolved.length > 0) {
       // The probe reports every conflicted path, including the existence
       // conflicts the resolver then settles, so the two lists would otherwise
@@ -1475,7 +1486,8 @@ async function pushRecoveredCommits(
     outcome: 'failed',
     error:
       push.error ??
-      new Error('Could not push commits left by an interrupted sync')
+      new Error('Could not push commits left by an interrupted sync'),
+    conflict: push.conflict
   }
 }
 
@@ -1545,7 +1557,7 @@ async function commitAndPush(
       `⚠️  Git sync could not unwind its commit: ${unwound.message}`
     )
   }
-  return { outcome: 'failed', error }
+  return { outcome: 'failed', error, conflict: push.conflict }
 }
 
 // ── Reporting ────────────────────────────────────────────────────────────────
@@ -1602,7 +1614,8 @@ async function report(
   // clears an open failure, this one is the audit record of the developer work
   // the CMS superseded. Nothing lints a direct push to the deploy branch, so
   // without this the overwrite is invisible until it surfaces weeks later.
-  if (result.outcome === 'synced' && result.conflict) {
+  if (result.outcome !== 'nothing-to-commit' && result.conflict) {
+    const pendingPush = result.outcome === 'failed'
     const {
       overwrittenPaths,
       resolvedPaths,
@@ -1611,8 +1624,9 @@ async function report(
     } = result.conflict
     const named = [...overwrittenPaths, ...resolvedPaths.map((r) => r.path)]
     console.warn(
-      `⚠️  Git sync overwrote branch changes in favour of the CMS: ` +
-        (named.length > 0 ? named.join(', ') : 'paths unavailable')
+      `⚠️  Git sync overwrote branch changes in favour of the CMS` +
+        (pendingPush ? ' (not pushed yet)' : '') +
+        `: ${named.length > 0 ? named.join(', ') : 'paths unavailable'}`
     )
     const sent = await tryCatchAsync(() =>
       deps.notify({
@@ -1624,7 +1638,8 @@ async function report(
         overwrittenPaths,
         resolvedPaths,
         supersededCommits,
-        detailsUnavailable
+        detailsUnavailable,
+        ...(pendingPush ? { pendingPush } : {})
       })
     )
     if (sent instanceof Error) {
