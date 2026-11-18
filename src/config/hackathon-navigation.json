@@ -1,0 +1,46 @@
+{
+  "mainMenu": [
+    {
+      "label": "Hackathons",
+      "items": [
+        {
+          "label": "Overview",
+          "href": "/hackathon/overview/"
+        }
+      ]
+    },
+    {
+      "label": "About Open Payment Hackathons",
+      "items": [
+        {
+          "label": " Hackathon Tools and Resources",
+          "href": "/hackathon/open-payments/"
+        },
+        {
+          "label": "Participation Requirements",
+          "href": "/hackathon/participation/"
+        },
+        {
+          "label": "Submissions & Judging",
+          "href": "/hackathon/submission-judging/"
+        },
+        {
+          "label": "Code of Conduct",
+          "href": "/hackathon/code-conduct/"
+        },
+        {
+          "label": "AI Policy",
+          "href": "/hackathon/ai-policy/"
+        },
+        {
+          "label": "FAQ",
+          "href": "/hackathon/faq/"
+        }
+      ]
+    }
+  ],
+  "ctaButton": {
+    "label": "Interledger Foundation",
+    "href": "/"
+  }
+}
