@@ -1,3 +1,5 @@
+import { execSync } from 'child_process'
+import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -30,6 +32,7 @@ import {
   toGitPath,
   validateGitSyncRepoOnStartup,
   withGitSyncLock,
+  defaultGitSyncDeps,
   type GitSyncDeps
 } from './gitSync'
 import type { GitSyncAlert } from './slackNotify'
@@ -56,6 +59,8 @@ interface FakeDeps extends GitSyncDeps {
   files: Map<string, LockEntry>
   /** Mutable clock, advanced by `sleep`. */
   clock: { ms: number }
+  /** The in-memory working tree behind `workTree`, keyed by absolute path. */
+  tree: Map<string, Buffer>
 }
 
 const LOCK_PATH = path.join(REPO, '.git/strapi-sync.lock')
@@ -92,6 +97,7 @@ function createDeps(
     existing?: string[]
     files?: Map<string, LockEntry>
     clock?: { ms: number }
+    tree?: Map<string, Buffer>
   } = {}
 ): FakeDeps {
   const {
@@ -99,7 +105,8 @@ function createDeps(
     responses: overrides = {},
     existing = [REPO, ...STAGE_DIRS],
     files = new Map<string, LockEntry>(),
-    clock = { ms: Date.UTC(2026, 0, 1) }
+    clock = { ms: Date.UTC(2026, 0, 1) },
+    tree = new Map<string, Buffer>()
   } = options
   const commands: string[] = []
   const alerts: GitSyncAlert[] = []
@@ -119,6 +126,7 @@ function createDeps(
     sleeps,
     files,
     clock,
+    tree,
     exec: async (command) => {
       commands.push(command)
       const prefix = prefixes.find((p) => command.startsWith(p))
@@ -169,7 +177,16 @@ function createDeps(
         files.delete(filepath)
       }
     },
-    now: () => clock.ms
+    now: () => clock.ms,
+    workTree: {
+      read: (filepath) => tree.get(filepath) ?? null,
+      write: (filepath, contents) => {
+        tree.set(filepath, contents)
+      },
+      remove: (filepath) => {
+        tree.delete(filepath)
+      }
+    }
   }
 }
 
@@ -1776,6 +1793,178 @@ describe('recoverInterruptedOperation', () => {
     expect(deps.commands).toContain('git rebase --abort')
     expect(deps.commands).toContain('git merge --abort')
     expect(deps.commands).toContain('git cherry-pick --abort')
+  })
+
+  describe('keeping what Strapi wrote while the checkout was stuck', () => {
+    const DIFF_COMMAND = 'git diff --name-only -z HEAD'
+    const REWRITTEN = 'src/content/faqs/conflicted.mdx'
+    const EDITED = 'src/content/faqs/other.mdx'
+    const DELETED = 'src/content/faqs/gone.mdx'
+    const HALF_MERGED = 'src/content/faqs/markers.mdx'
+    const DEVELOPER_FILE = 'src/config/hackathon-navigation.json'
+    const MARKERS = Buffer.from(
+      'a\n<<<<<<< HEAD\nup\n=======\ncms\n>>>>>>> 1234 (save)\n'
+    )
+
+    function stuckRebase(diff: string, tree: Map<string, Buffer>) {
+      // Every abort resets the tree to HEAD, as real git does, so a write that
+      // is not restored afterwards shows up as lost.
+      const atHead = new Map(tree)
+      for (const filepath of [REWRITTEN, EDITED, DELETED, HALF_MERGED]) {
+        atHead.set(path.join(REPO, filepath), Buffer.from('HEAD version'))
+      }
+      const deps = createDeps({
+        existing: [REPO, path.join(REPO, '.git/rebase-merge')],
+        tree,
+        responses: {
+          [PROBE_COMMAND]: '.git/rebase-merge',
+          [DIFF_COMMAND]: diff,
+          'git rebase --abort': () => {
+            tree.clear()
+            for (const [filepath, contents] of atHead)
+              tree.set(filepath, contents)
+            return ''
+          }
+        }
+      })
+      return deps
+    }
+
+    it('restores whole-file writes after the abort, the rewritten conflicted file included', async () => {
+      const tree = new Map([
+        [path.join(REPO, REWRITTEN), Buffer.from('editor rewrite')],
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase([REWRITTEN, EDITED].join('\0'), tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+
+      expect(tree.get(path.join(REPO, REWRITTEN))?.toString()).toBe(
+        'editor rewrite'
+      )
+      expect(tree.get(path.join(REPO, EDITED))?.toString()).toBe('editor edit')
+      expect(deps.commands.indexOf(DIFF_COMMAND)).toBeLessThan(
+        deps.commands.indexOf('git rebase --abort')
+      )
+    })
+
+    it('carries a deletion across the abort', async () => {
+      const tree = new Map<string, Buffer>()
+      const deps = stuckRebase(DELETED, tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.has(path.join(REPO, DELETED))).toBe(false)
+    })
+
+    it("leaves git's half-merged file and paths outside the CMS directories to the abort", async () => {
+      const tree = new Map([
+        [path.join(REPO, HALF_MERGED), MARKERS],
+        [path.join(REPO, DEVELOPER_FILE), Buffer.from('dev edit')]
+      ])
+      const deps = stuckRebase([HALF_MERGED, DEVELOPER_FILE].join('\0'), tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.get(path.join(REPO, HALF_MERGED))?.toString()).toBe(
+        'HEAD version'
+      )
+      expect(tree.get(path.join(REPO, DEVELOPER_FILE))?.toString()).toBe(
+        'dev edit'
+      )
+    })
+
+    it('treats a file with only one kind of marker as an editor write', async () => {
+      const prose = Buffer.from('>>>>>>> a quoted diff line in a blog post\n')
+      const tree = new Map([[path.join(REPO, EDITED), prose]])
+      const deps = stuckRebase(EDITED, tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.get(path.join(REPO, EDITED))).toEqual(prose)
+    })
+
+    it('does not abort when it cannot list the writes, so none are lost', async () => {
+      const deps = createDeps({
+        existing: [REPO, path.join(REPO, '.git/rebase-merge')],
+        responses: {
+          [PROBE_COMMAND]: '.git/rebase-merge',
+          [DIFF_COMMAND]: gitFailure(DIFF_COMMAND, {
+            stderr: 'fatal: bad HEAD'
+          })
+        }
+      })
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBeInstanceOf(
+        GitCommandError
+      )
+      expect(deps.commands).not.toContain('git rebase --abort')
+    })
+
+    it('fails, naming the file, when a write cannot be restored', async () => {
+      const tree = new Map([
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase(EDITED, tree)
+      deps.workTree.write = () => {
+        throw new Error('EACCES')
+      }
+
+      const result = await recoverInterruptedOperation(REPO, deps)
+
+      expect(result).toBeInstanceOf(GitCommandError)
+      expect((result as GitCommandError).message).toContain(EDITED)
+    })
+  })
+
+  describe('against real git', () => {
+    // The fakes above encode an assumption: that `--abort` resets every
+    // tracked file. This checks that assumption, and the listing command,
+    // against git itself.
+    let repo: string
+    const git = (args: string) =>
+      execSync(`git -c user.name=t -c user.email=t@t ${args}`, {
+        cwd: repo,
+        stdio: 'pipe'
+      })
+    const page = (name: string) => path.join(repo, 'src/content/faqs', name)
+
+    beforeEach(() => {
+      repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-recover-'))
+      fs.mkdirSync(path.join(repo, 'src/content/faqs'), { recursive: true })
+      git('init -q -b main')
+      fs.writeFileSync(page('a.mdx'), 'P1 original\n')
+      fs.writeFileSync(page('b.mdx'), 'B original\n')
+      git('add .')
+      git('commit -qm base')
+      git('checkout -qb upstream')
+      fs.writeFileSync(page('a.mdx'), 'P1 DEV\n')
+      git('commit -qam dev')
+      git('checkout -q main')
+      fs.writeFileSync(page('a.mdx'), 'P1 VM\n')
+      git('commit -qam vm')
+      expect(() => git('rebase upstream')).toThrow()
+    })
+
+    afterEach(() => {
+      fs.rmSync(repo, { recursive: true, force: true })
+    })
+
+    it('keeps the editor writes a plain abort would discard', async () => {
+      fs.writeFileSync(page('a.mdx'), 'P1 EDITOR\n')
+      fs.writeFileSync(page('b.mdx'), 'B EDITOR\n')
+
+      const result = await recoverInterruptedOperation(repo, defaultGitSyncDeps)
+
+      expect(result).toBe('recovered')
+      expect(fs.existsSync(path.join(repo, '.git/rebase-merge'))).toBe(false)
+      expect(fs.readFileSync(page('a.mdx'), 'utf8')).toBe('P1 EDITOR\n')
+      expect(fs.readFileSync(page('b.mdx'), 'utf8')).toBe('B EDITOR\n')
+    })
+
+    it('lets the abort undo a conflicted file nobody rewrote', async () => {
+      const result = await recoverInterruptedOperation(repo, defaultGitSyncDeps)
+
+      expect(result).toBe('recovered')
+      expect(fs.readFileSync(page('a.mdx'), 'utf8')).toBe('P1 VM\n')
+    })
   })
 })
 

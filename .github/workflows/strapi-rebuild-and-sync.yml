@@ -203,18 +203,56 @@ jobs:
           # hand-run command on the VM can still leave state behind. `--abort` restores
           # the pre-operation commit; `--quit` only clears the state, so it is the
           # fallback for a rebase too corrupt to unwind.
+          #
+          # `--abort` also resets every tracked file, so a page Strapi wrote into the stuck
+          # checkout would be discarded while the editor still sees it saved. As in
+          # gitSync.ts, every CMS-owned file that differs from HEAD and has no conflict
+          # markers is copied aside first and put back after: Strapi writes whole files,
+          # so a marker-free file is an editor's write, and one with markers is git's.
+          snapshot_editor_writes() {
+            EDITOR_WRITES="$(mktemp -d)"
+            git diff --name-only -z HEAD -- src/content public/uploads/img/original \
+              > "$EDITOR_WRITES/.paths"
+            while IFS= read -r -d '' f; do
+              if [ ! -e "$f" ]; then
+                printf '%s\0' "$f" >> "$EDITOR_WRITES/.deleted"
+              elif ! { grep -qE '^<{7}( |$)' "$f" && grep -qE '^>{7}( |$)' "$f"; }; then
+                mkdir -p "$EDITOR_WRITES/files/$(dirname "$f")"
+                cp -p "$f" "$EDITOR_WRITES/files/$f"
+              fi
+            done < "$EDITOR_WRITES/.paths"
+          }
+          restore_editor_writes() {
+            if [ -d "$EDITOR_WRITES/files" ]; then
+              cp -a "$EDITOR_WRITES/files/." .
+              echo "::warning::Kept files Strapi wrote while the checkout was stuck:"
+              (cd "$EDITOR_WRITES/files" && find . -type f | sed 's|^\./||')
+            fi
+            if [ -f "$EDITOR_WRITES/.deleted" ]; then
+              xargs -0 rm -f -- < "$EDITOR_WRITES/.deleted"
+            fi
+            rm -rf "$EDITOR_WRITES"
+          }
+
           if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
-             [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
-            echo "::warning::Checkout was left mid-rebase — clearing it."
-            git rebase --abort || git rebase --quit || true
-          fi
-          if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
-            echo "::warning::Checkout was left mid-merge — clearing it."
-            git merge --abort || true
-          fi
-          if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
-            echo "::warning::Checkout was left mid-cherry-pick — clearing it."
-            git cherry-pick --abort || true
+             [ -d "$(git rev-parse --git-path rebase-apply)" ] || \
+             [ -f "$(git rev-parse --git-path MERGE_HEAD)" ] || \
+             [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+            snapshot_editor_writes
+            if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
+               [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+              echo "::warning::Checkout was left mid-rebase — clearing it."
+              git rebase --abort || git rebase --quit || true
+            fi
+            if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
+              echo "::warning::Checkout was left mid-merge — clearing it."
+              git merge --abort || true
+            fi
+            if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+              echo "::warning::Checkout was left mid-cherry-pick — clearing it."
+              git cherry-pick --abort || true
+            fi
+            restore_editor_writes
           fi
 
           # Captured before the integrate, so the rebuild trigger below sees everything it
