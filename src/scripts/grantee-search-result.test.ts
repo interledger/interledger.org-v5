@@ -42,7 +42,8 @@ const REQUIRED_TEMPLATE_ATTRS = [
   'data-grantee-search-no-reports',
   'data-grantee-search-reports',
   'data-grantee-search-report-label',
-  'data-grantee-search-report-project'
+  'data-grantee-search-report-project',
+  'data-grantee-search-report-new-tab'
 ] as const
 
 function sampleProject(
@@ -267,7 +268,9 @@ describe('searchResultRowModel', () => {
             name: 'Wallet pilot',
             program: 'Digital Financial Services',
             budgetLabel: '65 000',
-            reports: [{ id: 'rep1', label: 'Interim report 1', href }]
+            reports: [
+              { id: 'rep1', label: 'Interim report 1', href, external: true }
+            ]
           }),
           sampleProject({ id: 'recP2', name: 'Workshops', reports: [] })
         ]
@@ -282,7 +285,8 @@ describe('searchResultRowModel', () => {
     })
     expect(model.projects[0]?.reports?.[0]).toMatchObject({
       label: 'Interim report 1',
-      href
+      href,
+      external: true
     })
     expect(model.projects[0]?.reports?.[0]?.umami).toMatchObject({
       'data-umami-event': 'button_card',

@@ -1,5 +1,11 @@
 import type { Locale } from './locales'
 import { foldSearchText } from '../shared/foldSearchText'
+import {
+  ensureAbsoluteUrl,
+  getHostname,
+  isExternalHref,
+  isSafeMarkdownHref
+} from '../shared/url'
 import { createPlainTextVariants } from './create-excerpt'
 import { GRANTEE_TAG_PREFIX, isGranteeYearSlug } from './granteeFilters'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
@@ -45,6 +51,11 @@ export interface GranteeProject {
   tags: string[]
   budget: number | null
   budgetLabel: string | null
+  /**
+   * Usable web links from Project Links. These are the forum reports for
+   * grants that have no report page yet. Text that is not a URL is dropped.
+   */
+  reportUrls: string[]
   /**
    * Folded text the search matches. It also holds the project leaders and
    * the description, which the card does not show, so a search for a
@@ -130,6 +141,23 @@ function asFiniteNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined
 }
 
+// Free text is allowed in the column. Keep only absolute http(s) links, and
+// reject a single-label host such as "pending": `new URL` accepts it.
+function parseProjectUrls(value: unknown): string[] {
+  const seen = new Set<string>()
+  const urls: string[] = []
+  for (const raw of asStringList(value)) {
+    const href = ensureAbsoluteUrl(raw)
+    if (!isSafeMarkdownHref(href) || !isExternalHref(href)) continue
+    const hostname = getHostname(href)
+    if (!hostname?.includes('.')) continue
+    if (seen.has(href)) continue
+    seen.add(href)
+    urls.push(href)
+  }
+  return urls
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -163,6 +191,7 @@ function toGranteeProject(
   const tags = asStringList(fields['Thematic Tag'])
   const description = asTrimmedString(fields['Project Description'])
   const budget = asFiniteNumber(fields['Total budget approved']) ?? null
+  const reportUrls = parseProjectUrls(fields['Project Links'])
 
   const searchText = foldSearchText(
     [
@@ -187,6 +216,7 @@ function toGranteeProject(
     tags,
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),
+    reportUrls,
     searchText
   }
 }

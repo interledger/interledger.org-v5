@@ -71,6 +71,7 @@ export interface SearchResultTagModel {
 export interface SearchResultReportModel {
   label: string
   href: string
+  external?: boolean
   umami: UmamiAttrs
 }
 
@@ -131,6 +132,7 @@ function reportModel(
   return {
     label: report.label,
     href: report.href,
+    external: report.external,
     umami: buildUmamiAttrs({
       pathname: context.pathname,
       lang: context.lang,
@@ -300,6 +302,14 @@ function appendReportLink(
   const fragment = cloneTemplate(reportTemplate)
   const link = requireElement<HTMLAnchorElement>(fragment, 'a')
   link.href = report.href
+  if (report.external) {
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    requireElement<HTMLElement>(
+      link,
+      '[data-grantee-search-report-new-tab]'
+    ).hidden = false
+  }
   applyUmamiAttrs(link, report.umami)
   setTextContent(
     requireElement(link, '[data-grantee-search-report-label]'),

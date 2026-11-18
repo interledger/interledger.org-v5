@@ -17,30 +17,34 @@ import {
   grantReportPath,
   parseGrantReports
 } from './grantReports'
-import { useTranslations, type Locale } from './i18'
+import { useTranslations, type Locale, type Translate } from './i18'
 import { localizeRoute } from './routes'
 import { generateSlug } from './slug'
 
 // The grantee directory: one card per grantee (an organisation or a person),
-// listing its published projects, each with links to its report pages.
-// Projects come from grantee-data.json, grantees from grantee-profiles.json
-// and reports from grant-reports.json. A grantee with no published project
-// is left out.
+// listing its published projects, each with links to its reports. A report
+// page wins; otherwise the card links the project's Project Links, which are
+// the forum reports. Projects come from grantee-data.json, grantees from
+// grantee-profiles.json and report pages from grant-reports.json. A grantee
+// with no published project is left out.
 
 export const GRANTEE_PAGE_SIZE = 10
 
-/** A link from a project to one of its report pages. */
+/** A link from a project to one of its reports. */
 export interface GranteeReportLink {
   id: string
-  /** "Interim report 1", as the report page titles itself. */
+  /** "Interim report 1" for a page, or the same shape read from a forum URL. */
   label: string
   href: string
+  /** A forum report. A page on this site leaves it unset. */
+  external?: boolean
 }
 
 export interface GranteeDirectoryProject extends GranteeProject {
   /**
-   * Null while the report pages are hidden (production, until INTORG-1313),
-   * so the card shows nothing rather than "No reports published yet".
+   * Report pages, or the project's forum links when it has no page.
+   * Null while the report pages are hidden and the project has no forum
+   * link, so the card shows nothing rather than "No reports published yet".
    */
   reports: GranteeReportLink[] | null
 }
@@ -99,10 +103,14 @@ function parseDirectoryProfiles(data: unknown): DirectoryProfile[] | Error {
 
 type ReportLinksByProject = Map<string, GranteeReportLink[]>
 
+// "report-1-final" is report 1. "final-report-379a" is not: the digits are
+// the forum post id glued to the slug.
+const FORUM_REPORT_NUMBER = /report-(\d+)(?![a-z0-9])/i
+
 // A report whose project is not in the directory has a page but no link.
 // Programs agreed it should go live anyway (INTORG-1373), because comms can
 // share its address directly.
-function reportLinksByProject(
+function pageLinksByProject(
   sources: GranteeDirectorySources,
   locale: Locale
 ): ReportLinksByProject | null | Error {
@@ -122,6 +130,53 @@ function reportLinksByProject(
     links.set(report.grantId, projectLinks)
   }
   return links
+}
+
+// Forum slugs are not a schema. "grant-report-1-final" becomes "Final report
+// 1"; a slug with neither a number nor "final"/"interim" stays "Report".
+function forumReportLabel(url: string, t: Translate): string {
+  let path = url
+  try {
+    path = decodeURIComponent(new URL(url).pathname)
+  } catch {
+    path = url
+  }
+  const number = FORUM_REPORT_NUMBER.exec(path)?.[1]
+  const type = /\bfinal\b/i.test(path)
+    ? t('grantReport.type.final')
+    : /\binterim\b/i.test(path)
+      ? t('grantReport.type.interim')
+      : null
+  if (type && number) {
+    return t('grantReport.label', { type, number })
+  }
+  if (type) return type
+  if (number) return t('grantee.reports.numbered', { number })
+  return t('grantee.reports.link')
+}
+
+function forumReportLinks(
+  project: GranteeProject,
+  t: Translate
+): GranteeReportLink[] {
+  return project.reportUrls.map((url) => ({
+    id: url,
+    label: forumReportLabel(url, t),
+    href: url,
+    external: true
+  }))
+}
+
+function reportsForProject(
+  project: GranteeProject,
+  pageLinks: ReportLinksByProject | null,
+  t: Translate
+): GranteeReportLink[] | null {
+  const pages = pageLinks?.get(project.id) ?? []
+  if (pages.length > 0) return pages
+  const forum = forumReportLinks(project, t)
+  if (forum.length > 0) return forum
+  return pageLinks ? [] : null
 }
 
 // A project nobody owns would drop out of the directory without a word, so
@@ -171,8 +226,9 @@ export function buildGranteeDirectory(
   if (projects instanceof Error) return projects
   const profiles = parseDirectoryProfiles(sources.profiles)
   if (profiles instanceof Error) return profiles
-  const reportLinks = reportLinksByProject(sources, locale)
-  if (reportLinks instanceof Error) return reportLinks
+  const pageLinks = pageLinksByProject(sources, locale)
+  if (pageLinks instanceof Error) return pageLinks
+  const t = useTranslations(locale)
 
   const unowned = findUnownedProjects(projects, profiles)
   if (unowned.length > 0) {
@@ -190,7 +246,7 @@ export function buildGranteeDirectory(
         .sort(compareByStartMonth)
         .map((project) => ({
           ...project,
-          reports: reportLinks && (reportLinks.get(project.id) ?? [])
+          reports: reportsForProject(project, pageLinks, t)
         }))
       return ownProjects.length > 0
         ? [toDirectoryEntry(profile, ownProjects)]

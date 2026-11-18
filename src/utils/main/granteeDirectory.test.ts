@@ -103,6 +103,24 @@ const workshops = project('recProject0000002', {
   'Total budget approved': 9000
 })
 
+function withForumReports<T extends { fields: Record<string, unknown> }>(
+  entry: T
+): T {
+  return {
+    ...entry,
+    fields: {
+      ...entry.fields,
+      'Project Links': [
+        'See attached',
+        'https://community.interledger.org/x/wallet-grant-report-1-final-abc ',
+        'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
+        'https://community.interledger.org/x/wallet-grant-report-2-def',
+        'https://community.interledger.org/x/africa-final-report-379a'
+      ]
+    }
+  }
+}
+
 const newsroom = project('recProject0000003', {
   'Project Name': 'Reader payments',
   Year: '2025',
@@ -281,9 +299,62 @@ describe('buildGranteeDirectory report links', () => {
     expect(result).not.toBeInstanceOf(Error)
   })
 
-  it('is empty for a project with no published report', () => {
+  it('is empty for a project with no published report and no forum link', () => {
     const [commonGround] = build({ reports: [report('recProject0000001')] })
     expect(commonGround?.projects[1]?.reports).toEqual([])
+  })
+
+  it('links the forum reports when the project has no report page', () => {
+    const [commonGround] = build({
+      projects: [withForumReports(walletPilot), workshops, newsroom]
+    })
+    expect(commonGround?.projects[0]?.reports).toEqual([
+      {
+        id: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
+        label: 'Final report 1',
+        href: 'https://community.interledger.org/x/wallet-grant-report-1-final-abc',
+        external: true
+      },
+      {
+        id: 'https://community.interledger.org/x/wallet-grant-report-2-def',
+        label: 'Report 2',
+        href: 'https://community.interledger.org/x/wallet-grant-report-2-def',
+        external: true
+      },
+      {
+        id: 'https://community.interledger.org/x/africa-final-report-379a',
+        label: 'Final report',
+        href: 'https://community.interledger.org/x/africa-final-report-379a',
+        external: true
+      }
+    ])
+    expect(commonGround?.projects[1]?.reports).toEqual([])
+  })
+
+  it('keeps the report page when the project also has a forum link', () => {
+    const [commonGround] = build({
+      projects: [withForumReports(walletPilot), workshops, newsroom],
+      reports: [report('recProject0000001')]
+    })
+    expect(commonGround?.projects[0]?.reports).toEqual([
+      {
+        id: 'rep-recProject0000001-Interim Report-1',
+        label: 'Interim report 1',
+        href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
+      }
+    ])
+  })
+
+  it('shows forum reports while the report pages are hidden', () => {
+    const grantees = build({
+      showReports: false,
+      reports: 'not reports',
+      projects: [withForumReports(walletPilot), workshops, newsroom]
+    })
+    expect(grantees[0]?.projects[0]?.reports?.[0]?.href).toBe(
+      'https://community.interledger.org/x/wallet-grant-report-1-final-abc'
+    )
+    expect(grantees[0]?.projects[1]?.reports).toBeNull()
   })
 
   it('links each report, interim ones first, then by number', () => {

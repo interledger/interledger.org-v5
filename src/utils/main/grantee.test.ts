@@ -172,7 +172,8 @@ describe('sparse grantee records', () => {
     country: '',
     tags: [],
     budget: null,
-    budgetLabel: null
+    budgetLabel: null,
+    reportUrls: []
   }
 
   it('fills every missing field with an empty default', () => {
@@ -206,6 +207,28 @@ describe('sparse grantee records', () => {
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
     expect(result[0]).toMatchObject({ name: 'Odd Types', ...emptyDefaults })
+  })
+
+  it('keeps web links from Project Links and drops text that is not a URL', () => {
+    const result = parseGranteeRecords(
+      [
+        record({
+          'Project Name': 'With links',
+          'Project Links': [
+            'See attached',
+            'pending',
+            'https://community.interledger.org/a/grant-report-1 ',
+            'https://community.interledger.org/a/grant-report-1'
+          ]
+        })
+      ],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.reportUrls).toEqual([
+      'https://community.interledger.org/a/grant-report-1'
+    ])
   })
 
   it('skips records without a fields object and keeps the rest', () => {
