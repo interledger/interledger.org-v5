@@ -2110,6 +2110,65 @@ describe('runGitSync conflict handling', () => {
     ])
   })
 
+  it('announces an overwrite the rebase applied even when every push then fails', async () => {
+    // The resolved content stays staged after the unwind, and the next save
+    // pushes it as a fast-forward with no probe, so this is the only notice.
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': gitFailure('git push', {
+          stderr: '! [rejected] non-fast-forward'
+        }),
+        'git merge-tree': probeConflictOutput(CONFLICT_PATH),
+        'git log --oneline': '09b7eba fix(content): unwrap prose'
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'failed',
+      conflict: { overwrittenPaths: [CONFLICT_PATH] }
+    })
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed' },
+      {
+        outcome: 'conflict-resolved',
+        pendingPush: true,
+        overwrittenPaths: [CONFLICT_PATH],
+        supersededCommits: ['09b7eba fix(content): unwrap prose']
+      }
+    ])
+  })
+
+  it('announces no overwrite when the rebase was aborted', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UU', 'src/config/hackathon-navigation.json'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': gitFailure('git push', {
+          stderr: '! [rejected] non-fast-forward'
+        }),
+        'git merge-tree': probeConflictOutput(
+          'src/config/hackathon-navigation.json'
+        ),
+        [REBASE_PREFIX]: gitFailure('git rebase', {
+          stderr: 'CONFLICT (content)'
+        })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({ outcome: 'failed' })
+    expect(result).not.toHaveProperty('conflict.overwrittenPaths')
+    expect(deps.alerts.map((alert) => alert.outcome)).toEqual(['failed'])
+  })
+
   it('keeps the editor version when the upstream deleted a page the editor edited', async () => {
     const deps = createDeps({
       responses: {
