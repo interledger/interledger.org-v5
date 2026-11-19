@@ -3168,6 +3168,10 @@ describe('a conflicted autostash pop, against real git', () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-autostash-'))
     run(root, 'init -q --bare -b main origin.git')
     run(root, 'clone -q origin.git vm')
+    // The sync commits with the repo's own identity. CI runners have none, and
+    // Linux git cannot guess one, so without this the first commit fails.
+    run(vm(), 'config user.name t')
+    run(vm(), 'config user.email t@t')
     write(vm(), 'src/content/faqs/a.mdx', 'A original\n')
     write(vm(), 'src/config/nav.json', 'nav original\n')
     run(vm(), 'add .')
@@ -3191,7 +3195,11 @@ describe('a conflicted autostash pop, against real git', () => {
   it('leaves a checkout the next save can sync from', async () => {
     const first = await runGitSync('faq', undefined, realDeps())
 
-    expect(first.outcome).toBe('failed')
+    // The reason matters: a failure anywhere earlier would also be "failed".
+    expect(first).toMatchObject({
+      outcome: 'failed',
+      error: { message: expect.stringMatching(/autostash pop/) }
+    })
     expect(run(vm(), 'ls-files -u')).toBe('')
     expect(run(vm(), 'stash list')).toContain('autostash')
     expect(
