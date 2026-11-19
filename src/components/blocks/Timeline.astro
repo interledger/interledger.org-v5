@@ -55,8 +55,17 @@ const timelineId =
 const timelineEndId = `${timelineId}-end`
 const sectionTimelineName = (index: number) => `--timeline-section-${index + 1}`
 
-/** Every section's events timeline, lifted to the list so headers can read it. */
-const timelineScope = resolved.map((_, index) => sectionTimelineName(index))
+/** The events area's timeline, which the phone Return/Skip bar follows. */
+const LAYOUT_TIMELINE = '--timeline-layout'
+
+/**
+ * Every section's events timeline and the events area's timeline, lifted to
+ * the block so the headers and the phone bar can read them.
+ */
+const timelineScope = [
+  ...resolved.map((_, index) => sectionTimelineName(index)),
+  LAYOUT_TIMELINE
+]
 
 /** Return lands on the block. Skip lands on the marker after it. */
 const navLinks = [
@@ -438,11 +447,12 @@ const skipIconFrameClass =
       }
     }
 
-    /* The bar is a direct child of [data-timeline], so it can read this
-       timeline without `timeline-scope` — unlike the per-section panel
-       below, nothing here needs to reach across to a cousin element. Phones
-       only: from `tablet:` the panel carries the links. Not gated on reduced
-       motion: the show/hide is instant, not movement. */
+    /* The bar follows the events area, not the whole block, so it does not
+       cover the intro before any event is on screen. That timeline lives on
+       a sibling, so it needs `timeline-scope`. Without it the bar follows
+       the block, which is its parent. Phones only: from `tablet:` the panel
+       carries the links. Not gated on reduced motion: the show/hide is
+       instant, not movement. */
     @media (width < 810px) {
       [data-timeline] {
         view-timeline-name: --timeline-whole;
@@ -468,6 +478,17 @@ const skipIconFrameClass =
          shorthand, which browsers reject. */
       [data-timeline] [data-timeline-mobile-nav] {
         animation-timeline: --timeline-whole;
+      }
+
+      @supports (timeline-scope: --timeline-layout) {
+        [data-timeline-layout] {
+          view-timeline-name: --timeline-layout;
+          view-timeline-axis: block;
+        }
+
+        [data-timeline] [data-timeline-layout] ~ [data-timeline-mobile-nav] {
+          animation-timeline: --timeline-layout;
+        }
       }
 
       [data-timeline-mobile-nav] * {
@@ -638,21 +659,22 @@ const skipIconFrameClass =
     }
   }
 
-  /* Space below the timeline. On the block, outside the grid, so it doesn't
-     lengthen the area the panel sticks within. The extra room sits on top
-     of --block-pb, the bottom edge every intro block owns, because the next
-     block subtracts --block-pb from its gap (prose/rhythm.css). */
+  /* Space below the timeline. Padding on the grid, outside its tracks, so
+     it doesn't lengthen the area the panel sticks within. Not on the block:
+     the block's bottom padding is --block-pb (components/block-intro.css),
+     which prose/rhythm.css removes when the timeline is the last block. Not
+     a margin: with no padding below it, a margin collapses out of the block
+     and Skip lands above the space. */
   @media (width >= 810px) {
-    [data-timeline] {
-      padding-bottom: calc(var(--block-pb) + var(--spacing-5xl));
+    [data-timeline-layout] {
+      padding-bottom: var(--spacing-5xl);
     }
   }
 
   @media (width >= 1200px) {
-    [data-timeline] {
+    [data-timeline-layout] {
       padding-bottom: calc(
-        var(--block-pb) + var(--spacing-6xl) + var(--spacing-3xl) * 2 +
-          var(--spacing-xl)
+        var(--spacing-6xl) + var(--spacing-3xl) * 2 + var(--spacing-xl)
       );
     }
   }
