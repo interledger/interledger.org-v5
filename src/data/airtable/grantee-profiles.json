@@ -517,7 +517,7 @@
     "grantIds": ["rec1Llf8pwePDmyZf"],
     "grantCount": 1,
     "totalCommitted": 25000,
-    "legacyReportCount": 1,
+    "legacyReportCount": 2,
     "thematicTags": ["OpenSource", "Software"],
     "logo": null
   },
@@ -717,7 +717,7 @@
     "grantIds": ["recZL3kYIyhgOzY6h", "reco9ukjPC8Z2eHpo"],
     "grantCount": 2,
     "totalCommitted": 40000,
-    "legacyReportCount": 5,
+    "legacyReportCount": 4,
     "thematicTags": [
       "Advocacy",
       "Civic Tech",
@@ -993,7 +993,7 @@
     "grantIds": ["recLrg9trUXDXAZuE"],
     "grantCount": 1,
     "totalCommitted": 50000,
-    "legacyReportCount": 2,
+    "legacyReportCount": 1,
     "thematicTags": ["Education", "Women-Led"],
     "logo": null
   },
@@ -1318,7 +1318,7 @@
     "grantIds": ["recUxOhZ39rDZ7E53"],
     "grantCount": 1,
     "totalCommitted": 3000,
-    "legacyReportCount": 2,
+    "legacyReportCount": 1,
     "thematicTags": ["Convening", "OpenSource", "Women-Led"],
     "logo": null
   },
@@ -1407,7 +1407,7 @@
     "grantCount": 1,
     "totalCommitted": 72000,
     "legacyReportCount": 0,
-    "thematicTags": [],
+    "thematicTags": ["Advocacy", "Financial Services", "Research"],
     "logo": null
   },
   {
@@ -1598,7 +1598,7 @@
     "grantIds": ["rec3vnUyyWngIwqdJ"],
     "grantCount": 1,
     "totalCommitted": 20000,
-    "legacyReportCount": 2,
+    "legacyReportCount": 1,
     "thematicTags": ["Software"],
     "logo": null
   },
