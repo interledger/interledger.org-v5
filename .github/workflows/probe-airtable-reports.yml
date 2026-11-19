@@ -157,3 +157,17 @@ jobs:
           pnpm exec prettier --check src/data/airtable/grantee-data.json
           echo "--- grantee-data.json lines changed (added, removed)"
           git diff --numstat -- src/data/airtable/grantee-data.json
+
+  # Why the directory view returns 2 published grants (was 267). Counts and
+  # field metadata only.
+  published-filter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Count records by publish status
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: node scripts/probe-published-filter.mjs
