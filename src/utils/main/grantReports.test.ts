@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { GrantReport } from '@/types/airtable'
+import type { Grantee } from './grantee'
 
 // `./routes` -> `./locales` reaches Astro's virtual modules for i18n config.
 // Only path building runs here, so minimal mocks are enough (as routes.test.ts).
@@ -15,12 +16,16 @@ vi.mock('astro:content', async () => {
 })
 
 const {
-  formatReportDate,
+  formatReportMonth,
   getGrantReportRoutes,
+  grantReportLabel,
   grantReportPath,
   grantReportSegment,
-  parseGrantReports
+  listGrantReports,
+  parseGrantReports,
+  readGranteeNames
 } = await import('./grantReports')
+const { useTranslations } = await import('./i18')
 
 function report(overrides: Partial<GrantReport> = {}): GrantReport {
   return {
@@ -129,18 +134,31 @@ describe('parseGrantReports', () => {
   })
 })
 
-describe('formatReportDate', () => {
-  it('formats in UTC, so the day never moves', () => {
-    expect(formatReportDate('2026-11-15', 'en')).toBe('Nov 15, 2026')
-    expect(formatReportDate('2026-01-01', 'en')).toBe('Jan 1, 2026')
+describe('formatReportMonth', () => {
+  it('formats month and year in UTC, so the month never moves', () => {
+    expect(formatReportMonth('2026-09-30', 'en')).toBe('September 2026')
+    expect(formatReportMonth('2026-01-01', 'en')).toBe('January 2026')
   })
 
   it('formats for the route locale', () => {
-    expect(formatReportDate('2026-11-15', 'es')).toBe('15 nov 2026')
+    expect(formatReportMonth('2026-11-15', 'es')).toBe('noviembre de 2026')
   })
 
   it('returns the value as is when it is not a date', () => {
-    expect(formatReportDate('soon', 'en')).toBe('soon')
+    expect(formatReportMonth('soon', 'en')).toBe('soon')
+  })
+})
+
+describe('grantReportLabel', () => {
+  it('names the report by type and number', () => {
+    const t = useTranslations('en')
+    expect(grantReportLabel(report(), t)).toBe('Interim report 1')
+    expect(
+      grantReportLabel(
+        report({ reportType: 'Final Report', reportNumber: 2 }),
+        t
+      )
+    ).toBe('Final report 2')
   })
 })
 
@@ -161,32 +179,101 @@ describe('grantReportPath', () => {
   })
 })
 
+const OTHER_GRANT_ID = 'recdUkEFGFR3970nG'
+
+function grantee(overrides: Partial<Grantee> = {}): Grantee {
+  return {
+    id: 'recUSF6jZiBVoqG01',
+    name: 'Gib',
+    program: 'Grant for the Web',
+    programKey: 'grant-for-the-web',
+    year: '2026',
+    startMonth: '2026-03',
+    startLabel: 'March 2026',
+    grantPeriodLabel: 'March 2026 – February 2027',
+    country: 'India',
+    countryKey: 'india',
+    leaders: ['Priya Raman'],
+    tags: [],
+    description: null,
+    descriptionPlain: '',
+    projectUrls: [],
+    budget: 100000,
+    budgetLabel: '100 000',
+    searchText: '',
+    ...overrides
+  }
+}
+
+const sources = {
+  grantees: [grantee()],
+  granteeNames: new Map([['gib', 'Gib Labs']])
+}
+
 describe('getGrantReportRoutes', () => {
   it('returns no routes while the gate hides reports', () => {
-    expect(getGrantReportRoutes([report()], true)).toEqual([])
+    expect(getGrantReportRoutes([report()], true, sources)).toEqual([])
   })
 
   it('does not read the data while the gate hides reports', () => {
-    expect(getGrantReportRoutes({}, true)).toEqual([])
+    expect(getGrantReportRoutes({}, true, sources)).toEqual([])
   })
 
-  it('builds one route per report, with the path the page links to', () => {
-    const routes = getGrantReportRoutes([report()], false)
+  it('builds one route per report, with the page context', () => {
+    const routes = getGrantReportRoutes([report()], false, sources)
     expect(routes).toEqual([
       {
         params: { slug: 'gib', report: '20260504-interim-1' },
         props: {
           report: report(),
-          reportPath: 'grant/grantees/gib/reports/20260504-interim-1'
+          reportPath: 'grant/grantees/gib/reports/20260504-interim-1',
+          granteeName: 'Gib Labs',
+          grant: {
+            budgetLabel: '100 000',
+            program: 'Grant for the Web',
+            grantPeriodLabel: 'March 2026 – February 2027',
+            leaders: ['Priya Raman'],
+            country: 'India'
+          },
+          grantReports: [
+            {
+              reportType: 'Interim Report',
+              reportNumber: 1,
+              reportPath: 'grant/grantees/gib/reports/20260504-interim-1',
+              isCurrent: true
+            }
+          ]
         }
       }
     ])
   })
 
+  it('has no grant facts for a grant the directory does not publish', () => {
+    const routes = getGrantReportRoutes([report()], false, {
+      ...sources,
+      grantees: []
+    })
+    expect(routes).not.toBeInstanceOf(Error)
+    expect((routes as { props: { grant: unknown } }[])[0]?.props.grant).toBe(
+      null
+    )
+  })
+
+  it('has no grantee name for a slug missing from the profiles', () => {
+    const routes = getGrantReportRoutes([report()], false, {
+      ...sources,
+      granteeNames: new Map()
+    })
+    expect(
+      (routes as { props: { granteeName: unknown } }[])[0]?.props.granteeName
+    ).toBe(null)
+  })
+
   it('fails when two reports would share a URL, naming both', () => {
     const result = getGrantReportRoutes(
       [report(), report({ id: 'recReport0000002' })],
-      false
+      false,
+      sources
     )
     expect(result).toBeInstanceOf(Error)
     expect((result as Error).message).toContain(
@@ -195,6 +282,49 @@ describe('getGrantReportRoutes', () => {
   })
 
   it('returns the parse error for a bad file', () => {
-    expect(getGrantReportRoutes({}, false)).toBeInstanceOf(Error)
+    expect(getGrantReportRoutes({}, false, sources)).toBeInstanceOf(Error)
+  })
+})
+
+describe('listGrantReports', () => {
+  it('lists the reports of the same grant only, interim first, then by number', () => {
+    const final1 = report({ id: 'rec3', reportType: 'Final Report' })
+    const interim2 = report({ id: 'rec2', reportNumber: 2 })
+    const other = report({
+      id: 'rec4',
+      grantId: OTHER_GRANT_ID,
+      projectId: '20260505'
+    })
+    const current = report()
+    const items = listGrantReports([final1, other, interim2, current], interim2)
+    expect(
+      items.map(({ reportType, reportNumber, isCurrent }) => [
+        reportType,
+        reportNumber,
+        isCurrent
+      ])
+    ).toEqual([
+      ['Interim Report', 1, false],
+      ['Interim Report', 2, true],
+      ['Final Report', 1, false]
+    ])
+  })
+
+  it('lists the current report alone when the grant has one report', () => {
+    expect(listGrantReports([report()], report())).toHaveLength(1)
+  })
+})
+
+describe('readGranteeNames', () => {
+  it('maps each slug to its grantee name', () => {
+    const names = readGranteeNames([
+      { slug: 'gib', name: 'Gib Labs', grantIds: [] }
+    ])
+    expect(names).toEqual(new Map([['gib', 'Gib Labs']]))
+  })
+
+  it('fails on a file that is not a list of grantees', () => {
+    expect(readGranteeNames({})).toBeInstanceOf(Error)
+    expect(readGranteeNames([{ slug: 'gib' }])).toBeInstanceOf(Error)
   })
 })

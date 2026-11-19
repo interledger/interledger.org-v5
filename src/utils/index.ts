@@ -205,18 +205,26 @@ export {
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
+  formatGrantPeriod,
   type Grantee,
   type GranteeFilterOption,
   type GranteeListingData,
   type GranteeSearchEntry
 } from './main/grantee'
 export {
-  formatReportDate,
+  formatReportMonth,
   getGrantReportRoutes,
+  grantReportLabel,
   grantReportPath,
   grantReportSegment,
+  listGrantReports,
   parseGrantReports,
-  type GrantReportRoute
+  readGranteeNames,
+  type GrantFacts,
+  type GrantReportListItem,
+  type GrantReportPageProps,
+  type GrantReportRoute,
+  type GrantReportSources
 } from './main/grantReports'
 // Listed for the catalog only. scripts/import-airtable.ts imports the module
 // directly, because tsx can't load this barrel's astro:content chains.
