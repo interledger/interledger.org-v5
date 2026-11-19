@@ -105,7 +105,7 @@ export function grantReportPath(
 // grantee directory, so they exist only while the grant is published there.
 export type GrantFacts = Pick<
   Grantee,
-  'budgetLabel' | 'program' | 'leaders' | 'country'
+  'budgetLabel' | 'program' | 'grantPeriodLabel' | 'leaders' | 'country'
 >
 
 // Another report of the same grant, for the "Reports for this grant" list.
@@ -196,8 +196,8 @@ function findGrantFacts(
 ): GrantFacts | null {
   const grant = grantees.find(({ id }) => id === grantId)
   if (!grant) return null
-  const { budgetLabel, program, leaders, country } = grant
-  return { budgetLabel, program, leaders, country }
+  const { budgetLabel, program, grantPeriodLabel, leaders, country } = grant
+  return { budgetLabel, program, grantPeriodLabel, leaders, country }
 }
 
 // One static path per report, or none while the feature gate is on. The

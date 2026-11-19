@@ -16,7 +16,7 @@ type Props = GrantReportPageProps
 
 // No paths in production until the feature is released (INTORG-1313).
 export const getStaticPaths = (() => {
-  const grantees = parseGranteeRecords(rawGranteeData, 'en')
+  const grantees = parseGranteeRecords(rawGranteeData, 'es')
   if (grantees instanceof Error) throw grantees
   const granteeNames = readGranteeNames(rawGranteeProfiles)
   if (granteeNames instanceof Error) throw granteeNames

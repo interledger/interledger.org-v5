@@ -44,6 +44,7 @@ export const GRANTEE_FIELDS = {
   'Secondary Grant Program Name': { id: 'fldH4NUS3BL5SV8rN', shape: 'string' },
   Year: { id: 'fldEZNEXAY5steLCx', shape: 'string | number' },
   'Start Month': { id: 'fldo7Z20rohFRZSP3', shape: 'string' },
+  'End Date': { id: 'fldjPAzO0s32QupTF', shape: 'string' },
   Country: { id: 'fldkBJh5jGlkQyM9r', shape: 'string' },
   'Project Leader': { id: 'fldKLOR55uQPb5BHG', shape: 'string[]' },
   'Thematic Tag': { id: 'fldu3IXvMaQ4TXLTe', shape: 'string[]' },

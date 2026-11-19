@@ -23,6 +23,7 @@ const facts = [
       : ''
   },
   { label: t('grantReport.program'), value: grant?.program ?? '' },
+  { label: t('grantReport.period'), value: grant?.grantPeriodLabel ?? '' },
   {
     label: t('grantee.project_lead'),
     value: grant?.leaders.join(', ') ?? ''

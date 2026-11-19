@@ -190,6 +190,7 @@ function grantee(overrides: Partial<Grantee> = {}): Grantee {
     year: '2026',
     startMonth: '2026-03',
     startLabel: 'March 2026',
+    grantPeriodLabel: 'March 2026 – February 2027',
     country: 'India',
     countryKey: 'india',
     leaders: ['Priya Raman'],
@@ -230,6 +231,7 @@ describe('getGrantReportRoutes', () => {
           grant: {
             budgetLabel: '100 000',
             program: 'Grant for the Web',
+            grantPeriodLabel: 'March 2026 – February 2027',
             leaders: ['Priya Raman'],
             country: 'India'
           },

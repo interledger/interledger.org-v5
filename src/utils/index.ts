@@ -205,6 +205,7 @@ export {
   normalizeCountry,
   formatBudgetAmount,
   formatStartMonth,
+  formatGrantPeriod,
   type Grantee,
   type GranteeFilterOption,
   type GranteeListingData,
