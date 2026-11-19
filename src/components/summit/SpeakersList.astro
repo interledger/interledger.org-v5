@@ -7,17 +7,21 @@ interface Props {
   speakers: Speaker[]
   basePath: string
   year: string
-  extraClass?: string
+  /** `grid` for the speakers index; `stack` for a narrow column such as a session sidebar. */
+  layout?: 'grid' | 'stack'
 }
 
-const { speakers, basePath, year, extraClass } = Astro.props
+const { speakers, basePath, year, layout = 'grid' } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const listClass = `flex flex-wrap gap-xl list-none ${extraClass ?? ''}`.trim()
+const layoutClass =
+  layout === 'grid'
+    ? 'grid-cols-1 gap-2xl tablet:grid-cols-3 tablet:gap-x-xl tablet:gap-y-3xl desktop:grid-cols-4'
+    : 'grid-cols-1 gap-2xl'
 ---
 
 {speakers.length > 0 ? (
-  <ul class={listClass}>
+  <ul class={`m-0 grid list-none p-0 ${layoutClass}`}>
     {speakers.map((speaker) => (
       <SpeakerCard speaker={speaker} basePath={basePath} year={year} />
     ))}
