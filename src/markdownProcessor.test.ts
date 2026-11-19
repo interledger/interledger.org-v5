@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import config from '../astro.config.mjs'
-import { TABLE_SCROLL_CLASS } from './utils/main/wrapScrollableTables'
+import { TABLE_SCROLL_CLASS } from './utils/shared/wrapScrollableTables'
 
 const GFM_SAMPLE = `| Name | Value |
 | ---- | ----- |
