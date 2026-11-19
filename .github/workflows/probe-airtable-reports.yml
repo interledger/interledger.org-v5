@@ -113,3 +113,47 @@ jobs:
           '
           echo "--- prettier"
           pnpm exec prettier --check src/data/airtable/*.json
+
+  # INTORG-1314: the real sync with the uncommitted grant period change applied
+  # on the runner (never pushed to the site branch). Nothing is committed.
+  # Counts only.
+  grant-period:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: probe
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/intorg-1314
+          path: site
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: site/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: git apply ../probe/patches/intorg-1314-grant-period.patch
+        working-directory: site
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+        working-directory: site
+      - name: Run the sync and count grant periods
+        working-directory: site
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: |
+          # The log can name records, so print the exit code and the field-level lines only.
+          set +e
+          pnpm run sync:airtable > ../sync.log 2>&1
+          code=$?
+          set -e
+          echo "sync exit: $code"
+          grep -E "^(ℹ️|⚠️)" ../sync.log | grep -v "http" || true
+          if [ "$code" -ne 0 ]; then echo "sync failed, $(wc -l < ../sync.log) log lines withheld"; exit 1; fi
+          echo "--- grant periods"
+          cp ../probe/scripts/probe-grant-period.test.ts src/probe-grant-period.test.ts
+          pnpm exec vitest run src/probe-grant-period.test.ts --silent=false --reporter=verbose 2>&1 | grep -vE "^\s*$" 
+          echo "--- prettier"
+          pnpm exec prettier --check src/data/airtable/grantee-data.json
+          echo "--- grantee-data.json lines changed (added, removed)"
+          git diff --numstat -- src/data/airtable/grantee-data.json

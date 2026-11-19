@@ -1,0 +1,295 @@
+diff --git a/src/components/grant/GrantReportFacts.astro b/src/components/grant/GrantReportFacts.astro
+index 17f096a6a..562fe16ce 100644
+--- a/src/components/grant/GrantReportFacts.astro
++++ b/src/components/grant/GrantReportFacts.astro
+@@ -23,6 +23,7 @@ const facts = [
+       : ''
+   },
+   { label: t('grantReport.program'), value: grant?.program ?? '' },
++  { label: t('grantReport.period'), value: grant?.grantPeriodLabel ?? '' },
+   {
+     label: t('grantee.project_lead'),
+     value: grant?.leaders.join(', ') ?? ''
+diff --git a/src/data/ui.ts b/src/data/ui.ts
+index 4eabc483b..581b61d92 100644
+--- a/src/data/ui.ts
++++ b/src/data/ui.ts
+@@ -172,6 +172,7 @@ export const ui = {
+     'grantReport.about': 'About this grant',
+     'grantReport.amount': 'Amount committed',
+     'grantReport.program': 'Program',
++    'grantReport.period': 'Grant period',
+     'grantReport.location': 'Location',
+     'grantReport.license': 'License',
+     'grantReport.technologies': 'Interledger technologies',
+@@ -601,6 +602,7 @@ export const ui = {
+     'grantReport.about': '',
+     'grantReport.amount': '',
+     'grantReport.program': '',
++    'grantReport.period': '',
+     'grantReport.location': '',
+     'grantReport.license': '',
+     'grantReport.technologies': '',
+diff --git a/src/pages/es/grant/grantees/[slug]/reports/[report].astro b/src/pages/es/grant/grantees/[slug]/reports/[report].astro
+index cb80aa5b4..f7ecf7fcf 100644
+--- a/src/pages/es/grant/grantees/[slug]/reports/[report].astro
++++ b/src/pages/es/grant/grantees/[slug]/reports/[report].astro
+@@ -16,7 +16,7 @@ type Props = GrantReportPageProps
+ 
+ // No paths in production until the feature is released (INTORG-1313).
+ export const getStaticPaths = (() => {
+-  const grantees = parseGranteeRecords(rawGranteeData, 'en')
++  const grantees = parseGranteeRecords(rawGranteeData, 'es')
+   if (grantees instanceof Error) throw grantees
+   const granteeNames = readGranteeNames(rawGranteeProfiles)
+   if (granteeNames instanceof Error) throw granteeNames
+diff --git a/src/utils/index.ts b/src/utils/index.ts
+index fdc9e555c..46b71cb6a 100644
+--- a/src/utils/index.ts
++++ b/src/utils/index.ts
+@@ -205,6 +205,7 @@ export {
+   normalizeCountry,
+   formatBudgetAmount,
+   formatStartMonth,
++  formatGrantPeriod,
+   type Grantee,
+   type GranteeFilterOption,
+   type GranteeListingData,
+diff --git a/src/utils/main/airtableRecords.test.ts b/src/utils/main/airtableRecords.test.ts
+index 23aa632e6..218fdd049 100644
+--- a/src/utils/main/airtableRecords.test.ts
++++ b/src/utils/main/airtableRecords.test.ts
+@@ -39,6 +39,7 @@ function completeRecord(id = 'rec1'): TableRecord {
+       'Secondary Grant Program Name': 'Program',
+       Year: '2024',
+       'Start Month': '2024-01',
++      'End Date': '2024-12-31',
+       Country: 'Kenya',
+       'Project Leader': ['Ada Lovelace'],
+       'Thematic Tag': ['Payments'],
+diff --git a/src/utils/main/airtableRecords.ts b/src/utils/main/airtableRecords.ts
+index dea41e97b..4825994aa 100644
+--- a/src/utils/main/airtableRecords.ts
++++ b/src/utils/main/airtableRecords.ts
+@@ -44,6 +44,7 @@ export const GRANTEE_FIELDS = {
+   'Secondary Grant Program Name': { id: 'fldH4NUS3BL5SV8rN', shape: 'string' },
+   Year: { id: 'fldEZNEXAY5steLCx', shape: 'string | number' },
+   'Start Month': { id: 'fldo7Z20rohFRZSP3', shape: 'string' },
++  'End Date': { id: 'fldjPAzO0s32QupTF', shape: 'string' },
+   Country: { id: 'fldkBJh5jGlkQyM9r', shape: 'string' },
+   'Project Leader': { id: 'fldKLOR55uQPb5BHG', shape: 'string[]' },
+   'Thematic Tag': { id: 'fldu3IXvMaQ4TXLTe', shape: 'string[]' },
+diff --git a/src/utils/main/grantReports.test.ts b/src/utils/main/grantReports.test.ts
+index 1cd9e9bde..24dc334d2 100644
+--- a/src/utils/main/grantReports.test.ts
++++ b/src/utils/main/grantReports.test.ts
+@@ -190,6 +190,7 @@ function grantee(overrides: Partial<Grantee> = {}): Grantee {
+     year: '2026',
+     startMonth: '2026-03',
+     startLabel: 'March 2026',
++    grantPeriodLabel: 'March 2026 – February 2027',
+     country: 'India',
+     countryKey: 'india',
+     leaders: ['Priya Raman'],
+@@ -230,6 +231,7 @@ describe('getGrantReportRoutes', () => {
+           grant: {
+             budgetLabel: '100 000',
+             program: 'Grant for the Web',
++            grantPeriodLabel: 'March 2026 – February 2027',
+             leaders: ['Priya Raman'],
+             country: 'India'
+           },
+diff --git a/src/utils/main/grantReports.ts b/src/utils/main/grantReports.ts
+index 3d2154e85..8c03a5bdb 100644
+--- a/src/utils/main/grantReports.ts
++++ b/src/utils/main/grantReports.ts
+@@ -105,7 +105,7 @@ export function grantReportPath(
+ // grantee directory, so they exist only while the grant is published there.
+ export type GrantFacts = Pick<
+   Grantee,
+-  'budgetLabel' | 'program' | 'leaders' | 'country'
++  'budgetLabel' | 'program' | 'grantPeriodLabel' | 'leaders' | 'country'
+ >
+ 
+ // Another report of the same grant, for the "Reports for this grant" list.
+@@ -196,8 +196,8 @@ function findGrantFacts(
+ ): GrantFacts | null {
+   const grant = grantees.find(({ id }) => id === grantId)
+   if (!grant) return null
+-  const { budgetLabel, program, leaders, country } = grant
+-  return { budgetLabel, program, leaders, country }
++  const { budgetLabel, program, grantPeriodLabel, leaders, country } = grant
++  return { budgetLabel, program, grantPeriodLabel, leaders, country }
+ }
+ 
+ // One static path per report, or none while the feature gate is on. The
+diff --git a/src/utils/main/grantee.test.ts b/src/utils/main/grantee.test.ts
+index ed990c39d..db0087b86 100644
+--- a/src/utils/main/grantee.test.ts
++++ b/src/utils/main/grantee.test.ts
+@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
+ import { ALL_GRANTEE_YEAR_SLUG, matchesGranteeFilters } from './granteeFilters'
+ import {
+   formatBudgetAmount,
++  formatGrantPeriod,
+   formatStartMonth,
+   getGranteeListingData,
+   getGranteeSearchIndex,
+@@ -75,7 +76,62 @@ describe('formatStartMonth', () => {
+   })
+ })
+ 
++describe('formatGrantPeriod', () => {
++  it('formats the start and end month as a range', () => {
++    expect(formatGrantPeriod('2026-03', '2027-02', 'en')).toBe(
++      'March 2026 – February 2027'
++    )
++  })
++
++  it('formats a grant that starts and ends in one month', () => {
++    expect(formatGrantPeriod('2026-03', '2026-03', 'en')).toBe(
++      'March 2026 – March 2026'
++    )
++  })
++
++  it('localizes the month names', () => {
++    expect(formatGrantPeriod('2026-03', '2027-02', 'es')).toBe(
++      'Marzo de 2026 – febrero de 2027'
++    )
++  })
++
++  it.each([
++    ['no start', '', '2027-02'],
++    ['no end', '2026-03', ''],
++    ['a start that is not YYYY-MM', '2026', '2027-02'],
++    ['an end month out of range', '2026-03', '2027-13'],
++    ['an end before the start', '2026-03', '2025-12']
++  ])('returns an empty string for %s', (_case, start, end) => {
++    expect(formatGrantPeriod(start, end, 'en')).toBe('')
++  })
++})
++
+ describe('parseGranteeRecords', () => {
++  it('reads the grant period from Start Month and End Date', () => {
++    const result = parseGranteeRecords(
++      [record({ ...sample.fields, 'End Date': '2025-08-31' })],
++      'en'
++    )
++    expect(result).not.toBeInstanceOf(Error)
++    if (result instanceof Error) return
++    expect(result[0]?.grantPeriodLabel).toBe('September 2024 – August 2025')
++  })
++
++  it.each([
++    ['missing', undefined],
++    ['not a date', 'soon'],
++    ['a month without a day', '2025-08']
++  ])('has no grant period when End Date is %s', (_case, endDate) => {
++    const fields =
++      endDate === undefined
++        ? sample.fields
++        : { ...sample.fields, 'End Date': endDate }
++    const result = parseGranteeRecords([record(fields)], 'en')
++    expect(result).not.toBeInstanceOf(Error)
++    if (result instanceof Error) return
++    expect(result[0]?.grantPeriodLabel).toBe('')
++  })
++
+   it('returns an Error when the dump is not an array', () => {
+     const result = parseGranteeRecords({ records: [] }, 'en')
+     expect(result).toBeInstanceOf(Error)
+diff --git a/src/utils/main/grantee.ts b/src/utils/main/grantee.ts
+index d4751ccd6..872efd940 100644
+--- a/src/utils/main/grantee.ts
++++ b/src/utils/main/grantee.ts
+@@ -53,6 +53,8 @@ export interface Grantee {
+   year: string
+   startMonth: string
+   startLabel: string
++  /** "March 2026 – February 2027", or '' unless both ends are valid and in order. */
++  grantPeriodLabel: string
+   country: string
+   countryKey: string
+   leaders: string[]
+@@ -104,22 +106,57 @@ export function formatBudgetAmount(value: number): string {
+     .replace(/,/g, ' ')
+ }
+ 
+-export function formatStartMonth(startMonth: string, locale: Locale): string {
+-  const match = /^(\d{4})-(\d{2})$/.exec(startMonth)
+-  if (!match) return startMonth
++// "September 2024" in English, "septiembre de 2024" in Spanish: lowercase
++// mid-sentence, as Spanish writes month names. Null when not YYYY-MM.
++function formatMonth(month: string, locale: Locale): string | null {
++  const match = /^(\d{4})-(\d{2})$/.exec(month)
++  if (!match) return null
+ 
+-  const month = Number(match[2])
+-  if (month < 1 || month > 12) return startMonth
++  const monthNumber = Number(match[2])
++  if (monthNumber < 1 || monthNumber > 12) return null
+ 
+-  const date = new Date(Date.UTC(Number(match[1]), month - 1, 1))
++  const date = new Date(Date.UTC(Number(match[1]), monthNumber - 1, 1))
+   const localeTag = locale === 'es' ? 'es-ES' : 'en-US'
+-  const formatted = new Intl.DateTimeFormat(localeTag, {
++  return new Intl.DateTimeFormat(localeTag, {
+     month: 'long',
+     year: 'numeric',
+     timeZone: 'UTC'
+   }).format(date)
++}
++
++function capitalize(text: string): string {
++  return text.charAt(0).toUpperCase() + text.slice(1)
++}
++
++export function formatStartMonth(startMonth: string, locale: Locale): string {
++  const formatted = formatMonth(startMonth, locale)
++  return formatted === null ? startMonth : capitalize(formatted)
++}
++
++// Start Month is a YYYY-MM formula; End Date is an Airtable date, YYYY-MM-DD.
++const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/
++const DATE_PATTERN = /^(\d{4}-(0[1-9]|1[0-2]))-\d{2}$/
++
++function toMonth(endDate: string): string {
++  return DATE_PATTERN.exec(endDate)?.[1] ?? ''
++}
+ 
+-  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
++// The grant's start and end month, as the report sidebar shows it. A period
++// with a missing, malformed or reversed end is left out rather than shown
++// half right.
++export function formatGrantPeriod(
++  startMonth: string,
++  endMonth: string,
++  locale: Locale
++): string {
++  if (!MONTH_PATTERN.test(startMonth) || !MONTH_PATTERN.test(endMonth)) {
++    return ''
++  }
++  if (endMonth < startMonth) return ''
++  const start = formatMonth(startMonth, locale)
++  const end = formatMonth(endMonth, locale)
++  if (start === null || end === null) return ''
++  return `${capitalize(start)} – ${end}`
+ }
+ 
+ function asTrimmedString(value: unknown): string | undefined {
+@@ -190,6 +227,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
+   const program = asTrimmedString(fields['Secondary Grant Program Name']) ?? ''
+   const year = asTrimmedString(fields.Year) ?? ''
+   const startMonth = asTrimmedString(fields['Start Month']) ?? ''
++  const endMonth = toMonth(asTrimmedString(fields['End Date']) ?? '')
+   const country = normalizeCountry(asTrimmedString(fields.Country) ?? '')
+   const leaders = asStringList(fields['Project Leader'])
+   const tags = asStringList(fields['Thematic Tag'])
+@@ -219,6 +257,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
+     year,
+     startMonth,
+     startLabel: startMonth ? formatStartMonth(startMonth, locale) : '',
++    grantPeriodLabel: formatGrantPeriod(startMonth, endMonth, locale),
+     country,
+     countryKey: generateSlug(country),
+     leaders,
