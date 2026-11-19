@@ -339,12 +339,12 @@ on page copy, so a developer sweep that collides with a live edit yields.
 overwrote branch changes` message goes to `#frontend-team` naming the files
   and the superseded commits, because nothing lints a direct push to `staging`.
   If your PR shows up there, recover the dropped change with
-  `git log -p <sha> -- <path>` and re-apply it on top of `staging`. Two cases
-  are **not** announced: the silent revert on a later save described above,
-  and the daily workflow replaying a stranded CMS commit with the same
-  `-X theirs` policy — that shows only as a warning in the workflow log.
-  The workflow never pushes: Strapi is the only writer to the deploy branch, so
-  the replayed commit reaches it with the next editor save.
+  `git log -p <sha> -- <path>` and re-apply it on top of `staging`. The same
+  applies when the daily workflow replays a stranded CMS commit with the same
+  `-X theirs` policy: it posts `⚠️ Strapi Build and Sync overwrote branch
+changes`. The workflow never pushes: Strapi is the only writer to the deploy
+  branch, so the replayed commit reaches it with the next editor save. One case
+  is **not** announced: the silent revert on a later save described above.
 
 > **A note for anyone reading the code:** during a rebase git swaps the meaning
 > of `ours` and `theirs` — `ours` is the branch being replayed _onto_ (the
