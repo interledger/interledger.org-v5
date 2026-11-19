@@ -199,7 +199,7 @@ const pillClasses =
         design gives it the h4 size, one step below the section heading. */}
       <div
         data-prose
-        class="order-3 desktop:order-none desktop:col-start-1 [&_section_h3]:text-h4 tablet:[&_section_h3]:text-h4-md desktop:[&_section_h3]:text-h4-lg"
+        class="order-3 desktop:order-none desktop:col-start-1 [&_section_h3]:text-h4 tablet:[&_section_h3]:text-h4-md desktop:[&_section_h3]:text-h4-lg [&_section_h3]:font-semibold"
       >
         {sections.map((section, index) => (
           <>
@@ -207,7 +207,7 @@ const pillClasses =
               <Paragraph>
                 <h2
                   id={section.id}
-                  class="text-h3 tablet:text-h3-md desktop:text-h3-lg"
+                  class="text-h3 tablet:text-h3-md desktop:text-h3-lg font-semibold"
                 >
                   {section.heading}
                 </h2>
@@ -233,7 +233,7 @@ const pillClasses =
           <Paragraph>
             <h2
               id="grant-report-from-project"
-              class="text-h3 tablet:text-h3-md desktop:text-h3-lg"
+              class="text-h3 tablet:text-h3-md desktop:text-h3-lg font-semibold"
             >
               {t('grantReport.from_project')}
             </h2>
