@@ -92,6 +92,23 @@ describe('patchUidServiceForSlashedSlugs', () => {
     )
   })
 
+  // The blog uid accepts any text, so Available reflects what save stores.
+  it('checks availability of the slug save will store', async () => {
+    const service = createService()
+    const count = vi.fn(async () => 0)
+    patchUidServiceForSlashedSlugs(service, () => ({
+      findMany: vi.fn(),
+      count
+    }))
+
+    await service.checkUIDAvailability({ ...params, value: 'My Post' })
+    expect(count).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filters: { pathSlug: { $in: ['my-post', '/my-post/'] } }
+      })
+    )
+  })
+
   it('leaves other uid fields to Strapi', async () => {
     const service = createService()
     const original = service.findUniqueUID

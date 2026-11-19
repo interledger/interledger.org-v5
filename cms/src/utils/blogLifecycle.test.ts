@@ -627,4 +627,31 @@ describe('createBlogLifecycle — slug and date changes', () => {
     expect(fs.readFileSync(en, 'utf-8')).toContain('Renamed title')
     expect(fs.readdirSync(path.dirname(en))).toEqual(['2025-06-11-test.mdx'])
   })
+
+  // A plain Error from the export reached the editor as a bare 500 on create.
+  it('stops a create whose export fails with a message the admin shows', async () => {
+    stubStrapi('en')
+    posts.en = { ...posts.en, articleBio: [{ author: '' }] }
+    const lifecycle = createBlogLifecycle({ outputDir })
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const error = await lifecycle
+      .afterCreate({
+        model: { singularName: 'foundation-blog-post' },
+        result: posts.en
+      } as unknown as Parameters<typeof lifecycle.afterCreate>[0])
+      .then(
+        () => {
+          throw new Error('create should have stopped')
+        },
+        (caught: unknown) => caught
+      )
+
+    expect(error).toBeInstanceOf(errors.ValidationError)
+    expect(error).toMatchObject({
+      message:
+        'The English version could not be exported: Author Bio: Name is required'
+    })
+    expect(listFiles()).toEqual([])
+  })
 })

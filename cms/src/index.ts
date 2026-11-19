@@ -37,6 +37,7 @@ import {
   validatePodcastPageFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
+  validatePathSlugOnSave,
   mergeValidationErrors,
   toValidationError,
   normalizeRelativeLinksInDocumentData,
@@ -286,6 +287,52 @@ const UNIQUE_SLUG_UIDS = [
   'api::podcast-page.podcast-page',
   'api::foundation-blog-post.foundation-blog-post'
 ] as const
+
+/**
+ * Every content type with a `pathSlug`, all checked by
+ * validatePathSlugOnSave. A test fails when a schema adds one that is not
+ * listed above.
+ */
+export const PATH_SLUG_UIDS: readonly string[] = [
+  ...UNIQUE_SLUG_UIDS,
+  ...SECTION_SCOPED_SLUG_UIDS
+]
+
+/**
+ * Content types whose route takes the pathSlug as one param, so `/a/b/`
+ * has no page: the blog is `/blog/[id]`. Every other type is `[...page]`.
+ */
+const SINGLE_SEGMENT_PATH_SLUG_UIDS: readonly string[] = [
+  'api::foundation-blog-post.foundation-blog-post'
+]
+
+/**
+ * Document-service actions that write the editor's data. Duplicate is
+ * `clone`: it writes the submitted form over a copy of the original, and
+ * skips every create/update hook.
+ */
+const WRITE_ACTIONS_WITH_DATA = new Set(['create', 'update', 'clone'])
+
+/**
+ * The pathSlug checks (INTORG-574) on every write that sets one, and the
+ * `required` rule on create. Every pathSlug type has `draftAndPublish: false`,
+ * so a save is the publish: the entry is exported to MDX straight away, and
+ * the export needs a slug for the filename.
+ */
+export function registerPathSlugValidation(strapi: {
+  documents: { use: (middleware: DocumentValidationMiddleware) => void }
+}) {
+  strapi.documents.use(async (ctx, next) => {
+    if (!PATH_SLUG_UIDS.includes(ctx.uid)) return next()
+    if (!WRITE_ACTIONS_WITH_DATA.has(ctx.action)) return next()
+    const validationErr = validatePathSlugOnSave(ctx.params.data ?? {}, {
+      isNew: ctx.action === 'create',
+      singleSegment: SINGLE_SEGMENT_PATH_SLUG_UIDS.includes(ctx.uid)
+    })
+    if (validationErr) throw validationErr
+    return next()
+  })
+}
 
 // Strapi instance type for lifecycle functions
 interface StrapiDocumentService {
@@ -1144,7 +1191,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
   // Each pathSlug hint reads: format, the type's own example, Spanish rule.
   // The podcast page's slug is fixed, so its hint skips the format note.
   const PATH_SLUG_FORMAT_NOTE =
-    'Path of the page, starting and ending with a slash. Missing slashes are added when you save.'
+    'Path of the page, starting and ending with a slash: lowercase letters, numbers and hyphens only. Missing slashes, capitals, spaces and underscores are fixed when you save.'
   // Spanish pages are served at /es/<english path slug> (ADR-004), so a
   // translated slug breaks every /es/ link that follows that rule.
   const SPANISH_PATH_SLUG_NOTE =
@@ -1225,7 +1272,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'api::foundation-blog-post.foundation-blog-post': {
       title:
         'The actual title of the blog post — shown as the article heading, in the browser tab, and in blog listings. The "Interledger Foundation |" prefix is added automatically in the browser tab.',
-      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
+      pathSlug: `${PATH_SLUG_FORMAT_NOTE} Example: /my-article-title/ → /blog/my-article-title/. Do not include /blog. Required. Generate fills it in from the title. Use it on the English entry only. ${SPANISH_PATH_SLUG_NOTE}`,
       description:
         'Short description used for SEO and card text. Aim for 120–160 characters.',
       lastUpdated:
@@ -2565,19 +2612,19 @@ export default {
     // registerDocumentValidation below for why) so it covers every content
     // type's `content` dynamic zone, regardless of which API wrote it.
     strapi.documents.use(async (ctx, next) => {
+      // Store every link in its relative form before any validation below
+      // runs: link and slug fields as /path/, our own site's origins
+      // (any environment) stripped, and the CMS origin CKEditor prefixes
+      // onto upload URLs stripped. See documentLinks.ts. Duplicate (`clone`)
+      // writes the editor's form over the copy, so it is normalized too.
+      if (WRITE_ACTIONS_WITH_DATA.has(ctx.action) && !NAV_UIDS.has(ctx.uid)) {
+        ctx.params.data = await normalizeRelativeLinksInDocumentData(
+          ctx.params.data,
+          strapi.getModel(ctx.uid),
+          (uid) => strapi.getModel(uid)
+        )
+      }
       if (ctx.action === 'create' || ctx.action === 'update') {
-        // Store every link in its relative form before any validation below
-        // runs: link and slug fields as /path/, our own site's origins
-        // (any environment) stripped, and the CMS origin CKEditor prefixes
-        // onto upload URLs stripped. See documentLinks.ts.
-        if (!NAV_UIDS.has(ctx.uid)) {
-          ctx.params.data = await normalizeRelativeLinksInDocumentData(
-            ctx.params.data,
-            strapi.getModel(ctx.uid),
-            (uid) => strapi.getModel(uid)
-          )
-        }
-
         // Drop inactive card-grid variant arrays before schema/business
         // validation so empty Title/Resource/Info/Navigation fields that
         // aren't the selected variant never fail the save. Sanitize can
@@ -2644,6 +2691,9 @@ export default {
     registerDocumentValidation(strapi, 'api::faq.faq', (body) =>
       validateFaqSections(body)
     )
+    // Every pathSlug is lowercase kebab segments (INTORG-574). The save hook
+    // above has already fixed spaces, underscores and capitals.
+    registerPathSlugValidation(strapi)
     // pathSlug on these three is relative to its Section, so none of them can
     // carry a plain `unique` constraint: /faq and /hackathon/faq are both
     // `faq` (INTORG-1132). Enforce the real rule instead, unique per Section.

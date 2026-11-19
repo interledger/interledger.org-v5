@@ -582,12 +582,9 @@ export function createBlogLifecycle({ outputDir }: { outputDir: string }) {
         post.locale === defaultLang
           ? post
           : logFetchFailure(await fetchBlogPost(result.documentId, defaultLang))
-      // Trust post.locale from fetchBlogPost (stamped only when omitted).
-      await writeMDXFile({
-        outputPath: getOutputPath(post.locale),
-        post,
-        englishSlug: enPost?.pathSlug
-      })
+      // Like afterUpdate: a failed write reaches the editor as a
+      // ValidationError naming the version, not a bare 500.
+      await writeBlogPost(post, enPost?.pathSlug)
       const ctx: SyncContext = {
         slug: post.pathSlug,
         action: 'create',
