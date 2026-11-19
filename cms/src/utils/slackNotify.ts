@@ -436,6 +436,20 @@ interface ThrottleEntry {
 }
 
 /**
+ * Drops entries whose window has passed. Each conflict has its own
+ * fingerprint, so without this the maps grow for the life of the process. An
+ * expired entry no longer suppresses anything; all it still holds is a repeat
+ * count that would only be shown if the same alert came back.
+ */
+function pruneExpired(throttle: Map<string, ThrottleEntry>, now: number): void {
+  for (const [fingerprint, entry] of throttle) {
+    if (now - entry.lastSentAt >= REPEAT_SUPPRESSION_MS) {
+      throttle.delete(fingerprint)
+    }
+  }
+}
+
+/**
  * Builds a notifier with its own throttle and health state. The notifier
  * groups alerts by root cause, not by content type. One broken repository
  * makes every content type fail at the same time.
@@ -494,6 +508,7 @@ export function createSlackGitSyncNotifier(
       return
     }
 
+    pruneExpired(throttle, now)
     throttle.set(fingerprint, { lastSentAt: now, suppressedCount: 0 })
     await post(
       url,
