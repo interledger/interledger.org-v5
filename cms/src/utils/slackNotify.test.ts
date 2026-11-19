@@ -462,6 +462,22 @@ describe('createSlackGitSyncNotifier', () => {
     expect(rendered(posts[1])).toContain('2 further failure(s)')
   })
 
+  // Every conflict has its own fingerprint, so entries that are never pruned
+  // accumulate for the life of the process.
+  it('forgets an expired fingerprint once another alert posts', async () => {
+    const { notify, posts, advance } = setup()
+
+    await notify(failure)
+    await notify(failure)
+    advance(FIFTEEN_MINUTES)
+    await notify({ ...failure, reason: 'Authentication failed' })
+    await notify(failure)
+
+    expect(posts).toHaveLength(3)
+    // The repeat count went with the pruned entry.
+    expect(rendered(posts[2])).not.toContain('further failure')
+  })
+
   it('stays quiet on a healthy sync when nothing was broken', async () => {
     const { notify, posts } = setup()
 
