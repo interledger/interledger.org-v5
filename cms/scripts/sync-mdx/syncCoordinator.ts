@@ -10,7 +10,6 @@ import {
   deleteOrphanedEntries
 } from './syncOperations'
 import { validateMdxFiles } from './validateFrontmatter'
-import { bareSlug } from '@/utils'
 import { formatIdentity, identityForMdx, identityKey } from './entryIdentity'
 
 /**
@@ -89,20 +88,7 @@ export async function syncContentType(
 
   const mdxFiles = rejectDuplicateIdentities(config, validated, results)
 
-  // Build map of all MDX identities by locale (valid + invalid) to prevent deletion
   const mdxSlugsByLocale = buildMdxSlugsByLocale(mdxFiles, config)
-  // Add invalid MDX pathSlugs so we don't delete Strapi entries that have MDX files (even if invalid)
-  for (const err of invalid) {
-    const locale = err.locale || 'en'
-    const slugSet = mdxSlugsByLocale.get(locale) ?? new Set()
-    slugSet.add(
-      identityKey({
-        pathSlug: bareSlug(err.pathSlug),
-        section: config.sectionScopedIdentity ? (err.section ?? null) : null
-      })
-    )
-    mdxSlugsByLocale.set(locale, slugSet)
-  }
 
   const englishFiles = mdxFiles.filter((mdx) => !mdx.isLocalization)
   const localeFiles = mdxFiles.filter((mdx) => mdx.isLocalization)
@@ -162,16 +148,26 @@ export async function syncContentType(
     }
   }
 
-  // Delete orphans first (all locales). Otherwise a locale file would block deletion.
-  await deleteOrphanedEntries(
-    contentType,
-    config,
-    ctx.contentTypes,
-    mdxSlugsByLocale,
-    ctx,
-    results,
-    dryRun
-  )
+  // An invalid file is skipped, and its entry is left as it is. Orphans are
+  // found by the stored pathSlug, and an invalid file's own pathSlug may be
+  // the bad value, so nothing would match its entry and it would be deleted.
+  // Until every file of the type is valid, no entry of the type is deleted.
+  if (invalid.length > 0) {
+    console.log(
+      `   ⚠️  Not deleting any ${contentType} entries: fix the invalid files first`
+    )
+  } else {
+    // Delete orphans first (all locales). Otherwise a locale file would block deletion.
+    await deleteOrphanedEntries(
+      contentType,
+      config,
+      ctx.contentTypes,
+      mdxSlugsByLocale,
+      ctx,
+      results,
+      dryRun
+    )
+  }
 
   await syncUnmatchedLocales(
     contentType,
