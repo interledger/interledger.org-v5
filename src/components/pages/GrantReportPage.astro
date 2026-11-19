@@ -99,9 +99,9 @@ const { reportingPeriodStart: periodStart, reportingPeriodEnd: periodEnd } =
   report
 
 // The first image is the cover. "From the project" shows the others with
-// their descriptions, or the cover again when it is the only image.
-const [cover, ...otherImages] = report.images
-const projectImages = otherImages.length > 0 ? otherImages : report.images
+// their descriptions, and is left out when there are none: the cover is
+// never repeated (Sarah, INTORG-1303 497d6d9c).
+const [cover, ...projectImages] = report.images
 
 // The content column is 2/3 of max-w-content (1440px) on desktop, minus the
 // 80px gap, and the full width below that.
