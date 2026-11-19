@@ -20,6 +20,7 @@ async function all(params) {
   do {
     const p = new URLSearchParams(params)
     p.append('fields[]', PUBLISHED)
+    p.set('returnFieldsByFieldId', 'true')
     if (offset) p.set('offset', offset)
     const page = await get(`https://api.airtable.com/v0/${BASE}/${PROJECTS}?${p}`)
     records.push(...page.records)
@@ -45,7 +46,7 @@ function group(records) {
   return [...counts].sort((a, b) => b[1] - a[1]).map(([k, n]) => `  ${n}  ${k}`).join('\n')
 }
 
-const meta = await get(`https://api.airtable.com/v0/meta/bases/${BASE}/tables`)
+const meta = await get(`https://api.airtable.com/v0/meta/bases/${BASE}/tables?include=visibleFieldIds`)
 const table = meta.tables.find((t) => t.id === PROJECTS)
 const field = table.fields.find((f) => f.id === PUBLISHED)
 const view = table.views.find((v) => v.id === VIEW)
