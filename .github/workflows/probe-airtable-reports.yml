@@ -212,3 +212,30 @@ jobs:
           echo "ids only after: $(jq -n --slurpfile a /tmp/before.json --slurpfile b $A '[$b[0][].id] - [$a[0][].id] | length')"
           echo "records that differ: $(jq -n --slurpfile a /tmp/before.json --slurpfile b $A '[$a[0][] as $x | $b[0][] | select(.id == $x.id and . != $x)] | length')"
           echo "field keys after: $(jq -c '[.[] | (.fields // .) | keys[]] | unique' $A)"
+
+  # ravi/intorg-1423 with the public Submitted Reports view. Counts only.
+  legacy-view-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/intorg-1423
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run the sync
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: pnpm run sync:airtable 2>&1 | grep -vE "https?://" | grep -E "ℹ️|⚠️|Error|skipped|rec[A-Za-z0-9]{14}" || true
+      - name: Counts only
+        run: |
+          L=src/data/airtable/legacy-grant-reports.json
+          echo "legacy reports: $(jq length $L)"
+          echo "grants with a link: $(jq '[.[].grantId] | unique | length' $L)"
+          echo "links per grant: $(jq -c 'group_by(.grantId) | map(length) | group_by(.) | map({(.[0]|tostring): length}) | add' $L)"
+          echo "by type: $(jq -c 'group_by(.reportType) | map({(.[0].reportType): length}) | add' $L)"
+          echo "grantee-data: $(jq length src/data/airtable/grantee-data.json)"
+          npx prettier --check $L
