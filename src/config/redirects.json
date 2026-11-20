@@ -83,12 +83,6 @@
       "note": "The ambassador FAQ is now the FAQ section on the fellowship page, so there is no separate FAQ route."
     },
     {
-      "source": "/grant/call-for-papers/Chenai-Chair/",
-      "destination": "/grant/call-for-papers/chenai-chair/",
-      "status": 301,
-      "enabled": false
-    },
-    {
       "source": "/grant/call-for-papers/community-led-financial-infrastructure-kenya/",
       "destination": "/blog/community-led-financial-infrastructure-kenya/",
       "status": 301
@@ -330,12 +324,6 @@
       "destination": "/es/grant/fellowship/",
       "status": 301,
       "note": "The ambassador FAQ is now the FAQ section on the fellowship page, so there is no separate FAQ route."
-    },
-    {
-      "source": "/es/grant/call-for-papers/Chenai-Chair/",
-      "destination": "/es/grant/call-for-papers/chenai-chair/",
-      "status": 301,
-      "enabled": false
     },
     {
       "source": "/es/grant/call-for-papers/community-led-financial-infrastructure-kenya/",
