@@ -85,7 +85,8 @@
     {
       "source": "/grant/call-for-papers/Chenai-Chair/",
       "destination": "/grant/call-for-papers/chenai-chair/",
-      "status": 301
+      "status": 301,
+      "enabled": false
     },
     {
       "source": "/grant/call-for-papers/community-led-financial-infrastructure-kenya/",
