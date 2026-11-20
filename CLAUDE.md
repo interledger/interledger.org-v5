@@ -518,6 +518,23 @@ is told only when it fails. Nobody reads the log of a run that passes.
 - The site keeps the last good data until a run passes and its pull request is
   merged: the JSON is written only after every part succeeds.
 
+## RFC Pages
+
+The pages under `/developers/rfcs/` render `interledger/rfcs` markdown from
+snapshots committed in `src/data/docs/rfcs/<id>.md`, one per entry in
+`PUBLISHED_RFCS` (`src/data/docs/rfcs.ts`). The build never fetches from
+GitHub: a GitHub outage once blocked a production publish (INTORG-1465).
+
+- **Refresh** with `pnpm sync:rfcs`. It writes nothing unless every fetch
+  succeeds, and removes snapshots of RFCs no longer published.
+  `sync-rfcs.yml` runs it every Monday and opens a PR only when something
+  changed, so upstream edits are reviewed before they ship.
+- **Publish a new RFC**: add it to `PUBLISHED_RFCS`, add its page with
+  `<Rfc id="…">`, and run `pnpm sync:rfcs`. `rfcSnapshots.test.ts` fails when
+  the list and the snapshots don't match.
+- **Don't edit or format the snapshots.** They are verbatim upstream text, so
+  `.prettierignore` skips them; the next sync would overwrite a hand edit.
+
 ## Block Intro and Spacing
 
 Every content block owns its heading area and its vertical spacing (ADR-009,

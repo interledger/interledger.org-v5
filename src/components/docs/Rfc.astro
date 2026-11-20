@@ -1,23 +1,23 @@
 ---
+import { getRfcById, type PublishedRfc } from '@/data/docs/rfcs'
+import { getRfcSnapshot } from '@/utils/docs/rfcSnapshots'
 import { renderRfcMarkdown } from '@/utils/docs/renderRfcMarkdown'
 
 interface Props {
-  source: string
+  id: PublishedRfc['id']
   docsBasePath?: string
 }
 
-const { source, docsBasePath = '/developers' } = Astro.props
+const { id, docsBasePath = '/developers' } = Astro.props
+const rfc = getRfcById(id)
+const markdown = getRfcSnapshot(id)
 
-const response = await fetch(source)
-
-if (!response.ok) {
-  throw new Error(
-    `Failed to fetch RFC markdown from ${source}: ${response.status} ${response.statusText}`
-  )
+if (markdown instanceof Error) {
+  throw markdown
 }
 
-const html = renderRfcMarkdown(await response.text(), {
-  sourceUrl: source,
+const html = renderRfcMarkdown(markdown, {
+  sourceUrl: rfc.sourceRawUrl,
   docsBasePath
 })
 ---

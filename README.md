@@ -250,17 +250,18 @@ pnpm run start
 
 All commands are run from the root of the project, from a terminal:
 
-| Command                              | Action                                                         |
-| :----------------------------------- | :------------------------------------------------------------- |
-| `pnpm install`                       | Installs dependencies                                          |
-| `pnpm run start`                     | Starts local dev server at `localhost:1103`                    |
-| `pnpm run build`                     | Build your production site to `./dist/`                        |
-| `pnpm run preview`                   | Preview your build locally, before deploying                   |
-| `pnpm run format`                    | Format code and fix linting issues                             |
-| `pnpm run lint`                      | Check code formatting and linting                              |
-| `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year |
-| `pnpm run sync:airtable`             | Fetch grantee, report and profile data (JSON + images)         |
-| `pnpm run optimize:images`           | Generate responsive WebP variants for all raster images        |
+| Command                              | Action                                                           |
+| :----------------------------------- | :--------------------------------------------------------------- |
+| `pnpm install`                       | Installs dependencies                                            |
+| `pnpm run start`                     | Starts local dev server at `localhost:1103`                      |
+| `pnpm run build`                     | Build your production site to `./dist/`                          |
+| `pnpm run preview`                   | Preview your build locally, before deploying                     |
+| `pnpm run format`                    | Format code and fix linting issues                               |
+| `pnpm run lint`                      | Check code formatting and linting                                |
+| `pnpm run sync:sessionize -- <YEAR>` | Fetch Sessionize data (JSON + speaker images) for a given year   |
+| `pnpm run sync:airtable`             | Fetch grantee, report and profile data (JSON + images)           |
+| `pnpm run sync:rfcs`                 | Snapshot the published RFCs' markdown into `src/data/docs/rfcs/` |
+| `pnpm run optimize:images`           | Generate responsive WebP variants for all raster images          |
 
 ### 🔍 Code Formatting
 
@@ -575,7 +576,7 @@ Docs live in `src/content/docs`.
 
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
-RFC pages under `src/content/docs/rfcs/` are a small exception. Those route files wrap the upstream markdown from the `interledger/rfcs` repository via `src/components/Rfc.astro`. Internal RFC-to-RFC links are rewritten in `src/utils/docs/rewriteRfcLinks.ts` so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
+RFC pages under `src/content/docs/developers/rfcs/` are a small exception. Each one renders the markdown of an `interledger/rfcs` RFC through `src/components/docs/Rfc.astro`, from a snapshot committed in `src/data/docs/rfcs/`; the build never fetches from GitHub. To refresh the snapshots, run `pnpm run sync:rfcs`. A weekly workflow does the same and opens a pull request when an RFC changed. Internal RFC-to-RFC links are rewritten so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
 
 Write internal links in docs markdown with a trailing slash (`[Get involved](/developers/get-involved/)`); a link without one fails the build. Strapi never sees these files, so nothing adds the slash for you.
 
