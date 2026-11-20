@@ -171,3 +171,16 @@ jobs:
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
         run: node scripts/probe-published-filter.mjs
+
+  # The PUBLIC views Jeremiah named (PRO-371 fd7a8291). Counts and field names only.
+  new-views:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Compare the new views with the current ones
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: node scripts/probe-new-views.mjs
