@@ -184,3 +184,31 @@ jobs:
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
         run: node scripts/probe-new-views.mjs
+
+  # ravi/airtable-public-view: the sync on the new Projects view, compared with
+  # staging's grantee-data.json. Counts only.
+  public-view-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/airtable-public-view
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: cp src/data/airtable/grantee-data.json /tmp/before.json
+      - name: Run the sync
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: pnpm run sync:airtable 2>&1 | grep -E "ℹ️|⚠️|Error|records" || true
+      - name: Compare with staging, counts only
+        run: |
+          A=src/data/airtable/grantee-data.json
+          echo "before: $(jq length /tmp/before.json), after: $(jq length $A)"
+          echo "ids only before: $(jq -n --slurpfile a /tmp/before.json --slurpfile b $A '[$a[0][].id] - [$b[0][].id] | length')"
+          echo "ids only after: $(jq -n --slurpfile a /tmp/before.json --slurpfile b $A '[$b[0][].id] - [$a[0][].id] | length')"
+          echo "records that differ: $(jq -n --slurpfile a /tmp/before.json --slurpfile b $A '[$a[0][] as $x | $b[0][] | select(.id == $x.id and . != $x)] | length')"
+          echo "field keys after: $(jq -c '[.[] | (.fields // .) | keys[]] | unique' $A)"
