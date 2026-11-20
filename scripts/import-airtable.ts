@@ -58,7 +58,10 @@ import {
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
-const VIEW_ID = 'viwE6kqV1lvcIz2Ms' // Directory Data View April 2026
+// Projects - PUBLIC - LIVE ON WEBSITE: the published grants and the public
+// columns only (Jeremiah, PRO-371). The sync still filters on Published on
+// Website, so a view that lets other rows through cannot publish them.
+const VIEW_ID = 'viwib6oaE7FpfCpOO'
 const CONTACTS_TABLE_ID = 'tbliIEy9J06bTV8Su' // Contacts
 const PUBLISHED_ON_WEBSITE_FIELD_ID = 'fldI1myVN2uQs6Lqz' // Published on Website field in Projects table
 const PUBLISHED_REPORTS_TABLE_ID = 'tblHfL0Eh1KOSX98h' // Published Reports
