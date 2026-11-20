@@ -43,7 +43,7 @@ const prevLabel = t('pagination.previous')
 const nextLabel = t('pagination.next')
 const paginationClasses = twMerge('flex justify-center', className)
 const listClasses =
-  'flex flex-row flex-wrap gap-sm items-center m-0 p-0 list-none [&_li]:mb-0 [&_li]:flex'
+  'flex flex-row flex-nowrap gap-0 tablet:gap-sm items-center m-0 p-0 list-none [&_li]:mb-0 [&_li]:flex'
 const linkClasses = `
 inline-block p-sm no-underline bg-transparent rounded-lg
 text-body-sm-standard text-neutral-75 transition-all duration-200 ease-in-out
@@ -80,7 +80,7 @@ focus-visible:bg-link focus-visible:text-neutral-0 focus-visible:outline-none
         <li>
           <span
             aria-hidden="true"
-            class="inline-block m-sm w-[24px] h-[24px] text-center"
+            class="inline-block m-xs tablet:m-sm w-[24px] h-[24px] text-center"
           >
             &hellip;
           </span>
