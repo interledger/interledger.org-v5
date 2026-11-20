@@ -12,6 +12,7 @@ import {
   type GranteeDirectoryEntry,
   type GranteeDirectorySources
 } from './granteeDirectory'
+import { useTranslations } from './i18'
 
 // `./routes` -> `./locales` reaches Astro's virtual modules for i18n config,
 // mocked as in grantReports.test.ts.
@@ -422,7 +423,10 @@ describe('buildGranteeDirectory report links', () => {
     expect(link?.href).toBe(
       '/es/grant/grantees/grantee-a/reports/20260504-interim-1/'
     )
-    expect(link?.label).toBe('Informe intermedio 1')
+    // Read the expected text from the Spanish UI strings, which may be blank
+    // and fall back to English until approved translations land.
+    const t = useTranslations('es')
+    expect(link?.label).toBe(`${t('grantReport.type.interim')} 1`)
   })
 
   it('ignores a report whose project is not in the directory', () => {
