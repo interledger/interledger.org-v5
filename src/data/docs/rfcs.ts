@@ -8,7 +8,7 @@ export type PublishedRfc = {
   sourceRawUrl: string
 }
 
-const PUBLISHED_RFCS = [
+export const PUBLISHED_RFCS = [
   {
     id: 'interledger-protocol',
     title: 'Interledger Protocol V4 (ILPv4)',
@@ -89,6 +89,9 @@ const PUBLISHED_RFCS = [
 ] as const satisfies readonly PublishedRfc[]
 
 const DOCS_BASE_PATH = '/developers'
+
+/** Where `pnpm sync:rfcs` writes each RFC's markdown, as `<id>.md`. */
+export const RFC_SNAPSHOT_DIR = 'src/data/docs/rfcs'
 
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
   label: rfc.title,

@@ -1,0 +1,103 @@
+# Refreshes the RFC snapshots in src/data/docs/rfcs/ from interledger/rfcs and
+# opens a pull request when anything changed, so RFC updates are reviewed
+# before they reach the site. The build itself never fetches RFCs.
+
+name: Sync RFCs
+
+on:
+  schedule:
+    - cron: '0 7 * * 1' # Mondays 07:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: sync-rfcs
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      SNAPSHOT_DIR: src/data/docs/rfcs
+      SYNC_BRANCH: chore/rfc-sync
+      BASE_BRANCH: staging
+    steps:
+      # An app token, not GITHUB_TOKEN, so the pull request triggers PR checks.
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.PUBLISH_APP_ID }}
+          private-key: ${{ secrets.PUBLISH_APP_PRIVATE_KEY }}
+
+      - name: Check out staging
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Sync RFC snapshots
+        id: sync
+        run: |
+          set -euo pipefail
+          pnpm run sync:rfcs
+          git add -A -- "$SNAPSHOT_DIR"
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "RFC snapshots unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push the sync branch
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git checkout -B "$SYNC_BRANCH"
+          git commit -m 'chore(docs): sync RFC snapshots'
+          git push --force origin "HEAD:refs/heads/$SYNC_BRANCH"
+
+      - name: Open or update the pull request
+        if: steps.sync.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          BODY_FILE="$RUNNER_TEMP/pr-body.md"
+          cat > "$BODY_FILE" <<'EOF'
+          Weekly refresh of the RFC pages under `/developers/rfcs/` from
+          [interledger/rfcs](https://github.com/interledger/rfcs), opened by
+          `.github/workflows/sync-rfcs.yml`.
+
+          Review the diff in `src/data/docs/rfcs/`: it is the upstream change
+          that will appear on the site when this merges.
+
+          This branch is rebuilt and force-pushed on every run, so commits
+          pushed to it by hand are discarded.
+          EOF
+
+          PR_NUMBER="$(gh pr list --head "$SYNC_BRANCH" --base "$BASE_BRANCH" \
+            --state open --json number --jq '.[0].number // empty')"
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" --body-file "$BODY_FILE"
+            PR_URL="$(gh pr view "$PR_NUMBER" --json url --jq .url)"
+          else
+            PR_URL="$(gh pr create --base "$BASE_BRANCH" --head "$SYNC_BRANCH" \
+              --title 'chore(docs): sync RFC snapshots' --body-file "$BODY_FILE")"
+          fi
+          echo "RFC snapshots changed: $PR_URL" >> "$GITHUB_STEP_SUMMARY"
