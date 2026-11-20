@@ -72,10 +72,9 @@ const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
 const GRANTEES_TABLE_ID = 'tblfIGFjK88ZmLxNI' // Grantees
 const GRANTEES_VIEW_ID = 'viwE0ixrnaCsXt5X0' // Grid view: every field is public (PRO-371)
 const SUBMITTED_REPORTS_TABLE_ID = 'tblrHejb5zgUggFm2' // Submitted Reports
-// The PUBLIC view of Submitted Reports for the legacy report links (INTORG-1423). Null
-// until Programs add it: the legacy part then writes an empty list, because
-// the rest of that table is private.
-const LEGACY_REPORTS_VIEW_ID: string | null = null
+// Submitted Reports - PUBLIC - LIVE ON WEBSITE: the legacy report links
+// (INTORG-1423, Jeremiah in PRO-371). The rest of that table is private.
+const LEGACY_REPORTS_VIEW_ID = 'viwUz24vteQsjPz6N'
 
 const PUBLIC_DIR = path.resolve('./public')
 const GRANTEE_JSON_FILE = 'grantee-data.json'
@@ -378,12 +377,6 @@ async function fetchLegacyGrantReports(
   meta: TableMeta,
   apiToken: string
 ): Promise<LegacyGrantReport[]> {
-  if (LEGACY_REPORTS_VIEW_ID === null) {
-    console.log(
-      'ℹ️  Legacy grant reports: no PUBLIC view of Submitted Reports yet, writing none'
-    )
-    return []
-  }
   const table = findById(
     meta.tables,
     SUBMITTED_REPORTS_TABLE_ID,
