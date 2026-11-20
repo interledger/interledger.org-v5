@@ -480,6 +480,7 @@ export interface DonationCardsBlock extends StrapiBlockBase {
  */
 export interface TimelineBlock extends StrapiBlockBase {
   __component: 'blocks.timeline'
+  intro?: SerializedBlockIntro
   sections: TimelineSection[]
 }
 
