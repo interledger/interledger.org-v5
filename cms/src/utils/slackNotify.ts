@@ -1,5 +1,7 @@
+import fs from 'fs'
 import os from 'os'
-import { tryCatchAsync } from './tryCatch'
+import path from 'path'
+import { tryCatch, tryCatchAsync } from './tryCatch'
 
 /** This value stops a slow Slack webhook from blocking a content lifecycle hook. */
 const WEBHOOK_TIMEOUT_MS = 5_000
@@ -11,6 +13,8 @@ const WEBHOOK_TIMEOUT_MS = 5_000
 const REPEAT_SUPPRESSION_MS = 15 * 60 * 1_000
 /** This value keeps the end of the text. The useful line is usually near the end. */
 const MAX_DETAIL_CHARS = 1_000
+/** This value keeps the start of a failure reason, where the cause is stated. */
+const MAX_REASON_CHARS = 500
 /** A Slack section block rejects text over 3000 characters. A long path list has to stop somewhere. */
 const MAX_LISTED_PATHS = 20
 /**
@@ -64,6 +68,12 @@ export interface GitSyncAlert {
    * overwrite was empty.
    */
   detailsUnavailable?: boolean
+  /**
+   * The overwrite is decided and staged, but the push failed. It reaches the
+   * branch with the next successful save, which announces nothing, so this
+   * alert is sent now and says so.
+   */
+  pendingPush?: boolean
 }
 
 export type NotifyGitSync = (alert: GitSyncAlert) => Promise<void>
@@ -113,6 +123,8 @@ export interface SlackNotifierDeps {
   now: () => number
   webhookUrl: () => string | null
   hostname: () => string
+  /** The branch checked out in `repoRoot`, or `null` when it cannot be read. */
+  branch: (repoRoot: string) => string | null
 }
 
 // ── Configuration ────────────────────────────────────────────────────────────
@@ -162,6 +174,11 @@ interface SlackPayload {
 
 export interface SlackMessageInput extends GitSyncAlert {
   hostname: string
+  /**
+   * The deploy branch, which is what tells staging and playground apart: both
+   * hosts run with `NODE_ENV=production`, so that value names neither.
+   */
+  branch?: string | null
   /** The number of repeat alerts the throttle blocked since the last post. */
   suppressedCount?: number
 }
@@ -193,10 +210,10 @@ export function formatPathList(paths: string[]): string {
 }
 
 /** The identifying context fields every alert carries. */
-function contextFields(input: SlackMessageInput, environment: string) {
+function contextFields(input: SlackMessageInput) {
   return [
     field('Host', input.hostname),
-    field('Environment', environment),
+    field('Branch', input.branch ?? 'unknown'),
     field('Repo', input.repoRoot),
     field('Content type', input.label)
   ]
@@ -209,7 +226,6 @@ function contextFields(input: SlackMessageInput, environment: string) {
  * silently reverted PR and a surprised developer.
  */
 function buildConflictPayload(input: SlackMessageInput): SlackPayload {
-  const environment = process.env.NODE_ENV ?? 'unknown'
   const overwritten = input.overwrittenPaths ?? []
   const resolved = input.resolvedPaths ?? []
   const superseded = input.supersededCommits ?? []
@@ -224,7 +240,7 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
     ? `⚠️ Strapi git sync may have overwritten branch changes on ${input.hostname}`
     : `⚠️ Strapi git sync overwrote ${affected.size} file(s) on ${input.hostname}`
 
-  const fields = contextFields(input, environment)
+  const fields = contextFields(input)
   if (input.commitMessage) fields.push(field('Commit', input.commitMessage))
   if (input.author) {
     fields.push(field('Editor', `${input.author.name} <${input.author.email}>`))
@@ -243,9 +259,13 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
     : `⚠️ *Strapi git sync overwrote branch changes*\n` +
       `A CMS save conflicted with commits already on the branch. Policy is that the ` +
       `CMS wins, so the editor's version was kept.`
+  const pending = input.pendingPush
+    ? `\n*Not pushed yet:* the push failed (see the failure alert), and the ` +
+      `next successful save pushes this overwrite without another notice.`
+    : ''
 
   const blocks: unknown[] = [
-    { type: 'section', text: { type: 'mrkdwn', text: headline } },
+    { type: 'section', text: { type: 'mrkdwn', text: headline + pending } },
     { type: 'section', fields }
   ]
 
@@ -301,9 +321,29 @@ function buildConflictPayload(input: SlackMessageInput): SlackPayload {
   return { text, blocks }
 }
 
-export function buildSlackPayload(input: SlackMessageInput): SlackPayload {
-  const environment = process.env.NODE_ENV ?? 'unknown'
+/**
+ * The failure headline. The reason is stated here, not only in the detail
+ * block: a killed or silent command has no output, so the block can be empty,
+ * and for a refusal the reason is the only text saying what a human must do.
+ */
+function failureHeadline(input: SlackMessageInput): string {
+  const branch = input.branch
+    ? `the \`${input.branch}\` branch`
+    : 'the deploy branch'
+  const lines = [
+    `❌ *Strapi git sync failed*`,
+    `Content changes are not reaching ${branch}.`
+  ]
+  if (input.reason) {
+    const reason = redactSecrets(input.reason.trim())
+    lines.push(
+      `*Reason:* ${reason.length > MAX_REASON_CHARS ? `${reason.slice(0, MAX_REASON_CHARS)}…` : reason}`
+    )
+  }
+  return lines.join('\n')
+}
 
+export function buildSlackPayload(input: SlackMessageInput): SlackPayload {
   if (input.outcome === 'conflict-resolved') return buildConflictPayload(input)
 
   if (input.outcome === 'healthy') {
@@ -315,36 +355,30 @@ export function buildSlackPayload(input: SlackMessageInput): SlackPayload {
           type: 'section',
           text: { type: 'mrkdwn', text: `✅ *Strapi git sync recovered*` }
         },
-        { type: 'section', fields: contextFields(input, environment) }
+        { type: 'section', fields: contextFields(input) }
       ]
     }
   }
 
   const text = `❌ Strapi git sync failed on ${input.hostname}`
-  const fields = contextFields(input, environment)
+  const fields = contextFields(input)
   if (input.commitMessage) fields.push(field('Commit', input.commitMessage))
   if (input.author) {
     fields.push(field('Editor', `${input.author.name} <${input.author.email}>`))
   }
 
   const blocks: unknown[] = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `❌ *Strapi git sync failed*\nContent changes are not reaching the staging branch.`
-      }
-    },
+    { type: 'section', text: { type: 'mrkdwn', text: failureHeadline(input) } },
     { type: 'section', fields }
   ]
 
-  if (input.detail) {
+  // Git's output is stdout and stderr joined by a newline, so a command that
+  // printed nothing still arrives as non-empty text.
+  const detail = truncateDetail(redactSecrets(input.detail ?? ''))
+  if (detail) {
     blocks.push({
       type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `\`\`\`${truncateDetail(redactSecrets(input.detail))}\`\`\``
-      }
+      text: { type: 'mrkdwn', text: `\`\`\`${detail}\`\`\`` }
     })
   }
 
@@ -365,16 +399,54 @@ export function buildSlackPayload(input: SlackMessageInput): SlackPayload {
 
 // ── Notifier ─────────────────────────────────────────────────────────────────
 
+/**
+ * Mid-rebase HEAD is detached, and that is exactly when a failure is likely,
+ * so the branch being rebased is read from the rebase state as a fallback.
+ */
+const BRANCH_REF_FILES = [
+  'HEAD',
+  'rebase-merge/head-name',
+  'rebase-apply/head-name'
+] as const
+const BRANCH_REF = /^(?:ref: )?refs\/heads\/(.+)$/
+
+export function readCheckedOutBranch(repoRoot: string): string | null {
+  for (const file of BRANCH_REF_FILES) {
+    const contents = tryCatch(() =>
+      fs.readFileSync(path.join(repoRoot, '.git', file), 'utf8')
+    )
+    if (contents instanceof Error) continue
+    const match = BRANCH_REF.exec(contents.trim())
+    if (match) return match[1]
+  }
+  return null
+}
+
 const defaultNotifierDeps: SlackNotifierDeps = {
   fetch: (url, init) => fetch(url, init),
   now: () => Date.now(),
   webhookUrl: getSlackWebhookUrl,
-  hostname: () => os.hostname()
+  hostname: () => os.hostname(),
+  branch: readCheckedOutBranch
 }
 
 interface ThrottleEntry {
   lastSentAt: number
   suppressedCount: number
+}
+
+/**
+ * Drops entries whose window has passed. Each conflict has its own
+ * fingerprint, so without this the maps grow for the life of the process. An
+ * expired entry no longer suppresses anything; all it still holds is a repeat
+ * count that would only be shown if the same alert came back.
+ */
+function pruneExpired(throttle: Map<string, ThrottleEntry>, now: number): void {
+  for (const [fingerprint, entry] of throttle) {
+    if (now - entry.lastSentAt >= REPEAT_SUPPRESSION_MS) {
+      throttle.delete(fingerprint)
+    }
+  }
 }
 
 /**
@@ -426,7 +498,7 @@ export function createSlackGitSyncNotifier(
     throttle: Map<string, ThrottleEntry>,
     fingerprint: string,
     alert: GitSyncAlert,
-    hostname: string
+    where: { hostname: string; branch: string | null }
   ): Promise<void> {
     const entry = throttle.get(fingerprint)
     const now = deps.now()
@@ -436,12 +508,13 @@ export function createSlackGitSyncNotifier(
       return
     }
 
+    pruneExpired(throttle, now)
     throttle.set(fingerprint, { lastSentAt: now, suppressedCount: 0 })
     await post(
       url,
       buildSlackPayload({
         ...alert,
-        hostname,
+        ...where,
         suppressedCount: entry?.suppressedCount ?? 0
       })
     )
@@ -453,7 +526,10 @@ export function createSlackGitSyncNotifier(
     // guard checks real deployments.
     if (!url) return
 
-    const hostname = deps.hostname()
+    const where = {
+      hostname: deps.hostname(),
+      branch: deps.branch(alert.repoRoot)
+    }
 
     // An audit record, not a health signal. It has to fire on a repo that was
     // never unhealthy (the normal case for a conflict), must not set
@@ -466,7 +542,7 @@ export function createSlackGitSyncNotifier(
         conflictThrottle,
         conflictFingerprint(alert),
         alert,
-        hostname
+        where
       )
       return
     }
@@ -477,14 +553,14 @@ export function createSlackGitSyncNotifier(
       // Only the failure fingerprints. Conflict notices are an audit trail,
       // not a health signal, and must survive an unrelated recovery.
       failureThrottle.clear()
-      await post(url, buildSlackPayload({ ...alert, hostname }))
+      await post(url, buildSlackPayload({ ...alert, ...where }))
       return
     }
 
     unhealthy = true
 
     const fingerprint = redactSecrets(alert.reason ?? 'unknown failure')
-    await postThrottled(url, failureThrottle, fingerprint, alert, hostname)
+    await postThrottled(url, failureThrottle, fingerprint, alert, where)
   }
 }
 

@@ -124,9 +124,20 @@ Implementation notes that are easy to get wrong:
 - **The checkout is never left mid-rebase.** Every unsalvageable rebase ends in
   `git rebase --abort`, and a sync that finds an interrupted rebase, merge or
   cherry-pick from an earlier run clears it first — then pushes whatever
-  commits that run never got out. Before this, one conflict wedged the clone
+  commits that run never got out. Only the abort for the state present runs,
+  and a failed abort is an error, never `--quit`: that clears the state but
+  leaves HEAD detached where the rebase stopped, and the next save would
+  commit there. Before this, one conflict wedged the clone
   until someone cleared it by hand: every later save failed, and so did the
   daily workflow's integrate step.
+- **Clearing it keeps what editors saved.** `--abort` resets every tracked
+  file, so a page Strapi wrote into the stuck checkout would be thrown away
+  while the editor still saw it saved, and the next `sync:mdx` would make that
+  permanent. Both the sync and the daily workflow copy aside every file under
+  `src/content/` and `public/uploads/img/original/` that differs from HEAD and
+  has no conflict markers, and put it back after the abort. Strapi writes
+  whole files, so a marker-free file is an editor's write; one with markers is
+  git's half-merge and is left for the abort to undo.
 - **Giving up unwinds the commit** with `git reset --soft HEAD~1`, but only when
   the sync provably made it: the checkout was level with origin before it
   committed and is exactly one ahead now. An ahead-count of one alone is not
@@ -163,6 +174,17 @@ Implementation notes that are easy to get wrong:
   untracked files the incoming commits add and refuses to integrate, with the
   checkout untouched. The check is a snapshot — a save landing between it and
   the rebase can still stop the rebase — which fails the same safe way.
+- **A conflicted autostash pop comes after the rebase**, so there is nothing to
+  abort. A content conflict on a CMS-owned path takes the stashed (editor's)
+  file and is announced as `kept-cms`. Anything else puts every conflicted
+  path back to the rebased HEAD and keeps `stash@{0}` for a human: left
+  unmerged, the index blocks the unwind and every later commit, and no
+  rebase state exists for recovery to find.
+- **The conflict probe names only files the rebase replays.** `merge-tree`
+  merges from the merge-base and the rebase from the fork point, which differ
+  after a force-push. The probe keeps only the paths changed between the fork
+  point and HEAD. `merge-tree --merge-base` would be exact, but needs git 2.40
+  and the VMs run 2.39.
 
 ### Git Sync Repository Target
 
