@@ -151,7 +151,7 @@
     "grantIds": ["recKKe8b3Qj4cwDaI"],
     "grantCount": 1,
     "totalCommitted": 2705.3,
-    "legacyReportCount": 0,
+    "legacyReportCount": 1,
     "thematicTags": ["Convening", "Financial Services"],
     "logo": null
   },
@@ -1658,7 +1658,7 @@
     "grantIds": ["recdNOosoAdLTwvdY"],
     "grantCount": 1,
     "totalCommitted": 20000,
-    "legacyReportCount": 0,
+    "legacyReportCount": 1,
     "thematicTags": ["Web Monetization"],
     "logo": null
   },
@@ -6247,7 +6247,7 @@
     "grantIds": ["recURBMOzfGHxGjhC"],
     "grantCount": 1,
     "totalCommitted": 10000,
-    "legacyReportCount": 1,
+    "legacyReportCount": 2,
     "thematicTags": ["Publishing", "Web Monetization"],
     "logo": null
   },
