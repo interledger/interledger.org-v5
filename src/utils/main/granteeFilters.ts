@@ -31,30 +31,51 @@ export interface GranteeFilters {
   tag: string
 }
 
+/** The fields a project needs for the year and tag filters. */
+export interface FilterableGranteeProject {
+  year: string
+  tags: string[]
+}
+
+/** The fields a grantee needs to be filtered: its projects and its search text. */
+export interface FilterableGrantee {
+  projects: FilterableGranteeProject[]
+  searchText: string
+}
+
+function matchesYearAndTag(
+  project: FilterableGranteeProject,
+  { year, tag }: GranteeFilters
+): boolean {
+  if (year && project.year !== year) return false
+  return (
+    !tag || project.tags.some((projectTag) => generateSlug(projectTag) === tag)
+  )
+}
+
 /**
- * Structural rather than `Pick<Grantee, …>` so any record carrying these three
- * fields can be filtered — the client-side search index ships a lighter entry
- * shape than `Grantee`. Fold both sides here so a query matches regardless of
- * case or accents, even if `searchText` was not folded when the index was built.
+ * A grantee matches when one of its projects has both the year and the tag,
+ * so 2024 + Privacy needs a 2024 Privacy project, not a 2024 project and an
+ * older Privacy one. The query matches the grantee's whole search text.
+ * Structural, so the build listing and the lighter client search entry both
+ * fit. Both sides are folded, so case and accents never matter.
  */
 export function matchesGranteeFilters(
-  grantee: { year: string; tags: string[]; searchText: string },
+  grantee: FilterableGrantee,
   filters: GranteeFilters
 ): boolean {
-  if (filters.year && grantee.year !== filters.year) return false
   if (
-    filters.tag &&
-    !grantee.tags.some((tag) => generateSlug(tag) === filters.tag)
+    !grantee.projects.some((project) => matchesYearAndTag(project, filters))
   ) {
     return false
   }
   const query = foldSearchText(filters.q?.trim() ?? '')
-  if (query && !foldSearchText(grantee.searchText).includes(query)) return false
-  return true
+  return !query || foldSearchText(grantee.searchText).includes(query)
 }
 
-export function filterGrantees<
-  T extends { year: string; tags: string[]; searchText: string }
->(grantees: T[], filters: GranteeFilters): T[] {
+export function filterGrantees<T extends FilterableGrantee>(
+  grantees: T[],
+  filters: GranteeFilters
+): T[] {
   return grantees.filter((grantee) => matchesGranteeFilters(grantee, filters))
 }

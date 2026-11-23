@@ -1637,6 +1637,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaDocument: 'Link is a document'
     },
     'blocks.timeline': {
+      intro: 'Intro',
       sections: 'Sections'
     },
     'blocks.timeline-section': {
@@ -2227,6 +2228,10 @@ async function configureLayouts(strapi: StrapiInstance) {
     'blocks.number-tiles': [
       [{ name: 'intro', size: 12 }],
       [{ name: 'tiles', size: 12 }]
+    ],
+    'blocks.timeline': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'sections', size: 12 }]
     ],
     'blocks.number-tile': [
       [
