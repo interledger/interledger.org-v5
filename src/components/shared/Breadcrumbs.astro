@@ -21,20 +21,24 @@ const rowClasses = twMerge(
   'mb-2xl flex w-full min-w-0 flex-col items-start gap-2xl tablet:mb-3xl tablet:flex-row tablet:items-center tablet:gap-lg',
   className
 )
+// The trail wraps rather than clipping. Each crumb keeps whole on its line
+// unless it alone is wider than the line, and then it truncates (INTORG-1464).
 const breadcrumbClasses =
-  'flex min-w-0 w-full flex-nowrap items-center overflow-hidden list-none m-0 p-0 gap-xs [&_a]:no-underline text-neutral-75 dark:text-neutral-50 [&_svg]:text-current'
+  'flex min-w-0 w-full flex-wrap items-center overflow-hidden list-none m-0 p-0 gap-xs [&_a]:no-underline text-neutral-75 dark:text-neutral-50 [&_svg]:text-current'
 const crumbPaddingClass = 'p-xs'
 const chevronMarginClass = 'my-xs shrink-0'
 
 function getItemClasses(isLast: boolean): string {
   if (isLast) {
-    return 'flex min-w-0 flex-1 overflow-hidden m-0'
+    // basis-0 with a floor keeps a long title on the trail's line, truncated,
+    // while 8rem is free. With less room, it wraps to a line of its own.
+    return 'flex min-w-32 max-w-full grow basis-0 overflow-hidden m-0'
   }
-  return 'flex shrink-0 m-0'
+  return 'flex min-w-0 max-w-full m-0'
 }
 
 function getLinkClasses(): string {
-  return `inline-block ${crumbPaddingClass} text-body-lg-standard text-neutral-75 dark:text-neutral-50 rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-link hover:text-neutral-900 dark:hover:text-neutral-0`
+  return `min-w-0 truncate ${crumbPaddingClass} text-body-lg-standard text-neutral-75 dark:text-neutral-50 rounded-lg border border-transparent focus-visible:outline-none focus-visible:border-link hover:text-neutral-900 dark:hover:text-neutral-0`
 }
 
 function getCurrentClasses(isLast: boolean): string {
