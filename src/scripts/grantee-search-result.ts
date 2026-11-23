@@ -1,4 +1,8 @@
-import type { GranteeSearchEntry } from '@/utils/main/grantee'
+import type {
+  GranteeReportLink,
+  GranteeSearchEntry,
+  GranteeSearchProject
+} from '@/utils/main/granteeDirectory'
 import { getGranteeFilterUrl } from '@/utils/main/granteeFilters'
 import { generateSlug } from '@/utils/main/slug'
 import {
@@ -11,8 +15,8 @@ import {
 const SEARCH_QUERY_PARAM = 'q'
 
 /**
- * Carry the live search onto a same-origin href. External destinations
- * (view-details) are left alone. Hash is preserved.
+ * Carry the live search onto a same-origin href. External destinations are
+ * left alone. Hash is preserved.
  *
  * Empty query returns `href` unchanged — including a leftover `?q=`. Callers
  * that need to strip search must pass the pre-search href (see
@@ -53,8 +57,9 @@ export interface SearchResultContext {
   searchQuery: string
   pathname: string
   lang: string
-  viewDetailsLabel: string
-  readMoreLabel: string
+  /** "{count} grants"; `grantCountOneLabel` is the singular. */
+  grantCountTemplate: string
+  grantCountOneLabel: string
 }
 
 export interface SearchResultTagModel {
@@ -63,9 +68,19 @@ export interface SearchResultTagModel {
   umami: UmamiTrackAttrs
 }
 
-export interface SearchResultDetailsModel {
+export interface SearchResultReportModel {
+  label: string
   href: string
+  external?: boolean
   umami: UmamiAttrs
+}
+
+export interface SearchResultProjectModel {
+  name: string
+  program: string | null
+  budgetLabel: string | null
+  /** Null while the report pages are hidden: no reports line at all. */
+  reports: SearchResultReportModel[] | null
 }
 
 /**
@@ -74,20 +89,12 @@ export interface SearchResultDetailsModel {
  */
 export interface SearchResultRowModel {
   name: string
-  program: string | null
-  budgetLabel: string | null
   tags: SearchResultTagModel[]
   country: string | null
   startLabel: string | null
   startMonth: string | null
-  leaders: string | null
-  leadersHasDescriptionSpacer: boolean
-  /** Trusted build-time HTML from the search index. */
-  descriptionHtml: string | null
-  /** `aria-controls` target shared by the description text and its toggle. */
-  descriptionId: string
-  readMoreUmami: UmamiAttrs | null
-  details: SearchResultDetailsModel | null
+  grantCount: string
+  projects: SearchResultProjectModel[]
 }
 
 function tagPillModel(
@@ -118,53 +125,65 @@ function tagPillModel(
   }
 }
 
+function reportModel(
+  report: GranteeReportLink,
+  context: SearchResultContext
+): SearchResultReportModel {
+  return {
+    label: report.label,
+    href: report.href,
+    external: report.external,
+    umami: buildUmamiAttrs({
+      pathname: context.pathname,
+      lang: context.lang,
+      label: 'button_card',
+      baseComponent: 'grantee_cards',
+      linkText: report.label,
+      href: report.href
+    })
+  }
+}
+
+function projectModel(
+  project: GranteeSearchProject,
+  context: SearchResultContext
+): SearchResultProjectModel {
+  return {
+    name: project.name,
+    program: project.program || null,
+    budgetLabel: project.budgetLabel || null,
+    reports:
+      project.reports &&
+      project.reports.map((report) => reportModel(report, context))
+  }
+}
+
+/** "1 grant" or "3 grants", from the labels the page passes in. */
+export function formatGrantCount(
+  count: number,
+  context: Pick<
+    SearchResultContext,
+    'grantCountTemplate' | 'grantCountOneLabel'
+  >
+): string {
+  if (count === 1) return context.grantCountOneLabel
+  return context.grantCountTemplate.replaceAll('{count}', String(count))
+}
+
 /** Pure row payload. `createSearchResultRow` is the template applicator. */
 export function searchResultRowModel(
   entry: GranteeSearchEntry,
   context: SearchResultContext,
   pageOrigin: string
 ): SearchResultRowModel {
-  const leaders = entry.leaders.length > 0 ? entry.leaders.join(', ') : null
-  const descriptionHtml = entry.descriptionHtml || null
-  const detailsHref = entry.projectUrl || null
-
   return {
     name: entry.name,
-    program: entry.program || null,
-    budgetLabel: entry.budgetLabel || null,
     tags: entry.tags.map((tag) => tagPillModel(tag, context, pageOrigin)),
     country: entry.country || null,
     startLabel: entry.startLabel || null,
     startMonth: entry.startMonth || null,
-    leaders,
-    leadersHasDescriptionSpacer: Boolean(leaders && descriptionHtml),
-    descriptionHtml,
-    // Distinct from GranteeCard's `grantee-desc-*`: the static list stays in
-    // the DOM (hidden) while search rows render.
-    descriptionId: `grantee-search-desc-${entry.id}`,
-    readMoreUmami: descriptionHtml
-      ? buildUmamiAttrs({
-          pathname: context.pathname,
-          lang: context.lang,
-          label: 'button_ui',
-          baseComponent: 'grantee_cards',
-          linkText: context.readMoreLabel,
-          href: context.pathname
-        })
-      : null,
-    details: detailsHref
-      ? {
-          href: detailsHref,
-          umami: buildUmamiAttrs({
-            pathname: context.pathname,
-            lang: context.lang,
-            label: 'button_card',
-            baseComponent: 'grantee_cards',
-            href: detailsHref,
-            linkText: context.viewDetailsLabel
-          })
-        }
-      : null
+    grantCount: formatGrantCount(entry.projects.length, context),
+    projects: entry.projects.map((project) => projectModel(project, context))
   }
 }
 
@@ -179,16 +198,8 @@ function requireElement<T extends Element>(
   return el as T
 }
 
-function setTextContent(el: Element | null, text: string): void {
-  if (el) el.textContent = text
-}
-
-function show(el: HTMLElement | null): void {
-  if (el) el.hidden = false
-}
-
-function hide(el: HTMLElement | null): void {
-  if (el) el.hidden = true
+function setTextContent(el: Element, text: string): void {
+  el.textContent = text
 }
 
 function applyUmamiAttrs(
@@ -205,12 +216,20 @@ function fillOrHide(
   visible: boolean,
   fill?: () => void
 ): void {
-  if (visible) {
-    fill?.()
-    show(wrap)
-  } else {
-    hide(wrap)
-  }
+  if (visible) fill?.()
+  wrap.hidden = !visible
+}
+
+function cloneTemplate(template: HTMLTemplateElement): DocumentFragment {
+  return template.content.cloneNode(true) as DocumentFragment
+}
+
+/** The `<template>`s a result is built from, all in GranteeSearchResultTemplate.astro. */
+export interface SearchResultTemplates {
+  row: HTMLTemplateElement
+  tag: HTMLTemplateElement
+  project: HTMLTemplateElement
+  report: HTMLTemplateElement
 }
 
 function appendTagPill(
@@ -218,10 +237,8 @@ function appendTagPill(
   tagTemplate: HTMLTemplateElement,
   tag: SearchResultTagModel
 ): void {
-  const fragment = tagTemplate.content.cloneNode(true) as DocumentFragment
-  const pill = fragment.querySelector('a')
-  if (!pill) return
-
+  const fragment = cloneTemplate(tagTemplate)
+  const pill = requireElement<HTMLAnchorElement>(fragment, 'a')
   pill.href = tag.href
   pill.textContent = tag.text
   applyUmamiAttrs(pill, tag.umami)
@@ -276,57 +293,94 @@ function fillMeta(row: HTMLElement, model: SearchResultRowModel): void {
   fillOrHide(metaWrap, Boolean(model.country || model.startLabel))
 }
 
-function fillDescription(row: HTMLElement, model: SearchResultRowModel): void {
-  const descriptionPanel = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-description-panel]'
+function appendReportLink(
+  list: HTMLElement,
+  reportTemplate: HTMLTemplateElement,
+  report: SearchResultReportModel,
+  projectName: string
+): void {
+  const fragment = cloneTemplate(reportTemplate)
+  const link = requireElement<HTMLAnchorElement>(fragment, 'a')
+  link.href = report.href
+  requireElement<HTMLElement>(
+    link,
+    '[data-grantee-search-report-external]'
+  ).hidden = !report.external
+  if (report.external) {
+    link.target = '_blank'
+    link.rel = 'noopener noreferrer'
+    requireElement<HTMLElement>(
+      link,
+      '[data-grantee-search-report-new-tab]'
+    ).hidden = false
+  }
+  applyUmamiAttrs(link, report.umami)
+  setTextContent(
+    requireElement(link, '[data-grantee-search-report-label]'),
+    report.label
   )
-  const leadersWrap = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-leaders-wrap]'
+  setTextContent(
+    requireElement(link, '[data-grantee-search-report-project]'),
+    `, ${projectName}`
   )
-  const text = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-description]'
-  )
-  const toggle = requireElement<HTMLButtonElement>(
-    row,
-    '[data-grantee-description-toggle]'
-  )
-
-  fillOrHide(leadersWrap, Boolean(model.leaders), () => {
-    setTextContent(
-      requireElement(row, '[data-grantee-search-leaders]'),
-      model.leaders ?? ''
-    )
-    leadersWrap.classList.toggle('mb-lg', model.leadersHasDescriptionSpacer)
-  })
-  fillOrHide(text, Boolean(model.descriptionHtml), () => {
-    text.innerHTML = model.descriptionHtml ?? ''
-    text.id = model.descriptionId
-    toggle.setAttribute('aria-controls', model.descriptionId)
-    if (model.readMoreUmami) applyUmamiAttrs(toggle, model.readMoreUmami)
-  })
-  // Revealed by grantee-description.ts once the clamped text overflows.
-  hide(toggle)
-  fillOrHide(descriptionPanel, Boolean(model.leaders || model.descriptionHtml))
+  list.append(fragment)
 }
 
-function fillDetails(row: HTMLElement, model: SearchResultRowModel): void {
-  const detailsWrap = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-details-wrap]'
+function fillReports(
+  item: HTMLElement,
+  reportTemplate: HTMLTemplateElement,
+  project: SearchResultProjectModel
+): void {
+  const noReports = requireElement<HTMLElement>(
+    item,
+    '[data-grantee-search-no-reports]'
   )
-  const detailsLink = requireElement<HTMLAnchorElement>(
-    row,
-    '[data-grantee-search-details-link]'
+  const reportList = requireElement<HTMLElement>(
+    item,
+    '[data-grantee-search-reports]'
   )
-  fillOrHide(detailsWrap, Boolean(model.details), () => {
-    const details = model.details
-    if (!details) return
-    detailsLink.href = details.href
-    applyUmamiAttrs(detailsLink, details.umami)
+  const reports = project.reports ?? []
+  noReports.hidden = project.reports === null || reports.length > 0
+  fillOrHide(reportList, reports.length > 0, () => {
+    reports.forEach((report) =>
+      appendReportLink(reportList, reportTemplate, report, project.name)
+    )
   })
+}
+
+function appendProject(
+  list: HTMLElement,
+  templates: SearchResultTemplates,
+  project: SearchResultProjectModel
+): void {
+  const fragment = cloneTemplate(templates.project)
+  const item = requireElement<HTMLLIElement>(fragment, 'li')
+
+  setTextContent(
+    requireElement(item, '[data-grantee-search-project-name]'),
+    project.name
+  )
+  const program = requireElement<HTMLElement>(
+    item,
+    '[data-grantee-search-program]'
+  )
+  fillOrHide(program, Boolean(project.program), () => {
+    setTextContent(program, project.program ?? '')
+  })
+  const budget = requireElement<HTMLElement>(
+    item,
+    '[data-grantee-search-budget]'
+  )
+  fillOrHide(budget, Boolean(project.budgetLabel), () => {
+    // "{amount} USD committed", translated by the template.
+    const template = budget.dataset.template ?? '{amount}'
+    setTextContent(
+      budget,
+      template.replaceAll('{amount}', project.budgetLabel ?? '')
+    )
+  })
+  fillReports(item, templates.report, project)
+  list.append(fragment)
 }
 
 /**
@@ -335,38 +389,26 @@ function fillDetails(row: HTMLElement, model: SearchResultRowModel): void {
  */
 export function createSearchResultRow(
   entry: GranteeSearchEntry,
-  rowTemplate: HTMLTemplateElement,
-  tagTemplate: HTMLTemplateElement,
+  templates: SearchResultTemplates,
   context: SearchResultContext
 ): HTMLLIElement {
   const model = searchResultRowModel(entry, context, window.location.origin)
-  const fragment = rowTemplate.content.cloneNode(true) as DocumentFragment
+  const fragment = cloneTemplate(templates.row)
   const row = requireElement<HTMLLIElement>(fragment, 'li')
 
   setTextContent(requireElement(row, '[data-grantee-search-name]'), model.name)
-
-  const program = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-program]'
-  )
-  fillOrHide(program, Boolean(model.program), () => {
-    setTextContent(program, model.program ?? '')
-  })
-
-  const budgetWrap = requireElement<HTMLElement>(
-    row,
-    '[data-grantee-search-budget-wrap]'
-  )
-  fillOrHide(budgetWrap, Boolean(model.budgetLabel), () => {
-    setTextContent(
-      requireElement(row, '[data-grantee-search-budget-amount]'),
-      model.budgetLabel ?? ''
-    )
-  })
-
-  fillTags(row, tagTemplate, model.tags)
   fillMeta(row, model)
-  fillDescription(row, model)
-  fillDetails(row, model)
+  fillTags(row, templates.tag, model.tags)
+  setTextContent(
+    requireElement(row, '[data-grantee-search-grant-count]'),
+    model.grantCount
+  )
+  const projects = requireElement<HTMLElement>(
+    row,
+    '[data-grantee-search-projects]'
+  )
+  model.projects.forEach((project) =>
+    appendProject(projects, templates, project)
+  )
   return row
 }

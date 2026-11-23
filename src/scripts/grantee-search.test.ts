@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
-import type { GranteeSearchEntry } from '@/utils/main/grantee'
+import type { GranteeSearchEntry } from '@/utils/main/granteeDirectory'
 import {
   computeSearchViewState,
   createSearchController,
@@ -16,16 +16,21 @@ function sampleSearchEntry(
   return {
     id: 'rec1',
     name: 'Test',
-    program: '',
-    year: '2024',
     country: '',
     startMonth: '',
     startLabel: '',
-    leaders: [],
     tags: [],
-    descriptionHtml: null,
-    projectUrl: null,
-    budgetLabel: null,
+    projects: [
+      {
+        id: 'recP1',
+        name: 'Wallet pilot',
+        program: '',
+        year: '2024',
+        tags: [],
+        budgetLabel: null,
+        reports: null
+      }
+    ],
     searchText: 'test',
     ...overrides
   }
@@ -204,13 +209,23 @@ describe('parseGranteeSearchIndex', () => {
     expect(parseGranteeSearchIndex([{ id: 'rec1' }])).toBeInstanceOf(Error)
   })
 
-  it('returns an Error for a pre-descriptionHtml entry that only has a snippet', () => {
+  it('returns an Error for a pre-grouping entry that carries one project', () => {
     const legacy: Record<string, unknown> = {
       ...sampleSearchEntry(),
-      descriptionSnippet: 'Old'
+      program: '',
+      year: '2024'
     }
-    delete legacy.descriptionHtml
+    delete legacy.projects
     expect(parseGranteeSearchIndex([legacy])).toBeInstanceOf(Error)
+  })
+
+  it('returns an Error when a report link is malformed', () => {
+    const entry = sampleSearchEntry()
+    const broken = {
+      ...entry,
+      projects: [{ ...entry.projects[0], reports: [{ label: 'Interim' }] }]
+    }
+    expect(parseGranteeSearchIndex([broken])).toBeInstanceOf(Error)
   })
 
   it('returns typed entries when the payload is valid', () => {
@@ -351,8 +366,8 @@ describe('createSearchController stale responses', () => {
         searchQuery,
         pathname: '/grant/grantee-directory',
         lang: 'en',
-        viewDetailsLabel: 'View project details',
-        readMoreLabel: 'Read more'
+        grantCountTemplate: '{count} grants',
+        grantCountOneLabel: '1 grant'
       }),
       getInputValue
     })

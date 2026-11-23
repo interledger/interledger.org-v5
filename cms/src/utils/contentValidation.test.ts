@@ -16,6 +16,8 @@ import {
   validatePodcastPageFields,
   validateBlogFields,
   validateCardGridVariantsForContentType,
+  validatePathSlugFormat,
+  validatePathSlugOnSave,
   mergeValidationErrors,
   toValidationError,
   SerializerFieldError
@@ -1508,5 +1510,81 @@ describe('card grid variant restrictions', () => {
       'api::grant-page.grant-page'
     )
     expect(err).toBeUndefined()
+  })
+})
+
+describe('validatePathSlugFormat', () => {
+  it('passes a valid pathSlug', () => {
+    expect(validatePathSlugFormat({ pathSlug: '/about-us/' })).toBeUndefined()
+  })
+
+  // A partial update: the stored slug stays.
+  it('skips a write without a pathSlug', () => {
+    expect(validatePathSlugFormat({ title: 'About' })).toBeUndefined()
+  })
+
+  // Empty is the `required` check's, so the editor sees one message.
+  it('leaves an empty pathSlug to the required check', () => {
+    expect(validatePathSlugFormat({ pathSlug: '' })).toBeUndefined()
+  })
+
+  it('highlights Path Slug with the characters to remove', () => {
+    const error = validatePathSlugFormat({
+      pathSlug: 'pdf page? 122%21_13&13ne#ads!'
+    })
+    expect(error).toBeInstanceOf(errors.ValidationError)
+    const message =
+      "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /title-of-the-page/."
+    expect(error?.message).toBe(message)
+    expect(error?.details).toEqual({
+      errors: [{ path: ['pathSlug'], message, name: 'ValidationError' }]
+    })
+  })
+})
+
+describe('validatePathSlugOnSave', () => {
+  const required =
+    "Path Slug is required. Enter the page's path, like /title-of-the-page/."
+  const requiredError = {
+    errors: [{ path: ['pathSlug'], message: required, name: 'ValidationError' }]
+  }
+
+  // A save is the publish, and the MDX export needs a filename. Strapi's
+  // `required` lets '' through, and the blog's uid isn't `required` at all.
+  it.each([[''], ['  '], [null], [undefined]])(
+    'refuses to create with pathSlug %j',
+    (pathSlug) => {
+      const error = validatePathSlugOnSave({ pathSlug }, { isNew: true })
+      expect(error).toBeInstanceOf(errors.ValidationError)
+      expect(error?.details).toEqual(requiredError)
+    }
+  )
+
+  it.each([[''], [null]])('refuses an update that sets %j', (pathSlug) => {
+    expect(
+      validatePathSlugOnSave({ pathSlug }, { isNew: false })?.details
+    ).toEqual(requiredError)
+  })
+
+  // A partial update: the stored slug stays.
+  it('lets an update leave the pathSlug out', () => {
+    expect(
+      validatePathSlugOnSave({ title: 'About' }, { isNew: false })
+    ).toBeUndefined()
+  })
+
+  it('applies the format rules', () => {
+    expect(
+      validatePathSlugOnSave({ pathSlug: '/a%b/' }, { isNew: true })
+    ).toBeInstanceOf(errors.ValidationError)
+    expect(
+      validatePathSlugOnSave(
+        { pathSlug: '/a/b/' },
+        { isNew: true, singleSegment: true }
+      )
+    ).toBeInstanceOf(errors.ValidationError)
+    expect(
+      validatePathSlugOnSave({ pathSlug: '/about-us/' }, { isNew: true })
+    ).toBeUndefined()
   })
 })

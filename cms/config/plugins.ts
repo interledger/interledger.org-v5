@@ -20,6 +20,10 @@ export default () => ({
     enabled: true,
     resolve: './src/plugins/related-article-slug'
   },
+  'path-slug': {
+    enabled: true,
+    resolve: './src/plugins/path-slug'
+  },
   'record-locking': {
     enabled: true,
     config: {

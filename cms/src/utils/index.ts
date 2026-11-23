@@ -130,12 +130,16 @@ export {
   validateBlogFields,
   validateNavigationLabels,
   validateCardGridVariantsForContentType,
+  validatePathSlugFormat,
+  validatePathSlugOnSave,
+  type PathSlugSaveRules,
   toValidationError,
   mergeValidationErrors,
   SerializerFieldError,
   type FieldError
 } from './contentValidation'
 export { relatedArticleSlugError } from './relatedArticleSlug'
+export { pathSlugOnBlur, visiblePathSlugError } from './pathSlugField'
 
 // Section-relative pathSlug uniqueness (cross-section content types)
 export {
@@ -306,10 +310,12 @@ export {
 } from './pageLifecycle'
 export {
   createBlogLifecycle,
+  findMovedBlogFiles,
   generateBlogMDX,
   resolveBlogEnglishSlug,
   resolveBlogMdxFilename,
-  stampBlogLocale
+  stampBlogLocale,
+  type BlogFilepaths
 } from './blogLifecycle'
 export {
   type ProfileMdxCta,
@@ -416,6 +422,9 @@ export {
   slugVariants,
   toSlashedPath,
   toSlashedSlug,
+  toCanonicalPathSlug,
+  pathSlugFormatError,
+  isPathSlugFormatMessage,
   isRelatedArticleSlug,
   mapOutsideMarkdownCode,
   slashInternalMarkdownLinks,

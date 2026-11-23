@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import {
   faqFrontmatterSchema,
@@ -53,6 +54,18 @@ describe('foundationBlogFrontmatterSchema', () => {
     })
 
     expect(parsed.lastUpdated).toBeInstanceOf(Date)
+  })
+
+  // /blog/[id] takes one param: a nested slug failed the build with
+  // "Missing parameter: id".
+  it('rejects a pathSlug with a slash inside it', () => {
+    const result = foundationBlogFrontmatterSchema.safeParse({
+      ...base,
+      pathSlug: '/foundation-blog-post/carlos-madrigal/'
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.message).toMatch(/slash inside it/)
   })
 
   it('rejects an unknown category', () => {
@@ -519,5 +532,83 @@ describe('draft', () => {
     })
 
     expect(parsed).not.toHaveProperty('draft')
+  })
+})
+
+// Same rule as `pathSlugFormatError` in cms/src/utils/relativeLinks.ts. A file
+// edited in the repo skips the CMS save hook, so the build catches it
+// (INTORG-574).
+describe('pathSlug format', () => {
+  const page = { title: 'T', description: 'D' }
+
+  it.each([
+    '/about-us/',
+    'about-us',
+    '/grant/education/on-campus/',
+    '/2025/judges/jane-doe/'
+  ])('accepts %j', (pathSlug) => {
+    expect(
+      foundationPageFrontmatterSchema.safeParse({ ...page, pathSlug }).success
+    ).toBe(true)
+  })
+
+  it.each([
+    '/About-Us/',
+    '/about us/',
+    '/about_us/',
+    '/about--us/',
+    '/-about/',
+    '/grant//education/',
+    '/what-is-web3.0/',
+    '/café/',
+    '/pdf page? 122%21_13&13ne#ads!/'
+  ])('rejects %j', (pathSlug) => {
+    const result = foundationPageFrontmatterSchema.safeParse({
+      ...page,
+      pathSlug
+    })
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.message).toMatch(
+      /^pathSlug can only use lowercase letters/
+    )
+  })
+
+  it('reports an empty pathSlug only as required', () => {
+    const result = foundationPageFrontmatterSchema.safeParse({
+      ...page,
+      pathSlug: '/'
+    })
+    expect(result.error?.issues.map((issue) => issue.message)).toEqual([
+      'pathSlug is required'
+    ])
+  })
+
+  it('applies to the cross-section collections too', () => {
+    const result = profileFrontmatterSchema.safeParse({
+      name: 'N',
+      section: 'foundation',
+      pathSlug: '/Jane Doe/'
+    })
+    expect(result.error?.issues).toContainEqual(
+      expect.objectContaining({
+        path: ['pathSlug'],
+        message: expect.stringMatching(/^pathSlug can only use/)
+      })
+    )
+  })
+})
+
+// The CMS corrects and checks pathSlug on save with its own copy of the
+// segment pattern. The two must match, or a slug the CMS saves fails the build.
+describe('pathSlug segment pattern', () => {
+  const segmentIn = (file: string) =>
+    /const PATH_SLUG_SEGMENT = '([^']+)'/.exec(
+      readFileSync(new URL(file, import.meta.url), 'utf8')
+    )?.[1]
+
+  it('is the same in the CMS and in the content schema', () => {
+    const cms = segmentIn('../../cms/src/utils/relativeLinks.ts')
+    expect(cms).toBeTruthy()
+    expect(segmentIn('./content.ts')).toBe(cms)
   })
 })

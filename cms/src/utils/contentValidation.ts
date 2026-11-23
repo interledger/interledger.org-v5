@@ -18,6 +18,11 @@ import { hasConflictingCtaFlags } from './ctaButtons'
 import { isCtaStripColor } from './ctaStrip'
 import { hasMediaValue, type MediaValue } from './mdx'
 import { relatedArticleSlugError } from './relatedArticleSlug'
+import {
+  PATH_SLUG_REQUIRED_MESSAGE,
+  pathSlugFormatError,
+  type PathSlugRules
+} from './relativeLinks'
 
 export interface FieldError {
   path: Array<string | number>
@@ -104,6 +109,51 @@ export function mergeValidationErrors(
   return new errors.ValidationError(present[0]!.message, {
     errors: allFieldErrors
   })
+}
+
+/**
+ * Reject a pathSlug that is not lowercase kebab segments (INTORG-574). The
+ * save hook has already corrected spaces, underscores and capitals, so what
+ * reaches here has characters only the editor can decide about.
+ */
+export function validatePathSlugFormat(
+  data: Record<string, unknown>,
+  rules: PathSlugRules = {}
+): errors.ValidationError | undefined {
+  const { pathSlug } = data
+  if (typeof pathSlug !== 'string') return undefined
+  const message = pathSlugFormatError(pathSlug, rules)
+  return message
+    ? combineFieldErrors([{ path: ['pathSlug'], message }])
+    : undefined
+}
+
+export interface PathSlugSaveRules extends PathSlugRules {
+  /** A create, which must bring a pathSlug. An update may leave it out. */
+  isNew: boolean
+}
+
+/**
+ * {@link validatePathSlugFormat}, plus the `required` rule: a create needs a
+ * pathSlug, and an update that sends one can't blank it. This is the rule
+ * for the blog, whose uid field can't carry Strapi's `required` (the admin
+ * would pre-fill it with `/foundation-blog-post/` before there is a title).
+ * It also catches `''`, which Strapi's `required` lets through. Without a
+ * slug the save's MDX export has no filename and fails with a 500.
+ */
+export function validatePathSlugOnSave(
+  data: Record<string, unknown>,
+  { isNew, ...rules }: PathSlugSaveRules
+): errors.ValidationError | undefined {
+  const { pathSlug } = data
+  const sent = pathSlug !== undefined
+  const blank = typeof pathSlug !== 'string' || !pathSlug.trim()
+  if ((isNew || sent) && blank) {
+    return combineFieldErrors([
+      { path: ['pathSlug'], message: PATH_SLUG_REQUIRED_MESSAGE }
+    ])
+  }
+  return validatePathSlugFormat(data, rules)
 }
 
 /**

@@ -540,7 +540,7 @@ Every content block owns its heading area and its vertical spacing (ADR-009,
   so it never collapses. The tokens (`--intro-*`, `--block-pb`, `--para-*`,
   `--media-pt`) live in `src/styles/base/variables.css`.
 - **The bridge stays.** Plain Markdown and the blocks without the marker
-  (such as CodeBlock, CalloutText, Timeline, DonationCards, CTA buttons
+  (such as CodeBlock, CalloutText, DonationCards, CTA buttons
   without an intro, or a Split layout in an older ratio without one) don't
   own their spacing. The bridge rules in `prose/rhythm.css` and
   `utilities/spacing.css` (`page-stack`) keep 120 on desktop between the two

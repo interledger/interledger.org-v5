@@ -37,6 +37,10 @@ export {
   toAstroRedirects
 } from './shared/redirects'
 export {
+  TABLE_SCROLL_CLASS,
+  wrapScrollableTables
+} from './shared/wrapScrollableTables'
+export {
   parseStatNumber,
   formatStatNumber,
   buildNumberTileAriaLabel
@@ -191,28 +195,41 @@ export {
   isGranteeYearSlug,
   matchesGranteeFilters,
   filterGrantees,
+  type FilterableGrantee,
+  type FilterableGranteeProject,
   type GranteeFilters
 } from './main/granteeFilters'
 export {
+  compareByStartMonth,
+  parseGranteeRecords,
+  normalizeCountry,
+  formatBudgetAmount,
+  formatStartMonth,
+  type GranteeProject
+} from './main/grantee'
+export {
   GRANTEE_PAGE_SIZE,
+  buildGranteeDirectory,
   getGranteeListingData,
   getGranteeSearchIndex,
   paginateGranteesByYear,
   paginateGranteesByTag,
   paginateGranteesByYearAndTag,
-  parseGranteeRecords,
   uniqueFilterOptions,
-  normalizeCountry,
-  formatBudgetAmount,
-  formatStartMonth,
-  type Grantee,
+  type GranteeDirectoryEntry,
+  type GranteeDirectoryProject,
+  type GranteeDirectorySources,
   type GranteeFilterOption,
   type GranteeListingData,
-  type GranteeSearchEntry
-} from './main/grantee'
+  type GranteeReportLink,
+  type GranteeSearchEntry,
+  type GranteeSearchProject
+} from './main/granteeDirectory'
 export {
   formatReportDate,
   getGrantReportRoutes,
+  compareGrantReports,
+  grantReportLabel,
   grantReportPath,
   grantReportSegment,
   parseGrantReports,
@@ -282,10 +299,6 @@ export {
   parseMarkdownInline
 } from './main/mdx'
 export { getTableScrollAriaLabel } from './main/getTableScrollAriaLabel'
-export {
-  TABLE_SCROLL_CLASS,
-  wrapScrollableTables
-} from './main/wrapScrollableTables'
 export {
   createDisplayPlainText,
   createExcerpt,

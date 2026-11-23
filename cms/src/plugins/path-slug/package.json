@@ -1,0 +1,15 @@
+{
+  "name": "strapi-plugin-path-slug",
+  "version": "1.0.0",
+  "exports": {
+    "./strapi-admin": {
+      "import": "./strapi-admin.ts"
+    }
+  },
+  "strapi": {
+    "name": "path-slug",
+    "kind": "plugin",
+    "displayName": "Path Slug",
+    "description": "Page path input that corrects and checks the slug as the editor types"
+  }
+}

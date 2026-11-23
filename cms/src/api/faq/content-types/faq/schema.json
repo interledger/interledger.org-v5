@@ -28,7 +28,8 @@
       "description": "Used for the browser tab title and breadcrumb label."
     },
     "pathSlug": {
-      "type": "string",
+      "type": "customField",
+      "customField": "plugin::path-slug.path-slug",
       "required": true,
       "pluginOptions": {
         "i18n": {

@@ -7,8 +7,7 @@ import {
 
 describe('matchesGranteeFilters', () => {
   const grantee = {
-    year: '2024',
-    tags: ['Privacy'],
+    projects: [{ year: '2024', tags: ['Privacy'] }],
     searchText: 'people’s clearing house privacy germany'
   }
 
@@ -66,15 +65,58 @@ describe('matchesGranteeFilters', () => {
       })
     ).toBe(false)
   })
+
+  it('needs one project with both the year and the tag', () => {
+    const twoProjects = {
+      projects: [
+        { year: '2024', tags: ['Education'] },
+        { year: '2020', tags: ['Privacy'] }
+      ],
+      searchText: ''
+    }
+    const filters = { q: '', year: '2024', tag: 'privacy' }
+    expect(matchesGranteeFilters(twoProjects, filters)).toBe(false)
+    expect(
+      matchesGranteeFilters(twoProjects, { ...filters, year: '2020' })
+    ).toBe(true)
+  })
+
+  it('matches a grantee by any of its projects', () => {
+    const twoProjects = {
+      projects: [
+        { year: '2024', tags: ['Education'] },
+        { year: '2020', tags: ['Privacy'] }
+      ],
+      searchText: ''
+    }
+    expect(
+      matchesGranteeFilters(twoProjects, { q: '', year: '2020', tag: '' })
+    ).toBe(true)
+  })
+
+  it('never matches a grantee with no projects', () => {
+    expect(
+      matchesGranteeFilters(
+        { projects: [], searchText: 'anything' },
+        { q: '', year: '', tag: '' }
+      )
+    ).toBe(false)
+  })
 })
 
 describe('filterGrantees', () => {
-  // Structural fixtures, not full `Grantee` records: filterGrantees is generic
-  // over anything carrying year/tags/searchText, which is what lets the
-  // client-side search index reuse it.
+  // Structural fixtures, not full directory entries: filterGrantees is
+  // generic over anything carrying projects and searchText, which is what
+  // lets the client-side search index reuse it.
   const entries = [
-    { year: '2024', tags: ['Privacy'], searchText: 'clearing house' },
-    { year: '2025', tags: ['Education'], searchText: 'campus lab' }
+    {
+      projects: [{ year: '2024', tags: ['Privacy'] }],
+      searchText: 'clearing house'
+    },
+    {
+      projects: [{ year: '2025', tags: ['Education'] }],
+      searchText: 'campus lab'
+    }
   ]
 
   it('returns only records matching the year filter', () => {

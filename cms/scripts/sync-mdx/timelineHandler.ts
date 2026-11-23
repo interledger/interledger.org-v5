@@ -1,6 +1,6 @@
 /**
  * Timeline component handler for the MDX block parser. Handles:
- * <Timeline sections={[{ heading, subheading, description, events: [{ date, description, tag }] }, ...]} />
+ * <Timeline intro={{"heading":"Our journey"}} sections={[{ heading, subheading, description, events: [{ date, description, tag }] }, ...]} />
  *
  * Maps to Strapi blocks.timeline. Every field is plain text with a fixed
  * shape, so the sections arrive as a static array prop rather than as child
@@ -17,7 +17,7 @@ import {
   type ParsedBlock,
   type TimelineBlock
 } from './types.blocks'
-import { getStaticLiteralAttr } from './jsxExtract'
+import { getIntroAttr, getStaticLiteralAttr } from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -52,8 +52,10 @@ async function handleTimeline(
       })
     }
 
+    const intro = getIntroAttr(node)
     const block: TimelineBlock = {
       __component: 'blocks.timeline',
+      ...(intro ? { intro } : {}),
       sections
     }
 

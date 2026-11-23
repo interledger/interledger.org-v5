@@ -27,7 +27,8 @@
       }
     },
     "pathSlug": {
-      "type": "string",
+      "type": "customField",
+      "customField": "plugin::path-slug.path-slug",
       "required": true,
       "pluginOptions": {
         "i18n": {
