@@ -107,6 +107,11 @@ const [cover, ...projectImages] = report.images
 // 80px gap, and the full width below that.
 const CONTENT_IMAGE_SIZES = '(min-width: 1200px) 907px, 100vw'
 
+// Images keep their own shape and are never cropped (Sarah, INTORG-1470).
+// The cap (the Figma cover's 600px) stops a tall image from filling the screen.
+const UNCROPPED_IMAGE_CLASSES =
+  'w-auto max-w-full h-auto max-h-[min(37.5rem,70svh)]'
+
 const pillClasses =
   'inline-block px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full'
 ---
@@ -172,9 +177,6 @@ const pillClasses =
           )}
         </p>
 
-        {/* Grantees upload banners and screenshots with text in them, so the
-          cover keeps its own shape. The max height (the Figma cover's 600px)
-          stops a tall image from filling the screen. */}
         {cover && (
           <OptimizedImage
             src={cover.path}
@@ -182,7 +184,7 @@ const pillClasses =
             width={cover.width}
             height={cover.height}
             sizes={CONTENT_IMAGE_SIZES}
-            class="mt-xl tablet:mt-2xl desktop:mt-4xl w-auto max-w-full h-auto max-h-[min(37.5rem,70svh)] rounded-3xl"
+            class={`mt-xl tablet:mt-2xl desktop:mt-4xl rounded-3xl ${UNCROPPED_IMAGE_CLASSES}`}
             loading="eager"
             fetchpriority="high"
           />
@@ -261,7 +263,7 @@ const pillClasses =
                   width={image.width}
                   height={image.height}
                   sizes={CONTENT_IMAGE_SIZES}
-                  class="w-full h-auto rounded-2xl"
+                  class={`rounded-2xl ${UNCROPPED_IMAGE_CLASSES}`}
                   loading="lazy"
                 />
                 {image.alt && <figcaption
