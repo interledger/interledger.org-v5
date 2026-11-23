@@ -1,0 +1,67 @@
+import { readdirSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+import { describe, expect, it } from 'vitest'
+
+const SESSIONIZE_DIR = path.resolve(__dirname, 'data/sessionize')
+
+/**
+ * Summit talk and speaker text must reach the repo as plain text (INTORG-1402).
+ * Astro escapes `{text}` once on render, so an apostrophe stored as `&#039;`
+ * would ship as `&amp;#039;` and show the entity, as the Drupal summit pages
+ * did. A hit here means a sync or hand edit stored HTML-escaped text: decode
+ * it in the data, never render the field with `set:html`.
+ */
+const HTML_ENTITY = /&(?:#\d+|#x[\da-f]+|[a-z][a-z\d]*);/i
+
+function collectStrings(value: unknown, at: string): [string, string][] {
+  if (typeof value === 'string') return [[at, value]]
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) =>
+      collectStrings(item, `${at}[${index}]`)
+    )
+  }
+  if (value && typeof value === 'object') {
+    return Object.entries(value).flatMap(([key, item]) =>
+      collectStrings(item, `${at}.${key}`)
+    )
+  }
+  return []
+}
+
+function findHtmlEntities(file: string): string[] {
+  const data: unknown = JSON.parse(readFileSync(file, 'utf8'))
+  return collectStrings(data, path.basename(file))
+    .filter(([, text]) => HTML_ENTITY.test(text))
+    .map(([at, text]) => `${at}: ${text.match(HTML_ENTITY)?.[0]}`)
+}
+
+const sessionizeFiles = readdirSync(SESSIONIZE_DIR)
+  .filter((file) => file.endsWith('.json'))
+  .map((file) => path.join(SESSIONIZE_DIR, file))
+
+describe('Sessionize data HTML entities', () => {
+  it('recognizes numeric, hex and named entities', () => {
+    expect(HTML_ENTITY.test('India&#039;s')).toBe(true)
+    expect(HTML_ENTITY.test('India&#x27;s')).toBe(true)
+    expect(HTML_ENTITY.test('Q&amp;A')).toBe(true)
+    expect(HTML_ENTITY.test("India's")).toBe(false)
+    expect(HTML_ENTITY.test('R & D, Q&A')).toBe(false)
+  })
+
+  it('reports where each entity sits in nested data', () => {
+    expect(
+      collectStrings({ sessions: [{ description: 'a' }] }, 'talks.json')
+    ).toEqual([['talks.json.sessions[0].description', 'a']])
+  })
+
+  it('finds the Sessionize files', () => {
+    expect(sessionizeFiles.length).toBeGreaterThan(0)
+  })
+
+  it.each(sessionizeFiles.map((file) => [path.basename(file), file]))(
+    '%s stores plain text, not HTML entities',
+    (_name, file) => {
+      expect(findHtmlEntities(file)).toEqual([])
+    }
+  )
+})
