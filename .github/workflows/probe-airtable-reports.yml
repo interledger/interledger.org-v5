@@ -239,3 +239,39 @@ jobs:
           echo "by type: $(jq -c 'group_by(.reportType) | map({(.[0].reportType): length}) | add' $L)"
           echo "grantee-data: $(jq length src/data/airtable/grantee-data.json)"
           npx prettier --check $L
+
+  # Grants whose Project Links has a URL but Submitted Reports has no row. Counts only.
+  links-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ravi/intorg-1423
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Run the sync
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+        run: pnpm run sync:airtable > /dev/null 2>&1
+      - name: Compare, counts only
+        run: |
+          node -e '
+            const g = require("./src/data/airtable/grantee-data.json");
+            const l = require("./src/data/airtable/legacy-grant-reports.json");
+            const legacy = new Map();
+            for (const r of l) legacy.set(r.grantId, (legacy.get(r.grantId) ?? 0) + 1);
+            const urls = (f) => (String(f["Project Links"] ?? "").match(/https?:\/\/[^\s,;]+/g) ?? []).length;
+            let both = 0, linksOnly = 0, legacyOnly = 0, none = 0, moreLinks = 0;
+            for (const rec of g) {
+              const u = urls(rec.fields ?? rec), n = legacy.get(rec.id) ?? 0;
+              if (u && n) { both++; if (u > n) moreLinks++ }
+              else if (u) linksOnly++;
+              else if (n) legacyOnly++;
+              else none++;
+            }
+            console.log({ grants: g.length, both, linksOnly, legacyOnly, none, moreLinksThanLegacyRows: moreLinks });
+          '
