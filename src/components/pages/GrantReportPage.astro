@@ -172,6 +172,9 @@ const pillClasses =
           )}
         </p>
 
+        {/* Grantees upload banners and screenshots with text in them, so the
+          cover keeps its own shape. The max height (the Figma cover's 600px)
+          stops a tall image from filling the screen. */}
         {cover && (
           <OptimizedImage
             src={cover.path}
@@ -179,7 +182,7 @@ const pillClasses =
             width={cover.width}
             height={cover.height}
             sizes={CONTENT_IMAGE_SIZES}
-            class="mt-xl tablet:mt-2xl desktop:mt-4xl w-full h-auto aspect-[3/2] rounded-3xl object-cover"
+            class="mt-xl tablet:mt-2xl desktop:mt-4xl w-auto max-w-full h-auto max-h-[min(37.5rem,70svh)] rounded-3xl"
             loading="eager"
             fetchpriority="high"
           />
