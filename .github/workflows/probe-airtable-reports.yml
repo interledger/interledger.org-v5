@@ -268,8 +268,8 @@ jobs:
             let both = 0, linksOnly = 0, legacyOnly = 0, none = 0, moreLinks = 0;
             for (const rec of g) {
               const u = urls(rec.fields ?? rec), n = legacy.get(rec.id) ?? 0;
-              if (u && n) { both++; if (u > n) moreLinks++ }
-              else if (u) linksOnly++;
+              if (u && n) { both++; if (u > n) { moreLinks++; console.log(`more links: ${rec.id} project links ${u}, rows ${n}`) } }
+              else if (u) { linksOnly++; console.log(`links only: ${rec.id} project links ${u}`) }
               else if (n) legacyOnly++;
               else none++;
             }
