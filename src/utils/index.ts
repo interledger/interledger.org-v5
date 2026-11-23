@@ -358,6 +358,7 @@ export {
   getSessionPages
 } from './main/summit-talks-speakers'
 export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
+export { summitBaseHref, summitYearHref } from './main/summitRoutes'
 
 // Main site: Images
 export {

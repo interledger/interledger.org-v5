@@ -133,6 +133,7 @@ export const ui = {
     'pagination.pages': '{label} pages',
     'pagination.previous': 'Previous page',
     'pagination.next': 'Next page',
+    'pagination.page': 'Page {page}',
     'grantee.title': 'Grantee Directory',
     'grantee.meta_description':
       "Browse the Interledger Foundation's grantee directory: community organizations, researchers, technologists, and advocates building open financial systems around the world.",

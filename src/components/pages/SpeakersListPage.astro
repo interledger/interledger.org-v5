@@ -1,10 +1,16 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import SpeakersList from '@/components/summit/SpeakersList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
-import { useTranslations } from '@/utils'
+import {
+  useTranslations,
+  joinPagePath,
+  summitYearHref,
+  buildHomeBreadcrumb
+} from '@/utils'
 
 interface Props {
   speakers: Speaker[]
@@ -18,16 +24,40 @@ const { speakers, basePath, title, page, year } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const label = t('summit.speakers_pagination', { year })
+
+// Breadcrumbs renders the last crumb as the current page, so past page 1
+// "Speakers" stays a link back to page 1 and the page number comes last.
+const pageCrumb =
+  page.currentPage > 1
+    ? [
+        {
+          name: t('pagination.page', { page: page.currentPage }),
+          href: joinPagePath(basePath, String(page.currentPage))
+        }
+      ]
+    : []
+const breadcrumbs = [
+  buildHomeBreadcrumb(routeLocale, t),
+  {
+    name: t('summit.summit_name', { year }),
+    href: summitYearHref(year, routeLocale)
+  },
+  { name: t('summit.speakers'), href: joinPagePath(basePath) },
+  ...pageCrumb
+]
 ---
 
 <SummitPageLayout title={title}>
-  <main class="px-content pt-page-offset pb-4xl">
+  <main class="px-content pt-page-offset pb-5xl desktop:pb-6xl">
     <div class="content-column">
+      <Breadcrumbs breadcrumbs={breadcrumbs} />
       <!-- Speaker list pages intentionally do not show the translation disclaimer.
            Names/affiliations are still usable in Spanish, while untranslated bios are only shown on speaker detail pages. -->
-      <h1 class="mb-2xl text-neutral-900">{title}</h1>
+      <h1 class="mb-5xl desktop:mb-6xl text-neutral-900 dark:text-neutral-0">
+        {title}
+      </h1>
       <section aria-label={t('summit.speakers')}>
-        <SpeakersList speakers={speakers} basePath={basePath} year={year} />
+        <SpeakersList speakers={speakers} basePath={basePath} />
       </section>
 
       {page.lastPage && page.lastPage > 1 && (
@@ -38,6 +68,7 @@ const label = t('summit.speakers_pagination', { year })
           prevUrl={page.url.prev}
           nextUrl={page.url.next}
           label={label}
+          class="mt-4xl desktop:mt-5xl"
         />
       )}
     </div>

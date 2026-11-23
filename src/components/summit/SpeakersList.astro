@@ -6,20 +6,28 @@ import { useTranslations } from '@/utils'
 interface Props {
   speakers: Speaker[]
   basePath: string
-  year: string
-  extraClass?: string
+  /** `grid` for the speakers index; `stack` for a narrow column such as a session sidebar. */
+  layout?: 'grid' | 'stack'
 }
 
-const { speakers, basePath, year, extraClass } = Astro.props
+const { speakers, basePath, layout = 'grid' } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
-const listClass = `flex flex-wrap gap-xl list-none ${extraClass ?? ''}`.trim()
+const LAYOUT_CLASSES: Record<NonNullable<Props['layout']>, string> = {
+  grid: 'tablet:grid-cols-3 tablet:gap-x-xl tablet:gap-y-3xl desktop:grid-cols-4',
+  stack: ''
+}
 ---
 
 {speakers.length > 0 ? (
-  <ul class={listClass}>
+  <ul
+    class:list={[
+      'm-0 grid list-none grid-cols-1 gap-2xl p-0',
+      LAYOUT_CLASSES[layout]
+    ]}
+  >
     {speakers.map((speaker) => (
-      <SpeakerCard speaker={speaker} basePath={basePath} year={year} />
+      <SpeakerCard speaker={speaker} basePath={basePath} />
     ))}
   </ul>
 ) : (

@@ -11,7 +11,6 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 interface Props {
   speaker: Speaker
   basePath: string
-  year: string
 }
 
 const { speaker, basePath } = Astro.props
@@ -28,26 +27,38 @@ const attrs = buildUmamiAttrs({
 })
 ---
 
-<li class="flex-1 min-w-[8em]">
+<li class="m-0 min-w-0">
   <a
     href={href}
-    class="text-neutral-900 no-underline hover:text-neutral-900 hover:no-underline"
+    class="group flex items-center gap-lg rounded-lg no-underline hover:no-underline tablet:block"
     {...attrs}
   >
-    <OptimizedImage
-      src={speaker.profilePicture}
-      alt={speaker.name}
-      width={240}
-      height={240}
-      sizes="240px"
-      widths={AVATAR_CDN_WIDTHS}
-      loading="lazy"
-    />
-    <h2
-      class="mb-sm text-h4 font-semibold text-neutral-900 tablet:text-h4-md desktop:text-h4-lg!"
+    <div
+      class="aspect-square w-6xl shrink-0 overflow-hidden tablet:w-full tablet:max-w-50 rounded-3xl bg-neutral-25 outline-[3px] outline-transparent transition-[outline-color] duration-slow group-hover:outline-link group-focus-visible:outline-link"
     >
-      {speaker.name}
-    </h2>
-    <p class="text-body-sm-standard">{speaker.tagLine}</p>
+      <OptimizedImage
+        src={speaker.profilePicture}
+        alt=""
+        width={240}
+        height={240}
+        sizes="(min-width: 810px) 200px, 120px"
+        widths={AVATAR_CDN_WIDTHS}
+        loading="lazy"
+        pictureClass="block h-full w-full"
+        class="h-full w-full object-cover"
+      />
+    </div>
+    <div class="min-w-0 desktop:pr-2xl">
+      <h2
+        class="mt-0 mb-md tablet:mt-lg text-h4 text-link underline decoration-current tablet:text-h4-md desktop:text-h4-lg! group-hover:text-link-hover group-focus-visible:text-link-hover"
+      >
+        {speaker.name}
+      </h2>
+      {speaker.tagLine && <p
+        class="m-0 text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-900 dark:text-neutral-0"
+      >
+        {speaker.tagLine}
+      </p>}
+    </div>
   </a>
 </li>
