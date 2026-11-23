@@ -9,7 +9,9 @@ import {
   createCheckFileSize,
   guardBatchUploadDeletes,
   overrideUploadProvider,
+  PATH_SLUG_UIDS,
   registerDocumentValidation,
+  registerPathSlugValidation,
   registerGrantSlugSiblingValidation
 } from './index'
 
@@ -552,5 +554,119 @@ describe('registerGrantSlugSiblingValidation', () => {
 
     expect(next).toHaveBeenCalled()
     expect(findMany).not.toHaveBeenCalled()
+  })
+})
+
+// validatePathSlugFormat is registered per uid (INTORG-574), so a new content
+// type with a pathSlug would otherwise skip it silently.
+describe('PATH_SLUG_UIDS', () => {
+  it('lists every content type that has a pathSlug', () => {
+    const apiDir = path.join(__dirname, 'api')
+    const withPathSlug = fs
+      .readdirSync(apiDir)
+      .flatMap((api) => {
+        const typesDir = path.join(apiDir, api, 'content-types')
+        if (!fs.existsSync(typesDir)) return []
+        return fs.readdirSync(typesDir).map((type) => {
+          const schema = JSON.parse(
+            fs.readFileSync(path.join(typesDir, type, 'schema.json'), 'utf8')
+          ) as { attributes: Record<string, unknown> }
+          return 'pathSlug' in schema.attributes ? `api::${api}.${type}` : null
+        })
+      })
+      .filter((uid): uid is string => uid !== null)
+      .sort()
+
+    expect([...PATH_SLUG_UIDS].sort()).toEqual(withPathSlug)
+  })
+})
+
+describe('registerPathSlugValidation', () => {
+  const UID = 'api::foundation-page.foundation-page'
+  const BLOG = 'api::foundation-blog-post.foundation-blog-post'
+
+  type Middleware = (
+    ctx: {
+      uid: string
+      action: string
+      params: { data?: Record<string, unknown>; documentId?: string }
+    },
+    next: () => Promise<void>
+  ) => Promise<void>
+
+  function register(): Middleware {
+    const use = vi.fn()
+    registerPathSlugValidation({ documents: { use } })
+    return use.mock.calls[0][0] as Middleware
+  }
+
+  async function run(uid: string, action: string, data?: object) {
+    const next = vi.fn(async () => {})
+    const result = register()(
+      { uid, action, params: { data: data as Record<string, unknown> } },
+      next
+    )
+    return { result, next }
+  }
+
+  it.each(['create', 'update', 'clone'])(
+    'rejects a bad pathSlug on %s',
+    async (action) => {
+      const { result, next } = await run(UID, action, { pathSlug: '/a%b/' })
+      await expect(result).rejects.toBeInstanceOf(errors.ValidationError)
+      expect(next).not.toHaveBeenCalled()
+    }
+  )
+
+  // Duplicate is `clone`, which skipped every create/update check.
+  it('lets a clone with a valid pathSlug through', async () => {
+    const { result, next } = await run(UID, 'clone', { pathSlug: '/copy/' })
+    await result
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  // A save is the publish (draftAndPublish is off), and the MDX export needs
+  // a slug. The blog's uid isn't `required`, so this is its required check:
+  // without it the export threw and the editor saw a bare 500.
+  it('refuses to create a blog post with no pathSlug', async () => {
+    const { result } = await run(BLOG, 'create', { title: 'A post' })
+    await expect(result).rejects.toMatchObject({
+      details: {
+        errors: [expect.objectContaining({ path: ['pathSlug'] })]
+      }
+    })
+  })
+
+  it('lets an update leave the pathSlug out', async () => {
+    const { result, next } = await run(BLOG, 'update', { title: 'Renamed' })
+    await result
+    expect(next).toHaveBeenCalledOnce()
+  })
+
+  it('refuses an update that blanks the pathSlug', async () => {
+    const { result } = await run(BLOG, 'update', { pathSlug: null })
+    await expect(result).rejects.toBeInstanceOf(errors.ValidationError)
+  })
+
+  // /blog/[id] takes one param; a nested blog slug broke the staging build.
+  it('rejects a nested pathSlug on a blog post only', async () => {
+    const data = { pathSlug: '/foundation-blog-post/carlos-madrigal/' }
+    await expect(
+      (await run(BLOG, 'create', data)).result
+    ).rejects.toBeInstanceOf(errors.ValidationError)
+    const page = await run(UID, 'create', data)
+    await page.result
+    expect(page.next).toHaveBeenCalledOnce()
+  })
+
+  it('leaves other actions and content types alone', async () => {
+    const publish = await run(UID, 'publish')
+    await publish.result
+    expect(publish.next).toHaveBeenCalledOnce()
+    const redirect = await run('api::redirect.redirect', 'create', {
+      pathSlug: '/a%b/'
+    })
+    await redirect.result
+    expect(redirect.next).toHaveBeenCalledOnce()
   })
 })

@@ -2,8 +2,12 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import type { GranteeSearchEntry } from '@/utils/main/grantee'
+import type {
+  GranteeSearchEntry,
+  GranteeSearchProject
+} from '@/utils/main/granteeDirectory'
 import {
+  formatGrantCount,
   hrefFromOriginal,
   hrefWithPreservedSearch,
   searchResultRowModel,
@@ -18,26 +22,45 @@ const SEARCH_RESULT_TEMPLATE_PATH = path.resolve(
 )
 
 /** Slots `createSearchResultRow` requires via `requireElement`. */
-const REQUIRED_ROW_ATTRS = [
+const REQUIRED_TEMPLATE_ATTRS = [
+  'data-grantee-search-tag-template',
+  'data-grantee-search-project-template',
+  'data-grantee-search-report-template',
   'data-grantee-search-name',
-  'data-grantee-search-program',
-  'data-grantee-search-budget-wrap',
-  'data-grantee-search-budget-amount',
-  'data-grantee-search-tags-wrap',
   'data-grantee-search-meta-wrap',
   'data-grantee-search-country-wrap',
   'data-grantee-search-country',
   'data-grantee-search-date-wrap',
   'data-grantee-search-date-text',
   'data-grantee-search-date',
-  'data-grantee-search-description-panel',
-  'data-grantee-search-leaders-wrap',
-  'data-grantee-search-leaders',
-  'data-grantee-search-description',
-  'data-grantee-description-toggle',
-  'data-grantee-search-details-wrap',
-  'data-grantee-search-details-link'
+  'data-grantee-search-tags-wrap',
+  'data-grantee-search-grant-count',
+  'data-grantee-search-projects',
+  'data-grantee-search-program',
+  'data-grantee-search-project-name',
+  'data-grantee-search-budget',
+  'data-grantee-search-no-reports',
+  'data-grantee-search-reports',
+  'data-grantee-search-report-label',
+  'data-grantee-search-report-external',
+  'data-grantee-search-report-project',
+  'data-grantee-search-report-new-tab'
 ] as const
+
+function sampleProject(
+  overrides: Partial<GranteeSearchProject> = {}
+): GranteeSearchProject {
+  return {
+    id: 'recP1',
+    name: 'Wallet pilot',
+    program: '',
+    year: '2024',
+    tags: [],
+    budgetLabel: null,
+    reports: null,
+    ...overrides
+  }
+}
 
 function sampleSearchEntry(
   overrides: Partial<GranteeSearchEntry> = {}
@@ -45,16 +68,11 @@ function sampleSearchEntry(
   return {
     id: 'rec1',
     name: 'Test',
-    program: '',
-    year: '2024',
     country: '',
     startMonth: '',
     startLabel: '',
-    leaders: [],
     tags: [],
-    descriptionHtml: null,
-    projectUrl: null,
-    budgetLabel: null,
+    projects: [sampleProject()],
     searchText: 'test',
     ...overrides
   }
@@ -69,8 +87,8 @@ function sampleContext(
     searchQuery: 'wallet',
     pathname: '/grant/grantee-directory',
     lang: 'en',
-    viewDetailsLabel: 'View details',
-    readMoreLabel: 'Read more',
+    grantCountTemplate: '{count} grants',
+    grantCountOneLabel: '1 grant',
     ...overrides
   }
 }
@@ -151,14 +169,19 @@ describe('GranteeSearchResultTemplate', () => {
   it('keeps every populate-script slot in GranteeSearchResultTemplate', () => {
     const source = readFileSync(SEARCH_RESULT_TEMPLATE_PATH, 'utf8')
     expect(source).toContain('id="grantee-search-result-template"')
-    expect(source).toContain('data-grantee-search-tag-template')
-    // grantee-description.ts binds on these hooks, same as GranteeCard.
-    expect(source).toContain('data-grantee-description\n')
-    expect(source).toContain('data-grantee-description-text')
-    expect(source).toContain('data-grantee-description-toggle-label')
-    for (const attr of REQUIRED_ROW_ATTRS) {
+    for (const attr of REQUIRED_TEMPLATE_ATTRS) {
       expect(source, attr).toContain(attr)
     }
+  })
+})
+
+describe('formatGrantCount', () => {
+  it('uses the singular label for one grant', () => {
+    expect(formatGrantCount(1, sampleContext())).toBe('1 grant')
+  })
+
+  it('fills the plural template otherwise', () => {
+    expect(formatGrantCount(3, sampleContext())).toBe('3 grants')
   })
 })
 
@@ -167,52 +190,18 @@ describe('searchResultRowModel', () => {
     const model = rowModel(
       sampleSearchEntry({
         name: 'Clearing House',
-        program: 'Financial Inclusion',
         country: 'Kenya',
         startMonth: '2024-03',
         startLabel: 'March 2024',
-        leaders: ['Ada Lovelace', 'Grace Hopper'],
-        tags: ['Open Payments', 'Education'],
-        descriptionHtml:
-          'A clearing network for <strong>community</strong> wallets.',
-        projectUrl: 'https://community.interledger.org/some-report',
-        budgetLabel: '50,000'
+        tags: ['Open Payments', 'Education']
       })
     )
 
     expect(model.name).toBe('Clearing House')
-    expect(model.program).toBe('Financial Inclusion')
-    expect(model.budgetLabel).toBe('50,000')
     expect(model.country).toBe('Kenya')
     expect(model.startLabel).toBe('March 2024')
     expect(model.startMonth).toBe('2024-03')
-    expect(model.leaders).toBe('Ada Lovelace, Grace Hopper')
-    expect(model.leadersHasDescriptionSpacer).toBe(true)
-    expect(model.descriptionHtml).toBe(
-      'A clearing network for <strong>community</strong> wallets.'
-    )
-    expect(model.descriptionId).toBe('grantee-search-desc-rec1')
-    expect(model.readMoreUmami).toMatchObject({
-      'data-umami-event': 'button_ui',
-      'data-umami-event-base-component': 'grantee_cards',
-      'data-umami-event-link-text': 'Read more',
-      'data-umami-event-lang': 'en'
-    })
-
-    expect(model.details).not.toBeNull()
-    expect(model.details?.href).toBe(
-      'https://community.interledger.org/some-report'
-    )
-    expect(model.details?.umami).toMatchObject({
-      'data-umami-event': 'button_card',
-      'data-umami-event-base-component': 'grantee_cards',
-      'data-umami-event-link-text': 'View details',
-      'data-umami-event-lang': 'en',
-      'data-umami-event-current-path': 'grant',
-      'data-umami-event-current-section': 'foundation',
-      'data-umami-event-destination-path': 'community_interledger',
-      'data-umami-event-destination-section': 'external'
-    })
+    expect(model.grantCount).toBe('1 grant')
 
     expect(model.tags.map((tag) => tag.text)).toEqual([
       'Open Payments',
@@ -242,17 +231,13 @@ describe('searchResultRowModel', () => {
     )
 
     expect(model.name).toBe('Sparse Org')
-    expect(model.program).toBeNull()
-    expect(model.budgetLabel).toBeNull()
     expect(model.tags).toEqual([])
     expect(model.country).toBeNull()
     expect(model.startLabel).toBeNull()
     expect(model.startMonth).toBeNull()
-    expect(model.leaders).toBeNull()
-    expect(model.leadersHasDescriptionSpacer).toBe(false)
-    expect(model.descriptionHtml).toBeNull()
-    expect(model.readMoreUmami).toBeNull()
-    expect(model.details).toBeNull()
+    expect(model.projects).toEqual([
+      { name: 'Wallet pilot', program: null, budgetLabel: null, reports: null }
+    ])
   })
 
   it('keeps country without a date', () => {
@@ -265,23 +250,6 @@ describe('searchResultRowModel', () => {
     expect(model.startMonth).toBeNull()
   })
 
-  it('keeps leaders without a description and does not add the spacer', () => {
-    const model = rowModel(
-      sampleSearchEntry({ name: 'Leaders Only', leaders: ['Ada'] })
-    )
-
-    expect(model.leaders).toBe('Ada')
-    expect(model.leadersHasDescriptionSpacer).toBe(false)
-    expect(model.descriptionHtml).toBeNull()
-  })
-
-  it('treats an empty description string as no description', () => {
-    const model = rowModel(sampleSearchEntry({ descriptionHtml: '' }))
-
-    expect(model.descriptionHtml).toBeNull()
-    expect(model.readMoreUmami).toBeNull()
-  })
-
   it('links yearless tag pills under /tag/<slug>', () => {
     const model = rowModel(
       sampleSearchEntry({ name: 'All Years', tags: ['Privacy'] }),
@@ -290,5 +258,44 @@ describe('searchResultRowModel', () => {
 
     expect(model.tags).toHaveLength(1)
     expect(model.tags[0].href).toBe('/grant/grantee-directory/tag/privacy/')
+  })
+
+  it('fills each project and links its reports with tracking', () => {
+    const href = '/grant/grantees/common-ground/reports/20260504-interim-1/'
+    const model = rowModel(
+      sampleSearchEntry({
+        projects: [
+          sampleProject({
+            name: 'Wallet pilot',
+            program: 'Digital Financial Services',
+            budgetLabel: '65 000',
+            reports: [
+              { id: 'rep1', label: 'Interim report 1', href, external: true }
+            ]
+          }),
+          sampleProject({ id: 'recP2', name: 'Workshops', reports: [] })
+        ]
+      })
+    )
+
+    expect(model.grantCount).toBe('2 grants')
+    expect(model.projects[0]).toMatchObject({
+      name: 'Wallet pilot',
+      program: 'Digital Financial Services',
+      budgetLabel: '65 000'
+    })
+    expect(model.projects[0]?.reports?.[0]).toMatchObject({
+      label: 'Interim report 1',
+      href,
+      external: true
+    })
+    expect(model.projects[0]?.reports?.[0]?.umami).toMatchObject({
+      'data-umami-event': 'button_card',
+      'data-umami-event-base-component': 'grantee_cards',
+      'data-umami-event-link-text': 'Interim report 1',
+      'data-umami-event-lang': 'en'
+    })
+    // [] shows "No reports published yet"; null (pages hidden) shows nothing.
+    expect(model.projects[1]?.reports).toEqual([])
   })
 })

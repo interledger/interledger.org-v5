@@ -3,7 +3,7 @@ import type { GrantReport, GrantReportType } from '@/types/airtable'
 import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
 import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
-import type { Grantee } from './grantee'
+import type { GranteeProject } from './grantee'
 import type { Locale, Translate, UiKey } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 import { granteeBasePath } from './routes'
@@ -104,7 +104,7 @@ export function grantReportPath(
 // The facts the sidebar shows about the report's grant. They come from the
 // grantee directory, so they exist only while the grant is published there.
 export type GrantFacts = Pick<
-  Grantee,
+  GranteeProject,
   'budgetLabel' | 'program' | 'grantPeriodLabel' | 'leaders' | 'country'
 >
 
@@ -133,7 +133,7 @@ export interface GrantReportRoute {
 
 // What a report page needs from the other Airtable files.
 export interface GrantReportSources {
-  grantees: readonly Grantee[]
+  grantees: readonly GranteeProject[]
   granteeNames: ReadonlyMap<string, string>
 }
 
@@ -191,7 +191,7 @@ export function listGrantReports(
 }
 
 function findGrantFacts(
-  grantees: readonly Grantee[],
+  grantees: readonly GranteeProject[],
   grantId: string
 ): GrantFacts | null {
   const grant = grantees.find(({ id }) => id === grantId)
@@ -226,6 +226,16 @@ export function getGrantReportRoutes(
       grantReports: listGrantReports(reports, report)
     }
   }))
+}
+
+// Interim reports first, then final ones, each by number.
+export function compareGrantReports(
+  a: Pick<GrantReport, 'reportType' | 'reportNumber'>,
+  b: Pick<GrantReport, 'reportType' | 'reportNumber'>
+): number {
+  const byType =
+    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType)
+  return byType || a.reportNumber - b.reportNumber
 }
 
 const REPORT_DATE_LOCALES: Record<Locale, string> = {

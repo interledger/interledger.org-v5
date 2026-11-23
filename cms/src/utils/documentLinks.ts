@@ -9,6 +9,7 @@ import {
   slashInternalMarkdownLinks,
   stripSiteOriginsInText,
   stripUploadOriginsInText,
+  toCanonicalPathSlug,
   toSlashedSlug,
   toStoredHref,
   toStoredUrl
@@ -39,8 +40,6 @@ const HREF_LIKE_FIELDS = new Set([
 /** Fields holding a media or external URL, where a bare value is not a path. */
 const URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
 
-const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
-
 /** Fields holding source code, where a URL is an example, not a link. */
 const CODE_FIELDS = new Set(['code'])
 
@@ -67,7 +66,8 @@ function normalizeText(text: string, attribute: Attribute) {
 
 /**
  * Returns a copy of a document's data with every link in its stored form:
- * link fields relative and slashed, slugs slashed, and own-site and upload
+ * link fields relative and slashed, slugs slashed (pathSlug also
+ * lowercase kebab), and own-site and upload
  * URLs in text fields relative. Components, dynamic zones and relations are
  * walked with their own schemas, so a CKEditor field is found at any depth.
  * Data without a schema is returned as is.
@@ -83,11 +83,13 @@ export async function normalizeRelativeLinksInDocumentData<T>(
       if (typeof value !== 'string' || CODE_FIELDS.has(key)) return
       if (HREF_LIKE_FIELDS.has(key)) node[key] = toStoredHref(value)
       else if (URL_FIELDS.has(key)) node[key] = toStoredUrl(value)
-      // `slug` is only the related-article field. pathSlug keeps its case.
+      // `slug` is only the related-article field.
       // Lowercase here so `/blog/Interledger-Universe/` matches the post
       // `interledger-universe` (INTORG-1346).
       else if (key === 'slug') node[key] = toSlashedSlug(value).toLowerCase()
-      else if (PATH_SEGMENT_FIELDS.has(key)) node[key] = toSlashedSlug(value)
+      // Spaces, underscores and capitals fixed; anything else is left for
+      // validatePathSlugFormat to name (INTORG-574).
+      else if (key === 'pathSlug') node[key] = toCanonicalPathSlug(value)
       else node[key] = normalizeText(value, attribute)
     },
     // Typed as always found, but `traverseEntity` returns a nested value

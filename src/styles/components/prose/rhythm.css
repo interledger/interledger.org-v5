@@ -81,7 +81,7 @@
 
     /* The bridge between a block that owns its spacing (an intro block) and
        an element that doesn't: plain Markdown, or a block without the
-       marker, such as CodeBlock, CalloutText, Timeline, DonationCards, CTA
+       marker, such as CodeBlock, CalloutText, DonationCards, CTA
        buttons without an intro, or a Split layout in an older ratio without
        one. An intro block opens with its intro
        (--intro-top plus the heading's padding) and closes with

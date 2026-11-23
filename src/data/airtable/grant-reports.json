@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "id": "recdjwiYh93sJKoiz",
+    "grantId": "recdNOosoAdLTwvdY",
+    "projectId": "20250420",
+    "projectName": "Conffab",
+    "reportType": "Final Report",
+    "reportNumber": 2,
+    "publishedDate": "2026-08-27",
+    "reportingPeriodStart": "2025-08-01",
+    "reportingPeriodEnd": "2026-08-27",
+    "summary": "Conffab is Web Directions' WordPress-based platform for conference talks. We set out to test Web Monetization as a new revenue stream for publishers and speakers. Because no wallets were available to our audience in Australia, we refocused, with the program team, on the publisher experience. We documented the full WordPress setup, recorded a friction log of wallet onboarding outside the US and Europe, tested the Interledger WordPress plugin and reported bugs, built our own plugin with per-post-type monetization and 50/50 creator revenue sharing, and presented our findings at the February 2026 Interledger community call.",
+    "progressOnObjectives": "Our proposal set out to explore Web Monetization as an alternative revenue stream for Conffab, testing it with our members alongside our free, on-demand and premium tiers, and sharing revenue between the platform and speakers.\n\nObjective 1: design a Web Monetization model for Conffab. Delivered. Through monthly check-ins with the program team we designed a model where visitors with a wallet get free-tier talks with no account or login, on-demand access is metered by streaming payments capped at half the monthly subscription, and revenue on talk pages is split 50/50 between Conffab and the speaker.\n\nObjective 2: implement Web Monetization on Conffab. Delivered as a working prototype. We installed and configured the Interledger WordPress plugin with test wallets for a publisher and a visitor and confirmed payments streaming in real time. The plugin's per-post-type settings did not save and it added the monetization tag to every page, so we built our own small plugin (about 450 lines, GPL) that monetizes only chosen post types, verifies wallet addresses against Open Payments, supports per-post wallets, and splits payments 50/50 with authors.\n\nObjective 3: user research and experiments with paying members. Not delivered, and this is how the project evolved. As a publisher in Australia we could not get a production wallet: Interledger Wallet (Fynbos) did not yet support Australia, GateHub is US/EU only, and Chimoney's phone verification failed for Australian numbers. Our members faced the same barrier, so there was no one able to pay. We documented this in a friction log and an 18-minute walkthrough video, which the program team shared with the Web Monetization community group.\n\nWith the program team's agreement the grant was extended twice, and in March 2026 the program officer proposed refocusing on improving the technology and publisher workflows, which is where our work had already gone. We wrote a step-by-step publisher implementation guide, filed a bug report on the Interledger plugin, and presented to the community call. The Foundation closed the program in August 2026 after its strategic shift.",
+    "whoBenefits": "WordPress publishers, especially outside the US and Europe, who want to try Web Monetization: our implementation guide and plugin show exactly what setup involves, where it breaks, and how to monetize only the content they choose.\n\nThe Interledger WordPress plugin team, who received a detailed bug report (issue #51) and feedback on per-post-type settings and custom post types.\n\nThe Web Monetization community group and wallet providers, who received first-hand evidence of how hard wallet onboarding is for publishers in regions like Australia.\n\nSpeakers and creators, through a working model for sharing payments 50/50 between a platform and the people whose content earns them.\n\nThe Interledger community, through our February 2026 community call presentation.",
+    "outputs": "- Walkthrough and friction log video (18 min, Feb 2026): <https://drive.google.com/file/d/1NPUcYxiggrqTID7XjYmBX-5PMjeVpNl_/view>\n- Community call presentation, \"Web Monetization for WordPress Publishers: A Real-World Implementation Guide\" (Feb 2026): <https://drive.google.com/file/d/1Gt4Dm9UlCHQ3XOE36SOIOzYCn5iD4uk6/view>\n- Bug report on the Interledger WordPress plugin, per-post-type settings: <https://github.com/interledger/web-monetization-wordpress-plugin/issues/51>\n- Conffab Web Monetization plugin for WordPress (GPL-2.0-or-later): selectable post types, Open Payments wallet verification, per-post wallets, author wallets and 50/50 revenue sharing. Code complete; available on request.\n- Publisher implementation guide: wallet providers, plugin setup, verification, and programmatic control with PHP. Available on request.\n- Web Monetization membership model design for Conffab.",
+    "whatsNext": "The plugin and guide are ready to use as soon as wallets are open to publishers and audiences in Australia. We plan to publish the plugin's code openly and to offer its per-post-type and revenue-sharing approach to the community-led Web Monetization effort. We would also welcome hosting an Interledger community event on Conffab, which the Foundation has already raised with us, and we continue to explore how open payments could support agentic commerce, a topic we are covering at our AI Engineer conferences.",
+    "license": "GPL-2.0-or-later",
+    "outputTypes": ["Software or code", "Training or educational material"],
+    "interledgerTechnologies": ["Web Monetization"],
+    "images": [
+      {
+        "path": "/img/grantee-reports/recdjwiYh93sJKoiz/attqxuZhBeYBgx1U4.webp",
+        "width": 1200,
+        "height": 630,
+        "alt": "Logo of Conffab by Web Directions. Text on left side: The conference learning library. Ideas worth watching. Practical talks from the people shaping the web, product, design and Al. Conffab.com. Illustrated presentation slides on the right side."
+      }
+    ],
+    "granteeSlug": "conffab"
+  },
+  {
+    "id": "recDsdbHlMH2PGtxf",
+    "grantId": "recURBMOzfGHxGjhC",
+    "projectId": "20250417",
+    "projectName": "Write Freely",
+    "reportType": "Final Report",
+    "reportNumber": 2,
+    "publishedDate": "2026-11-09",
+    "reportingPeriodStart": "2025-11-05",
+    "reportingPeriodEnd": "2026-11-09",
+    "summary": "[WriteFreely](https://writefreely.org/) is a privacy-focused, minimalist blogging platform made to remove friction and help more people write on the open web. Authors can connect and build community with their audience over open protocols like ActivityPub, RSS, and email. After initially adding support for Web Monetization in 2021, our current project was meant to modernize our implementation and help readers financially support the writers and creators publishing on our platform. We achieved that by evolving our support on our flagship instance, Write.as, and then open sourcing all work under the AGPL in WriteFreely.",
+    "progressOnObjectives": "Our priority was to update our Web Monetization support to the current standard, and add in new developments that have evolved over the years. We've been able to do this and deploy it to our 600K+ users on Write.as, along with the hundreds of independent WriteFreely instances across the web. We also added Web Monetization support to ActivityPub, so creators will automatically be able to start receiving payments as more fediverse platforms support it in the future.\nOn more experimental goals, we had hoped to to enable WriteFreely instance admins to set wallet addresses instance-wide, so they could collect payments alongside individual creators. As we investigated this, we decided that our primary goal should be to support the creators themselves -- and especially with lacking feedback from admins (a much smaller group of people), we left this out for the time being. We also planned to store remote wallet addresses from the fediverse if needed, but since WriteFreely is primarily an outbound platform for publishing, as anticipated, this wasn't necessary.\nOverall, we were able to update our support for Web Monetization, and keep it a first-class option for authors to monetize their writing and other content on WriteFreely.",
+    "whoBenefits": "This work supports all the authors that use Web Monetization across WriteFreely. On Write.as in particular, currently over 500 users have monetization pointers set on their blogs, so they were able to immediately benefit from this work. We had hoped to learn more about the various people using Web Monetization and further support them, but were limited by provider support in the wider ecosystem. We still hope to learn more about this in the future!",
+    "outputs": "In our [interim report](https://community.interledger.org/thebaer/writefreely-ilf-grant-progress-report-1-23pe), we had made progress on most of our objectives in Write.as, our flagship instance of WriteFreely. This included updated support for Web Monetization, adding WM pointers to content federated via ActivityPub, phasing out unsupported features, and updating older content. We also demo'd how our current implementation works on the [February 2026 ILF Community Call](https://www.youtube.com/watch?v=OlhSoCsJr1Q).\nSince then, with our changes extensively tested in production, we [open sourced all of our work](https://github.com/writefreely/writefreely/pull/1784), and deployed it to all WriteFreely users in our [v0.17.3 release](https://blog.writefreely.org/version-0-17-3).",
+    "whatsNext": "Web Monetization has been the perfect fit for an open publishing platform like ours. We strongly believe in the goals behind it, and hope to see adoption grow in the future. So we'll continue supporting it in WriteFreely, and maintaining it over time. Also, as interoperability improves and more wallets come online, we'll look forward to helping more authors adopt it on their blogs and publications, and gathering feedback along the way.",
+    "license": "AGPL",
+    "outputTypes": ["Software or code"],
+    "interledgerTechnologies": ["Web Monetization"],
+    "images": [
+      {
+        "path": "/img/grantee-reports/recDsdbHlMH2PGtxf/attbSqVxel6bYjKNa.webp",
+        "width": 1049,
+        "height": 746,
+        "alt": "Screenshot of Write Freely. Headline: Reader. Paragraph: Read the latest posts from pen.writefree.ly. Headline: Hello world. Body: January 30, 2025 from Matt. I'm Matt (@matt@writing.exchange), and this is my first post on my new WriteFreely instance! Here, I'll share my every single passing thought. Be sure to follow from the fediverse! Hashtag introduction. Link: Read more."
+      }
+    ],
+    "granteeSlug": "write-freely"
+  }
+]

@@ -6,6 +6,8 @@ import {
   toSlashedPath,
   isRelatedArticleSlug,
   toSlashedSlug,
+  toCanonicalPathSlug,
+  pathSlugFormatError,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripSiteOriginsInText,
@@ -132,6 +134,218 @@ describe('toSlashedSlug', () => {
   // An empty slug is the `required` validator's to report, not `//`.
   it.each(['', '/', '  '])('leaves %j empty', (value) => {
     expect(toSlashedSlug(value)).toBe('')
+  })
+})
+
+describe('toCanonicalPathSlug', () => {
+  it.each([
+    ['about-us', '/about-us/'],
+    ['/About-Us/', '/about-us/'],
+    ['About Us', '/about-us/'],
+    ['about_us', '/about-us/'],
+    ['about \t us', '/about-us/'],
+    ['about--us', '/about-us/'],
+    ['about - us', '/about-us/'],
+    ['-about-us-', '/about-us/'],
+    ['/grant//education/', '/grant/education/'],
+    [' /Grant/On Campus ', '/grant/on-campus/'],
+    [
+      '/grant/call-for-papers/Chenai-Chair/',
+      '/grant/call-for-papers/chenai-chair/'
+    ],
+    ['/faq/', '/faq/'],
+    ['/2025/judges/jane-doe/', '/2025/judges/jane-doe/'],
+    // A pasted path's escapes: `%20` is a space the editor meant.
+    ['about%20us', '/about-us/'],
+    ['/caf%C3%A9/', '/café/']
+  ])('stores %j as %j', (input, expected) => {
+    expect(toCanonicalPathSlug(input)).toBe(expected)
+  })
+
+  // A blank slug is the `required` validator's to report.
+  it.each(['', '  '])('leaves %j empty', (value) => {
+    expect(toCanonicalPathSlug(value)).toBe('')
+  })
+
+  // No word to keep: correcting `/` to `` would hide the mistake until
+  // publish, so it stays for pathSlugFormatError to name.
+  it.each(['/', '_', ' /-/ ', '//'])('leaves %j as typed', (value) => {
+    expect(toCanonicalPathSlug(value)).toBe(value.trim())
+  })
+
+  // A link is not corrected: on blur it would become /https:/…, and its path
+  // holds the section and locale the route adds again (/blog/blog/…).
+  it.each([
+    'https://interledger.org/blog/my-post/',
+    'staging.interledger.org/about-us/',
+    'https://example.com/About-Us/',
+    '//example.com/about-us/'
+  ])('leaves the link %j as typed', (value) => {
+    expect(toCanonicalPathSlug(value)).toBe(value)
+  })
+
+  // What has no obvious fix is kept for pathSlugFormatError to name.
+  it('keeps characters it cannot correct', () => {
+    expect(toCanonicalPathSlug('pdf page? 122%21_13&13ne#ads!')).toBe(
+      '/pdf-page?-122!-13&13ne#ads!/'
+    )
+  })
+
+  it('returns a valid slug unchanged', () => {
+    const slug = '/grant/education/on-campus/'
+    expect(toCanonicalPathSlug(toCanonicalPathSlug(slug))).toBe(slug)
+  })
+})
+
+// Save stores toCanonicalPathSlug(typed), then the validator checks that
+// stored value, correcting it once more. Correcting twice must change
+// nothing, or the check judges a value other than the one stored.
+describe('correct, then check', () => {
+  it.each([
+    'About Us',
+    'about%20us',
+    'about%2520us',
+    '/100%/',
+    'İstanbul',
+    'Ä',
+    '\u212A', // KELVIN SIGN, which lowercases to an ASCII k
+    'café',
+    'pdf page? 122%21_13&13ne#ads!',
+    '/a/b/',
+    '/',
+    'https://example.com/about-us/'
+  ])('gives %j the same verdict as the raw input', (typed) => {
+    const stored = toCanonicalPathSlug(typed)
+    expect(toCanonicalPathSlug(stored)).toBe(stored)
+    expect(pathSlugFormatError(stored)).toBe(pathSlugFormatError(typed))
+  })
+
+  it.each([
+    ['about%2520us', '%'],
+    ['İstanbul', 'İ'],
+    ['\u212A', '\u212A']
+  ])('names what the editor typed in %j after save', (typed, named) => {
+    expect(pathSlugFormatError(toCanonicalPathSlug(typed))).toMatch(
+      new RegExp(`Remove: ${named}$`)
+    )
+  })
+})
+
+describe('pathSlugFormatError', () => {
+  it.each([
+    'about-us',
+    '/about-us/',
+    'About Us',
+    'about%20us',
+    '/grant/education/on-campus/',
+    '/2025/judges/jane-doe/',
+    '',
+    '  '
+  ])('accepts %j', (value) => {
+    expect(pathSlugFormatError(value)).toBeUndefined()
+  })
+
+  // `%21` is an escaped `!`: the input shows it decoded after blur.
+  it('names every character to remove, once each', () => {
+    expect(pathSlugFormatError('pdf page 122%21_13&13ne!')).toBe(
+      'Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /title-of-the-page/. Remove: ! &'
+    )
+  })
+
+  // Deleting the `?` and `=` the generic message would name leaves /aboutx1/.
+  it.each(['about?x=1', '/about/#team', 'pdf page? 122%21_13&13ne#ads!'])(
+    'asks for the path alone instead of a query or fragment in %j',
+    (value) => {
+      expect(pathSlugFormatError(value)).toBe(
+        "Path Slug can't hold a query or fragment. Enter only the path, without ? or # and what follows, like /title-of-the-page/."
+      )
+    }
+  )
+
+  // Deleting `:` and `.` would leave /https/example-com/about-us/. Our own
+  // URLs too: /blog/my-post/ from a blog URL is served at /blog/blog/my-post/.
+  it.each([
+    'https://example.com/about-us/',
+    '//example.com/about-us/',
+    'https://interledger.org/blog/my-post/',
+    'https://interledger.org/es/about-us/',
+    'staging.interledger.org/grant/ai-policy/',
+    'https://staging.interledger.org/',
+    'interledger.org'
+  ])('asks for the end of the address instead of the link %j', (value) => {
+    expect(pathSlugFormatError(value)).toBe(
+      "Path Slug is a path, not a link. Enter only the end of the page's address, like /title-of-the-page/. Leave out the site, /es/, and a section such as /blog/ or /grant/."
+    )
+  })
+
+  // Save and blur both correct before they check: the link must survive the
+  // correction, or the message names `:` and `.` instead.
+  it.each(['https://example.com/about-us/', '//example.com/about-us/'])(
+    'still calls %j a link after the save correction',
+    (value) => {
+      expect(pathSlugFormatError(toCanonicalPathSlug(value))).toMatch(
+        /^Path Slug is a path, not a link\./
+      )
+    }
+  )
+
+  it.each(['/', '-', '_', '/-/', '//'])('asks for a word in %j', (value) => {
+    expect(pathSlugFormatError(value)).toBe(
+      'Path Slug needs at least one word between the slashes, like /title-of-the-page/.'
+    )
+  })
+
+  // The blog route is /blog/[id]: one param.
+  describe('a single-segment slug', () => {
+    const oneSegment =
+      "A blog post's Path Slug can't have a slash inside it, like /my-post/. The post's address is always /blog/ followed by it."
+
+    it('rejects a nested slug', () => {
+      expect(
+        pathSlugFormatError('/foundation-blog-post/carlos-madrigal/', {
+          singleSegment: true
+        })
+      ).toBe(oneSegment)
+    })
+
+    it('accepts one segment, corrected or not', () => {
+      expect(
+        pathSlugFormatError('/my-post/', { singleSegment: true })
+      ).toBeUndefined()
+      expect(
+        pathSlugFormatError('//My Post//', { singleSegment: true })
+      ).toBeUndefined()
+    })
+
+    it('still names a bad character first', () => {
+      expect(pathSlugFormatError('/a/b%/', { singleSegment: true })).toMatch(
+        /Remove: %$/
+      )
+    })
+
+    it('is off by default: pages nest', () => {
+      expect(pathSlugFormatError('/grant/education/')).toBeUndefined()
+    })
+  })
+
+  it('names the invisible character by code point', () => {
+    expect(pathSlugFormatError('about\u200bus')).toMatch(/Remove: U\+200B$/)
+  })
+
+  // Named from what was typed: lowercasing İ gives i + U+0307.
+  it.each([
+    ['/what-is-web3.0/', '.'],
+    ['/café/', 'é'],
+    ['/caf%C3%A9/', 'é'],
+    ['İstanbul', 'İ'],
+    ['Ä', 'Ä'],
+    ['/日本/', '日 本'],
+    ['/100%/', '%'],
+    ['/../etc/', '.']
+  ])('rejects %j, naming %j', (value, named) => {
+    expect(pathSlugFormatError(value)).toBe(
+      `Path Slug can only use lowercase letters, numbers and hyphens between slashes, like /title-of-the-page/. Remove: ${named}`
+    )
   })
 })
 

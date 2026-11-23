@@ -45,6 +45,22 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     ).toEqual({ pathSlug: '/our-grantmaking/', cta: { link: '/grant/apply/' } })
   })
 
+  it('corrects capitals, spaces and underscores in a pathSlug', async () => {
+    expect(
+      await normalize('api::foundation-page.foundation-page', {
+        pathSlug: 'Get Involved/Donate_Now'
+      })
+    ).toEqual({ pathSlug: '/get-involved/donate-now/' })
+  })
+
+  it('keeps pathSlug characters it cannot correct, for validation', async () => {
+    expect(
+      await normalize('api::foundation-page.foundation-page', {
+        pathSlug: 'pdf page?'
+      })
+    ).toEqual({ pathSlug: '/pdf-page?/' })
+  })
+
   it('stores an own-site URL in a link field relative and slashed', async () => {
     expect(
       await normalize('api::profile-page.profile-page', {

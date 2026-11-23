@@ -1,24 +1,18 @@
-import type { PaginateFunction } from 'astro'
 import type { Locale } from './locales'
 import { foldSearchText } from '../shared/foldSearchText'
-import { generateSlug } from './slug'
-import { createPlainTextVariants } from './create-excerpt'
-import { parseMarkdownInline } from './mdx'
-import {
-  GRANTEE_TAG_PREFIX,
-  filterGrantees,
-  isGranteeYearSlug
-} from './granteeFilters'
 import {
   ensureAbsoluteUrl,
   getHostname,
   isExternalHref,
   isSafeMarkdownHref
 } from '../shared/url'
+import { createPlainTextVariants } from './create-excerpt'
+import { GRANTEE_TAG_PREFIX, isGranteeYearSlug } from './granteeFilters'
 import type { PaginatedRouteShape } from './paginatedRouteShape'
 import type { GranteeFieldName } from './airtableRecords'
 
-export const GRANTEE_PAGE_SIZE = 10
+// Reads the published projects in grantee-data.json. The directory groups
+// them under their grantee in granteeDirectory.ts.
 
 export const granteeRouteShape: PaginatedRouteShape = {
   matches: (basePath, parts) => {
@@ -45,32 +39,33 @@ export const granteeRouteShape: PaginatedRouteShape = {
   }
 }
 
-export interface Grantee {
+/** One published project (a grant) from grantee-data.json. */
+export interface GranteeProject {
   id: string
   name: string
   program: string
-  programKey: string
   year: string
   startMonth: string
   startLabel: string
   /** "March 2026 – February 2027", or '' unless both ends are valid and in order. */
   grantPeriodLabel: string
   country: string
-  countryKey: string
+  /** Contact names from Project Leader. The report sidebar shows them. */
   leaders: string[]
   tags: string[]
-  description: string | null
-  /** Display plain text from parse time; search markers live in `searchText`. */
-  descriptionPlain: string
-  projectUrls: string[]
   budget: number | null
   budgetLabel: string | null
+  /**
+   * Usable web links from Project Links. These are the forum reports for
+   * grants that have no report page yet. Text that is not a URL is dropped.
+   */
+  reportUrls: string[]
+  /**
+   * Folded text the search matches. It also holds the project leaders and
+   * the description, which the card does not show, so a search for a
+   * person or a topic still finds the grantee.
+   */
   searchText: string
-}
-
-export interface GranteeFilterOption {
-  value: string
-  label: string
 }
 
 const COUNTRY_ALIASES: Record<string, string> = {
@@ -185,15 +180,21 @@ function asFiniteNumber(value: unknown): number | undefined {
   return typeof value === 'number' && Number.isFinite(value) ? value : undefined
 }
 
+// Free text is allowed in the column. Keep only absolute http(s) links, and
+// reject a single-label host such as "pending": `new URL` accepts it.
 function parseProjectUrls(value: unknown): string[] {
-  return asStringList(value)
-    .map((raw) => ensureAbsoluteUrl(raw))
-    .filter((href) => {
-      if (!isSafeMarkdownHref(href) || !isExternalHref(href)) return false
-      // Reject single-label hosts like "TBD" or "pending" — `new URL` accepts them.
-      const hostname = getHostname(href)
-      return hostname !== null && hostname.includes('.')
-    })
+  const seen = new Set<string>()
+  const urls: string[] = []
+  for (const raw of asStringList(value)) {
+    const href = ensureAbsoluteUrl(raw)
+    if (!isSafeMarkdownHref(href) || !isExternalHref(href)) continue
+    const hostname = getHostname(href)
+    if (!hostname?.includes('.')) continue
+    if (seen.has(href)) continue
+    seen.add(href)
+    urls.push(href)
+  }
+  return urls
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -204,18 +205,15 @@ function collapseWhitespace(text: string): string {
   return text.replace(/\s+/g, ' ').trim()
 }
 
-function descriptionPlainTexts(text: string): {
-  display: string
-  search: string
-} {
-  const { display, search } = createPlainTextVariants(text)
-  return {
-    display: collapseWhitespace(display),
-    search: collapseWhitespace(search)
-  }
+// Plain text without Markdown syntax, so a query never has to type `**`.
+function descriptionSearchText(text: string): string {
+  return collapseWhitespace(createPlainTextVariants(text).search)
 }
 
-function toGrantee(value: unknown, locale: Locale): Grantee | null {
+function toGranteeProject(
+  value: unknown,
+  locale: Locale
+): GranteeProject | null {
   if (!isRecord(value) || typeof value.id !== 'string') return null
   if (!isRecord(value.fields)) return null
 
@@ -231,11 +229,9 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
   const country = normalizeCountry(asTrimmedString(fields.Country) ?? '')
   const leaders = asStringList(fields['Project Leader'])
   const tags = asStringList(fields['Thematic Tag'])
-  const description = asTrimmedString(fields['Project Description']) ?? null
-  const descriptionTexts = description
-    ? descriptionPlainTexts(description)
-    : { display: '', search: '' }
+  const description = asTrimmedString(fields['Project Description'])
   const budget = asFiniteNumber(fields['Total budget approved']) ?? null
+  const reportUrls = parseProjectUrls(fields['Project Links'])
 
   const searchText = foldSearchText(
     [
@@ -245,7 +241,7 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
       country,
       ...leaders,
       ...tags,
-      descriptionTexts.search
+      description ? descriptionSearchText(description) : ''
     ].join(' ')
   )
 
@@ -253,45 +249,48 @@ function toGrantee(value: unknown, locale: Locale): Grantee | null {
     id: value.id,
     name,
     program,
-    programKey: generateSlug(program),
     year,
     startMonth,
     startLabel: startMonth ? formatStartMonth(startMonth, locale) : '',
     grantPeriodLabel: formatGrantPeriod(startMonth, endMonth, locale),
     country,
-    countryKey: generateSlug(country),
     leaders,
     tags,
-    description,
-    descriptionPlain: descriptionTexts.display,
-    projectUrls: parseProjectUrls(fields['Project Links']),
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),
+    reportUrls,
     searchText
   }
 }
 
-function compareGrantees(a: Grantee, b: Grantee): number {
+/** Newest start month first, then by name. */
+export function compareByStartMonth(
+  a: { startMonth: string; name: string },
+  b: { startMonth: string; name: string }
+): number {
   if (a.startMonth !== b.startMonth) {
     return a.startMonth < b.startMonth ? 1 : -1
   }
   return a.name.localeCompare(b.name)
 }
 
-const parsedRecordsCache = new WeakMap<object, Map<Locale, Grantee[] | Error>>()
+const parsedRecordsCache = new WeakMap<
+  object,
+  Map<Locale, GranteeProject[] | Error>
+>()
 
 function parseGranteeRecordsUncached(
   data: object,
   locale: Locale
-): Grantee[] | Error {
+): GranteeProject[] | Error {
   if (!Array.isArray(data)) {
     return new Error('Grantee dump is not an array')
   }
 
   return data
-    .map((record) => toGrantee(record, locale))
-    .filter((grantee): grantee is Grantee => grantee !== null)
-    .sort(compareGrantees)
+    .map((record) => toGranteeProject(record, locale))
+    .filter((project): project is GranteeProject => project !== null)
+    .sort(compareByStartMonth)
 }
 
 /**
@@ -301,7 +300,7 @@ function parseGranteeRecordsUncached(
 export function parseGranteeRecords(
   data: unknown,
   locale: Locale
-): Grantee[] | Error {
+): GranteeProject[] | Error {
   if (typeof data !== 'object' || data === null) {
     return new Error('Grantee dump is not an array')
   }
@@ -318,224 +317,4 @@ export function parseGranteeRecords(
   const parsed = parseGranteeRecordsUncached(data, locale)
   byLocale.set(locale, parsed)
   return parsed
-}
-
-export function uniqueFilterOptions(
-  grantees: Grantee[],
-  key: 'year' | 'tag'
-): GranteeFilterOption[] {
-  const seen = new Map<string, string>()
-
-  for (const grantee of grantees) {
-    if (key === 'year' && grantee.year) {
-      seen.set(grantee.year, grantee.year)
-    } else if (key === 'tag') {
-      for (const tag of grantee.tags) {
-        const slug = generateSlug(tag)
-        if (slug) seen.set(slug, tag)
-      }
-    }
-  }
-
-  const options = [...seen.entries()].map(([value, label]) => ({
-    value,
-    label
-  }))
-
-  if (key === 'year') {
-    return options.sort((a, b) => b.label.localeCompare(a.label))
-  }
-  return options.sort((a, b) => a.label.localeCompare(b.label))
-}
-
-export interface GranteeListingData {
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}
-
-export function getGranteeListingData(
-  data: unknown,
-  locale: Locale
-): GranteeListingData | Error {
-  const grantees = parseGranteeRecords(data, locale)
-  if (grantees instanceof Error) return grantees
-  return {
-    grantees,
-    years: uniqueFilterOptions(grantees, 'year'),
-    tags: uniqueFilterOptions(grantees, 'tag')
-  }
-}
-
-/**
- * A single grantee's fields as shipped in the client-side search catalog
- * (see `grantee-search-index.json.ts` and `src/scripts/grantee-search.ts`).
- * Trimmed to what a search-result row needs — the description ships
- * pre-rendered (as `GranteeCard` renders it) so rows can offer the same
- * read-more toggle, and no derived slugs that the card computes for itself.
- */
-export interface GranteeSearchEntry {
-  id: string
-  name: string
-  program: string
-  year: string
-  country: string
-  startMonth: string
-  startLabel: string
-  leaders: string[]
-  tags: string[]
-  /** Inline HTML from `parseMarkdownInline`, same as `GranteeCard`. */
-  descriptionHtml: string | null
-  projectUrl: string | null
-  budgetLabel: string | null
-  searchText: string
-}
-
-function toDescriptionHtml(
-  grantee: Grantee,
-  locale: Locale,
-  pathname: string
-): string | null {
-  return (
-    parseMarkdownInline(grantee.description, { pathname, lang: locale }) || null
-  )
-}
-
-function toGranteeSearchEntry(
-  grantee: Grantee,
-  locale: Locale,
-  directoryPath: string
-): GranteeSearchEntry {
-  return {
-    id: grantee.id,
-    name: grantee.name,
-    program: grantee.program,
-    year: grantee.year,
-    country: grantee.country,
-    startMonth: grantee.startMonth,
-    startLabel: grantee.startLabel,
-    leaders: grantee.leaders,
-    tags: grantee.tags,
-    descriptionHtml: toDescriptionHtml(grantee, locale, directoryPath),
-    projectUrl: grantee.projectUrls[0] ?? null,
-    budgetLabel: grantee.budgetLabel,
-    searchText: grantee.searchText
-  }
-}
-
-/**
- * Build-time catalog for client-side grantee search. Small and locale-scoped
- * so it can be fetched once (lazily, on first search interaction) and reused
- * across every paginated/filtered directory route — see
- * `src/pages/grantee-search-index.json.ts`. `directoryPath` is the localized
- * directory root: description links report it as their umami page, since one
- * index serves every year/tag route.
- */
-export function getGranteeSearchIndex(
-  data: unknown,
-  locale: Locale,
-  directoryPath: string
-): GranteeSearchEntry[] | Error {
-  const grantees = parseGranteeRecords(data, locale)
-  if (grantees instanceof Error) return grantees
-  return grantees.map((grantee) =>
-    toGranteeSearchEntry(grantee, locale, directoryPath)
-  )
-}
-
-/** Filter options and active selections passed through paginate `props`. */
-interface GranteeListingPageProps {
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-  selectedYear?: string
-  selectedTag?: string
-}
-
-function listingProps(
-  years: GranteeFilterOption[],
-  tags: GranteeFilterOption[],
-  selectedYear: string | undefined,
-  selectedTag: string | undefined
-): GranteeListingPageProps {
-  return {
-    years,
-    tags,
-    selectedYear,
-    selectedTag
-  }
-}
-
-export function paginateGranteesByYear({
-  paginate,
-  grantees,
-  years,
-  tags
-}: {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}) {
-  return years.flatMap((year) => {
-    const entries = filterGrantees(grantees, {
-      q: '',
-      year: year.value,
-      tag: ''
-    })
-    return paginate(entries, {
-      params: { year: year.value },
-      pageSize: GRANTEE_PAGE_SIZE,
-      props: listingProps(years, tags, year.value, undefined)
-    })
-  })
-}
-
-type TagListingArgs = {
-  paginate: PaginateFunction
-  grantees: Grantee[]
-  years: GranteeFilterOption[]
-  tags: GranteeFilterOption[]
-}
-
-export function paginateGranteesByTag({
-  paginate,
-  grantees,
-  years,
-  tags
-}: TagListingArgs) {
-  return tags.flatMap((tag) => {
-    const entries = filterGrantees(grantees, {
-      q: '',
-      year: '',
-      tag: tag.value
-    })
-    return paginate(entries, {
-      params: { tag: tag.value },
-      pageSize: GRANTEE_PAGE_SIZE,
-      props: listingProps(years, tags, undefined, tag.value)
-    })
-  })
-}
-
-/** Year + tag listings at `/grantee-directory/<year>/tag/<slug>`. */
-export function paginateGranteesByYearAndTag({
-  paginate,
-  grantees,
-  years,
-  tags
-}: TagListingArgs) {
-  return years.flatMap((year) =>
-    tags.flatMap((tag) => {
-      const entries = filterGrantees(grantees, {
-        q: '',
-        year: year.value,
-        tag: tag.value
-      })
-      return paginate(entries, {
-        params: { year: year.value, tag: tag.value },
-        pageSize: GRANTEE_PAGE_SIZE,
-        props: listingProps(years, tags, year.value, tag.value)
-      })
-    })
-  )
 }

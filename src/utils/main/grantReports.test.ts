@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { GrantReport } from '@/types/airtable'
-import type { Grantee } from './grantee'
+import type { GranteeProject } from './grantee'
 
 // `./routes` -> `./locales` reaches Astro's virtual modules for i18n config.
 // Only path building runs here, so minimal mocks are enough (as routes.test.ts).
@@ -181,25 +181,21 @@ describe('grantReportPath', () => {
 
 const OTHER_GRANT_ID = 'recdUkEFGFR3970nG'
 
-function grantee(overrides: Partial<Grantee> = {}): Grantee {
+function grantee(overrides: Partial<GranteeProject> = {}): GranteeProject {
   return {
     id: 'recUSF6jZiBVoqG01',
     name: 'Gib',
     program: 'Grant for the Web',
-    programKey: 'grant-for-the-web',
     year: '2026',
     startMonth: '2026-03',
     startLabel: 'March 2026',
     grantPeriodLabel: 'March 2026 – February 2027',
     country: 'India',
-    countryKey: 'india',
     leaders: ['Priya Raman'],
     tags: [],
-    description: null,
-    descriptionPlain: '',
-    projectUrls: [],
     budget: 100000,
     budgetLabel: '100 000',
+    reportUrls: [],
     searchText: '',
     ...overrides
   }
