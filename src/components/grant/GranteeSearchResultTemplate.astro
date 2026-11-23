@@ -7,17 +7,20 @@
  */
 import Icon from '@/components/shared/Icon.astro'
 import { buttonVariants } from '@/components/shared/buttonVariants'
-import { useTranslations } from '@/utils'
+import { twMerge, useTranslations } from '@/utils'
 import { granteeCardClasses as classes } from './granteeCardClasses'
 
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-const reportLinkClass = buttonVariants({
-  variant: 'secondary',
-  mode: 'light',
-  size: 'sm'
-})
+const reportLinkClass = twMerge(
+  buttonVariants({
+    variant: 'secondary',
+    mode: 'light',
+    size: 'sm'
+  }),
+  classes.reportButton
+)
 ---
 
 <template id="grantee-search-result-template">
@@ -90,7 +93,7 @@ const reportLinkClass = buttonVariants({
 </template>
 
 <template data-grantee-search-report-template>
-  <li class="m-0">
+  <li class={classes.reportItem}>
     <a class={reportLinkClass}>
       <span data-grantee-search-report-label></span><span
         class="whitespace-nowrap"

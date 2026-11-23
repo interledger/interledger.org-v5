@@ -231,7 +231,6 @@ export {
 export {
   formatReportMonth,
   getGrantReportRoutes,
-  compareGrantReports,
   grantReportLabel,
   grantReportPath,
   grantReportSegment,

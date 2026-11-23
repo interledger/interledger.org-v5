@@ -111,8 +111,9 @@ const projectCount = grantee.projects.length
             {t('grantee.reports.none')}
           </p>}
           {project.reports.length > 0 && <ul class={classes.reports}>
-            {project.reports.map((report) => <li class="m-0">
+            {project.reports.map((report) => <li class={classes.reportItem}>
               <LinkButton
+                class={classes.reportButton}
                 href={report.href}
                 variant="secondary"
                 mode="light"

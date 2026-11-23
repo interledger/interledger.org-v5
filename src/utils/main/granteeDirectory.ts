@@ -12,31 +12,36 @@ import {
 } from './grantee'
 import { filterGrantees } from './granteeFilters'
 import {
-  compareGrantReports,
-  grantReportLabel,
-  grantReportPath,
-  parseGrantReports
-} from './grantReports'
+  buildGrantReportLinks,
+  parseLegacyGrantReports,
+  type GrantReportLink
+} from './grantReportLinks'
+import { grantReportLabel, parseGrantReports } from './grantReports'
 import { useTranslations, type Locale, type Translate } from './i18'
 import { localizeRoute } from './routes'
 import { generateSlug } from './slug'
 
 // The grantee directory: one card per grantee (an organisation or a person),
-// listing its published projects, each with links to its reports. A report
-// page wins; otherwise the card links the project's Project Links, which are
-// the forum reports. Projects come from grantee-data.json, grantees from
-// grantee-profiles.json and report pages from grant-reports.json. A grantee
-// with no published project is left out.
+// listing its published projects, each with links to its reports. Each
+// report links its page on this site, or else its older report, mostly on the
+// community forum. Both carry a type and a number, so the card says "Interim
+// report 1". Projects come from grantee-data.json, grantees from
+// grantee-profiles.json, report pages from grant-reports.json and older
+// reports from legacy-grant-reports.json. A grantee with no published project
+// is left out.
 
 export const GRANTEE_PAGE_SIZE = 10
 
 /** A link from a project to one of its reports. */
 export interface GranteeReportLink {
   id: string
-  /** "Interim report 1" for a page. One forum link is "Report"; several are "Report 1", "Report 2". */
+  /**
+   * "Interim report 1". A Project Links fallback has no type, so one link is
+   * "Report" and several are "Report 1", "Report 2".
+   */
   label: string
   href: string
-  /** A forum report. A page on this site leaves it unset. */
+  /** An older report on another site. A page on this site leaves it unset. */
   external?: boolean
 }
 
@@ -63,11 +68,12 @@ export interface GranteeDirectoryEntry {
   searchText: string
 }
 
-/** The three Airtable files, as imported. */
+/** The four Airtable files, as imported. */
 export interface GranteeDirectorySources {
   projects: unknown
   profiles: unknown
   reports: unknown
+  legacyReports: unknown
 }
 
 export interface GranteeFilterOption {
@@ -99,35 +105,38 @@ function parseDirectoryProfiles(data: unknown): DirectoryProfile[] | Error {
   )
 }
 
-type ReportLinksByProject = Map<string, GranteeReportLink[]>
+type ReportLinksByGrant = ReadonlyMap<string, GrantReportLink[]>
 
 // A report whose project is not in the directory has a page but no link.
 // Programs agreed it should go live anyway (INTORG-1373), because comms can
 // share its address directly.
-function pageLinksByProject(
-  sources: GranteeDirectorySources,
-  locale: Locale
-): ReportLinksByProject | Error {
+function reportLinksByGrant(
+  sources: GranteeDirectorySources
+): ReportLinksByGrant | Error {
+  const legacyReports = parseLegacyGrantReports(sources.legacyReports)
+  if (legacyReports instanceof Error) return legacyReports
   const reports = parseGrantReports(sources.reports)
   if (reports instanceof Error) return reports
-
-  const t = useTranslations(locale)
-  const links: ReportLinksByProject = new Map()
-  for (const report of [...reports].sort(compareGrantReports)) {
-    const projectLinks = links.get(report.grantId) ?? []
-    projectLinks.push({
-      id: report.id,
-      label: grantReportLabel(report, t),
-      href: localizeRoute(grantReportPath(report), locale)
-    })
-    links.set(report.grantId, projectLinks)
-  }
-  return links
+  return buildGrantReportLinks({ reports, legacyReports })
 }
 
-// Project Links do not say whether a report is interim or final. One link is
-// "Report". Several are numbered in the order the data lists them.
-function forumReportLinks(
+function toGranteeReportLink(
+  link: GrantReportLink,
+  locale: Locale,
+  t: Translate
+): GranteeReportLink {
+  const label = grantReportLabel(link, t)
+  if (link.kind === 'page') {
+    const href = localizeRoute(link.path, locale)
+    return { id: href, label, href }
+  }
+  return { id: link.url, label, href: link.url, external: true }
+}
+
+// Project Links say nothing about the report type. They are the fallback for
+// a grant with no row in Submitted Reports: one link is "Report", several are
+// numbered in the order the data lists them.
+function projectLinkFallback(
   project: GranteeProject,
   t: Translate
 ): GranteeReportLink[] {
@@ -144,12 +153,15 @@ function forumReportLinks(
 
 function reportsForProject(
   project: GranteeProject,
-  pageLinks: ReportLinksByProject,
+  links: ReportLinksByGrant,
+  locale: Locale,
   t: Translate
 ): GranteeReportLink[] {
-  const pages = pageLinks.get(project.id) ?? []
-  if (pages.length > 0) return pages
-  return forumReportLinks(project, t)
+  const typed = links.get(project.id) ?? []
+  if (typed.length > 0) {
+    return typed.map((link) => toGranteeReportLink(link, locale, t))
+  }
+  return projectLinkFallback(project, t)
 }
 
 // A project nobody owns would drop out of the directory without a word, so
@@ -199,8 +211,8 @@ export function buildGranteeDirectory(
   if (projects instanceof Error) return projects
   const profiles = parseDirectoryProfiles(sources.profiles)
   if (profiles instanceof Error) return profiles
-  const pageLinks = pageLinksByProject(sources, locale)
-  if (pageLinks instanceof Error) return pageLinks
+  const links = reportLinksByGrant(sources)
+  if (links instanceof Error) return links
   const t = useTranslations(locale)
 
   const unowned = findUnownedProjects(projects, profiles)
@@ -219,7 +231,7 @@ export function buildGranteeDirectory(
         .sort(compareByStartMonth)
         .map((project) => ({
           ...project,
-          reports: reportsForProject(project, pageLinks, t)
+          reports: reportsForProject(project, links, locale, t)
         }))
       return ownProjects.length > 0
         ? [toDirectoryEntry(profile, ownProjects)]

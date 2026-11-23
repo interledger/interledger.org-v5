@@ -226,16 +226,6 @@ export function getGrantReportRoutes(
   }))
 }
 
-// Interim reports first, then final ones, each by number.
-export function compareGrantReports(
-  a: Pick<GrantReport, 'reportType' | 'reportNumber'>,
-  b: Pick<GrantReport, 'reportType' | 'reportNumber'>
-): number {
-  const byType =
-    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType)
-  return byType || a.reportNumber - b.reportNumber
-}
-
 // A report date (YYYY-MM-DD) as the page shows it: month and year, for
 // example "September 2026". Formatted in UTC: Airtable dates have no time, and
 // in a zone west of UTC the local date of UTC midnight is the day before.
