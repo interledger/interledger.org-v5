@@ -1,9 +1,11 @@
 ---
 import {
-  localizeRoute,
   joinPagePath,
   useTranslations,
-  currentSummitYear,
+  summitBaseHref,
+  summitYearHref,
+  buildHomeBreadcrumb,
+  generateSlug,
   getSpeakers,
   getTranslation
 } from '@/utils'
@@ -22,15 +24,12 @@ interface Props {
   isFallback?: boolean
 }
 
-const { routeLocale: lang, currentBasePath } = Astro.locals
+const { routeLocale: lang } = Astro.locals
 const t = useTranslations(lang)
 const { entry, year, isFallback = false } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
-// the path for current summit is /summit/, instead of /summit/{year}/
-const baseHref = localizeRoute(currentBasePath, lang)
-const isCurrentYear = currentSummitYear === year
-const summitHref = joinPagePath(baseHref, isCurrentYear ? '' : year)
+const baseHref = summitBaseHref(lang)
 const sessionsHref = joinPagePath(baseHref, year, 'talks')
 const speakersBasePath = joinPagePath(baseHref, year, 'speakers')
 
@@ -39,14 +38,10 @@ const title = translation?.title ?? entry.title
 const description = translation?.description ?? entry.description
 
 const breadcrumbs = [
-  {
-    name: t('summit.summit_name', { year }),
-    href: summitHref
-  },
-  {
-    name: t('summit.sessions'),
-    href: sessionsHref
-  }
+  buildHomeBreadcrumb(lang, t),
+  { name: t('summit.summit_name', { year }), href: summitYearHref(year, lang) },
+  { name: t('summit.sessions'), href: sessionsHref },
+  { name: title, href: joinPagePath(sessionsHref, generateSlug(entry.title)) }
 ]
 ---
 
@@ -82,7 +77,6 @@ const breadcrumbs = [
               speakers={speakers}
               basePath={speakersBasePath}
               layout="stack"
-              year={year}
             />
           </aside>
         </div>
