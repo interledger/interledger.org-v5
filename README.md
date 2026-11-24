@@ -576,7 +576,7 @@ Docs live in `src/content/docs`.
 
 Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
 
-RFC pages under `src/content/docs/developers/rfcs/` are a small exception. Each one renders the markdown of an `interledger/rfcs` RFC through `src/components/docs/Rfc.astro`, from a snapshot committed in `src/data/docs/rfcs/`; the build never fetches from GitHub. To refresh the snapshots, run `pnpm run sync:rfcs`. A weekly workflow does the same and opens a pull request when an RFC changed. Internal RFC-to-RFC links are rewritten so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
+RFC pages under `src/content/docs/developers/rfcs/` are a small exception. Each one renders the markdown of an `interledger/rfcs` RFC through `src/components/docs/Rfc.astro`, from a snapshot committed in `src/data/docs/rfcs/`, with the images it shows in `src/data/docs/rfcs/images/`; neither the build nor the page fetches from GitHub. To refresh the snapshots, run `pnpm run sync:rfcs` (or `pnpm run sync:rfcs -- <id>` for one RFC). A weekly workflow does the same and opens a pull request when an RFC changed. Internal RFC-to-RFC links are rewritten so the rendered docs point at local Starlight routes instead of upstream `.md` source paths.
 
 Write internal links in docs markdown with a trailing slash (`[Get involved](/developers/get-involved/)`); a link without one fails the build. Strapi never sees these files, so nothing adds the slash for you.
 

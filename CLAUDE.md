@@ -522,18 +522,32 @@ is told only when it fails. Nobody reads the log of a run that passes.
 
 The pages under `/developers/rfcs/` render `interledger/rfcs` markdown from
 snapshots committed in `src/data/docs/rfcs/<id>.md`, one per entry in
-`PUBLISHED_RFCS` (`src/data/docs/rfcs.ts`). The build never fetches from
-GitHub: a GitHub outage once blocked a production publish (INTORG-1465).
+`PUBLISHED_RFCS` (`src/data/docs/rfcs.ts`). The images they show are synced
+too, into `src/data/docs/rfcs/images/` by their `interledger/rfcs` path, and
+bundled as hashed `/_astro/` assets. Neither the build nor a visitor's browser
+fetches from GitHub: a GitHub outage once blocked a production publish
+(INTORG-1465), and upstream edits went live unreviewed.
 
 - **Refresh** with `pnpm sync:rfcs`. It writes nothing unless every fetch
-  succeeds, and removes snapshots of RFCs no longer published.
-  `sync-rfcs.yml` runs it every Monday and opens a PR only when something
-  changed, so upstream edits are reviewed before they ship.
+  succeeds, removes snapshots of RFCs no longer published, and removes images
+  no RFC shows. `sync-rfcs.yml` runs it every Monday and opens a PR only when
+  something changed, so upstream edits are reviewed before they ship.
+- **Refuse an upstream change** by closing its sync PR unmerged. Later runs
+  skip that same change (compared by `git patch-id`), and close any open sync
+  PR whose content upstream no longer has. To take a refused change after all,
+  run the workflow by hand with `ignore_refusal`.
 - **Publish a new RFC**: add it to `PUBLISHED_RFCS`, add its page with
-  `<Rfc id="…">`, and run `pnpm sync:rfcs`. `rfcSnapshots.test.ts` fails when
-  the list and the snapshots don't match.
-- **Don't edit or format the snapshots.** They are verbatim upstream text, so
-  `.prettierignore` skips them; the next sync would overwrite a hand edit.
+  `<Rfc id="…">`, and run `pnpm sync:rfcs -- <id>`. With ids, the sync fetches
+  only those RFCs and deletes nothing, so upstream edits to other RFCs stay out
+  of the feature PR and go through the weekly sync PR instead.
+  `rfcSnapshots.test.ts` fails when the list and the snapshots don't match, or
+  when a page would show an image that has no local copy.
+- **Images:** an `<img>` pointing into `interledger/rfcs` (absolute raw URL or
+  relative path) is served from its local copy; an image hosted anywhere else
+  is left alone. A missing local copy fails the build rather than falling back
+  to GitHub. Allowed types are `RFC_IMAGE_EXTENSIONS`; the sync refuses others.
+- **Don't edit or format the snapshots.** They are verbatim upstream content,
+  so `.prettierignore` skips them; the next sync would overwrite a hand edit.
 
 ## Block Intro and Spacing
 
