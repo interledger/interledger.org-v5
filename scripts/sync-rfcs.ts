@@ -12,18 +12,54 @@ import { PUBLISHED_RFCS, RFC_SNAPSHOT_DIR } from '../src/data/docs/rfcs'
 import { tryCatchAsync } from '../src/utils/shared/tryCatch'
 
 const FETCH_TIMEOUT_MS = 30_000
+const MAX_FETCH_ATTEMPTS = 3
+/** Doubles after each failed attempt: 2s, then 4s. */
+const RETRY_BASE_DELAY_MS = 2_000
+const HTTP_TOO_MANY_REQUESTS = 429
+const HTTP_SERVER_ERROR_MIN = 500
 
 type Snapshot = { id: string; markdown: string }
 
-async function fetchMarkdown(url: string): Promise<string | Error> {
+type FetchAttempt = { markdown: string } | { error: Error; retryable: boolean }
+
+/** A network failure, timeout, 429 or 5xx may pass; a 404 never will. */
+function isRetryableStatus(status: number): boolean {
+  return status === HTTP_TOO_MANY_REQUESTS || status >= HTTP_SERVER_ERROR_MIN
+}
+
+async function fetchMarkdownOnce(url: string): Promise<FetchAttempt> {
   const response = await tryCatchAsync(() =>
     fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
   )
-  if (response instanceof Error) return response
+  if (response instanceof Error) return { error: response, retryable: true }
   if (!response.ok) {
-    return new Error(`${response.status} ${response.statusText}`)
+    return {
+      error: new Error(`${response.status} ${response.statusText}`),
+      retryable: isRetryableStatus(response.status)
+    }
   }
-  return tryCatchAsync(() => response.text())
+  const markdown = await tryCatchAsync(() => response.text())
+  if (markdown instanceof Error) return { error: markdown, retryable: true }
+  return { markdown }
+}
+
+/**
+ * GitHub's raw CDN answers transient 503s under load (INTORG-1465), so a
+ * failed fetch is retried with backoff before the whole sync gives up.
+ */
+async function fetchMarkdown(url: string): Promise<string | Error> {
+  for (let attempt = 1; ; attempt++) {
+    const result = await fetchMarkdownOnce(url)
+    if ('markdown' in result) return result.markdown
+    if (!result.retryable || attempt >= MAX_FETCH_ATTEMPTS) {
+      return new Error(`${result.error.message} (attempt ${attempt})`)
+    }
+    const delayMs = RETRY_BASE_DELAY_MS * 2 ** (attempt - 1)
+    console.warn(
+      `⚠️  ${url}: ${result.error.message}, retrying in ${delayMs}ms`
+    )
+    await new Promise((resolve) => setTimeout(resolve, delayMs))
+  }
 }
 
 async function fetchAllSnapshots(): Promise<Snapshot[] | Error> {
