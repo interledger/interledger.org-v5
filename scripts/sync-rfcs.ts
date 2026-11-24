@@ -8,8 +8,11 @@
  */
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { PUBLISHED_RFCS, RFC_SNAPSHOT_DIR } from '../src/data/docs/rfcs'
 import { tryCatchAsync } from '../src/utils/shared/tryCatch'
+
+const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 const FETCH_TIMEOUT_MS = 30_000
 const MAX_FETCH_ATTEMPTS = 3
@@ -70,18 +73,25 @@ async function fetchAllSnapshots(): Promise<Snapshot[] | Error> {
       markdown: await fetchMarkdown(sourceRawUrl)
     }))
   )
-  const failures = results.filter((result) => result.markdown instanceof Error)
-  if (failures.length > 0) {
-    const lines = failures.map(
-      ({ sourceRawUrl, markdown }) => `  ${sourceRawUrl}: ${String(markdown)}`
-    )
-    return new Error(`Failed to fetch RFC markdown:\n${lines.join('\n')}`)
+  const snapshots: Snapshot[] = []
+  const failures: string[] = []
+  for (const { id, sourceRawUrl, markdown } of results) {
+    if (markdown instanceof Error) {
+      failures.push(`  ${sourceRawUrl}: ${markdown.message}`)
+    } else {
+      snapshots.push({ id, markdown })
+    }
   }
-  return results.map(({ id, markdown }) => ({ id, markdown: String(markdown) }))
+  if (failures.length > 0) {
+    return new Error(`Failed to fetch RFC markdown:\n${failures.join('\n')}`)
+  }
+  return snapshots
 }
 
 async function writeSnapshots(snapshots: Snapshot[]): Promise<void> {
-  const dir = path.resolve(RFC_SNAPSHOT_DIR)
+  // Against the repo root, not the CWD, so running the script from another
+  // directory can't write a stray snapshot tree there.
+  const dir = path.join(REPO_ROOT, RFC_SNAPSHOT_DIR)
   await fs.mkdir(dir, { recursive: true })
 
   const keep = new Set(snapshots.map(({ id }) => `${id}.md`))
