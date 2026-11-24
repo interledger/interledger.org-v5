@@ -51,6 +51,15 @@ function readReportUrl(value: unknown): string | { expected: string } {
   return url.href
 }
 
+// The row as Programs know it: its primary field, Report Id, which reads like
+// "Waasabi … 2 Final Report". The record ID follows, for an exact match. Without
+// a primary field value, the record ID alone.
+function rowLabel(raw: RawTableRecord, labelFieldId?: string): string {
+  const value = labelFieldId ? raw.fields[labelFieldId] : undefined
+  const name = typeof value === 'string' ? value.trim() : ''
+  return name ? `"${name}" (ID: ${raw.id})` : raw.id
+}
+
 function hasLink(raw: RawTableRecord): boolean {
   const value = raw.fields[LEGACY_REPORT_FIELDS.link.id]
   return typeof value === 'string' && value.trim() !== ''
@@ -60,7 +69,8 @@ function hasLink(raw: RawTableRecord): boolean {
 // warning. Every problem of a row with a link is listed. The link itself is
 // never printed: the sync log is public.
 export function toLegacyGrantReport(
-  raw: RawTableRecord
+  raw: RawTableRecord,
+  labelFieldId?: string
 ): LegacyGrantReport | Error {
   const { link, projects, reportType, reportNumber } = LEGACY_REPORT_FIELDS
   const problems: string[] = []
@@ -98,7 +108,12 @@ export function toLegacyGrantReport(
     !isReportType(type) ||
     typeof number !== 'number'
   ) {
-    return new Error(formatProblems(`Submitted report ${raw.id}`, problems))
+    return new Error(
+      formatProblems(
+        `Submitted report ${rowLabel(raw, labelFieldId)}`,
+        problems
+      )
+    )
   }
   return { grantId, reportType: type, reportNumber: number, url }
 }
@@ -111,25 +126,35 @@ function reportKey({
   return `${grantId} ${reportType} ${reportNumber}`
 }
 
+interface LabelledReport {
+  report: LegacyGrantReport
+  label: string
+}
+
 // Two rows can hold the same report. With the same link, they are one report.
 // With different links, the sync cannot tell which is right, so it skips both
 // and names the report, until Programs remove the extra row (INTORG-1436).
-function removeDuplicates(reports: readonly LegacyGrantReport[]): {
+function removeDuplicates(rows: readonly LabelledReport[]): {
   reports: LegacyGrantReport[]
   skipped: string[]
 } {
-  const byKey = new Map<string, LegacyGrantReport[]>()
-  for (const report of reports) {
-    const key = reportKey(report)
-    byKey.set(key, [...(byKey.get(key) ?? []), report])
+  const byKey = new Map<string, LabelledReport[]>()
+  for (const row of rows) {
+    const key = reportKey(row.report)
+    byKey.set(key, [...(byKey.get(key) ?? []), row])
   }
   const kept: LegacyGrantReport[] = []
   const skipped: string[] = []
-  for (const [key, group] of byKey) {
-    const urls = new Set(group.map(({ url }) => url))
+  for (const group of byKey.values()) {
+    const urls = new Set(group.map(({ report }) => report.url))
     const [first] = group
-    if (urls.size === 1 && first) kept.push(first)
-    else skipped.push(`Grant ${key}: ${urls.size} different links`)
+    if (!first) continue
+    if (urls.size === 1) {
+      kept.push(first.report)
+      continue
+    }
+    const labels = group.map(({ label }) => label).join(', ')
+    skipped.push(`${urls.size} different links for one report: ${labels}`)
   }
   return { reports: kept, skipped }
 }
@@ -149,24 +174,30 @@ export interface LegacyReportsResult {
   reports: LegacyGrantReport[]
   // One message per skipped row or report, for the sync's warning.
   skipped: string[]
+  // Rows with a link, kept or skipped. With none kept, the caller fails.
+  linkedRows: number
 }
 
 // Keeps the rows that have a link, one report per grant, type and number,
 // sorted so a change to the view's sort does not reorder the committed file.
+// `labelFieldId` is the table's primary field, which names a row in warnings.
 export function toLegacyGrantReports(
-  records: readonly RawTableRecord[]
+  records: readonly RawTableRecord[],
+  labelFieldId?: string
 ): LegacyReportsResult {
-  const parsed: LegacyGrantReport[] = []
+  const parsed: LabelledReport[] = []
   const skipped: string[] = []
-  for (const record of records.filter(hasLink)) {
-    const result = toLegacyGrantReport(record)
+  const linked = records.filter(hasLink)
+  for (const record of linked) {
+    const result = toLegacyGrantReport(record, labelFieldId)
     if (result instanceof Error) skipped.push(result.message)
-    else parsed.push(result)
+    else parsed.push({ report: result, label: rowLabel(record, labelFieldId) })
   }
   const unique = removeDuplicates(parsed)
   return {
     reports: unique.reports.sort(compareLegacyReports),
-    skipped: [...skipped, ...unique.skipped]
+    skipped: [...skipped, ...unique.skipped],
+    linkedRows: linked.length
   }
 }
 

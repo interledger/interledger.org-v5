@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import path from 'node:path'
 import fs from 'fs/promises'
+import { appendFileSync } from 'fs'
 import * as prettier from 'prettier'
 import type {
   GrantReport,
@@ -402,20 +403,43 @@ async function fetchLegacyGrantReports(
     )
   }
 
+  // The primary field (Report Id) names a skipped row in a way Programs can
+  // search for. It is read for the warnings only, never written.
+  const labelFieldId = table.primaryFieldId
   const params = new URLSearchParams({ view: LEGACY_REPORTS_VIEW_ID })
   legacyReportFieldIdsToFetch().forEach((id) => params.append('fields[]', id))
+  params.append('fields[]', labelFieldId)
   const records = await fetchAllRecords(
     SUBMITTED_REPORTS_TABLE_ID,
     params,
     apiToken
   )
-  const { reports, skipped } = toLegacyGrantReports(records)
+  const { reports, skipped, linkedRows } = toLegacyGrantReports(
+    records,
+    labelFieldId
+  )
+  writeStepOutput('legacy_skipped', skipped.length)
   if (skipped.length > 0) {
     console.warn(
       `⚠️  ${formatProblems(`${skipped.length} legacy report(s) skipped`, skipped)}`
     )
   }
+  // Skipping a bad row is fine. Skipping every row means a change in Airtable
+  // (a renamed option, a field turned into text) broke them all.
+  if (linkedRows > 0 && reports.length === 0) {
+    throw new Error(
+      `All ${linkedRows} legacy report rows were skipped. Check the Submitted Reports fields: ${formatProblems('first problems', skipped.slice(0, 3))}`
+    )
+  }
   return reports
+}
+
+// The sync workflow reads this to show the count in the pull request. Outside
+// GitHub Actions there is no output file, so nothing is written.
+function writeStepOutput(name: string, value: number): void {
+  const file = process.env.GITHUB_OUTPUT
+  if (!file) return
+  appendFileSync(file, `${name}=${value}\n`)
 }
 
 // Only grants in the directory have a card, so the file keeps their links only.

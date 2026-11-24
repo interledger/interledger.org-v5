@@ -133,6 +133,9 @@ jobs:
             echo "reports_after_count=$(jq length < "$REPORTS_JSON")"
             echo "profiles_before_count=$(git show "HEAD:$PROFILES_JSON" | jq length)"
             echo "profiles_after_count=$(jq length < "$PROFILES_JSON")"
+            # The file is new with the legacy part, so an older staging may not have it yet.
+            echo "legacy_before_count=$(git show "HEAD:$LEGACY_JSON" 2>/dev/null | jq length || echo 0)"
+            echo "legacy_after_count=$(jq length < "$LEGACY_JSON")"
           } >> "$GITHUB_OUTPUT"
 
       - name: Commit and push the sync branch
@@ -165,6 +168,9 @@ jobs:
           REPORTS_AFTER_COUNT: ${{ steps.sync.outputs.reports_after_count }}
           PROFILES_BEFORE_COUNT: ${{ steps.sync.outputs.profiles_before_count }}
           PROFILES_AFTER_COUNT: ${{ steps.sync.outputs.profiles_after_count }}
+          LEGACY_BEFORE_COUNT: ${{ steps.sync.outputs.legacy_before_count }}
+          LEGACY_AFTER_COUNT: ${{ steps.sync.outputs.legacy_after_count }}
+          LEGACY_SKIPPED: ${{ steps.sync.outputs.legacy_skipped }}
         run: |
           set -euo pipefail
 
@@ -185,6 +191,7 @@ jobs:
             printf 'Grantee records: **%s → %s**\n\n' "$BEFORE_COUNT" "$AFTER_COUNT"
             printf 'Grant reports: **%s → %s**\n\n' "$REPORTS_BEFORE_COUNT" "$REPORTS_AFTER_COUNT"
             printf 'Grantee profiles: **%s → %s**\n\n' "$PROFILES_BEFORE_COUNT" "$PROFILES_AFTER_COUNT"
+            printf 'Legacy reports: **%s → %s** (%s skipped, see the run log)\n\n' "$LEGACY_BEFORE_COUNT" "$LEGACY_AFTER_COUNT" "${LEGACY_SKIPPED:-0}"
             cat <<'EOF'
           A record enters the directory when an editor sets **Published on Website** in the
           Airtable Projects table, and leaves when that flag is cleared. A record can also change
@@ -195,6 +202,11 @@ jobs:
           A grant report enters when its **Publication Status** in the Airtable Published Reports
           table is **Live**, and leaves when it changes. The sync fails, and opens no pull request,
           if a Live report is missing a required field or holds an invalid value.
+
+          A legacy report is an older progress report, mostly on the community forum, linked from
+          the Airtable Submitted Reports table. Its data is older, so a bad row is skipped, not
+          failed: the run log names each skipped row by its Report Id. The sync fails only if every
+          row is skipped.
 
           Every grantee in the Airtable Grantees table has a profile. The sync fails, and opens no
           pull request, if a grantee is missing a required field, holds an invalid value (a bad
@@ -258,7 +270,7 @@ jobs:
             echo "Opened pull request: $PR_URL"
           fi
 
-          echo "Airtable data changed: grantee records $BEFORE_COUNT → $AFTER_COUNT, grant reports $REPORTS_BEFORE_COUNT → $REPORTS_AFTER_COUNT, grantee profiles $PROFILES_BEFORE_COUNT → $PROFILES_AFTER_COUNT. $PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "Airtable data changed: grantee records $BEFORE_COUNT → $AFTER_COUNT, grant reports $REPORTS_BEFORE_COUNT → $REPORTS_AFTER_COUNT, grantee profiles $PROFILES_BEFORE_COUNT → $PROFILES_AFTER_COUNT, legacy reports $LEGACY_BEFORE_COUNT → $LEGACY_AFTER_COUNT (${LEGACY_SKIPPED:-0} skipped). $PR_URL" >> "$GITHUB_STEP_SUMMARY"
 
   notify-slack:
     runs-on: ubuntu-latest

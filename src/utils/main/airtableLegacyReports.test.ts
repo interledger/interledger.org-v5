@@ -111,7 +111,7 @@ describe('toLegacyGrantReports', () => {
       row({ [F.link.id]: undefined }, 'recRow0000000002'),
       row({ [F.link.id]: '  ' }, 'recRow0000000003')
     ])
-    expect(result).toEqual({ reports: [], skipped: [] })
+    expect(result).toEqual({ reports: [], skipped: [], linkedRows: 0 })
   })
 
   it('skips a bad row and keeps the others', () => {
@@ -137,8 +137,42 @@ describe('toLegacyGrantReports', () => {
     ])
     expect(result.reports).toEqual([])
     expect(result.skipped).toEqual([
-      `Grant ${GRANT_ID} Interim Report 1: 2 different links`
+      '2 different links for one report: recRow0000000001, recRow0000000002'
     ])
+    expect(result.linkedRows).toBe(2)
+  })
+
+  it('names rows by their Report Id when the label field is given', () => {
+    const LABEL = 'fldReportId00000'
+    const result = toLegacyGrantReports(
+      [
+        row({ [LABEL]: 'Gib 1 Interim Report' }),
+        row(
+          { [LABEL]: 'Gib 1 Interim Report', [F.link.id]: `${FORUM_URL}-2` },
+          'recRow0000000002'
+        ),
+        row(
+          { [LABEL]: ' Gib 2 Final Report ', [F.link.id]: 'forum' },
+          'recRow0000000003'
+        )
+      ],
+      LABEL
+    )
+    expect(result.skipped).toEqual([
+      expect.stringContaining(
+        'Submitted report "Gib 2 Final Report" (ID: recRow0000000003)'
+      ),
+      '2 different links for one report: "Gib 1 Interim Report" (ID: recRow0000000001), "Gib 1 Interim Report" (ID: recRow0000000002)'
+    ])
+  })
+
+  it('falls back to the record ID when the Report Id is blank', () => {
+    const LABEL = 'fldReportId00000'
+    const [message] = toLegacyGrantReports(
+      [row({ [LABEL]: '  ', [F.link.id]: 'forum' })],
+      LABEL
+    ).skipped
+    expect(message).toContain('Submitted report recRow0000000001')
   })
 
   it('sorts by grant, interim first, then by number', () => {

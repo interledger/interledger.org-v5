@@ -779,7 +779,7 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 
 - Fetches **Submitted Reports** through its public view (`Submitted Reports - PUBLIC - LIVE ON WEBSITE`). The rest of that table is private
 - Reads **Legacy Public Progress Report** (the link to the older report, mostly on the community forum), **Projects**, **Report type** and **Report Num**, and keeps only reports of grants in the directory
-- The data is older and less clean, so a bad row is skipped with a warning that names its record ID, never its link, and does not fail the sync: a cell with two links or extra text, a value that is not an `http` or `https` link, or a row with no project or two projects. Two rows for one report with the same link count once. With different links, the report is skipped until Programs remove the extra row
+- The data is older and less clean, so a bad row is skipped with a warning that names its Report Id and record ID, never its link, and does not fail the sync: a cell with two links or extra text, a value that is not an `http` or `https` link, or a row with no project or two projects. Two rows for one report with the same link count once. With different links, the report is skipped until Programs remove the extra row
 
 **Grantee profiles** (`grantee-profiles.json`):
 
@@ -790,7 +790,7 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 
 **Images** (report images and logos): each image field holds at most one file, of type JPEG, PNG, WebP or AVIF and at most 50 MB. The sync removes its metadata, limits its longest side (2,400 px for a report image, 1,024 px for a logo), encodes it as WebP and stores it under one folder per record. A later run reuses the stored file.
 
-**Failures:** the sync never leaves out bad data with only a log warning, because nobody reads the log of a run that passes. A renamed column or an unused visible column is not bad data, so it is only logged. The sync fails, and writes no JSON file, on:
+**Failures:** the sync never leaves out bad data with only a log warning, because nobody reads the log of a run that passes. The one exception is the legacy grant reports (see above): a bad row is skipped, named by its Report Id in the log, and counted in the sync pull request. That part fails only when every row is skipped. A renamed column or an unused visible column is not bad data, so it is only logged. The sync fails, and writes no JSON file, on:
 
 - a missing required value, in the directory, report or profile tables
 - an invalid value, required or optional: a value of the wrong type, a formula error (`#ERROR!`, `NaN`), a profile link that is not an `http` or `https` URL, or a bad slug. Directory values are checked by type only, so free text in **Project Links** is allowed; `grantee.ts` skips any entry that is not a usable URL
