@@ -31,6 +31,10 @@ on:
 
 jobs:
   rebuild-and-sync:
+    outputs:
+      overwritten: ${{ steps.rebuild.outputs.overwritten }}
+      superseded: ${{ steps.rebuild.outputs.superseded }}
+      details_unavailable: ${{ steps.rebuild.outputs.details_unavailable }}
     concurrency:
       # A manual dispatch racing the schedule (or two dispatches) must not overlap on the same
       # VM — both stop/rebuild/restart the same systemd service. The group is keyed on the branch
@@ -66,6 +70,7 @@ jobs:
           esac
 
       - name: Rebuild Strapi (if needed) and sync content
+        id: rebuild
         shell: bash
         run: |
           set -euo pipefail
@@ -201,20 +206,67 @@ jobs:
           # checkout, including the integrate below, and used to need a hand to clear.
           # Strapi's git sync now clears its own (cms/src/utils/gitSync.ts), but a
           # hand-run command on the VM can still leave state behind. `--abort` restores
-          # the pre-operation commit; `--quit` only clears the state, so it is the
-          # fallback for a rebase too corrupt to unwind.
+          # the pre-operation commit. A failed abort fails the run, as in gitSync.ts
+          # (`abortOperations`): `--quit` would leave HEAD detached mid-rebase, the
+          # restore below would write files onto it, and the branch checkout after
+          # could refuse or carry the half-rebased tree onto the branch.
+          #
+          # `--abort` also resets every tracked file, so a page Strapi wrote into the stuck
+          # checkout would be discarded while the editor still sees it saved. As in
+          # gitSync.ts, every CMS-owned file that differs from HEAD and has no conflict
+          # markers is copied aside first and put back after: Strapi writes whole files,
+          # so a marker-free file is an editor's write, and one with markers is git's.
+          snapshot_editor_writes() {
+            EDITOR_WRITES="$(mktemp -d)"
+            git diff --name-only -z HEAD -- src/content public/uploads/img/original \
+              > "$EDITOR_WRITES/.paths"
+            while IFS= read -r -d '' f; do
+              if [ ! -e "$f" ]; then
+                printf '%s\0' "$f" >> "$EDITOR_WRITES/.deleted"
+              elif ! { grep -qE '^<{7}( |$)' "$f" && grep -qE '^>{7}( |$)' "$f"; }; then
+                mkdir -p "$EDITOR_WRITES/files/$(dirname "$f")"
+                cp -p "$f" "$EDITOR_WRITES/files/$f"
+              fi
+            done < "$EDITOR_WRITES/.paths"
+          }
+          restore_editor_writes() {
+            if [ -d "$EDITOR_WRITES/files" ]; then
+              cp -a "$EDITOR_WRITES/files/." .
+              echo "::warning::Kept files Strapi wrote while the checkout was stuck:"
+              (cd "$EDITOR_WRITES/files" && find . -type f | sed 's|^\./||')
+            fi
+            if [ -f "$EDITOR_WRITES/.deleted" ]; then
+              xargs -0 rm -f -- < "$EDITOR_WRITES/.deleted"
+            fi
+            rm -rf "$EDITOR_WRITES"
+          }
+
           if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
-             [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
-            echo "::warning::Checkout was left mid-rebase — clearing it."
-            git rebase --abort || git rebase --quit || true
-          fi
-          if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
-            echo "::warning::Checkout was left mid-merge — clearing it."
-            git merge --abort || true
-          fi
-          if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
-            echo "::warning::Checkout was left mid-cherry-pick — clearing it."
-            git cherry-pick --abort || true
+             [ -d "$(git rev-parse --git-path rebase-apply)" ] || \
+             [ -f "$(git rev-parse --git-path MERGE_HEAD)" ] || \
+             [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+            snapshot_editor_writes
+            ABORT_FAILED=""
+            if [ -d "$(git rev-parse --git-path rebase-merge)" ] || \
+               [ -d "$(git rev-parse --git-path rebase-apply)" ]; then
+              echo "::warning::Checkout was left mid-rebase — clearing it."
+              git rebase --abort || ABORT_FAILED="rebase"
+            fi
+            if [ -f "$(git rev-parse --git-path MERGE_HEAD)" ]; then
+              echo "::warning::Checkout was left mid-merge — clearing it."
+              git merge --abort || ABORT_FAILED="${ABORT_FAILED:+$ABORT_FAILED, }merge"
+            fi
+            if [ -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" ]; then
+              echo "::warning::Checkout was left mid-cherry-pick — clearing it."
+              git cherry-pick --abort || ABORT_FAILED="${ABORT_FAILED:+$ABORT_FAILED, }cherry-pick"
+            fi
+            # Put back even after a failed abort: it may have reset files before failing.
+            restore_editor_writes
+            if [ -n "$ABORT_FAILED" ]; then
+              echo "Error: could not clear the interrupted $ABORT_FAILED in $DEPLOY_PATH."
+              echo "Clear it by hand on the VM, check that the checkout is on '$DEPLOY_BRANCH', then re-run."
+              exit 1
+            fi
           fi
 
           # Captured before the integrate, so the rebuild trigger below sees everything it
@@ -251,7 +303,7 @@ jobs:
               exit 1
             fi
           elif git merge-base --is-ancestor "origin/$DEPLOY_BRANCH" HEAD; then
-            # Ahead only: nothing to integrate. The push below sends the local commits.
+            # Ahead only: nothing to integrate. Strapi's next save pushes the local commits.
             :
           else
             # Diverged: a Strapi commit never reached origin. Failing here used to take
@@ -308,9 +360,40 @@ jobs:
               exit 1
             fi
 
+            # Which upstream changes the CMS side is about to overwrite, worked out before
+            # the rebase because `-X theirs` resolves silently. The same check as
+            # describeConflict in gitSync.ts. Strapi's next push of the result is a plain
+            # fast-forward, so its own check never runs: this is the only place that can
+            # announce the overwrite. `merge-tree` merges from the merge-base, the rebase
+            # replays from the fork point, so the list keeps only files the replayed
+            # commits touch.
+            OVERWRITTEN=""
+            SUPERSEDED=""
+            DETAILS_UNAVAILABLE=""
+            if ! PROBE="$(git -c core.quotePath=false merge-tree --write-tree --name-only \
+                            "origin/$DEPLOY_BRANCH" HEAD)"; then
+              # Paths sit between the tree id on line 1 and the first blank line.
+              CONFLICTED="$(printf '%s\n' "$PROBE" | sed -n '2,/^$/p' | sed '/^$/d' | sort -u)"
+              FORK_POINT="$(git merge-base --fork-point "origin/$DEPLOY_BRANCH" HEAD || true)"
+              if [ -z "$CONFLICTED" ]; then
+                # Non-zero with no paths: the check itself failed (it needs git >= 2.38).
+                # The rebase may still overwrite something, so this is announced too.
+                DETAILS_UNAVAILABLE=true
+              elif [ -n "$FORK_POINT" ]; then
+                OVERWRITTEN="$(comm -12 <(printf '%s\n' "$CONFLICTED") \
+                  <(git -c core.quotePath=false diff --name-only "$FORK_POINT" HEAD | sort -u))"
+              else
+                OVERWRITTEN="$CONFLICTED"
+              fi
+              if [ -n "$CONFLICTED" ] && [ -n "$OVERWRITTEN" ]; then
+                SUPERSEDED="$(printf '%s\n' "$OVERWRITTEN" | tr '\n' '\0' |
+                  xargs -0 git log --oneline --no-decorate "HEAD..origin/$DEPLOY_BRANCH" -- || true)"
+              fi
+            fi
+
             # --fork-point, as in gitSync.ts: after reset.yml force-pushes the branch,
-            # plain merge-base semantics would replay the commits it discarded and the
-            # push below would restore them.
+            # plain merge-base semantics would replay the commits it discarded, and
+            # Strapi's next push would restore them.
             if ! git -c rebase.autoStash=true -c rerere.enabled=false \
                    rebase --fork-point -X theirs "origin/$DEPLOY_BRANCH"; then
               # Leaving it mid-rebase would break every later editor save as well as the next
@@ -322,17 +405,36 @@ jobs:
               git log --oneline "origin/$DEPLOY_BRANCH..HEAD" || true
               exit 1
             fi
+
+            # Written straight after the rebase, so the alert job still sees the overwrite
+            # when a later step (the rebuild, `sync:all`) fails.
+            if [ -n "$DETAILS_UNAVAILABLE" ]; then
+              echo "::warning::The conflict check could not run, so the replay may have overwritten upstream changes."
+              echo "details_unavailable=true" >> "$GITHUB_OUTPUT"
+            fi
+            if [ -n "$OVERWRITTEN" ]; then
+              echo "::warning::The CMS side overwrote upstream changes in: $(printf '%s\n' "$OVERWRITTEN" | paste -sd ' ' -)"
+              DELIMITER="EOF_$(openssl rand -hex 8)"
+              {
+                echo "overwritten<<$DELIMITER"
+                printf '%s\n' "$OVERWRITTEN"
+                echo "$DELIMITER"
+                echo "superseded<<$DELIMITER"
+                printf '%s\n' "$SUPERSEDED"
+                echo "$DELIMITER"
+              } >> "$GITHUB_OUTPUT"
+            fi
           fi
 
-          # Outside the divergence branch on purpose: the ahead-only case — a commit made
-          # locally whose push failed — integrates nothing, and still has to be pushed.
-          #
-          # Non-fatal: the rebuild and sync below are still valid against this tree, and
-          # the next run retries.
-          if [ "$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")" -gt 0 ]; then
-            echo "Pushing $(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD") local commit(s) to $DEPLOY_BRANCH."
-            git push origin "HEAD:$DEPLOY_BRANCH" || \
-              echo "::warning::Local commits not pushed; the next run will retry."
+          # This workflow never pushes. Strapi's git sync is the only writer to the deploy
+          # branch, so a push here can never start a push-triggered workflow that pushes
+          # again, and the runner needs no GitHub credentials. Local commits, whether
+          # stranded or just replayed above, reach origin with the next editor save: its
+          # push sends everything on HEAD. The rebuild and sync below are valid against
+          # this tree either way.
+          LOCAL_COMMITS="$(git rev-list --count "origin/$DEPLOY_BRANCH..HEAD")"
+          if [ "$LOCAL_COMMITS" -gt 0 ]; then
+            echo "::notice::$LOCAL_COMMITS local commit(s) not on origin/$DEPLOY_BRANCH yet; Strapi's next save pushes them."
           fi
 
           # Defensive check: after a clean `-X theirs` rebase nothing can be unmerged, so
@@ -428,3 +530,67 @@ jobs:
                 }
               ]
             }
+
+  # The diverged path above replays VM commits with `-X theirs`, the same CMS-wins rule as
+  # an editor save, and that can drop a developer's change. It gets the same notice the
+  # Strapi side posts (cms/src/utils/slackNotify.ts). It runs even when a later step failed:
+  # the overwrite already happened.
+  notify-overwrite:
+    runs-on: ubuntu-latest
+    needs: rebuild-and-sync
+    if: >-
+      ${{ !cancelled() && (needs.rebuild-and-sync.outputs.overwritten != '' ||
+      needs.rebuild-and-sync.outputs.details_unavailable == 'true') }}
+    steps:
+      # Built with jq so the multi-line file and commit lists stay valid JSON.
+      - name: Build the Slack message
+        env:
+          BRANCH: ${{ inputs.branch }}
+          OVERWRITTEN: ${{ needs.rebuild-and-sync.outputs.overwritten }}
+          SUPERSEDED: ${{ needs.rebuild-and-sync.outputs.superseded }}
+          DETAILS_UNAVAILABLE: ${{ needs.rebuild-and-sync.outputs.details_unavailable }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          files="$(printf '%s\n' "$OVERWRITTEN" | sed '/^$/d; s/.*/• `&`/')"
+          commits="$(printf '%s\n' "$SUPERSEDED" | sed '/^$/d; s/.*/• `&`/')"
+          # Without the check, nothing says what was overwritten or whether anything
+          # was, so the message says "may have" rather than listing paths as fact.
+          # The same wording as the Strapi-side alert (slackNotify.ts).
+          jq -n --arg branch "$BRANCH" --arg files "$files" \
+                --arg commits "${commits:-(none listed)}" --arg run "$RUN_URL" \
+                --arg unavailable "${DETAILS_UNAVAILABLE:-}" '
+            ($unavailable == "true") as $unknown
+            | (if $unknown then "may have overwritten" else "overwrote" end) as $verb
+            | {
+            channel: "frontend-team",
+            text: "⚠️ Strapi Build and Sync \($verb) branch changes on \($branch)",
+            blocks: [{
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: ("⚠️ *Strapi Build and Sync \($verb) branch changes*\n" +
+                  "The VM had CMS commits that never reached `\($branch)` and were replayed " +
+                  "on top of it. Policy is that the CMS wins, so where they conflicted the " +
+                  "editor\u0027s version was kept.\n" +
+                  "*Not pushed yet:* the next editor save pushes it.\n" +
+                  (if $unknown then
+                    "*Details unavailable:* the conflict check could not run, so the " +
+                    "overwritten files cannot be listed. Compare the replayed commits " +
+                    "with the branch by hand.\n"
+                  else
+                    "*Files:*\n\($files)\n*Superseded commits:*\n\($commits)\n" +
+                    "If your PR is listed, run `git log -p <sha> -- <path>` and re-apply " +
+                    "what was dropped.\n"
+                  end) +
+                  "<\($run)|View Run>")
+              }
+            }]
+          }' > slack-payload.json
+
+      - name: Notify Slack of overwritten branch changes
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-file-path: ./slack-payload.json

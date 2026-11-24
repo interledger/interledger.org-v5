@@ -111,6 +111,20 @@ const INTERRUPTED_OPERATION_PATHS = [
   'CHERRY_PICK_HEAD'
 ] as const
 
+type InterruptedOperationPath = (typeof INTERRUPTED_OPERATION_PATHS)[number]
+
+/**
+ * How each interrupted operation is undone. Never `--quit`: it clears the
+ * state but leaves HEAD detached wherever the rebase stopped, and the next
+ * save would commit there and push from it.
+ */
+const ABORT_COMMANDS: Record<InterruptedOperationPath, string> = {
+  'rebase-merge': 'git rebase --abort',
+  'rebase-apply': 'git rebase --abort',
+  MERGE_HEAD: 'git merge --abort',
+  CHERRY_PICK_HEAD: 'git cherry-pick --abort'
+}
+
 /**
  * Unmerged porcelain codes. Every one of them contains a `U`, or is `AA`/`DD`
  * which git emits only for an unmerged entry, so a trimmed two-character
@@ -164,9 +178,14 @@ export type GitSyncSkipReason =
   'disabled' | 'no-changes' | 'no-stage-paths' | 'no-valid-paths'
 
 /**
- * What integrating the commit had to overwrite. Present on a `synced` result
- * only when the push was rejected and the rebase resolved a conflict in the
- * CMS's favour.
+ * What integrating the commit had to overwrite, present only when the push was
+ * rejected and a rebase resolved a conflict in the CMS's favour.
+ *
+ * Carried by a `failed` result as well as a `synced` one. A rebase can apply
+ * the overwrite and the push still fail; the content then stays staged and
+ * the next save pushes it as a plain fast-forward that probes nothing, so the
+ * failed result is the only chance to announce it (`report()` sends it with
+ * `pendingPush`). Dropping it from the failed path loses the alert silently.
  */
 export interface ConflictResolution {
   /** Paths where a conflicting hunk was taken from the CMS side. */
@@ -242,14 +261,35 @@ export type GitSyncResult =
   | { outcome: 'synced'; message: string; conflict?: ConflictResolution }
   | { outcome: 'nothing-to-commit' }
   | { outcome: 'skipped'; reason: GitSyncSkipReason }
-  | { outcome: 'failed'; error: Error }
+  | {
+      outcome: 'failed'
+      error: Error
+      /**
+       * Set when a rebase already applied the CMS-wins resolution but no push
+       * got it out. The resolved content stays staged, and the next save pushes
+       * it as a plain fast-forward with no probe, so this is the only chance to
+       * announce the overwrite.
+       */
+      conflict?: ConflictResolution
+    }
 
 // ── Injected effects ─────────────────────────────────────────────────────────
+
+/** Options for {@link GitExec}. */
+export interface GitExecOptions {
+  /**
+   * Return stdout as git wrote it. By default it is trimmed, which is right
+   * for line output but corrupts `-z` output whose first record starts with
+   * whitespace, as an unstaged `git status` change does (` M path`).
+   */
+  raw?: boolean
+}
 
 /** Runs a command in `cwd`. This function never rejects. A non-zero exit code is a normal return value, not an error. */
 export type GitExec = (
   command: string,
-  cwd: string
+  cwd: string,
+  options?: GitExecOptions
 ) => Promise<string | GitCommandError>
 
 /**
@@ -284,6 +324,19 @@ export interface LockFs {
   remove: (filepath: string) => void
 }
 
+/**
+ * Working-tree file access for interrupted-operation recovery, injected so the
+ * snapshot and restore are testable without a real checkout. Contents are raw
+ * bytes: uploads are binary.
+ */
+export interface WorkTreeFs {
+  /** The file's bytes, or `null` when it does not exist. */
+  read: (filepath: string) => Buffer | null
+  /** Writes the file, creating parent directories. */
+  write: (filepath: string, contents: Buffer) => void
+  remove: (filepath: string) => void
+}
+
 export interface GitSyncDeps {
   exec: GitExec
   fileExists: (filepath: string) => boolean
@@ -293,6 +346,7 @@ export interface GitSyncDeps {
   lockFs: LockFs
   /** Milliseconds since the epoch. Injected so lock staleness is testable. */
   now: () => number
+  workTree: WorkTreeFs
 }
 
 /**
@@ -323,7 +377,7 @@ const GIT_NON_INTERACTIVE_ENV = {
  * {@link execWithLockRetry} absorbs the contention until then.
  */
 export function createExecInRepo(timeoutMs: number): GitExec {
-  return (command, cwd) =>
+  return (command, cwd, options = {}) =>
     new Promise((resolve) => {
       exec(
         command,
@@ -335,7 +389,7 @@ export function createExecInRepo(timeoutMs: number): GitExec {
         },
         (error, stdout, stderr) => {
           if (!error) {
-            resolve(stdout.trim())
+            resolve(options.raw ? stdout : stdout.trim())
             return
           }
           // Its own message, so a hang gets its own alert fingerprint rather
@@ -401,13 +455,28 @@ const defaultLockFs: LockFs = {
   remove: (filepath) => fs.rmSync(filepath, { force: true })
 }
 
+const defaultWorkTree: WorkTreeFs = {
+  read: (filepath) => {
+    const contents = tryCatch(() => fs.readFileSync(filepath))
+    if (!(contents instanceof Error)) return contents
+    if (errorCode(contents) === 'ENOENT') return null
+    throw contents
+  },
+  write: (filepath, contents) => {
+    fs.mkdirSync(path.dirname(filepath), { recursive: true })
+    fs.writeFileSync(filepath, contents)
+  },
+  remove: (filepath) => fs.rmSync(filepath, { force: true })
+}
+
 export const defaultGitSyncDeps: GitSyncDeps = {
   exec: execInRepo,
   fileExists: (filepath) => fs.existsSync(filepath),
   notify: notifyGitSyncToSlack,
   sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   lockFs: defaultLockFs,
-  now: () => Date.now()
+  now: () => Date.now(),
+  workTree: defaultWorkTree
 }
 
 // ── Shell + path helpers ─────────────────────────────────────────────────────
@@ -515,6 +584,24 @@ export async function validateGitSyncRepoOnStartup(
   const recovered = await tryCatchAsync(() =>
     recoverInterruptedOperation(repoRoot, deps)
   ).finally(() => lock.release())
+  // A git command that failed leaves a checkout that needs a human, not a CMS
+  // that refuses to boot: editors can keep saving, and the failure is alerted
+  // like a failed save. Only an unexpected throw stays fatal, like the
+  // configuration checks above.
+  if (recovered instanceof GitCommandError) {
+    console.warn(`⚠️  Startup recovery failed: ${recovered.message}`)
+    // The log alone is not enough: a restore that failed leaves a clean
+    // checkout, so the next save commits without the page and alerts nothing.
+    await report(
+      { outcome: 'failed', error: recovered },
+      { label: 'startup recovery', repoRoot },
+      deps
+    )
+    console.log(
+      `✅ Git sync repository validated: ${repoRoot} (branch: ${branch})`
+    )
+    return
+  }
   if (recovered instanceof Error) throw recovered
 
   console.log(
@@ -525,20 +612,31 @@ export async function validateGitSyncRepoOnStartup(
 
 // ── Git status + commit message inference ───────────────────────────────────
 
-export function parseGitStatusLine(line: string): GitStatusChange | null {
-  if (!line.trim()) return null
+/**
+ * Parses `git status --porcelain -z`.
+ *
+ * `-z` is what makes the paths literal. Without it git quotes and escapes any
+ * path with a space or a non-ASCII byte (`"src/content/caf\303\251.mdx"`),
+ * and that quoted form fails every prefix check and every git command it is
+ * handed. Records are `XY PATH`, NUL-terminated; a rename or copy is followed
+ * by a second record holding the source path, which is skipped.
+ *
+ * Expects the output untrimmed: an unstaged change starts with a space
+ * (` M path`), and trimming it shifts the first record's columns.
+ */
+export function parseGitStatusZ(output: string): GitStatusChange[] {
+  const records = output.split('\0')
+  const changes: GitStatusChange[] = []
 
-  const status = line.slice(0, 2).trim()
-  // git status --porcelain: "XY PATH" (2-char status + space); slice(3) skips to path
-  const rawPath = line.slice(3).trimStart()
-  const filepath = rawPath.includes(' -> ')
-    ? (rawPath.split(' -> ').pop() ?? rawPath)
-    : rawPath
+  for (let i = 0; i < records.length; i++) {
+    const record = records[i]
+    if (record.length < 4) continue
 
-  return {
-    status,
-    filepath
+    const code = record.slice(0, 2)
+    changes.push({ status: code.trim(), filepath: record.slice(3) })
+    if (code[0] === 'R' || code[0] === 'C') i++
   }
+  return changes
 }
 
 function isDeleted(status: string): boolean {
@@ -567,14 +665,16 @@ async function getGitStatus(
   cwd: string,
   deps: GitSyncDeps
 ): Promise<GitStatusChange[] | GitCommandError> {
-  const output = await execWithLockRetry('git status --porcelain', cwd, deps)
+  const output = await execWithLockRetry(
+    'git status --porcelain -z',
+    cwd,
+    deps,
+    { raw: true }
+  )
   if (output instanceof GitCommandError) return output
   if (!output) return []
 
-  return output
-    .split('\n')
-    .map(parseGitStatusLine)
-    .filter((change): change is GitStatusChange => Boolean(change))
+  return parseGitStatusZ(output)
 }
 
 export function extractSlug(filepath: string): string {
@@ -738,9 +838,10 @@ function isRetryable(error: GitCommandError): boolean {
 async function execWithLockRetry(
   command: string,
   repoRoot: string,
-  deps: GitSyncDeps
+  deps: GitSyncDeps,
+  options?: GitExecOptions
 ): Promise<string | GitCommandError> {
-  let result = await deps.exec(command, repoRoot)
+  let result = await deps.exec(command, repoRoot, options)
 
   for (
     let attempt = 1;
@@ -750,7 +851,7 @@ async function execWithLockRetry(
     attempt++
   ) {
     await deps.sleep(LOCK_BACKOFF_MS * attempt)
-    result = await deps.exec(command, repoRoot)
+    result = await deps.exec(command, repoRoot, options)
   }
 
   return result
@@ -854,6 +955,13 @@ function releaseSyncLock(
  *
  * Age comes from the file's mtime, so a lock with truncated or unreadable
  * contents still expires rather than wedging the repository forever.
+ *
+ * Safe for two contenders, which is all a checkout has: one Strapi process,
+ * whose saves `withGitSyncLock` already serialises, and one workflow job,
+ * which its concurrency group limits to one per branch. With a third, the
+ * path is briefly empty while a live lock is moved aside and put back, and
+ * the third could claim it in that gap. Supporting that would need `flock`
+ * or a lock around the reclaim itself.
  */
 function reclaimStaleLock(
   lockPath: string,
@@ -940,22 +1048,135 @@ export async function recoverInterruptedOperation(
   const output = await deps.exec(`git rev-parse ${probe}`, repoRoot)
   if (output instanceof GitCommandError) return output
 
-  const present = output
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && deps.fileExists(path.resolve(repoRoot, line)))
+  // `rev-parse` prints one line per `--git-path`, in the order asked.
+  const lines = output.split('\n').map((line) => line.trim())
+  const present = INTERRUPTED_OPERATION_PATHS.filter((_, index) => {
+    const line = lines[index]
+    return Boolean(line) && deps.fileExists(path.resolve(repoRoot, line))
+  })
 
   if (present.length === 0) return 'clean'
 
   console.warn(
     `⚠️  Checkout was left mid-operation (${present.join(', ')}) — clearing it.`
   )
-  // Only one operation can be in progress. The other two exit non-zero with
-  // nothing to undo, which is why each is best-effort.
-  await deps.exec('git rebase --abort', repoRoot)
-  await deps.exec('git merge --abort', repoRoot)
-  await deps.exec('git cherry-pick --abort', repoRoot)
+
+  // `--abort` resets every tracked file, not just the conflicted ones, so the
+  // pages Strapi wrote while the checkout was stuck would go with it. The
+  // editor still sees them saved, and the next daily `sync:mdx` would copy the
+  // stale file back over the database. Snapshot them first.
+  const editorWrites = await snapshotEditorWrites(repoRoot, deps)
+  if (editorWrites instanceof GitCommandError) return editorWrites
+
+  const aborted = await abortOperations(repoRoot, present, deps)
+
+  // Put back even after a failed abort: the abort may have reset files before
+  // it failed, and these are the editor's latest writes either way.
+  const restored = restoreEditorWrites(repoRoot, editorWrites, deps)
+  if (aborted instanceof GitCommandError) return aborted
+  if (restored instanceof GitCommandError) return restored
   return 'recovered'
+}
+
+/**
+ * Aborts only the operations whose state is present, and fails when an abort
+ * does. Reporting "recovered" after a failed abort left the state in place and
+ * every later save failing with no explanation.
+ */
+async function abortOperations(
+  repoRoot: string,
+  present: InterruptedOperationPath[],
+  deps: GitSyncDeps
+): Promise<void | GitCommandError> {
+  // `rebase-merge` and `rebase-apply` share one command.
+  const commands = [...new Set(present.map((name) => ABORT_COMMANDS[name]))]
+  for (const command of commands) {
+    const outcome = await deps.exec(command, repoRoot)
+    if (outcome instanceof GitCommandError) {
+      return new GitCommandError(
+        command,
+        outcome.stdout,
+        outcome.stderr,
+        `Could not clear the interrupted operation (${present.join(', ')}): ` +
+          `${outcome.message}. Clear it by hand on the VM, then check that ` +
+          `the checkout is on the deploy branch.`
+      )
+    }
+  }
+}
+
+/** A CMS-owned file as it stood before the abort; `null` contents mean deleted. */
+interface EditorWrite {
+  filepath: string
+  contents: Buffer | null
+}
+
+const CONFLICT_MARKERS = [/^<{7}(?: |$)/m, /^>{7}(?: |$)/m] as const
+
+function hasConflictMarkers(contents: Buffer): boolean {
+  const text = contents.toString('utf8')
+  return CONFLICT_MARKERS.every((marker) => marker.test(text))
+}
+
+/**
+ * Collects every CMS-owned file that differs from HEAD, as a candidate editor
+ * write to carry across the abort.
+ *
+ * Strapi writes whole files, so a conflicted path it rewrote has no markers
+ * and is kept, which is CMS-wins once more. A path that still has markers is
+ * git's half-merge, not an editor's write, and is left for the abort to undo.
+ * Untracked files are not listed: the abort leaves them alone already.
+ *
+ * `-z` so a path with a space or a non-ASCII character comes back unquoted.
+ */
+async function snapshotEditorWrites(
+  repoRoot: string,
+  deps: GitSyncDeps
+): Promise<EditorWrite[] | GitCommandError> {
+  const output = await deps.exec('git diff --name-only -z HEAD', repoRoot)
+  if (output instanceof GitCommandError) return output
+
+  const writes: EditorWrite[] = []
+  for (const filepath of output.split('\0').filter(isResolvablePath)) {
+    const contents = deps.workTree.read(path.join(repoRoot, filepath))
+    if (contents !== null && hasConflictMarkers(contents)) continue
+    writes.push({ filepath, contents })
+  }
+  return writes
+}
+
+function restoreEditorWrites(
+  repoRoot: string,
+  writes: EditorWrite[],
+  deps: GitSyncDeps
+): void | GitCommandError {
+  if (writes.length === 0) return
+
+  // Every file is attempted: one that fails must not cost the others.
+  const failures: string[] = []
+  for (const { filepath, contents } of writes) {
+    const absolute = path.join(repoRoot, filepath)
+    const restored = tryCatch(() =>
+      contents === null
+        ? deps.workTree.remove(absolute)
+        : deps.workTree.write(absolute, contents)
+    )
+    if (restored instanceof Error) {
+      failures.push(`${filepath} (${restored.message})`)
+    }
+  }
+  if (failures.length > 0) {
+    const message =
+      `Cleared an interrupted operation but could not restore what Strapi ` +
+      `had written to: ${failures.join(', ')}. The editors' versions are ` +
+      `still in Strapi; save those entries again once the cause is fixed.`
+    return new GitCommandError('restore editor writes', '', message, message)
+  }
+
+  console.warn(
+    `⚠️  Kept ${writes.length} file(s) Strapi wrote while the checkout was ` +
+      `stuck: ${writes.map((w) => w.filepath).join(', ')}`
+  )
 }
 
 // ── Conflict description + residual resolution ───────────────────────────────
@@ -1013,21 +1234,59 @@ async function describeConflict(
     return { kind: 'unavailable' }
   }
 
+  const replayed = await listReplayedPaths(repoRoot, upstreamRef, deps)
+  const overwritten = replayed
+    ? paths.filter((filepath) => replayed.has(filepath))
+    : paths
+  if (overwritten.length === 0) return { kind: 'clean' }
+
   const log = await deps.exec(
     `git log --oneline --no-decorate HEAD..${shellQuote(upstreamRef)} -- ` +
-      paths.map(shellQuote).join(' '),
+      overwritten.map(shellQuote).join(' '),
     repoRoot
   )
 
   return {
     kind: 'conflict',
     resolution: {
-      overwrittenPaths: paths,
+      overwrittenPaths: overwritten,
       resolvedPaths: [],
       supersededCommits:
         log instanceof GitCommandError ? [] : log.split('\n').filter(Boolean)
     }
   }
+}
+
+/**
+ * The paths the rebase will replay: everything changed between the fork point
+ * and HEAD. `null` means "no narrowing", either because there is no fork point
+ * (the rebase then falls back to the merge-base, which the probe already uses)
+ * or because the listing failed.
+ *
+ * The probe merges from the merge-base, while the rebase replays from the fork
+ * point. They differ only after the branch was force-pushed: the merge-base
+ * then reaches back past commits the rebase skips, and a file only those
+ * commits touched would be named as overwritten when the rebase never touches
+ * it. Passing the fork point as `merge-tree --merge-base` would be exact, but
+ * that needs git 2.40 and the VMs run 2.39.
+ */
+async function listReplayedPaths(
+  repoRoot: string,
+  upstreamRef: string,
+  deps: GitSyncDeps
+): Promise<Set<string> | null> {
+  const forkPoint = await deps.exec(
+    `git merge-base --fork-point ${shellQuote(upstreamRef)} HEAD`,
+    repoRoot
+  )
+  if (forkPoint instanceof GitCommandError || !forkPoint.trim()) return null
+
+  const changed = await deps.exec(
+    `git diff --name-only -z ${shellQuote(forkPoint.trim())} HEAD`,
+    repoRoot
+  )
+  if (changed instanceof GitCommandError) return null
+  return new Set(changed.split('\0').filter(Boolean))
 }
 
 /**
@@ -1103,16 +1362,19 @@ async function resolveUnmergedTowardCms(
  * as it was before the rebase: the editor's write as an uncommitted change,
  * now on top of the rebased commit, for the next save to commit.
  *
- * Only a both-sides content conflict on a CMS-owned path is settled. Anything
- * else returns an error and leaves the stash in place for a human.
+ * Taking the stashed file whole drops whatever the upstream changed in it, so
+ * every settled path is returned as `kept-cms` for the overwrite alert.
+ *
+ * Only a both-sides content conflict on a CMS-owned path is settled. When any
+ * path is not, none are: see {@link restoreAutostashResidueToHead}.
  */
 async function resolveAutostashResidue(
   repoRoot: string,
   deps: GitSyncDeps
-): Promise<number | GitCommandError> {
+): Promise<ResolvedPath[] | GitCommandError> {
   const residue = await getUnmergedChanges(repoRoot, deps)
   if (residue instanceof GitCommandError) return residue
-  if (residue.length === 0) return 0
+  if (residue.length === 0) return []
 
   const unsettleable = residue.filter(
     (change) =>
@@ -1120,15 +1382,7 @@ async function resolveAutostashResidue(
       !AUTOSTASH_SETTLEABLE_STATUSES.has(change.status)
   )
   if (unsettleable.length > 0) {
-    return new GitCommandError(
-      'autostash pop',
-      unsettleable.map((c) => `${c.status} ${c.filepath}`).join('\n'),
-      '',
-      `Autostash left ${unsettleable.length} unmerged path(s) after the rebase ` +
-        `that need a human; the working tree may contain conflict markers and ` +
-        `stash@{0} holds the uncommitted write: ` +
-        unsettleable.map((c) => c.filepath).join(', ')
-    )
+    return restoreAutostashResidueToHead(repoRoot, residue, unsettleable, deps)
   }
 
   for (const { filepath } of residue) {
@@ -1141,19 +1395,108 @@ async function resolveAutostashResidue(
   }
 
   const dropped = await deps.exec('git stash drop -q', repoRoot)
-  return dropped instanceof GitCommandError ? dropped : residue.length
+  if (dropped instanceof GitCommandError) return dropped
+  return residue.map(({ filepath }) => ({
+    path: filepath,
+    action: 'kept-cms' as const
+  }))
 }
+
+/**
+ * Puts every path a conflicted autostash pop left unmerged back to the rebased
+ * HEAD, keeps `stash@{0}` for a human, and returns the error for the alert.
+ *
+ * Leaving the unmerged entries in place wedged the checkout: there is no
+ * rebase state for recovery to find, `reset --soft` refuses to unwind, and
+ * every later commit fails. With the index clean the unwind runs and later
+ * saves work again. The editor's write for these paths is safe in the stash.
+ *
+ * A path HEAD does not have (the upstream deleted it) cannot be checked out,
+ * so it is unstaged and its file removed instead.
+ */
+async function restoreAutostashResidueToHead(
+  repoRoot: string,
+  residue: GitStatusChange[],
+  unsettleable: GitStatusChange[],
+  deps: GitSyncDeps
+): Promise<GitCommandError> {
+  for (const { filepath } of residue) {
+    const quoted = shellQuote(filepath)
+    const unstaged = await deps.exec(`git reset -q -- ${quoted}`, repoRoot)
+    if (unstaged instanceof GitCommandError) return unstaged
+
+    const inHead = await deps.exec(
+      `git cat-file -e ${shellQuote(`HEAD:${filepath}`)}`,
+      repoRoot
+    )
+    if (inHead instanceof GitCommandError) {
+      deps.workTree.remove(path.join(repoRoot, filepath))
+      continue
+    }
+    const restored = await deps.exec(`git checkout -- ${quoted}`, repoRoot)
+    if (restored instanceof GitCommandError) return restored
+  }
+
+  return new GitCommandError(
+    'autostash pop',
+    unsettleable.map((c) => `${c.status} ${c.filepath}`).join('\n'),
+    '',
+    `The autostash pop after the rebase conflicted on ` +
+      `${unsettleable.map((c) => c.filepath).join(', ')}, which needs a human. ` +
+      `The files are back to the branch version and stash@{0} holds the ` +
+      `editor's write for: ${residue.map((c) => c.filepath).join(', ')}`
+  )
+}
+
+/**
+ * How a rebase attempt ended.
+ *
+ * `aborted` overwrote nothing: the abort restored the pre-rebase HEAD. Both
+ * other kinds finished the rebase, so its CMS-wins resolution is in HEAD
+ * whatever happened next, and the overwrite has to be announced even when
+ * the autostash step then failed (`rebased-with-error`).
+ */
+type RebaseOutcome =
+  | { kind: 'aborted'; error: GitCommandError }
+  | { kind: 'rebased'; resolved: ResolvedPath[] }
+  | {
+      kind: 'rebased-with-error'
+      resolved: ResolvedPath[]
+      error: GitCommandError
+    }
 
 /**
  * Runs the rebase, resolving anything `-X theirs` left behind.
  *
- * Returns an error rather than leaving the checkout mid-rebase: the caller
- * aborts on any error, and `git rebase --abort` restores the pre-rebase HEAD
- * and re-applies the autostash, so nothing is lost. That holds only while the
- * rebase is still in progress — a conflicted autostash pop comes after it, so
+ * Never leaves the checkout mid-rebase. A failure while the rebase is still in
+ * progress aborts it, which restores the pre-rebase HEAD and re-applies the
+ * autostash, so nothing is lost. A conflicted autostash pop comes after the
+ * rebase has finished, when there is nothing to abort, so
  * {@link resolveAutostashResidue} settles that case itself.
  */
 async function rebaseOntoUpstream(
+  repoRoot: string,
+  upstreamRef: string,
+  deps: GitSyncDeps
+): Promise<RebaseOutcome> {
+  const replayed = await replayOntoUpstream(repoRoot, upstreamRef, deps)
+  if (replayed instanceof GitCommandError) {
+    await deps.exec('git rebase --abort', repoRoot)
+    return { kind: 'aborted', error: replayed }
+  }
+
+  // A `-X theirs` rebase that exits zero leaves nothing unmerged, so anything
+  // here came from the autostash pop. Those are conflict markers sitting in the
+  // working tree, where the next debounced save would commit them into MDX.
+  const residue = await resolveAutostashResidue(repoRoot, deps)
+  if (residue instanceof GitCommandError) {
+    return { kind: 'rebased-with-error', resolved: replayed, error: residue }
+  }
+  return { kind: 'rebased', resolved: [...replayed, ...residue] }
+}
+
+/** The rebase itself, with the existence-conflict rounds; may stop mid-rebase. */
+async function replayOntoUpstream(
   repoRoot: string,
   upstreamRef: string,
   deps: GitSyncDeps
@@ -1181,20 +1524,18 @@ async function rebaseOntoUpstream(
     outcome = await deps.exec(buildRebaseContinueCommand(), repoRoot)
   }
 
-  // A `-X theirs` rebase that exits zero leaves nothing unmerged, so anything
-  // here came from the autostash pop. Those are conflict markers sitting in the
-  // working tree, where the next debounced save would commit them into MDX.
-  const residue = await resolveAutostashResidue(repoRoot, deps)
-  return residue instanceof GitCommandError ? residue : resolved
+  return resolved
 }
 
 // ── Push ─────────────────────────────────────────────────────────────────────
 
-interface PushOutcome {
-  pushed: boolean
-  conflict?: ConflictResolution
-  error?: GitCommandError
-}
+/**
+ * The result of {@link pushWithRebase}. A failure always carries its error,
+ * and either kind may carry the overwrite a finished rebase applied.
+ */
+type PushOutcome =
+  | { kind: 'pushed'; conflict?: ConflictResolution }
+  | { kind: 'failed'; error: GitCommandError; conflict?: ConflictResolution }
 
 /**
  * Pushes, and integrates only when the remote rejects.
@@ -1211,61 +1552,82 @@ async function pushWithRebase(
 ): Promise<PushOutcome> {
   const upstreamRef = `${REMOTE}/${branch}`
   let conflict: ConflictResolution | undefined
-  let lastError: GitCommandError | undefined
 
-  for (let attempt = 1; attempt <= MAX_PUSH_ATTEMPTS; attempt++) {
+  for (let attempt = 1; ; attempt++) {
     const pushed = await deps.exec(buildPushCommand(branch), repoRoot)
-    if (!(pushed instanceof GitCommandError)) return { pushed: true, conflict }
-    lastError = pushed
-
-    if (attempt === MAX_PUSH_ATTEMPTS) break
+    if (!(pushed instanceof GitCommandError))
+      return { kind: 'pushed', conflict }
+    if (attempt === MAX_PUSH_ATTEMPTS) {
+      return { kind: 'failed', error: pushed, conflict }
+    }
     await deps.sleep(PUSH_BACKOFF_MS * attempt)
 
     // Lock contention means another writer holds the repo, not that the push
     // was rejected. Retrying the push is the whole fix.
     if (isRetryable(pushed)) continue
 
+    // A failed fetch is retried by the next attempt's push, which reports
+    // the failure if it persists.
     const fetched = await deps.exec(buildFetchCommand(branch), repoRoot)
-    if (fetched instanceof GitCommandError) {
-      lastError = fetched
-      continue
+    if (fetched instanceof GitCommandError) continue
+
+    const attempted = await probeAttempt(repoRoot, upstreamRef, deps)
+    const rebase = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
+    // An aborted rebase overwrote nothing, so its probe result is dropped: a
+    // pending-push alert must not claim an overwrite that never happened.
+    if (rebase.kind === 'aborted') {
+      return { kind: 'failed', error: rebase.error, conflict }
     }
 
-    const probe = await describeConflict(repoRoot, upstreamRef, deps)
-    if (probe.kind === 'conflict') {
-      conflict = mergeConflictResolutions(conflict, probe.resolution)
-    } else if (probe.kind === 'unavailable') {
-      // The rebase below resolves conflicting hunks silently, so without the
-      // probe we cannot tell whether it overwrote anything. Announce the
-      // possibility rather than stay quiet about a potential overwrite.
-      conflict = mergeConflictResolutions(conflict, {
-        ...NO_CONFLICT,
-        detailsUnavailable: true
-      })
-    }
-
-    const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
-    if (resolved instanceof GitCommandError) {
-      lastError = resolved
-      // Leaving the checkout mid-rebase would break every later save and the
-      // daily workflow alike. `--abort` also restores the autostash.
-      await deps.exec('git rebase --abort', repoRoot)
-      break
-    }
-
-    if (resolved.length > 0) {
-      // The probe reports every conflicted path, including the existence
-      // conflicts the resolver then settles, so the two lists would otherwise
-      // name the same file twice — once as a hunk overwrite it never was, and
-      // once correctly. The merge keeps them disjoint.
-      conflict = mergeConflictResolutions(conflict, {
-        ...NO_CONFLICT,
-        resolvedPaths: resolved
-      })
+    conflict = mergeAttempt(conflict, attempted, rebase.resolved)
+    if (rebase.kind === 'rebased-with-error') {
+      return { kind: 'failed', error: rebase.error, conflict }
     }
   }
+}
 
-  return { pushed: false, conflict, error: lastError }
+/**
+ * What the coming rebase may overwrite, for the alert. `undefined` when the
+ * probe found nothing.
+ */
+async function probeAttempt(
+  repoRoot: string,
+  upstreamRef: string,
+  deps: GitSyncDeps
+): Promise<ConflictResolution | undefined> {
+  const probe = await describeConflict(repoRoot, upstreamRef, deps)
+  if (probe.kind === 'conflict') return probe.resolution
+  // The rebase resolves conflicting hunks silently, so without the probe we
+  // cannot tell whether it overwrote anything. Announce the possibility
+  // rather than stay quiet about a potential overwrite.
+  if (probe.kind === 'unavailable') {
+    return { ...NO_CONFLICT, detailsUnavailable: true }
+  }
+  return undefined
+}
+
+/**
+ * Folds one finished rebase into the running conflict. The probe reports
+ * every conflicted path, including the existence conflicts the resolver then
+ * settles, so the two lists would otherwise name the same file twice — once
+ * as a hunk overwrite it never was, and once correctly. The merge keeps them
+ * disjoint.
+ */
+function mergeAttempt(
+  conflict: ConflictResolution | undefined,
+  attempted: ConflictResolution | undefined,
+  resolved: ResolvedPath[]
+): ConflictResolution | undefined {
+  let merged = attempted
+    ? mergeConflictResolutions(conflict, attempted)
+    : conflict
+  if (resolved.length > 0) {
+    merged = mergeConflictResolutions(merged, {
+      ...NO_CONFLICT,
+      resolvedPaths: resolved
+    })
+  }
+  return merged
 }
 
 /** Local commits not yet on the remote branch, as of the last fetch. */
@@ -1347,18 +1709,13 @@ async function pushRecoveredCommits(
   }
 
   const push = await pushWithRebase(repoRoot, branch, deps)
-  if (push.pushed) {
+  if (push.kind === 'pushed') {
     const message = 'recovered: push commits left by an interrupted sync'
     console.log(`✅ ${message}`)
     return { outcome: 'synced', message, conflict: push.conflict }
   }
 
-  return {
-    outcome: 'failed',
-    error:
-      push.error ??
-      new Error('Could not push commits left by an interrupted sync')
-  }
+  return { outcome: 'failed', error: push.error, conflict: push.conflict }
 }
 
 async function commitAndPush(
@@ -1405,13 +1762,12 @@ async function commitAndPush(
   }
 
   const push = await pushWithRebase(repoRoot, branch, deps)
-  if (push.pushed) {
+  if (push.kind === 'pushed') {
     console.log(`✅ Git sync complete: ${message}`)
     return { outcome: 'synced', message, conflict: push.conflict }
   }
 
-  const error =
-    push.error ?? new Error('Git sync could not push, with no error reported')
+  const { error } = push
   console.error(`⚠️  Git sync failed: ${error.message}`)
 
   const unwound = await unwindLocalCommit(
@@ -1427,7 +1783,7 @@ async function commitAndPush(
       `⚠️  Git sync could not unwind its commit: ${unwound.message}`
     )
   }
-  return { outcome: 'failed', error }
+  return { outcome: 'failed', error, conflict: push.conflict }
 }
 
 // ── Reporting ────────────────────────────────────────────────────────────────
@@ -1484,7 +1840,8 @@ async function report(
   // clears an open failure, this one is the audit record of the developer work
   // the CMS superseded. Nothing lints a direct push to the deploy branch, so
   // without this the overwrite is invisible until it surfaces weeks later.
-  if (result.outcome === 'synced' && result.conflict) {
+  if (result.outcome !== 'nothing-to-commit' && result.conflict) {
+    const pendingPush = result.outcome === 'failed'
     const {
       overwrittenPaths,
       resolvedPaths,
@@ -1493,8 +1850,9 @@ async function report(
     } = result.conflict
     const named = [...overwrittenPaths, ...resolvedPaths.map((r) => r.path)]
     console.warn(
-      `⚠️  Git sync overwrote branch changes in favour of the CMS: ` +
-        (named.length > 0 ? named.join(', ') : 'paths unavailable')
+      `⚠️  Git sync overwrote branch changes in favour of the CMS` +
+        (pendingPush ? ' (not pushed yet)' : '') +
+        `: ${named.length > 0 ? named.join(', ') : 'paths unavailable'}`
     )
     const sent = await tryCatchAsync(() =>
       deps.notify({
@@ -1506,7 +1864,8 @@ async function report(
         overwrittenPaths,
         resolvedPaths,
         supersededCommits,
-        detailsUnavailable
+        detailsUnavailable,
+        ...(pendingPush ? { pendingPush } : {})
       })
     )
     if (sent instanceof Error) {

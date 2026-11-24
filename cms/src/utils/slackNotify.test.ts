@@ -1,3 +1,6 @@
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   buildSlackPayload,
@@ -6,6 +9,7 @@ import {
   getSlackWebhookUrl,
   isSlackAlertingConfigured,
   formatPathList,
+  readCheckedOutBranch,
   redactSecrets,
   truncateDetail,
   type FetchLike,
@@ -145,15 +149,85 @@ describe('truncateDetail', () => {
 // ── Message ──────────────────────────────────────────────────────────────────
 
 describe('buildSlackPayload', () => {
-  it('names the host, environment, repo and content type on a failure', () => {
-    const payload = buildSlackPayload({ ...failure, hostname: 'strapi-vm' })
+  it('names the host, branch, repo and content type on a failure', () => {
+    const payload = buildSlackPayload({
+      ...failure,
+      hostname: 'strapi-vm',
+      branch: 'staging'
+    })
     const text = JSON.stringify(payload)
 
     expect(payload.text).toBe('❌ Strapi git sync failed on strapi-vm')
     expect(text).toContain('strapi-vm')
-    expect(text).toContain('production')
+    expect(text).toContain('*Branch:*\\nstaging')
     expect(text).toContain('/staging-clone')
     expect(text).toContain('faq')
+  })
+
+  it('names the deploy branch rather than NODE_ENV, which is production on every host', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        ...failure,
+        hostname: 'strapi-vm',
+        branch: 'playground'
+      })
+    )
+
+    expect(text).toContain('not reaching the `playground` branch')
+    expect(text).not.toContain('staging branch')
+    expect(text).not.toContain('production')
+  })
+
+  it('falls back to a generic branch name when it is unknown', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({ ...failure, hostname: 'strapi-vm', branch: null })
+    )
+
+    expect(text).toContain('not reaching the deploy branch')
+    expect(text).toContain('*Branch:*\\nunknown')
+  })
+
+  it('states the reason, which a refusal relies on to say what a human must do', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        ...failure,
+        hostname: 'strapi-vm',
+        reason:
+          'Unmerged path(s) outside the CMS-owned directories need a human: src/config/nav.json',
+        detail: '\nDU src/config/nav.json'
+      })
+    )
+
+    expect(text).toContain(
+      '*Reason:* Unmerged path(s) outside the CMS-owned directories need a human: src/config/nav.json'
+    )
+  })
+
+  it('shows the reason and no empty block for a command killed without output', () => {
+    // A killed push has empty stdout and stderr, joined by a newline.
+    const payload = buildSlackPayload({
+      ...failure,
+      hostname: 'strapi-vm',
+      reason: 'git command timed out after 60s and was killed: git push',
+      detail: '\n'
+    })
+    const text = JSON.stringify(payload)
+
+    expect(text).toContain('*Reason:* git command timed out after 60s')
+    expect(text).not.toContain('```')
+  })
+
+  it('redacts and shortens a long reason', () => {
+    const reason =
+      'push failed for https://x-access-token:ghs_abcdefghij0123456789@github.com/x.git ' +
+      'x'.repeat(1_000)
+    const text = JSON.stringify(
+      buildSlackPayload({ ...failure, hostname: 'strapi-vm', reason })
+    )
+
+    expect(text).not.toContain('ghs_abcdefghij0123456789')
+    expect(text).toContain('…')
+    expect(text).not.toContain('x'.repeat(600))
   })
 
   it('names the editor whose change is stranded', () => {
@@ -223,6 +297,75 @@ describe('buildSlackPayload', () => {
 
 // ── Notifier ─────────────────────────────────────────────────────────────────
 
+describe('buildSlackPayload pending overwrite', () => {
+  it('says the overwrite has not reached the branch yet', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        outcome: 'conflict-resolved',
+        label: 'faq',
+        repoRoot: '/staging-clone',
+        hostname: 'strapi-vm',
+        overwrittenPaths: ['src/content/faqs/a.mdx'],
+        pendingPush: true
+      })
+    )
+
+    expect(text).toContain('*Not pushed yet:*')
+    expect(text).toContain('src/content/faqs/a.mdx')
+  })
+
+  it('says nothing about pushing for an overwrite that was pushed', () => {
+    const text = JSON.stringify(
+      buildSlackPayload({
+        outcome: 'conflict-resolved',
+        label: 'faq',
+        repoRoot: '/staging-clone',
+        hostname: 'strapi-vm',
+        overwrittenPaths: ['src/content/faqs/a.mdx']
+      })
+    )
+
+    expect(text).not.toContain('Not pushed yet')
+  })
+})
+
+describe('readCheckedOutBranch', () => {
+  let repo: string
+
+  beforeEach(() => {
+    repo = fs.mkdtempSync(path.join(os.tmpdir(), 'slack-branch-'))
+    fs.mkdirSync(path.join(repo, '.git'))
+  })
+
+  afterEach(() => {
+    fs.rmSync(repo, { recursive: true, force: true })
+  })
+
+  it('reads the branch HEAD points at', () => {
+    fs.writeFileSync(
+      path.join(repo, '.git/HEAD'),
+      'ref: refs/heads/playground\n'
+    )
+    expect(readCheckedOutBranch(repo)).toBe('playground')
+  })
+
+  it('reads the branch being rebased when HEAD is detached', () => {
+    fs.writeFileSync(path.join(repo, '.git/HEAD'), 'a1b2c3d4e5f6\n')
+    fs.mkdirSync(path.join(repo, '.git/rebase-merge'))
+    fs.writeFileSync(
+      path.join(repo, '.git/rebase-merge/head-name'),
+      'refs/heads/staging\n'
+    )
+    expect(readCheckedOutBranch(repo)).toBe('staging')
+  })
+
+  it('returns null when no branch can be read', () => {
+    fs.writeFileSync(path.join(repo, '.git/HEAD'), 'a1b2c3d4e5f6\n')
+    expect(readCheckedOutBranch(repo)).toBeNull()
+    expect(readCheckedOutBranch(path.join(repo, 'missing'))).toBeNull()
+  })
+})
+
 describe('createSlackGitSyncNotifier', () => {
   function setup(
     response?: { ok?: boolean; status?: number; body?: string },
@@ -235,7 +378,8 @@ describe('createSlackGitSyncNotifier', () => {
       fetch: fetchLike,
       now: () => clock,
       webhookUrl: () => webhookUrl,
-      hostname: () => 'strapi-vm'
+      hostname: () => 'strapi-vm',
+      branch: (repoRoot) => (repoRoot === '/staging-clone' ? 'staging' : null)
     })
 
     return {
@@ -246,6 +390,14 @@ describe('createSlackGitSyncNotifier', () => {
       }
     }
   }
+
+  it("names the branch checked out in the alert's repo", async () => {
+    const { notify, posts } = setup()
+
+    await notify(failure)
+
+    expect(rendered(posts[0])).toContain('not reaching the `staging` branch')
+  })
 
   it('posts nothing when no webhook is configured', async () => {
     const { notify, posts } = setup(undefined, null)
@@ -308,6 +460,22 @@ describe('createSlackGitSyncNotifier', () => {
 
     expect(posts).toHaveLength(2)
     expect(rendered(posts[1])).toContain('2 further failure(s)')
+  })
+
+  // Every conflict has its own fingerprint, so entries that are never pruned
+  // accumulate for the life of the process.
+  it('forgets an expired fingerprint once another alert posts', async () => {
+    const { notify, posts, advance } = setup()
+
+    await notify(failure)
+    await notify(failure)
+    advance(FIFTEEN_MINUTES)
+    await notify({ ...failure, reason: 'Authentication failed' })
+    await notify(failure)
+
+    expect(posts).toHaveLength(3)
+    // The repeat count went with the pruned entry.
+    expect(rendered(posts[2])).not.toContain('further failure')
   })
 
   it('stays quiet on a healthy sync when nothing was broken', async () => {

@@ -1,3 +1,5 @@
+import { execSync } from 'child_process'
+import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -24,12 +26,13 @@ import {
   gitCommitAndPush,
   inferCommitMessage,
   isGitSyncDisabled,
-  parseGitStatusLine,
+  parseGitStatusZ,
   runGitSync,
   shellQuote,
   toGitPath,
   validateGitSyncRepoOnStartup,
   withGitSyncLock,
+  defaultGitSyncDeps,
   type GitSyncDeps
 } from './gitSync'
 import type { GitSyncAlert } from './slackNotify'
@@ -43,7 +46,7 @@ const STAGE_DIRS = [
   path.join(REPO, 'public/uploads/img/original')
 ]
 
-const STATUS_COMMAND = 'git status --porcelain'
+const STATUS_COMMAND = 'git status --porcelain -z'
 
 interface FakeDeps extends GitSyncDeps {
   /** Every command given to `exec`, in order. */
@@ -56,6 +59,8 @@ interface FakeDeps extends GitSyncDeps {
   files: Map<string, LockEntry>
   /** Mutable clock, advanced by `sleep`. */
   clock: { ms: number }
+  /** The in-memory working tree behind `workTree`, keyed by absolute path. */
+  tree: Map<string, Buffer>
 }
 
 const LOCK_PATH = path.join(REPO, '.git/strapi-sync.lock')
@@ -92,6 +97,7 @@ function createDeps(
     existing?: string[]
     files?: Map<string, LockEntry>
     clock?: { ms: number }
+    tree?: Map<string, Buffer>
   } = {}
 ): FakeDeps {
   const {
@@ -99,7 +105,8 @@ function createDeps(
     responses: overrides = {},
     existing = [REPO, ...STAGE_DIRS],
     files = new Map<string, LockEntry>(),
-    clock = { ms: Date.UTC(2026, 0, 1) }
+    clock = { ms: Date.UTC(2026, 0, 1) },
+    tree = new Map<string, Buffer>()
   } = options
   const commands: string[] = []
   const alerts: GitSyncAlert[] = []
@@ -119,6 +126,7 @@ function createDeps(
     sleeps,
     files,
     clock,
+    tree,
     exec: async (command) => {
       commands.push(command)
       const prefix = prefixes.find((p) => command.startsWith(p))
@@ -169,7 +177,16 @@ function createDeps(
         files.delete(filepath)
       }
     },
-    now: () => clock.ms
+    now: () => clock.ms,
+    workTree: {
+      read: (filepath) => tree.get(filepath) ?? null,
+      write: (filepath, contents) => {
+        tree.set(filepath, contents)
+      },
+      remove: (filepath) => {
+        tree.delete(filepath)
+      }
+    }
   }
 }
 
@@ -212,10 +229,11 @@ function gitFailure(
  * uses two columns for the status code. So this function pads `M` to the
  * staged `M ` form.
  */
+/** `git status --porcelain -z` output, untrimmed, as the sync reads it. */
 function status(...lines: [string, string][]): string {
   return lines
-    .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}`)
-    .join('\n')
+    .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}\0`)
+    .join('')
 }
 
 /** Returns each value in turn, repeating the last one once exhausted. */
@@ -374,51 +392,95 @@ describe('toGitPath', () => {
 
 // ── Porcelain parsing ────────────────────────────────────────────────────────
 
-describe('parseGitStatusLine', () => {
-  it('returns null for a blank line', () => {
-    expect(parseGitStatusLine('')).toBeNull()
-    expect(parseGitStatusLine('   ')).toBeNull()
+describe('parseGitStatusZ', () => {
+  it('returns nothing for empty output', () => {
+    expect(parseGitStatusZ('')).toEqual([])
   })
 
-  it('parses an untracked file', () => {
-    expect(parseGitStatusLine('?? src/content/faqs/new.mdx')).toEqual({
-      status: '??',
-      filepath: 'src/content/faqs/new.mdx'
-    })
-  })
-
-  it('parses an unstaged modification, trimming the leading status space', () => {
-    expect(parseGitStatusLine(' M src/content/faqs/a.mdx')).toEqual({
-      status: 'M',
-      filepath: 'src/content/faqs/a.mdx'
-    })
-  })
-
-  it('parses a staged deletion', () => {
-    expect(parseGitStatusLine('D  src/content/faqs/a.mdx')).toEqual({
-      status: 'D',
-      filepath: 'src/content/faqs/a.mdx'
-    })
-  })
-
-  it('keeps the destination of a rename', () => {
+  it('parses untracked, staged and unstaged records', () => {
     expect(
-      parseGitStatusLine(
-        'R  src/content/faqs/old.mdx -> src/content/faqs/new.mdx'
+      parseGitStatusZ(
+        '?? src/content/faqs/new.mdx\0D  src/content/faqs/gone.mdx\0 M src/content/faqs/a.mdx\0'
       )
-    ).toEqual({
-      status: 'R',
-      filepath: 'src/content/faqs/new.mdx'
-    })
+    ).toEqual([
+      { status: '??', filepath: 'src/content/faqs/new.mdx' },
+      { status: 'D', filepath: 'src/content/faqs/gone.mdx' },
+      { status: 'M', filepath: 'src/content/faqs/a.mdx' }
+    ])
   })
 
-  it('preserves spaces inside a filename', () => {
+  // Trimmed, ` M  x` became `M  x` and parsed as a staged change to `x`.
+  it('keeps a first path that starts with a space', () => {
+    expect(parseGitStatusZ(' M  x\0')).toEqual([
+      { status: 'M', filepath: ' x' }
+    ])
+  })
+
+  it('keeps the destination of a rename and skips its source record', () => {
     expect(
-      parseGitStatusLine('?? public/uploads/img/original/hero image.avif')
-    ).toEqual({
-      status: '??',
-      filepath: 'public/uploads/img/original/hero image.avif'
-    })
+      parseGitStatusZ(
+        'R  src/content/faqs/new.mdx\0src/content/faqs/old.mdx\0UU src/content/faqs/b.mdx\0'
+      )
+    ).toEqual([
+      { status: 'R', filepath: 'src/content/faqs/new.mdx' },
+      { status: 'UU', filepath: 'src/content/faqs/b.mdx' }
+    ])
+  })
+
+  it('keeps spaces and non-ASCII characters literal', () => {
+    expect(
+      parseGitStatusZ(
+        '?? public/uploads/img/original/hero image.avif\0UU src/content/foundation-pages/café.mdx\0'
+      )
+    ).toEqual([
+      { status: '??', filepath: 'public/uploads/img/original/hero image.avif' },
+      { status: 'UU', filepath: 'src/content/foundation-pages/café.mdx' }
+    ])
+  })
+
+  it('reads real git output the same way', () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-status-'))
+    try {
+      execSync('git init -q', { cwd: repo })
+      fs.mkdirSync(path.join(repo, 'src/content'), { recursive: true })
+      fs.writeFileSync(path.join(repo, 'src/content/café a.mdx'), 'x')
+      const output = execSync('git status --porcelain -z -uall', {
+        cwd: repo
+      }).toString()
+
+      expect(parseGitStatusZ(output)).toEqual([
+        { status: '??', filepath: 'src/content/café a.mdx' }
+      ])
+    } finally {
+      fs.rmSync(repo, { recursive: true, force: true })
+    }
+  })
+
+  // The sync reads status through `exec`, which trims by default.
+  it('reads an unstaged first record through exec untrimmed', async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-status-'))
+    try {
+      const git = (args: string) =>
+        execSync(`git -c user.name=t -c user.email=t@t ${args}`, { cwd: repo })
+      git('init -q')
+      fs.writeFileSync(path.join(repo, ' x'), 'one')
+      git('add .')
+      git('commit -qm base')
+      fs.writeFileSync(path.join(repo, ' x'), 'two')
+
+      const output = await defaultGitSyncDeps.exec(
+        'git status --porcelain -z',
+        repo,
+        { raw: true }
+      )
+
+      expect(output).not.toBeInstanceOf(GitCommandError)
+      expect(parseGitStatusZ(output as string)).toEqual([
+        { status: 'M', filepath: ' x' }
+      ])
+    } finally {
+      fs.rmSync(repo, { recursive: true, force: true })
+    }
   })
 })
 
@@ -1774,8 +1836,236 @@ describe('recoverInterruptedOperation', () => {
 
     expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
     expect(deps.commands).toContain('git rebase --abort')
+    expect(deps.commands).not.toContain('git merge --abort')
+    expect(deps.commands).not.toContain('git cherry-pick --abort')
+  })
+
+  it('aborts only the operation whose state is present', async () => {
+    const deps = createDeps({
+      existing: [REPO, path.join(REPO, '.git/MERGE_HEAD')],
+      responses: {
+        [PROBE_COMMAND]:
+          '.git/rebase-merge\n.git/rebase-apply\n.git/MERGE_HEAD\n.git/CHERRY_PICK_HEAD'
+      }
+    })
+
+    expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
     expect(deps.commands).toContain('git merge --abort')
-    expect(deps.commands).toContain('git cherry-pick --abort')
+    expect(deps.commands).not.toContain('git rebase --abort')
+  })
+
+  // "recovered" after a failed abort left the state in place, and every later
+  // save then failed with nothing saying why.
+  it('returns an error when the abort fails', async () => {
+    const deps = createDeps({
+      existing: [REPO, path.join(REPO, '.git/rebase-merge')],
+      responses: {
+        [PROBE_COMMAND]: '.git/rebase-merge\n.git/rebase-apply',
+        'git rebase --abort': gitFailure('git rebase --abort', {
+          stderr: 'error: could not read orig-head'
+        })
+      }
+    })
+
+    const result = await recoverInterruptedOperation(REPO, deps)
+
+    expect(result).toBeInstanceOf(GitCommandError)
+    if (!(result instanceof GitCommandError)) return
+    expect(result.message).toContain('rebase-merge')
+    expect(result.message).toContain('could not read orig-head')
+    // Never `--quit`: it leaves HEAD detached where the rebase stopped.
+    expect(deps.commands).not.toContain('git rebase --quit')
+  })
+
+  describe('keeping what Strapi wrote while the checkout was stuck', () => {
+    const DIFF_COMMAND = 'git diff --name-only -z HEAD'
+    const REWRITTEN = 'src/content/faqs/conflicted.mdx'
+    const EDITED = 'src/content/faqs/other.mdx'
+    const DELETED = 'src/content/faqs/gone.mdx'
+    const HALF_MERGED = 'src/content/faqs/markers.mdx'
+    const DEVELOPER_FILE = 'src/config/hackathon-navigation.json'
+    const MARKERS = Buffer.from(
+      'a\n<<<<<<< HEAD\nup\n=======\ncms\n>>>>>>> 1234 (save)\n'
+    )
+
+    function stuckRebase(diff: string, tree: Map<string, Buffer>) {
+      // Every abort resets the tree to HEAD, as real git does, so a write that
+      // is not restored afterwards shows up as lost.
+      const atHead = new Map(tree)
+      for (const filepath of [REWRITTEN, EDITED, DELETED, HALF_MERGED]) {
+        atHead.set(path.join(REPO, filepath), Buffer.from('HEAD version'))
+      }
+      const deps = createDeps({
+        existing: [REPO, path.join(REPO, '.git/rebase-merge')],
+        tree,
+        responses: {
+          [PROBE_COMMAND]: '.git/rebase-merge',
+          [DIFF_COMMAND]: diff,
+          'git rebase --abort': () => {
+            tree.clear()
+            for (const [filepath, contents] of atHead)
+              tree.set(filepath, contents)
+            return ''
+          }
+        }
+      })
+      return deps
+    }
+
+    it('restores whole-file writes after the abort, the rewritten conflicted file included', async () => {
+      const tree = new Map([
+        [path.join(REPO, REWRITTEN), Buffer.from('editor rewrite')],
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase([REWRITTEN, EDITED].join('\0'), tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+
+      expect(tree.get(path.join(REPO, REWRITTEN))?.toString()).toBe(
+        'editor rewrite'
+      )
+      expect(tree.get(path.join(REPO, EDITED))?.toString()).toBe('editor edit')
+      expect(deps.commands.indexOf(DIFF_COMMAND)).toBeLessThan(
+        deps.commands.indexOf('git rebase --abort')
+      )
+    })
+
+    it('carries a deletion across the abort', async () => {
+      const tree = new Map<string, Buffer>()
+      const deps = stuckRebase(DELETED, tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.has(path.join(REPO, DELETED))).toBe(false)
+    })
+
+    it("leaves git's half-merged file and paths outside the CMS directories to the abort", async () => {
+      const tree = new Map([
+        [path.join(REPO, HALF_MERGED), MARKERS],
+        [path.join(REPO, DEVELOPER_FILE), Buffer.from('dev edit')]
+      ])
+      const deps = stuckRebase([HALF_MERGED, DEVELOPER_FILE].join('\0'), tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.get(path.join(REPO, HALF_MERGED))?.toString()).toBe(
+        'HEAD version'
+      )
+      expect(tree.get(path.join(REPO, DEVELOPER_FILE))?.toString()).toBe(
+        'dev edit'
+      )
+    })
+
+    it('treats a file with only one kind of marker as an editor write', async () => {
+      const prose = Buffer.from('>>>>>>> a quoted diff line in a blog post\n')
+      const tree = new Map([[path.join(REPO, EDITED), prose]])
+      const deps = stuckRebase(EDITED, tree)
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBe('recovered')
+      expect(tree.get(path.join(REPO, EDITED))).toEqual(prose)
+    })
+
+    it('does not abort when it cannot list the writes, so none are lost', async () => {
+      const deps = createDeps({
+        existing: [REPO, path.join(REPO, '.git/rebase-merge')],
+        responses: {
+          [PROBE_COMMAND]: '.git/rebase-merge',
+          [DIFF_COMMAND]: gitFailure(DIFF_COMMAND, {
+            stderr: 'fatal: bad HEAD'
+          })
+        }
+      })
+
+      expect(await recoverInterruptedOperation(REPO, deps)).toBeInstanceOf(
+        GitCommandError
+      )
+      expect(deps.commands).not.toContain('git rebase --abort')
+    })
+
+    it('fails, naming the file, when a write cannot be restored', async () => {
+      const tree = new Map([
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase(EDITED, tree)
+      deps.workTree.write = () => {
+        throw new Error('EACCES')
+      }
+
+      const result = await recoverInterruptedOperation(REPO, deps)
+
+      expect(result).toBeInstanceOf(GitCommandError)
+      expect((result as GitCommandError).message).toContain(EDITED)
+    })
+
+    it('restores the other writes when one cannot be restored', async () => {
+      const tree = new Map([
+        [path.join(REPO, REWRITTEN), Buffer.from('editor rewrite')],
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase([REWRITTEN, EDITED].join('\0'), tree)
+      const write = deps.workTree.write
+      deps.workTree.write = (filepath, contents) => {
+        if (filepath.endsWith(REWRITTEN)) throw new Error('ENOSPC')
+        write(filepath, contents)
+      }
+
+      const result = await recoverInterruptedOperation(REPO, deps)
+
+      expect(result).toBeInstanceOf(GitCommandError)
+      expect((result as GitCommandError).message).toContain(REWRITTEN)
+      expect(tree.get(path.join(REPO, EDITED))?.toString()).toBe('editor edit')
+    })
+  })
+
+  describe('against real git', () => {
+    // The fakes above encode an assumption: that `--abort` resets every
+    // tracked file. This checks that assumption, and the listing command,
+    // against git itself.
+    let repo: string
+    const git = (args: string) =>
+      execSync(`git -c user.name=t -c user.email=t@t ${args}`, {
+        cwd: repo,
+        stdio: 'pipe'
+      })
+    const page = (name: string) => path.join(repo, 'src/content/faqs', name)
+
+    beforeEach(() => {
+      repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-recover-'))
+      fs.mkdirSync(path.join(repo, 'src/content/faqs'), { recursive: true })
+      git('init -q -b main')
+      fs.writeFileSync(page('a.mdx'), 'P1 original\n')
+      fs.writeFileSync(page('b.mdx'), 'B original\n')
+      git('add .')
+      git('commit -qm base')
+      git('checkout -qb upstream')
+      fs.writeFileSync(page('a.mdx'), 'P1 DEV\n')
+      git('commit -qam dev')
+      git('checkout -q main')
+      fs.writeFileSync(page('a.mdx'), 'P1 VM\n')
+      git('commit -qam vm')
+      expect(() => git('rebase upstream')).toThrow()
+    })
+
+    afterEach(() => {
+      fs.rmSync(repo, { recursive: true, force: true })
+    })
+
+    it('keeps the editor writes a plain abort would discard', async () => {
+      fs.writeFileSync(page('a.mdx'), 'P1 EDITOR\n')
+      fs.writeFileSync(page('b.mdx'), 'B EDITOR\n')
+
+      const result = await recoverInterruptedOperation(repo, defaultGitSyncDeps)
+
+      expect(result).toBe('recovered')
+      expect(fs.existsSync(path.join(repo, '.git/rebase-merge'))).toBe(false)
+      expect(fs.readFileSync(page('a.mdx'), 'utf8')).toBe('P1 EDITOR\n')
+      expect(fs.readFileSync(page('b.mdx'), 'utf8')).toBe('B EDITOR\n')
+    })
+
+    it('lets the abort undo a conflicted file nobody rewrote', async () => {
+      const result = await recoverInterruptedOperation(repo, defaultGitSyncDeps)
+
+      expect(result).toBe('recovered')
+      expect(fs.readFileSync(page('a.mdx'), 'utf8')).toBe('P1 VM\n')
+    })
   })
 })
 
@@ -1898,6 +2188,65 @@ describe('runGitSync conflict handling', () => {
         supersededCommits: ['09b7eba fix(content): unwrap prose']
       }
     ])
+  })
+
+  it('announces an overwrite the rebase applied even when every push then fails', async () => {
+    // The resolved content stays staged after the unwind, and the next save
+    // pushes it as a fast-forward with no probe, so this is the only notice.
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': gitFailure('git push', {
+          stderr: '! [rejected] non-fast-forward'
+        }),
+        'git merge-tree': probeConflictOutput(CONFLICT_PATH),
+        'git log --oneline': '09b7eba fix(content): unwrap prose'
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'failed',
+      conflict: { overwrittenPaths: [CONFLICT_PATH] }
+    })
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed' },
+      {
+        outcome: 'conflict-resolved',
+        pendingPush: true,
+        overwrittenPaths: [CONFLICT_PATH],
+        supersededCommits: ['09b7eba fix(content): unwrap prose']
+      }
+    ])
+  })
+
+  it('announces no overwrite when the rebase was aborted', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['UU', 'src/config/hackathon-navigation.json'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': gitFailure('git push', {
+          stderr: '! [rejected] non-fast-forward'
+        }),
+        'git merge-tree': probeConflictOutput(
+          'src/config/hackathon-navigation.json'
+        ),
+        [REBASE_PREFIX]: gitFailure('git rebase', {
+          stderr: 'CONFLICT (content)'
+        })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({ outcome: 'failed' })
+    expect(result).not.toHaveProperty('conflict.overwrittenPaths')
+    expect(deps.alerts.map((alert) => alert.outcome)).toEqual(['failed'])
   })
 
   it('keeps the editor version when the upstream deleted a page the editor edited', async () => {
@@ -2027,6 +2376,28 @@ describe('runGitSync conflict handling', () => {
     expect(deps.commands).toContain('git stash drop -q')
   })
 
+  // Taking the stashed file whole drops the upstream change in it, so it is an
+  // overwrite like any other and must reach the alert.
+  it('announces the paths a settled autostash pop overwrote', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(CONTENT, status(['UU', CONFLICT_PATH])),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': rejectedThenAccepted()
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'synced',
+      conflict: {
+        resolvedPaths: [{ path: CONFLICT_PATH, action: 'kept-cms' }]
+      }
+    })
+    expect(deps.alerts.map((a) => a.outcome)).toContain('conflict-resolved')
+  })
+
   it('leaves autostash residue outside the CMS paths for a human', async () => {
     const deps = createDeps({
       responses: {
@@ -2046,6 +2417,36 @@ describe('runGitSync conflict handling', () => {
     expect(result.error.message).toMatch(/autostash/i)
     expect(result.error.message).toContain('stash@{0}')
     expect(deps.commands).not.toContain('git stash drop -q')
+    // The rebase has finished, so there is nothing to abort. The unmerged
+    // entries are cleared instead, or the unwind and every later save fail.
+    expect(deps.commands).not.toContain('git rebase --abort')
+    expect(deps.commands).toContain("git reset -q -- 'astro.config.mjs'")
+    expect(deps.commands).toContain("git checkout -- 'astro.config.mjs'")
+  })
+
+  it('removes a residue file the branch itself deleted', async () => {
+    const absolute = path.join(REPO, 'src/data/nav.json')
+    const tree = new Map([[absolute, Buffer.from('<<<<<<< ours\n')]])
+    const deps = createDeps({
+      tree,
+      responses: {
+        [STATUS_COMMAND]: sequenceOf(
+          CONTENT,
+          status(['DU', 'src/data/nav.json'])
+        ),
+        [BRANCH_COMMAND]: 'staging',
+        'git push': rejectedThenAccepted(),
+        'git cat-file -e': gitFailure('git cat-file -e', {
+          stderr: "fatal: path 'src/data/nav.json' does not exist in 'HEAD'"
+        })
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result.outcome).toBe('failed')
+    expect(tree.has(absolute)).toBe(false)
+    expect(deps.commands).not.toContain("git checkout -- 'src/data/nav.json'")
   })
 
   it('leaves an existence conflict from the autostash pop for a human', async () => {
@@ -2382,6 +2783,58 @@ describe('conflict reporting', () => {
     ])
   })
 
+  /**
+   * The probe merges from the merge-base and the rebase replays from the fork
+   * point. After a force-push those differ, and a file only the skipped
+   * commits touched must not be named as overwritten.
+   */
+  it('names only the conflicted paths the rebase replays', async () => {
+    const SKIPPED = 'src/content/faqs/skipped.mdx'
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        'git merge-tree': probeConflictOutput(PATH, SKIPPED),
+        'git merge-base --fork-point': 'fork123\n',
+        "git diff --name-only -z 'fork123' HEAD": `${PATH}\0`
+      }
+    })
+
+    const result = await runGitSync('faq', undefined, deps)
+
+    expect(result).toMatchObject({
+      outcome: 'synced',
+      conflict: { overwrittenPaths: [PATH] }
+    })
+    expect(commandStartingWith(deps, 'git log --oneline')).not.toContain(
+      SKIPPED
+    )
+  })
+
+  it('stays silent when no conflicted path is replayed', async () => {
+    const deps = createDeps({
+      responses: {
+        [STATUS_COMMAND]: CONTENT,
+        [BRANCH_COMMAND]: 'staging',
+        'git push': sequenceOf(
+          gitFailure('git push', { stderr: '! [rejected]' }),
+          ''
+        ),
+        'git merge-tree': probeConflictOutput('src/content/faqs/skipped.mdx'),
+        'git merge-base --fork-point': 'fork123\n',
+        "git diff --name-only -z 'fork123' HEAD": `${PATH}\0`
+      }
+    })
+
+    await runGitSync('faq', undefined, deps)
+
+    expect(deps.alerts.map((a) => a.outcome)).toEqual(['healthy'])
+  })
+
   it('stays silent when the probe runs and finds nothing', async () => {
     const deps = createDeps({
       responses: {
@@ -2690,6 +3143,36 @@ describe('startup recovery and the mutex', () => {
     expect(deps.files.has(LOCK_PATH)).toBe(false)
   })
 
+  // A checkout that needs a human should not also take the CMS down. Every
+  // save alerts until someone clears it.
+  it('boots with a warning when the interrupted operation cannot be cleared', async () => {
+    const deps = startupDeps({
+      existing: [
+        REPO,
+        path.join(REPO, '.git'),
+        path.join(REPO, '.git/rebase-merge')
+      ],
+      responses: {
+        [PROBE_COMMAND]: '.git/rebase-merge',
+        'git rebase --abort': gitFailure('git rebase --abort', {
+          stderr: 'fatal: broken'
+        })
+      }
+    })
+
+    await expect(validateGitSyncRepoOnStartup(deps)).resolves.toBeUndefined()
+
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Startup recovery failed')
+    )
+    expect(deps.files.has(LOCK_PATH)).toBe(false)
+    // A failed restore leaves a clean-looking checkout, so the log alone
+    // would be the only record.
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed', label: 'startup recovery' }
+    ])
+  })
+
   /**
    * Refusing to start Strapi because a daily job holds the lock would turn a
    * brief race into an outage, and the first editor save recovers anyway.
@@ -2702,5 +3185,111 @@ describe('startup recovery and the mutex', () => {
 
     expect(deps.commands).not.toContain('git rebase --abort')
     expect(deps.files.has(LOCK_PATH)).toBe(true)
+  })
+})
+
+/**
+ * The fakes above assume what git does after a conflicted autostash pop. This
+ * runs the whole sync against real repositories: an uncommitted change outside
+ * the CMS folders collides with an incoming commit on the same file.
+ */
+describe('a conflicted autostash pop, against real git', () => {
+  let root: string
+  const run = (cwd: string, args: string) =>
+    execSync(`git -c user.name=t -c user.email=t@t ${args}`, {
+      cwd,
+      stdio: 'pipe'
+    }).toString()
+  const vm = () => path.join(root, 'vm')
+  const dev = () => path.join(root, 'dev')
+  const write = (repo: string, file: string, contents: string) => {
+    fs.mkdirSync(path.dirname(path.join(repo, file)), { recursive: true })
+    fs.writeFileSync(path.join(repo, file), contents)
+  }
+  const alerts: GitSyncAlert[] = []
+  const realDeps = (): GitSyncDeps => ({
+    ...defaultGitSyncDeps,
+    notify: async (alert) => {
+      alerts.push(alert)
+    },
+    sleep: async () => {}
+  })
+
+  beforeEach(() => {
+    alerts.length = 0
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-autostash-'))
+    run(root, 'init -q --bare -b main origin.git')
+    run(root, 'clone -q origin.git vm')
+    // The sync commits with the repo's own identity. CI runners have none, and
+    // Linux git cannot guess one, so without this the first commit fails.
+    run(vm(), 'config user.name t')
+    run(vm(), 'config user.email t@t')
+    write(vm(), 'src/content/faqs/a.mdx', 'A original\n')
+    write(vm(), 'src/config/nav.json', 'nav original\n')
+    run(vm(), 'add .')
+    run(vm(), 'commit -qm base')
+    run(vm(), 'push -q origin HEAD:main')
+    run(root, 'clone -q origin.git dev')
+    write(dev(), 'src/config/nav.json', 'nav DEV\n')
+    run(dev(), 'commit -qam dev')
+    run(dev(), 'push -q origin HEAD:main')
+
+    write(vm(), 'src/content/faqs/a.mdx', 'A EDITOR\n')
+    // Outside the staged folders, so the sync leaves it to the autostash.
+    write(vm(), 'src/config/nav.json', 'nav EDITOR\n')
+    vi.stubEnv('STRAPI_GIT_SYNC_REPO_PATH', vm())
+  })
+
+  afterEach(() => {
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+
+  it('leaves a checkout the next save can sync from', async () => {
+    const first = await runGitSync('faq', undefined, realDeps())
+
+    // The reason matters: a failure anywhere earlier would also be "failed".
+    expect(first).toMatchObject({
+      outcome: 'failed',
+      error: { message: expect.stringMatching(/autostash pop/) }
+    })
+    expect(run(vm(), 'ls-files -u')).toBe('')
+    expect(run(vm(), 'stash list')).toContain('autostash')
+    expect(
+      fs.readFileSync(path.join(vm(), 'src/config/nav.json'), 'utf8')
+    ).toBe('nav DEV\n')
+    expect(run(vm(), 'rev-list --count origin/main..HEAD').trim()).toBe('0')
+
+    const second = await runGitSync('faq', undefined, realDeps())
+
+    expect(second.outcome).toBe('synced')
+    expect(run(vm(), 'show origin/main:src/content/faqs/a.mdx')).toBe(
+      'A EDITOR\n'
+    )
+  })
+
+  /**
+   * The rebase finishes, so its CMS-wins resolution is already in HEAD, and
+   * only then does the autostash step fail. The overwrite must still be
+   * announced: the next save pushes it as a plain fast-forward, which probes
+   * nothing.
+   */
+  it('announces an overwrite the finished rebase made before the stash failed', async () => {
+    write(dev(), 'src/content/faqs/a.mdx', 'A DEV\n')
+    run(dev(), 'commit -qam "dev edits a"')
+    run(dev(), 'push -q origin HEAD:main')
+
+    const first = await runGitSync('faq', undefined, realDeps())
+
+    expect(first).toMatchObject({
+      outcome: 'failed',
+      conflict: { overwrittenPaths: ['src/content/faqs/a.mdx'] }
+    })
+    expect(alerts).toContainEqual(
+      expect.objectContaining({
+        outcome: 'conflict-resolved',
+        pendingPush: true,
+        overwrittenPaths: ['src/content/faqs/a.mdx']
+      })
+    )
   })
 })
