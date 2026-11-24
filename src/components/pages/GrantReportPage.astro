@@ -194,7 +194,10 @@ const pillClasses =
       <div
         class="contents desktop:block desktop:col-start-2 desktop:row-start-1 desktop:row-span-2"
       >
+        {/* Lenis turns off nested scrolling, so without this the wheel scrolls
+          the page, not the sidebar. SectionsNav does the same. */}
         <div
+          data-lenis-prevent
           class="contents desktop:sticky desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-xl)-var(--spacing-xl))] desktop:overflow-y-auto desktop:scroll-p-xs desktop:flex desktop:flex-col desktop:gap-2xl"
         >
           <GrantReportFacts
