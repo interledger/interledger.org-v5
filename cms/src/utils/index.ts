@@ -1,5 +1,5 @@
 // Error handling
-export { tryCatchAsync } from './tryCatch'
+export { tryCatch, tryCatchAsync } from './tryCatch'
 
 // Shared content-type shapes
 export {
@@ -281,6 +281,7 @@ export {
   type DebouncedGitSync,
   GitCommandError,
   defaultGitSyncDeps,
+  createExecInRepo,
   isGitSyncDisabled,
   getTargetRepoRoot,
   validateGitSyncRepoOnStartup,
