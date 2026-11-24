@@ -7,8 +7,8 @@ interface Props {
   speakers: Speaker[]
   basePath: string
   /**
-   * `grid` for the speakers index; `stack` for a session page: one column
-   * with each photo above its name, four columns on desktop.
+   * `grid` for the speakers index; `stack` for a session page: each photo
+   * stays above its name on mobile too, in the index's columns from tablet.
    */
   layout?: 'grid' | 'stack'
   /** Passed to each card: 3 when the list sits under its own heading. */
@@ -20,7 +20,8 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const LAYOUT_CLASSES: Record<NonNullable<Props['layout']>, string> = {
   grid: 'tablet:grid-cols-3 tablet:gap-x-xl tablet:gap-y-3xl desktop:grid-cols-4',
-  stack: 'desktop:grid-cols-4 desktop:gap-x-2xl'
+  stack:
+    'tablet:grid-cols-3 tablet:gap-x-xl tablet:gap-y-3xl desktop:grid-cols-4 desktop:gap-x-2xl'
 }
 ---
 

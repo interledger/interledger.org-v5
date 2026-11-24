@@ -1,6 +1,9 @@
 ---
 // The language, day and time lines under a session title. Each line is left
 // out when its data is missing: summits before 2025 recorded no language.
+// The talk page leads with the language and the sessions list with the date;
+// the two lines are independent facts, so swapping them visually with
+// `order` leaves nothing out of sequence for a screen reader.
 import type { Talk } from '@/types/summit'
 import {
   type Locale,
@@ -15,9 +18,11 @@ interface Props {
   talk: Talk
   languages: SessionLanguages
   lang: Locale
+  /** Show the date line above the language line, as the sessions list does. */
+  dateFirst?: boolean
 }
 
-const { talk, languages, lang } = Astro.props
+const { talk, languages, lang, dateFirst = false } = Astro.props
 const t = useTranslations(lang)
 const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
 
@@ -49,7 +54,12 @@ const timeLabel = [
       })})
     </span>}
   </p>}
-  {date && <p class="m-0 flex flex-wrap items-center gap-y-sm">
+  {date && <p
+    class:list={[
+      'm-0 flex flex-wrap items-center gap-y-sm',
+      dateFirst && 'order-first'
+    ]}
+  >
     <time datetime={talk.startsAt} class="text-neutral-900 dark:text-neutral-0">
       {date}
     </time>

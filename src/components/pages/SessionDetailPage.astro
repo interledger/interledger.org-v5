@@ -44,7 +44,6 @@ const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
 // keep an empty notice row out of the EN page.
 const showFallbackNotice = isFallback && lang === 'es'
 const hasNotices = showFallbackNotice || languages.translatedTo.length > 0
-const hasVideoAndDescription = Boolean(entry.recordingUrl && description)
 // The notices sit under the breadcrumbs up to tablet and beside them on
 // desktop, where Breadcrumbs' own row layout would start at tablet.
 const breadcrumbRowClass =
@@ -85,13 +84,7 @@ const breadcrumbs = [
             </h1>
             <SessionMeta talk={entry} languages={languages} lang={lang} />
           </header>
-          <div
-            class:list={[
-              'flex flex-col gap-lg',
-              hasVideoAndDescription &&
-                'desktop:grid desktop:grid-cols-[minmax(0,1fr)_27rem] desktop:items-start desktop:gap-4xl'
-            ]}
-          >
+          <div class="flex flex-col gap-lg">
             {entry.recordingUrl && <section
               aria-label={t('summit.session_recording')}
             >
