@@ -1,0 +1,69 @@
+---
+import type { GrantReport } from '@/types/airtable'
+import { type GrantFacts, twMerge, useTranslations } from '@/utils'
+
+interface Props {
+  report: Pick<GrantReport, 'license' | 'interledgerTechnologies'>
+  // Null when the grant is not published in the directory: only the report's
+  // own facts show then.
+  grant: GrantFacts | null
+  class?: string
+}
+
+const { report, grant, class: className } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+// Every fact is optional. An empty one is left out, label and all.
+const facts = [
+  {
+    label: t('grantReport.amount'),
+    value: grant?.budgetLabel
+      ? `${grant.budgetLabel} ${t('grantee.currency')}`
+      : ''
+  },
+  { label: t('grantReport.program'), value: grant?.program ?? '' },
+  { label: t('grantReport.period'), value: grant?.grantPeriodLabel ?? '' },
+  {
+    label: t('grantee.project_lead'),
+    value: grant?.leaders.join(', ') ?? ''
+  },
+  { label: t('grantReport.location'), value: grant?.country ?? '' },
+  { label: t('grantReport.license'), value: report.license }
+].filter(({ value }) => value !== '')
+
+const technologies = report.interledgerTechnologies
+const hasFacts = facts.length > 0 || technologies.length > 0
+
+const termClasses = 'text-body-sm-standard text-neutral-75'
+const descriptionClasses = 'm-0 text-body-lg-standard text-neutral-100'
+---
+
+{hasFacts && <aside
+  aria-label={t('grantReport.about')}
+  class={twMerge(
+    'rounded-3xl border border-neutral-50 bg-white p-xl',
+    className
+  )}
+>
+  <dl class="m-0 flex flex-col gap-lg">
+    {facts.map(({ label, value }) => <div>
+      <dt class={termClasses}>{label}</dt>
+      <dd class={descriptionClasses}>{value}</dd>
+    </div>)}
+    {technologies.length > 0 && <div>
+      <dt class={termClasses}>{t('grantReport.technologies')}</dt>
+      <dd class="m-0 pt-sm">
+        <ul class="list-none m-0 p-0 flex flex-wrap gap-sm">
+          {technologies.map((technology) => <li class="m-0 p-0">
+            <span
+              class="inline-block px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full"
+            >
+              {technology}
+            </span>
+          </li>)}
+        </ul>
+      </dd>
+    </div>}
+  </dl>
+</aside>}

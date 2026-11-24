@@ -39,6 +39,7 @@ function completeRecord(id = 'rec1'): TableRecord {
       'Secondary Grant Program Name': 'Program',
       Year: '2024',
       'Start Month': '2024-01',
+      'End Date': '2024-12-31',
       Country: 'Kenya',
       'Project Leader': ['Ada Lovelace'],
       'Thematic Tag': ['Payments'],

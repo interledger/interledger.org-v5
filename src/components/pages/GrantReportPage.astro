@@ -4,14 +4,18 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
+import Paragraph from '@/components/blocks/Paragraph.astro'
+import GrantReportFacts from '@/components/grant/GrantReportFacts.astro'
+import GrantReportList from '@/components/grant/GrantReportList.astro'
 import type { GrantReport } from '@/types/airtable'
 import {
+  type GrantReportPageProps,
   type UiKey,
   useTranslations,
-  grantReportLabel,
   buildHomeBreadcrumb,
   defaultLocale,
-  formatReportDate,
+  formatReportMonth,
+  grantReportLabel,
   localizeRoute,
   parseMarkdownBelowHeading,
   grantOverviewHubPath,
@@ -24,19 +28,17 @@ import {
 //
 // The route passes reportPath, so this page does not decide the report URL.
 
-interface Props {
-  report: GrantReport
-  reportPath: string
-}
+type Props = GrantReportPageProps
 
-const { report, reportPath } = Astro.props
+const { report, reportPath, granteeName, grant, grantReports } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-// "Interim report 1": the title, the subtitle and the last breadcrumb.
+// "Interim report 1".
 const reportLabel = grantReportLabel(report, t)
 
-// No grantee step: the profile pages do not exist yet.
+// The last crumb names the grantee and the project, so the "Interim report 1"
+// of two grants can be told apart. No grantee step: profiles do not exist yet.
 const breadcrumbs = [
   buildHomeBreadcrumb(routeLocale, t),
   {
@@ -48,7 +50,13 @@ const breadcrumbs = [
     href: localizeRoute(grantGranteeDirectoryPath(), routeLocale)
   },
   {
-    name: reportLabel,
+    name: granteeName
+      ? t('grantReport.breadcrumb', {
+          grantee: granteeName,
+          project: report.projectName,
+          report: reportLabel
+        })
+      : `${report.projectName} - ${reportLabel}`,
     href: localizeRoute(reportPath, routeLocale)
   }
 ]
@@ -68,28 +76,44 @@ const SECTIONS = [
 ] as const satisfies readonly (readonly [keyof GrantReport, UiKey])[]
 
 // Each section has an h2, so a heading that a grantee typed in the text
-// starts at h3 (INTORG-1310, comment 8e7b1dce).
+// starts at h3.
 const SECTION_TEXT_MIN_HEADING = 3
 
 // Programs can leave any section empty. An empty one is left out, heading
-// and all.
-const sections = SECTIONS.filter(([field]) => report[field].trim() !== '').map(
-  ([field, headingKey]) => ({
-    id: `grant-report-${field}`,
-    heading: t(headingKey),
-    html: parseMarkdownBelowHeading(
-      report[field],
-      SECTION_TEXT_MIN_HEADING,
-      markdownContext
-    )
-  })
+// and all. Outputs also shows when only its output types are set.
+const sections = SECTIONS.map(([field, headingKey]) => ({
+  field,
+  id: `grant-report-${field}`,
+  heading: t(headingKey),
+  html: parseMarkdownBelowHeading(
+    report[field],
+    SECTION_TEXT_MIN_HEADING,
+    markdownContext
+  )
+})).filter(
+  ({ field, html }) =>
+    html !== '' || (field === 'outputs' && report.outputTypes.length > 0)
 )
 
 const { reportingPeriodStart: periodStart, reportingPeriodEnd: periodEnd } =
   report
 
-// The images fill the content column, at most max-w-content (1440px).
-const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
+// The first image is the cover. "From the project" shows the others with
+// their descriptions, and is left out when there are none: the cover is
+// never repeated (Sarah, INTORG-1303 497d6d9c).
+const [cover, ...projectImages] = report.images
+
+// The content column is 2/3 of max-w-content (1440px) on desktop, minus the
+// 80px gap, and the full width below that.
+const CONTENT_IMAGE_SIZES = '(min-width: 1200px) 907px, 100vw'
+
+// Images keep their own shape and are never cropped (Sarah, INTORG-1470).
+// The cap (the Figma cover's 600px) stops a tall image from filling the screen.
+const UNCROPPED_IMAGE_CLASSES =
+  'w-auto max-w-full h-auto max-h-[min(37.5rem,70svh)]'
+
+const pillClasses =
+  'inline-block px-sm py-xs text-body-sm-standard text-neutral-100 border border-neutral-50 rounded-full'
 ---
 
 <FoundationPageLayout
@@ -103,76 +127,158 @@ const IMAGE_SIZES = '(min-width: 1440px) 1440px, 100vw'
     data-grant-report
     class="flex flex-col px-content pb-section pt-[calc(var(--spacing-5xl)-var(--site-header-height))] tablet:pt-[calc(var(--spacing-6xl)-var(--site-header-height))] desktop:pt-[calc(var(--spacing-7xl)-var(--site-header-height-desktop))]"
   >
-    <article class="w-full max-w-content m-auto flex flex-col gap-2xl">
-      <Breadcrumbs breadcrumbs={breadcrumbs}>
-        <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
-      </Breadcrumbs>
+    {/* One column below desktop: header, facts, content, report list. On
+      desktop the facts and the list move into a sticky sidebar, so the
+      sidebar wrapper only becomes a box there. */}
+    <article
+      class="w-full max-w-content m-auto grid grid-cols-1 gap-y-3xl desktop:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] desktop:gap-x-5xl desktop:gap-y-0"
+    >
+      <header class="flex flex-col desktop:col-start-1">
+        {/* The header column is narrow, so the disclaimer goes under the
+          trail instead of beside it, where it hid the last crumbs. */}
+        <Breadcrumbs
+          breadcrumbs={breadcrumbs}
+          class="tablet:flex-col tablet:items-start"
+        >
+          <TranslationDisclaimer isVisible={routeLocale !== defaultLocale} />
+        </Breadcrumbs>
 
-      <header class="flex flex-col gap-sm">
-        <h1 class="m-0">{report.projectName}</h1>
-        <p class="m-0 text-neutral-75">
-          {reportLabel}
+        <h1
+          class="m-0 text-h2 tablet:text-h2-md desktop:text-h2-lg text-neutral-900"
+        >
+          {t('grantReport.title', {
+            project: report.projectName,
+            report: reportLabel.toLocaleLowerCase(routeLocale)
+          })}
+        </h1>
+
+        {granteeName && <p
+          class="m-0 pt-xl desktop:pt-2xl text-h5 tablet:text-h5-md desktop:text-h5-lg font-semibold text-neutral-900"
+        >
+          {t('grantReport.grantee', { name: granteeName })}
+        </p>}
+
+        <p
+          class="m-0 pt-xl desktop:pt-2xl text-body-lg-standard text-neutral-900"
+        >
+          <time datetime={report.publishedDate}>
+            {t('grantReport.published', {
+              date: formatReportMonth(report.publishedDate, routeLocale)
+            })}
+          </time>
+          {periodStart && periodEnd && (
+            <>
+              {' '}
+              {t('grantReport.covers', {
+                start: formatReportMonth(periodStart, routeLocale),
+                end: formatReportMonth(periodEnd, routeLocale)
+              })}
+            </>
+          )}
         </p>
+
+        {cover && (
+          <OptimizedImage
+            src={cover.path}
+            alt={cover.alt}
+            width={cover.width}
+            height={cover.height}
+            sizes={CONTENT_IMAGE_SIZES}
+            class={`mt-xl tablet:mt-2xl desktop:mt-4xl rounded-3xl ${UNCROPPED_IMAGE_CLASSES}`}
+            loading="eager"
+            fetchpriority="high"
+          />
+        )}
       </header>
 
-      <dl
-        aria-label={t('grantReport.facts')}
-        class="m-0 grid grid-cols-1 gap-lg tablet:grid-cols-2 desktop:grid-cols-3"
+      <div
+        class="contents desktop:block desktop:col-start-2 desktop:row-start-1 desktop:row-span-2"
       >
-        <div>
-          <dt class="text-neutral-75">{t('grantReport.published')}</dt>
-          <dd class="m-0">
-            <time datetime={report.publishedDate}>
-              {formatReportDate(report.publishedDate, routeLocale)}
-            </time>
-          </dd>
+        {/* Lenis turns off nested scrolling, so without this the wheel scrolls
+          the page, not the sidebar. SectionsNav does the same. */}
+        <div
+          data-lenis-prevent
+          class="contents desktop:sticky desktop:top-[calc(var(--site-header-height-desktop)+var(--spacing-xl))] desktop:max-h-[calc(100dvh-var(--site-header-height-desktop)-var(--spacing-xl)-var(--spacing-xl))] desktop:overflow-y-auto desktop:scroll-p-xs desktop:flex desktop:flex-col desktop:gap-2xl"
+        >
+          <GrantReportFacts
+            report={report}
+            grant={grant}
+            class="order-2 desktop:order-none"
+          />
+          <GrantReportList
+            items={grantReports}
+            class="order-4 desktop:order-none"
+          />
         </div>
-        {periodStart && periodEnd && <div>
-          <dt class="text-neutral-75">{t('grantReport.reporting_period')}</dt>
-          <dd class="m-0">
-            {t('grantReport.period_range', {
-              start: formatReportDate(periodStart, routeLocale),
-              end: formatReportDate(periodEnd, routeLocale)
-            })}
-          </dd>
-        </div>}
-        {report.license && <div>
-          <dt class="text-neutral-75">{t('grantReport.license')}</dt>
-          <dd class="m-0">{report.license}</dd>
-        </div>}
-        {report.outputTypes.length > 0 && <div>
-          <dt class="text-neutral-75">{t('grantReport.output_types')}</dt>
-          <dd class="m-0">{report.outputTypes.join(', ')}</dd>
-        </div>}
-        {report.interledgerTechnologies.length > 0 && <div>
-          <dt class="text-neutral-75">{t('grantReport.technologies')}</dt>
-          <dd class="m-0">{report.interledgerTechnologies.join(', ')}</dd>
-        </div>}
-      </dl>
+      </div>
 
-      {sections.map((section) => <section aria-labelledby={section.id}>
-        <h2 id={section.id}>{section.heading}</h2>
-        <Fragment set:html={section.html} />
-      </section>)}
-
-      {report.images.length > 0 && <section
-        aria-labelledby="grant-report-images"
+      {/* A heading typed in a section is an h3 under the section's h2, but the
+        design gives it the h4 size, one step below the section heading. */}
+      <div
+        data-prose
+        class="order-3 desktop:order-none desktop:col-start-1 [&_section_h3]:text-h4 tablet:[&_section_h3]:text-h4-md desktop:[&_section_h3]:text-h4-lg [&_section_h3]:font-semibold"
       >
-        <h2 id="grant-report-images">{t('grantReport.images')}</h2>
-        <ul class="list-none m-0 p-0 flex flex-col gap-xl">
-          {report.images.map((image) => <li class="m-0">
-            <OptimizedImage
-              src={image.path}
-              alt={image.alt}
-              width={image.width}
-              height={image.height}
-              sizes={IMAGE_SIZES}
-              class="w-full h-auto"
-              loading="lazy"
-            />
-          </li>)}
-        </ul>
-      </section>}
+        {sections.map((section, index) => (
+          <>
+            <section aria-labelledby={section.id}>
+              <Paragraph>
+                <h2
+                  id={section.id}
+                  class="text-h3 tablet:text-h3-md desktop:text-h3-lg font-semibold"
+                >
+                  {section.heading}
+                </h2>
+                {section.field === 'outputs' &&
+                  report.outputTypes.length > 0 && <ul
+                    class="list-none m-0 p-0 flex flex-wrap gap-sm [&>li]:before:content-none"
+                    aria-label={t('grantReport.output_types')}
+                  >
+                    {report.outputTypes.map((type) => <li class="m-0 p-0">
+                      <span class={pillClasses}>{type}</span>
+                    </li>)}
+                  </ul>}
+                <Fragment set:html={section.html} />
+              </Paragraph>
+            </section>
+            {index === 0 && sections.length > 1 && <hr />}
+          </>
+        ))}
+
+        {projectImages.length > 0 && <section
+          aria-labelledby="grant-report-from-project"
+        >
+          <Paragraph>
+            <h2
+              id="grant-report-from-project"
+              class="text-h3 tablet:text-h3-md desktop:text-h3-lg font-semibold"
+            >
+              {t('grantReport.from_project')}
+            </h2>
+          </Paragraph>
+          <ul class="list-none m-0 p-0 flex flex-col gap-2xl">
+            {projectImages.map((image) => <li class="m-0 p-0">
+              <figure class="m-0 flex flex-col gap-lg">
+                {/* The caption, when there is one, names the figure, so the
+                  image itself would only repeat it. */}
+                <OptimizedImage
+                  src={image.path}
+                  alt=""
+                  width={image.width}
+                  height={image.height}
+                  sizes={CONTENT_IMAGE_SIZES}
+                  class={`rounded-2xl ${UNCROPPED_IMAGE_CLASSES}`}
+                  loading="lazy"
+                />
+                {image.alt && <figcaption
+                  class="text-h5 tablet:text-h5-md desktop:text-h5-lg text-neutral-75"
+                >
+                  {image.alt}
+                </figcaption>}
+              </figure>
+            </li>)}
+          </ul>
+        </section>}
+      </div>
     </article>
   </main>
 </FoundationPageLayout>

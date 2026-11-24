@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   compareByStartMonth,
   formatBudgetAmount,
+  formatGrantPeriod,
   formatStartMonth,
   normalizeCountry,
   parseGranteeRecords
@@ -70,7 +71,62 @@ describe('formatStartMonth', () => {
   })
 })
 
+describe('formatGrantPeriod', () => {
+  it('formats the start and end month as a range', () => {
+    expect(formatGrantPeriod('2026-03', '2027-02', 'en')).toBe(
+      'March 2026 – February 2027'
+    )
+  })
+
+  it('formats a grant that starts and ends in one month', () => {
+    expect(formatGrantPeriod('2026-03', '2026-03', 'en')).toBe(
+      'March 2026 – March 2026'
+    )
+  })
+
+  it('localizes the month names', () => {
+    expect(formatGrantPeriod('2026-03', '2027-02', 'es')).toBe(
+      'Marzo de 2026 – febrero de 2027'
+    )
+  })
+
+  it.each([
+    ['no start', '', '2027-02'],
+    ['no end', '2026-03', ''],
+    ['a start that is not YYYY-MM', '2026', '2027-02'],
+    ['an end month out of range', '2026-03', '2027-13'],
+    ['an end before the start', '2026-03', '2025-12']
+  ])('returns an empty string for %s', (_case, start, end) => {
+    expect(formatGrantPeriod(start, end, 'en')).toBe('')
+  })
+})
+
 describe('parseGranteeRecords', () => {
+  it('reads the grant period from Start Month and End Date', () => {
+    const result = parseGranteeRecords(
+      [record({ ...sample.fields, 'End Date': '2025-08-31' })],
+      'en'
+    )
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.grantPeriodLabel).toBe('September 2024 – August 2025')
+  })
+
+  it.each([
+    ['missing', undefined],
+    ['not a date', 'soon'],
+    ['a month without a day', '2025-08']
+  ])('has no grant period when End Date is %s', (_case, endDate) => {
+    const fields =
+      endDate === undefined
+        ? sample.fields
+        : { ...sample.fields, 'End Date': endDate }
+    const result = parseGranteeRecords([record(fields)], 'en')
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result[0]?.grantPeriodLabel).toBe('')
+  })
+
   it('returns an Error when the dump is not an array', () => {
     const result = parseGranteeRecords({ records: [] }, 'en')
     expect(result).toBeInstanceOf(Error)

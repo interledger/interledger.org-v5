@@ -47,7 +47,11 @@ export interface GranteeProject {
   year: string
   startMonth: string
   startLabel: string
+  /** "March 2026 – February 2027", or '' unless both ends are valid and in order. */
+  grantPeriodLabel: string
   country: string
+  /** Contact names from Project Leader. The report sidebar shows them. */
+  leaders: string[]
   tags: string[]
   budget: number | null
   budgetLabel: string | null
@@ -97,22 +101,57 @@ export function formatBudgetAmount(value: number): string {
     .replace(/,/g, ' ')
 }
 
-export function formatStartMonth(startMonth: string, locale: Locale): string {
-  const match = /^(\d{4})-(\d{2})$/.exec(startMonth)
-  if (!match) return startMonth
+// "September 2024" in English, "septiembre de 2024" in Spanish: lowercase
+// mid-sentence, as Spanish writes month names. Null when not YYYY-MM.
+function formatMonth(month: string, locale: Locale): string | null {
+  const match = /^(\d{4})-(\d{2})$/.exec(month)
+  if (!match) return null
 
-  const month = Number(match[2])
-  if (month < 1 || month > 12) return startMonth
+  const monthNumber = Number(match[2])
+  if (monthNumber < 1 || monthNumber > 12) return null
 
-  const date = new Date(Date.UTC(Number(match[1]), month - 1, 1))
+  const date = new Date(Date.UTC(Number(match[1]), monthNumber - 1, 1))
   const localeTag = locale === 'es' ? 'es-ES' : 'en-US'
-  const formatted = new Intl.DateTimeFormat(localeTag, {
+  return new Intl.DateTimeFormat(localeTag, {
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC'
   }).format(date)
+}
 
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+export function formatStartMonth(startMonth: string, locale: Locale): string {
+  const formatted = formatMonth(startMonth, locale)
+  return formatted === null ? startMonth : capitalize(formatted)
+}
+
+// Start Month is a YYYY-MM formula; End Date is an Airtable date, YYYY-MM-DD.
+const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/
+const DATE_PATTERN = /^(\d{4}-(0[1-9]|1[0-2]))-\d{2}$/
+
+function toMonth(endDate: string): string {
+  return DATE_PATTERN.exec(endDate)?.[1] ?? ''
+}
+
+// The grant's start and end month, as the report sidebar shows it. A period
+// with a missing, malformed or reversed end is left out rather than shown
+// half right.
+export function formatGrantPeriod(
+  startMonth: string,
+  endMonth: string,
+  locale: Locale
+): string {
+  if (!MONTH_PATTERN.test(startMonth) || !MONTH_PATTERN.test(endMonth)) {
+    return ''
+  }
+  if (endMonth < startMonth) return ''
+  const start = formatMonth(startMonth, locale)
+  const end = formatMonth(endMonth, locale)
+  if (start === null || end === null) return ''
+  return `${capitalize(start)} – ${end}`
 }
 
 function asTrimmedString(value: unknown): string | undefined {
@@ -186,6 +225,7 @@ function toGranteeProject(
   const program = asTrimmedString(fields['Secondary Grant Program Name']) ?? ''
   const year = asTrimmedString(fields.Year) ?? ''
   const startMonth = asTrimmedString(fields['Start Month']) ?? ''
+  const endMonth = toMonth(asTrimmedString(fields['End Date']) ?? '')
   const country = normalizeCountry(asTrimmedString(fields.Country) ?? '')
   const leaders = asStringList(fields['Project Leader'])
   const tags = asStringList(fields['Thematic Tag'])
@@ -212,7 +252,9 @@ function toGranteeProject(
     year,
     startMonth,
     startLabel: startMonth ? formatStartMonth(startMonth, locale) : '',
+    grantPeriodLabel: formatGrantPeriod(startMonth, endMonth, locale),
     country,
+    leaders,
     tags,
     budget,
     budgetLabel: budget === null ? null : formatBudgetAmount(budget),

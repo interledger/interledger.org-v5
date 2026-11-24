@@ -1,0 +1,77 @@
+---
+import LinkButton from '@/components/shared/LinkButton.astro'
+import Icon from '@/components/shared/Icon.astro'
+import {
+  type GrantReportListItem,
+  buildUmamiAttrs,
+  grantReportLabel,
+  localizeRoute,
+  twMerge,
+  useTranslations
+} from '@/utils'
+
+interface Props {
+  // Every published report of the grant, the current one included.
+  items: GrantReportListItem[]
+  class?: string
+}
+
+const { items, class: className } = Astro.props
+const { routeLocale } = Astro.locals
+const t = useTranslations(routeLocale)
+
+const headingId = 'grant-report-list-heading'
+const reports = items.map((item) => {
+  const label = grantReportLabel(item, t)
+  const href = localizeRoute(item.reportPath, routeLocale)
+  return {
+    ...item,
+    label,
+    href,
+    umamiAttrs: buildUmamiAttrs({
+      pathname: Astro.url.pathname,
+      lang: routeLocale,
+      label: 'button_card',
+      baseComponent: 'grant_report_list',
+      href,
+      linkText: label
+    })
+  }
+})
+---
+
+<section
+  aria-labelledby={headingId}
+  class={twMerge('flex flex-col gap-lg', className)}
+>
+  <h2
+    id={headingId}
+    class="m-0 text-h3 tablet:text-h3-md desktop:text-h5-lg font-semibold text-neutral-150"
+  >
+    {t('grantReport.reports_heading')}
+  </h2>
+  <ul class="list-none m-0 p-0 flex flex-col gap-sm">
+    {reports.map((report) => <li
+      class="m-0 p-xl flex items-center justify-between gap-lg rounded-2xl bg-ice-indigo-100"
+      aria-current={report.isCurrent ? 'page' : undefined}
+    >
+      <span class="text-body-lg-emphasis text-neutral-100">
+        {report.label}
+      </span>
+      {report.isCurrent ? (
+        <span class="text-body-sm-standard text-orchid-100">
+          {t('grantReport.current')}
+        </span>
+      ) : (
+        <LinkButton
+          variant="fab"
+          href={report.href}
+          aria-label={report.label}
+          {...report.umamiAttrs}
+        >
+          <Icon name="arrow-right" />
+        </LinkButton>
+      )}
+    </li>)}
+  </ul>
+</section>
