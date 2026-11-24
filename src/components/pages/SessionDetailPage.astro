@@ -98,7 +98,7 @@ const breadcrumbs = [
               <VideoEmbed url={entry.recordingUrl} title={entry.title} />
             </section>}
             {description && <section
-              class="rounded-3xl bg-pistachio-100 p-xl text-body-lg-standard text-neutral-900 [&_p:last-child]:mb-0"
+              class="rounded-3xl bg-pistachio-100 p-xl [&_p]:text-h5 [&_p]:text-neutral-900 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg [&_p:last-child]:mb-0"
               aria-label={t('summit.session_description')}
             >
               <TextParagraphs text={description} />

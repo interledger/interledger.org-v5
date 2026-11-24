@@ -33,7 +33,9 @@ const timeLabel = [
   .join(' – ')
 ---
 
-<div class="flex flex-col gap-lg text-body-lg-standard">
+<div
+  class="flex flex-col gap-lg [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg"
+>
   {languages.spoken.length > 0 && <p class="m-0 flex flex-wrap gap-x-sm">
     <span class="text-neutral-900 dark:text-neutral-0">
       {t('summit.session_language')}
