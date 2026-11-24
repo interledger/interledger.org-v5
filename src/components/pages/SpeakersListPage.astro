@@ -5,12 +5,7 @@ import SpeakersList from '@/components/summit/SpeakersList.astro'
 import Pagination from '@/components/shared/Pagination.astro'
 import type { Page } from 'astro'
 import type { Speaker } from '@/types/summit'
-import {
-  useTranslations,
-  joinPagePath,
-  summitYearHref,
-  buildHomeBreadcrumb
-} from '@/utils'
+import { useTranslations, buildSummitListingBreadcrumbs } from '@/utils'
 
 interface Props {
   speakers: Speaker[]
@@ -25,26 +20,14 @@ const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const label = t('summit.speakers_pagination', { year })
 
-// Breadcrumbs renders the last crumb as the current page, so past page 1
-// "Speakers" stays a link back to page 1 and the page number comes last.
-const pageCrumb =
-  page.currentPage > 1
-    ? [
-        {
-          name: t('pagination.page', { page: page.currentPage }),
-          href: joinPagePath(basePath, String(page.currentPage))
-        }
-      ]
-    : []
-const breadcrumbs = [
-  buildHomeBreadcrumb(routeLocale, t),
-  {
-    name: t('summit.summit_name', { year }),
-    href: summitYearHref(year, routeLocale)
-  },
-  { name: t('summit.speakers'), href: joinPagePath(basePath) },
-  ...pageCrumb
-]
+const breadcrumbs = buildSummitListingBreadcrumbs({
+  year,
+  listingName: t('summit.speakers'),
+  basePath,
+  currentPage: page.currentPage,
+  routeLocale,
+  t
+})
 ---
 
 <SummitPageLayout title={title}>

@@ -14,8 +14,13 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { buildHomeBreadcrumb, buildSectionEntryBreadcrumbs } =
-  await import('./breadcrumbs')
+const {
+  buildHomeBreadcrumb,
+  buildSectionEntryBreadcrumbs,
+  buildSummitListingBreadcrumbs
+} = await import('./breadcrumbs')
+const { YEARS, currentSummitYear } = await import('./sessionize')
+const { useTranslations } = await import('./i18')
 const { ui } = await import('@/data/ui')
 
 // Same fallback as useTranslations: an empty Spanish string uses the English label.
@@ -253,5 +258,46 @@ describe('buildSectionEntryBreadcrumbs', () => {
       { name: 'Inicio', href: '/es/' },
       { name: 'FAQ', href: '/es/faq/' }
     ])
+  })
+})
+
+describe('buildSummitListingBreadcrumbs', () => {
+  const pastYear = YEARS[0]
+  const crumbs = (currentPage: number, locale: 'en' | 'es' = 'en') =>
+    buildSummitListingBreadcrumbs({
+      year: pastYear,
+      listingName: 'Sessions',
+      basePath: `/summit/${pastYear}/talks`,
+      currentPage,
+      routeLocale: locale,
+      t: useTranslations(locale)
+    })
+
+  it('ends at the listing on page 1', () => {
+    expect(crumbs(1)).toEqual([
+      { name: 'Home', href: '/' },
+      { name: `${pastYear} Summit`, href: `/summit/${pastYear}/` },
+      { name: 'Sessions', href: `/summit/${pastYear}/talks/` }
+    ])
+  })
+
+  it('keeps the listing a link and adds the page number after page 1', () => {
+    expect(crumbs(3).slice(2)).toEqual([
+      { name: 'Sessions', href: `/summit/${pastYear}/talks/` },
+      { name: 'Page 3', href: `/summit/${pastYear}/talks/3/` }
+    ])
+  })
+
+  it('links the current summit year to the landing page, localized', () => {
+    const current = buildSummitListingBreadcrumbs({
+      year: currentSummitYear!,
+      listingName: 'Sesiones',
+      basePath: `/es/summit/${currentSummitYear}/talks/`,
+      currentPage: 1,
+      routeLocale: 'es',
+      t: useTranslations('es')
+    })
+    expect(current[0]).toEqual({ name: 'Inicio', href: '/es/' })
+    expect(current[1].href).toBe('/es/summit/')
   })
 })

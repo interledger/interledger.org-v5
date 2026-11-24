@@ -126,6 +126,8 @@ export {
 export {
   type BreadcrumbItem,
   buildHomeBreadcrumb,
+  buildSummitListingBreadcrumbs,
+  type SummitListingCrumbs,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'

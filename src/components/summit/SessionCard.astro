@@ -27,23 +27,33 @@ const title = translation?.title ?? talkPreview.title
 const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
-<li class="flex flex-col gap-xl tablet:flex-row">
-  <OptimizedImage
-    class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
-    pictureClass="shrink-0"
-    src={talkPreview.speakerImage}
-    alt={talkPreview.speakerName ?? ''}
-    width={200}
-    height={200}
-    sizes="200px"
-    widths={AVATAR_CDN_WIDTHS}
-    loading="lazy"
-  />
-  <div class="[&_p]:text-body-sm-standard">
-    <h2 class="mb-sm">
+<!-- A row, not a grid card: the photo sits beside the text from tablet up.
+     Only the title is a link; the photo outline follows its hover and focus. -->
+<li class="group flex flex-col gap-lg tablet:flex-row tablet:gap-xl">
+  <div
+    class="aspect-square w-6xl shrink-0 overflow-hidden rounded-3xl bg-neutral-25 outline-[3px] outline-transparent transition-[outline-color] duration-slow tablet:w-50 group-has-[a:hover]:outline-link group-has-[a:focus-visible]:outline-link"
+  >
+    <OptimizedImage
+      src={talkPreview.speakerImage}
+      alt={talkPreview.speakerName ?? ''}
+      width={240}
+      height={240}
+      sizes="(min-width: 810px) 200px, 120px"
+      widths={AVATAR_CDN_WIDTHS}
+      loading="lazy"
+      pictureClass="block h-full w-full"
+      class="h-full w-full object-cover"
+    />
+  </div>
+  <div class="min-w-0">
+    <!-- Size on the link, not the h2: the summit prose styles give every
+         <a> a body size, and only a class on the element itself beats them. -->
+    <h2
+      class="mt-0 mb-md text-h4 tablet:mt-lg tablet:text-h4-md desktop:text-h4-lg"
+    >
       <a
         href={href}
-        class="text-h3 text-neutral-900 no-underline tablet:text-h3-md desktop:text-h3-lg hover:text-link"
+        class="text-h4 text-link underline decoration-current tablet:text-h4-md desktop:text-h4-lg hover:text-link-hover"
         {...attrs}
       >
         {title}
@@ -54,6 +64,10 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
       showRecordingLabel={true}
       lang={lang}
     />
-    {description && <p>{truncateText(description)}</p>}
+    {description && <p
+      class="m-0 text-body-lg-standard text-neutral-100 dark:text-neutral-50"
+    >
+      {truncateText(description)}
+    </p>}
   </div>
 </li>

@@ -5,6 +5,8 @@ import {
 } from './routes'
 import type { Locale, Translate, UiKey } from './i18'
 import type { SiteSection } from './static-paths'
+import { joinPagePath } from '../shared/url'
+import { summitYearHref } from './summitRoutes'
 
 export type BreadcrumbItem = {
   name: string
@@ -102,5 +104,47 @@ export function buildSectionEntryBreadcrumbs(
       }
     }),
     { name: label, href: localizeRoute(fullPath, routeLocale) }
+  ]
+}
+
+export interface SummitListingCrumbs {
+  year: string
+  /** The listing's label, e.g. "Speakers" or "Sessions". */
+  listingName: string
+  /** The listing's page-1 path, e.g. `/summit/2025/speakers/`. */
+  basePath: string
+  currentPage: number
+  routeLocale: Locale
+  t: Translate
+}
+
+/**
+ * Home > {year} Summit > listing [> Page N] for a paginated summit listing.
+ * Breadcrumbs renders the last crumb as the current page, so past page 1 the
+ * listing stays a link back to page 1 and the page number comes last.
+ */
+export function buildSummitListingBreadcrumbs({
+  year,
+  listingName,
+  basePath,
+  currentPage,
+  routeLocale,
+  t
+}: SummitListingCrumbs): BreadcrumbItem[] {
+  const crumbs: BreadcrumbItem[] = [
+    buildHomeBreadcrumb(routeLocale, t),
+    {
+      name: t('summit.summit_name', { year }),
+      href: summitYearHref(year, routeLocale)
+    },
+    { name: listingName, href: joinPagePath(basePath) }
+  ]
+  if (currentPage <= 1) return crumbs
+  return [
+    ...crumbs,
+    {
+      name: t('pagination.page', { page: currentPage }),
+      href: joinPagePath(basePath, String(currentPage))
+    }
   ]
 }
