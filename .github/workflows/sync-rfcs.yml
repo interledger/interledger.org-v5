@@ -10,6 +10,11 @@ on:
     # Mondays 07:00 UTC. RFCs change rarely; weekly keeps the PR noise low.
     - cron: '0 7 * * 1'
   workflow_dispatch:
+    inputs:
+      ignore_refusal:
+        description: Open a PR even if a reviewer closed the same change before
+        type: boolean
+        default: false
 
 concurrency:
   # Two runs would force-push the same branch and could both try to create the PR. Never cancel
@@ -68,6 +73,9 @@ jobs:
         id: sync
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          IGNORE_REFUSAL: ${{ inputs.ignore_refusal || false }}
+          # Marks a PR this workflow closed itself, so it is never read as a reviewer's refusal.
+          RETIRED_MARKER: '<!-- rfc-sync:retired -->'
         run: |
           set -euo pipefail
 
@@ -75,24 +83,59 @@ jobs:
           # checkout clean and opens no pull request.
           pnpm run sync:rfcs
 
-          # Staged so that new and removed snapshots count: git diff ignores untracked files.
+          # Staged so that new and removed snapshots and images count: git diff ignores
+          # untracked files.
           git add -A -- "$SNAPSHOT_DIR"
+
+          OPEN_PR="$(gh pr list --head "$SYNC_BRANCH" --base "$BASE_BRANCH" \
+            --state open --json number --jq '.[0].number // empty')"
+          echo "open_pr=$OPEN_PR" >> "$GITHUB_OUTPUT"
+
+          # Run whenever this sync wants no pull request. An open one is out of date, and left
+          # open a reviewer could still merge content upstream no longer has. A branch with no
+          # PR is left over from a failed `gh pr create` or a PR closed without deleting it.
+          retire_sync_pr() {
+            if [ -n "$OPEN_PR" ]; then
+              gh pr close "$OPEN_PR" --comment "$1"$'\n\n'"$RETIRED_MARKER"
+              echo "Closed pull request #$OPEN_PR." >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if git ls-remote --exit-code --heads origin "$SYNC_BRANCH" >/dev/null; then
+              git push --quiet origin --delete "$SYNC_BRANCH"
+            fi
+          }
 
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "RFC snapshots are unchanged — no branch, no commit, no pull request."
             echo "RFC snapshots unchanged. No pull request opened." >> "$GITHUB_STEP_SUMMARY"
-
-            # A PR from an earlier run is now stale: upstream reverted, or staging caught up.
-            # Left open, a reviewer could still merge content upstream no longer has.
-            STALE_PR="$(gh pr list --head "$SYNC_BRANCH" --base "$BASE_BRANCH" \
-              --state open --json number --jq '.[0].number // empty')"
-            if [ -n "$STALE_PR" ]; then
-              gh pr close "$STALE_PR" --delete-branch \
-                --comment 'Closed by the RFC sync: upstream now matches staging, so this change is no longer needed.'
-              echo "Closed stale pull request #$STALE_PR." >> "$GITHUB_STEP_SUMMARY"
-            fi
+            retire_sync_pr 'Closed by the RFC sync: upstream now matches staging, so this change is no longer needed.'
             exit 0
+          fi
+
+          # A reviewer refuses an upstream change by closing its PR unmerged. Without this
+          # check the same PR would come back every Monday. Compared by patch-id, the change
+          # itself, so a refusal still holds after staging has moved on. Only the latest
+          # refusal counts, and only one a person made: PRs this workflow retired carry the
+          # marker. `--binary` keeps image changes in the patch; without it every binary
+          # change reads "Binary files differ" and they would all match.
+          REFUSED_PR="$(gh pr list --head "$SYNC_BRANCH" --base "$BASE_BRANCH" \
+            --state closed --limit 20 --json number,mergedAt,comments --jq '
+              [.[] | select(.mergedAt == null)
+                   | select(all(.comments[]; .body | contains("rfc-sync:retired") | not))]
+              | sort_by(.number) | last | .number // empty')"
+
+          if [ -n "$REFUSED_PR" ] && [ "$IGNORE_REFUSAL" != 'true' ] \
+            && git fetch --quiet --depth=2 origin "refs/pull/$REFUSED_PR/head"; then
+            REFUSED_PATCH="$(git diff --binary FETCH_HEAD^ FETCH_HEAD -- "$SNAPSHOT_DIR" \
+              | git patch-id --stable | cut -d' ' -f1)"
+            THIS_PATCH="$(git diff --binary --cached -- "$SNAPSHOT_DIR" \
+              | git patch-id --stable | cut -d' ' -f1)"
+            if [ -n "$THIS_PATCH" ] && [ "$REFUSED_PATCH" = "$THIS_PATCH" ]; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              echo "This is the change refused in #$REFUSED_PR. No pull request opened. To take it after all, run this workflow by hand with ignore_refusal." >> "$GITHUB_STEP_SUMMARY"
+              retire_sync_pr "Closed by the RFC sync: upstream went back to the change refused in #$REFUSED_PR."
+              exit 0
+            fi
           fi
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -106,6 +149,8 @@ jobs:
 
       - name: Commit and push the sync branch
         if: steps.sync.outputs.changed == 'true'
+        env:
+          OPEN_PR: ${{ steps.sync.outputs.open_pr }}
         run: |
           set -euo pipefail
 
@@ -117,12 +162,14 @@ jobs:
           git checkout -B "$SYNC_BRANCH"
           git commit -m 'chore(docs): sync RFC snapshots'
 
-          # If the open PR already carries these exact snapshots, keep it as it is. A fresh
-          # commit would re-run pr-checks and dismiss approvals for no change. The fetch fails
-          # harmlessly when the branch doesn't exist yet.
-          if git fetch --quiet --depth=1 origin "$SYNC_BRANCH" 2>/dev/null \
-            && git diff --quiet FETCH_HEAD HEAD -- "$SNAPSHOT_DIR"; then
-            echo "The open pull request already has these snapshots — not pushing."
+          # Skip the push only when an open PR's branch already has this exact tree: the same
+          # snapshots on the same staging. A fresh commit would re-run pr-checks and dismiss
+          # approvals for nothing. Once staging has moved on, the trees differ and the push
+          # rebases the PR, so its checks run against current code.
+          if [ -n "$OPEN_PR" ] \
+            && git fetch --quiet --depth=1 origin "$SYNC_BRANCH" \
+            && [ "$(git rev-parse 'FETCH_HEAD^{tree}')" = "$(git rev-parse 'HEAD^{tree}')" ]; then
+            echo "Pull request #$OPEN_PR already has this exact tree — not pushing."
             exit 0
           fi
 
@@ -180,10 +227,14 @@ jobs:
           ## PR Checklist
 
           - [x] PR title follows Conventional Commits
-          - [x] Scope is focused — `src/data/docs/rfcs/` only
+          - [x] Scope is focused — `src/data/docs/rfcs/` (markdown and images) only
           - [ ] Linked issue included — N/A, scheduled automation
 
           ---
+
+          To refuse this upstream change, close this PR without merging. Later runs won't
+          reopen it unless upstream changes again; to take it after all, run the workflow by
+          hand with `ignore_refusal`.
 
           This branch is rebuilt from `staging` and force-pushed on every run, so any commit
           pushed to it by hand will be discarded. To make a change, close this PR and open
