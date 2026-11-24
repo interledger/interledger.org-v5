@@ -334,7 +334,13 @@ export {
 } from './main/reportSections'
 
 // Main site: Formatting
-export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
+export {
+  formatDateTime,
+  formatDate,
+  formatSessionDate,
+  formatSessionTime,
+  getDurationInMinutes
+} from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
@@ -382,6 +388,10 @@ export {
 } from './main/summit-talks-speakers'
 export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 export { summitBaseHref, summitYearHref } from './main/summitRoutes'
+export {
+  parseSessionLanguages,
+  type SessionLanguages
+} from './main/sessionLanguages'
 
 // Main site: Images
 export {

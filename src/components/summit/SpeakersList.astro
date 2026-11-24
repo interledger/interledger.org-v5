@@ -6,16 +6,21 @@ import { useTranslations } from '@/utils'
 interface Props {
   speakers: Speaker[]
   basePath: string
-  /** `grid` for the speakers index; `stack` for a narrow column such as a session sidebar. */
+  /**
+   * `grid` for the speakers index; `stack` for a session page: one column
+   * with each photo above its name, four columns on desktop.
+   */
   layout?: 'grid' | 'stack'
+  /** Passed to each card: 3 when the list sits under its own heading. */
+  headingLevel?: 2 | 3
 }
 
-const { speakers, basePath, layout = 'grid' } = Astro.props
+const { speakers, basePath, layout = 'grid', headingLevel = 2 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 const LAYOUT_CLASSES: Record<NonNullable<Props['layout']>, string> = {
   grid: 'tablet:grid-cols-3 tablet:gap-x-xl tablet:gap-y-3xl desktop:grid-cols-4',
-  stack: ''
+  stack: 'desktop:grid-cols-4 desktop:gap-x-2xl'
 }
 ---
 
@@ -27,7 +32,12 @@ const LAYOUT_CLASSES: Record<NonNullable<Props['layout']>, string> = {
     ]}
   >
     {speakers.map((speaker) => (
-      <SpeakerCard speaker={speaker} basePath={basePath} />
+      <SpeakerCard
+        speaker={speaker}
+        basePath={basePath}
+        stacked={layout === 'stack'}
+        headingLevel={headingLevel}
+      />
     ))}
   </ul>
 ) : (

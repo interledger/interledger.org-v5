@@ -1,0 +1,60 @@
+---
+// The language, day and time lines under a session title. Each line is left
+// out when its data is missing: summits before 2025 recorded no language.
+import type { Talk } from '@/types/summit'
+import {
+  type Locale,
+  useTranslations,
+  formatSessionDate,
+  formatSessionTime,
+  getDurationInMinutes,
+  type SessionLanguages
+} from '@/utils'
+
+interface Props {
+  talk: Talk
+  languages: SessionLanguages
+  lang: Locale
+}
+
+const { talk, languages, lang } = Astro.props
+const t = useTranslations(lang)
+const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
+
+const date = formatSessionDate(talk.startsAt, lang)
+const time = formatSessionTime(talk.startsAt, lang)
+const minutes = getDurationInMinutes(talk.startsAt, talk.endsAt)
+const hasDuration = Number.isFinite(minutes) && minutes > 0
+const timeLabel = [
+  time,
+  hasDuration ? t('summit.duration_minutes', { minutes }) : ''
+]
+  .filter(Boolean)
+  .join(' – ')
+---
+
+<div class="flex flex-col gap-lg text-body-lg-standard">
+  {languages.spoken.length > 0 && <p class="m-0 flex flex-wrap gap-x-sm">
+    <span class="text-neutral-900 dark:text-neutral-0">
+      {t('summit.session_language')}
+    </span>
+    <span class="text-link">{listFormat.format(languages.spoken)}</span>
+    {languages.translatedTo.length > 0 && <span
+      class="text-neutral-100 dark:text-neutral-50"
+    >
+      ({t('summit.translation_available', {
+        language: listFormat.format(languages.translatedTo)
+      })})
+    </span>}
+  </p>}
+  {date && <p class="m-0 flex flex-wrap items-center gap-y-sm">
+    <time datetime={talk.startsAt} class="text-neutral-900 dark:text-neutral-0">
+      {date}
+    </time>
+    {timeLabel && <span
+      class="ml-md border-l border-neutral-50 pl-md text-neutral-100 dark:text-neutral-50"
+    >
+      {timeLabel}
+    </span>}
+  </p>}
+</div>
