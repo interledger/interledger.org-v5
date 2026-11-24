@@ -229,7 +229,7 @@ jobs:
       - name: Run the sync
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
-        run: pnpm run sync:airtable 2>&1 | grep -vE "https?://" | grep -E "ℹ️|⚠️|Error|skipped|rec[A-Za-z0-9]{14}" || true
+        run: GITHUB_OUTPUT=/tmp/out pnpm run sync:airtable 2>&1 | grep -vE "https?://" | grep -E "ℹ️|⚠️|Error|skipped|rec[A-Za-z0-9]{14}" || true; echo "--- step output"; cat /tmp/out || true
       - name: Counts only
         run: |
           L=src/data/airtable/legacy-grant-reports.json
