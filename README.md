@@ -785,13 +785,14 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 ## Grantee Data (Airtable Integration)
 
-To make the work funded through Interledger Foundation grants easier to explore, the website publishes grantee data from Airtable. One sync script reads three tables and writes one committed JSON file for each:
+To make the work funded through Interledger Foundation grants easier to explore, the website publishes grantee data from Airtable. One sync script reads four tables and writes one committed JSON file for each:
 
 | File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                                                                        |
 | ---------------------------- | --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
 | `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory`                                                         |
 | `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | `/grant/grantees/<slug>/reports/<report>` (hidden on production until INTORG-1313) |
 | `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                                                                        |
+| `legacy-grant-reports.json`  | **Submitted Reports** | a report link, on a directory grant   | report links on the grantee directory cards                                        |
 
 Report images and grantee logos are downloaded into `public/img/grantee-reports/` and `public/img/grantee-profiles/`, and committed with the JSON.
 
@@ -803,7 +804,7 @@ Run the script by hand, locally or to preview a change before the next scheduled
 pnpm run sync:airtable
 ```
 
-Every table is read by field ID, so editors can rename a column in Airtable without changing the output. The three files are written only when all three parts pass, Prettier-formatted, so they are lint-clean and a manual run and an automated one produce byte-identical output. Images no record uses any more are then deleted.
+Every table is read by field ID, so editors can rename a column in Airtable without changing the output. The four files are written only when all four parts pass, Prettier-formatted, so they are lint-clean and a manual run and an automated one produce byte-identical output. Images no record uses any more are then deleted.
 
 **Grantee directory** (`grantee-data.json`):
 
@@ -816,12 +817,18 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 **Grant reports** (`grant-reports.json`):
 
 - Fetches the **Published Reports** table through its public view, and keeps only reports whose **Publication Status** is **Live**. The sync checks the status itself, so a change to the view cannot publish a draft
-- Required: **Published Date**, and the lookups **Project Name**, **Report Type**, **Report Num**, the grant record and **Project id** (exactly one value of digits). The lookups come from the submission, so the sync never reads the **Submitted Reports** table or its private fields
+- Required: **Published Date**, and the lookups **Project Name**, **Report Type**, **Report Num**, the grant record and **Project id** (exactly one value of digits). The lookups come from the submission, so this part never reads the **Submitted Reports** table or its private fields
 - Every content field can be empty: the five text sections, the license, the output types, the technologies and the images. An empty section or fact is left off the page
 - The reporting period dates can both be empty, but not only one of them, and the start must not be after the end
 - Each report gets its grantee's slug from **Grantees**, through the grant, for its URL: `/grant/grantees/<slug>/reports/<project id>-<interim|final>-<number>`, for example `20260504-interim-1`
 - An image's description is its alt text. An image without one is published with `alt=""`, as decorative
 - No Live report at all is valid
+
+**Legacy grant reports** (`legacy-grant-reports.json`):
+
+- Fetches **Submitted Reports** through its public view (`Submitted Reports - PUBLIC - LIVE ON WEBSITE`). The rest of that table is private
+- Reads **Legacy Public Progress Report** (the link to the older report, mostly on the community forum), **Projects**, **Report type** and **Report Num**, and keeps only reports of grants in the directory
+- The data is older and less clean, so a bad row is skipped with a warning that names its record ID, plus its Report Id when the grant is published, never its link, and does not fail the sync: a cell with two links or extra text, a value that is not an `http` or `https` link, or a row with no project or two projects. Two rows for one report with the same link count once. With different links, the report is skipped until Programs remove the extra row
 
 **Grantee profiles** (`grantee-profiles.json`):
 
@@ -832,9 +839,9 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 
 **Images** (report images and logos): each image field holds at most one file, of type JPEG, PNG, WebP or AVIF and at most 50 MB. The sync removes its metadata, limits its longest side (2,400 px for a report image, 1,024 px for a logo), encodes it as WebP and stores it under one folder per record. A later run reuses the stored file.
 
-**Failures:** the sync never leaves out bad data with only a log warning, because nobody reads the log of a run that passes. A renamed column or an unused visible column is not bad data, so it is only logged. The sync fails, and writes no JSON file, on:
+**Failures:** the sync never leaves out bad data with only a log warning, because nobody reads the log of a run that passes. The one exception is the legacy grant reports (see above): a bad row is skipped, named in the log (by Report Id for a published grant, by record ID otherwise, because the log is public), and counted in the sync pull request. That part fails only when every row is skipped. A renamed column or an unused visible column is not bad data, so it is only logged. The sync fails, and writes no JSON file, on:
 
-- a missing required value, in any of the three tables
+- a missing required value, in the directory, report or profile tables
 - an invalid value, required or optional: a value of the wrong type, a formula error (`#ERROR!`, `NaN`), a profile link that is not an `http` or `https` URL, or a bad slug. Directory values are checked by type only, so free text in **Project Links** is allowed; `grantee.ts` skips any entry that is not a usable URL
 - a **Project Leader** linked to a contact with no name
 - two grantees with the same slug
@@ -845,7 +852,7 @@ Every table is read by field ID, so editors can rename a column in Airtable with
 - in the directory: **Project Name** hidden in the view, no published record, or a rendered column with no value on any published record (the column was emptied, or its formula returns a blank value in every row)
 - no grantee at all in the **Grantees** table
 
-An empty optional cell is not an error. One failure lists every bad record in all three tables, so programs can fix them in one pass. Three kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read; images, like the directory's blank-column check, are checked only once every record passes; and reports are linked to grantees only when the profiles pass, because the slug comes from them. The site keeps the last good data until a run passes and its pull request is merged.
+An empty optional cell is not an error. One failure lists every bad record in the directory, report and profile tables, so programs can fix them in one pass. Three kinds of problem still hide others until the next run: a missing or hidden table, view or column stops its part before any record is read; images, like the directory's blank-column check, are checked only once every record passes; and reports are linked to grantees only when the profiles pass, because the slug comes from them. The site keeps the last good data until a run passes and its pull request is merged.
 
 A failed run can still store new images for the parts that passed. In CI they are discarded with the runner. After a failed local run they show as untracked files under `public/img/`; discard them, or keep them, since the next passing run reuses them or deletes those no record needs.
 
@@ -862,7 +869,7 @@ The base, table and view IDs and the **Published on Website** field ID are const
 
 - **Schedule**: 09:00 SAST daily (`07:00 UTC`), one hour after the Strapi content sync so it branches from a settled `staging`. `workflow_dispatch` runs it on demand.
 - **When nothing changed**: the run is a true no-op — no branch, no empty commit, no PR. It reports the decision in the run summary and exits green.
-- **When something changed**: the workflow commits the three JSON files and the synced images as `chore(data): sync Airtable data`, force-pushes the branch `chore/airtable-grantee-sync`, and opens a PR — or refreshes the existing one, so there is never more than one open.
+- **When something changed**: the workflow commits the four JSON files and the synced images as `chore(data): sync Airtable data`, force-pushes the branch `chore/airtable-grantee-sync`, and opens a PR — or refreshes the existing one, so there is never more than one open.
 - **When the sync fails**: no PR is opened, and Slack (`#frontend-team`) is told, with a link to the run whose log lists the problems.
 - **The PR body** reports the before and after counts of directory records, grant reports and grantee profiles (e.g. `267 → 269`), so the change can be sanity-checked without reading thousands of lines of JSON.
 - **Merging it** triggers a Netlify build of staging, same as any other merge.

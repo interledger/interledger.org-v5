@@ -106,6 +106,16 @@ export interface ParsedGrantReport {
   imageSources: SyncedImageSource[]
 }
 
+// An older report, posted before the report pages existed, mostly on the
+// community forum, as written to legacy-grant-reports.json. The site links to it.
+export interface LegacyGrantReport {
+  // Projects record ID, the same as `id` in grantee-data.json.
+  grantId: string
+  reportType: GrantReportType
+  reportNumber: number
+  url: string
+}
+
 export type GranteeType = 'Organisation' | 'Individual'
 
 // A grantee profile as written to grantee-profiles.json. Optional Airtable

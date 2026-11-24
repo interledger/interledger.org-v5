@@ -1,10 +1,12 @@
 import 'dotenv/config'
 import path from 'node:path'
 import fs from 'fs/promises'
+import { appendFileSync } from 'fs'
 import * as prettier from 'prettier'
 import type {
   GrantReport,
   GranteeProfile,
+  LegacyGrantReport,
   ParsedGrantReport,
   ParsedGranteeProfile,
   SyncedImage,
@@ -46,6 +48,11 @@ import {
   toGrantReports
 } from '../src/utils/main/airtableReports'
 import {
+  findHiddenLegacyReportFields,
+  legacyReportFieldIdsToFetch,
+  toLegacyGrantReports
+} from '../src/utils/main/airtableLegacyReports'
+import {
   MAX_LOGO_EDGE,
   MAX_REPORT_IMAGE_EDGE,
   PROFILE_IMAGES_DIR,
@@ -68,11 +75,16 @@ const PUBLISHED_REPORTS_TABLE_ID = 'tblHfL0Eh1KOSX98h' // Published Reports
 const REPORTS_VIEW_ID = 'viwjgguk3rv8SYZpQ' // PUBLIC - LIVE on WEBSITE
 const GRANTEES_TABLE_ID = 'tblfIGFjK88ZmLxNI' // Grantees
 const GRANTEES_VIEW_ID = 'viwE0ixrnaCsXt5X0' // Grid view: every field is public (PRO-371)
+const SUBMITTED_REPORTS_TABLE_ID = 'tblrHejb5zgUggFm2' // Submitted Reports
+// Submitted Reports - PUBLIC - LIVE ON WEBSITE: the legacy report links
+// (INTORG-1423, Jeremiah in PRO-371). The rest of that table is private.
+const LEGACY_REPORTS_VIEW_ID = 'viwUz24vteQsjPz6N'
 
 const PUBLIC_DIR = path.resolve('./public')
 const GRANTEE_JSON_FILE = 'grantee-data.json'
 const GRANT_REPORTS_JSON_FILE = 'grant-reports.json'
 const GRANTEE_PROFILES_JSON_FILE = 'grantee-profiles.json'
+const LEGACY_REPORTS_JSON_FILE = 'legacy-grant-reports.json'
 
 // Where each kind of synced image goes, and how large it may be.
 interface ImageTarget {
@@ -109,14 +121,14 @@ function findById<T extends { id: string }>(
 }
 
 async function writeAirtableJson(
-  data: TableRecord[] | GrantReport[] | GranteeProfile[],
+  data: TableRecord[] | GrantReport[] | GranteeProfile[] | LegacyGrantReport[],
   fileName: string
 ) {
   const basePath = path.resolve('./src/data/airtable')
   await fs.mkdir(basePath, { recursive: true })
   const filePath = path.join(basePath, fileName)
 
-  // The three files are committed, and `pnpm run lint` runs `prettier --check` over them.
+  // The four files are committed, and `pnpm run lint` runs `prettier --check` over them.
   // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
   // stringify output would fail lint and bury every real change under thousands of lines
   // of formatting churn. Formatting here keeps a local run and the automated sync in
@@ -145,7 +157,8 @@ async function fetchAllRecords(
     | typeof CONTACTS_TABLE_ID
     | typeof PROJECTS_TABLE_ID
     | typeof PUBLISHED_REPORTS_TABLE_ID
-    | typeof GRANTEES_TABLE_ID,
+    | typeof GRANTEES_TABLE_ID
+    | typeof SUBMITTED_REPORTS_TABLE_ID,
   params: URLSearchParams,
   apiToken: string
 ): Promise<RawTableRecord[]> {
@@ -361,6 +374,92 @@ async function fetchGranteeProfiles(
   return profiles
 }
 
+// The legacy report links of every grant, before the directory filter. A bad row is
+// skipped with a warning instead of failing the sync: see
+// airtableLegacyReports.ts.
+async function fetchLegacyGrantReports(
+  meta: TableMeta,
+  apiToken: string,
+  publicGrantIds: ReadonlySet<string>
+): Promise<LegacyGrantReport[]> {
+  const table = findById(
+    meta.tables,
+    SUBMITTED_REPORTS_TABLE_ID,
+    'Submitted Reports table'
+  )
+  const view = findById(
+    table.views,
+    LEGACY_REPORTS_VIEW_ID,
+    'Legacy reports view'
+  )
+  for (const id of legacyReportFieldIdsToFetch()) {
+    findById(table.fields, id, 'Submitted Reports field')
+  }
+  if (view.visibleFieldIds === undefined) {
+    throw new Error(
+      `View '${LEGACY_REPORTS_VIEW_ID}' returned no visibleFieldIds — is it still a grid view?`
+    )
+  }
+  const hidden = findHiddenLegacyReportFields(view.visibleFieldIds)
+  if (hidden.length > 0) {
+    throw new Error(
+      `Legacy report fields hidden in the view: ${hidden.join(', ')}. The site needs them all.`
+    )
+  }
+
+  // The primary field (Report Id) names a skipped row in a way Programs can
+  // search for. It is read for the warnings only, never written, and shown
+  // only for published grants: see RowLabels.
+  const labelFieldId = table.primaryFieldId
+  const params = new URLSearchParams({ view: LEGACY_REPORTS_VIEW_ID })
+  legacyReportFieldIdsToFetch().forEach((id) => params.append('fields[]', id))
+  params.append('fields[]', labelFieldId)
+  const records = await fetchAllRecords(
+    SUBMITTED_REPORTS_TABLE_ID,
+    params,
+    apiToken
+  )
+  const { reports, skipped, linkedRows } = toLegacyGrantReports(records, {
+    labelFieldId,
+    publicGrantIds
+  })
+  writeStepOutput('legacy_skipped', skipped.length)
+  if (skipped.length > 0) {
+    console.warn(
+      `⚠️  ${formatProblems(`${skipped.length} legacy report(s) skipped`, skipped)}`
+    )
+  }
+  // Skipping a bad row is fine. Skipping every row means a change in Airtable
+  // (a renamed option, a field turned into text) broke them all.
+  if (linkedRows > 0 && reports.length === 0) {
+    throw new Error(
+      `All ${linkedRows} legacy report rows were skipped. Check the Submitted Reports fields: ${formatProblems('first problems', skipped.slice(0, 3))}`
+    )
+  }
+  return reports
+}
+
+// The sync workflow reads this to show the count in the pull request. Outside
+// GitHub Actions there is no output file, so nothing is written.
+function writeStepOutput(name: string, value: number): void {
+  const file = process.env.GITHUB_OUTPUT
+  if (!file) return
+  appendFileSync(file, `${name}=${value}\n`)
+}
+
+// Only grants in the directory have a card, so the file keeps their links only.
+function keepDirectoryGrants(
+  reports: LegacyGrantReport[],
+  directory: TableRecord[]
+): LegacyGrantReport[] {
+  const grantIds = new Set(directory.map(({ id }) => id))
+  const kept = reports.filter(({ grantId }) => grantIds.has(grantId))
+  console.log(
+    `ℹ️  Legacy grant reports: ${kept.length} (${reports.length - kept.length} on grants not in the directory)`
+  )
+  return kept
+}
+
 // A site path such as /img/grantee-reports/rec1/att1.webp, on disk.
 function toFilePath(sitePath: string): string {
   return path.join(PUBLIC_DIR, sitePath)
@@ -574,7 +673,7 @@ async function importAirtableData() {
   })
 
   // Each part throws when it fails. Catching each one here lets the others
-  // still run, so one failed run reports the problems of all three. A part
+  // still run, so one failed run reports the problems of all four. A part
   // that passes has already stored its new images, so a failed run can leave
   // image files that no JSON points to. In CI the runner discards them. After
   // a failed local run they show as untracked under public/img; discard them,
@@ -589,20 +688,31 @@ async function importAirtableData() {
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
+  // A failed directory names no grant as public, so the warnings fall back
+  // to record IDs.
+  const publicGrantIds = new Set(
+    directoryResult instanceof Error ? [] : directoryResult.map(({ id }) => id)
+  )
+  const legacyResult = await runSyncPart('Legacy grant reports', () =>
+    fetchLegacyGrantReports(meta, apiToken, publicGrantIds)
+  )
   const linkedReportsResult = linkReportsResult(reportsResult, profilesResult)
   const results = collectResults([
     directoryResult,
     linkedReportsResult,
-    profilesResult
+    profilesResult,
+    legacyResult
   ])
   if (results instanceof Error) throw results
-  const [granteeData, grantReports, granteeProfiles] = results
+  const [granteeData, grantReports, granteeProfiles, allLegacyReports] = results
+  const legacyReports = keepDirectoryGrants(allLegacyReports, granteeData)
 
   // Written only after every part succeeds, so a failed run leaves no file
   // half-updated.
   await writeAirtableJson(granteeData, GRANTEE_JSON_FILE)
   await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
   await writeAirtableJson(granteeProfiles, GRANTEE_PROFILES_JSON_FILE)
+  await writeAirtableJson(legacyReports, LEGACY_REPORTS_JSON_FILE)
   await removeOrphanImages(
     REPORT_IMAGES_DIR,
     new Set(grantReports.flatMap(({ images }) => images.map((i) => i.path)))
