@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { PUBLISHED_RFCS, RFC_SNAPSHOT_DIR } from '../../data/docs/rfcs'
+import { parse } from 'node-html-parser'
 import {
+  PUBLISHED_RFCS,
+  RFC_IMAGE_DIR,
+  RFC_SNAPSHOT_DIR
+} from '../../data/docs/rfcs'
+import { collectRfcImageSources } from './rfcImages'
+import { renderRfcMarkdown, rfcMarkdownToHtml } from './renderRfcMarkdown'
+import {
+  getRfcImageUrl,
   getRfcSnapshot,
   rfcIdFromSnapshotPath,
+  rfcImagePaths,
   rfcSnapshotIds,
   rfcSnapshotPaths
 } from './rfcSnapshots'
@@ -33,9 +42,52 @@ describe('RFC snapshots', () => {
   })
 
   it.each(publishedIds)('%s snapshot is not empty', (id) => {
-    const markdown = getRfcSnapshot(id)
-    if (markdown instanceof Error) throw markdown
-    expect(markdown.trim()).not.toBe('')
+    expect(snapshotOf(id).trim()).not.toBe('')
+  })
+})
+
+function snapshotOf(id: string): string {
+  const markdown = getRfcSnapshot(id)
+  if (markdown instanceof Error) throw markdown
+  return markdown
+}
+
+describe('RFC images', () => {
+  // INTORG-1465: the diagrams loaded from GitHub at view time, so an upstream
+  // SVG change went live unreviewed and a GitHub outage broke the images.
+  it.each(PUBLISHED_RFCS)('$id shows no image from GitHub', (rfc) => {
+    const html = renderRfcMarkdown(snapshotOf(rfc.id), {
+      sourceUrl: rfc.sourceRawUrl,
+      docsBasePath: '/developers',
+      localImageUrl: getRfcImageUrl
+    })
+    if (html instanceof Error) throw html
+
+    const remote = parse(html)
+      .querySelectorAll('img')
+      .map((img) => img.getAttribute('src') ?? '')
+      .filter((src) => src.includes('githubusercontent.com'))
+    expect(remote).toEqual([])
+  })
+
+  it('reads the folder the sync writes images to', () => {
+    const outside = rfcImagePaths().filter(
+      (imagePath) => !imagePath.startsWith(`/${RFC_IMAGE_DIR}/`)
+    )
+    expect(outside).toEqual([])
+  })
+
+  it('has no image that no RFC shows', () => {
+    const shown = new Set(
+      PUBLISHED_RFCS.flatMap((rfc) =>
+        collectRfcImageSources(
+          rfcMarkdownToHtml(snapshotOf(rfc.id)),
+          rfc.sourceRawUrl
+        ).map(({ sourcePath }) => `/${RFC_IMAGE_DIR}/${sourcePath}`)
+      )
+    )
+    const orphans = rfcImagePaths().filter((imagePath) => !shown.has(imagePath))
+    expect(orphans, 'run pnpm sync:rfcs to remove them').toEqual([])
   })
 })
 

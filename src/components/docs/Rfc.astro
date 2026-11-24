@@ -1,6 +1,6 @@
 ---
 import { getRfcById, type PublishedRfcId } from '@/data/docs/rfcs'
-import { getRfcSnapshot } from '@/utils/docs/rfcSnapshots'
+import { getRfcImageUrl, getRfcSnapshot } from '@/utils/docs/rfcSnapshots'
 import { renderRfcMarkdown } from '@/utils/docs/renderRfcMarkdown'
 
 interface Props {
@@ -18,8 +18,13 @@ if (markdown instanceof Error) {
 
 const html = renderRfcMarkdown(markdown, {
   sourceUrl: rfc.sourceRawUrl,
-  docsBasePath
+  docsBasePath,
+  localImageUrl: getRfcImageUrl
 })
+
+if (html instanceof Error) {
+  throw html
+}
 ---
 
 <div set:html={html} />

@@ -99,6 +99,22 @@ const DOCS_BASE_PATH = '/developers'
  */
 export const RFC_SNAPSHOT_DIR = 'src/data/docs/rfcs'
 
+/**
+ * Where the sync copies the images the RFCs show, by their interledger/rfcs
+ * path, e.g. `<dir>/shared/graphs/protocol-suite.svg`. The image glob in
+ * `rfcSnapshots.ts` repeats this and `RFC_IMAGE_EXTENSIONS` as literals.
+ */
+export const RFC_IMAGE_DIR = `${RFC_SNAPSHOT_DIR}/images`
+
+export const RFC_IMAGE_EXTENSIONS = [
+  '.svg',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp'
+] as const
+
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
   label: rfc.title,
   link: addTrailingSlash(`${DOCS_BASE_PATH}${rfc.route}`)
