@@ -21,7 +21,7 @@ export interface Talk {
   } | null
 }
 
-export type TalkPreview = Omit<Talk, 'speakers'> & {
+export type TalkPreview = Talk & {
   /**
    * Always set. If Sessionize has no photo for the speaker, `getTalkPreviews`
    * substitutes the no-photo SVG. Components can therefore pass this value

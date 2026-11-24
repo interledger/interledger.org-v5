@@ -5,12 +5,15 @@ import {
   truncateText,
   type Locale,
   getTranslation,
+  useTranslations,
   buildSessionCardUmamiAttrs,
   joinPagePath,
+  parseSessionLanguages,
   AVATAR_CDN_WIDTHS
 } from '@/utils'
-import SessionSubheader from './SessionSubheader.astro'
+import SessionMeta from './SessionMeta.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
   talkPreview: TalkPreview
@@ -19,55 +22,73 @@ interface Props {
 }
 
 const { talkPreview, basePath, lang } = Astro.props
+const t = useTranslations(lang)
 const href = joinPagePath(basePath, generateSlug(talkPreview.title))
 const translation = getTranslation(talkPreview, lang)
 const description = translation?.description ?? talkPreview.description
 const title = translation?.title ?? talkPreview.title
+const languages = parseSessionLanguages(talkPreview.translations)
+const speakerNames = talkPreview.speakers.map((speaker) => speaker.name)
 
 const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
-<!-- A row, not a grid card: the photo sits beside the text from tablet up.
-     Only the title is a link; the photo outline follows its hover and focus. -->
-<li class="group flex flex-col gap-lg tablet:flex-row tablet:gap-xl">
+<!-- The photo sits above the text on mobile and beside it from tablet up,
+     where the card's left edge rounds to follow it. The title link stretches
+     over the whole card (its ::after), so the card is one tab stop and one
+     link name; the arrow is decoration. -->
+<li
+  class="group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover:border-periwinkle-100 hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl tablet:rounded-l-[12.5rem] desktop:gap-4xl dark:border-neutral-75 dark:hover:border-periwinkle-50 dark:hover:bg-neutral-0/5 dark:has-[a:focus-visible]:border-periwinkle-50 dark:has-[a:focus-visible]:bg-neutral-0/5"
+>
   <div
-    class="aspect-square w-6xl shrink-0 overflow-hidden rounded-3xl bg-neutral-25 outline-[3px] outline-transparent transition-[outline-color] duration-slow tablet:w-50 group-has-[a:hover]:outline-link group-has-[a:focus-visible]:outline-link"
+    class="aspect-square w-20 shrink-0 overflow-hidden rounded-full bg-neutral-25 tablet:w-50 desktop:w-65"
   >
     <OptimizedImage
       src={talkPreview.speakerImage}
-      alt={talkPreview.speakerName ?? ''}
-      width={240}
-      height={240}
-      sizes="(min-width: 810px) 200px, 120px"
+      alt=""
+      width={260}
+      height={260}
+      sizes="(min-width: 1200px) 260px, (min-width: 810px) 200px, 80px"
       widths={AVATAR_CDN_WIDTHS}
       loading="lazy"
       pictureClass="block h-full w-full"
       class="h-full w-full object-cover"
     />
   </div>
-  <div class="min-w-0">
+  <span
+    class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900 dark:border-neutral-50 dark:text-neutral-0"
+    aria-hidden="true"
+  >
+    <Icon name="arrow-right" class="size-8 -rotate-45" />
+  </span>
+  <div class="min-w-0 flex-1">
     <!-- Size on the link, not the h2: the summit prose styles give every
          <a> a body size, and only a class on the element itself beats them. -->
     <h2
-      class="mt-0 mb-md text-h4 tablet:mt-lg tablet:text-h4-md desktop:text-h4-lg"
+      class="mt-0 mb-xl text-h3 tablet:pr-4xl tablet:text-h3-md desktop:text-h3-lg"
     >
       <a
         href={href}
-        class="text-h4 text-link underline decoration-current tablet:text-h4-md desktop:text-h4-lg hover:text-link-hover"
+        class="text-h3 text-link underline decoration-current after:absolute after:inset-0 tablet:text-h3-md desktop:text-h3-lg group-hover:text-link-hover"
         {...attrs}
       >
         {title}
       </a>
     </h2>
-    <SessionSubheader
+    <SessionMeta
       talk={talkPreview}
-      showRecordingLabel={true}
+      languages={languages}
       lang={lang}
+      dateFirst
     />
-    {description && <p
-      class="m-0 text-body-lg-standard text-neutral-100 dark:text-neutral-50"
+    {(speakerNames.length > 0 || description) && <div
+      class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl dark:border-neutral-75 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900 dark:[&_p]:text-neutral-0"
     >
-      {truncateText(description)}
-    </p>}
+      {speakerNames.length > 0 && <p>
+        {t('summit.speakers')}:
+        <strong class="font-semibold">{speakerNames.join(', ')}</strong>
+      </p>}
+      {description && <p>{truncateText(description)}</p>}
+    </div>}
   </div>
 </li>
