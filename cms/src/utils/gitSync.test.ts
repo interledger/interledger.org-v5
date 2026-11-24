@@ -229,12 +229,11 @@ function gitFailure(
  * uses two columns for the status code. So this function pads `M` to the
  * staged `M ` form.
  */
-/** `git status --porcelain -z` output, trimmed the way command output is. */
+/** `git status --porcelain -z` output, untrimmed, as the sync reads it. */
 function status(...lines: [string, string][]): string {
   return lines
     .map(([code, filepath]) => `${code.padEnd(2, ' ')} ${filepath}\0`)
     .join('')
-    .trim()
 }
 
 /** Returns each value in turn, repeating the last one once exhausted. */
@@ -410,10 +409,10 @@ describe('parseGitStatusZ', () => {
     ])
   })
 
-  it('restores the leading space trimming took from the first record', () => {
-    // ` M src/content/faqs/a.mdx` arrives as `M src/content/faqs/a.mdx`.
-    expect(parseGitStatusZ('M src/content/faqs/a.mdx\0')).toEqual([
-      { status: 'M', filepath: 'src/content/faqs/a.mdx' }
+  // Trimmed, ` M  x` became `M  x` and parsed as a staged change to `x`.
+  it('keeps a first path that starts with a space', () => {
+    expect(parseGitStatusZ(' M  x\0')).toEqual([
+      { status: 'M', filepath: ' x' }
     ])
   })
 
@@ -447,12 +446,37 @@ describe('parseGitStatusZ', () => {
       fs.writeFileSync(path.join(repo, 'src/content/café a.mdx'), 'x')
       const output = execSync('git status --porcelain -z -uall', {
         cwd: repo
-      })
-        .toString()
-        .trim()
+      }).toString()
 
       expect(parseGitStatusZ(output)).toEqual([
         { status: '??', filepath: 'src/content/café a.mdx' }
+      ])
+    } finally {
+      fs.rmSync(repo, { recursive: true, force: true })
+    }
+  })
+
+  // The sync reads status through `exec`, which trims by default.
+  it('reads an unstaged first record through exec untrimmed', async () => {
+    const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-status-'))
+    try {
+      const git = (args: string) =>
+        execSync(`git -c user.name=t -c user.email=t@t ${args}`, { cwd: repo })
+      git('init -q')
+      fs.writeFileSync(path.join(repo, ' x'), 'one')
+      git('add .')
+      git('commit -qm base')
+      fs.writeFileSync(path.join(repo, ' x'), 'two')
+
+      const output = await defaultGitSyncDeps.exec(
+        'git status --porcelain -z',
+        repo,
+        { raw: true }
+      )
+
+      expect(output).not.toBeInstanceOf(GitCommandError)
+      expect(parseGitStatusZ(output as string)).toEqual([
+        { status: 'M', filepath: ' x' }
       ])
     } finally {
       fs.rmSync(repo, { recursive: true, force: true })
@@ -1970,6 +1994,25 @@ describe('recoverInterruptedOperation', () => {
       expect(result).toBeInstanceOf(GitCommandError)
       expect((result as GitCommandError).message).toContain(EDITED)
     })
+
+    it('restores the other writes when one cannot be restored', async () => {
+      const tree = new Map([
+        [path.join(REPO, REWRITTEN), Buffer.from('editor rewrite')],
+        [path.join(REPO, EDITED), Buffer.from('editor edit')]
+      ])
+      const deps = stuckRebase([REWRITTEN, EDITED].join('\0'), tree)
+      const write = deps.workTree.write
+      deps.workTree.write = (filepath, contents) => {
+        if (filepath.endsWith(REWRITTEN)) throw new Error('ENOSPC')
+        write(filepath, contents)
+      }
+
+      const result = await recoverInterruptedOperation(REPO, deps)
+
+      expect(result).toBeInstanceOf(GitCommandError)
+      expect((result as GitCommandError).message).toContain(REWRITTEN)
+      expect(tree.get(path.join(REPO, EDITED))?.toString()).toBe('editor edit')
+    })
   })
 
   describe('against real git', () => {
@@ -3123,6 +3166,11 @@ describe('startup recovery and the mutex', () => {
       expect.stringContaining('Startup recovery failed')
     )
     expect(deps.files.has(LOCK_PATH)).toBe(false)
+    // A failed restore leaves a clean-looking checkout, so the log alone
+    // would be the only record.
+    expect(deps.alerts).toMatchObject([
+      { outcome: 'failed', label: 'startup recovery' }
+    ])
   })
 
   /**
@@ -3158,13 +3206,17 @@ describe('a conflicted autostash pop, against real git', () => {
     fs.mkdirSync(path.dirname(path.join(repo, file)), { recursive: true })
     fs.writeFileSync(path.join(repo, file), contents)
   }
+  const alerts: GitSyncAlert[] = []
   const realDeps = (): GitSyncDeps => ({
     ...defaultGitSyncDeps,
-    notify: async () => {},
+    notify: async (alert) => {
+      alerts.push(alert)
+    },
     sleep: async () => {}
   })
 
   beforeEach(() => {
+    alerts.length = 0
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'gitsync-autostash-'))
     run(root, 'init -q --bare -b main origin.git')
     run(root, 'clone -q origin.git vm')
@@ -3212,6 +3264,32 @@ describe('a conflicted autostash pop, against real git', () => {
     expect(second.outcome).toBe('synced')
     expect(run(vm(), 'show origin/main:src/content/faqs/a.mdx')).toBe(
       'A EDITOR\n'
+    )
+  })
+
+  /**
+   * The rebase finishes, so its CMS-wins resolution is already in HEAD, and
+   * only then does the autostash step fail. The overwrite must still be
+   * announced: the next save pushes it as a plain fast-forward, which probes
+   * nothing.
+   */
+  it('announces an overwrite the finished rebase made before the stash failed', async () => {
+    write(dev(), 'src/content/faqs/a.mdx', 'A DEV\n')
+    run(dev(), 'commit -qam "dev edits a"')
+    run(dev(), 'push -q origin HEAD:main')
+
+    const first = await runGitSync('faq', undefined, realDeps())
+
+    expect(first).toMatchObject({
+      outcome: 'failed',
+      conflict: { overwrittenPaths: ['src/content/faqs/a.mdx'] }
+    })
+    expect(alerts).toContainEqual(
+      expect.objectContaining({
+        outcome: 'conflict-resolved',
+        pendingPush: true,
+        overwrittenPaths: ['src/content/faqs/a.mdx']
+      })
     )
   })
 })

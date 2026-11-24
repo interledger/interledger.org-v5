@@ -178,9 +178,14 @@ export type GitSyncSkipReason =
   'disabled' | 'no-changes' | 'no-stage-paths' | 'no-valid-paths'
 
 /**
- * What integrating the commit had to overwrite. Present on a `synced` result
- * only when the push was rejected and the rebase resolved a conflict in the
- * CMS's favour.
+ * What integrating the commit had to overwrite, present only when the push was
+ * rejected and a rebase resolved a conflict in the CMS's favour.
+ *
+ * Carried by a `failed` result as well as a `synced` one. A rebase can apply
+ * the overwrite and the push still fail; the content then stays staged and
+ * the next save pushes it as a plain fast-forward that probes nothing, so the
+ * failed result is the only chance to announce it (`report()` sends it with
+ * `pendingPush`). Dropping it from the failed path loses the alert silently.
  */
 export interface ConflictResolution {
   /** Paths where a conflicting hunk was taken from the CMS side. */
@@ -270,10 +275,21 @@ export type GitSyncResult =
 
 // ── Injected effects ─────────────────────────────────────────────────────────
 
+/** Options for {@link GitExec}. */
+export interface GitExecOptions {
+  /**
+   * Return stdout as git wrote it. By default it is trimmed, which is right
+   * for line output but corrupts `-z` output whose first record starts with
+   * whitespace, as an unstaged `git status` change does (` M path`).
+   */
+  raw?: boolean
+}
+
 /** Runs a command in `cwd`. This function never rejects. A non-zero exit code is a normal return value, not an error. */
 export type GitExec = (
   command: string,
-  cwd: string
+  cwd: string,
+  options?: GitExecOptions
 ) => Promise<string | GitCommandError>
 
 /**
@@ -361,7 +377,7 @@ const GIT_NON_INTERACTIVE_ENV = {
  * {@link execWithLockRetry} absorbs the contention until then.
  */
 export function createExecInRepo(timeoutMs: number): GitExec {
-  return (command, cwd) =>
+  return (command, cwd, options = {}) =>
     new Promise((resolve) => {
       exec(
         command,
@@ -373,7 +389,7 @@ export function createExecInRepo(timeoutMs: number): GitExec {
         },
         (error, stdout, stderr) => {
           if (!error) {
-            resolve(stdout.trim())
+            resolve(options.raw ? stdout : stdout.trim())
             return
           }
           // Its own message, so a hang gets its own alert fingerprint rather
@@ -569,10 +585,18 @@ export async function validateGitSyncRepoOnStartup(
     recoverInterruptedOperation(repoRoot, deps)
   ).finally(() => lock.release())
   // A git command that failed leaves a checkout that needs a human, not a CMS
-  // that refuses to boot: editors can keep saving, and each save alerts. Only
-  // an unexpected throw stays fatal, like the configuration checks above.
+  // that refuses to boot: editors can keep saving, and the failure is alerted
+  // like a failed save. Only an unexpected throw stays fatal, like the
+  // configuration checks above.
   if (recovered instanceof GitCommandError) {
     console.warn(`⚠️  Startup recovery failed: ${recovered.message}`)
+    // The log alone is not enough: a restore that failed leaves a clean
+    // checkout, so the next save commits without the page and alerts nothing.
+    await report(
+      { outcome: 'failed', error: recovered },
+      { label: 'startup recovery', repoRoot },
+      deps
+    )
     console.log(
       `✅ Git sync repository validated: ${repoRoot} (branch: ${branch})`
     )
@@ -597,17 +621,15 @@ export async function validateGitSyncRepoOnStartup(
  * handed. Records are `XY PATH`, NUL-terminated; a rename or copy is followed
  * by a second record holding the source path, which is skipped.
  *
- * The leading space of the first record may be missing: command output is
- * trimmed, and an unstaged change starts with one (` M path`). Every real
- * record has a space at index 2, so its absence means exactly that.
+ * Expects the output untrimmed: an unstaged change starts with a space
+ * (` M path`), and trimming it shifts the first record's columns.
  */
 export function parseGitStatusZ(output: string): GitStatusChange[] {
   const records = output.split('\0')
   const changes: GitStatusChange[] = []
 
   for (let i = 0; i < records.length; i++) {
-    const record =
-      i === 0 && records[i][2] !== ' ' ? ` ${records[i]}` : records[i]
+    const record = records[i]
     if (record.length < 4) continue
 
     const code = record.slice(0, 2)
@@ -643,7 +665,12 @@ async function getGitStatus(
   cwd: string,
   deps: GitSyncDeps
 ): Promise<GitStatusChange[] | GitCommandError> {
-  const output = await execWithLockRetry('git status --porcelain -z', cwd, deps)
+  const output = await execWithLockRetry(
+    'git status --porcelain -z',
+    cwd,
+    deps,
+    { raw: true }
+  )
   if (output instanceof GitCommandError) return output
   if (!output) return []
 
@@ -811,9 +838,10 @@ function isRetryable(error: GitCommandError): boolean {
 async function execWithLockRetry(
   command: string,
   repoRoot: string,
-  deps: GitSyncDeps
+  deps: GitSyncDeps,
+  options?: GitExecOptions
 ): Promise<string | GitCommandError> {
-  let result = await deps.exec(command, repoRoot)
+  let result = await deps.exec(command, repoRoot, options)
 
   for (
     let attempt = 1;
@@ -823,7 +851,7 @@ async function execWithLockRetry(
     attempt++
   ) {
     await deps.sleep(LOCK_BACKOFF_MS * attempt)
-    result = await deps.exec(command, repoRoot)
+    result = await deps.exec(command, repoRoot, options)
   }
 
   return result
@@ -1124,6 +1152,8 @@ function restoreEditorWrites(
 ): void | GitCommandError {
   if (writes.length === 0) return
 
+  // Every file is attempted: one that fails must not cost the others.
+  const failures: string[] = []
   for (const { filepath, contents } of writes) {
     const absolute = path.join(repoRoot, filepath)
     const restored = tryCatch(() =>
@@ -1132,11 +1162,15 @@ function restoreEditorWrites(
         : deps.workTree.write(absolute, contents)
     )
     if (restored instanceof Error) {
-      const message =
-        `Cleared an interrupted operation but could not restore ${filepath}, ` +
-        `which Strapi had written: ${restored.message}`
-      return new GitCommandError('restore editor writes', '', message, message)
+      failures.push(`${filepath} (${restored.message})`)
     }
+  }
+  if (failures.length > 0) {
+    const message =
+      `Cleared an interrupted operation but could not restore what Strapi ` +
+      `had written to: ${failures.join(', ')}. The editors' versions are ` +
+      `still in Strapi; save those entries again once the cause is fixed.`
+    return new GitCommandError('restore editor writes', '', message, message)
   }
 
   console.warn(
@@ -1415,6 +1449,23 @@ async function restoreAutostashResidueToHead(
 }
 
 /**
+ * How a rebase attempt ended.
+ *
+ * `aborted` overwrote nothing: the abort restored the pre-rebase HEAD. Both
+ * other kinds finished the rebase, so its CMS-wins resolution is in HEAD
+ * whatever happened next, and the overwrite has to be announced even when
+ * the autostash step then failed (`rebased-with-error`).
+ */
+type RebaseOutcome =
+  | { kind: 'aborted'; error: GitCommandError }
+  | { kind: 'rebased'; resolved: ResolvedPath[] }
+  | {
+      kind: 'rebased-with-error'
+      resolved: ResolvedPath[]
+      error: GitCommandError
+    }
+
+/**
  * Runs the rebase, resolving anything `-X theirs` left behind.
  *
  * Never leaves the checkout mid-rebase. A failure while the rebase is still in
@@ -1427,19 +1478,21 @@ async function rebaseOntoUpstream(
   repoRoot: string,
   upstreamRef: string,
   deps: GitSyncDeps
-): Promise<ResolvedPath[] | GitCommandError> {
+): Promise<RebaseOutcome> {
   const replayed = await replayOntoUpstream(repoRoot, upstreamRef, deps)
   if (replayed instanceof GitCommandError) {
     await deps.exec('git rebase --abort', repoRoot)
-    return replayed
+    return { kind: 'aborted', error: replayed }
   }
 
   // A `-X theirs` rebase that exits zero leaves nothing unmerged, so anything
   // here came from the autostash pop. Those are conflict markers sitting in the
   // working tree, where the next debounced save would commit them into MDX.
   const residue = await resolveAutostashResidue(repoRoot, deps)
-  if (residue instanceof GitCommandError) return residue
-  return [...replayed, ...residue]
+  if (residue instanceof GitCommandError) {
+    return { kind: 'rebased-with-error', resolved: replayed, error: residue }
+  }
+  return { kind: 'rebased', resolved: [...replayed, ...residue] }
 }
 
 /** The rebase itself, with the existence-conflict rounds; may stop mid-rebase. */
@@ -1476,11 +1529,13 @@ async function replayOntoUpstream(
 
 // ── Push ─────────────────────────────────────────────────────────────────────
 
-interface PushOutcome {
-  pushed: boolean
-  conflict?: ConflictResolution
-  error?: GitCommandError
-}
+/**
+ * The result of {@link pushWithRebase}. A failure always carries its error,
+ * and either kind may carry the overwrite a finished rebase applied.
+ */
+type PushOutcome =
+  | { kind: 'pushed'; conflict?: ConflictResolution }
+  | { kind: 'failed'; error: GitCommandError; conflict?: ConflictResolution }
 
 /**
  * Pushes, and integrates only when the remote rejects.
@@ -1497,60 +1552,82 @@ async function pushWithRebase(
 ): Promise<PushOutcome> {
   const upstreamRef = `${REMOTE}/${branch}`
   let conflict: ConflictResolution | undefined
-  let lastError: GitCommandError | undefined
 
-  for (let attempt = 1; attempt <= MAX_PUSH_ATTEMPTS; attempt++) {
+  for (let attempt = 1; ; attempt++) {
     const pushed = await deps.exec(buildPushCommand(branch), repoRoot)
-    if (!(pushed instanceof GitCommandError)) return { pushed: true, conflict }
-    lastError = pushed
-
-    if (attempt === MAX_PUSH_ATTEMPTS) break
+    if (!(pushed instanceof GitCommandError))
+      return { kind: 'pushed', conflict }
+    if (attempt === MAX_PUSH_ATTEMPTS) {
+      return { kind: 'failed', error: pushed, conflict }
+    }
     await deps.sleep(PUSH_BACKOFF_MS * attempt)
 
     // Lock contention means another writer holds the repo, not that the push
     // was rejected. Retrying the push is the whole fix.
     if (isRetryable(pushed)) continue
 
+    // A failed fetch is retried by the next attempt's push, which reports
+    // the failure if it persists.
     const fetched = await deps.exec(buildFetchCommand(branch), repoRoot)
-    if (fetched instanceof GitCommandError) {
-      lastError = fetched
-      continue
+    if (fetched instanceof GitCommandError) continue
+
+    const attempted = await probeAttempt(repoRoot, upstreamRef, deps)
+    const rebase = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
+    // An aborted rebase overwrote nothing, so its probe result is dropped: a
+    // pending-push alert must not claim an overwrite that never happened.
+    if (rebase.kind === 'aborted') {
+      return { kind: 'failed', error: rebase.error, conflict }
     }
 
-    // Held apart until the rebase succeeds: an aborted rebase overwrote
-    // nothing, and a pending-push alert must not claim that it did.
-    let attempted: ConflictResolution | undefined
-    const probe = await describeConflict(repoRoot, upstreamRef, deps)
-    if (probe.kind === 'conflict') {
-      attempted = probe.resolution
-    } else if (probe.kind === 'unavailable') {
-      // The rebase below resolves conflicting hunks silently, so without the
-      // probe we cannot tell whether it overwrote anything. Announce the
-      // possibility rather than stay quiet about a potential overwrite.
-      attempted = { ...NO_CONFLICT, detailsUnavailable: true }
-    }
-
-    const resolved = await rebaseOntoUpstream(repoRoot, upstreamRef, deps)
-    if (resolved instanceof GitCommandError) {
-      // `rebaseOntoUpstream` has already put the checkout back in order.
-      lastError = resolved
-      break
-    }
-
-    if (attempted) conflict = mergeConflictResolutions(conflict, attempted)
-    if (resolved.length > 0) {
-      // The probe reports every conflicted path, including the existence
-      // conflicts the resolver then settles, so the two lists would otherwise
-      // name the same file twice — once as a hunk overwrite it never was, and
-      // once correctly. The merge keeps them disjoint.
-      conflict = mergeConflictResolutions(conflict, {
-        ...NO_CONFLICT,
-        resolvedPaths: resolved
-      })
+    conflict = mergeAttempt(conflict, attempted, rebase.resolved)
+    if (rebase.kind === 'rebased-with-error') {
+      return { kind: 'failed', error: rebase.error, conflict }
     }
   }
+}
 
-  return { pushed: false, conflict, error: lastError }
+/**
+ * What the coming rebase may overwrite, for the alert. `undefined` when the
+ * probe found nothing.
+ */
+async function probeAttempt(
+  repoRoot: string,
+  upstreamRef: string,
+  deps: GitSyncDeps
+): Promise<ConflictResolution | undefined> {
+  const probe = await describeConflict(repoRoot, upstreamRef, deps)
+  if (probe.kind === 'conflict') return probe.resolution
+  // The rebase resolves conflicting hunks silently, so without the probe we
+  // cannot tell whether it overwrote anything. Announce the possibility
+  // rather than stay quiet about a potential overwrite.
+  if (probe.kind === 'unavailable') {
+    return { ...NO_CONFLICT, detailsUnavailable: true }
+  }
+  return undefined
+}
+
+/**
+ * Folds one finished rebase into the running conflict. The probe reports
+ * every conflicted path, including the existence conflicts the resolver then
+ * settles, so the two lists would otherwise name the same file twice — once
+ * as a hunk overwrite it never was, and once correctly. The merge keeps them
+ * disjoint.
+ */
+function mergeAttempt(
+  conflict: ConflictResolution | undefined,
+  attempted: ConflictResolution | undefined,
+  resolved: ResolvedPath[]
+): ConflictResolution | undefined {
+  let merged = attempted
+    ? mergeConflictResolutions(conflict, attempted)
+    : conflict
+  if (resolved.length > 0) {
+    merged = mergeConflictResolutions(merged, {
+      ...NO_CONFLICT,
+      resolvedPaths: resolved
+    })
+  }
+  return merged
 }
 
 /** Local commits not yet on the remote branch, as of the last fetch. */
@@ -1632,19 +1709,13 @@ async function pushRecoveredCommits(
   }
 
   const push = await pushWithRebase(repoRoot, branch, deps)
-  if (push.pushed) {
+  if (push.kind === 'pushed') {
     const message = 'recovered: push commits left by an interrupted sync'
     console.log(`✅ ${message}`)
     return { outcome: 'synced', message, conflict: push.conflict }
   }
 
-  return {
-    outcome: 'failed',
-    error:
-      push.error ??
-      new Error('Could not push commits left by an interrupted sync'),
-    conflict: push.conflict
-  }
+  return { outcome: 'failed', error: push.error, conflict: push.conflict }
 }
 
 async function commitAndPush(
@@ -1691,13 +1762,12 @@ async function commitAndPush(
   }
 
   const push = await pushWithRebase(repoRoot, branch, deps)
-  if (push.pushed) {
+  if (push.kind === 'pushed') {
     console.log(`✅ Git sync complete: ${message}`)
     return { outcome: 'synced', message, conflict: push.conflict }
   }
 
-  const error =
-    push.error ?? new Error('Git sync could not push, with no error reported')
+  const { error } = push
   console.error(`⚠️  Git sync failed: ${error.message}`)
 
   const unwound = await unwindLocalCommit(
