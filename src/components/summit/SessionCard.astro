@@ -59,7 +59,10 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
     class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900 dark:border-neutral-50 dark:text-neutral-0"
     aria-hidden="true"
   >
-    <Icon name="arrow-right" class="size-8 -rotate-45" />
+    <Icon
+      name="arrow-right"
+      class="size-8 -rotate-45 transition-transform duration-slow group-hover:rotate-0 group-has-[a:focus-visible]:rotate-0 motion-reduce:transition-none"
+    />
   </span>
   <div class="min-w-0 flex-1">
     <!-- Size on the link, not the h2: the summit prose styles give every
