@@ -1,10 +1,10 @@
 ---
-import { getRfcById, type PublishedRfc } from '@/data/docs/rfcs'
+import { getRfcById, type PublishedRfcId } from '@/data/docs/rfcs'
 import { getRfcSnapshot } from '@/utils/docs/rfcSnapshots'
 import { renderRfcMarkdown } from '@/utils/docs/renderRfcMarkdown'
 
 interface Props {
-  id: PublishedRfc['id']
+  id: PublishedRfcId
   docsBasePath?: string
 }
 

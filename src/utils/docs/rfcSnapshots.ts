@@ -5,6 +5,7 @@
  */
 import { RFC_SNAPSHOT_DIR } from '../../data/docs/rfcs'
 
+// import.meta.glob takes only a literal, so this repeats RFC_SNAPSHOT_DIR.
 const SNAPSHOTS = import.meta.glob<string>('/src/data/docs/rfcs/*.md', {
   query: '?raw',
   import: 'default',
@@ -20,6 +21,11 @@ const SNAPSHOT_BY_ID = new Map(
 
 export function rfcIdFromSnapshotPath(path: string): string {
   return path.replace(/^.*\//, '').replace(/\.md$/, '')
+}
+
+/** The files the glob bundled, as root-relative paths such as `/src/…/x.md`. */
+export function rfcSnapshotPaths(): string[] {
+  return Object.keys(SNAPSHOTS)
 }
 
 export function rfcSnapshotIds(): string[] {

@@ -88,9 +88,15 @@ export const PUBLISHED_RFCS = [
   }
 ] as const satisfies readonly PublishedRfc[]
 
+/** The literal ids, so `<Rfc id="typo">` is a type error, not just a build error. */
+export type PublishedRfcId = (typeof PUBLISHED_RFCS)[number]['id']
+
 const DOCS_BASE_PATH = '/developers'
 
-/** Where `pnpm sync:rfcs` writes each RFC's markdown, as `<id>.md`. */
+/**
+ * Where `pnpm sync:rfcs` writes each RFC's markdown, as `<id>.md`. The glob in
+ * `rfcSnapshots.ts` must repeat it as a literal; a test fails if they differ.
+ */
 export const RFC_SNAPSHOT_DIR = 'src/data/docs/rfcs'
 
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
@@ -110,7 +116,7 @@ export function getPublishedRfcRouteBySourcePath(): Map<string, string> {
   )
 }
 
-export function getRfcById(id: PublishedRfc['id']): PublishedRfc {
+export function getRfcById(id: PublishedRfcId): PublishedRfc {
   const rfc = PUBLISHED_RFCS.find((entry) => entry.id === id)
 
   if (!rfc) {

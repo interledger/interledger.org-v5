@@ -1,14 +1,26 @@
 import { describe, expect, it } from 'vitest'
-import { PUBLISHED_RFCS } from '../../data/docs/rfcs'
+import { PUBLISHED_RFCS, RFC_SNAPSHOT_DIR } from '../../data/docs/rfcs'
 import {
   getRfcSnapshot,
   rfcIdFromSnapshotPath,
-  rfcSnapshotIds
+  rfcSnapshotIds,
+  rfcSnapshotPaths
 } from './rfcSnapshots'
 
 const publishedIds = PUBLISHED_RFCS.map(({ id }) => id)
 
 describe('RFC snapshots', () => {
+  // The glob repeats RFC_SNAPSHOT_DIR as a literal. If the two drift, the sync
+  // writes one folder while the pages read another, and upstream updates stop
+  // reaching the site with every other test still green.
+  it('reads the folder the sync writes to', () => {
+    const outside = rfcSnapshotPaths().filter(
+      (snapshotPath) => !snapshotPath.startsWith(`/${RFC_SNAPSHOT_DIR}/`)
+    )
+    expect(rfcSnapshotPaths()).not.toEqual([])
+    expect(outside).toEqual([])
+  })
+
   it('has a snapshot for every published RFC', () => {
     const missing = publishedIds.filter((id) => !rfcSnapshotIds().includes(id))
     expect(missing, 'run pnpm sync:rfcs').toEqual([])
