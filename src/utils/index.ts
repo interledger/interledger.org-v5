@@ -168,15 +168,13 @@ export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 export {
   hideDrafts,
   hideFuturePosts,
-  hideGrantReports,
   isProductionDeploy,
   isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
   shouldHideDrafts,
-  shouldHideFuturePosts,
-  shouldHideGrantReports
+  shouldHideFuturePosts
 } from './main/publishGate'
 
 // From blogSearchFilters, not blogSearch: blogSearch.ts imports astro:content

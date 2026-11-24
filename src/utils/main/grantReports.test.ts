@@ -207,16 +207,8 @@ const sources = {
 }
 
 describe('getGrantReportRoutes', () => {
-  it('returns no routes while the gate hides reports', () => {
-    expect(getGrantReportRoutes([report()], true, sources)).toEqual([])
-  })
-
-  it('does not read the data while the gate hides reports', () => {
-    expect(getGrantReportRoutes({}, true, sources)).toEqual([])
-  })
-
   it('builds one route per report, with the page context', () => {
-    const routes = getGrantReportRoutes([report()], false, sources)
+    const routes = getGrantReportRoutes([report()], sources)
     expect(routes).toEqual([
       {
         params: { slug: 'gib', report: '20260504-interim-1' },
@@ -245,7 +237,7 @@ describe('getGrantReportRoutes', () => {
   })
 
   it('has no grant facts for a grant the directory does not publish', () => {
-    const routes = getGrantReportRoutes([report()], false, {
+    const routes = getGrantReportRoutes([report()], {
       ...sources,
       grantees: []
     })
@@ -256,7 +248,7 @@ describe('getGrantReportRoutes', () => {
   })
 
   it('has no grantee name for a slug missing from the profiles', () => {
-    const routes = getGrantReportRoutes([report()], false, {
+    const routes = getGrantReportRoutes([report()], {
       ...sources,
       granteeNames: new Map()
     })
@@ -268,7 +260,6 @@ describe('getGrantReportRoutes', () => {
   it('fails when two reports would share a URL, naming both', () => {
     const result = getGrantReportRoutes(
       [report(), report({ id: 'recReport0000002' })],
-      false,
       sources
     )
     expect(result).toBeInstanceOf(Error)
@@ -278,7 +269,7 @@ describe('getGrantReportRoutes', () => {
   })
 
   it('returns the parse error for a bad file', () => {
-    expect(getGrantReportRoutes({}, false, sources)).toBeInstanceOf(Error)
+    expect(getGrantReportRoutes({}, sources)).toBeInstanceOf(Error)
   })
 })
 

@@ -42,11 +42,10 @@ export interface GranteeReportLink {
 
 export interface GranteeDirectoryProject extends GranteeProject {
   /**
-   * Report pages, or the project's forum links when it has no page.
-   * Null while the report pages are hidden and the project has no forum
-   * link, so the card shows nothing rather than "No reports published yet".
+   * Report pages, or the project's forum links when it has no page. Empty
+   * shows "No reports published yet".
    */
-  reports: GranteeReportLink[] | null
+  reports: GranteeReportLink[]
 }
 
 export interface GranteeDirectoryEntry {
@@ -64,12 +63,11 @@ export interface GranteeDirectoryEntry {
   searchText: string
 }
 
-/** The three Airtable files, as imported, plus the report feature gate. */
+/** The three Airtable files, as imported. */
 export interface GranteeDirectorySources {
   projects: unknown
   profiles: unknown
   reports: unknown
-  showReports: boolean
 }
 
 export interface GranteeFilterOption {
@@ -109,8 +107,7 @@ type ReportLinksByProject = Map<string, GranteeReportLink[]>
 function pageLinksByProject(
   sources: GranteeDirectorySources,
   locale: Locale
-): ReportLinksByProject | null | Error {
-  if (!sources.showReports) return null
+): ReportLinksByProject | Error {
   const reports = parseGrantReports(sources.reports)
   if (reports instanceof Error) return reports
 
@@ -147,14 +144,12 @@ function forumReportLinks(
 
 function reportsForProject(
   project: GranteeProject,
-  pageLinks: ReportLinksByProject | null,
+  pageLinks: ReportLinksByProject,
   t: Translate
-): GranteeReportLink[] | null {
-  const pages = pageLinks?.get(project.id) ?? []
+): GranteeReportLink[] {
+  const pages = pageLinks.get(project.id) ?? []
   if (pages.length > 0) return pages
-  const forum = forumReportLinks(project, t)
-  if (forum.length > 0) return forum
-  return pageLinks ? [] : null
+  return forumReportLinks(project, t)
 }
 
 // A project nobody owns would drop out of the directory without a word, so
@@ -289,7 +284,7 @@ export interface GranteeSearchProject {
   year: string
   tags: string[]
   budgetLabel: string | null
-  reports: GranteeReportLink[] | null
+  reports: GranteeReportLink[]
 }
 
 /**

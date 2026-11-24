@@ -28,7 +28,7 @@ function sampleSearchEntry(
         year: '2024',
         tags: [],
         budgetLabel: null,
-        reports: null
+        reports: []
       }
     ],
     searchText: 'test',

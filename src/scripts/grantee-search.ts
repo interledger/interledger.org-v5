@@ -52,8 +52,8 @@ function isSearchProject(value: unknown): value is GranteeSearchProject {
     typeof value.year === 'string' &&
     isStringArray(value.tags) &&
     isNullableString(value.budgetLabel) &&
-    (value.reports === null ||
-      (Array.isArray(value.reports) && value.reports.every(isReportLink)))
+    Array.isArray(value.reports) &&
+    value.reports.every(isReportLink)
   )
 }
 

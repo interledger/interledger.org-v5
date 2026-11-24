@@ -787,12 +787,12 @@ export const SESSIONIZE_SUPPORTED_LOCALES = ['es', 'fr'] as const
 
 To make the work funded through Interledger Foundation grants easier to explore, the website publishes grantee data from Airtable. One sync script reads four tables and writes one committed JSON file for each:
 
-| File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                                                                        |
-| ---------------------------- | --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
-| `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory`                                                         |
-| `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | `/grant/grantees/<slug>/reports/<report>` (hidden on production until INTORG-1313) |
-| `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                                                                        |
-| `legacy-grant-reports.json`  | **Submitted Reports** | a report link, on a directory grant   | report links on the grantee directory cards                                        |
+| File in `src/data/airtable/` | Airtable table        | Which records                         | Rendered by                                 |
+| ---------------------------- | --------------------- | ------------------------------------- | ------------------------------------------- |
+| `grantee-data.json`          | **Projects**          | marked **Published on Website**       | `/grant/grantee-directory`                  |
+| `grant-reports.json`         | **Published Reports** | **Publication Status** is **Live**    | `/grant/grantees/<slug>/reports/<report>`   |
+| `grantee-profiles.json`      | **Grantees**          | every grantee: all of them are public | no page yet                                 |
+| `legacy-grant-reports.json`  | **Submitted Reports** | a report link, on a directory grant   | report links on the grantee directory cards |
 
 Report images and grantee logos are downloaded into `public/img/grantee-reports/` and `public/img/grantee-profiles/`, and committed with the JSON.
 

@@ -107,14 +107,10 @@ const projectCount = grantee.projects.length
               })}
             </p>}
           </div>
-          {project.reports && project.reports.length === 0 && <p
-            class={classes.noReports}
-          >
+          {project.reports.length === 0 && <p class={classes.noReports}>
             {t('grantee.reports.none')}
           </p>}
-          {project.reports && project.reports.length > 0 && <ul
-            class={classes.reports}
-          >
+          {project.reports.length > 0 && <ul class={classes.reports}>
             {project.reports.map((report) => <li class="m-0">
               <LinkButton
                 href={report.href}
