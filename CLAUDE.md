@@ -510,7 +510,8 @@ is told only when it fails. Nobody reads the log of a run that passes.
   `airtableLegacyReports.ts`) skips a bad row with a warning instead of
   failing. Its data is older and less clean, and a skipped row only drops a
   link to an external post. To keep the skips visible, the warning names each
-  row by its Report Id, and the sync pull request shows the skipped count. The
+  row by its Report Id (record ID only for an unpublished grant, because the
+  log is public), and the sync pull request shows the skipped count. The
   part still fails when every row is skipped, which means a change in Airtable
   broke them all.
 - **One run lists every bad record.** Each record lists all of its problems,

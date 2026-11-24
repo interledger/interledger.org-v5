@@ -142,7 +142,7 @@ describe('toLegacyGrantReports', () => {
     expect(result.linkedRows).toBe(2)
   })
 
-  it('names rows by their Report Id when the label field is given', () => {
+  it('names rows of published grants by their Report Id', () => {
     const LABEL = 'fldReportId00000'
     const result = toLegacyGrantReports(
       [
@@ -156,7 +156,7 @@ describe('toLegacyGrantReports', () => {
           'recRow0000000003'
         )
       ],
-      LABEL
+      { labelFieldId: LABEL, publicGrantIds: new Set([GRANT_ID]) }
     )
     expect(result.skipped).toEqual([
       expect.stringContaining(
@@ -166,11 +166,26 @@ describe('toLegacyGrantReports', () => {
     ])
   })
 
+  it('never names a row of an unpublished grant', () => {
+    const LABEL = 'fldReportId00000'
+    const [message] = toLegacyGrantReports(
+      [
+        row({
+          [LABEL]: 'Secret project 1 Interim Report',
+          [F.link.id]: 'forum'
+        })
+      ],
+      { labelFieldId: LABEL, publicGrantIds: new Set([OTHER_GRANT_ID]) }
+    ).skipped
+    expect(message).toContain('Submitted report recRow0000000001')
+    expect(message).not.toContain('Secret project')
+  })
+
   it('falls back to the record ID when the Report Id is blank', () => {
     const LABEL = 'fldReportId00000'
     const [message] = toLegacyGrantReports(
       [row({ [LABEL]: '  ', [F.link.id]: 'forum' })],
-      LABEL
+      { labelFieldId: LABEL, publicGrantIds: new Set([GRANT_ID]) }
     ).skipped
     expect(message).toContain('Submitted report recRow0000000001')
   })

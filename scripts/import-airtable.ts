@@ -376,7 +376,8 @@ async function fetchGranteeProfiles(
 // airtableLegacyReports.ts.
 async function fetchLegacyGrantReports(
   meta: TableMeta,
-  apiToken: string
+  apiToken: string,
+  publicGrantIds: ReadonlySet<string>
 ): Promise<LegacyGrantReport[]> {
   const table = findById(
     meta.tables,
@@ -404,7 +405,8 @@ async function fetchLegacyGrantReports(
   }
 
   // The primary field (Report Id) names a skipped row in a way Programs can
-  // search for. It is read for the warnings only, never written.
+  // search for. It is read for the warnings only, never written, and shown
+  // only for published grants: see RowLabels.
   const labelFieldId = table.primaryFieldId
   const params = new URLSearchParams({ view: LEGACY_REPORTS_VIEW_ID })
   legacyReportFieldIdsToFetch().forEach((id) => params.append('fields[]', id))
@@ -414,10 +416,10 @@ async function fetchLegacyGrantReports(
     params,
     apiToken
   )
-  const { reports, skipped, linkedRows } = toLegacyGrantReports(
-    records,
-    labelFieldId
-  )
+  const { reports, skipped, linkedRows } = toLegacyGrantReports(records, {
+    labelFieldId,
+    publicGrantIds
+  })
   writeStepOutput('legacy_skipped', skipped.length)
   if (skipped.length > 0) {
     console.warn(
@@ -683,8 +685,13 @@ async function importAirtableData() {
   const profilesResult = await runSyncPart('Grantee profiles', async () =>
     addProfileLogos(await fetchGranteeProfiles(meta, apiToken))
   )
+  // A failed directory names no grant as public, so the warnings fall back
+  // to record IDs.
+  const publicGrantIds = new Set(
+    directoryResult instanceof Error ? [] : directoryResult.map(({ id }) => id)
+  )
   const legacyResult = await runSyncPart('Legacy grant reports', () =>
-    fetchLegacyGrantReports(meta, apiToken)
+    fetchLegacyGrantReports(meta, apiToken, publicGrantIds)
   )
   const linkedReportsResult = linkReportsResult(reportsResult, profilesResult)
   const results = collectResults([

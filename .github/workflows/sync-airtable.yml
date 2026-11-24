@@ -205,7 +205,7 @@ jobs:
 
           A legacy report is an older progress report, mostly on the community forum, linked from
           the Airtable Submitted Reports table. Its data is older, so a bad row is skipped, not
-          failed: the run log names each skipped row by its Report Id. The sync fails only if every
+          failed: the run log names each skipped row. The sync fails only if every
           row is skipped.
 
           Every grantee in the Airtable Grantees table has a profile. The sync fails, and opens no

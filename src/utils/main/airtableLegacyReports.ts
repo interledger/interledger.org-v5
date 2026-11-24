@@ -51,11 +51,29 @@ function readReportUrl(value: unknown): string | { expected: string } {
   return url.href
 }
 
-// The row as Programs know it: its primary field, Report Id, which reads like
-// "Waasabi … 2 Final Report". The record ID follows, for an exact match. Without
-// a primary field value, the record ID alone.
-function rowLabel(raw: RawTableRecord, labelFieldId?: string): string {
-  const value = labelFieldId ? raw.fields[labelFieldId] : undefined
+// How a warning names a row. The sync log is public, and Report Id holds the
+// project name, so the name is shown only for a grant in the directory, whose
+// name is public already.
+export interface RowLabels {
+  // The table's primary field, Report Id ("Waasabi … 2 Final Report").
+  labelFieldId: string
+  // Grants whose names may appear: the published grants of the directory.
+  publicGrantIds: ReadonlySet<string>
+}
+
+function rowGrantId(raw: RawTableRecord): string | undefined {
+  const ids = raw.fields[LEGACY_REPORT_FIELDS.projects.id]
+  return Array.isArray(ids) && ids.length === 1 && typeof ids[0] === 'string'
+    ? ids[0]
+    : undefined
+}
+
+// The row as Programs know it, then the record ID for an exact match. A row
+// of an unpublished grant, or one with no Report Id, gets the record ID alone.
+function rowLabel(raw: RawTableRecord, labels?: RowLabels): string {
+  const grantId = rowGrantId(raw)
+  if (!labels || !grantId || !labels.publicGrantIds.has(grantId)) return raw.id
+  const value = raw.fields[labels.labelFieldId]
   const name = typeof value === 'string' ? value.trim() : ''
   return name ? `"${name}" (ID: ${raw.id})` : raw.id
 }
@@ -70,7 +88,7 @@ function hasLink(raw: RawTableRecord): boolean {
 // never printed: the sync log is public.
 export function toLegacyGrantReport(
   raw: RawTableRecord,
-  labelFieldId?: string
+  labels?: RowLabels
 ): LegacyGrantReport | Error {
   const { link, projects, reportType, reportNumber } = LEGACY_REPORT_FIELDS
   const problems: string[] = []
@@ -109,10 +127,7 @@ export function toLegacyGrantReport(
     typeof number !== 'number'
   ) {
     return new Error(
-      formatProblems(
-        `Submitted report ${rowLabel(raw, labelFieldId)}`,
-        problems
-      )
+      formatProblems(`Submitted report ${rowLabel(raw, labels)}`, problems)
     )
   }
   return { grantId, reportType: type, reportNumber: number, url }
@@ -180,18 +195,18 @@ export interface LegacyReportsResult {
 
 // Keeps the rows that have a link, one report per grant, type and number,
 // sorted so a change to the view's sort does not reorder the committed file.
-// `labelFieldId` is the table's primary field, which names a row in warnings.
+// `labels` decides how a warning names a row; without it, by record ID.
 export function toLegacyGrantReports(
   records: readonly RawTableRecord[],
-  labelFieldId?: string
+  labels?: RowLabels
 ): LegacyReportsResult {
   const parsed: LabelledReport[] = []
   const skipped: string[] = []
   const linked = records.filter(hasLink)
   for (const record of linked) {
-    const result = toLegacyGrantReport(record, labelFieldId)
+    const result = toLegacyGrantReport(record, labels)
     if (result instanceof Error) skipped.push(result.message)
-    else parsed.push({ report: result, label: rowLabel(record, labelFieldId) })
+    else parsed.push({ report: result, label: rowLabel(record, labels) })
   }
   const unique = removeDuplicates(parsed)
   return {
