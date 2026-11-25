@@ -13,7 +13,6 @@ import {
 import type { Talk } from '@/types/summit'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
-import LanguageChip from '@/components/shared/LanguageChip.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SpeakersList from '@/components/summit/SpeakersList.astro'
 import SessionMeta from '@/components/summit/SessionMeta.astro'
@@ -39,15 +38,6 @@ const translation = getTranslation(entry, lang)
 const title = translation?.title ?? entry.title
 const description = translation?.description ?? entry.description
 const languages = parseSessionLanguages(entry.translations)
-const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
-// TranslationDisclaimer only renders on the ES route, so match it here to
-// keep an empty notice row out of the EN page.
-const showFallbackNotice = isFallback && lang === 'es'
-const hasNotices = showFallbackNotice || languages.translatedTo.length > 0
-// The notices sit under the breadcrumbs up to tablet and beside them on
-// desktop, where Breadcrumbs' own row layout would start at tablet.
-const breadcrumbRowClass =
-  'gap-lg tablet:flex-col tablet:items-start tablet:gap-lg desktop:flex-row desktop:items-center'
 
 const breadcrumbs = [
   buildHomeBreadcrumb(lang, t),
@@ -62,18 +52,8 @@ const breadcrumbs = [
     <div class="content-column">
       <!-- Tablet keeps a narrow reading column; desktop uses the full width. -->
       <div class="mx-auto max-w-180 desktop:max-w-none">
-        <Breadcrumbs breadcrumbs={breadcrumbs} class={breadcrumbRowClass}>
-          {hasNotices && <div class="flex flex-wrap gap-sm">
-            <TranslationDisclaimer
-              isVisible={showFallbackNotice}
-              style="summit"
-            />
-            {languages.translatedTo.length > 0 && <LanguageChip>
-              {t('summit.translation_available', {
-                language: listFormat.format(languages.translatedTo)
-              })}
-            </LanguageChip>}
-          </div>}
+        <Breadcrumbs breadcrumbs={breadcrumbs}>
+          <TranslationDisclaimer isVisible={isFallback} style="summit" />
         </Breadcrumbs>
         <article>
           <header class="mb-2xl tablet:mb-3xl">

@@ -11,6 +11,7 @@ import {
   formatSessionDate,
   formatSessionTime,
   getDurationInMinutes,
+  translateSessionLanguage,
   type SessionLanguages
 } from '@/utils'
 
@@ -25,6 +26,10 @@ interface Props {
 const { talk, languages, lang, dateFirst = false } = Astro.props
 const t = useTranslations(lang)
 const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
+const formatLanguages = (languages: string[]) =>
+  listFormat.format(
+    languages.map((language) => translateSessionLanguage(language, t))
+  )
 
 const date = formatSessionDate(talk.startsAt, lang)
 const time = formatSessionTime(talk.startsAt, lang)
@@ -45,12 +50,12 @@ const timeLabel = [
     <span class="text-neutral-900 dark:text-neutral-0">
       {t('summit.session_language')}
     </span>
-    <span class="text-link">{listFormat.format(languages.spoken)}</span>
+    <span class="text-link">{formatLanguages(languages.spoken)}</span>
     {languages.translatedTo.length > 0 && <span
       class="text-neutral-100 dark:text-neutral-50"
     >
       ({t('summit.translation_available', {
-        language: listFormat.format(languages.translatedTo)
+        language: formatLanguages(languages.translatedTo)
       })})
     </span>}
   </p>}

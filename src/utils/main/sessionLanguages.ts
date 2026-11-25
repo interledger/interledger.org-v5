@@ -1,3 +1,5 @@
+import type { Translate, UiKey } from './i18'
+
 export interface SessionLanguages {
   /** Languages the session is held in, e.g. `['English']` or `['English', 'Spanish']`. */
   spoken: string[]
@@ -24,4 +26,22 @@ export function parseSessionLanguages(answers: string[]): SessionLanguages {
     else translatedTo.push(language)
   }
   return { spoken, translatedTo }
+}
+
+const SESSION_LANGUAGE_KEYS: Record<string, UiKey> = {
+  english: 'summit.language_english',
+  spanish: 'summit.language_spanish'
+}
+
+/**
+ * The UI string for a language name read from Sessionize, so the ES pages
+ * can show `Inglés` rather than the `English` stored in the JSON. A language
+ * with no UI string yet is shown as Sessionize wrote it.
+ */
+export function translateSessionLanguage(
+  language: string,
+  t: Translate
+): string {
+  const key = SESSION_LANGUAGE_KEYS[language.toLowerCase()]
+  return key ? t(key) : language
 }

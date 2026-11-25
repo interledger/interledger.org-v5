@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { parseSessionLanguages } from './sessionLanguages'
+import type { Translate } from './i18'
+import {
+  parseSessionLanguages,
+  translateSessionLanguage
+} from './sessionLanguages'
 
 describe('parseSessionLanguages', () => {
   it('reads every 2025 combination', () => {
@@ -31,5 +35,22 @@ describe('parseSessionLanguages', () => {
       spoken: [],
       translatedTo: []
     })
+  })
+})
+
+describe('translateSessionLanguage', () => {
+  const t = ((key: string) => `ui:${key}`) as Translate
+
+  it('maps the Sessionize language names to UI strings, ignoring case', () => {
+    expect(translateSessionLanguage('English', t)).toBe(
+      'ui:summit.language_english'
+    )
+    expect(translateSessionLanguage('spanish', t)).toBe(
+      'ui:summit.language_spanish'
+    )
+  })
+
+  it('keeps a language with no UI string as Sessionize wrote it', () => {
+    expect(translateSessionLanguage('Portuguese', t)).toBe('Portuguese')
   })
 })

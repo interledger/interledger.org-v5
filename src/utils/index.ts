@@ -392,6 +392,7 @@ export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 export { summitBaseHref, summitYearHref } from './main/summitRoutes'
 export {
   parseSessionLanguages,
+  translateSessionLanguage,
   type SessionLanguages
 } from './main/sessionLanguages'
 
