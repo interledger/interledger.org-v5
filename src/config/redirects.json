@@ -46,6 +46,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1595/",
+      "destination": "/es/summit/2025/speakers/peter-kakoma/",
+      "status": 301
+    },
+    {
       "source": "/es/tech/hacktoberfest/",
       "destination": "/es/tech/hacktober/",
       "status": 301
