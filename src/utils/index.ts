@@ -337,7 +337,6 @@ export {
 
 // Main site: Formatting
 export {
-  formatDateTime,
   formatDate,
   formatSessionDate,
   formatSessionTime,

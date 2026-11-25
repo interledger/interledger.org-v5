@@ -29,7 +29,6 @@ export type TalkPreview = Talk & {
    * `SessionizeSpeaker.profilePicture`.
    */
   speakerImage: string
-  speakerName: string | null
 }
 
 export interface Speaker {

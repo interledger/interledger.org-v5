@@ -52,27 +52,6 @@ export function formatSessionTime(iso: string, lang = defaultLocale): string {
   }).format(date)
 }
 
-// Summit pages — en-GB format with weekday and time (e.g. "Thu, 19 Jun 2026, 14:00")
-export function formatDateTime(iso: string, lang = defaultLocale) {
-  const date = new Date(iso)
-  if (isNaN(date.getTime())) return ''
-
-  const locale = summitDateLocale(lang)
-
-  let formatted = new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  }).format(date)
-
-  formatted = capitalize(formatted)
-  return formatted
-}
-
 // Blog pages — en-US format, date only (e.g. "Jun 19, 2026")
 export function formatDate(date: Date, lang = defaultLocale) {
   if (isNaN(date.getTime())) return ''

@@ -133,8 +133,7 @@ export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
       : `${profilePictureBase}/no-photo.svg`
     return {
       ...talk,
-      speakerImage,
-      speakerName: speaker?.fullName ?? null
+      speakerImage
     }
   })
 }
