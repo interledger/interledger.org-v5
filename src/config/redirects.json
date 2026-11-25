@@ -1108,6 +1108,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1657/",
+      "destination": "/es/blog/africa-doesnt-have-payments-technology-problem-it-has-business-model-problem/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1658/",
       "destination": "/es/blog/interledger-foundation-launches-interledger-campus-grant-program-support-student-led/",
       "status": 301
