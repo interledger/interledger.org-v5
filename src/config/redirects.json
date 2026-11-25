@@ -1098,11 +1098,6 @@
       "status": 301
     },
     {
-      "source": "/es/node/1595/",
-      "destination": "/es/summit/2025/speakers/peter-kakoma/",
-      "status": 301
-    },
-    {
       "source": "/es/node/1655/",
       "destination": "/es/blog/web-isnt-free/",
       "status": 301
@@ -2375,5 +2370,11 @@
       "status": 301
     }
   ],
-  "summit": []
+  "summit": [
+    {
+      "source": "/es/node/1595/",
+      "destination": "/es/summit/2025/speakers/peter-kakoma/",
+      "status": 301
+    }
+  ]
 }
