@@ -1138,6 +1138,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1749/",
+      "destination": "/es/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1770/",
       "destination": "/es/blog/why-we-funded-research-who-gets-left-out-instant-payments/",
       "status": 301
