@@ -1098,6 +1098,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1653/",
+      "destination": "/es/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1655/",
       "destination": "/es/blog/web-isnt-free/",
       "status": 301
