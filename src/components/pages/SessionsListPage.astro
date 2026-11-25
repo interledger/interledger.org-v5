@@ -32,12 +32,7 @@ const label = t('summit.talks_pagination', { year })
         {talkPreviews.length > 0 ? (
           <ul class="m-0 flex list-none flex-col gap-2xl p-0">
             {talkPreviews.map((talk) => (
-              <SessionCard
-                talkPreview={talk}
-                basePath={basePath}
-                lang={lang}
-                year={year}
-              />
+              <SessionCard talkPreview={talk} basePath={basePath} lang={lang} />
             ))}
           </ul>
         ) : (
