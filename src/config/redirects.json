@@ -1103,6 +1103,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1656/",
+      "destination": "/es/blog/fliqa-integrates-interledger-power-open-interoperable-payments/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1748/",
       "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity/",
       "status": 301
