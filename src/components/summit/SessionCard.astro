@@ -79,18 +79,14 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
         {title}
       </a>
     </h2>
-    <!-- The pill sits under the date up to tablet and beside it on desktop,
-         nudged up to centre on the first line. -->
-    <div
-      class="flex flex-col items-start gap-lg desktop:flex-row desktop:gap-xl"
-    >
+    <div class="flex flex-wrap items-start gap-x-xl gap-y-lg">
       <SessionMeta
         talk={talkPreview}
         languages={languages}
         lang={lang}
         dateFirst
       />
-      {talkPreview.recordingUrl && <Chip tone="indigo" class="desktop:-mt-xs">
+      {talkPreview.recordingUrl && <Chip tone="indigo" class="-mt-xs">
         {t('summit.recording_available')}
       </Chip>}
     </div>
