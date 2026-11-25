@@ -1098,6 +1098,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1751/",
+      "destination": "/es/grant/public-policy-activation/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1771/",
       "destination": "/es/blog/banking-without-banks-what-africa-can-teach-us-about-financial-access/",
       "status": 301
