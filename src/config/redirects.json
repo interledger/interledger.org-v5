@@ -1088,6 +1088,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1748/",
+      "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity/",
+      "status": 301
+    },
+    {
       "source": "/news/2025-digital-financial-services-grant-recipient-miplata/",
       "destination": "/blog/2025-digital-financial-services-grant-recipient-miplata/",
       "status": 301
