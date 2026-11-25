@@ -409,6 +409,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1751/",
+      "destination": "/es/grant/public-policy-activation/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1760/",
       "destination": "/es/grant/innovation/accelerator/",
       "status": 301
@@ -1105,11 +1110,6 @@
     {
       "source": "/es/node/1748/",
       "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity/",
-      "status": 301
-    },
-    {
-      "source": "/es/node/1751/",
-      "destination": "/es/grant/public-policy-activation/",
       "status": 301
     },
     {
