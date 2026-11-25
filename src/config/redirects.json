@@ -1093,6 +1093,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1655/",
+      "destination": "/es/blog/web-isnt-free/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1748/",
       "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity/",
       "status": 301
