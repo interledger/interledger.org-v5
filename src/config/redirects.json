@@ -1108,6 +1108,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1660/",
+      "destination": "/es/blog/why-we-weighed-federal-reserves-payment-account-proposal/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1748/",
       "destination": "/es/blog/interledger-comes-colombia-help-build-internet-opportunity/",
       "status": 301
