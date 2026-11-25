@@ -58,13 +58,15 @@ const breadcrumbs = [
         <article>
           <header class="mb-2xl tablet:mb-3xl">
             <h1
-              class="mb-xl text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg dark:text-neutral-0"
+              class="mb-xl text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg"
             >
               {title}
             </h1>
             <SessionMeta talk={entry} languages={languages} lang={lang} />
           </header>
-          <div class="flex flex-col gap-lg">
+          {(entry.recordingUrl || description) && <div
+            class="flex flex-col gap-lg"
+          >
             {entry.recordingUrl && <section
               aria-label={t('summit.session_recording')}
             >
@@ -76,21 +78,21 @@ const breadcrumbs = [
             >
               <TextParagraphs text={description} />
             </section>}
-          </div>
+          </div>}
           {speakers.length > 0 && <section
             class="mt-3xl border-t border-neutral-50 pt-3xl desktop:mt-4xl desktop:pt-4xl"
             aria-labelledby="session-speakers"
           >
             <h2
               id="session-speakers"
-              class="mb-2xl text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg dark:text-neutral-0"
+              class="mb-2xl text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg"
             >
               {t('summit.speakers')}
             </h2>
             <SpeakersList
               speakers={speakers}
               basePath={speakersBasePath}
-              layout="stack"
+              stacked
               headingLevel={3}
             />
           </section>}

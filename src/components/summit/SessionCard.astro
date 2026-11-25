@@ -14,7 +14,6 @@ import {
 import SessionMeta from './SessionMeta.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
-import Chip from '@/components/shared/Chip.astro'
 
 interface Props {
   talkPreview: TalkPreview
@@ -39,7 +38,7 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
      over the whole card (its ::after), so the card is one tab stop and one
      link name; the arrow is decoration. -->
 <li
-  class="group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover:border-periwinkle-100 hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl tablet:rounded-l-[12.5rem] desktop:gap-4xl dark:border-neutral-75 dark:hover:border-periwinkle-50 dark:hover:bg-neutral-0/5 dark:has-[a:focus-visible]:border-periwinkle-50 dark:has-[a:focus-visible]:bg-neutral-0/5"
+  class="group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover-hover:hover:border-periwinkle-100 hover-hover:hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl tablet:rounded-l-[12.5rem] desktop:gap-4xl"
 >
   <div
     class="aspect-square w-20 shrink-0 overflow-hidden rounded-full bg-neutral-25 tablet:w-50 desktop:w-65"
@@ -57,41 +56,37 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
     />
   </div>
   <span
-    class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900 dark:border-neutral-50 dark:text-neutral-0"
+    class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900"
     aria-hidden="true"
   >
     <Icon
       name="arrow-right"
-      class="size-8 -rotate-45 transition-transform duration-slow group-hover:rotate-0 group-has-[a:focus-visible]:rotate-0 motion-reduce:transition-none"
+      class="size-8 -rotate-45 transition-transform duration-slow hover-hover:group-hover:rotate-0 group-has-[a:focus-visible]:rotate-0 motion-reduce:transition-none"
     />
   </span>
   <div class="min-w-0 flex-1">
-    <!-- Size on the link, not the h2: the summit prose styles give every
-         <a> a body size, and only a class on the element itself beats them. -->
+    <!-- Size on the link, not the h2: prose/default.css gives every
+         `main a` a body size, and only a class on the element itself beats it. -->
     <h2
       class="mt-0 mb-xl text-h3 tablet:pr-4xl tablet:text-h3-md desktop:text-h3-lg"
     >
       <a
         href={href}
-        class="text-h3 text-link underline decoration-current after:absolute after:inset-0 tablet:text-h3-md desktop:text-h3-lg group-hover:text-link-hover"
+        class="text-h3 text-link underline decoration-current after:absolute after:inset-0 tablet:text-h3-md desktop:text-h3-lg hover-hover:group-hover:text-link-hover"
         {...attrs}
       >
         {title}
       </a>
     </h2>
-    <div class="flex flex-wrap items-start gap-x-xl gap-y-lg">
-      <SessionMeta
-        talk={talkPreview}
-        languages={languages}
-        lang={lang}
-        dateFirst
-      />
-      {talkPreview.recordingUrl && <Chip tone="indigo" class="-mt-xs">
-        {t('summit.recording_available')}
-      </Chip>}
-    </div>
+    <SessionMeta
+      talk={talkPreview}
+      languages={languages}
+      lang={lang}
+      dateFirst
+      showRecording={Boolean(talkPreview.recordingUrl)}
+    />
     {(speakerNames.length > 0 || description) && <div
-      class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl dark:border-neutral-75 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900 dark:[&_p]:text-neutral-0"
+      class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900"
     >
       {speakerNames.length > 0 && <p>
         {t(speakerNames.length === 1 ? 'summit.speaker' : 'summit.speakers')}:

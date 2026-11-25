@@ -18,13 +18,13 @@ const TONE_CLASSES: Record<Props['tone'], string> = {
 
 const { tone, icon, class: className } = Astro.props
 const chipClasses = twMerge(
-  'mb-0 inline-flex max-w-full shrink-0 items-center gap-sm rounded-full px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100',
+  'inline-flex max-w-full shrink-0 items-center gap-sm rounded-full px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100',
   TONE_CLASSES[tone],
   className
 )
 ---
 
-<p class={chipClasses}>
+<span class={chipClasses}>
   {icon && <Icon name={icon} class="size-4 shrink-0" />}
   <slot />
-</p>
+</span>

@@ -4,6 +4,8 @@
 // The talk page leads with the language and the sessions list with the date;
 // the two lines are independent facts, so swapping them visually with
 // `order` leaves nothing out of sequence for a screen reader.
+// The recording pill (sessions list only) joins the date row, wrapping below
+// it only when the row is full.
 import type { Talk } from '@/types/summit'
 import {
   type Locale,
@@ -14,6 +16,7 @@ import {
   translateSessionLanguage,
   type SessionLanguages
 } from '@/utils'
+import Chip from '@/components/shared/Chip.astro'
 
 interface Props {
   talk: Talk
@@ -21,9 +24,17 @@ interface Props {
   lang: Locale
   /** Show the date line above the language line, as the sessions list does. */
   dateFirst?: boolean
+  /** Add the "Recording available" pill to the date row. */
+  showRecording?: boolean
 }
 
-const { talk, languages, lang, dateFirst = false } = Astro.props
+const {
+  talk,
+  languages,
+  lang,
+  dateFirst = false,
+  showRecording = false
+} = Astro.props
 const t = useTranslations(lang)
 const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
 const formatLanguages = (languages: string[]) =>
@@ -41,37 +52,37 @@ const timeLabel = [
 ]
   .filter(Boolean)
   .join(' – ')
+const hasContent = languages.spoken.length > 0 || Boolean(date) || showRecording
 ---
 
-<div
+{hasContent && <div
   class="flex flex-col gap-lg [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg"
 >
   {languages.spoken.length > 0 && <p class="m-0 flex flex-wrap gap-x-sm">
-    <span class="text-neutral-900 dark:text-neutral-0">
-      {t('summit.session_language')}
-    </span>
+    <span class="text-neutral-900">{t('summit.session_language')}</span>
     <span class="text-link">{formatLanguages(languages.spoken)}</span>
-    {languages.translatedTo.length > 0 && <span
-      class="text-neutral-100 dark:text-neutral-50"
-    >
+    {languages.translatedTo.length > 0 && <span class="text-neutral-100">
       ({t('summit.translation_available', {
         language: formatLanguages(languages.translatedTo)
       })})
     </span>}
   </p>}
-  {date && <p
+  {(date || showRecording) && <p
     class:list={[
-      'm-0 flex flex-wrap items-center gap-y-sm',
+      'm-0 flex flex-wrap items-center gap-x-xl gap-y-lg',
       dateFirst && 'order-first'
     ]}
   >
-    <time datetime={talk.startsAt} class="text-neutral-900 dark:text-neutral-0">
-      {date}
-    </time>
-    {timeLabel && <span
-      class="ml-md border-l border-neutral-50 pl-md text-neutral-100 dark:text-neutral-50"
-    >
-      {timeLabel}
+    {date && <span class="flex items-center">
+      <time datetime={talk.startsAt} class="text-neutral-900">{date}</time>
+      {timeLabel && <span
+        class="ml-md border-l border-neutral-50 pl-md text-neutral-100"
+      >
+        {timeLabel}
+      </span>}
     </span>}
+    {showRecording && <Chip tone="indigo">
+      {t('summit.recording_available')}
+    </Chip>}
   </p>}
-</div>
+</div>}
