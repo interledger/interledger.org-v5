@@ -1108,6 +1108,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1659/",
+      "destination": "/es/blog/web-monetization-meets-googles-offerwall/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1660/",
       "destination": "/es/blog/why-we-weighed-federal-reserves-payment-account-proposal/",
       "status": 301
