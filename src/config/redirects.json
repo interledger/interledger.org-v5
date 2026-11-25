@@ -46,11 +46,6 @@
       "status": 301
     },
     {
-      "source": "/es/node/1595/",
-      "destination": "/es/summit/2025/speakers/peter-kakoma/",
-      "status": 301
-    },
-    {
       "source": "/es/tech/hacktoberfest/",
       "destination": "/es/tech/hacktober/",
       "status": 301
@@ -1090,6 +1085,11 @@
     {
       "source": "/es/news/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken/",
       "destination": "/es/blog/you-dont-need-3-apps-pay-your-friends-why-us-payments-feel-broken/",
+      "status": 301
+    },
+    {
+      "source": "/es/node/1595/",
+      "destination": "/es/summit/2025/speakers/peter-kakoma/",
       "status": 301
     },
     {
