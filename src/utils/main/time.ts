@@ -38,9 +38,7 @@ export function formatSessionDate(iso: string, lang = defaultLocale): string {
   // them (a comma after the weekday in en-GB) varies with the ICU version.
   const part = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((p) => p.type === type)?.value ?? ''
-  return capitalize(
-    SESSION_DATE_PARTS.map(part).filter(Boolean).join(' ')
-  )
+  return capitalize(SESSION_DATE_PARTS.map(part).filter(Boolean).join(' '))
 }
 
 /** A talk's start time on the 24-hour clock, e.g. "10:00". */
