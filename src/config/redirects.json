@@ -1148,6 +1148,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1765/",
+      "destination": "/es/blog/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1770/",
       "destination": "/es/blog/why-we-funded-research-who-gets-left-out-instant-payments/",
       "status": 301
