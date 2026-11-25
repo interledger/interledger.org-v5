@@ -22,7 +22,8 @@
     "optimize:images": "tsx ./scripts/optimize-images.ts",
     "prebuild": "node scripts/evict-content-store.mjs && pnpm run optimize:images",
     "sync:sessionize": "tsx ./scripts/sync-sessionize.ts",
-    "sync:airtable": "tsx ./scripts/import-airtable.ts"
+    "sync:airtable": "tsx ./scripts/import-airtable.ts",
+    "sync:rfcs": "tsx ./scripts/sync-rfcs.ts"
   },
   "dependencies": {
     "@astro-community/astro-embed-vimeo": "^0.3.12",

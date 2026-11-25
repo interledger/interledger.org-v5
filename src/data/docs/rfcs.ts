@@ -8,7 +8,7 @@ export type PublishedRfc = {
   sourceRawUrl: string
 }
 
-const PUBLISHED_RFCS = [
+export const PUBLISHED_RFCS = [
   {
     id: 'interledger-protocol',
     title: 'Interledger Protocol V4 (ILPv4)',
@@ -88,7 +88,32 @@ const PUBLISHED_RFCS = [
   }
 ] as const satisfies readonly PublishedRfc[]
 
+/** The literal ids, so `<Rfc id="typo">` is a type error, not just a build error. */
+export type PublishedRfcId = (typeof PUBLISHED_RFCS)[number]['id']
+
 const DOCS_BASE_PATH = '/developers'
+
+/**
+ * Where `pnpm sync:rfcs` writes each RFC's markdown, as `<id>.md`. The glob in
+ * `rfcSnapshots.ts` must repeat it as a literal; a test fails if they differ.
+ */
+export const RFC_SNAPSHOT_DIR = 'src/data/docs/rfcs'
+
+/**
+ * Where the sync copies the images the RFCs show, by their interledger/rfcs
+ * path, e.g. `<dir>/shared/graphs/protocol-suite.svg`. The image glob in
+ * `rfcSnapshots.ts` repeats this and `RFC_IMAGE_EXTENSIONS` as literals.
+ */
+export const RFC_IMAGE_DIR = `${RFC_SNAPSHOT_DIR}/images`
+
+export const RFC_IMAGE_EXTENSIONS = [
+  '.svg',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp'
+] as const
 
 export const PUBLISHED_RFC_SIDEBAR_ITEMS = PUBLISHED_RFCS.map((rfc) => ({
   label: rfc.title,
@@ -107,7 +132,7 @@ export function getPublishedRfcRouteBySourcePath(): Map<string, string> {
   )
 }
 
-export function getRfcById(id: PublishedRfc['id']): PublishedRfc {
+export function getRfcById(id: PublishedRfcId): PublishedRfc {
   const rfc = PUBLISHED_RFCS.find((entry) => entry.id === id)
 
   if (!rfc) {

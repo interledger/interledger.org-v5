@@ -1,5 +1,6 @@
 import showdown from 'showdown'
 import { wrapScrollableTables } from '../shared/wrapScrollableTables'
+import { rewriteRfcImages } from './rfcImages'
 import { rewriteRfcLinks } from './rewriteRfcLinks'
 
 const FRONT_MATTER_FENCE = '---'
@@ -11,6 +12,29 @@ const FRONT_MATTER_FENCE = '---'
  */
 const TABLE_SCROLL_LABEL = 'Scrollable table'
 
+type RenderRfcOptions = {
+  sourceUrl: string
+  docsBasePath: string
+  /** The bundled URL of a synced RFC image, keyed by its interledger/rfcs path. */
+  localImageUrl: (sourcePath: string) => string | undefined
+}
+
+/**
+ * The RFC body as plain HTML, before any link or image rewriting. The sync
+ * script reads images from this, so it finds exactly the ones a page shows.
+ */
+export function rfcMarkdownToHtml(markdown: string): string {
+  const frontMatterEnd =
+    markdown.indexOf(FRONT_MATTER_FENCE, 1) + FRONT_MATTER_FENCE.length
+  const specBody = markdown.slice(frontMatterEnd)
+
+  const converter = new showdown.Converter({
+    tables: true,
+    ghCompatibleHeaderId: true
+  })
+  return converter.makeHtml(specBody)
+}
+
 /**
  * Turn an RFC's raw GitHub Markdown into the HTML a docs page shows.
  *
@@ -20,16 +44,13 @@ const TABLE_SCROLL_LABEL = 'Scrollable table'
  */
 export function renderRfcMarkdown(
   markdown: string,
-  options: { sourceUrl: string; docsBasePath: string }
-): string {
-  const frontMatterEnd =
-    markdown.indexOf(FRONT_MATTER_FENCE, 1) + FRONT_MATTER_FENCE.length
-  const specBody = markdown.slice(frontMatterEnd)
-
-  const converter = new showdown.Converter({
-    tables: true,
-    ghCompatibleHeaderId: true
+  { sourceUrl, docsBasePath, localImageUrl }: RenderRfcOptions
+): string | Error {
+  const withLinks = rewriteRfcLinks(rfcMarkdownToHtml(markdown), {
+    sourceUrl,
+    docsBasePath
   })
-  const html = rewriteRfcLinks(converter.makeHtml(specBody), options)
-  return wrapScrollableTables(html, TABLE_SCROLL_LABEL)
+  const withImages = rewriteRfcImages(withLinks, sourceUrl, localImageUrl)
+  if (withImages instanceof Error) return withImages
+  return wrapScrollableTables(withImages, TABLE_SCROLL_LABEL)
 }

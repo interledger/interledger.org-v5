@@ -12,3 +12,5 @@ cms/types/generated/**
 cms/src/api/*/content-types/*/schema.json
 .vscode
 .netlify
+# Verbatim upstream RFC markdown, written by pnpm sync:rfcs
+src/data/docs/rfcs
