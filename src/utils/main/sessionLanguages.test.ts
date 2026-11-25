@@ -35,6 +35,10 @@ describe('parseSessionLanguages', () => {
       spoken: [],
       translatedTo: []
     })
+    expect(parseSessionLanguages(['Spanish Translation available '])).toEqual({
+      spoken: [],
+      translatedTo: ['Spanish']
+    })
     expect(parseSessionLanguages(['Translation available'])).toEqual({
       spoken: [],
       translatedTo: []
@@ -56,5 +60,6 @@ describe('translateSessionLanguage', () => {
 
   it('keeps a language with no UI string as Sessionize wrote it', () => {
     expect(translateSessionLanguage('Portuguese', t)).toBe('Portuguese')
+    expect(translateSessionLanguage('constructor', t)).toBe('constructor')
   })
 })

@@ -20,18 +20,21 @@ export function parseSessionLanguages(answers: string[]): SessionLanguages {
   const spoken: string[] = []
   const translatedTo: string[] = []
   for (const answer of answers) {
-    const language = answer.replace(TRANSLATION_SUFFIX, '').trim()
+    const trimmed = answer.trim()
+    const language = trimmed.replace(TRANSLATION_SUFFIX, '').trim()
     if (!language) continue
-    if (language === answer.trim()) spoken.push(language)
+    if (language === trimmed) spoken.push(language)
     else translatedTo.push(language)
   }
   return { spoken, translatedTo }
 }
 
-const SESSION_LANGUAGE_KEYS: Record<string, UiKey> = {
-  english: 'summit.language_english',
-  spanish: 'summit.language_spanish'
-}
+// A Map, not an object: the key is Sessionize input, and an object lookup
+// would also find inherited names such as `constructor`.
+const SESSION_LANGUAGE_KEYS = new Map<string, UiKey>([
+  ['english', 'summit.language_english'],
+  ['spanish', 'summit.language_spanish']
+])
 
 /**
  * The UI string for a language name read from Sessionize, so the ES pages
@@ -42,6 +45,6 @@ export function translateSessionLanguage(
   language: string,
   t: Translate
 ): string {
-  const key = SESSION_LANGUAGE_KEYS[language.toLowerCase()]
+  const key = SESSION_LANGUAGE_KEYS.get(language.toLowerCase())
   return key ? t(key) : language
 }
