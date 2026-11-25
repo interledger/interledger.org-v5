@@ -94,7 +94,7 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
       class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl dark:border-neutral-75 [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900 dark:[&_p]:text-neutral-0"
     >
       {speakerNames.length > 0 && <p>
-        {t('summit.speakers')}:
+        {t(speakerNames.length === 1 ? 'summit.speaker' : 'summit.speakers')}:
         <strong class="font-semibold">{speakerNames.join(', ')}</strong>
       </p>}
       {description && <p>{truncateText(description)}</p>}
