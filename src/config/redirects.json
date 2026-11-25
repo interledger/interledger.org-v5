@@ -414,6 +414,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1772/",
+      "destination": "/es/grant/fellowship/caroline-sinders/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1774/",
       "destination": "/es/grant/local-impact-grant/",
       "status": 301
