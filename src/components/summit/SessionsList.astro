@@ -2,12 +2,14 @@
 import { type Talk } from '@/types/summit'
 import {
   type Locale,
+  useTranslations,
   generateSlug,
   truncateText,
   getTranslation,
   buildSessionCardUmamiAttrs,
   joinPagePath
 } from '@/utils'
+import Chip from '@/components/shared/Chip.astro'
 
 interface Props {
   sessions: Talk[]
@@ -15,6 +17,7 @@ interface Props {
   lang: Locale
 }
 const { sessions, sessionBaseHref, lang } = Astro.props
+const t = useTranslations(lang)
 
 const sessionsWithLinks = sessions.map((session) => {
   const translation = getTranslation(session, lang)
@@ -44,6 +47,9 @@ const sessionAttrs = (title: string, href: string) =>
           {session.title}
         </a>
       </h2>
+      {session.recordingUrl && <Chip tone="indigo" class="mb-sm">
+        {t('summit.recording_available')}
+      </Chip>}
       {session.description && <p
         class="mb-0 text-body-lg-standard text-neutral-100"
       >

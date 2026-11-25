@@ -1,5 +1,5 @@
 ---
-import LanguageChip from '@/components/shared/LanguageChip.astro'
+import Chip from '@/components/shared/Chip.astro'
 
 interface Props {
   isVisible?: boolean
@@ -11,6 +11,6 @@ const { isVisible = false } = Astro.props
 const spanishDisclaimer = 'Esta página aún no está disponible en español.'
 ---
 
-{isVisible && routeLocale === 'es' && <LanguageChip>
+{isVisible && routeLocale === 'es' && <Chip tone="mint" icon="language">
   {spanishDisclaimer}
-</LanguageChip>}
+</Chip>}
