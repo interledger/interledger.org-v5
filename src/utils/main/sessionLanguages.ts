@@ -7,7 +7,7 @@ export interface SessionLanguages {
   translatedTo: string[]
 }
 
-const TRANSLATION_SUFFIX = /\s+translation available$/i
+const TRANSLATION_SUFFIX = /(?:^|\s+)translation available$/i
 
 /**
  * Splits the Sessionize "Will this session be in Spanish, English or Both?"

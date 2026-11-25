@@ -47,7 +47,7 @@ const breadcrumbs = [
 ]
 ---
 
-<SummitPageLayout title={entry.title}>
+<SummitPageLayout title={title}>
   <main class="px-content pt-page-offset pb-5xl desktop:pb-6xl">
     <div class="content-column">
       <!-- Tablet keeps a narrow reading column; desktop uses the full width. -->
@@ -68,7 +68,7 @@ const breadcrumbs = [
             {entry.recordingUrl && <section
               aria-label={t('summit.session_recording')}
             >
-              <VideoEmbed url={entry.recordingUrl} title={entry.title} />
+              <VideoEmbed url={entry.recordingUrl} title={title} />
             </section>}
             {description && <section
               class="rounded-3xl bg-pistachio-100 p-xl [&_p]:text-h5 [&_p]:text-neutral-900 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg [&_p:last-child]:mb-0"

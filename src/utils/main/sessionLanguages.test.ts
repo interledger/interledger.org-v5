@@ -35,6 +35,10 @@ describe('parseSessionLanguages', () => {
       spoken: [],
       translatedTo: []
     })
+    expect(parseSessionLanguages(['Translation available'])).toEqual({
+      spoken: [],
+      translatedTo: []
+    })
   })
 })
 
