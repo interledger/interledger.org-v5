@@ -5,6 +5,7 @@ import FoundationPageLayout from '@/layouts/FoundationPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import GranteeIndex from '@/components/grant/GranteeIndex.astro'
 import Pagination from '@/components/shared/Pagination.astro'
+import { granteeDataLastUpdated } from '@/data/airtable/granteeDataLastUpdated'
 import {
   type GranteeDirectoryEntry,
   type GranteeFilterOption,
@@ -13,7 +14,8 @@ import {
   localizeRoute,
   grantOverviewHubPath,
   grantGranteeDirectoryPath,
-  stripPagination
+  stripPagination,
+  formatAirtableDay
 } from '@/utils'
 
 interface Props {
@@ -27,6 +29,9 @@ interface Props {
 const { page, years, tags, selectedYear, selectedTag } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+
+const lastUpdated = granteeDataLastUpdated()
+if (lastUpdated instanceof Error) throw lastUpdated
 
 const pageHref = localizeRoute(grantGranteeDirectoryPath(), routeLocale)
 const basePath = stripPagination(Astro.url.pathname)
@@ -80,6 +85,12 @@ const breadcrumbs = [
         <p class="m-0 mb-md">{t('grantee.caveat.amounts')}</p>
         <p class="m-0">{t('grantee.caveat.exclusions')}</p>
       </footer>
+      <p class="m-0 mt-md text-caption leading-normal tablet:mt-lg">
+        {t('grantee.last_updated')}
+        <time datetime={lastUpdated}
+          >{formatAirtableDay(lastUpdated, routeLocale)}</time
+        >
+      </p>
     </div>
   </main>
 </FoundationPageLayout>

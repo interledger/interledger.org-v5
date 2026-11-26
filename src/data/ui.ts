@@ -165,6 +165,7 @@ export const ui = {
       'Grant amounts shown reflect committed funding based on Interledger Foundation grant records and are contingent upon satisfactory progress by the grantee. Amounts presented may differ from those reported in audited financial statements prepared in accordance with U.S. GAAP or from figures disclosed in IRS Form 990 filings. Such differences may arise due to variations in timing of recognition, accounting treatment (including expense recognition versus conditional commitments), and grant disbursement schedules.',
     'grantee.caveat.exclusions':
       'This database includes grants only and excludes Program-Related Investments (PRIs).',
+    'grantee.last_updated': 'Last updated:',
     'aria.grantee.filters_label': 'Filters',
     'aria.grantee.list': 'Grantees',
     'aria.grantee.projects': 'Grants',
@@ -606,6 +607,7 @@ export const ui = {
       'Los montos de las subvenciones que se muestran reflejan el financiamiento comprometido según los registros de Interledger Foundation y están sujetos a que el beneficiario avance de forma satisfactoria. Los montos presentados pueden diferir de los que figuran en los estados financieros auditados preparados conforme a los Principios de Contabilidad Generalmente Aceptados de Estados Unidos (GAAP) o de las cifras declaradas en el Formulario 990 del IRS. Estas diferencias pueden deberse a variaciones en el momento del reconocimiento, el tratamiento contable (incluido el reconocimiento de gastos frente a los compromisos condicionales) y los calendarios de desembolso de las subvenciones.',
     'grantee.caveat.exclusions':
       'Esta base de datos incluye solo subvenciones y excluye las inversiones relacionadas con programas (PRI).',
+    'grantee.last_updated': '',
     'aria.grantee.filters_label': 'Filtros',
     'aria.grantee.list': 'Beneficiarios de subvenciones',
     'aria.grantee.projects': 'Subvenciones',

@@ -44,6 +44,7 @@ jobs:
       REPORTS_JSON: src/data/airtable/grant-reports.json
       PROFILES_JSON: src/data/airtable/grantee-profiles.json
       LEGACY_JSON: src/data/airtable/legacy-grant-reports.json
+      LAST_UPDATED_JSON: src/data/airtable/last-updated.json
       REPORT_IMAGES: public/img/grantee-reports
       PROFILE_IMAGES: public/img/grantee-profiles
       SYNC_BRANCH: chore/airtable-grantee-sync
@@ -122,6 +123,11 @@ jobs:
           fi
 
           echo "changed=true" >> "$GITHUB_OUTPUT"
+
+          # The directory shows this day as "Last updated". It is written only when the data
+          # changed, so the date moves only when the published data does (INTORG-1463).
+          printf '{ "date": "%s" }\n' "$(date -u +%F)" > "$LAST_UPDATED_JSON"
+          git add -- "$LAST_UPDATED_JSON"
 
           # Record counts give a reviewer a one-line sanity check on an otherwise opaque
           # multi-thousand-line JSON diff. HEAD still holds the old files — nothing is committed
