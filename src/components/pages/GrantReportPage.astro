@@ -30,14 +30,18 @@ import {
 
 type Props = GrantReportPageProps
 
-const { report, reportPath, granteeName, grant, grantReports } = Astro.props
+const { report, reportOrdinal, reportPath, granteeName, grant, grantReports } =
+  Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 
-// "Interim report 1".
-const reportLabel = grantReportLabel(report, t)
+// "Final report", or "Interim report 2" when the grant has several.
+const reportLabel = grantReportLabel(
+  { reportType: report.reportType, ordinal: reportOrdinal },
+  t
+)
 
-// The last crumb names the grantee and the project, so the "Interim report 1"
+// The last crumb names the grantee and the project, so the "Final report"
 // of two grants can be told apart. No grantee step: profiles do not exist yet.
 const breadcrumbs = [
   buildHomeBreadcrumb(routeLocale, t),

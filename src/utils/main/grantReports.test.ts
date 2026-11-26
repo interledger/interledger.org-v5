@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { GrantReport } from '@/types/airtable'
 import type { GranteeProject } from './grantee'
+import type { GrantReportPageProps } from './grantReports'
 
 // `./routes` -> `./locales` reaches Astro's virtual modules for i18n config.
 // Only path building runs here, so minimal mocks are enough (as routes.test.ts).
@@ -19,6 +20,7 @@ const {
   formatReportMonth,
   getGrantReportRoutes,
   grantReportLabel,
+  reportOrdinal,
   grantReportPath,
   grantReportSegment,
   listGrantReports,
@@ -149,16 +151,46 @@ describe('formatReportMonth', () => {
   })
 })
 
+describe('reportOrdinal', () => {
+  const interim = (reportNumber: number) =>
+    ({ reportType: 'Interim Report', reportNumber }) as const
+  const final = (reportNumber: number) =>
+    ({ reportType: 'Final Report', reportNumber }) as const
+
+  it('is null for the only report of its type', () => {
+    expect(reportOrdinal(final(2), [interim(1), final(2)])).toBe(null)
+    expect(reportOrdinal(final(2), [final(2)])).toBe(null)
+  })
+
+  it('counts within the type, not across both types', () => {
+    const reports = [interim(1), interim(2), final(3), final(4)]
+    expect(reportOrdinal(final(3), reports)).toBe(1)
+    expect(reportOrdinal(final(4), reports)).toBe(2)
+    expect(reportOrdinal(interim(2), reports)).toBe(2)
+  })
+
+  it('counts the report itself when the list leaves it out', () => {
+    expect(reportOrdinal(final(4), [final(2)])).toBe(2)
+  })
+
+  it('counts a report listed twice once', () => {
+    expect(reportOrdinal(final(2), [final(2), final(2)])).toBe(null)
+  })
+})
+
 describe('grantReportLabel', () => {
-  it('names the report by type and number', () => {
-    const t = useTranslations('en')
-    expect(grantReportLabel(report(), t)).toBe('Interim report 1')
+  const t = useTranslations('en')
+
+  it('names the only report of its type by type alone', () => {
     expect(
-      grantReportLabel(
-        report({ reportType: 'Final Report', reportNumber: 2 }),
-        t
-      )
-    ).toBe('Final report 2')
+      grantReportLabel({ reportType: 'Final Report', ordinal: null }, t)
+    ).toBe('Final report')
+  })
+
+  it('adds the number when the grant has several of the type', () => {
+    expect(
+      grantReportLabel({ reportType: 'Interim Report', ordinal: 2 }, t)
+    ).toBe('Interim report 2')
   })
 })
 
@@ -203,7 +235,8 @@ function grantee(overrides: Partial<GranteeProject> = {}): GranteeProject {
 
 const sources = {
   grantees: [grantee()],
-  granteeNames: new Map([['gib', 'Gib Labs']])
+  granteeNames: new Map([['gib', 'Gib Labs']]),
+  legacyReports: []
 }
 
 describe('getGrantReportRoutes', () => {
@@ -214,6 +247,7 @@ describe('getGrantReportRoutes', () => {
         params: { slug: 'gib', report: '20260504-interim-1' },
         props: {
           report: report(),
+          reportOrdinal: null,
           reportPath: 'grant/grantees/gib/reports/20260504-interim-1',
           granteeName: 'Gib Labs',
           grant: {
@@ -227,6 +261,7 @@ describe('getGrantReportRoutes', () => {
             {
               reportType: 'Interim Report',
               reportNumber: 1,
+              ordinal: null,
               reportPath: 'grant/grantees/gib/reports/20260504-interim-1',
               isCurrent: true
             }
@@ -271,6 +306,25 @@ describe('getGrantReportRoutes', () => {
   it('returns the parse error for a bad file', () => {
     expect(getGrantReportRoutes({}, sources)).toBeInstanceOf(Error)
   })
+
+  it('numbers a report with the legacy reports of its grant, as the card does', () => {
+    const final3 = report({ reportType: 'Final Report', reportNumber: 3 })
+    const routes = getGrantReportRoutes([final3], {
+      ...sources,
+      legacyReports: [
+        {
+          grantId: report().grantId,
+          reportType: 'Final Report',
+          reportNumber: 2
+        },
+        { grantId: OTHER_GRANT_ID, reportType: 'Final Report', reportNumber: 1 }
+      ]
+    })
+    expect(routes).not.toBeInstanceOf(Error)
+    const [route] = routes as { props: GrantReportPageProps }[]
+    expect(route?.props.reportOrdinal).toBe(2)
+    expect(route?.props.grantReports[0]?.ordinal).toBe(2)
+  })
 })
 
 describe('listGrantReports', () => {
@@ -283,7 +337,8 @@ describe('listGrantReports', () => {
       projectId: '20260505'
     })
     const current = report()
-    const items = listGrantReports([final1, other, interim2, current], interim2)
+    const reports = [final1, other, interim2, current]
+    const items = listGrantReports(reports, interim2, reports)
     expect(
       items.map(({ reportType, reportNumber, isCurrent }) => [
         reportType,
@@ -298,7 +353,7 @@ describe('listGrantReports', () => {
   })
 
   it('lists the current report alone when the grant has one report', () => {
-    expect(listGrantReports([report()], report())).toHaveLength(1)
+    expect(listGrantReports([report()], report(), [report()])).toHaveLength(1)
   })
 })
 

@@ -235,6 +235,7 @@ export {
   grantReportPath,
   grantReportSegment,
   listGrantReports,
+  reportOrdinal,
   parseGrantReports,
   readGranteeNames,
   type GrantFacts,

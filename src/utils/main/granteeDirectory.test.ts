@@ -361,13 +361,13 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
         id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
-        label: 'Interim report 1',
+        label: 'Interim report',
         href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
       }
     ])
   })
 
-  it('links each report, interim ones first, then by number', () => {
+  it('links each report, interim ones first, numbered only within a type with several', () => {
     const [commonGround] = build({
       reports: [
         report('recProject0000001', { reportType: 'Final Report' }),
@@ -388,7 +388,7 @@ describe('buildGranteeDirectory report links', () => {
       },
       {
         id: '/grant/grantees/grantee-a/reports/20260504-final-1/',
-        label: 'Final report 1',
+        label: 'Final report',
         href: '/grant/grantees/grantee-a/reports/20260504-final-1/'
       }
     ])
@@ -406,7 +406,7 @@ describe('buildGranteeDirectory report links', () => {
     // Read the expected text from the Spanish UI strings, which may be blank
     // and fall back to English until approved translations land.
     const t = useTranslations('es')
-    expect(link?.label).toBe(`${t('grantReport.type.interim')} 1`)
+    expect(link?.label).toBe(t('grantReport.type.interim'))
   })
 
   it('ignores a report whose project is not in the directory', () => {
@@ -415,13 +415,13 @@ describe('buildGranteeDirectory report links', () => {
     expect(projects.every((p) => p.reports?.length === 0)).toBe(true)
   })
 
-  it('labels older reports by type and number, interim first', () => {
+  it('labels an interim 1 and a final 2 by type alone, interim first', () => {
     const [commonGround] = build({
       legacyReports: [
         legacy(
           'recProject0000001',
           'Final Report',
-          1,
+          2,
           'https://forum.example/final'
         ),
         legacy(
@@ -435,13 +435,13 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
         id: 'https://forum.example/interim',
-        label: 'Interim report 1',
+        label: 'Interim report',
         href: 'https://forum.example/interim',
         external: true
       },
       {
         id: 'https://forum.example/final',
-        label: 'Final report 1',
+        label: 'Final report',
         href: 'https://forum.example/final',
         external: true
       }
@@ -469,12 +469,12 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
         id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
-        label: 'Interim report 1',
+        label: 'Interim report',
         href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
       },
       {
         id: 'https://forum.example/final',
-        label: 'Final report 1',
+        label: 'Final report',
         href: 'https://forum.example/final',
         external: true
       }
@@ -495,7 +495,7 @@ describe('buildGranteeDirectory report links', () => {
     })
     expect(
       commonGround?.projects[0]?.reports?.map((link) => link.label)
-    ).toEqual(['Interim report 1'])
+    ).toEqual(['Interim report'])
   })
 
   it('returns an Error when the older reports file has the wrong shape', () => {
@@ -662,7 +662,7 @@ describe('getGranteeSearchIndex', () => {
       reports: [
         {
           id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
-          label: 'Interim report 1',
+          label: 'Interim report',
           href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
         }
       ]

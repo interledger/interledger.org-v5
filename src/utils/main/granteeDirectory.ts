@@ -16,7 +16,11 @@ import {
   parseLegacyGrantReports,
   type GrantReportLink
 } from './grantReportLinks'
-import { grantReportLabel, parseGrantReports } from './grantReports'
+import {
+  grantReportLabel,
+  parseGrantReports,
+  reportOrdinal
+} from './grantReports'
 import { useTranslations, type Locale, type Translate } from './i18'
 import { localizeRoute } from './routes'
 import { generateSlug } from './slug'
@@ -36,7 +40,8 @@ export const GRANTEE_PAGE_SIZE = 10
 export interface GranteeReportLink {
   id: string
   /**
-   * "Interim report 1". A Project Links fallback has no type, so one link is
+   * "Final report", or "Interim report 2" when the grant has several of the
+   * type (see reportOrdinal). A Project Links fallback has no type, so one link is
    * "Report" and several are "Report 1", "Report 2".
    */
   label: string
@@ -122,10 +127,14 @@ function reportLinksByGrant(
 
 function toGranteeReportLink(
   link: GrantReportLink,
+  grantLinks: readonly GrantReportLink[],
   locale: Locale,
   t: Translate
 ): GranteeReportLink {
-  const label = grantReportLabel(link, t)
+  const label = grantReportLabel(
+    { reportType: link.reportType, ordinal: reportOrdinal(link, grantLinks) },
+    t
+  )
   if (link.kind === 'page') {
     const href = localizeRoute(link.path, locale)
     return { id: href, label, href }
@@ -159,7 +168,7 @@ function reportsForProject(
 ): GranteeReportLink[] {
   const typed = links.get(project.id) ?? []
   if (typed.length > 0) {
-    return typed.map((link) => toGranteeReportLink(link, locale, t))
+    return typed.map((link) => toGranteeReportLink(link, typed, locale, t))
   }
   return projectLinkFallback(project, t)
 }
