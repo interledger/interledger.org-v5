@@ -113,38 +113,27 @@ export interface SummitListingCrumbs {
   listingName: string
   /** The listing's page-1 path, e.g. `/summit/2025/speakers/`. */
   basePath: string
-  currentPage: number
   routeLocale: Locale
   t: Translate
 }
 
 /**
- * Home > {year} Summit > listing [> Page N] for a paginated summit listing.
- * Breadcrumbs renders the last crumb as the current page, so past page 1 the
- * listing stays a link back to page 1 and the page number comes last.
+ * Home > {year} Summit > listing for a summit listing. Every page of a
+ * paginated listing ends at the listing itself, with no page number.
  */
 export function buildSummitListingBreadcrumbs({
   year,
   listingName,
   basePath,
-  currentPage,
   routeLocale,
   t
 }: SummitListingCrumbs): BreadcrumbItem[] {
-  const crumbs: BreadcrumbItem[] = [
+  return [
     buildHomeBreadcrumb(routeLocale, t),
     {
       name: t('summit.summit_name', { year }),
       href: summitYearHref(year, routeLocale)
     },
     { name: listingName, href: joinPagePath(basePath) }
-  ]
-  if (currentPage <= 1) return crumbs
-  return [
-    ...crumbs,
-    {
-      name: t('pagination.page', { page: currentPage }),
-      href: joinPagePath(basePath, String(currentPage))
-    }
   ]
 }

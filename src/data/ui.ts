@@ -133,7 +133,6 @@ export const ui = {
     'pagination.pages': '{label} pages',
     'pagination.previous': 'Previous page',
     'pagination.next': 'Next page',
-    'pagination.page': 'Page {page}',
     'grantee.title': 'Grantee Directory',
     'grantee.meta_description':
       "Browse the Interledger Foundation's grantee directory: community organizations, researchers, technologists, and advocates building open financial systems around the world.",
@@ -580,7 +579,6 @@ export const ui = {
     'pagination.pages': '{label} páginas',
     'pagination.previous': 'Página anterior',
     'pagination.next': 'Página siguiente',
-    'pagination.page': '',
     'grantee.title': 'Directorio de beneficiarios de subvenciones',
     'grantee.meta_description':
       'Explore el directorio de beneficiarios de subvenciones de Interledger Foundation: organizaciones comunitarias, investigadores, especialistas en tecnología y promotores de causas que construyen sistemas financieros abiertos en todo el mundo.',

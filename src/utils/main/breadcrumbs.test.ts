@@ -263,28 +263,19 @@ describe('buildSectionEntryBreadcrumbs', () => {
 
 describe('buildSummitListingBreadcrumbs', () => {
   const pastYear = YEARS[0]
-  const crumbs = (currentPage: number, locale: 'en' | 'es' = 'en') =>
-    buildSummitListingBreadcrumbs({
-      year: pastYear,
-      listingName: 'Sessions',
-      basePath: `/summit/${pastYear}/talks`,
-      currentPage,
-      routeLocale: locale,
-      t: useTranslations(locale)
-    })
-
-  it('ends at the listing on page 1', () => {
-    expect(crumbs(1)).toEqual([
+  it('ends at the listing, with no page number', () => {
+    expect(
+      buildSummitListingBreadcrumbs({
+        year: pastYear,
+        listingName: 'Sessions',
+        basePath: `/summit/${pastYear}/talks`,
+        routeLocale: 'en',
+        t: useTranslations('en')
+      })
+    ).toEqual([
       { name: 'Home', href: '/' },
       { name: `${pastYear} Summit`, href: `/summit/${pastYear}/` },
       { name: 'Sessions', href: `/summit/${pastYear}/talks/` }
-    ])
-  })
-
-  it('keeps the listing a link and adds the page number after page 1', () => {
-    expect(crumbs(3).slice(2)).toEqual([
-      { name: 'Sessions', href: `/summit/${pastYear}/talks/` },
-      { name: 'Page 3', href: `/summit/${pastYear}/talks/3/` }
     ])
   })
 
@@ -293,7 +284,6 @@ describe('buildSummitListingBreadcrumbs', () => {
       year: currentSummitYear!,
       listingName: 'Sesiones',
       basePath: `/es/summit/${currentSummitYear}/talks/`,
-      currentPage: 1,
       routeLocale: 'es',
       t: useTranslations('es')
     })
