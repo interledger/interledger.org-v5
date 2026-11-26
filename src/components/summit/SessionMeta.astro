@@ -16,7 +16,7 @@ import {
   translateSessionLanguage,
   type SessionLanguages
 } from '@/utils'
-import Chip from '@/components/shared/Chip.astro'
+import Pill from '@/components/shared/Pill.astro'
 
 interface Props {
   talk: Talk
@@ -81,8 +81,8 @@ const hasContent = languages.spoken.length > 0 || Boolean(date) || showRecording
         {timeLabel}
       </span>}
     </span>}
-    {showRecording && <Chip tone="indigo">
+    {showRecording && <Pill class="bg-ice-indigo-100">
       {t('summit.recording_available')}
-    </Chip>}
+    </Pill>}
   </p>}
 </div>}

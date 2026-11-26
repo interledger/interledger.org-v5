@@ -1,0 +1,17 @@
+---
+// Rounded status label. The caller sets the background colour via `class`.
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+---
+
+<span
+  class:list={[
+    'inline-flex max-w-full shrink-0 items-center gap-sm rounded-full px-lg py-sm text-body-sm-standard text-periwinkle-150 [html[data-theme=dark]_&]:bg-ocean-150 [html[data-theme=dark]_&]:text-soft-indigo-100',
+    className
+  ]}
+>
+  <slot />
+</span>

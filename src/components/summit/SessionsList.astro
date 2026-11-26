@@ -9,7 +9,7 @@ import {
   buildSessionCardUmamiAttrs,
   joinPagePath
 } from '@/utils'
-import Chip from '@/components/shared/Chip.astro'
+import Pill from '@/components/shared/Pill.astro'
 
 interface Props {
   sessions: Talk[]
@@ -47,9 +47,9 @@ const sessionAttrs = (title: string, href: string) =>
           {session.title}
         </a>
       </h2>
-      {session.recordingUrl && <Chip tone="indigo" class="mb-sm">
+      {session.recordingUrl && <Pill class="mb-sm bg-ice-indigo-100">
         {t('summit.recording_available')}
-      </Chip>}
+      </Pill>}
       {session.description && <p
         class="mb-0 text-body-lg-standard text-neutral-100"
       >

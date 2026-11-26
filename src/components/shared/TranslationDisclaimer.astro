@@ -1,5 +1,6 @@
 ---
-import Chip from '@/components/shared/Chip.astro'
+import Icon from '@/components/shared/Icon.astro'
+import Pill from '@/components/shared/Pill.astro'
 
 interface Props {
   isVisible?: boolean
@@ -11,6 +12,7 @@ const { isVisible = false } = Astro.props
 const spanishDisclaimer = 'Esta página aún no está disponible en español.'
 ---
 
-{isVisible && routeLocale === 'es' && <Chip tone="mint" icon="language">
+{isVisible && routeLocale === 'es' && <Pill class="bg-ice-mint-100">
+  <Icon name="language" class="size-4 shrink-0" />
   {spanishDisclaimer}
-</Chip>}
+</Pill>}
