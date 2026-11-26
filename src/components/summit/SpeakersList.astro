@@ -6,13 +6,11 @@ import { useTranslations } from '@/utils'
 interface Props {
   speakers: Speaker[]
   basePath: string
-  /** Photo above the name on mobile too, as on a session page. */
-  stacked?: boolean
   /** Passed to each card: 3 when the list sits under its own heading. */
   headingLevel?: 2 | 3
 }
 
-const { speakers, basePath, stacked = false, headingLevel = 2 } = Astro.props
+const { speakers, basePath, headingLevel = 2 } = Astro.props
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
 ---
@@ -25,7 +23,6 @@ const t = useTranslations(routeLocale)
       <SpeakerCard
         speaker={speaker}
         basePath={basePath}
-        stacked={stacked}
         headingLevel={headingLevel}
       />
     ))}

@@ -11,13 +11,11 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 interface Props {
   speaker: Speaker
   basePath: string
-  /** Photo above the name at every width, not beside it below tablet. */
-  stacked?: boolean
   /** 3 when the list sits under its own heading, as on a session page. */
   headingLevel?: 2 | 3
 }
 
-const { speaker, basePath, stacked = false, headingLevel = 2 } = Astro.props
+const { speaker, basePath, headingLevel = 2 } = Astro.props
 const Heading = headingLevel === 3 ? 'h3' : 'h2'
 const { routeLocale } = Astro.locals
 const href = joinPagePath(basePath, generateSlug(speaker.name))
@@ -35,10 +33,7 @@ const attrs = buildUmamiAttrs({
 <li class="m-0 min-w-0">
   <a
     href={href}
-    class:list={[
-      'group gap-lg rounded-lg no-underline hover:no-underline',
-      stacked ? 'block' : 'flex items-center tablet:block'
-    ]}
+    class="group flex items-center gap-lg rounded-lg no-underline hover:no-underline tablet:block"
     {...attrs}
   >
     <div
@@ -58,10 +53,7 @@ const attrs = buildUmamiAttrs({
     </div>
     <div class="min-w-0 desktop:pr-2xl">
       <Heading
-        class:list={[
-          'mb-md text-h4 text-link underline decoration-current tablet:mt-lg tablet:text-h4-md desktop:text-h4-lg! group-hover:text-link-hover group-focus-visible:text-link-hover',
-          stacked ? 'mt-lg' : 'mt-0'
-        ]}
+        class="mt-0 mb-md text-h4 text-link underline decoration-current tablet:mt-lg tablet:text-h4-md desktop:text-h4-lg! group-hover:text-link-hover group-focus-visible:text-link-hover"
       >
         {speaker.name}
       </Heading>
