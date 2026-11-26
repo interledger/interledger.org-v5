@@ -1,5 +1,36 @@
 [
   {
+    "id": "recIA4hHpvnYFc3TJ",
+    "grantId": "rec1l9XHbBbeyzvko",
+    "projectId": "20250471",
+    "projectName": "ARTICLE 19",
+    "reportType": "Final Report",
+    "reportNumber": 2,
+    "publishedDate": "2026-11-24",
+    "reportingPeriodStart": "2026-01-07",
+    "reportingPeriodEnd": "2026-10-22",
+    "summary": "Since the 2020 National Security Law was imposed in Hong Kong, the authorities have waged a war on civil society including the diaspora. One tactic has been the restriction of finances. Civil society actors are often unaware of how digital payment platforms handle their data, leading to self-censorship or abandoning human rights work. The project set out to address a critical gap in knowledge, governance, and protection, and to develop strategies that safeguard the financial privacy and operational survival of Hong Kong’s remaining civil society, including among the diaspora.",
+    "progressOnObjectives": "We set out to achieve two objectives: to create a knowledge base of laws and policies relating to financial data rights and responsibilities focused on the needs of Hong Kong civil society and the HK diaspora; and to enhance the capacity of civil society and payment companies relating to financial data privacy protection and responding to government requests in a human rights compliant way. To this end, we conducted in-depth legal and policy analysis in the US and UK jurisdictions, as the home country of most digital payment platforms. Through a tiered consultation process with the target group we developed a practical guide for civil society, published in English and Traditional Chinese on digital payment practices for civil society and payment companies, and an info-sheet for digital payment companies. As part of the release of the handbook we held a webinar with two leading figures in the Hong Kong diaspora who themselves have faced financial transnational repression. We look forward to the handbook continuing to be a practical resource for the Hong Kong society. We hope to be able to continue this work with Interledger and its community.",
+    "whoBenefits": "This project directly serves the Hong Kong civil society community and diaspora. Following the National Security Law imposition in 2020, many civil society groups opened accounts outside Hong Kong and use overseas payment services, believing this would protect their data. Yet growing evidence shows Hong Kong authorities can still obtain financial records held abroad, and contributes to broader transnational repression. By addressing these concerns directly and providing clear, rights-focused safeguards, this project can better inform them about various decentralized payment systems. The project was designed with Hong Kongers, each output developed with Hong Konger feedback, and produced for Hong Kongers.",
+    "outputs": "While in the course of this project we produced several law and policy briefs, these are considered foundational to the handbook and will not be published. The primary outputs of this project are the bilingual practical guide and an info-sheet for digital payment companies. In addition, we conducted a webinar to launch the handbook, with both resources available on the ARTICLE 19 website. https://www.article19.org/resources/hong-kong-new-handbook-helps-activists-navigate-digital-payment-platforms/",
+    "whatsNext": "We look forward to continuing to work with Interledger on this important topic. We are hoping to develop more training curricula based on the handbook and to conduct research on the scale of financial transnational repression toward informing advocacy actions.",
+    "license": "All material is published under Creative Commons Attribution-Noncommercial-ShareAlike 4.0 licence",
+    "outputTypes": [
+      "Research or publication",
+      "Training or educational material"
+    ],
+    "interledgerTechnologies": ["Not Applicable"],
+    "images": [
+      {
+        "path": "/img/grantee-reports/recIA4hHpvnYFc3TJ/attSQXW5FAur2j5Io.webp",
+        "width": 1066,
+        "height": 1472,
+        "alt": "Cover graphic of English language version of handbook"
+      }
+    ],
+    "granteeSlug": "article-19"
+  },
+  {
     "id": "recdjwiYh93sJKoiz",
     "grantId": "recdNOosoAdLTwvdY",
     "projectId": "20250420",
