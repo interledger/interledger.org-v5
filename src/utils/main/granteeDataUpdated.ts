@@ -26,6 +26,12 @@ export function parseGranteeDataLastUpdated(raw: unknown): string | Error {
   return result.data.date
 }
 
+// The last-updated.json content for the UTC day of `now`. The Airtable sync
+// writes it whenever the data changed, run from CI or by hand.
+export function lastUpdatedJson(now: Date): string {
+  return `{ "date": "${now.toISOString().slice(0, 10)}" }\n`
+}
+
 // A YYYY-MM-DD date as a full day, for example "November 24, 2026". Formatted
 // in UTC: in a zone west of UTC the local date of UTC midnight is the day before.
 export function formatAirtableDay(isoDate: string, lang: Locale): string {

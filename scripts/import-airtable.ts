@@ -62,6 +62,7 @@ import {
   readStoredImageSize,
   syncedImagePath
 } from '../src/utils/main/syncedImages'
+import { lastUpdatedJson } from '../src/utils/main/granteeDataUpdated'
 
 const BASE_ID = 'appP2zUc6VKh79IBD' // Grantee Manager - working
 const PROJECTS_TABLE_ID = 'tbliw87UgsAYRAexr' // Projects
@@ -85,6 +86,8 @@ const GRANTEE_JSON_FILE = 'grantee-data.json'
 const GRANT_REPORTS_JSON_FILE = 'grant-reports.json'
 const GRANTEE_PROFILES_JSON_FILE = 'grantee-profiles.json'
 const LEGACY_REPORTS_JSON_FILE = 'legacy-grant-reports.json'
+const LAST_UPDATED_JSON_FILE = 'last-updated.json'
+const AIRTABLE_DATA_DIR = path.resolve('./src/data/airtable')
 
 // Where each kind of synced image goes, and how large it may be.
 interface ImageTarget {
@@ -120,13 +123,13 @@ function findById<T extends { id: string }>(
   return found
 }
 
+// Returns true when the file content changed.
 async function writeAirtableJson(
   data: TableRecord[] | GrantReport[] | GranteeProfile[] | LegacyGrantReport[],
   fileName: string
-) {
-  const basePath = path.resolve('./src/data/airtable')
-  await fs.mkdir(basePath, { recursive: true })
-  const filePath = path.join(basePath, fileName)
+): Promise<boolean> {
+  await fs.mkdir(AIRTABLE_DATA_DIR, { recursive: true })
+  const filePath = path.join(AIRTABLE_DATA_DIR, fileName)
 
   // The four files are committed, and `pnpm run lint` runs `prettier --check` over them.
   // Prettier collapses short arrays that JSON.stringify always expands, so writing raw
@@ -142,8 +145,21 @@ async function writeAirtableJson(
     filepath: filePath
   })
 
+  const previous = await fs.readFile(filePath, 'utf8').catch(() => null)
+  if (previous === formatted) return false
   await fs.writeFile(filePath, formatted)
   console.log(`✅ Saved Airtable data JSON: ${filePath}`)
+  return true
+}
+
+// The directory shows this day as "Last updated" (INTORG-1463). It moves only
+// when the published data changed, so an old date tells Programs that the data
+// review has stalled. Every image path is in the JSON, so a changed image
+// changes the JSON too.
+async function writeLastUpdated(): Promise<void> {
+  const filePath = path.join(AIRTABLE_DATA_DIR, LAST_UPDATED_JSON_FILE)
+  await fs.writeFile(filePath, lastUpdatedJson(new Date()))
+  console.log(`✅ Saved the last updated date: ${filePath}`)
 }
 
 function throwUnexpectedShape(): never {
@@ -709,10 +725,14 @@ async function importAirtableData() {
 
   // Written only after every part succeeds, so a failed run leaves no file
   // half-updated.
-  await writeAirtableJson(granteeData, GRANTEE_JSON_FILE)
-  await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE)
-  await writeAirtableJson(granteeProfiles, GRANTEE_PROFILES_JSON_FILE)
-  await writeAirtableJson(legacyReports, LEGACY_REPORTS_JSON_FILE)
+  const changed = [
+    await writeAirtableJson(granteeData, GRANTEE_JSON_FILE),
+    await writeAirtableJson(grantReports, GRANT_REPORTS_JSON_FILE),
+    await writeAirtableJson(granteeProfiles, GRANTEE_PROFILES_JSON_FILE),
+    await writeAirtableJson(legacyReports, LEGACY_REPORTS_JSON_FILE)
+  ]
+  if (changed.includes(true)) await writeLastUpdated()
+  else console.log('ℹ️  Airtable data unchanged, last-updated.json kept')
   await removeOrphanImages(
     REPORT_IMAGES_DIR,
     new Set(grantReports.flatMap(({ images }) => images.map((i) => i.path)))
