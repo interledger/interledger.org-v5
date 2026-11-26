@@ -200,16 +200,13 @@ function findGrantFacts(
   return { budgetLabel, program, grantPeriodLabel, leaders, country }
 }
 
-// One static path per report, or none while the feature gate is on. The
-// caller passes the gate and the other files in, so this stays a pure
-// function of its input. Two reports with one URL fail the build: one of them
-// would never be built.
+// One static path per report. The caller passes the other files in, so this
+// stays a pure function of its input. Two reports with one URL fail the
+// build: one of them would never be built.
 export function getGrantReportRoutes(
   data: unknown,
-  hideReports: boolean,
   sources: GrantReportSources
 ): GrantReportRoute[] | Error {
-  if (hideReports) return []
   const reports = parseGrantReports(data)
   if (reports instanceof Error) return reports
   const shared = findSharedReportPaths(reports)

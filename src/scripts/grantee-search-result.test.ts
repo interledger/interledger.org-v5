@@ -57,7 +57,7 @@ function sampleProject(
     year: '2024',
     tags: [],
     budgetLabel: null,
-    reports: null,
+    reports: [],
     ...overrides
   }
 }
@@ -236,7 +236,7 @@ describe('searchResultRowModel', () => {
     expect(model.startLabel).toBeNull()
     expect(model.startMonth).toBeNull()
     expect(model.projects).toEqual([
-      { name: 'Wallet pilot', program: null, budgetLabel: null, reports: null }
+      { name: 'Wallet pilot', program: null, budgetLabel: null, reports: [] }
     ])
   })
 
@@ -295,7 +295,7 @@ describe('searchResultRowModel', () => {
       'data-umami-event-link-text': 'Interim report 1',
       'data-umami-event-lang': 'en'
     })
-    // [] shows "No reports published yet"; null (pages hidden) shows nothing.
+    // [] shows "No reports published yet".
     expect(model.projects[1]?.reports).toEqual([])
   })
 })

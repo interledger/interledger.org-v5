@@ -104,7 +104,7 @@ describe('buildGrantReportLinks', () => {
     expect(links.get(GRANT_ID)?.map(({ kind }) => kind)).toEqual(['page'])
   })
 
-  it('falls back to the legacy post while the report pages are hidden', () => {
+  it('falls back to the legacy post when a report has no page', () => {
     const links = buildGrantReportLinks({
       reports: [],
       legacyReports: [legacy()]

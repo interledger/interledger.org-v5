@@ -50,8 +50,6 @@ export type GrantReportLink =
   | (ReportLinkBase & { kind: 'legacy'; url: string })
 
 export interface GrantReportLinkSources {
-  // Pass [] while the report pages are hidden (hideGrantReports()), so the
-  // card falls back to the legacy links instead of linking to a missing page.
   reports: readonly Pick<
     GrantReport,
     'grantId' | 'granteeSlug' | 'projectId' | 'reportType' | 'reportNumber'

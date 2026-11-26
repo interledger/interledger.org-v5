@@ -79,8 +79,7 @@ export interface SearchResultProjectModel {
   name: string
   program: string | null
   budgetLabel: string | null
-  /** Null while the report pages are hidden: no reports line at all. */
-  reports: SearchResultReportModel[] | null
+  reports: SearchResultReportModel[]
 }
 
 /**
@@ -152,9 +151,7 @@ function projectModel(
     name: project.name,
     program: project.program || null,
     budgetLabel: project.budgetLabel || null,
-    reports:
-      project.reports &&
-      project.reports.map((report) => reportModel(report, context))
+    reports: project.reports.map((report) => reportModel(report, context))
   }
 }
 
@@ -339,8 +336,8 @@ function fillReports(
     item,
     '[data-grantee-search-reports]'
   )
-  const reports = project.reports ?? []
-  noReports.hidden = project.reports === null || reports.length > 0
+  const { reports } = project
+  noReports.hidden = reports.length > 0
   fillOrHide(reportList, reports.length > 0, () => {
     reports.forEach((report) =>
       appendReportLink(reportList, reportTemplate, report, project.name)

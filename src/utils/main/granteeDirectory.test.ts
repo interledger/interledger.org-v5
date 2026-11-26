@@ -144,7 +144,6 @@ function sources(
       })
     ],
     reports: [],
-    showReports: true,
     ...overrides
   }
 }
@@ -283,23 +282,6 @@ describe('buildGranteeDirectory', () => {
 })
 
 describe('buildGranteeDirectory report links', () => {
-  it('is null on every project while the report pages are hidden', () => {
-    const grantees = build({
-      reports: [report('recProject0000001')],
-      showReports: false
-    })
-    const projects = grantees.flatMap((grantee) => grantee.projects)
-    expect(projects.every((p) => p.reports === null)).toBe(true)
-  })
-
-  it('does not read the reports file while the pages are hidden', () => {
-    const result = buildGranteeDirectory(
-      sources({ reports: 'not reports', showReports: false }),
-      'en'
-    )
-    expect(result).not.toBeInstanceOf(Error)
-  })
-
   it('is empty for a project with no published report and no forum link', () => {
     const [commonGround] = build({ reports: [report('recProject0000001')] })
     expect(commonGround?.projects[1]?.reports).toEqual([])
@@ -373,18 +355,6 @@ describe('buildGranteeDirectory report links', () => {
         href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
       }
     ])
-  })
-
-  it('shows forum reports while the report pages are hidden', () => {
-    const grantees = build({
-      showReports: false,
-      reports: 'not reports',
-      projects: [withForumReports(walletPilot), workshops, newsroom]
-    })
-    expect(grantees[0]?.projects[0]?.reports?.[0]?.href).toBe(
-      'https://community.interledger.org/x/wallet-grant-report-1-final-abc'
-    )
-    expect(grantees[0]?.projects[1]?.reports).toBeNull()
   })
 
   it('links each report, interim ones first, then by number', () => {
