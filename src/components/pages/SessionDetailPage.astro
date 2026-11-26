@@ -3,8 +3,7 @@ import {
   joinPagePath,
   useTranslations,
   summitBaseHref,
-  summitYearHref,
-  buildHomeBreadcrumb,
+  buildSummitYearBreadcrumbs,
   generateSlug,
   getSpeakers,
   getTranslation,
@@ -40,8 +39,7 @@ const description = translation?.description ?? entry.description
 const languages = parseSessionLanguages(entry.translations)
 
 const breadcrumbs = [
-  buildHomeBreadcrumb(lang, t),
-  { name: t('summit.summit_name', { year }), href: summitYearHref(year, lang) },
+  ...buildSummitYearBreadcrumbs(year, lang, t),
   { name: t('summit.sessions'), href: sessionsHref },
   { name: title, href: joinPagePath(sessionsHref, generateSlug(entry.title)) }
 ]

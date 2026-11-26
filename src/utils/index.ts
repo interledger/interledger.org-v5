@@ -127,6 +127,7 @@ export {
   type BreadcrumbItem,
   buildHomeBreadcrumb,
   buildSummitListingBreadcrumbs,
+  buildSummitYearBreadcrumbs,
   type SummitListingCrumbs,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'

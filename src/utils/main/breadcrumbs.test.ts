@@ -274,12 +274,13 @@ describe('buildSummitListingBreadcrumbs', () => {
       })
     ).toEqual([
       { name: 'Home', href: '/' },
+      { name: 'Summit', href: '/summit/' },
       { name: `${pastYear} Summit`, href: `/summit/${pastYear}/` },
       { name: 'Sessions', href: `/summit/${pastYear}/talks/` }
     ])
   })
 
-  it('links the current summit year to the landing page, localized', () => {
+  it('skips the year crumb for the current summit, whose landing page is /summit/, localized', () => {
     const current = buildSummitListingBreadcrumbs({
       year: currentSummitYear!,
       listingName: 'Sesiones',
@@ -287,7 +288,10 @@ describe('buildSummitListingBreadcrumbs', () => {
       routeLocale: 'es',
       t: useTranslations('es')
     })
-    expect(current[0]).toEqual({ name: 'Inicio', href: '/es/' })
-    expect(current[1].href).toBe('/es/summit/')
+    expect(current).toEqual([
+      { name: 'Inicio', href: '/es/' },
+      { name: 'Summit', href: '/es/summit/' },
+      { name: 'Sesiones', href: `/es/summit/${currentSummitYear}/talks/` }
+    ])
   })
 })

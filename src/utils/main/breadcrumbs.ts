@@ -6,7 +6,8 @@ import {
 import type { Locale, Translate, UiKey } from './i18'
 import type { SiteSection } from './static-paths'
 import { joinPagePath } from '../shared/url'
-import { summitYearHref } from './summitRoutes'
+import { summitBaseHref, summitYearHref } from './summitRoutes'
+import { currentSummitYear } from './sessionize'
 
 export type BreadcrumbItem = {
   name: string
@@ -118,8 +119,35 @@ export interface SummitListingCrumbs {
 }
 
 /**
- * Home > {year} Summit > listing for a summit listing. Every page of a
- * paginated listing ends at the listing itself, with no page number.
+ * Home > Summit > {year} Summit, the same trail the summit content pages
+ * build. The current year's landing page is `/summit/` itself, so it gets no
+ * year crumb.
+ */
+export function buildSummitYearBreadcrumbs(
+  year: string,
+  routeLocale: Locale,
+  t: Translate
+): BreadcrumbItem[] {
+  const crumbs: BreadcrumbItem[] = [
+    buildHomeBreadcrumb(routeLocale, t),
+    {
+      name: toLabel('summit', 'summit', t),
+      href: summitBaseHref(routeLocale)
+    }
+  ]
+  if (year === currentSummitYear) return crumbs
+  return [
+    ...crumbs,
+    {
+      name: t('summit.summit_name', { year }),
+      href: summitYearHref(year, routeLocale)
+    }
+  ]
+}
+
+/**
+ * The summit year trail, then the listing. Every page of a paginated listing
+ * ends at the listing itself, with no page number.
  */
 export function buildSummitListingBreadcrumbs({
   year,
@@ -129,11 +157,7 @@ export function buildSummitListingBreadcrumbs({
   t
 }: SummitListingCrumbs): BreadcrumbItem[] {
   return [
-    buildHomeBreadcrumb(routeLocale, t),
-    {
-      name: t('summit.summit_name', { year }),
-      href: summitYearHref(year, routeLocale)
-    },
+    ...buildSummitYearBreadcrumbs(year, routeLocale, t),
     { name: listingName, href: joinPagePath(basePath) }
   ]
 }
