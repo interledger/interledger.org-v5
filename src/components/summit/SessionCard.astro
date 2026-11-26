@@ -73,7 +73,10 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
     <!-- Size on the link, not the h2: prose/default.css gives every
          `main a` a body size, and only a class on the element itself beats it. -->
     <h2
-      class="mt-0 mb-xl text-h3 tablet:pr-4xl tablet:text-h3-md desktop:text-h3-lg"
+      class:list={[
+        'mt-0 mb-xl text-h3 tablet:pr-4xl tablet:text-h3-md desktop:text-h3-lg',
+        !speakerImage && 'pr-4xl'
+      ]}
     >
       <a
         href={href}
