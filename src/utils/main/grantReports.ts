@@ -4,6 +4,7 @@ import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
 import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
 import type { GranteeProject } from './grantee'
+import { AIRTABLE_DATE_LOCALES } from './granteeDataUpdated'
 import type { Locale, Translate, UiKey } from './i18'
 import { syncedImageSchema } from './airtableJsonSchemas'
 import { granteeBasePath } from './routes'
@@ -235,18 +236,13 @@ export function compareGrantReports(
   return byType || a.reportNumber - b.reportNumber
 }
 
-const REPORT_DATE_LOCALES: Record<Locale, string> = {
-  en: 'en-US',
-  es: 'es-ES'
-}
-
 // A report date (YYYY-MM-DD) as the page shows it: month and year, for
 // example "September 2026". Formatted in UTC: Airtable dates have no time, and
 // in a zone west of UTC the local date of UTC midnight is the day before.
 export function formatReportMonth(isoDate: string, lang: Locale): string {
   const date = new Date(`${isoDate}T00:00:00Z`)
   if (Number.isNaN(date.getTime())) return isoDate
-  return date.toLocaleDateString(REPORT_DATE_LOCALES[lang], {
+  return date.toLocaleDateString(AIRTABLE_DATE_LOCALES[lang], {
     month: 'long',
     year: 'numeric',
     timeZone: 'UTC'

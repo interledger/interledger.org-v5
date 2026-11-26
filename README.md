@@ -797,6 +797,8 @@ To make the work funded through Interledger Foundation grants easier to explore,
 
 Report images and grantee logos are downloaded into `public/img/grantee-reports/` and `public/img/grantee-profiles/`, and committed with the JSON.
 
+When the data changed, `pnpm sync:airtable` also writes the day into `last-updated.json`. This applies to a run from the workflow and to a run by hand. The grantee directory shows it as "Last updated" under the grant amount caveat. A run with no changes leaves it alone, so the date tells when the published data last changed, not when the sync last ran.
+
 ### Syncing Data from Airtable
 
 Run the script by hand, locally or to preview a change before the next scheduled run:

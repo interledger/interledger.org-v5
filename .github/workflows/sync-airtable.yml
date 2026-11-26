@@ -44,6 +44,7 @@ jobs:
       REPORTS_JSON: src/data/airtable/grant-reports.json
       PROFILES_JSON: src/data/airtable/grantee-profiles.json
       LEGACY_JSON: src/data/airtable/legacy-grant-reports.json
+      LAST_UPDATED_JSON: src/data/airtable/last-updated.json
       REPORT_IMAGES: public/img/grantee-reports
       PROFILE_IMAGES: public/img/grantee-profiles
       SYNC_BRANCH: chore/airtable-grantee-sync
@@ -103,11 +104,12 @@ jobs:
           # The script Prettier-formats its own output (see writeAirtableJson), so this is a
           # tripwire rather than a fix-up. If that ever drifts from .prettierrc, fail here and
           # not as a red `pnpm run lint` on somebody else's PR days later.
-          pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON" "$LEGACY_JSON"
+          pnpm exec prettier --check "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON" "$LEGACY_JSON" "$LAST_UPDATED_JSON"
 
           # Staged so that new image files count: git diff ignores untracked files.
-          # Each folder exists only after the first report image or logo.
-          git add -A -- "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON" "$LEGACY_JSON"
+          # Each folder exists only after the first report image or logo. The script
+          # writes last-updated.json only when the data changed (INTORG-1463).
+          git add -A -- "$GRANTEE_JSON" "$REPORTS_JSON" "$PROFILES_JSON" "$LEGACY_JSON" "$LAST_UPDATED_JSON"
           for images in "$REPORT_IMAGES" "$PROFILE_IMAGES"; do
             if [ -d "$images" ] || git ls-files --error-unmatch "$images" >/dev/null 2>&1; then
               git add -A -- "$images"

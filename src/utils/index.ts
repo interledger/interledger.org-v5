@@ -225,6 +225,10 @@ export {
   type GranteeSearchProject
 } from './main/granteeDirectory'
 export {
+  formatAirtableDay,
+  parseGranteeDataLastUpdated
+} from './main/granteeDataUpdated'
+export {
   formatReportMonth,
   getGrantReportRoutes,
   compareGrantReports,
