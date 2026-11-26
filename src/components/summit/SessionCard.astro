@@ -1,5 +1,5 @@
 ---
-import type { TalkPreview } from '@/types/summit'
+import type { Talk } from '@/types/summit'
 import {
   generateSlug,
   truncateText,
@@ -16,35 +16,40 @@ import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
-  talkPreview: TalkPreview
+  talk: Talk
+  /** The lead speaker's photo. Left out on a speaker's own page. */
+  speakerImage?: string
   basePath: string
   lang: Locale
 }
 
-const { talkPreview, basePath, lang } = Astro.props
+const { talk, speakerImage, basePath, lang } = Astro.props
 const t = useTranslations(lang)
-const href = joinPagePath(basePath, generateSlug(talkPreview.title))
-const translation = getTranslation(talkPreview, lang)
-const description = translation?.description ?? talkPreview.description
-const title = translation?.title ?? talkPreview.title
-const languages = parseSessionLanguages(talkPreview.translations)
-const speakerNames = talkPreview.speakers.map((speaker) => speaker.name)
+const href = joinPagePath(basePath, generateSlug(talk.title))
+const translation = getTranslation(talk, lang)
+const description = translation?.description ?? talk.description
+const title = translation?.title ?? talk.title
+const languages = parseSessionLanguages(talk.translations)
+const speakerNames = talk.speakers.map((speaker) => speaker.name)
 
 const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
-<!-- The photo sits above the text on mobile and beside it from tablet up,
-     where the card's left edge rounds to follow it. The title link stretches
+<!-- The photo, when given, sits above the text on mobile and beside it from
+     tablet up, where the card's left edge rounds to follow it. The title link stretches
      over the whole card (its ::after), so the card is one tab stop and one
      link name; the arrow is decoration. -->
 <li
-  class="group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover-hover:hover:border-periwinkle-100 hover-hover:hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl tablet:rounded-l-[12.5rem] desktop:gap-4xl"
+  class:list={[
+    'group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover-hover:hover:border-periwinkle-100 hover-hover:hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl desktop:gap-4xl',
+    speakerImage && 'tablet:rounded-l-[12.5rem]'
+  ]}
 >
-  <div
+  {speakerImage && <div
     class="aspect-square w-20 shrink-0 overflow-hidden rounded-full bg-neutral-25 tablet:w-50 desktop:w-65"
   >
     <OptimizedImage
-      src={talkPreview.speakerImage}
+      src={speakerImage}
       alt=""
       width={260}
       height={260}
@@ -54,7 +59,7 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
       pictureClass="block h-full w-full"
       class="h-full w-full object-cover"
     />
-  </div>
+  </div>}
   <span
     class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900"
     aria-hidden="true"
@@ -79,11 +84,11 @@ const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
       </a>
     </h2>
     <SessionMeta
-      talk={talkPreview}
+      talk={talk}
       languages={languages}
       lang={lang}
       dateFirst
-      showRecording={Boolean(talkPreview.recordingUrl)}
+      showRecording={Boolean(talk.recordingUrl)}
     />
     {(speakerNames.length > 0 || description) && <div
       class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900"

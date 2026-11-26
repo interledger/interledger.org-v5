@@ -46,7 +46,12 @@ const breadcrumbs = buildSummitListingBreadcrumbs({
         {talkPreviews.length > 0 ? (
           <ul class="m-0 flex list-none flex-col gap-3xl p-0">
             {talkPreviews.map((talk) => (
-              <SessionCard talkPreview={talk} basePath={basePath} lang={lang} />
+              <SessionCard
+                talk={talk}
+                speakerImage={talk.speakerImage}
+                basePath={basePath}
+                lang={lang}
+              />
             ))}
           </ul>
         ) : (
