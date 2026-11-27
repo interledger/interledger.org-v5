@@ -419,6 +419,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1385/",
+      "destination": "/es/terms-of-service/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1687/",
       "destination": "/es/grant/fellowship/sheena-allen/",
       "status": 301
