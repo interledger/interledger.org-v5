@@ -126,15 +126,14 @@ export async function getTalkPreviews(year: string): Promise<TalkPreview[]> {
     getSpeakersData(year)
   ])
 
-  return talks.map(({ speakers, ...talk }) => {
-    const speaker = allSpeakers.find((s) => s.id === speakers[0]?.id)
+  return talks.map((talk) => {
+    const speaker = allSpeakers.find((s) => s.id === talk.speakers[0]?.id)
     const speakerImage = speaker?.profilePicture
       ? getLocalSpeakerImagePath(speaker.profilePicture, speaker.fullName, year)
       : `${profilePictureBase}/no-photo.svg`
     return {
       ...talk,
-      speakerImage,
-      speakerName: speaker?.fullName ?? null
+      speakerImage
     }
   })
 }

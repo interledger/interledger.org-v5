@@ -1,59 +1,106 @@
 ---
-import type { TalkPreview } from '@/types/summit'
+import type { Talk } from '@/types/summit'
 import {
   generateSlug,
   truncateText,
   type Locale,
   getTranslation,
+  useTranslations,
   buildSessionCardUmamiAttrs,
   joinPagePath,
+  parseSessionLanguages,
   AVATAR_CDN_WIDTHS
 } from '@/utils'
-import SessionSubheader from './SessionSubheader.astro'
+import SessionMeta from './SessionMeta.astro'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import Icon from '@/components/shared/Icon.astro'
 
 interface Props {
-  talkPreview: TalkPreview
+  talk: Talk
+  /** The lead speaker's photo. Left out on a speaker's own page. */
+  speakerImage?: string
   basePath: string
   lang: Locale
 }
 
-const { talkPreview, basePath, lang } = Astro.props
-const href = joinPagePath(basePath, generateSlug(talkPreview.title))
-const translation = getTranslation(talkPreview, lang)
-const description = translation?.description ?? talkPreview.description
-const title = translation?.title ?? talkPreview.title
+const { talk, speakerImage, basePath, lang } = Astro.props
+const t = useTranslations(lang)
+const href = joinPagePath(basePath, generateSlug(talk.title))
+const translation = getTranslation(talk, lang)
+const description = translation?.description ?? talk.description
+const title = translation?.title ?? talk.title
+const languages = parseSessionLanguages(talk.translations)
+const speakerNames = talk.speakers.map((speaker) => speaker.name)
 
 const attrs = buildSessionCardUmamiAttrs(Astro.url.pathname, lang, href, title)
 ---
 
-<li class="flex flex-col gap-xl tablet:flex-row">
-  <OptimizedImage
-    class="w-[200px] h-[200px] rounded-full border-2 border-[var(--color-primary)]"
-    pictureClass="shrink-0"
-    src={talkPreview.speakerImage}
-    alt={talkPreview.speakerName ?? ''}
-    width={200}
-    height={200}
-    sizes="200px"
-    widths={AVATAR_CDN_WIDTHS}
-    loading="lazy"
-  />
-  <div class="[&_p]:text-body-sm-standard">
-    <h2 class="mb-sm">
+<!-- The photo, when given, sits above the text on mobile and beside it from
+     tablet up, where the card's left edge rounds to follow it. The title link stretches
+     over the whole card (its ::after), so the card is one tab stop and one
+     link name; the arrow is decoration. -->
+<li
+  class:list={[
+    'group relative m-0 flex flex-col gap-xl rounded-3xl border border-neutral-50 p-xl transition-colors duration-slow hover-hover:hover:border-periwinkle-100 hover-hover:hover:bg-ice-indigo-50 has-[a:focus-visible]:border-periwinkle-100 has-[a:focus-visible]:bg-ice-indigo-50 tablet:flex-row tablet:items-center tablet:gap-2xl desktop:gap-4xl',
+    speakerImage && 'tablet:rounded-l-[12.5rem]'
+  ]}
+>
+  {speakerImage && <div
+    class="aspect-square w-20 shrink-0 overflow-hidden rounded-full bg-neutral-25 tablet:w-50 desktop:w-65"
+  >
+    <OptimizedImage
+      src={speakerImage}
+      alt=""
+      width={260}
+      height={260}
+      sizes="(min-width: 1200px) 260px, (min-width: 810px) 200px, 80px"
+      widths={AVATAR_CDN_WIDTHS}
+      loading="lazy"
+      pictureClass="block h-full w-full"
+      class="h-full w-full object-cover"
+    />
+  </div>}
+  <span
+    class="absolute top-xl right-xl flex size-12 items-center justify-center rounded-full border border-neutral-75 text-neutral-900"
+    aria-hidden="true"
+  >
+    <Icon
+      name="arrow-right"
+      class="size-8 -rotate-45 transition-transform duration-slow hover-hover:group-hover:rotate-0 group-has-[a:focus-visible]:rotate-0 motion-reduce:transition-none"
+    />
+  </span>
+  <div class="min-w-0 flex-1">
+    <!-- Size on the link, not the h2: prose/default.css gives every
+         `main a` a body size, and only a class on the element itself beats it. -->
+    <h2
+      class:list={[
+        'mt-0 mb-xl text-h3 tablet:pr-4xl tablet:text-h3-md desktop:text-h3-lg',
+        !speakerImage && 'pr-4xl'
+      ]}
+    >
       <a
         href={href}
-        class="text-h3 text-neutral-900 no-underline tablet:text-h3-md desktop:text-h3-lg hover:text-link"
+        class="text-h3 text-link underline decoration-current after:absolute after:inset-0 tablet:text-h3-md desktop:text-h3-lg hover-hover:group-hover:text-link-hover"
         {...attrs}
       >
         {title}
       </a>
     </h2>
-    <SessionSubheader
-      talk={talkPreview}
-      showRecordingLabel={true}
+    <SessionMeta
+      talk={talk}
+      languages={languages}
       lang={lang}
+      dateFirst
+      showRecording={Boolean(talk.recordingUrl)}
     />
-    {description && <p>{truncateText(description)}</p>}
+    {(speakerNames.length > 0 || description) && <div
+      class="mt-xl flex flex-col gap-xl border-t border-neutral-50 pt-xl [&_p]:m-0 [&_p]:text-body-lg-standard [&_p]:text-neutral-900"
+    >
+      {speakerNames.length > 0 && <p>
+        {t(speakerNames.length === 1 ? 'summit.speaker' : 'summit.speakers')}:
+        <strong class="font-semibold">{speakerNames.join(', ')}</strong>
+      </p>}
+      {description && <p>{truncateText(description)}</p>}
+    </div>}
   </div>
 </li>

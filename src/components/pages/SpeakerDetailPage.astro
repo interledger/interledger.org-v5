@@ -1,18 +1,20 @@
 ---
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import {
-  localizeRoute,
   joinPagePath,
   useTranslations,
   getTranslation,
   getTalks,
-  AVATAR_CDN_WIDTHS
+  summitBaseHref,
+  generateSlug,
+  buildSummitListingBreadcrumbs
 } from '@/utils'
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
 import type { Speaker } from '@/types/summit'
+import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import TextParagraphs from '@/components/shared/TextParagraphs.astro'
-import SessionsList from '@/components/summit/SessionsList.astro'
+import SessionCard from '@/components/summit/SessionCard.astro'
 
 interface Props {
   entry: Speaker
@@ -21,67 +23,90 @@ interface Props {
 }
 
 const { entry, year, isFallback = false } = Astro.props
-const { routeLocale: lang, currentBasePath } = Astro.locals
+const { routeLocale: lang } = Astro.locals
 const t = useTranslations(lang)
-const sessionBaseHref = joinPagePath(
-  localizeRoute(currentBasePath, lang),
-  year,
-  'talks'
-)
 const sessions = await getTalks(year, entry.id)
 const translation = getTranslation(entry, lang)
 const bio = translation?.bio ?? entry.bio
+
+const baseHref = summitBaseHref(lang)
+const sessionsHref = joinPagePath(baseHref, year, 'talks')
+const speakersHref = joinPagePath(baseHref, year, 'speakers')
+
+const breadcrumbs = [
+  ...buildSummitListingBreadcrumbs({
+    year,
+    listingName: t('summit.speakers'),
+    basePath: speakersHref,
+    routeLocale: lang,
+    t
+  }),
+  {
+    name: entry.name,
+    href: joinPagePath(speakersHref, generateSlug(entry.name))
+  }
+]
 ---
 
 <SummitPageLayout title={entry.name}>
-  <main>
-    <header class="bg-ice-indigo-50">
-      <div class="px-content pt-page-offset pb-2xl">
-        <div class="content-column">
-          {isFallback && <div class="mb-lg flex justify-end">
-            <TranslationDisclaimer isVisible={isFallback} style="summit" />
-          </div>}
-          <div
-            class="flex flex-col items-start gap-xl tablet:flex-row tablet:items-end tablet:justify-between"
+  <main class="px-content pt-page-offset pb-5xl desktop:pb-6xl">
+    <div class="content-column">
+      <!-- Same reading column as the session page. -->
+      <div class="mx-auto max-w-180">
+        <Breadcrumbs breadcrumbs={breadcrumbs}>
+          <TranslationDisclaimer isVisible={isFallback} style="summit" />
+        </Breadcrumbs>
+        <article>
+          <!-- The photo sits full width below the name on mobile and to its
+               right from tablet up. -->
+          <header
+            class="flex flex-col gap-2xl tablet:flex-row tablet:items-center tablet:justify-between"
           >
-            <div>
-              <h1 class="mb-md text-neutral-900">{entry.name}</h1>
+            <div class="min-w-0">
+              <h1
+                class="mb-md text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg"
+              >
+                {entry.name}
+              </h1>
               {entry.tagLine && <p
-                class="mb-0 text-body-lg-standard text-neutral-100"
+                class="m-0 text-h5 text-neutral-900 tablet:text-h5-md desktop:text-h5-lg"
               >
                 {entry.tagLine}
               </p>}
             </div>
-            <OptimizedImage
-              class="rounded-full"
-              src={entry.profilePicture}
-              alt={t('summit.profile_image', { name: entry.name })}
-              width={240}
-              height={240}
-              sizes="240px"
-              widths={AVATAR_CDN_WIDTHS}
-              loading="eager"
-              fetchpriority="high"
-            />
-          </div>
-        </div>
-      </div>
-    </header>
-    <div class="px-content py-3xl">
-      <div class="content-column">
-        <section aria-label={t('profile.biography')} class="mb-2xl">
-          <TextParagraphs text={bio} />
-        </section>
-        {sessions.length > 0 && <section
-          aria-label={t('summit.sessions')}
-          class="rounded-2xl border border-neutral-50 p-xl tablet:p-2xl"
-        >
-          <SessionsList
-            sessions={sessions}
-            sessionBaseHref={sessionBaseHref}
-            lang={lang}
-          />
-        </section>}
+            <div
+              class="aspect-square w-full shrink-0 overflow-hidden rounded-3xl bg-neutral-25 tablet:w-60 desktop:w-100"
+            >
+              <OptimizedImage
+                src={entry.profilePicture}
+                alt={t('summit.profile_image', { name: entry.name })}
+                width={400}
+                height={400}
+                sizes="(min-width: 1200px) 400px, (min-width: 810px) 240px, 100vw"
+                loading="eager"
+                fetchpriority="high"
+                pictureClass="block h-full w-full"
+                class="h-full w-full object-cover"
+              />
+            </div>
+          </header>
+          {bio && <section
+            class="mt-3xl border-t border-neutral-50 pt-3xl desktop:mt-4xl desktop:pt-4xl [&_p]:text-h5 [&_p]:text-neutral-900 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg [&_p:last-child]:mb-0"
+            aria-label={t('profile.biography')}
+          >
+            <TextParagraphs text={bio} />
+          </section>}
+          {sessions.length > 0 && <section
+            class="mt-3xl tablet:mt-5xl desktop:mt-6xl"
+            aria-label={t('summit.sessions')}
+          >
+            <ul class="m-0 flex list-none flex-col gap-3xl p-0">
+              {sessions.map((talk) => (
+                <SessionCard talk={talk} basePath={sessionsHref} lang={lang} />
+              ))}
+            </ul>
+          </section>}
+        </article>
       </div>
     </div>
   </main>

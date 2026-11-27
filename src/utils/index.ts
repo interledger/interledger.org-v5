@@ -126,6 +126,9 @@ export {
 export {
   type BreadcrumbItem,
   buildHomeBreadcrumb,
+  buildSummitListingBreadcrumbs,
+  buildSummitYearBreadcrumbs,
+  type SummitListingCrumbs,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
@@ -334,7 +337,12 @@ export {
 } from './main/reportSections'
 
 // Main site: Formatting
-export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
+export {
+  formatDate,
+  formatSessionDate,
+  formatSessionTime,
+  getDurationInMinutes
+} from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
@@ -382,6 +390,11 @@ export {
 } from './main/summit-talks-speakers'
 export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 export { summitBaseHref, summitYearHref } from './main/summitRoutes'
+export {
+  parseSessionLanguages,
+  translateSessionLanguage,
+  type SessionLanguages
+} from './main/sessionLanguages'
 
 // Main site: Images
 export {

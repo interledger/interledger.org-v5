@@ -3,18 +3,18 @@ import {
   joinPagePath,
   useTranslations,
   summitBaseHref,
-  summitYearHref,
-  buildHomeBreadcrumb,
+  buildSummitYearBreadcrumbs,
   generateSlug,
   getSpeakers,
-  getTranslation
+  getTranslation,
+  parseSessionLanguages
 } from '@/utils'
 import type { Talk } from '@/types/summit'
 import SummitPageLayout from '@/layouts/SummitPageLayout.astro'
 import Breadcrumbs from '@/components/shared/Breadcrumbs.astro'
 import TranslationDisclaimer from '@/components/shared/TranslationDisclaimer.astro'
 import SpeakersList from '@/components/summit/SpeakersList.astro'
-import SessionSubheader from '@/components/summit/SessionSubheader.astro'
+import SessionMeta from '@/components/summit/SessionMeta.astro'
 import TextParagraphs from '@/components/shared/TextParagraphs.astro'
 import VideoEmbed from '@/components/shared/VideoEmbed.astro'
 
@@ -36,51 +36,65 @@ const speakersBasePath = joinPagePath(baseHref, year, 'speakers')
 const translation = getTranslation(entry, lang)
 const title = translation?.title ?? entry.title
 const description = translation?.description ?? entry.description
+const languages = parseSessionLanguages(entry.translations)
 
 const breadcrumbs = [
-  buildHomeBreadcrumb(lang, t),
-  { name: t('summit.summit_name', { year }), href: summitYearHref(year, lang) },
+  ...buildSummitYearBreadcrumbs(year, lang, t),
   { name: t('summit.sessions'), href: sessionsHref },
   { name: title, href: joinPagePath(sessionsHref, generateSlug(entry.title)) }
 ]
 ---
 
-<SummitPageLayout title={entry.title}>
-  <main class="px-content pt-page-offset pb-4xl">
+<SummitPageLayout title={title}>
+  <main class="px-content pt-page-offset pb-5xl desktop:pb-6xl">
     <div class="content-column">
-      <Breadcrumbs breadcrumbs={breadcrumbs}>
-        <TranslationDisclaimer isVisible={isFallback} style="summit" />
-      </Breadcrumbs>
-      <article>
-        <header class="mb-2xl">
-          <h1 class="text-neutral-900">{title}</h1>
-          <SessionSubheader talk={entry} lang={lang} />
-        </header>
-        {entry.recordingUrl && <section
-          class="mb-2xl"
-          aria-label={t('summit.session_recording')}
-        >
-          <VideoEmbed url={entry.recordingUrl} title={entry.title} />
-        </section>}
-        <div class="flex flex-col gap-2xl desktop:flex-row desktop:items-start">
-          <section
-            class="min-w-0 flex-1"
-            aria-label={t('summit.session_description')}
+      <!-- Tablet keeps a narrow reading column; desktop uses the full width. -->
+      <div class="mx-auto max-w-180 desktop:max-w-none">
+        <Breadcrumbs breadcrumbs={breadcrumbs}>
+          <TranslationDisclaimer isVisible={isFallback} style="summit" />
+        </Breadcrumbs>
+        <article>
+          <header class="mb-2xl tablet:mb-3xl">
+            <h1
+              class="mb-xl text-h2 text-neutral-900 tablet:text-h2-md desktop:text-h2-lg"
+            >
+              {title}
+            </h1>
+            <SessionMeta talk={entry} languages={languages} lang={lang} />
+          </header>
+          {(entry.recordingUrl || description) && <div
+            class="flex flex-col gap-lg"
           >
-            <TextParagraphs text={description} />
-          </section>
-          <aside
-            class="desktop:w-72 desktop:shrink-0"
-            aria-label={t('summit.speakers')}
+            {entry.recordingUrl && <section
+              aria-label={t('summit.session_recording')}
+            >
+              <VideoEmbed url={entry.recordingUrl} title={title} />
+            </section>}
+            {description && <section
+              class="rounded-3xl bg-pistachio-100 p-xl [&_p]:text-h5 [&_p]:text-neutral-900 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg [&_p:last-child]:mb-0"
+              aria-label={t('summit.session_description')}
+            >
+              <TextParagraphs text={description} />
+            </section>}
+          </div>}
+          {speakers.length > 0 && <section
+            class="mt-3xl border-t border-neutral-50 pt-3xl desktop:mt-4xl desktop:pt-4xl"
+            aria-labelledby="session-speakers"
           >
+            <h2
+              id="session-speakers"
+              class="mb-2xl text-h3 text-neutral-900 tablet:text-h3-md desktop:text-h3-lg"
+            >
+              {t('summit.speakers')}
+            </h2>
             <SpeakersList
               speakers={speakers}
               basePath={speakersBasePath}
-              layout="stack"
+              headingLevel={3}
             />
-          </aside>
-        </div>
-      </article>
+          </section>}
+        </article>
+      </div>
     </div>
   </main>
 </SummitPageLayout>

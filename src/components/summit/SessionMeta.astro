@@ -1,0 +1,88 @@
+---
+// The language, day and time lines under a session title. Each line is left
+// out when its data is missing: summits before 2025 recorded no language.
+// The talk page leads with the language and the sessions list with the date;
+// the two lines are independent facts, so swapping them visually with
+// `order` leaves nothing out of sequence for a screen reader.
+// The recording pill (sessions list only) joins the date row, wrapping below
+// it only when the row is full.
+import type { Talk } from '@/types/summit'
+import {
+  type Locale,
+  useTranslations,
+  formatSessionDate,
+  formatSessionTime,
+  getDurationInMinutes,
+  translateSessionLanguage,
+  type SessionLanguages
+} from '@/utils'
+import Pill from '@/components/shared/Pill.astro'
+
+interface Props {
+  talk: Talk
+  languages: SessionLanguages
+  lang: Locale
+  /** Show the date line above the language line, as the sessions list does. */
+  dateFirst?: boolean
+  /** Add the "Recording available" pill to the date row. */
+  showRecording?: boolean
+}
+
+const {
+  talk,
+  languages,
+  lang,
+  dateFirst = false,
+  showRecording = false
+} = Astro.props
+const t = useTranslations(lang)
+const listFormat = new Intl.ListFormat(lang, { type: 'conjunction' })
+const formatLanguages = (languages: string[]) =>
+  listFormat.format(
+    languages.map((language) => translateSessionLanguage(language, t))
+  )
+
+const date = formatSessionDate(talk.startsAt, lang)
+const time = formatSessionTime(talk.startsAt, lang)
+const minutes = getDurationInMinutes(talk.startsAt, talk.endsAt)
+const hasDuration = Number.isFinite(minutes) && minutes > 0
+const timeLabel = [
+  time,
+  hasDuration ? t('summit.duration_minutes', { minutes }) : ''
+]
+  .filter(Boolean)
+  .join(' – ')
+const hasContent = languages.spoken.length > 0 || Boolean(date) || showRecording
+---
+
+{hasContent && <div
+  class="flex flex-col gap-lg [&_p]:text-h5 tablet:[&_p]:text-h5-md desktop:[&_p]:text-h5-lg"
+>
+  {languages.spoken.length > 0 && <p class="m-0 flex flex-wrap gap-x-sm">
+    <span class="text-neutral-900">{t('summit.session_language')}</span>
+    <span class="text-link">{formatLanguages(languages.spoken)}</span>
+    {languages.translatedTo.length > 0 && <span class="text-neutral-100">
+      ({t('summit.translation_available', {
+        language: formatLanguages(languages.translatedTo)
+      })})
+    </span>}
+  </p>}
+  {(date || showRecording) && <p
+    class:list={[
+      'm-0 flex flex-wrap items-center gap-x-xl gap-y-lg',
+      dateFirst && 'order-first'
+    ]}
+  >
+    {date && <span class="flex items-center">
+      <time datetime={talk.startsAt} class="text-neutral-900">{date}</time>
+      {timeLabel && <span
+        class="ml-md border-l border-neutral-50 pl-md text-neutral-100"
+      >
+        {timeLabel}
+      </span>}
+    </span>}
+    {showRecording && <Pill class="bg-ice-indigo-100">
+      {t('summit.recording_available')}
+    </Pill>}
+  </p>}
+</div>}

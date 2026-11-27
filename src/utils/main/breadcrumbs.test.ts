@@ -14,8 +14,13 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { buildHomeBreadcrumb, buildSectionEntryBreadcrumbs } =
-  await import('./breadcrumbs')
+const {
+  buildHomeBreadcrumb,
+  buildSectionEntryBreadcrumbs,
+  buildSummitListingBreadcrumbs
+} = await import('./breadcrumbs')
+const { YEARS, currentSummitYear } = await import('./sessionize')
+const { useTranslations } = await import('./i18')
 const { ui } = await import('@/data/ui')
 
 // Same fallback as useTranslations: an empty Spanish string uses the English label.
@@ -252,6 +257,41 @@ describe('buildSectionEntryBreadcrumbs', () => {
     expect(breadcrumbs).toEqual([
       { name: 'Inicio', href: '/es/' },
       { name: 'FAQ', href: '/es/faq/' }
+    ])
+  })
+})
+
+describe('buildSummitListingBreadcrumbs', () => {
+  const pastYear = YEARS[0]
+  it('ends at the listing, with no page number', () => {
+    expect(
+      buildSummitListingBreadcrumbs({
+        year: pastYear,
+        listingName: 'Sessions',
+        basePath: `/summit/${pastYear}/talks`,
+        routeLocale: 'en',
+        t: useTranslations('en')
+      })
+    ).toEqual([
+      { name: 'Home', href: '/' },
+      { name: 'Summit', href: '/summit/' },
+      { name: `${pastYear} Summit`, href: `/summit/${pastYear}/` },
+      { name: 'Sessions', href: `/summit/${pastYear}/talks/` }
+    ])
+  })
+
+  it('skips the year crumb for the current summit, whose landing page is /summit/, localized', () => {
+    const current = buildSummitListingBreadcrumbs({
+      year: currentSummitYear!,
+      listingName: 'Sesiones',
+      basePath: `/es/summit/${currentSummitYear}/talks/`,
+      routeLocale: 'es',
+      t: useTranslations('es')
+    })
+    expect(current).toEqual([
+      { name: 'Inicio', href: '/es/' },
+      { name: 'Summit', href: '/es/summit/' },
+      { name: 'Sesiones', href: `/es/summit/${currentSummitYear}/talks/` }
     ])
   })
 })
