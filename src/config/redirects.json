@@ -454,6 +454,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1696/",
+      "destination": "/es/grant/fellowship/jeremiah-lee/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1697/",
       "destination": "/es/grant/fellowship/stephanie-perrin/",
       "status": 301
