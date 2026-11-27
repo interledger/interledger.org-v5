@@ -204,6 +204,10 @@
               "href": "/community/"
             },
             {
+              "label": "Membership",
+              "href": "/community/membership/"
+            },
+            {
               "label": "Community Forum",
               "href": "https://community.interledger.org/",
               "openInNewTab": true
