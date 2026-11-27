@@ -419,6 +419,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1701/",
+      "destination": "/es/grant/innovation/sdk/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1751/",
       "destination": "/es/grant/public-policy-activation/",
       "status": 301
