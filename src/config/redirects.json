@@ -1198,6 +1198,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1325/",
+      "destination": "/es/blog/insights-futuremoney-podcast-interledger-campus/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1416/",
       "destination": "/es/blog/multiple-sides-friction-good-bad-and-how-use-it/",
       "status": 301
