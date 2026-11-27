@@ -1188,6 +1188,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1603/",
+      "destination": "/es/blog/building-real-solutions-interledger-hackathon-winners-2025/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1605/",
       "destination": "/es/blog/whats-happened-december/",
       "status": 301
