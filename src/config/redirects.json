@@ -1118,6 +1118,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1641/",
+      "destination": "/es/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1653/",
       "destination": "/es/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media/",
       "status": 301
