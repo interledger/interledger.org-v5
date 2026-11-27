@@ -1198,6 +1198,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1421/",
+      "destination": "/es/blog/interledger-hackathon-intro-open-payments-live-qa-ilf-experts/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1425/",
       "destination": "/es/blog/call-papers-program/",
       "status": 301
