@@ -1183,6 +1183,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1812/",
+      "destination": "/es/blog/beyond-hackathon-building-future-open-payments-through-collaboration/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1816/",
       "destination": "/es/blog/strategic-shift-interledger-foundation/",
       "status": 301
