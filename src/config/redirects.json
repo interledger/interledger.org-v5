@@ -1203,6 +1203,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1322/",
+      "destination": "/es/blog/exploring-community-based-identification-systems/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1323/",
       "destination": "/es/blog/whats-happened-april/",
       "status": 301
