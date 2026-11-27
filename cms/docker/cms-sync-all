@@ -1,0 +1,5 @@
+#!/bin/sh
+# The command the content-sync Job runs. The logic is in
+# scripts/syncAllFromClone.ts. This file only keeps the name on PATH, which the
+# deployment manifests call.
+exec /app/cms/node_modules/.bin/tsx /app/cms/scripts/sync-all-from-clone.ts "$@"

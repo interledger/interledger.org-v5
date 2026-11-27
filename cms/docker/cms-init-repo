@@ -1,0 +1,5 @@
+#!/bin/sh
+# The command the Strapi pod's init container runs. The logic is in
+# scripts/initRepo.ts. This file only keeps the name on PATH, which the
+# deployment manifests call.
+exec /app/cms/node_modules/.bin/tsx /app/cms/scripts/init-repo.ts "$@"
