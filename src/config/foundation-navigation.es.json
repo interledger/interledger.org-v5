@@ -207,6 +207,10 @@
               "label": "Foro de la comunidad",
               "href": "https://community.interledger.org/",
               "openInNewTab": true
+            },
+            {
+              "label": "Membresía ",
+              "href": "/es/community/membership/"
             }
           ]
         }
