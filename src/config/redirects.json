@@ -541,6 +541,11 @@
   ],
   "policy_advocacy": [
     {
+      "source": "/es/node/1608/",
+      "destination": "/es/policy-and-advocacy/security-profile-interledger/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1787/",
       "destination": "/es/policy-and-advocacy/un-igf-dynamic-coalition/",
       "status": 301
