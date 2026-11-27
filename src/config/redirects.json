@@ -419,6 +419,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1689/",
+      "destination": "/es/grant/fellowship/kokayi-walker/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1691/",
       "destination": "/es/grant/fellowship/gavin-chait/",
       "status": 301
