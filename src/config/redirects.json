@@ -1128,6 +1128,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1425/",
+      "destination": "/es/blog/call-papers-program/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1545/",
       "destination": "/es/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions/",
       "status": 301
