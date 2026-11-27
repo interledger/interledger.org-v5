@@ -1263,6 +1263,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1510/",
+      "destination": "/es/blog/2025-digital-financial-services-grant-recipient-miplata/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1511/",
       "destination": "/es/blog/whats-happened-september/",
       "status": 301
