@@ -1228,6 +1228,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1509/",
+      "destination": "/es/blog/hacktoberfest-interledger-2025-open-source-celebration/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1545/",
       "destination": "/es/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions/",
       "status": 301
