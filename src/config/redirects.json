@@ -1103,6 +1103,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1601/",
+      "destination": "/es/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1653/",
       "destination": "/es/blog/interledger-foundation-awards-200000-social-web-foundation-support-decentralized-social-media/",
       "status": 301
