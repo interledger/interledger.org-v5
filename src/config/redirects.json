@@ -419,6 +419,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1699/",
+      "destination": "/es/grant/fellowship/andria-barrett/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1701/",
       "destination": "/es/grant/innovation/sdk/",
       "status": 301
