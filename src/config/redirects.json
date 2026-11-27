@@ -2637,6 +2637,11 @@
   ],
   "summit": [
     {
+      "source": "/es/node/1490/",
+      "destination": "/es/summit/2025/talks/kanzu-finance/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1526/",
       "destination": "/es/summit/2025/speakers/stefan-thomas/",
       "status": 301
