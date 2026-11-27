@@ -1203,6 +1203,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1423/",
+      "destination": "/es/blog/get-hacking/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1425/",
       "destination": "/es/blog/call-papers-program/",
       "status": 301
