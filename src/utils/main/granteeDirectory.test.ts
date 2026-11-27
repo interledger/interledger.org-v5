@@ -144,8 +144,18 @@ function sources(
       })
     ],
     reports: [],
+    legacyReports: [],
     ...overrides
   }
+}
+
+function legacy(
+  grantId: string,
+  reportType: 'Interim Report' | 'Final Report',
+  reportNumber: number,
+  url: string
+) {
+  return { grantId, reportType, reportNumber, url }
 }
 
 function build(
@@ -282,12 +292,12 @@ describe('buildGranteeDirectory', () => {
 })
 
 describe('buildGranteeDirectory report links', () => {
-  it('is empty for a project with no published report and no forum link', () => {
+  it('is empty for a project with no published report and no older report', () => {
     const [commonGround] = build({ reports: [report('recProject0000001')] })
     expect(commonGround?.projects[1]?.reports).toEqual([])
   })
 
-  it('calls a single forum report Report', () => {
+  it('calls a single Project Links fallback Report', () => {
     const oneReport = {
       projects: [
         {
@@ -316,7 +326,7 @@ describe('buildGranteeDirectory report links', () => {
     expect(spanish?.projects[0]?.reports?.[0]?.label).toBe('Report')
   })
 
-  it('links the forum reports when the project has no report page', () => {
+  it('falls back to Project Links when Submitted Reports has no row', () => {
     const [commonGround] = build({
       projects: [withForumReports(walletPilot), workshops, newsroom]
     })
@@ -343,21 +353,21 @@ describe('buildGranteeDirectory report links', () => {
     expect(commonGround?.projects[1]?.reports).toEqual([])
   })
 
-  it('keeps the report page when the project also has a forum link', () => {
+  it('keeps the report page when the project also has Project Links', () => {
     const [commonGround] = build({
       projects: [withForumReports(walletPilot), workshops, newsroom],
       reports: [report('recProject0000001')]
     })
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
-        id: 'rep-recProject0000001-Interim Report-1',
-        label: 'Interim report 1',
+        id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
+        label: 'Interim report',
         href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
       }
     ])
   })
 
-  it('links each report, interim ones first, then by number', () => {
+  it('links each report, interim ones first, numbered only within a type with several', () => {
     const [commonGround] = build({
       reports: [
         report('recProject0000001', { reportType: 'Final Report' }),
@@ -367,18 +377,18 @@ describe('buildGranteeDirectory report links', () => {
     })
     expect(commonGround?.projects[0]?.reports).toEqual([
       {
-        id: 'rep-recProject0000001-Interim Report-1',
+        id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
         label: 'Interim report 1',
         href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
       },
       {
-        id: 'rep-recProject0000001-Interim Report-2',
+        id: '/grant/grantees/grantee-a/reports/20260504-interim-2/',
         label: 'Interim report 2',
         href: '/grant/grantees/grantee-a/reports/20260504-interim-2/'
       },
       {
-        id: 'rep-recProject0000001-Final Report-1',
-        label: 'Final report 1',
+        id: '/grant/grantees/grantee-a/reports/20260504-final-1/',
+        label: 'Final report',
         href: '/grant/grantees/grantee-a/reports/20260504-final-1/'
       }
     ])
@@ -396,13 +406,102 @@ describe('buildGranteeDirectory report links', () => {
     // Read the expected text from the Spanish UI strings, which may be blank
     // and fall back to English until approved translations land.
     const t = useTranslations('es')
-    expect(link?.label).toBe(`${t('grantReport.type.interim')} 1`)
+    expect(link?.label).toBe(t('grantReport.type.interim'))
   })
 
   it('ignores a report whose project is not in the directory', () => {
     const grantees = build({ reports: [report('recUnpublished000')] })
     const projects = grantees.flatMap((grantee) => grantee.projects)
     expect(projects.every((p) => p.reports?.length === 0)).toBe(true)
+  })
+
+  it('labels an interim 1 and a final 2 by type alone, interim first', () => {
+    const [commonGround] = build({
+      legacyReports: [
+        legacy(
+          'recProject0000001',
+          'Final Report',
+          2,
+          'https://forum.example/final'
+        ),
+        legacy(
+          'recProject0000001',
+          'Interim Report',
+          1,
+          'https://forum.example/interim'
+        )
+      ]
+    })
+    expect(commonGround?.projects[0]?.reports).toEqual([
+      {
+        id: 'https://forum.example/interim',
+        label: 'Interim report',
+        href: 'https://forum.example/interim',
+        external: true
+      },
+      {
+        id: 'https://forum.example/final',
+        label: 'Final report',
+        href: 'https://forum.example/final',
+        external: true
+      }
+    ])
+  })
+
+  it('links the page of a report instead of its older report', () => {
+    const [commonGround] = build({
+      reports: [report('recProject0000001')],
+      legacyReports: [
+        legacy(
+          'recProject0000001',
+          'Interim Report',
+          1,
+          'https://forum.example/interim'
+        ),
+        legacy(
+          'recProject0000001',
+          'Final Report',
+          1,
+          'https://forum.example/final'
+        )
+      ]
+    })
+    expect(commonGround?.projects[0]?.reports).toEqual([
+      {
+        id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
+        label: 'Interim report',
+        href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
+      },
+      {
+        id: 'https://forum.example/final',
+        label: 'Final report',
+        href: 'https://forum.example/final',
+        external: true
+      }
+    ])
+  })
+
+  it('prefers the typed rows over Project Links', () => {
+    const [commonGround] = build({
+      projects: [withForumReports(walletPilot), workshops, newsroom],
+      legacyReports: [
+        legacy(
+          'recProject0000001',
+          'Interim Report',
+          1,
+          'https://forum.example/interim'
+        )
+      ]
+    })
+    expect(
+      commonGround?.projects[0]?.reports?.map((link) => link.label)
+    ).toEqual(['Interim report'])
+  })
+
+  it('returns an Error when the older reports file has the wrong shape', () => {
+    expect(
+      buildGranteeDirectory(sources({ legacyReports: [{ url: 'x' }] }), 'en')
+    ).toBeInstanceOf(Error)
   })
 
   it('returns an Error when the reports file has the wrong shape', () => {
@@ -562,8 +661,8 @@ describe('getGranteeSearchIndex', () => {
       budgetLabel: '65 000',
       reports: [
         {
-          id: 'rep-recProject0000001-Interim Report-1',
-          label: 'Interim report 1',
+          id: '/grant/grantees/grantee-a/reports/20260504-interim-1/',
+          label: 'Interim report',
           href: '/grant/grantees/grantee-a/reports/20260504-interim-1/'
         }
       ]

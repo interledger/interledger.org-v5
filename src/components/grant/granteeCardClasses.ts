@@ -26,8 +26,13 @@ export const granteeCardClasses = {
   projectName:
     'm-0 text-h5 font-semibold tablet:text-h5-md desktop:text-h5-lg text-neutral-150',
   budget: 'm-0 text-body-lg-standard text-neutral-75',
+  // Radu's card v2: full-width buttons stacked below the project on mobile.
+  // From tablet they sit to the right and wrap within half the row, so three
+  // reports take two lines instead of squeezing the project name.
   reports:
-    'flex shrink-0 flex-wrap gap-sm list-none m-0 p-0 tablet:justify-end',
+    'flex flex-col gap-sm list-none m-0 p-0 tablet:ml-auto tablet:max-w-1/2 tablet:flex-row tablet:flex-wrap tablet:gap-md',
+  reportItem: 'm-0 tablet:shrink-0',
+  reportButton: 'w-full tablet:w-auto',
   noReports:
     'm-0 shrink-0 text-body-sm-standard text-neutral-75 tablet:text-right desktop:text-body-lg-standard'
 } as const

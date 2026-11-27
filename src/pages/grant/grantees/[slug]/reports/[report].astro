@@ -3,10 +3,12 @@ import type { GetStaticPaths } from 'astro'
 import rawGrantReports from '@/data/airtable/grant-reports.json'
 import rawGranteeData from '@/data/airtable/grantee-data.json'
 import rawGranteeProfiles from '@/data/airtable/grantee-profiles.json'
+import rawLegacyReports from '@/data/airtable/legacy-grant-reports.json'
 import GrantReportPage from '@/components/pages/GrantReportPage.astro'
 import {
   getGrantReportRoutes,
   parseGranteeRecords,
+  parseLegacyGrantReports,
   readGranteeNames
 } from '@/utils'
 import type { GrantReportPageProps } from '@/utils'
@@ -18,9 +20,12 @@ export const getStaticPaths = (() => {
   if (grantees instanceof Error) throw grantees
   const granteeNames = readGranteeNames(rawGranteeProfiles)
   if (granteeNames instanceof Error) throw granteeNames
+  const legacyReports = parseLegacyGrantReports(rawLegacyReports)
+  if (legacyReports instanceof Error) throw legacyReports
   const routes = getGrantReportRoutes(rawGrantReports, {
     grantees,
-    granteeNames
+    granteeNames,
+    legacyReports
   })
   if (routes instanceof Error) throw routes
   return routes

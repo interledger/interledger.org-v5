@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import type { GrantReport, GrantReportType } from '@/types/airtable'
+import type {
+  GrantReport,
+  GrantReportType,
+  LegacyGrantReport
+} from '@/types/airtable'
 import { isIsoDate, isRecordId } from './airtableFieldValues'
 import { SLUG_PATTERN } from './airtableProfiles'
 import { PROJECT_ID_PATTERN, REPORT_TYPES } from './airtableReports'
@@ -60,19 +64,39 @@ const REPORT_TYPE_LABEL_KEYS: Record<GrantReportType, UiKey> = {
   'Final Report': 'grantReport.type.final'
 }
 
-// "Interim report 1": the report's name on its page, in the breadcrumbs and
-// in the list of the grant's reports.
+type ReportRef = Pick<GrantReport, 'reportType' | 'reportNumber'>
+
+// A report's number within its type, or null when its grant has only one
+// report of that type. Airtable numbers a grant's reports across both types
+// (interim 1, final 2), so its number is not what a reader expects to see.
+// Sarah's rule: count within the type, and show a number only when there are
+// several of that type. `grantReports` is every report of the grant.
+export function reportOrdinal(
+  report: ReportRef,
+  grantReports: readonly ReportRef[]
+): number | null {
+  const numbers = new Set([report.reportNumber])
+  for (const { reportType, reportNumber } of grantReports) {
+    if (reportType === report.reportType) numbers.add(reportNumber)
+  }
+  if (numbers.size === 1) return null
+  return [...numbers].sort((a, b) => a - b).indexOf(report.reportNumber) + 1
+}
+
+// "Final report", or "Interim report 2" when the grant has several interim
+// reports: the report's name on the directory card, on its page, in the
+// breadcrumbs and in the list of the grant's reports.
 export function grantReportLabel(
   {
     reportType,
-    reportNumber
-  }: Pick<GrantReport, 'reportType' | 'reportNumber'>,
+    ordinal
+  }: { reportType: GrantReportType; ordinal: number | null },
   t: Translate
 ): string {
-  return t('grantReport.label', {
-    type: t(REPORT_TYPE_LABEL_KEYS[reportType]),
-    number: reportNumber
-  })
+  const type = t(REPORT_TYPE_LABEL_KEYS[reportType])
+  return ordinal === null
+    ? type
+    : t('grantReport.label', { type, number: ordinal })
 }
 
 const REPORT_TYPE_SEGMENTS: Record<GrantReportType, string> = {
@@ -113,12 +137,15 @@ export type GrantFacts = Pick<
 export interface GrantReportListItem {
   reportType: GrantReportType
   reportNumber: number
+  ordinal: number | null
   reportPath: string
   isCurrent: boolean
 }
 
 export interface GrantReportPageProps {
   report: GrantReport
+  // See reportOrdinal.
+  reportOrdinal: number | null
   reportPath: string
   // Null when the slug is missing from grantee-profiles.json.
   granteeName: string | null
@@ -136,6 +163,12 @@ export interface GrantReportRoute {
 export interface GrantReportSources {
   grantees: readonly GranteeProject[]
   granteeNames: ReadonlyMap<string, string>
+  // Counted with the pages when a report is numbered, so the page and the
+  // directory card give a report the same name.
+  legacyReports: readonly Pick<
+    LegacyGrantReport,
+    'grantId' | 'reportType' | 'reportNumber'
+  >[]
 }
 
 const granteeNamesSchema = z.array(
@@ -178,13 +211,15 @@ function compareListItems(
 // interim reports first, then by number.
 export function listGrantReports(
   reports: readonly GrantReport[],
-  current: GrantReport
+  current: GrantReport,
+  grantReports: readonly ReportRef[]
 ): GrantReportListItem[] {
   return reports
     .filter(({ grantId }) => grantId === current.grantId)
     .map((report) => ({
       reportType: report.reportType,
       reportNumber: report.reportNumber,
+      ordinal: reportOrdinal(report, grantReports),
       reportPath: grantReportPath(report),
       isCurrent: report.id === current.id
     }))
@@ -214,26 +249,22 @@ export function getGrantReportRoutes(
   if (shared.length > 0) {
     return new Error(`Grant report URLs must be unique:\n${shared.join('\n')}`)
   }
-  return reports.map((report) => ({
-    params: { slug: report.granteeSlug, report: grantReportSegment(report) },
-    props: {
-      report,
-      reportPath: grantReportPath(report),
-      granteeName: sources.granteeNames.get(report.granteeSlug) ?? null,
-      grant: findGrantFacts(sources.grantees, report.grantId),
-      grantReports: listGrantReports(reports, report)
+  return reports.map((report) => {
+    const grantReports = [...reports, ...sources.legacyReports].filter(
+      ({ grantId }) => grantId === report.grantId
+    )
+    return {
+      params: { slug: report.granteeSlug, report: grantReportSegment(report) },
+      props: {
+        report,
+        reportOrdinal: reportOrdinal(report, grantReports),
+        reportPath: grantReportPath(report),
+        granteeName: sources.granteeNames.get(report.granteeSlug) ?? null,
+        grant: findGrantFacts(sources.grantees, report.grantId),
+        grantReports: listGrantReports(reports, report, grantReports)
+      }
     }
-  }))
-}
-
-// Interim reports first, then final ones, each by number.
-export function compareGrantReports(
-  a: Pick<GrantReport, 'reportType' | 'reportNumber'>,
-  b: Pick<GrantReport, 'reportType' | 'reportNumber'>
-): number {
-  const byType =
-    REPORT_TYPES.indexOf(a.reportType) - REPORT_TYPES.indexOf(b.reportType)
-  return byType || a.reportNumber - b.reportNumber
+  })
 }
 
 // A report date (YYYY-MM-DD) as the page shows it: month and year, for
