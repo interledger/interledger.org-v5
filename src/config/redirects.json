@@ -546,6 +546,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1617/",
+      "destination": "/es/policy-and-advocacy/network-fees-interledger-ecosystem/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1787/",
       "destination": "/es/policy-and-advocacy/un-igf-dynamic-coalition/",
       "status": 301
