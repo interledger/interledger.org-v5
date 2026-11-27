@@ -449,6 +449,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1692/",
+      "destination": "/es/grant/fellowship/smriti-parsheera/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1693/",
       "destination": "/es/grant/fellowship/ayden-ferdeline/",
       "status": 301
