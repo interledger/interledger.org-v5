@@ -1103,6 +1103,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1420/",
+      "destination": "/es/blog/announcing-awardees-interledger-nextgen-higher-education-grant-program/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1601/",
       "destination": "/es/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference/",
       "status": 301
