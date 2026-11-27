@@ -1223,6 +1223,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1814/",
+      "destination": "/es/blog/inside-usiu-africa-open-payments-workshop-what-students-built/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1816/",
       "destination": "/es/blog/strategic-shift-interledger-foundation/",
       "status": 301
