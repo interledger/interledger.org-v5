@@ -1168,6 +1168,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1605/",
+      "destination": "/es/blog/whats-happened-december/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1641/",
       "destination": "/es/blog/shanghai-flip-phones-and-robots-interledger-engineering-adventure/",
       "status": 301
