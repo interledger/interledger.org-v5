@@ -1143,6 +1143,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1502/",
+      "destination": "/es/blog/reimagining-e-commerce-and-social-media/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1545/",
       "destination": "/es/blog/grantee-spotlight-rafiki-remit-set-slashing-costs-and-speeding-transactions/",
       "status": 301
