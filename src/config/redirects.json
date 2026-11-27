@@ -1153,6 +1153,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1709/",
+      "destination": "/es/blog/designing-digital-money-2026-blog-series/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1739/",
       "destination": "/es/blog/2026-policy-activation-grantee-center-technology-and-society-fgv-law-school-rio-de-janeiro/",
       "status": 301
