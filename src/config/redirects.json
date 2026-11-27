@@ -449,6 +449,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1693/",
+      "destination": "/es/grant/fellowship/ayden-ferdeline/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1694/",
       "destination": "/es/grant/fellowship/erica-hargreave/",
       "status": 301
