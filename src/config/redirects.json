@@ -1123,6 +1123,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1296/",
+      "destination": "/es/blog/whats-happened-march-news-updates-global-trends/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1416/",
       "destination": "/es/blog/multiple-sides-friction-good-bad-and-how-use-it/",
       "status": 301
