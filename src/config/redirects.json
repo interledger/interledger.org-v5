@@ -429,6 +429,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1698/",
+      "destination": "/es/grant/fellowship/lawil-karama/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1699/",
       "destination": "/es/grant/fellowship/andria-barrett/",
       "status": 301
