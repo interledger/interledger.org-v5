@@ -1153,6 +1153,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1501/",
+      "destination": "/es/blog/open-design-confronting-harmful-patterns-digital-finance/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1502/",
       "destination": "/es/blog/reimagining-e-commerce-and-social-media/",
       "status": 301
