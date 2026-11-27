@@ -491,6 +491,11 @@
   ],
   "policy_advocacy": [
     {
+      "source": "/es/node/1787/",
+      "destination": "/es/policy-and-advocacy/un-igf-dynamic-coalition/",
+      "status": 301
+    },
+    {
       "source": "/es/policy-and-advocacy/role-stablecoins-facilitating-low-value-low-cost-transactions/",
       "destination": "/es/policy-and-advocacy/stablecoins-low-cost-transactions/",
       "status": 301
