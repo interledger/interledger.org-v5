@@ -1178,6 +1178,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1297/",
+      "destination": "/es/blog/grantee-report-quarterly-roundup/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1416/",
       "destination": "/es/blog/multiple-sides-friction-good-bad-and-how-use-it/",
       "status": 301
