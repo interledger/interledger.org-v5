@@ -1233,6 +1233,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1817/",
+      "destination": "/es/blog/interledger-awards-20-000-to-five-organizations-to-explore-community-centered-financial-infrastructure/",
+      "status": 301
+    },
+    {
       "source": "/news/2025-digital-financial-services-grant-recipient-miplata/",
       "destination": "/blog/2025-digital-financial-services-grant-recipient-miplata/",
       "status": 301
