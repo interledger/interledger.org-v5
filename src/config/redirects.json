@@ -1193,6 +1193,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1323/",
+      "destination": "/es/blog/whats-happened-april/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1416/",
       "destination": "/es/blog/multiple-sides-friction-good-bad-and-how-use-it/",
       "status": 301
