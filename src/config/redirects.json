@@ -1163,6 +1163,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1766/",
+      "destination": "/es/blog/why-campuses-are-becoming-testbeds-digital-finance/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1770/",
       "destination": "/es/blog/why-we-funded-research-who-gets-left-out-instant-payments/",
       "status": 301
