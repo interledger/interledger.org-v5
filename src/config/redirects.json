@@ -1168,6 +1168,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1293/",
+      "destination": "/es/blog/paying-web-forward-web-monetization-allowing-users-consume-content-one-byte-time/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1294/",
       "destination": "/es/blog/introducing-2025-interledger-foundation-ambassadors-cohort/",
       "status": 301
