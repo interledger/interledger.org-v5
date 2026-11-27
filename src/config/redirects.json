@@ -424,6 +424,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1387/",
+      "destination": "/es/privacy-policy/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1687/",
       "destination": "/es/grant/fellowship/sheena-allen/",
       "status": 301
