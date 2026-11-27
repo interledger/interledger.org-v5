@@ -1173,6 +1173,11 @@
       "status": 301
     },
     {
+      "source": "/es/node/1600/",
+      "destination": "/es/blog/mexico-joins-interledger-network/",
+      "status": 301
+    },
+    {
       "source": "/es/node/1601/",
       "destination": "/es/blog/turning-headlines-backyard-conversations-lessons-2025-ofn-conference/",
       "status": 301
